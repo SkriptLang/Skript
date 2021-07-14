@@ -18,21 +18,14 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ScriptAliases;
 import ch.njol.skript.bukkitutil.CommandReloader;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptEvent;
@@ -43,8 +36,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.function.Function;
-import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.Language;
@@ -52,17 +43,15 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.structures.PreloadingStructure;
+import ch.njol.skript.structures.Structure;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.variables.TypeHints;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
@@ -88,6 +77,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -520,7 +510,7 @@ public class ScriptLoader {
 		
 		boolean wasLocal = Language.setUseLocal(false);
 		
-		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
+		callPreScriptLoadEvent(configs);
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
 		
@@ -566,7 +556,37 @@ public class ScriptLoader {
 				return scriptInfo;
 			});
 	}
-	
+
+	private static final WeakHashMap<SectionNode, PreloadingStructure> preloadedStructures = new WeakHashMap<>();
+
+	private static void callPreScriptLoadEvent(List<Config> configs) {
+		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
+
+		List<Integer> priorities = Skript.getPreloadingStructurePriorities();
+
+		for (int priority : priorities) {
+			// Preloading structure parsing
+			for (Config config : configs) {
+				getParser().setCurrentScript(config);
+				for (Node node : config.getMainNode()) {
+					if (!(node instanceof SectionNode))
+						continue;
+
+					SectionNode sectionNode = (SectionNode) node;
+					String key = sectionNode.getKey();
+
+					if (key == null || !SkriptParser.validateLine(key))
+						continue;
+
+					PreloadingStructure preloadingStructure = PreloadingStructure.parse(key, sectionNode, priority);
+					if (preloadingStructure != null)
+						preloadedStructures.put(sectionNode, preloadingStructure);
+				}
+				getParser().setCurrentScript(null);
+			}
+		}
+	}
+
 	/**
 	 * Represents data for event which is waiting to be loaded.
 	 */
@@ -586,7 +606,7 @@ public class ScriptLoader {
 			this.items = items;
 		}
 	}
-	
+
 	/**
 	 * Loads one script. Only for internal use, as this doesn't register/update
 	 * event handlers.
@@ -600,11 +620,11 @@ public class ScriptLoader {
 		}
 		
 		// When something is parsed, it goes there to be loaded later
-		List<ScriptCommand> commands = new ArrayList<>();
 		List<ParsedEventData> events = new ArrayList<>();
 		
 		// Track what is loaded
 		ScriptInfo scriptInfo = new ScriptInfo();
+		getParser().setScriptInfo(scriptInfo);
 		scriptInfo.files = 1; // Loading one script
 		
 		try {
@@ -625,121 +645,23 @@ public class ScriptLoader {
 					String event = node.getKey();
 					if (event == null)
 						continue;
-					
-					if (event.equalsIgnoreCase("aliases")) {
-						node.convertToEntries(0, "=");
-						
-						// Initialize and load script aliases
-						ScriptAliases aliases = Aliases.createScriptAliases();
-						Aliases.setScriptAliases(aliases);
-						aliases.parser.load(node);
-						continue;
-					} else if (event.equalsIgnoreCase("options")) {
-						node.convertToEntries(0);
-						for (Node n : node) {
-							if (!(n instanceof EntryNode)) {
-								Skript.error("invalid line in options");
-								continue;
-							}
-							getParser().getCurrentOptions().put(n.getKey(), ((EntryNode) n).getValue());
-						}
-						continue;
-					} else if (event.equalsIgnoreCase("variables")) {
-						// TODO allow to make these override existing variables
-						node.convertToEntries(0, "=");
-						for (Node n : node) {
-							if (!(n instanceof EntryNode)) {
-								Skript.error("Invalid line in variables section");
-								continue;
-							}
-							String name = n.getKey().toLowerCase(Locale.ENGLISH);
-							if (name.startsWith("{") && name.endsWith("}"))
-								name = "" + name.substring(1, name.length() - 1);
-							String var = name;
-							name = StringUtils.replaceAll(name, "%(.+)?%", m -> {
-								if (m.group(1).contains("{") || m.group(1).contains("}") || m.group(1).contains("%")) {
-									Skript.error("'" + var + "' is not a valid name for a default variable");
-									return null;
-								}
-								ClassInfo<?> ci = Classes.getClassInfoFromUserInput("" + m.group(1));
-								if (ci == null) {
-									Skript.error("Can't understand the type '" + m.group(1) + "'");
-									return null;
-								}
-								return "<" + ci.getCodeName() + ">";
-							});
-							if (name == null) {
-								continue;
-							} else if (name.contains("%")) {
-								Skript.error("Invalid use of percent signs in variable name");
-								continue;
-							}
-							if (Variables.getVariable(name, null, false) != null)
-								continue;
-							Object o;
-							ParseLogHandler log = SkriptLogger.startParseLogHandler();
-							try {
-								o = Classes.parseSimple(((EntryNode) n).getValue(), Object.class, ParseContext.SCRIPT);
-								if (o == null) {
-									log.printError("Can't understand the value '" + ((EntryNode) n).getValue() + "'");
-									continue;
-								}
-								log.printLog();
-							} finally {
-								log.stop();
-							}
-							ClassInfo<?> ci = Classes.getSuperClassInfo(o.getClass());
-							if (ci.getSerializer() == null) {
-								Skript.error("Can't save '" + ((EntryNode) n).getValue() + "' in a variable");
-								continue;
-							} else if (ci.getSerializeAs() != null) {
-								ClassInfo<?> as = Classes.getExactClassInfo(ci.getSerializeAs());
-								if (as == null) {
-									assert false : ci;
-									continue;
-								}
-								o = Converters.convert(o, as.getC());
-								if (o == null) {
-									Skript.error("Can't save '" + ((EntryNode) n).getValue() + "' in a variable");
-									continue;
-								}
-							}
-							Variables.setVariable(name, o, null, false);
-						}
-						continue;
-					}
-					
+
 					if (!SkriptParser.validateLine(event))
 						continue;
-					
-					if (event.toLowerCase().startsWith("command ")) {
-						
-						getParser().setCurrentEvent("command", CommandEvent.class);
-						
-						ScriptCommand c = Commands.loadCommand(node, false);
-						if (c != null) {
-							commands.add(c);
-							scriptInfo.commandNames.add(c.getName()); // For tab completion
-							scriptInfo.commands++;
-						}
-						
-						getParser().deleteCurrentEvent();
-						
-						continue;
-					} else if (event.toLowerCase().startsWith("function ")) {
-						
-						getParser().setCurrentEvent("function", FunctionEvent.class);
-						
-						Function<?> func = Functions.loadFunction(node);
-						if (func != null) {
-							scriptInfo.functions++;
-						}
-						
-						getParser().deleteCurrentEvent();
-						
+
+					Structure structure = preloadedStructures.remove(node);
+					if (structure != null) {
+						PreloadingStructure preloadingStructure = (PreloadingStructure) structure;
+						preloadingStructure.init(node);
+					} else {
+						structure = Structure.parse(event, node);
+					}
+
+					if (structure != null) {
+						getParser().getLoadedStructures().add(structure);
 						continue;
 					}
-					
+
 					if (Skript.logVeryHigh() && !Skript.debug())
 						Skript.info("loading trigger '" + event + "'");
 					
@@ -775,7 +697,7 @@ public class ScriptLoader {
 					Skript.info("loaded " + scriptInfo.triggers + " trigger" + (scriptInfo.triggers == 1 ? "" : "s")+ " and " + scriptInfo.commands + " command" + (scriptInfo.commands == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
 				
 				getParser().setCurrentScript(null);
-				Aliases.setScriptAliases(null); // These are per-script
+				getParser().getLoadedStructures().clear();
 			}
 		} catch (Exception e) {
 			//noinspection ThrowableNotThrown
@@ -793,12 +715,7 @@ public class ScriptLoader {
 				if (file != null)
 					unloadScript_(file);
 			}
-			
-			// Now, enable everything!
-			for (ScriptCommand command : commands) {
-				Commands.registerCommand(command);
-			}
-			
+
 			for (ParsedEventData event : events) {
 				getParser().setCurrentEvent("" + event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), event.info.getFirst().events);
 				getParser().setCurrentSkriptEvent(event.info.getSecond());
@@ -931,7 +848,7 @@ public class ScriptLoader {
 	@Nullable
 	public static Config loadStructure(InputStream source, String name) {
 		try {
-			Config config = new Config(
+			return new Config(
 				source,
 				name,
 				Skript.getInstance().getDataFolder().toPath().resolve(Skript.SCRIPTSFOLDER).resolve(name).toFile(),
@@ -939,58 +856,13 @@ public class ScriptLoader {
 				false,
 				":"
 			);
-			return loadStructure(config);
 		} catch (IOException e) {
 			Skript.error("Could not load " + name + ": " + ExceptionUtils.toString(e));
 		}
 		
 		return null;
 	}
-	
-	/**
-	 * Loads structure of given script, currently only for functions. Must be called before
-	 * actually loading that script.
-	 * @param config Config object for the script.
-	 */
-	@Nullable
-	public static Config loadStructure(Config config) {
-		try {
-			for (Node cnode : config.getMainNode()) {
-				if (!(cnode instanceof SectionNode)) {
-					// Don't spit error yet, we are only pre-parsing...
-					continue;
-				}
-				
-				SectionNode node = ((SectionNode) cnode);
-				String event = node.getKey();
-				if (event == null)
-					continue;
-				
-				if (!SkriptParser.validateLine(event))
-					continue;
-				
-				if (event.toLowerCase().startsWith("function ")) {
-					
-					getParser().setCurrentEvent("function", FunctionEvent.class);
-					
-					Functions.loadSignature(config.getFileName(), node);
-					
-					getParser().deleteCurrentEvent();
-				}
-			}
-			
-			getParser().setCurrentScript(null);
-			SkriptLogger.setNode(null);
-			return config;
-		} catch (Exception e) {
-			Skript.exception(e, "Could not load " + config.getFileName());
-		} finally {
-			SkriptLogger.setNode(null);
-		}
-		return null; // Oops something went wrong
-	}
-	
-	
+
 	/*
 	 * Script unloading methods
 	 */
@@ -1404,6 +1276,14 @@ public class ScriptLoader {
 	@Deprecated
 	public static Class<? extends Event>[] getCurrentEvents() {
 		return getParser().getCurrentEvents();
+	}
+
+	/**
+	 * This method has no functionality, it just returns its input.
+	 */
+	@Deprecated
+	public static Config loadStructure(Config config) {
+		return config;
 	}
 	
 }

@@ -18,14 +18,106 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.bukkitutil.BukkitUnsafe;
+import ch.njol.skript.bukkitutil.BurgerHelper;
+import ch.njol.skript.bukkitutil.Workarounds;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Comparator;
+import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.data.BukkitClasses;
+import ch.njol.skript.classes.data.BukkitEventValues;
+import ch.njol.skript.classes.data.DefaultComparators;
+import ch.njol.skript.classes.data.DefaultConverters;
+import ch.njol.skript.classes.data.DefaultFunctions;
+import ch.njol.skript.classes.data.JavaClasses;
+import ch.njol.skript.classes.data.SkriptClasses;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.hooks.Hook;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.PreloadingStructureInfo;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.log.BukkitLoggerFilter;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.ErrorDescLogHandler;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.log.Verbosity;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Comparators;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.structures.PreloadingStructure;
+import ch.njol.skript.structures.Structure;
+import ch.njol.skript.tests.runner.SkriptTestEvent;
+import ch.njol.skript.tests.runner.TestMode;
+import ch.njol.skript.tests.runner.TestTracker;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.update.ReleaseManifest;
+import ch.njol.skript.update.ReleaseStatus;
+import ch.njol.skript.update.UpdateManifest;
+import ch.njol.skript.util.EmptyStacktraceException;
+import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Task;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Closeable;
+import ch.njol.util.Kleenean;
+import ch.njol.util.NullableChecker;
+import ch.njol.util.OpenCloseable;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.CheckedIterator;
+import ch.njol.util.coll.iterator.EnumerationIterable;
+import com.google.gson.Gson;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,98 +144,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
-import ch.njol.skript.lang.Section;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
-import ch.njol.skript.bukkitutil.BurgerHelper;
-import ch.njol.skript.bukkitutil.Workarounds;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.data.BukkitClasses;
-import ch.njol.skript.classes.data.BukkitEventValues;
-import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.classes.data.DefaultConverters;
-import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.JavaClasses;
-import ch.njol.skript.classes.data.SkriptClasses;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.config.Config;
-import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.events.EvtSkript;
-import ch.njol.skript.hooks.Hook;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.log.BukkitLoggerFilter;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.ErrorDescLogHandler;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.log.Verbosity;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.tests.runner.SkriptTestEvent;
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.skript.tests.runner.TestTracker;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.skript.update.ReleaseManifest;
-import ch.njol.skript.update.ReleaseStatus;
-import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.variables.Variables;
-import ch.njol.util.Closeable;
-import ch.njol.util.Kleenean;
-import ch.njol.util.NullableChecker;
-import ch.njol.util.OpenCloseable;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.EnumerationIterable;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -466,7 +466,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		ChatMessages.registerListeners();
 		
 		try {
-			getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections");
+			getAddonInstance().loadClasses("ch.njol.skript",
+				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -1230,13 +1231,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		else
 			return a;
 	}
-	
+
 	// ================ CONDITIONS & EFFECTS & SECTIONS ================
 
-	private final static Collection<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(50);
-	private final static Collection<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(50);
-	private final static Collection<SyntaxElementInfo<? extends Statement>> statements = new ArrayList<>(100);
-	private final static Collection<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Statement>> statements = new ArrayList<>(100);
+	private static final Collection<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(50);
 
 	/**
 	 * registers a {@link Condition}.
@@ -1346,7 +1347,10 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	// ================ EVENTS ================
 	
-	private final static Collection<SkriptEventInfo<?>> events = new ArrayList<>(50);
+	private static final Collection<SkriptEventInfo<?>> events = new ArrayList<>(50);
+
+	private static final List<SyntaxElementInfo<? extends Structure>> normalStructures = new ArrayList<>(10);
+	private static final List<PreloadingStructureInfo<? extends PreloadingStructure>> preloadingStructures = new ArrayList<>(10);
 	
 	/**
 	 * Registers an event.
@@ -1358,11 +1362,10 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event> event, final String... patterns) {
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event> event, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, CollectionUtils.array(event));
+		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, CollectionUtils.array(event));
 		events.add(r);
 		return r;
 	}
@@ -1376,17 +1379,53 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event>[] events, final String... patterns) {
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event>[] events, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, events);
+		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, events);
 		Skript.events.add(r);
 		return r;
 	}
-	
+
+	public static <E extends Structure> void registerStructure(Class<E> c, String... patterns) {
+		if (PreloadingStructure.class.isAssignableFrom(c))
+			throw new IllegalArgumentException("Attempted to register a preloading structure using registerStructure instead of registerPreloadingStructure");
+
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		SyntaxElementInfo<E> structureInfo = new SyntaxElementInfo<>(patterns, c, originClassPath);
+		normalStructures.add(structureInfo);
+	}
+
+	public static <E extends PreloadingStructure> void registerPreloadingStructure(Class<E> c, int priority, String... patterns) {
+		if (!PreloadingStructure.class.isAssignableFrom(c))
+			throw new IllegalArgumentException("Attempted to register a normal structure using registerPreloadingStructure instead of registerStructure");
+
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		PreloadingStructureInfo<E> preloadingStructureInfo = new PreloadingStructureInfo<>(patterns, c, originClassPath, priority);
+		preloadingStructures.add(preloadingStructureInfo);
+	}
+
 	public static Collection<SkriptEventInfo<?>> getEvents() {
 		return events;
+	}
+
+	public static List<SyntaxElementInfo<? extends Structure>> getNormalStructures() {
+		return normalStructures;
+	}
+
+	public static List<PreloadingStructureInfo<? extends PreloadingStructure>> getPreloadingStructures() {
+		return preloadingStructures;
+	}
+
+	public static List<Integer> getPreloadingStructurePriorities() {
+		List<Integer> list = new ArrayList<>();
+		for (PreloadingStructureInfo<?> preloadingStructureInfo : preloadingStructures) {
+			list.add(preloadingStructureInfo.getPriority());
+		}
+		list.sort(Integer::compare);
+		return list;
 	}
 	
 	// ================ COMMANDS ================
