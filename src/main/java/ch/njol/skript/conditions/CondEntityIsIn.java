@@ -39,22 +39,23 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondEntityIsIn extends PropertyCondition<Entity> {
 	
 	static {
-		StringBuilder patterns = new StringBuilder("");
+		StringBuilder patterns = new StringBuilder();
 		if (Skript.methodExists(Entity.class, "isInWater"))
 			patterns.append("1¦water");
 		if (Skript.methodExists(Entity.class, "isInLava")) // All added at the same time + isInWater
 			patterns.append("|2¦lava|3¦bubble[ ]column|4¦rain");
 
-		register(CondEntityIsIn.class, PropertyType.BE, "in (" + patterns + ")", "entities");
+		if (patterns.length() > 0)
+			register(CondEntityIsIn.class, PropertyType.BE, "in (" + patterns + ")", "entities");
 	}
 
-	static final int IN_WATER = 1, IN_LAVA = 2, IN_BUBBLE_COLUMN = 3, IN_RAIN = 4;
+	private static final int IN_WATER = 1, IN_LAVA = 2, IN_BUBBLE_COLUMN = 3, IN_RAIN = 4;
 
 	private int mark;
 
 	@Override
 	@SuppressWarnings({"unchecked"})
-	public boolean init( Expression<?>[] exprs,  int matchedPattern,  Kleenean isDelayed,  ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Entity>) exprs[0]);
 		setNegated(matchedPattern == 1);
 		mark = parseResult.mark;
@@ -73,32 +74,24 @@ public class CondEntityIsIn extends PropertyCondition<Entity> {
 			case IN_RAIN:
 				return entity.isInRain();
 			default:
-				return false;
+				throw new IllegalStateException();
 		}
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return getCondName();
-	}
-
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "is in " + getCondName();
-	}
-
-	private String getCondName() {
 		switch (mark) {
 			case IN_WATER:
-				return "water";
+				return "in water";
 			case IN_LAVA:
-				return "lava";
+				return "in lava";
 			case IN_BUBBLE_COLUMN:
-				return "bubble column";
+				return "in bubble column";
 			case IN_RAIN:
-				return "rain";
+				return "in rain";
 			default:
-				return "unknown";
+				throw new IllegalStateException();
 		}
 	}
+
 }

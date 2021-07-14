@@ -44,4 +44,5 @@ public class CondIsWet extends PropertyCondition<Entity> {
 	protected String getPropertyName() {
 		return "wet";
 	}
+
 }
