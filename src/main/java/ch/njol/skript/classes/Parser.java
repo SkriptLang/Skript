@@ -41,22 +41,6 @@ public abstract class Parser<T> {
 	 * <p>
 	 * Remember to override {@link #canParse(ParseContext)} if this parser doesn't parse at all (i.e. you only use it's toString methods) or only parses for certain contexts.
 	 * 
-	 * @param s The String to parse. This string is already trim()med.
-	 * @param context Context of parsing, may not be null
-	 * @param pi Parser instance. Use {@link ParserInstance#submitErrorLog(ch.njol.skript.log.ParseLogHandler)} for your parse log handlers.
-	 * In case other methods (especially in SkriptParser) need that, just pass it to them.
-	 * @return The parsed input or null if the input is invalid for this parser.
-	 */
-	@Nullable
-	public T parse(String s, ParseContext context, ParserInstance pi) {
-		return parse(s, context); // For old code/simple code
-	}
-	
-	/**
-	 * Parses the input. This method may print an error prior to returning null if the input couldn't be parsed.
-	 * <p>
-	 * Remember to override {@link #canParse(ParseContext)} if this parser doesn't parse at all (i.e. you only use it's toString methods) or only parses for certain contexts.
-	 * 
 	 * Note that this method does not provide {@link ParserInstance}; you won't be able to use logging in multithreaded
 	 * parsing environment.
 	 * 
@@ -66,7 +50,7 @@ public abstract class Parser<T> {
 	 */
 	@Nullable
 	public T parse(String s, ParseContext context) {
-		throw new UnsupportedOperationException("Parsing not implemented (remember to override parse method)");
+		throw new UnsupportedOperationException("Parsing not implemented (remember to override parse method): " + getClass().getName());
 	}
 	
 	/**
