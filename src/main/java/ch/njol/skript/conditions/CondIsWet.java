@@ -25,10 +25,9 @@ import org.bukkit.entity.Entity;
 
 @Name("Is Wet")
 @Description("Checks whether an entity is wet or not (in water, rain or a bubble column).")
-@Examples({"player is wet"})
+@Examples("player is wet")
 @RequiredPlugins("Paper 1.16+")
 @Since("INSERT VERSION")
-
 public class CondIsWet extends PropertyCondition<Entity> {
 	
 	static {
@@ -37,9 +36,12 @@ public class CondIsWet extends PropertyCondition<Entity> {
 	}
 
 	@Override
-	public boolean check(Entity entity) { return entity.isInWaterOrRainOrBubbleColumn(); }
+	public boolean check(Entity entity) {
+		return entity.isInWaterOrRainOrBubbleColumn();
+	}
 
 	@Override
-	protected String getPropertyName() { return "wet"; }
-
+	protected String getPropertyName() {
+		return "wet";
+	}
 }

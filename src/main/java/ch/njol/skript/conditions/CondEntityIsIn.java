@@ -36,7 +36,6 @@ import org.eclipse.jdt.annotation.Nullable;
 		"player is in bubble column"})
 @RequiredPlugins("Minecraft 1.16+, Paper 1.16+ (rain, lava and bubble column)")
 @Since("INSERT VERSION")
-
 public class CondEntityIsIn extends PropertyCondition<Entity> {
 	
 	static {
@@ -49,17 +48,13 @@ public class CondEntityIsIn extends PropertyCondition<Entity> {
 		register(CondEntityIsIn.class, PropertyType.BE, "in (" + patterns + ")", "entities");
 	}
 
-	static final int
-			IN_WATER = 1,
-			IN_LAVA = 2,
-			IN_BUBBLE_COLUMN = 3,
-			IN_RAIN = 4;
+	static final int IN_WATER = 1, IN_LAVA = 2, IN_BUBBLE_COLUMN = 3, IN_RAIN = 4;
 
 	private int mark;
 
 	@Override
 	@SuppressWarnings({"unchecked"})
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init( Expression<?>[] exprs,  int matchedPattern,  Kleenean isDelayed,  ParseResult parseResult) {
 		setExpr((Expression<? extends Entity>) exprs[0]);
 		setNegated(matchedPattern == 1);
 		mark = parseResult.mark;
@@ -107,4 +102,3 @@ public class CondEntityIsIn extends PropertyCondition<Entity> {
 		}
 	}
 }
-
