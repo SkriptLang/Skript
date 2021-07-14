@@ -1306,6 +1306,28 @@ heal reasons:
 	wither: withering, withered, wither potion, a wither effect, wither effect, wither
 	wither_spawn: wither spawning, wither spawn, wither summoning, a wither summoning, a wither spawn, a wither spawning
 
+# -- BossBar --
+# -- BossBar Color --
+bossbar colors:
+	blue: blue
+	green: green
+	pink: pink
+	purple: purple
+	red: red
+	white: white
+	yellow: yellow
+# -- BossBar Flag --
+bossbar flags:
+	create_fog: create fog
+	darken_sky: darken sky, darken the sky
+	play_boss_music: play boss music, play the boss music
+# -- BossBar Style --
+bossbar styles:
+	segmented_10: 10 segment, 10 segments, 10 parts
+	segmented_12: 12 segment, 12 segments, 12 parts
+	segmented_20: 20 segment, 20 segments, 20 parts
+	segmented_6: 6 segment, 6 segments, 6 parts
+	solid: solid, rigid
 # -- Cat Types --
 cat types:
 	tabby: tabby

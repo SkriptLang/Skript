@@ -18,9 +18,12 @@
  */
 package ch.njol.skript.classes.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.boss.BossBar;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -346,6 +349,57 @@ public class DefaultChangers {
 					case RESET:
 						assert false;
 				}
+			}
+		}
+	};
+	public final static Changer<BossBar> bossbarChanger = new Changer<BossBar>() {
+		
+		@Nullable
+		@Override
+		public Class<?>[] acceptChange(ChangeMode mode) {
+			switch (mode) {
+				case REMOVE:
+				case DELETE:
+				case ADD:
+					return new Class[]{Player.class};
+				default:
+					return null;
+			}
+		}
+		
+		@Override
+		public void change(BossBar[] what, @Nullable Object[] delta, ChangeMode mode) {
+			switch (mode) {
+				case DELETE:
+					for (BossBar bossBar : what) {
+						if (bossBar instanceof KeyedBossBar) {
+							bossBar.removeAll();
+							bossBar.setVisible(false);
+							Bukkit.removeBossBar(((KeyedBossBar) bossBar).getKey());
+						} else {
+							bossBar.removeAll();
+							bossBar.setVisible(false);
+						}
+					}
+					break;
+				case ADD:
+					if (delta != null) {
+						for (BossBar bossBar : what) {
+							for (Object o : delta) {
+								bossBar.addPlayer((Player) o);
+							}
+						}
+					}
+					break;
+				case REMOVE:
+					if (delta != null) {
+						for (BossBar bossBar : what) {
+							for (Object o : delta) {
+								bossBar.removePlayer((Player) o);
+							}
+						}
+					}
+					break;
 			}
 		}
 	};
