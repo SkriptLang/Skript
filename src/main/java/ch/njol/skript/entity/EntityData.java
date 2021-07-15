@@ -30,13 +30,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -176,12 +171,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 					public String toVariableNameString(final EntityData o) {
 						return "entitydata:" + o.toString();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "entitydata:.+";
-					}
-				}).serializer(serializer));
+                }).serializer(serializer));
 	}
 	
 	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {

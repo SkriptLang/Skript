@@ -65,12 +65,7 @@ public class Money {
 					public String toVariableNameString(final Money o) {
 						return "money:" + o.amount;
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "money:-?\\d+(\\.\\d+)?";
-					}
-				})
+                })
 				.math(Money.class, new Arithmetic<Money, Money>() {
 					@Override
 					public Money difference(final Money first, final Money second) {
