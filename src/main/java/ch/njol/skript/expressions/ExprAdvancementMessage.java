@@ -69,7 +69,7 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 		Component message = ((PlayerAdvancementDoneEvent) e).message();
 		if (message == null)
 			return null;
-		return new String[] {Bukkit.getUnsafe().legacyComponentSerializer().serialize(message)};
+		return new String[] { Bukkit.getUnsafe().legacyComponentSerializer().serialize(message) };
 	}
 
 	@Override
