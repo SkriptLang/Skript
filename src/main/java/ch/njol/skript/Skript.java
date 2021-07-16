@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -56,6 +57,7 @@ import ch.njol.skript.lang.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -64,6 +66,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -177,6 +180,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static Skript instance = null;
 	
 	private static boolean disabled = false;
+	private static boolean partDisabled = false;
 	
 	public static Skript getInstance() {
 		final Skript i = instance;
@@ -285,9 +289,37 @@ public final class Skript extends JavaPlugin implements Listener {
 		// If nothing got triggered, everything is probably ok
 		return true;
 	}
+
+	private static final Set<Class<? extends Hook<?>>> disabledHookRegistrations = new HashSet<>();
+	private static boolean finishedLoadingHooks = false;
+
+	/**
+	 * Checks whether a hook has been enabled.
+	 * @param hook The hook to check.
+	 * @return Whether the hook is enabled.
+	 * @see #disableHookRegistration(Class[]) 
+	 */
+	public static boolean isHookEnabled(Class<? extends Hook<?>> hook) {
+		return !disabledHookRegistrations.contains(hook);
+	}
+
+	/**
+	 * Disables the registration for the given hook classes. If Skript has been enabled, this method
+	 * will throw an API exception. It should be used in something like {@link JavaPlugin#onLoad()}.
+	 * @param hooks The hooks to disable the registration of.
+	 * @see #isHookEnabled(Class)    
+	 */
+	@SafeVarargs
+	public static void disableHookRegistration(Class<? extends Hook<?>>... hooks) {
+		if (finishedLoadingHooks) { // Hooks have been registered if Skript is enabled
+			throw new SkriptAPIException("Disabling hooks is not possible after Skript has been enabled!");
+		}
+		Collections.addAll(disabledHookRegistrations, hooks);
+	}
 	
 	@Override
 	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(this, this);
 		if (disabled) {
 			Skript.error(m_invalid_reload.toString());
 			setEnabled(false);
@@ -463,7 +495,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 								try {
 									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook) {
+									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 										hook.getDeclaredConstructor().setAccessible(true);
 										hook.getDeclaredConstructor().newInstance();
 									}
@@ -472,7 +504,6 @@ public final class Skript extends JavaPlugin implements Listener {
 								} catch (final ExceptionInInitializerError err) {
 									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
 								}
-								continue;
 							}
 						}
 					}
@@ -480,6 +511,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
+				finishedLoadingHooks = true;
 				
 				Language.setUseLocal(false);
 				
@@ -972,79 +1004,92 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static void closeOnDisable(final Closeable closeable) {
 		closeOnDisable.add(closeable);
 	}
-	
+
+	@SuppressWarnings("unused")
+	@EventHandler
+	public void onPluginDisable(PluginDisableEvent event) {
+		Plugin plugin = event.getPlugin();
+		PluginDescriptionFile descriptionFile = plugin.getDescription();
+		if (descriptionFile.getDepend().contains("Skript") || descriptionFile.getSoftDepend().contains("Skript")) {
+			// An addon being disabled, check if server is being stopped
+			if (!isServerRunning()) {
+				beforeDisable();
+			}
+		}
+	}
+
+	private static final boolean IS_STOPPING_EXISTS;
+	@Nullable
+	private static Method IS_RUNNING;
+	@Nullable
+	private static Object MC_SERVER;
+
+	static {
+		IS_STOPPING_EXISTS = methodExists(Server.class, "isStopping");
+
+		if (!IS_STOPPING_EXISTS) {
+			Server server = Bukkit.getServer();
+			Class<?> clazz = server.getClass();
+
+			Method serverMethod;
+			try {
+				serverMethod = clazz.getMethod("getServer");
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+
+			try {
+				MC_SERVER = serverMethod.invoke(server);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+
+			try {
+				IS_RUNNING = MC_SERVER.getClass().getMethod("isRunning");
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	private boolean isServerRunning() {
+		if (IS_STOPPING_EXISTS)
+			return !Bukkit.getServer().isStopping();
+
+		try {
+			return (boolean) IS_RUNNING.invoke(MC_SERVER);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void beforeDisable() {
+		partDisabled = true;
+		EvtSkript.onSkriptStop(); // TODO [code style] warn user about delays in Skript stop events
+
+		ScriptLoader.disableScripts();
+	}
+
 	@Override
 	public void onDisable() {
 		if (disabled)
 			return;
 		disabled = true;
-		
-		EvtSkript.onSkriptStop(); // TODO [code style] warn user about delays in Skript stop events
-		
-		ScriptLoader.disableScripts();
+
+		if (!partDisabled) {
+			beforeDisable();
+		}
 		
 		Bukkit.getScheduler().cancelTasks(this);
 		
-		for (final Closeable c : closeOnDisable) {
+		for (Closeable c : closeOnDisable) {
 			try {
 				c.close();
 			} catch (final Exception e) {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
-		
-		// unset static fields to prevent memory leaks as Bukkit reloads the classes with a different classloader on reload
-		// async to not slow down server reload, delayed to not slow down server shutdown
-		final Thread t = newThread(new Runnable() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(10000);
-				} catch (final InterruptedException e) {}
-				try {
-					Field modifiers = null;
-					try {
-						modifiers = Field.class.getDeclaredField("modifiers");
-					} catch (final NoSuchFieldException ignored) { /* ignored */ }
-					if (modifiers != null) {
-						modifiers.setAccessible(true);
-					}
-					final JarFile jar = new JarFile(getFile());
-					try {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
-							if (e.getName().endsWith(".class")) {
-								try {
-									final Class<?> c = Class.forName(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()), false, getClassLoader());
-									for (final Field f : c.getDeclaredFields()) {
-										if (Modifier.isStatic(f.getModifiers()) && !f.getType().isPrimitive()) {
-											if (Modifier.isFinal(f.getModifiers()) && modifiers != null) {
-												modifiers.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-											}
-											if (!Modifier.isFinal(f.getModifiers())) {
-												f.setAccessible(true);
-												f.set(null, null);
-											}
-										}
-									}
-								} catch (final Throwable ex) {
-									if (testing())
-										ex.printStackTrace();
-								}
-							}
-						}
-					} finally {
-						jar.close();
-					}
-				} catch (final Throwable ex) {
-					if (testing())
-						ex.printStackTrace();
-				}
-			}
-		}, "Skript cleanup thread");
-		t.setPriority(Thread.MIN_PRIORITY);
-		t.setDaemon(true);
-		t.start();
 	}
 	
 	// ================ CONSTANTS, OPTIONS & OTHER ================

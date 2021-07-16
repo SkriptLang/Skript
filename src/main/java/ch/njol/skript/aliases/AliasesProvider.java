@@ -340,8 +340,7 @@ public class AliasesProvider {
 		return item;
 	}
 	
-	@Nullable
-	public AliasesMap.AliasData getAliasData(ItemData item) {
+	public AliasesMap.@Nullable AliasData getAliasData(ItemData item) {
 		AliasesMap.AliasData data = aliasesMap.matchAlias(item).getData();
 		if (data == null && parent != null) {
 			return parent.getAliasData(item);

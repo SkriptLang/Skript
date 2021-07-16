@@ -44,13 +44,7 @@ public class ParseLogHandler extends LogHandler {
 	}
 
 	boolean printedErrorOrLog = false;
-	
-	@Override
-	public void onStop() {
-		if (!printedErrorOrLog && Skript.testing())
-			SkriptLogger.LOGGER.warning("Parse log wasn't instructed to print anything at " + SkriptLogger.getCaller());
-	}
-	
+
 	@Override
 	public ParseLogHandler start() {
 		SkriptLogger.startLogHandler(this);
@@ -69,7 +63,13 @@ public class ParseLogHandler extends LogHandler {
 			e.discarded("cleared");
 		log.clear();
 	}
-	
+
+	public void clearError() {
+		if (error != null)
+			error.discarded("cleared");
+		error = null;
+	}
+
 	/**
 	 * Prints the retained log
 	 */

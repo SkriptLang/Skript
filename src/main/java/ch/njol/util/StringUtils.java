@@ -402,7 +402,7 @@ public abstract class StringUtils {
 	public static String replace(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {
 		if (caseSensitive)
 			return "" + haystack.replace(needle, replacement);
-		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), replacement);
+		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), Matcher.quoteReplacement(replacement));
 	}
 	
 	public static String replaceFirst(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {

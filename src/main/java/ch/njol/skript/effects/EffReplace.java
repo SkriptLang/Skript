@@ -106,7 +106,7 @@ public class EffReplace extends Effect {
 				for (int x = 0; x < haystack.length; x++)
 					for (final Object n : needles) {
 						assert n != null;
-						haystack[x] = StringUtils.replace((String)haystack[x], (String)n, Matcher.quoteReplacement((String)replacement), caseSensitive);
+						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
 					}
 			}
 			this.haystack.change(e, haystack, ChangeMode.SET);

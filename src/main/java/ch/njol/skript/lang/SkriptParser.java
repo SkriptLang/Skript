@@ -279,9 +279,17 @@ public class SkriptParser {
 		if (varPattern.matcher(expr).matches()) {
 			String variableName = "" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
 			boolean inExpression = false;
+			int variableDepth = 0;
 			for (char c : variableName.toCharArray()) {
-				if (c == '%')
+				if (c == '%' && variableDepth == 0)
 					inExpression = !inExpression;
+				if (inExpression) {
+					if (c == '{') {
+						variableDepth++;
+					} else if (c == '}')
+						variableDepth--;
+				}
+
 				if (!inExpression && (c == '{' || c == '}'))
 					return null;
 			}
@@ -364,7 +372,6 @@ public class SkriptParser {
 					return null;
 				}
 				log.clear();
-				log.printLog();
 				final LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -563,7 +570,6 @@ public class SkriptParser {
 					return null;
 				}
 				log.clear();
-				log.printLog();
 				final LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -670,12 +676,10 @@ public class SkriptParser {
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
 					log.clear();
-					log.printLog();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(types);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
 					log.clear();
-					log.printLog();
 					return (Expression<? extends T>) new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
@@ -721,56 +725,8 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			
-//			String lastExpr = expr;
-//			int end = expr.length();
-//			int expectedEnd = -1;
-//			boolean last = false;
-//			while (m.find() || (last = !last)) {
-//				if (expectedEnd == -1) {
-//					if (last)
-//						break;
-//					expectedEnd = m.start();
-//				}
-//				final int start = last ? 0 : m.end();
-//				final Expression<? extends T> t;
-//				if (context != ParseContext.COMMAND && (start < expr.length() && expr.charAt(start) == '(' || end - 1 > 0 && expr.charAt(end - 1) == ')')) {
-//					if (start < expr.length() && expr.charAt(start) == '(' && end - 1 > 0 && expr.charAt(end - 1) == ')' && next(expr, start, context) == end)
-//						t = new SkriptParser(lastExpr = "" + expr.substring(start + 1, end - 1), flags, context).parseExpression(types);
-//					else
-//						t = null;
-//				} else {
-//					t = new SkriptParser(lastExpr = "" + expr.substring(start, end), flags, context).parseSingleExpr(types);
-//				}
-//				if (t != null) {
-//					isLiteralList &= t instanceof Literal;
-//					if (!last && m.group(1) != null) {
-//						if (and.isUnknown()) {
-//							and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//						} else {
-//							if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//								Skript.warning(MULTIPLE_AND_OR);
-//								and = Kleenean.TRUE;
-//							}
-//						}
-//					}
-//					ts.addFirst(t);
-//					if (last)
-//						break;
-//					end = m.start();
-//					m.region(0, end);
-//				} else {
-//					log.clear();
-//					if (last)
-//						end = -2; // fails the test below
-//				}
-//			}
-//			if (end != expectedEnd) {
-//				log.printError("'" + lastExpr + "' " + Language.get("is") + " " + notOfType(types), ErrorQuality.NOT_AN_EXPRESSION);
-//				return null;
-//			}
-			
-			log.printLog();
+
+			log.clearError();
 			
 			if (ts.size() == 1)
 				return ts.get(0);
@@ -869,12 +825,10 @@ public class SkriptParser {
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
 					log.clear();
-					log.printLog();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(vi);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
 					log.clear();
-					log.printLog();
 					return new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
@@ -929,56 +883,8 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			
-//			String lastExpr = expr;
-//			int end = expr.length();
-//			int expectedEnd = -1;
-//			boolean last = false;
-//			while (m.find() || (last = !last)) {
-//				if (expectedEnd == -1) {
-//					if (last)
-//						break;
-//					expectedEnd = m.start();
-//				}
-//				final int start = last ? 0 : m.end();
-//				final Expression<? extends T> t;
-//				if (context != ParseContext.COMMAND && (start < expr.length() && expr.charAt(start) == '(' || end - 1 > 0 && expr.charAt(end - 1) == ')')) {
-//					if (start < expr.length() && expr.charAt(start) == '(' && end - 1 > 0 && expr.charAt(end - 1) == ')' && next(expr, start, context) == end)
-//						t = new SkriptParser(lastExpr = "" + expr.substring(start + 1, end - 1), flags, context).parseExpression(types);
-//					else
-//						t = null;
-//				} else {
-//					t = new SkriptParser(lastExpr = "" + expr.substring(start, end), flags, context).parseSingleExpr(types);
-//				}
-//				if (t != null) {
-//					isLiteralList &= t instanceof Literal;
-//					if (!last && m.group(1) != null) {
-//						if (and.isUnknown()) {
-//							and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//						} else {
-//							if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//								Skript.warning(MULTIPLE_AND_OR);
-//								and = Kleenean.TRUE;
-//							}
-//						}
-//					}
-//					ts.addFirst(t);
-//					if (last)
-//						break;
-//					end = m.start();
-//					m.region(0, end);
-//				} else {
-//					log.clear();
-//					if (last)
-//						end = -2; // fails the test below
-//				}
-//			}
-//			if (end != expectedEnd) {
-//				log.printError("'" + lastExpr + "' " + Language.get("is") + " " + notOfType(types), ErrorQuality.NOT_AN_EXPRESSION);
-//				return null;
-//			}
-			
-			log.printLog();
+
+			log.clearError();
 			
 			if (ts.size() == 1) {
 				return ts.get(0);
@@ -1011,111 +917,6 @@ public class SkriptParser {
 			log.stop();
 		}
 	}
-	
-//	@SuppressWarnings("unchecked")
-//	@Nullable
-//	private final Expression<?> parseObjectExpression() {
-//		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
-//		try {
-//			if ((flags & PARSE_EXPRESSIONS) != 0) {
-//				final Expression<?> r = new SkriptParser(expr, PARSE_EXPRESSIONS, context).parseSingleExpr(Object.class);
-//				if (r != null) {
-//					log.printLog();
-//					return r;
-//				}
-//				if ((flags & PARSE_LITERALS) == 0) {
-//					log.printError();
-//					return null;
-//				}
-//				log.clear();
-//			}
-//
-//			if ((flags & PARSE_LITERALS) != 0) {
-//				// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-//				final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-//				for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-//					final Expression<?> e = p.parseExpression(c);
-//					if (e != null) {
-//						log.printLog();
-//						return e;
-//					}
-//					log.clear();
-//				}
-//			}
-//		} finally {
-//			// log has been printed already or is not used after this (except for the error)
-//			log.clear();
-//			log.printLog();
-//		}
-//
-//		final Matcher m = listSplitPattern.matcher(expr);
-//		if (!m.find())
-//			return new UnparsedLiteral(expr, log.getError());
-//		m.reset();
-//
-//		final List<Expression<?>> ts = new ArrayList<Expression<?>>();
-//		Kleenean and = Kleenean.UNKNOWN;
-//		boolean last = false;
-//		boolean isLiteralList = true;
-//		int start = 0;
-//		while (!last) {
-//			final Expression<?> t;
-//			if (context != ParseContext.COMMAND && expr.charAt(start) == '(') {
-//				final int end = next(expr, start, context);
-//				if (end == -1)
-//					return null;
-//				last = end == expr.length();
-//				if (!last) {
-//					m.region(end, expr.length());
-//					if (!m.lookingAt())
-//						return null;
-//				}
-//				t = new SkriptParser("" + expr.substring(start + 1, end - 1), flags, context).parseObjectExpression();
-//			} else {
-//				m.region(start, expr.length());
-//				last = !m.find();
-//				final String sub = last ? expr.substring(start) : expr.substring(start, m.start());
-//				t = new SkriptParser("" + sub, flags, context).parseSingleExpr(Object.class);
-//			}
-//			if (t == null)
-//				return null;
-//			if (!last)
-//				start = m.end();
-//
-//			isLiteralList &= t instanceof Literal;
-//			if (!last && m.group(1) != null) {
-//				if (and.isUnknown()) {
-//					and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//				} else {
-//					if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//						Skript.warning(MULTIPLE_AND_OR);
-//						and = Kleenean.TRUE;
-//					}
-//				}
-//			}
-//			ts.add(t);
-//		}
-//		assert ts.size() >= 1 : expr;
-//		if (ts.size() == 1)
-//			return ts.get(0);
-//		if (and.isUnknown())
-//			Skript.warning(MISSING_AND_OR);
-//
-//		final Class<?>[] exprRetTypes = new Class[ts.size()];
-//		int i = 0;
-//		for (final Expression<?> t : ts)
-//			exprRetTypes[i++] = t.getReturnType();
-//
-//		if (isLiteralList) {
-//			final Literal<Object>[] ls = ts.toArray(new Literal[ts.size()]);
-//			assert ls != null;
-//			return new LiteralList<Object>(ls, (Class<Object>) Utils.getSuperType(exprRetTypes), !and.isFalse());
-//		} else {
-//			final Expression<Object>[] es = ts.toArray(new Expression[ts.size()]);
-//			assert es != null;
-//			return new ExpressionList<Object>(es, (Class<Object>) Utils.getSuperType(exprRetTypes), !and.isFalse());
-//		}
-//	}
 	
 	@SuppressWarnings("null")
 	private final static Pattern functionCallPattern = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");

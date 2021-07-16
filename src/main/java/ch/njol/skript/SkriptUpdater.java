@@ -53,6 +53,7 @@ public class SkriptUpdater extends Updater {
 	public final static ArgsMessage m_downloaded = new ArgsMessage("updater.downloaded");
 	public final static Message m_internal_error = new Message("updater.internal error");
 	public final static Message m_custom_version = new Message("updater.custom version");
+	public final static Message m_nightly = new Message("updater.nightly build");
 	
 	SkriptUpdater() {
 		super(loadManifest());
@@ -86,6 +87,9 @@ public class SkriptUpdater extends Updater {
 			switch (status) {
 				case CUSTOM:
 					Skript.info(sender, "" + m_custom_version);
+					break;
+				case DEVELOPMENT:
+					Skript.info(sender, "" + m_nightly);
 					break;
 				case LATEST:
 					Skript.info(sender, "" + m_running_latest_version);

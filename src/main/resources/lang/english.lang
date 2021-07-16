@@ -158,6 +158,7 @@ updater:
 	downloaded: The latest version of Skript has been downloaded! Restart the server or use /reload to apply the changes.
 	internal error: An internal error occurred while checking for the latest version of Skript. Please refer to the server log for details.
 	custom version: You're currently running a custom Skript version. No updates will be automatically installed.
+	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
 
 # -- Commands --
 commands:
@@ -394,6 +395,9 @@ biomes:
 	soul_sand_valley: soul sand valley
 	warped_forest: warped forest
 	basalt_deltas: basalt deltas
+	# 1.17 biomes
+	dripstone_caves: dripstone caves
+	lush_caves: lush caves
 
 # -- Tree Types --
 tree types:
@@ -1252,6 +1256,43 @@ entities:
 	piglin brute:
 		name: piglin brute¦s
 		pattern: <age> piglin brute(|1¦s)|(4¦)piglin brute (kid(|1¦s)|child(|1¦ren))
+	#1.17 entities
+	goat:
+		name: goat¦s
+		pattern: <age> goat(|1¦s)|(4¦)goat (kid(|1¦s)|child(|1¦ren))
+	screaming goat:
+		name: goat¦s
+		pattern: <age> screaming goat(|1¦s)|(4¦)screaming goat (kid(|1¦s)|child(|1¦ren))
+	quiet goat:
+		name: goat¦s
+		pattern: <age> quiet goat(|1¦s)|(4¦)quiet goat (kid(|1¦s)|child(|1¦ren))
+	glow squid:
+		name: glow squid¦s
+		pattern: glow squid(|1¦s)
+	axolotl:
+		name: axolotl¦s @an
+		pattern: <age> axolotl(|1¦s)|(4¦)axolotl (kid(|1¦s)|child(|1¦ren))
+	lucy axolotl:
+		name: axolotl¦s
+		pattern: <age> lucy axolotl(|1¦s)|(4¦)lucy axolotl (kid(|1¦s)|child(|1¦ren))
+	wild axolotl:
+		name: axolotl¦s
+		pattern: <age> wild axolotl(|1¦s)|(4¦)wild axolotl (kid(|1¦s)|child(|1¦ren))
+	gold axolotl:
+		name: axolotl¦s
+		pattern: <age> gold axolotl(|1¦s)|(4¦)gold axolotl (kid(|1¦s)|child(|1¦ren))
+	cyan axolotl:
+		name: axolotl¦s
+		pattern: <age> cyan axolotl(|1¦s)|(4¦)cyan axolotl (kid(|1¦s)|child(|1¦ren))
+	blue axolotl:
+		name: axolotl¦s
+		pattern: <age> blue axolotl(|1¦s)|(4¦)blue axolotl (kid(|1¦s)|child(|1¦ren))
+	marker:
+		name: marker¦s
+		pattern: marker(|1¦s)
+	glow item frame:
+		name: glow item frame¦s
+		pattern: glow item[ ]frame(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
@@ -1308,6 +1349,7 @@ damage causes:
 	hot_floor: magma, hot floor
 	cramming: cramming
 	dryout: dryout
+	freeze: freeze
 	custom: unknown, custom, plugin, a plugin
 
 # -- Teleport Causes --
@@ -1664,6 +1706,59 @@ visual effects:
 			name: white ash @-
 			pattern: white ash
 
+		# 1.17 particles
+		light:
+			name: light @-
+			pattern: light
+		#dust_color_transition:
+			#name: dust color transition @a
+			#pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-number%]
+		#vibration:
+			#name: vibration @a
+			#pattern: vibration
+		falling_spore_blossom:
+			name: falling spore blossom @-
+			pattern: falling spore blossom
+		spore_blossom_air:
+			name: spore blossom air @-
+			pattern: spore blossom air
+		small_flame:
+			name: small flame @-
+			pattern: small flame
+		snowflake:
+			name: snowflake @-
+			pattern: snowflake
+		dripping_dripstone_lava:
+			name: dripping dripstone lava @-
+			pattern: dripping dripstone lava
+		falling_dripstone_lava:
+			name: falling dripstone lava @-
+			pattern: falling dripstone lava
+		dripping_dripstone_water:
+			name: dripping dripstone water @-
+			pattern: dripping dripstone water
+		falling_dripstone_water:
+			name: falling dripstone water @-
+			pattern: falling dripstone water
+		glow_squid_ink:
+			name: glow squid ink @-
+			pattern: glow squid ink
+		glow:
+			name: glow @-
+			pattern: glow
+		wax_on:
+			name: wax on @-
+			pattern: wax on
+		wax_off:
+			name: wax off @-
+			pattern: wax off
+		electric_spark:
+			name: electric spark @-
+			pattern: electric spark
+		scrape:
+			name: scrape @-
+			pattern: scrape
+
 # -- Inventory Actions --
 inventory actions:
 	nothing: nothing, do nothing
@@ -1730,6 +1825,7 @@ inventory types:
 	grindstone: grindstone inventory
 	stonecutter: stonecutter inventory
 	smithing: smithing inventory
+	composter: composter inventory
 
 # -- Spawn Reasons --
 spawn reasons:
@@ -1742,6 +1838,7 @@ spawn reasons:
 	chunk_gen: chunk generation
 	cured: cured
 	custom: customized, customised, custom
+	command: command
 	default: default
 	dispense_egg: dispense egg, dispensing egg
 	drowned: drowned

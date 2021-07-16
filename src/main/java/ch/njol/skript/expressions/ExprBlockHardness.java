@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples({"set {_hard} to block hardness of target block",
 	"if block hardness of target block > 5:"})
 @RequiredPlugins("Minecraft 1.13+")
-@Since("INSERT VERSION")
+@Since("2.6")
 public class ExprBlockHardness extends SimplePropertyExpression<ItemType, Number> {
 
 	static {

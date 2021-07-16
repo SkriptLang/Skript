@@ -34,12 +34,14 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.bukkit.util.VoxelShape;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.block.BlockSoundGroup;
@@ -446,8 +448,19 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public @NotNull float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
+	public float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
 		return b.getDestroySpeed(itemStack, considerEnchants);
+	}
+
+	@Override
+	@NotNull
+	public VoxelShape getCollisionShape() {
+		return b.getCollisionShape();
+	}
+
+	@Override
+	public float getBreakSpeed(@NotNull Player player) {
+		return b.getBreakSpeed(player);
 	}
 
 }

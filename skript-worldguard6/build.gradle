@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 dependencies {
 	implementation rootProject
-	implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:1.1.0'
+	implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.2.600'
 	implementation 'com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT'
 	implementation 'com.sk89q:worldguard:6.1.1-SNAPSHOT'
 }
