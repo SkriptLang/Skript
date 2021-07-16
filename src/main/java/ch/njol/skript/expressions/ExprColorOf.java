@@ -51,7 +51,7 @@ import ch.njol.util.coll.CollectionUtils;
  * @author Peter Güttinger
  */
 @Name("Colour of")
-@Description("The <a href='../classes.html#color'>colour</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
+@Description("The <a href='classes.html#color'>colour</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
 @Examples({"on click on wool:",
 		"	message \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
 		"	set the colour of the block to black"})

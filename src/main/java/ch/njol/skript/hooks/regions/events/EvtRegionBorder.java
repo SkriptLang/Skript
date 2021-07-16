@@ -54,7 +54,7 @@ public class EvtRegionBorder extends SelfRegisteringSkriptEvent {
 		Skript.registerEvent("Region Enter/Leave", EvtRegionBorder.class, RegionBorderEvent.class,
 				"(0¦enter[ing]|1¦leav(e|ing)|1¦exit[ing]) [of] ([a] region|[[the] region] %-regions%)",
 				"region (0¦enter[ing]|1¦leav(e|ing)|1¦exit[ing])")
-				.description("Called when a player enters or leaves a <a href='../classes.html#region'>region</a>.",
+				.description("Called when a player enters or leaves a <a href='classes.html#region'>region</a>.",
 						"This event requires a supported regions plugin to be installed.")
 				.examples("on region exit:",
 						"	message \"Leaving %region%.\"")

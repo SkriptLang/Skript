@@ -42,7 +42,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Regions At")
-@Description({"All <a href='../classes.html#region'>regions</a> at a particular <a href='../classes/#location'>location</a>.",
+@Description({"All <a href='classes.html#region'>regions</a> at a particular <a href='classes/#location'>location</a>.",
 		"This expression requires a supported regions plugin to be installed."})
 @Examples({"On click on a sign:",
 		"	line 1 of the clicked block is \"[region info]\"",

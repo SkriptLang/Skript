@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Region Contains")
-@Description({"Checks whether a location is contained in a particular <a href='../classes.html#region'>region</a>.",
+@Description({"Checks whether a location is contained in a particular <a href='classes.html#region'>region</a>.",
 		"This condition requires a supported regions plugin to be installed."})
 @Examples({"player is in the region {regions::3}",
 		"on region enter:",

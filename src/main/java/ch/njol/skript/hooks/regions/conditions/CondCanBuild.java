@@ -41,7 +41,7 @@ import ch.njol.util.Kleenean;
  */
 @Name("Can Build")
 @Description({"Tests whether a player is allowed to build at a certain location.",
-		"This condition requires a supported <a href='../classes.html#region'>regions</a> plugin to be installed."})
+		"This condition requires a supported <a href='classes.html#region'>regions</a> plugin to be installed."})
 @Examples({"command /setblock <material>:",
 		"	description: set the block at your crosshair to a different type",
 		"	trigger:",

@@ -41,7 +41,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Region Members & Owners")
-@Description({"A list of members or owners of a <a href='../classes.html#region'>region</a>.",
+@Description({"A list of members or owners of a <a href='classes.html#region'>region</a>.",
 		"This expression requires a supported regions plugin to be installed."})
 @Examples({"on entering of a region:",
 		"	message \"You're entering %region% whose owners are %owners of region%\"."})
