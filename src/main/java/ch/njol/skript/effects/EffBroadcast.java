@@ -18,32 +18,38 @@
  */
 package ch.njol.skript.effects;
 
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
+import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Broadcast")
-@Description({"Broadcasts a message to the server. Only formatting options supported by console",
-		"(i.e. colors) are supported. If you need to use advanced chat formatting, send the",
-		"message to all players instead of broadcasting it."})
-@Examples({"broadcast \"Welcome %player% to the server!\"",
-		"broadcast \"Woah! It's a message!\""})
-@Since("1.0, 2.6 (broadcasting objects)")
+@Description("Broadcasts a message to the server. Only formatting options supported by console (i.e. colors) are supported.")
+@Examples({
+	"broadcast \"Welcome %player% to the server!\"",
+	"broadcast \"Woah! It's a message!\""
+})
+@Since("1.0, 2.6 (broadcasting objects), INSERT VERSION (using advanced formatting)")
 public class EffBroadcast extends Effect {
 
 	static {
@@ -57,30 +63,37 @@ public class EffBroadcast extends Effect {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		messages = LiteralUtils.defendExpression(exprs[0]);
 		worlds = (Expression<World>) exprs[1];
 		return LiteralUtils.canInitSafely(messages);
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public void execute(Event e) {
-		World[] worlds = this.worlds != null ? this.worlds.getArray(e) : null;
+		List<CommandSender> receivers = new ArrayList<>();
+		if (worlds == null) {
+			receivers.addAll(Bukkit.getOnlinePlayers());
+			receivers.add(Bukkit.getConsoleSender());
+		} else {
+			for (World world : worlds.getArray(e))
+				receivers.addAll(world.getPlayers());
+		}
 
-		for (Object object : messages.getArray(e)) {
-			String string = object instanceof String ? (String) object : Classes.toString(object);
-
-			if (worlds == null) {
-				// not Bukkit.broadcastMessage to ignore permissions
-				for (Player player : PlayerUtils.getOnlinePlayers()) {
-					player.sendMessage(string);
-				}
-				Bukkit.getConsoleSender().sendMessage(string);
-			} else {
-				for (World w : worlds) {
-					for (Player player : w.getPlayers()) {
-						player.sendMessage(string);
-					}
+		if (messages instanceof ExprColoured && ((ExprColoured) messages).isUnsafeFormat()) { // Manually marked as trusted
+			for (Object message : messages.getArray(e)) {
+				BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) message));
+				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
+			}
+		} else {
+			for (Object message : messages.getArray(e)) {
+				if (message instanceof VariableString) {
+					BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
+					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
+				} else {
+					String realMessage = message instanceof String ? (String) message : Classes.toString(message);
+					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
 				}
 			}
 		}
