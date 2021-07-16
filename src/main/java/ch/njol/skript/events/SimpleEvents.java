@@ -60,6 +60,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -606,6 +607,14 @@ public class SimpleEvents {
 					"\t\tcancel the event",
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
+		}
+		if (Skript.classExists("org.bukkit.event.player.PlayerAdvancementDoneEvent")) {
+			Skript.registerEvent("Advancement Completion", SimpleEvent.class, PlayerAdvancementDoneEvent.class, "advancement (completion|done|finish)")
+				.description("Called when a player completes an advancement")
+				.examples("on advancement completion:",
+					"\tsend \"You completed an advancement\" to player")
+				.requiredPlugins("Minecraft 1.12 or newer")
+				.since("INSERT VERSION");
 		}
 	}
 }
