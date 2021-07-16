@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -33,9 +28,12 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("View Distance")
 @Description("The view distance of a player. Can be changed.")
@@ -43,12 +41,12 @@ import ch.njol.util.coll.CollectionUtils;
 		"reset view distance of all players", "add 2 to view distance of player"})
 @RequiredPlugins("Paper 1.9-1.13.2")
 @Since("2.4")
-public class ExprPlayerViewDistance extends PropertyExpression<Player, Number> {
+public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	
 	static {
 		// Not supported on 1.14 yet
 		if (Skript.methodExists(Player.class, "getViewDistance") && !Skript.isRunningMinecraft(1, 14))
-			register(ExprPlayerViewDistance.class, Number.class, "view distance[s]", "players");
+			register(ExprPlayerViewDistance.class, Long.class, "view distance[s]", "players");
 	}
 	
 	@Override
@@ -59,13 +57,8 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Number> {
 	}
 	
 	@Override
-	protected Number[] get(Event e, Player[] source) {
-		return get(source, new Getter<Integer, Player>() {
-			@Override
-			public Integer get(Player arg) {
-				return arg.getViewDistance();
-			}
-		});
+	protected Long[] get(Event e, Player[] source) {
+		return get(source, player -> (long) player.getViewDistance());
 	}
 	
 	@Override
@@ -108,8 +101,8 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Number> {
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override

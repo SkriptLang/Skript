@@ -56,10 +56,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
-public class ExprProtocolVersion extends SimpleExpression<Number> {
+public class ExprProtocolVersion extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprProtocolVersion.class, Number.class, ExpressionType.SIMPLE, "[the] [(sent|required|fake)] protocol version [number]");
+		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [(sent|required|fake)] protocol version [number]");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -78,8 +78,8 @@ public class ExprProtocolVersion extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	public Number[] get(Event e) {
-		return CollectionUtils.array(((PaperServerListPingEvent) e).getProtocolVersion());
+	public Long[] get(Event e) {
+		return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getProtocolVersion());
 	}
 
 	@Override
@@ -106,8 +106,8 @@ public class ExprProtocolVersion extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

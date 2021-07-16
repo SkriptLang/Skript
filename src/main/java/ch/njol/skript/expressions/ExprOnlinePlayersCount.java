@@ -47,10 +47,10 @@ import ch.njol.util.coll.CollectionUtils;
 		"	# This will make the max players count 5 if there are 4 players online.",
 		"	set the fake max players count to (online players count + 1)"})
 @Since("2.3")
-public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
+public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprOnlinePlayersCount.class, Number.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprOnlinePlayersCount.class, Long.class, ExpressionType.PROPERTY,
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] [online] player (count|amount|number)",
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] (count|amount|number|size) of online players");
 	}
@@ -77,11 +77,11 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	public Number[] get(Event e) {
+	public Long[] get(Event e) {
 		if (isReal)
-			return CollectionUtils.array(PlayerUtils.getOnlinePlayers().size());
+			return CollectionUtils.array((long) PlayerUtils.getOnlinePlayers().size());
 		else
-			return CollectionUtils.array(((PaperServerListPingEvent) e).getNumPlayers());
+			return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getNumPlayers());
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

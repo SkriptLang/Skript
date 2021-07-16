@@ -45,34 +45,31 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 		"set the player's level to 0"})
 @Since("<i>unknown</i> (before 2.1)")
 @Events("level change")
-public class ExprLevel extends SimplePropertyExpression<Player, Integer> {
+public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	static {
-		register(ExprLevel.class, Integer.class, "level", "players");
+		register(ExprLevel.class, Long.class, "level", "players");
 	}
 	
 	@Override
-	protected Integer[] get(final Event e, final Player[] source) {
-		return super.get(source, new Converter<Player, Integer>() {
-			@Override
-			public Integer convert(final Player p) {
-				if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
-					return getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel();
-				}
-				return p.getLevel();
+	protected Long[] get(final Event e, final Player[] source) {
+		return super.get(source, p -> {
+			if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
+				return (long) (getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel());
 			}
+			return (long) p.getLevel();
 		});
 	}
 	
 	@Override
 	@Nullable
-	public Integer convert(final Player p) {
+	public Long convert(final Player p) {
 		assert false;
 		return null;
 	}
 	
 	@Override
-	public Class<Integer> getReturnType() {
-		return Integer.class;
+	public Class<Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override

@@ -44,10 +44,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"player's tool is a sword of sharpness:",
 		"	message \"You have a sword of sharpness %level of sharpness of the player's tool% equipped\""})
 @Since("2.0")
-public class ExprEnchantmentLevel extends SimpleExpression<Integer> {
+public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	
 	static {
-		Skript.registerExpression(ExprEnchantmentLevel.class, Integer.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprEnchantmentLevel.class, Long.class, ExpressionType.PROPERTY,
 				"[the] [enchant[ment]] level[s] of %enchantments% (on|of) %itemtypes%",
 				"[the] %enchantments% [enchant[ment]] level[s] (on|of) %itemtypes%",
 				"%itemtypes%'[s] %enchantments% [enchant[ment]] level[s]",
@@ -69,14 +69,15 @@ public class ExprEnchantmentLevel extends SimpleExpression<Integer> {
 	}
 	
 	@Override
-	protected Integer[] get(final Event e) {
+	protected Long[] get(final Event e) {
 		Enchantment[] enchantments = enchants.getArray(e);
 		return Stream.of(items.getArray(e))
 			.map(ItemType::getEnchantmentTypes)
 			.flatMap(Stream::of)
 			.filter(enchantment -> CollectionUtils.contains(enchantments, enchantment.getType()))
 			.map(EnchantmentType::getLevel)
-			.toArray(Integer[]::new);
+			.map(i -> (long) i)
+			.toArray(Long[]::new);
 	}
 	
 	@Override
@@ -85,8 +86,8 @@ public class ExprEnchantmentLevel extends SimpleExpression<Integer> {
 	}
 	
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Nullable

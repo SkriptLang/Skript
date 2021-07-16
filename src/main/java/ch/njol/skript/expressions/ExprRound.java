@@ -63,16 +63,12 @@ public class ExprRound extends PropertyExpression<Number, Long> {
 	
 	@Override
 	protected Long[] get(final Event e, final Number[] source) {
-		return get(source, new Converter<Number, Long>() {
-			@SuppressWarnings("null")
-			@Override
-			public Long convert(final Number n) {
-				if (n instanceof Integer)
-					return Long.valueOf(n.longValue());
-				else if (n instanceof Long)
-					return (Long) n;
-				return Long.valueOf(action == -1 ? Math2.floor(n.doubleValue()) : action == 0 ? Math2.round(n.doubleValue()) : Math2.ceil(n.doubleValue()));
-			}
+		return get(source, n -> {
+			if (n instanceof Integer)
+				return n.longValue();
+			else if (n instanceof Long)
+				return (Long) n;
+			return action == -1 ? Math2.floor(n.doubleValue()) : action == 0 ? Math2.round(n.doubleValue()) : Math2.ceil(n.doubleValue());
 		});
 	}
 	

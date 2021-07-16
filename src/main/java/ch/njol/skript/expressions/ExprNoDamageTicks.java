@@ -35,15 +35,15 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on damage:",
 		"	set victim's invulnerability ticks to 20 #Victim will not take damage for the next second"})
 @Since("2.5")
-public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Number> {
+public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
-		register(ExprNoDamageTicks.class, Number.class, "(invulnerability|no damage) tick[s]", "livingentities");
+		register(ExprNoDamageTicks.class, Long.class, "(invulnerability|no damage) tick[s]", "livingentities");
 	}
 
 	@Override
-	public Number convert(LivingEntity e) {
-		return e.getNoDamageTicks();
+	public Long convert(LivingEntity e) {
+		return (long) e.getNoDamageTicks();
 	}
 	
 	@Override
@@ -88,8 +88,8 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Nu
 	}
 	
 	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 }

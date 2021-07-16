@@ -36,18 +36,18 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The number of arrows stuck in a living entity.")
 @Examples("set arrows stuck in player to 5")
 @Since("2.5")
-public class ExprArrowsStuck extends SimplePropertyExpression<LivingEntity, Number> {
+public class ExprArrowsStuck extends SimplePropertyExpression<LivingEntity, Long> {
 
     static {
     	if (Skript.methodExists(LivingEntity.class, "getArrowsStuck")) {
-    		Skript.registerExpression(ExprArrowsStuck.class, Number.class, ExpressionType.PROPERTY,
+    		Skript.registerExpression(ExprArrowsStuck.class, Long.class, ExpressionType.PROPERTY,
     				"[number of] arrow[s] stuck in %livingentities%");
     	}
     }
 
     @Override
-    public Number convert(LivingEntity le) {
-        return le.getArrowsStuck();
+    public Long convert(LivingEntity le) {
+        return (long) le.getArrowsStuck();
     }
     
 	@Override
@@ -85,15 +85,15 @@ public class ExprArrowsStuck extends SimplePropertyExpression<LivingEntity, Numb
 			}
 		}
 	}
-	
-    @Override
-    protected String getPropertyName() {
-        return "arrows stuck";
-    }
 
     @Override
-    public Class<? extends Number> getReturnType() {
-        return Number.class;
+    public Class<? extends Long> getReturnType() {
+        return Long.class;
     }
+
+	@Override
+	protected String getPropertyName() {
+		return "arrows stuck";
+	}
 
 }

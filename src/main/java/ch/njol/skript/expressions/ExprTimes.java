@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import java.util.Iterator;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -38,10 +39,10 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 
 @NoDoc
-public class ExprTimes extends SimpleExpression<Number> {
+public class ExprTimes extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprTimes.class, Number.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprTimes.class, Long.class, ExpressionType.SIMPLE,
 				"%number% time[s]", "once", "twice");
 	}
 
@@ -84,22 +85,22 @@ public class ExprTimes extends SimpleExpression<Number> {
 
 	@Nullable
 	@Override
-	protected Number[] get(final Event e) {
-		Iterator<? extends Integer> iter = iterator(e);
+	protected Long[] get(final Event e) {
+		Iterator<? extends Long> iter = iterator(e);
 		if (iter == null) {
 			return null;
 		}
-		return Iterators.toArray(iter, Integer.class);
+		return Iterators.toArray(iter, Long.class);
 	}
 
 	@Nullable
 	@Override
-	public Iterator<? extends Integer> iterator(final Event e) {
+	public Iterator<? extends Long> iterator(final Event e) {
 		Number end = this.end.getSingle(e);
-		if (end == null) {
+		if (end == null)
 			return null;
-		}
-		return IntStream.range(1, end.intValue() + 1).iterator();
+
+		return LongStream.range(1, end.longValue() + 1).iterator();
 	}
 
 	@Override
@@ -108,12 +109,13 @@ public class ExprTimes extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return end.toString(e, debug) + " times";
 	}
+
 }

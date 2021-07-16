@@ -51,11 +51,11 @@ import ch.njol.util.coll.CollectionUtils;
 @Events("enchant prepare")
 @RequiredPlugins("1.9 or 1.10")
 @SuppressWarnings("deprecation")
-public class ExprEnchantmentExpCosts extends SimpleExpression<Number>{
+public class ExprEnchantmentExpCosts extends SimpleExpression<Long> {
 
 	static {
 		if (!Skript.isRunningMinecraft(1, 11)) { // This expression should only be usable on 1.9 and 1.10.
-			Skript.registerExpression(ExprEnchantmentExpCosts.class, Number.class, ExpressionType.SIMPLE,
+			Skript.registerExpression(ExprEnchantmentExpCosts.class, Long.class, ExpressionType.SIMPLE,
 					"[the] cost of (enchant[ment]s|enchant[ment] offers)",
 					"[the] cost of enchant[ment] [offer] %number%",
 					"enchant[ment] [offer] %number%'[s] cost",
@@ -83,23 +83,23 @@ public class ExprEnchantmentExpCosts extends SimpleExpression<Number>{
 		}
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
-	protected Number[] get(Event event) {
+	protected Long[] get(Event event) {
 		PrepareItemEnchantEvent e = (PrepareItemEnchantEvent) event;
 		if (multiple) {
 			return Arrays.stream(e.getExpLevelCostsOffered())
 					.boxed()
-					.toArray(Number[]::new);
+					.toArray(Long[]::new);
 		}
 		Number offerNumber = exprOfferNumber.getSingle(e);
 		if (offerNumber == null)
-			return new Number[]{};
+			return new Long[0];
 		int offer = offerNumber.intValue();
 		if (offer < 1 || offer > e.getExpLevelCostsOffered().length)
-			return new Number[]{};
-		return new Number[]{e.getExpLevelCostsOffered()[offer - 1]};
+			return new Long[0];
+		return new Long[] {(long) e.getExpLevelCostsOffered()[offer - 1]};
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class ExprEnchantmentExpCosts extends SimpleExpression<Number>{
 			return;
 		Object c = delta[0];
 		int cost = c instanceof Number ? ((Number) c).intValue() : ((Experience) c).getXP();
-		if (cost < 1) 
+		if (cost < 1)
 			return;
 		int offer = 0;
 		if (exprOfferNumber != null) {
@@ -180,8 +180,8 @@ public class ExprEnchantmentExpCosts extends SimpleExpression<Number>{
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
