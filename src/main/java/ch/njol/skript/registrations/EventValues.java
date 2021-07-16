@@ -276,11 +276,14 @@ public class EventValues {
 			boolean b = !ev.event.isAssignableFrom(e);
 			if (b && !e.isAssignableFrom(ev.event))
 				continue;
+			
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
+			if (getter == null)
+				continue;
+			
 			if (!checkExcludes(ev, e))
 				return null;
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
-			if (getter != null)
-				return getter;
+			return getter;
 		}
 		// If the check should try again matching event values with a 0 time (most event values).
 		if (allowDefault && time != 0)
