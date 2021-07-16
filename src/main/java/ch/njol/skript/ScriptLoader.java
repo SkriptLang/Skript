@@ -30,7 +30,6 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
-import ch.njol.skript.effects.Delay;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.ParseContext;
@@ -1133,8 +1132,6 @@ public class ScriptLoader {
 						Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
 
 					items.add(stmt);
-					if (stmt instanceof Delay)
-						getParser().setHasDelayBefore(Kleenean.TRUE);
 				}
 			} else if (n instanceof SectionNode) {
 				String expr = replaceOptions("" + n.getKey());

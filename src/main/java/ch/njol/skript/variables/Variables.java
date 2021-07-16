@@ -242,9 +242,6 @@ public abstract class Variables {
 	 */
 	final static VariablesMap variables = new VariablesMap();
 
-	/**
-	 * Not to be accessed outside of Bukkit's main thread!
-	 */
 	private final static Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
 	
 	/**
@@ -277,7 +274,6 @@ public abstract class Variables {
 
 	/**
 	 * Creates a copy of the VariablesMap for local variables in an event.
-	 * This method should only be accessed in Bukkit's main thread.
 	 * @param event The event to copy local variables from.
 	 * @return A VariablesMap copy for the local variables in an event.
 	 */

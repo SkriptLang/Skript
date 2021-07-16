@@ -77,10 +77,9 @@ public abstract class EffectSection extends Section {
 		sectionContext.sectionNode = sectionNode;
 		sectionContext.triggerItems = triggerItems;
 
-		List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(Skript.getSections());
-		sections.removeIf(info -> !EffectSection.class.isAssignableFrom(info.c)); // Only parse from EffectSections
-
-		return (EffectSection) SkriptParser.parse(expr, (Iterator) sections.iterator(), defaultError);
+		return (EffectSection) SkriptParser.parse(expr, (Iterator) Skript.getSections().stream()
+				.filter(info -> EffectSection.class.isAssignableFrom(info.c))
+				.iterator(), defaultError);
 	}
 
 }

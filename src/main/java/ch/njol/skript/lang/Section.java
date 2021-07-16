@@ -115,10 +115,9 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		Kleenean previousDelay = parser.getHasDelayBefore();
 
 		parser.setCurrentEvent(name, events);
-		parser.setCurrentSkriptEvent(null);
-		List<TriggerSection> sections = new ArrayList<>();
-		sections.add(this);
-		parser.setCurrentSections(sections);
+		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
+		parser.setCurrentSkriptEvent(skriptEvent);
+		parser.setCurrentSections(new ArrayList<>());
 		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
 
@@ -129,7 +128,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		parser.setHasDelayBefore(previousDelay);
 
 		Config script = parser.getCurrentScript();
-		return new Trigger(script != null ? script.getFile() : null, name, new FakeSkriptEvent(name), triggerItems);
+		return new Trigger(script != null ? script.getFile() : null, name, skriptEvent, triggerItems);
 	}
 
 	/**

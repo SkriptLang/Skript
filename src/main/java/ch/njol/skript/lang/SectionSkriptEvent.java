@@ -18,31 +18,42 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * To be used where a SkriptEvent may be needed, but no actual one exists.
- * @see Section#loadCode(SectionNode, String, Class[]) 
+ * To be used in sections that delay the execution of their code through a {@link Trigger}.
+ * @see Section#loadCode(SectionNode, String, Class[])
  */
-public class FakeSkriptEvent extends SkriptEvent {
+public class SectionSkriptEvent extends SkriptEvent {
 
 	private final String name;
+	private final Section section;
 
-	public FakeSkriptEvent(String name) {
+	public SectionSkriptEvent(String name, Section section) {
 		this.name = name;
+		this.section = section;
+	}
+
+	public Section getSection() {
+		return section;
+	}
+
+	public boolean isSection(Class<? extends Section> section) {
+		return section.isInstance(this.section);
 	}
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		return false;
+		throw new SkriptAPIException("init should never be called for a FakeSkriptEvent.");
 	}
 
 	@Override
 	public boolean check(Event e) {
-		return false;
+		throw new SkriptAPIException("check should never be called for a FakeSkriptEvent.");
 	}
 
 	@Override
