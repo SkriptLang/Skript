@@ -25,28 +25,25 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Is In")
+@Name("Entity is in liquid")
 @Description("Checks whether an entity is in rain, lava, water or a bubble column.")
-@Examples({"player is in rain",
-		"player is in water",
-		"player is in lava",
+@Examples({"if player is in rain:",
+		"if player is in water:",
+		"player is in lava:",
 		"player is in bubble column"})
-@RequiredPlugins("Minecraft 1.16+, Paper 1.16+ (rain, lava and bubble column)")
+@RequiredPlugins("Minecraft 1.16+ (in water), Paper 1.16+ (in rain, lava and bubble column)")
 @Since("INSERT VERSION")
-public class CondEntityIsIn extends PropertyCondition<Entity> {
+public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	
 	static {
 		StringBuilder patterns = new StringBuilder();
-		if (Skript.methodExists(Entity.class, "isInWater"))
+		if (Skript.methodExists(Entity.class, "isInWater")) {
 			patterns.append("1¦water");
-		if (Skript.methodExists(Entity.class, "isInLava")) // All added at the same time + isInWater
-			patterns.append("|2¦lava|3¦bubble[ ]column|4¦rain");
-
-		if (patterns.length() > 0)
-			register(CondEntityIsIn.class, PropertyType.BE, "in (" + patterns + ")", "entities");
+			if (Skript.methodExists(Entity.class, "isInLava")) // Paper - All added at the same time + isInWater
+				patterns.append("|2¦lava|3¦bubble[ ]column|4¦rain");
+			register(CondEntityIsInLiquid.class, PropertyType.BE, "in (" + patterns + ")", "entities");
+		}
 	}
 
 	private static final int IN_WATER = 1, IN_LAVA = 2, IN_BUBBLE_COLUMN = 3, IN_RAIN = 4;

@@ -23,16 +23,16 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Entity;
 
-@Name("Is Wet")
+@Name("Entity is Wet")
 @Description("Checks whether an entity is wet or not (in water, rain or a bubble column).")
-@Examples("player is wet")
+@Examples("if player is wet:")
 @RequiredPlugins("Paper 1.16+")
 @Since("INSERT VERSION")
-public class CondIsWet extends PropertyCondition<Entity> {
+public class CondEntityIsWet extends PropertyCondition<Entity> {
 	
 	static {
 		if (Skript.methodExists(Entity.class, "isInWaterOrRainOrBubbleColumn"))
-			register(CondIsWet.class, PropertyType.BE, "wet", "entities");
+			register(CondEntityIsWet.class, PropertyType.BE, "wet", "entities");
 	}
 
 	@Override
