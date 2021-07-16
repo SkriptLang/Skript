@@ -26,7 +26,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
-@Name("Entity is in liquid")
+@Name("Entity is in Liquid")
 @Description("Checks whether an entity is in rain, lava, water or a bubble column.")
 @Examples({"if player is in rain:",
 		"if player is in water:",
