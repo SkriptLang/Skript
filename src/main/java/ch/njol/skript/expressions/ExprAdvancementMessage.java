@@ -36,6 +36,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 import net.kyori.adventure.text.Component;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
