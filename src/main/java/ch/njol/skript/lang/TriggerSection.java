@@ -71,11 +71,12 @@ public abstract class TriggerSection extends TriggerItem {
 	protected void setTriggerItems(List<TriggerItem> items) {
 		if (!items.isEmpty()) {
 			first = items.get(0);
-			(last = items.get(items.size() - 1))
-					.setNext(getNext());
-		}
-		for (TriggerItem item : items) {
-			item.setParent(this);
+			last = items.get(items.size() - 1);
+			last.setNext(getNext());
+
+			for (TriggerItem item : items) {
+				item.setParent(this);
+			}
 		}
 	}
 	

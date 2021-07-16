@@ -62,6 +62,7 @@ public class Delay extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		getParser().setHasDelayBefore(Kleenean.TRUE);
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			long millis = ((Literal<Timespan>) duration).getSingle().getMilliSeconds();
