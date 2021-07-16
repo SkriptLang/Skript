@@ -42,18 +42,27 @@ public class SectionSkriptEvent extends SkriptEvent {
 		return section;
 	}
 
-	public boolean isSection(Class<? extends Section> section) {
+	public final boolean isSection(Class<? extends Section> section) {
 		return section.isInstance(this.section);
+	}
+
+	@SafeVarargs
+	public final boolean isSection(Class<? extends Section>... sections) {
+		for (Class<? extends Section> section : sections) {
+			if (isSection(section))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		throw new SkriptAPIException("init should never be called for a FakeSkriptEvent.");
+		throw new SkriptAPIException("init should never be called for a SectionSkriptEvent.");
 	}
 
 	@Override
 	public boolean check(Event e) {
-		throw new SkriptAPIException("check should never be called for a FakeSkriptEvent.");
+		throw new SkriptAPIException("check should never be called for a SectionSkriptEvent.");
 	}
 
 	@Override
