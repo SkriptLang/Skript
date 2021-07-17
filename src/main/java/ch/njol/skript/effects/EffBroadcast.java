@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.registrations.Classes;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Broadcast")
-@Description("Broadcasts a message to the server. Only formatting options supported by console (i.e. colors) are supported.")
+@Description("Broadcasts a message to the server.")
 @Examples({
 	"broadcast \"Welcome %player% to the server!\"",
 	"broadcast \"Woah! It's a message!\""
@@ -57,16 +58,20 @@ public class EffBroadcast extends Effect {
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> messages;
+	private Expression<?> messageExpr;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?>[] messages;
 	@Nullable
 	private Expression<World> worlds;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		messages = LiteralUtils.defendExpression(exprs[0]);
+		messageExpr = LiteralUtils.defendExpression(exprs[0]);
+		messages = messageExpr instanceof ExpressionList ?
+			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		worlds = (Expression<World>) exprs[1];
-		return LiteralUtils.canInitSafely(messages);
+		return LiteralUtils.canInitSafely(messageExpr);
 	}
 	
 	@Override
@@ -81,18 +86,18 @@ public class EffBroadcast extends Effect {
 				receivers.addAll(world.getPlayers());
 		}
 
-		if (messages instanceof ExprColoured && ((ExprColoured) messages).isUnsafeFormat()) { // Manually marked as trusted
-			for (Object message : messages.getArray(e)) {
-				BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) message));
+		for (Expression<?> message : messages) {
+			if (message instanceof VariableString) {
+				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-			}
-		} else {
-			for (Object message : messages.getArray(e)) {
-				if (message instanceof VariableString) {
-					BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
+			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
+				for (Object realMessage : message.getArray(e)) {
+					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-				} else {
-					String realMessage = message instanceof String ? (String) message : Classes.toString(message);
+				}
+			} else {
+				for (Object messageObject : message.getArray(e)) {
+					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
 					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
 				}
 			}
@@ -101,7 +106,7 @@ public class EffBroadcast extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "broadcast " + messages.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
+		return "broadcast " + messageExpr.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
 	}
 	
 }
