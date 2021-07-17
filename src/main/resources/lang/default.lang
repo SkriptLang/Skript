@@ -799,34 +799,34 @@ entities:
 		pattern: <age> any horse(|1¦s)|(4¦)foal(|1¦s)
 	llama:
 		name: llama¦s
-		pattern: llama(|1¦s)|llama (4¦)cria(|1¦s)
+		pattern: <age> llama(|1¦s)|<age> llama (4¦)cria(|1¦s)
 	creamy llama:
 		name: creamy llama¦s
-		pattern: creamy llama(|1¦s)|creamy llama (4¦)cria(|1¦s)
+		pattern: <age> creamy llama(|1¦s)|<age> creamy llama (4¦)cria(|1¦s)
 	white llama:
 		name: white llama¦s
-		pattern: white llama(|1¦s)|white llama (4¦)cria(|1¦s)
+		pattern: <age> white llama(|1¦s)|<age> white llama (4¦)cria(|1¦s)
 	brown llama:
 		name: brown llama¦s
-		pattern: brown llama(|1¦s)|brown llama (4¦)cria(|1¦s)
+		pattern: <age> brown llama(|1¦s)|<age> brown llama (4¦)cria(|1¦s)
 	gray llama:
 		name: gray llama¦s
-		pattern: gray llama(|1¦s)|gray llama (4¦)cria(|1¦s)
+		pattern: <age> gray llama(|1¦s)|<age> gray llama (4¦)cria(|1¦s)
 	trader llama:
 		name: trader llama¦s
-		pattern: trader llama(|1¦s)|trader llama (4¦)cria(|1¦s)
+		pattern: <age> trader llama(|1¦s)|<age> trader llama (4¦)cria(|1¦s)
 	creamy trader llama:
 		name: creamy trader llama¦s
-		pattern: creamy trader llama(|1¦s)|creamy trader llama (4¦)cria(|1¦s)
+		pattern: <age> creamy trader llama(|1¦s)|<age> creamy trader llama (4¦)cria(|1¦s)
 	white trader llama:
 		name: white trader llama¦s
-		pattern: white trader llama(|1¦s)|white trader llama (4¦)cria(|1¦s)
+		pattern: <age> white trader llama(|1¦s)|<age> white trader llama (4¦)cria(|1¦s)
 	brown trader llama:
 		name: brown trader llama¦s
-		pattern: brown trader llama(|1¦s)|brown trader llama (4¦)cria(|1¦s)
+		pattern: <age> brown trader llama(|1¦s)|<age> brown trader llama (4¦)cria(|1¦s)
 	gray trader llama:
 		name: gray trader llama¦s
-		pattern: gray trader llama(|1¦s)|gray trader llama (4¦)cria(|1¦s)
+		pattern: <age> gray trader llama(|1¦s)|<age> gray trader llama (4¦)cria(|1¦s)
 	llama spit:
 		name: llama spit¦s
 		pattern: llama spit(|1¦s)
@@ -892,58 +892,58 @@ entities:
 		pattern: area effect cloud(|1¦s)
 	husk:
 		name: husk¦s
-		pattern: husk(|1¦s)
+		pattern: <age> husk(|1¦s)
 	zombie villager:
 		name: zombie villager¦s
-		pattern: zombie villager(|1¦s)
+		pattern: <age> zombie villager(|1¦s)
 	zombie farmer:
 		name: zombie farmer¦s
-		pattern: zombie farmer(|1¦s)
+		pattern: <age> zombie farmer(|1¦s)
 	zombie librarian:
 		name: zombie librarian¦s
-		pattern: zombie librarian(|1¦s)
+		pattern: <age> zombie librarian(|1¦s)
 	zombie priest:
 		name: zombie priest¦s
-		pattern: zombie priest(|1¦s)
+		pattern: <age> zombie priest(|1¦s)
 	zombie blacksmith:
 		name: zombie blacksmith¦s
-		pattern: zombie blacksmith(|1¦s)
+		pattern: <age> zombie blacksmith(|1¦s)
 	zombie butcher:
 		name: zombie butcher¦s
-		pattern: zombie butcher(|1¦s)
+		pattern: <age> zombie butcher(|1¦s)
 	zombie nitwit:
 		name: zombie nitwit¦s
-		pattern: zombie nitwit(|1¦s)
+		pattern: <age> zombie nitwit(|1¦s)
 	zombie armorer:
 		name: zombie armorer¦s
-		pattern: zombie armorer(|1¦s)
+		pattern: <age> zombie armorer(|1¦s)
 	zombie cartographer:
 		name: zombie cartographer¦s
-		pattern: zombie cartographer(|1¦s)
+		pattern: <age> zombie cartographer(|1¦s)
 	zombie cleric:
 		name: zombie cleric¦s
-		pattern: zombie cleric(|1¦s)
+		pattern: <age> zombie cleric(|1¦s)
 	zombie fisherman:
 		name: zombie fisher¦man¦men
-		pattern: zombie fisherm(an|1¦en)
+		pattern: <age> zombie fisherm(an|1¦en)
 	zombie fletcher:
 		name: zombie fletcher¦s
-		pattern: zombie fletcher(|1¦s)
+		pattern: <age> zombie fletcher(|1¦s)
 	zombie leatherworker:
 		name: zombie leatherworker¦s
-		pattern: zombie leatherworker(|1¦s)
+		pattern: <age> zombie leatherworker(|1¦s)
 	zombie mason:
 		name: zombie mason¦s
-		pattern: zombie mason(|1¦s)
+		pattern: <age> zombie mason(|1¦s)
 	zombie shepherd:
 		name: zombie shepherd¦s
-		pattern: zombie shepherd(|1¦s)
+		pattern: <age> zombie shepherd(|1¦s)
 	zombie toolsmith:
 		name: zombie toolsmith¦s
-		pattern: zombie toolsmith(|1¦s)
+		pattern: <age> zombie toolsmith(|1¦s)
 	zombie weaponsmith:
 		name: zombie weaponsmith¦s
-		pattern: zombie weaponsmith(|1¦s)
+		pattern: <age> zombie weaponsmith(|1¦s)
 	evoker:
 		name: evoker¦s
 		pattern: evoker(|1¦s)
