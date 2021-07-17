@@ -47,7 +47,6 @@ import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.CountingLogHandler;
@@ -463,15 +462,12 @@ public class ScriptLoader {
 		
 		CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE).start();
 		try {
-			Language.setUseLocal(false);
-			
 			configs = loadStructures(scriptsFolder);
 		} finally {
 			logHandler.stop();
 		}
 		
 		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler))
-			.whenComplete((scriptInfo, throwable) -> Language.setUseLocal(true))
 			.thenAccept(scriptInfo -> {
 				// Success
 				if (logHandler.getCount() == 0)
@@ -517,9 +513,7 @@ public class ScriptLoader {
 	 */
 	public static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
 		AtomicBoolean syncCommands = new AtomicBoolean();
-		
-		boolean wasLocal = Language.setUseLocal(false);
-		
+    
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
@@ -546,10 +540,6 @@ public class ScriptLoader {
 		}
 		
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
-			.whenComplete((unused, throwable) -> {
-				if (wasLocal)
-					Language.setUseLocal(true);
-			})
 			.thenApply(unused -> {
 				SkriptEventHandler.registerBukkitEvents();
 				

@@ -40,10 +40,10 @@ public final class FormattedMessage extends Message {
 	@Override
 	public String toString() {
 		try {
-			final String val = getValue();
+			String val = getValue();
 			return val == null ? key : "" + String.format(val, args);
 		} catch (final IllegalFormatException e) {
-			final String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
+			String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
 			Skript.adminBroadcast("<red>" + m);
 			System.err.println("[Skript] " + m);
 			e.printStackTrace();

@@ -27,19 +27,19 @@ import ch.njol.util.StringUtils;
  */
 public class PluralizingArgsMessage extends Message {
 	
-	public PluralizingArgsMessage(final String key) {
+	public PluralizingArgsMessage(String key) {
 		super(key);
 	}
 	
-	public String toString(final Object... args) {
-		final String val = getValue();
+	public String toString(Object... args) {
+		String val = getValue();
 		if (val == null)
 			return key;
 		return format("" + String.format(val, args));
 	}
 	
-	public static String format(final String s) {
-		final StringBuilder b = new StringBuilder();
+	public static String format(String s) {
+		StringBuilder b = new StringBuilder();
 		int last = 0;
 		boolean plural = false;
 		for (int i = 0; i < s.length(); i++) {
@@ -47,10 +47,10 @@ public class PluralizingArgsMessage extends Message {
 				if (Math.abs(StringUtils.numberAfter(s, i)) != 1)
 					plural = true;
 			} else if (s.charAt(i) == '¦') {
-				final int c1 = s.indexOf('¦', i + 1);
+				int c1 = s.indexOf('¦', i + 1);
 				if (c1 == -1)
 					break;
-				final int c2 = s.indexOf('¦', c1 + 1);
+				int c2 = s.indexOf('¦', c1 + 1);
 				if (c2 == -1)
 					break;
 				b.append(s.substring(last, i));
