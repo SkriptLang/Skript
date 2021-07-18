@@ -20,6 +20,8 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -31,17 +33,17 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
 
-@Name("Item has Cooldown")
+@Name("Has Item Cooldown")
 @Description("Check whether a cooldown is active on the specified material for a specific player.")
 @Examples({"if player has item cooldown on player's tool:",
 	"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""})
 @Since("INSERT VERSION")
-public class CondItemHasCooldown extends Condition {
+public class CondHasItemCooldown extends Condition {
 
 	static {
-		Skript.registerCondition(CondItemHasCooldown.class, 
-			"%players% (has|have) [item] cooldown on %itemtypes%",
-			"%players% (doesn't|does not|do not|don't) have [item] cooldown on %itemtypes%");
+		Skript.registerCondition(CondHasItemCooldown.class, 
+			"%players% (has|have) [item] cooldown (on|for) %itemtypes%",
+			"%players% (doesn't|does not|do not|don't) have [item] cooldown (on|for) %itemtypes%");
 	}
 
 	private Expression<HumanEntity> players;
@@ -57,12 +59,14 @@ public class CondItemHasCooldown extends Condition {
 
 	@Override
 	public boolean check(Event e) {
-		return players.check(e, (p) -> itemtypes.check(e, (it) -> p.hasCooldown(it.getMaterial())));
+		return players.check(e, (p) -> 
+				itemtypes.check(e, (it) -> 
+						p.hasCooldown(it.getMaterial())));
 	}
 	
 	@Override
 	public String toString(Event e, boolean debug) {
-		return "player has item cooldown on " + itemtypes.toString(e, debug);
+		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, players, "item cooldown on " + itemtypes.toString(e, debug));
 	}
 
 }

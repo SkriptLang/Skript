@@ -56,7 +56,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<HumanEntity>) exprs[1];
 		itemtypes = (Expression<ItemType>) exprs[0];
 		return true;
@@ -64,7 +64,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	@Override
 	@SuppressWarnings("null")
-	protected Timespan[] get(final Event e) {
+	protected Timespan[] get(Event e) {
 		HumanEntity[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
 		if (players.length == 0 || itemtypes.length == 0)
@@ -87,11 +87,25 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) ? CollectionUtils.array(Timespan.class) : null; 
+		switch (mode) {
+			case SET:
+			case RESET:
+			case REMOVE:
+			case DELETE:
+			case ADD:
+				return CollectionUtils.array(Timespan.class);
+			default:
+				return null;
+		} 
 	}
 
 	@Override
 	public void change(Event e, Object[] delta, ChangeMode mode) {
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || !(delta[0] instanceof Timespan))) {
+			return;
+		}
+		
+		int timespan = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0;
 		HumanEntity[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
 		if (players.length == 0 || itemtypes.length == 0)
@@ -100,20 +114,28 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		switch (mode) {
 			case RESET:
 			case DELETE:
-				for (HumanEntity he : players) {
-					for (ItemType it : itemtypes) {
-						he.setCooldown(it.getMaterial(), 0);
-					}
-				}
-				break;
 			case SET:
-				assert delta[0] != null;
-				if (!(delta[0] instanceof Timespan))
-					return;
+				int finalResult = 0; // default to DELETE and RESET
+				if (mode == ChangeMode.SET)
+					finalResult = timespan;
 				
 				for (HumanEntity he : players) {
 					for (ItemType it : itemtypes) {
-						he.setCooldown(it.getMaterial(), (int) ((Timespan) delta[0]).getTicks_i());
+						he.setCooldown(it.getMaterial(), finalResult);
+					}
+				}
+				break;
+			case REMOVE:
+				for (HumanEntity he : players) {
+					for (ItemType it : itemtypes) {
+						he.setCooldown(it.getMaterial(), Math.max(he.getCooldown(it.getMaterial()) - timespan, 0));
+					}
+				}
+				break;
+			case ADD:
+				for (HumanEntity he : players) {
+					for (ItemType it : itemtypes) {
+						he.setCooldown(it.getMaterial(), he.getCooldown(it.getMaterial()) + timespan);
 					}
 				}
 				break;
@@ -124,7 +146,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 
 	@Override
 	public boolean isSingle() {
-		return false;
+		return players.isSingle() && itemtypes.isSingle();
 	}
 
 	@Override
@@ -133,7 +155,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "cooldown of " + itemtypes.toString(e, debug) + " for " + players.toString(e, debug);
 	}
 
