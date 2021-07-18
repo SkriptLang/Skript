@@ -20,7 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
@@ -34,26 +34,33 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
 
-@Name("All plugins")
-@Description("Gets a list of all currently loaded plugins.")
-@Examples({"if all plugins contains \"Vault\":",
-		"send \"Plugins (%size of all plugins%): %all plugins%\" to player"})
+
+@Name("Plugins")
+@Description("Returns a list of the server's loaded plugins.")
+@Examples({"if the plugins list contains \"Vault\":",
+		"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"})
 @Since("INSERT VERSION")
-public class ExprAllPlugins extends SimpleExpression<Plugin> {
+public class ExprPlugins extends SimpleExpression<String> {
 	
 	static {
-		Skript.registerExpression(ExprAllPlugins.class, Plugin.class, ExpressionType.SIMPLE, "all [loaded] plugins");
+		Skript.registerExpression(ExprPlugins.class, String.class, ExpressionType.SIMPLE, "[the] [loaded] plugins [list]");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
-	protected @Nullable Plugin[] get(Event e) {
-		return Bukkit.getPluginManager().getPlugins();
+	@Nullable
+	protected String[] get(Event e) {
+		ArrayList<String> plugins = new ArrayList<>();
+		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
+			plugins.add(p.getName());
+		}
+		return plugins.toArray(new String[0]);
 	}
 
 	@Override
@@ -62,13 +69,13 @@ public class ExprAllPlugins extends SimpleExpression<Plugin> {
 	}
 
 	@Override
-	public Class<? extends Plugin> getReturnType() {
-		return Plugin.class;
+	public Class<? extends String> getReturnType() {
+		return String.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "all plugins";
+		return "the loaded plugins";
 	}
 
 }
