@@ -36,6 +36,7 @@ public class MatchResult {
 	Expression<?>[] expressions = new Expression[0];
 	String expr;
 	int mark;
+	List<String> tags = new ArrayList<>();
 	List<java.util.regex.MatchResult> regexResults = new ArrayList<>();
 
 	// SkriptParser stuff
@@ -48,6 +49,7 @@ public class MatchResult {
 		matchResult.expressions = this.expressions.clone();
 		matchResult.expr = this.expr;
 		matchResult.mark = this.mark;
+		matchResult.tags = new ArrayList<>(this.tags);
 		matchResult.regexResults = new ArrayList<>(this.regexResults);
 		matchResult.parseContext = this.parseContext;
 		matchResult.flags = this.flags;
@@ -58,6 +60,7 @@ public class MatchResult {
 		ParseResult parseResult = new ParseResult(expr, expressions);
 		parseResult.regexes.addAll(regexResults);
 		parseResult.mark = mark;
+		parseResult.tags.addAll(tags);
 		return parseResult;
 	}
 
@@ -68,6 +71,7 @@ public class MatchResult {
 			", expressions=" + Arrays.toString(expressions) +
 			", expr='" + expr + '\'' +
 			", mark=" + mark +
+			", tags=" + tags +
 			", regexResults=" + regexResults +
 			", parseContext=" + parseContext +
 			", flags=" + flags +

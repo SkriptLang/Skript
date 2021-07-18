@@ -131,6 +131,7 @@ public class SkriptParser {
 		 * mark.
 		 */
 		public int mark = 0;
+		public List<String> tags = new ArrayList<>();
 		
 		public ParseResult(final SkriptParser parser, final String pattern) {
 			expr = parser.expr;
@@ -140,6 +141,10 @@ public class SkriptParser {
 		public ParseResult(String expr, Expression<?>[] expressions) {
 			this.expr = expr;
 			this.exprs = expressions;
+		}
+
+		public boolean hasTag(String tag) {
+			return tags.contains(tag);
 		}
 	}
 

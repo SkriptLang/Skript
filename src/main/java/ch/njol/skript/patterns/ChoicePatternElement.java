@@ -44,6 +44,10 @@ public class ChoicePatternElement extends PatternElement {
 		patternElements.add(patternElement);
 	}
 
+	public List<PatternElement> getPatternElements() {
+		return patternElements;
+	}
+
 	@Override
 	void setNext(@Nullable PatternElement next) {
 		super.setNext(next);

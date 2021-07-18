@@ -101,22 +101,24 @@ public class PatternCompiler {
 					choicePatternElement.add(prevFirst != null ? prevFirst : getEmpty());
 				}
 				choicePatternElement.add(getEmpty());
-			} else if (c == '¦') {
-				if (literalBuilder.length() == 0)
-					throw new MalformedPatternException(pattern, "empty parse mark at " + i);
-
-				String intString = literalBuilder.toString();
-				int mark;
-				try {
-					mark = Integer.parseInt(intString);
-				} catch (NumberFormatException e) {
-					throw new MalformedPatternException(pattern, "invalid parse mark at " + i, e);
-				}
+			} else if (c == '¦' || c == ':') {
+				String tag = literalBuilder.toString();
 				literalBuilder = new StringBuilder();
 
-				ParseMarkPatternElement parseMarkPatternElement = new ParseMarkPatternElement(mark);
+				ParseTagPatternElement parseTagPatternElement;
+				if (c == '¦') { // Old parse marks cannot be tags
+					int mark;
+					try {
+						mark = Integer.parseInt(tag);
+					} catch (NumberFormatException e) {
+						throw new MalformedPatternException(pattern, "invalid parse mark at " + i, e);
+					}
+					parseTagPatternElement = new ParseTagPatternElement(mark);
+				} else {
+					parseTagPatternElement = new ParseTagPatternElement(tag);
+				}
 
-				first = appendElement(first, parseMarkPatternElement);
+				first = appendElement(first, parseTagPatternElement);
 			} else if (c == '%') {
 				if (literalBuilder.length() != 0) {
 					first = appendElement(first, new LiteralPatternElement(literalBuilder.toString()));
