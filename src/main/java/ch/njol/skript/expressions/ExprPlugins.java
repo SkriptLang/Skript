@@ -45,7 +45,7 @@ import java.util.ArrayList;
 public class ExprPlugins extends SimpleExpression<String> {
 	
 	static {
-		Skript.registerExpression(ExprPlugins.class, String.class, ExpressionType.SIMPLE, "[the] [loaded] plugins [list]");
+		Skript.registerExpression(ExprPlugins.class, String.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] [loaded] plugins");
 	}
 
 	@Override
