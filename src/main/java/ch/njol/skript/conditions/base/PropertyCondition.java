@@ -151,6 +151,13 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		this.expr = expr;
 	}
 	
+	/**
+	 * @return The expression this condition checks the property of
+	 */
+	public final Expression<? extends T> getExpr() {
+		return expr;
+	}
+	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return toString(this, getPropertyType(), e, debug, expr, getPropertyName());
