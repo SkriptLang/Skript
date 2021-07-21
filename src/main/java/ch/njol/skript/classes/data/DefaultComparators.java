@@ -230,23 +230,9 @@ public class DefaultComparators {
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
 			public Relation compare(final ItemType i1, final ItemType i2) {
-				if (i1.isAll() != i2.isAll())
-					return Relation.NOT_EQUAL;
 				if (i1.getAmount() != i2.getAmount())
 					return Relation.NOT_EQUAL;
-				for (ItemData myType : i1.getTypes()) {
-					for (ItemData otherType : i2.getTypes()) {
-						if (myType.matchPlain(otherType)) {
-							return Relation.EQUAL;
-						}
-						boolean plain = myType.isPlain() != otherType.isPlain();
-						// Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
-						if (myType.matchAlias(otherType).isAtLeast(plain ? MatchQuality.EXACT : otherType.isAlias() && !myType.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM)) {
-							return Relation.EQUAL;
-						}
-					}
-				}
-				return Relation.NOT_EQUAL;
+				return Relation.get(i1.isSimilar(i2));
 			}
 			
 			@Override
