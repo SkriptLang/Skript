@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
 
+import ch.njol.skript.classes.Comparator.Relation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -916,6 +917,34 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		if (!types.equals(other.types))
 			return false;
 		return true;
+	}
+
+	/**
+	 * Compares two ItemTypes, ignoring stack size.
+	 * Please note that ItemTypes do not need to be EXACTLY the same outside of stack size for this method to return true.
+	 * Several factors influence the {@link MatchQuality} required for this method to return true.
+	 * For example, if the other ItemType is an alias and this one is not, the ItemTypes must only share a material.
+	 * In general though, this ItemType must have all of the qualities of the other ItemType. It may have
+	 * additional qualities that the other ItemType does not have though.
+	 * @param other The ItemType to compare with.
+	 * @return Whether this ItemType is similar to the other ItemType.
+	 */
+	public boolean isSimilar(ItemType other) {
+		if (isAll() != other.isAll())
+			return false;
+		for (ItemData myType : getTypes()) {
+			for (ItemData otherType : other.getTypes()) {
+				if (myType.matchPlain(otherType)) {
+					return true;
+				}
+				boolean plain = myType.isPlain() != otherType.isPlain();
+				// Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
+				if (myType.matchAlias(otherType).isAtLeast(plain ? MatchQuality.EXACT : otherType.isAlias() && !myType.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override

@@ -100,7 +100,12 @@ public class Comparators {
 		for (final ComparatorInfo<?, ?> info : comparators) {
 			if (info.c1.isAssignableFrom(f) && info.c2.isAssignableFrom(s)) {
 				return info.c;
-			} else if (info.c1.isAssignableFrom(s) && info.c2.isAssignableFrom(f)) {
+			}
+		}
+
+		// try to match to create an InverseComparator
+		for (final ComparatorInfo<?, ?> info : comparators) {
+			if (info.c1.isAssignableFrom(s) && info.c2.isAssignableFrom(f)) {
 				return new InverseComparator<F, S>((Comparator<? super S, ? super F>) info.c);
 			}
 		}
