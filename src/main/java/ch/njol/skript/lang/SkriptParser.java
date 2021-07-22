@@ -221,7 +221,12 @@ public class SkriptParser {
 					try {
 						final String pattern = info.patterns[i];
 						assert pattern != null;
-						final ParseResult res = parse_i(pattern, 0, 0);
+						ParseResult res;
+						try {
+							res = parse_i(pattern, 0, 0);
+						} catch (MalformedPatternException e) {
+							throw new RuntimeException("pattern compiling exception, element class: " + info.c.getName(), e);
+						}
 						if (res != null) {
 							int x = -1;
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {

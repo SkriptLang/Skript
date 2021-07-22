@@ -126,6 +126,8 @@ public class PatternCompiler {
 				}
 
 				int end = pattern.indexOf('%', i + 1);
+				if (end == -1)
+					throw new MalformedPatternException(pattern, "single percentage sign at " + i);
 				int exprOffset = expressionOffset.getAndIncrement();
 				TypePatternElement typePatternElement = TypePatternElement.fromString(pattern.substring(i + 1, end), exprOffset);
 
