@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.Location;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -53,7 +54,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
-		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities%]", "%locations/entities%'[s] world");
+		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
 	}
 	
 	@Override
@@ -84,6 +85,8 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				}
 				if (o instanceof Location)
 					return ((Location) o).getWorld();
+                                if (o instanceof Chunk)
+					return ((Chunk) o).getWorld();
 				assert false : o;
 				return null;
 			}
