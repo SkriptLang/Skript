@@ -85,7 +85,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				}
 				if (o instanceof Location)
 					return ((Location) o).getWorld();
-                                if (o instanceof Chunk)
+				if (o instanceof Chunk)
 					return ((Chunk) o).getWorld();
 				assert false : o;
 				return null;
