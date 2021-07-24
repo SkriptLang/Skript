@@ -57,7 +57,7 @@ import ch.njol.util.coll.CollectionUtils;
 			"",
 			"delete targeted entity",
 			"remove targeted entity # Same as DELETE"})
-@Since("<i>unknown</i> (before 2.1), INSERT VERSION (Reset, Delete)")
+@Since("<i>unknown</i> (before 2.1), INSERT VERSION (Reset, Removal)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
