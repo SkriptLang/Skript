@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -49,9 +50,14 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Target")
 @Description("For players this is the entity at the crosshair, while for mobs and experience orbs it represents the entity they are attacking/following (if any).")
 @Examples({"on entity target:",
-			"\tentity's target is a player",
-			"\tsend \"You're being followed by an %entity%!\" to target of entity"})
-@Since("<i>unknown</i> (before 2.1)")
+			"\tif entity's target is a player:",
+			"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
+			"",
+			"\treset target of entity # Makes the entity target-less",
+			"",
+			"delete targeted entity",
+			"remove targeted entity # Same as DELETE"})
+@Since("<i>unknown</i> (before 2.1), INSERT VERSION (Reset, Delete)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
@@ -62,22 +68,22 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	@Nullable
 	EntityData<?> type;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		type = exprs[matchedPattern] == null ? null : (EntityData<?>) exprs[matchedPattern].getSingle(null);
 		setExpr((Expression<? extends LivingEntity>) exprs[1 - matchedPattern]);
 		return true;
 	}
 	
 	@Override
-	protected Entity[] get(final Event e, final LivingEntity[] source) {
+	protected Entity[] get(Event e, LivingEntity[] source) {
 		return get(source, new Converter<LivingEntity, Entity>() {
 			@Override
 			@Nullable
-			public Entity convert(final LivingEntity en) {
+			public Entity convert(LivingEntity en) {
 				if (getTime() >= 0 && e instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					final Entity t = ((EntityTargetEvent) e).getTarget();
+					Entity t = ((EntityTargetEvent) e).getTarget();
 					if (t == null || type != null && !type.isInstance(t))
 						return null;
 					return t;
@@ -93,30 +99,36 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		if (e == null)
 			return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
 		return Classes.getDebugMessage(getAll(e));
 	}
 	
 	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		return super.setTime(time, EntityTargetEvent.class, getExpr());
 	}
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
-			return CollectionUtils.array(LivingEntity.class);
-		return super.acceptChange(mode);
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		switch (mode) {
+			case SET:
+			case RESET:
+			case DELETE:
+			case REMOVE:
+				return CollectionUtils.array(LivingEntity.class);
+		}
+		return null;
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
-			final LivingEntity target = delta == null ? null : (LivingEntity) delta[0];
-			for (final LivingEntity entity : getExpr().getArray(e)) {
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
+			LivingEntity target = (delta == null || mode == ChangeMode.RESET) ? null : (LivingEntity) delta[0]; // null will make the entity target-less (reset target)
+
+			for (LivingEntity entity : getExpr().getArray(e)) {
 				if (getTime() >= 0 && e instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
 					((EntityTargetEvent) e).setTarget(target);
 				} else {
@@ -124,9 +136,18 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 						((Creature) entity).setTarget(target);
 				}
 			}
+		} else if (mode == ChangeMode.DELETE || mode == ChangeMode.REMOVE) {
+			for (LivingEntity en : getExpr().getArray(e)) {
+				removeTarget(Utils.getTarget(en, type));
+			}
 		} else {
 			super.change(e, delta, mode);
 		}
+	}
+
+	private void removeTarget(@Nullable Entity e) {
+		if (e != null && !(e instanceof OfflinePlayer))
+			e.remove();
 	}
 	
 }
