@@ -51,7 +51,7 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprOnlinePlayersCount.class, Number.class, ExpressionType.PROPERTY,
-				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] [online] player (count|amount|number)",
+				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] [online] players (count|amount|number)",
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] (count|amount|number|size) of online players");
 	}
 
