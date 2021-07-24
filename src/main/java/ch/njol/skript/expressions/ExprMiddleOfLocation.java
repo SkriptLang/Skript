@@ -44,7 +44,10 @@ public class ExprMiddleOfLocation extends SimplePropertyExpression<Location, Loc
 	@Override
 	@Nullable
 	public Location convert(Location loc) {
-		return loc.toCenterLocation().subtract(0, 0.5, 0); // -0.5 from Y for smoother teleport
+        loc.setX(loc.getBlockX() + 0.5);
+        loc.setY(loc.getBlockY());
+        loc.setZ(loc.getBlockZ() + 0.5);
+		return loc;
 	}
 	
 	@Override
