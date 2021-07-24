@@ -152,7 +152,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 	
 	/**
-	 * @return The expression this condition checks the property of
+	 * @return The expression this condition checks the property of.
 	 */
 	public final Expression<? extends T> getExpr() {
 		return expr;
