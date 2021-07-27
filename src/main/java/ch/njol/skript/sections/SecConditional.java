@@ -74,6 +74,7 @@ public class SecConditional extends Section {
 
 			// Change event if using 'parse if'
 			if (parseIf) {
+				//noinspection unchecked
 				parser.setCurrentEvents(new Class[]{SkriptParseEvent.class});
 				parser.setCurrentEventName("parse");
 				parser.setCurrentSkriptEvent(null);
@@ -145,25 +146,37 @@ public class SecConditional extends Section {
 		return true;
 	}
 
+	@Override
+	@Nullable
+	public TriggerItem getNext() {
+		return getSkippedNext();
+	}
+
+	@Nullable
+	public TriggerItem getNormalNext() {
+		return super.getNext();
+	}
+
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
 		if (parseIf && !parseIfPassed) {
-			return getNext();
+			return getNormalNext();
 		} else if (type == ConditionalType.ELSE || parseIf || condition.check(e)) {
+			TriggerItem skippedNext = getSkippedNext();
 			if (last != null)
-				last.setNext(getSkippedNext());
-			return first != null ? first : getSkippedNext();
+				last.setNext(skippedNext);
+			return first != null ? first : skippedNext;
 		} else {
-			return getNext();
+			return getNormalNext();
 		}
 	}
 
 	@Nullable
 	private TriggerItem getSkippedNext() {
-		TriggerItem next = getNext();
+		TriggerItem next = getNormalNext();
 		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = next.getNext();
+			next = ((SecConditional) next).getNormalNext();
 		return next;
 	}
 
