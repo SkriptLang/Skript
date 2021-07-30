@@ -1618,7 +1618,7 @@ inventory actions:
 # -- Inventory Click Types --
 click types:
 	left: left mouse button, left mouse, LMB
-	shift_left: left mouse button with shift, left mouse with shift, Shift+RMB
+	shift_left: left mouse button with shift, left mouse with shift, Shift+LMB
 	right: right mouse button, right mouse, RMB
 	shift_right: right mouse button with shift, right mouse with shift, Shift+RMB
 	window_border_left: window border using right mouse button, window border using right mouse, border using LMB
