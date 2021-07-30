@@ -50,7 +50,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"world is \"world_nether\"",
 		"teleport the player to the world's spawn",
 		"set the weather in the player's world to rain",
-		"set {_world} to world of chunk at location of targeted entity"})
+		"set {_world} to world of event-chunk"})
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
@@ -88,6 +88,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				} else if (o instanceof Chunk) {
 					return ((Chunk) o).getWorld();
 				}
+				assert false : o;
 				return null;
 			}
 		});
