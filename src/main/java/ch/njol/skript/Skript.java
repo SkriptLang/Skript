@@ -490,24 +490,26 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Load hooks from Skript jar
 				try {
 					try (JarFile jar = new JarFile(getFile())) {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
+						for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
 							if (e.getName().startsWith("ch/njol/skript/hooks/") && e.getName().endsWith("Hook.class") && StringUtils.count("" + e.getName(), '/') <= 5) {
 								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 								try {
-									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
+									Class<?> hook = Class.forName(c, true, getClassLoader());
+									if (Hook.class.isAssignableFrom(hook) && (hook.getModifiers() & Modifier.ABSTRACT) == 0 && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 										hook.getDeclaredConstructor().setAccessible(true);
 										hook.getDeclaredConstructor().newInstance();
 									}
-								} catch (final ClassNotFoundException ex) {
+								} catch (ClassNotFoundException ex) {
 									Skript.exception(ex, "Cannot load class " + c);
-								} catch (final ExceptionInInitializerError err) {
+								} catch (ExceptionInInitializerError err) {
 									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
+								} catch (Exception ex) {
+									Skript.exception(ex, "Exception initializing hook: " + c);
 								}
 							}
 						}
 					}
-				} catch (final Exception e) {
+				} catch (IOException e) {
 					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
