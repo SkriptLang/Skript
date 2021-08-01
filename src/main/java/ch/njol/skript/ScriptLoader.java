@@ -496,7 +496,7 @@ public class ScriptLoader {
 				}
 				
 				if (scriptInfo.files == 0)
-					Skript.warning(m_no_scripts.toString());
+					Skript.warning(m_no_scripts.toString(), false);
 				if (Skript.logNormal() && scriptInfo.files > 0)
 					Skript.info(m_scripts_loaded.toString(
 						scriptInfo.files,

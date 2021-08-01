@@ -18,12 +18,11 @@
  */
 package ch.njol.skript.update;
 
-import java.util.concurrent.CompletableFuture;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.Task;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Extensible updater system. Note: starts disabled, must be enabled using
@@ -159,7 +158,7 @@ public abstract class Updater {
 					state = UpdaterState.ERROR;
 					// Avoid Skript.exception, because this is probably not Skript developers' fault
 					// It is much more likely that server has connection issues
-					Skript.error("Checking for updates failed. Do you have Internet connection?");
+					Skript.error("Checking for updates failed. Do you have Internet connection?", false);
 					e.printStackTrace();
 				}
 			}
