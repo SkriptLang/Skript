@@ -216,10 +216,11 @@ public class EffChange extends Effect {
 						return false;
 					}
 					log.clear();
+					log.stop();
 					final Class<?>[] r = new Class[rs.length];
 					for (int i = 0; i < rs.length; i++)
 						r[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
-					if (rs.length == 1 && rs[0] == Object.class)
+					if (r.length == 1 && r[0] == Object.class)
 						Skript.error("Can't understand this expression: " + changer, ErrorQuality.NOT_AN_EXPRESSION);
 					else if (mode == ChangeMode.SET)
 						Skript.error(what + " can't be set to " + changer + " because the latter is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
