@@ -150,29 +150,87 @@ public class Documentation {
 		}
 	}
 
-	private static String convertRegex(final String regex) {
+	private static String convertRegex(String regex, boolean escapeHTML) {
 		if (StringUtils.containsAny(regex, ".[]\\*+"))
 			Skript.error("Regex '" + regex + "' contains unconverted Regex syntax");
-		return escapeHTML("" + regex
-				.replaceAll("\\((.+?)\\)\\?", "[$1]")
-				.replaceAll("(.)\\?", "[$1]"));
+		regex = escapeHTML ? escapeHTML(regex) : regex;
+		return regex.replaceAll("\\((.+?)\\)\\?", "[$1]").replaceAll("(.)\\?", "[$1]");
+	}
+
+	private static String convertRegex(String regex) {
+		return convertRegex(regex, true);
 	}
 
 	protected static String cleanPatterns(final String patterns) {
-		String cleanedPatterns = escapeHTML(patterns) // escape HTML
-				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // remove marks
-				.replace("()", ""); // remove empty mark setting groups (mark¦)
+		return cleanPatterns(patterns, true);
+	}
 
-		int counter = 0;
-		while (cleanedPatterns.contains("|)") || cleanedPatterns.contains("(|")) { // Check for optional groups from inside and repeat to fix the outside
-			cleanedPatterns = cleanedPatterns.replaceAll("\\(([^()]+?)\\|\\)", "[($1)]"); // replace (a|b|) with [(a|b)] (in smaller groups)
-			cleanedPatterns = cleanedPatterns.replaceAll("\\(\\|(.+?)\\)(?!\\))", "[($1)]"); // replace (|a|b) with [(a|b)] (in smaller groups)
-			counter++;
-			if (counter > 30) // 30 is the failure because 30+ nested optional brackets is a bit weird to check for
-				break;
-		}
+	protected static String cleanPatterns(final String patterns, boolean escapeHTML) {
 
-		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // link & fancy types
+		String cleanedPatterns =
+				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
+				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
+				.replace("()", ""); // Remove empty mark setting groups (mark¦)
+
+		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
+			String group = m.group();
+
+			boolean startToEnd = group.contains("(|"); // Due to regex limitation we search from the beginning to the end but if it has '|)' we will begin from the opposite direction
+
+			int depth = 0;
+			int charIndex = 0;
+			char[] chars = group.toCharArray();
+			for (int i = (startToEnd ? 0 : chars.length - 1); (startToEnd ? i < chars.length : i >= 0); i = (startToEnd ? i+1 : i-1)) {
+				char c = chars[i];
+				if (c == ')') {
+					depth++;
+					if (startToEnd && depth == 0) { // Break if the nearest closing parentheses pair is found if startToEnd == true
+						charIndex = i;
+						break;
+					}
+				} else if (c == '(') {
+					depth--;
+					if (!startToEnd && depth == 0) { // Break if the nearest opening parentheses pair is found if startToEnd == false
+						charIndex = i;
+						break;
+					}
+				} else if (c == '\\') { // Escape escaping characters
+					i--;
+				}
+			}
+			if (depth == 0 && charIndex != 0) {
+				if (startToEnd) {
+					return "[" +
+						group.substring(0, charIndex)
+						.replace("(|", "") + // Ex. (|(t|y)) -> [(t|y)] & (|x(t|y)) -> [x(t|y)]
+						"]" +
+						group.substring(charIndex + 1, chars.length); // Restore the unchanged after part
+				}
+				else {
+					return group.substring(0, charIndex) + // Restore the unchanged before part
+						"[" +
+						group.substring(charIndex + 1, chars.length)
+						.replace("|)", "") + // Ex. ((t|y)|) -> [(t|y)] & ((t|y)x|) -> [(t|y)x]
+						"]";
+				}
+			} else {
+				return group;
+			}
+		};
+
+		cleanedPatterns = cleanedPatterns.replaceAll("\\(([^()]+?)\\|\\)", "[($1)]"); // Matches optional syntaxes that doesn't have nested parentheses
+		cleanedPatterns = cleanedPatterns.replaceAll("\\(\\|([^()]+?)\\)", "[($1)]");
+
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses at has nested parentheses
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+?)\\|\\)", callback);
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\(\\|(.+)\\)", callback);
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\(\\|(.+?)\\)", callback);
+		assert cleanedPatterns != null;
+
+		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // Convert %+?% (aka types) inside patterns to links
 			new Callback<String, Matcher>() {
 				@Override
 				public String run(final Matcher m) {
@@ -201,7 +259,7 @@ public class Documentation {
 							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
 						} else {
 							b.append(c);
-							if (ci != null && ci.getDocName() != ClassInfo.NO_DOC)
+							if (ci != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
 								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
 						}
 					}

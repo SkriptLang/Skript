@@ -254,7 +254,7 @@ public class HTMLGenerator {
 			while (generate != -1) {
 				int nextBracket = page.indexOf("}", generate);
 				String[] genParams = page.substring(generate + 11, nextBracket).split(" ");
-				String generated = "";
+				StringBuilder generated = new StringBuilder();
 				
 				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
 				String genType = genParams[0];
@@ -266,7 +266,7 @@ public class HTMLGenerator {
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
 						String desc = generateAnnotated(descTemp, info);
-						generated += desc;
+						generated.append(desc);
 					}
 				} else if (genType.equals("effects")) {
 					List<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(Skript.getEffects());
@@ -275,7 +275,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated += generateAnnotated(descTemp, info);
+						generated.append(generateAnnotated(descTemp, info));
 					}
 				} else if (genType.equals("conditions")) {
 					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(Skript.getConditions());
@@ -284,7 +284,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated += generateAnnotated(descTemp, info);
+						generated.append(generateAnnotated(descTemp, info));
 					}
 				} else if (genType.equals("events")) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
@@ -293,7 +293,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated += generateEvent(descTemp, info);
+						generated.append(generateEvent(descTemp, info));
 					}
 				} else if (genType.equals("classes")) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
@@ -302,18 +302,18 @@ public class HTMLGenerator {
 						if (ClassInfo.NO_DOC.equals(info.getDocName()))
 							continue;
 						assert info != null;
-						generated += generateClass(descTemp, info);
+						generated.append(generateClass(descTemp, info));
 					}
 				} else if (genType.equals("functions")) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
 					Collections.sort(functions, functionComparator);
 					for (JavaFunction<?> info : functions) {
 						assert info != null;
-						generated += generateFunction(descTemp, info);
+						generated.append(generateFunction(descTemp, info));
 					}
 				}
 				
-				page = page.replace(page.substring(generate, nextBracket + 1), generated);
+				page = page.replace(page.substring(generate, nextBracket + 1), generated.toString());
 				
 				generate = page.indexOf("${generate", nextBracket);
 			}
@@ -432,19 +432,19 @@ public class HTMLGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
 			//Skript.info("Pattern is " + pattern);
-			String patterns = "";
+			StringBuilder patterns = new StringBuilder();
 			for (String line : getNullOrEmptyDefault(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				//Skript.info("parsed is " + parsed);
-				patterns += parsed;
+				patterns.append(parsed);
 			}
 			
 			String toReplace = "${generate element.patterns " + split[1] + "}";
 			//Skript.info("toReplace " + toReplace);
-			desc = desc.replace(toReplace, patterns);
-			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.replace("\\", "\\\\"));
+			desc = desc.replace(toReplace, patterns.toString());
+			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.toString().replace("\\", "\\\\"));
 		}
 		
 		assert desc != null;
@@ -491,18 +491,18 @@ public class HTMLGenerator {
 		for (String data : toGen) {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
-			String patterns = "";
+			StringBuilder patterns = new StringBuilder();
 			for (String line : getNullOrEmptyDefault(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
-				patterns += parsed;
+				patterns.append(parsed);
 			}
 			
-			desc = desc.replace("${generate element.patterns " + split[1] + "}", patterns);
-			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.replace("\\", "\\\\"));
+			desc = desc.replace("${generate element.patterns " + split[1] + "}", patterns.toString());
+			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.toString().replace("\\", "\\\\"));
 		}
-		
+
 		assert desc != null;
 		return desc;
 	}
@@ -546,19 +546,19 @@ public class HTMLGenerator {
 		for (String data : toGen) {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
-			String patterns = "";
+			StringBuilder patterns = new StringBuilder();
 			String[] lines = getNullOrEmptyDefault(info.getUsage(), "Missing patterns.");
 			if (lines == null)
 				continue;
 			for (String line : lines) {
 				assert line != null;
-				line = cleanPatterns(line);
+				line = cleanPatterns(line, false);
 				String parsed = pattern.replace("${element.pattern}", line);
-				patterns += parsed;
+				patterns.append(parsed);
 			}
 			
-			desc = desc.replace("${generate element.patterns " + split[1] + "}", patterns);
-			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.replace("\\", "\\\\"));
+			desc = desc.replace("${generate element.patterns " + split[1] + "}", patterns.toString());
+			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.toString().replace("\\", "\\\\"));
 		}
 		
 		assert desc != null;
@@ -642,6 +642,13 @@ public class HTMLGenerator {
 	
 	private static String cleanPatterns(final String patterns) {
 		return Documentation.cleanPatterns(patterns);
+	}
+
+	private static String cleanPatterns(final String patterns, boolean escapeHTML) {
+		if (escapeHTML)
+			return Documentation.cleanPatterns(patterns);
+		else
+			return Documentation.cleanPatterns(patterns, false);
 	}
 
 	/**
