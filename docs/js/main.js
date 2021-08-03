@@ -39,15 +39,15 @@ if (noLeftPanel != null)
 
 // <> Magic Text
 function getRandomChar() {
-	chars = "ÂÃÉÊÐÑÙÚÛÜéêëãòóôēĔąĆćŇň1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()-=_+{}[";
-	return chars.charAt(Math.floor(Math.random() * chars.length) + 1)
+  chars = "ÂÃÉÊÐÑÙÚÛÜéêëãòóôēĔąĆćŇň1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()-=_+{}[";
+  return chars.charAt(Math.floor(Math.random() * chars.length) + 1)
 }
 
 function magicTextGen(element) {
   var msg = element.textContent;
-	var length = msg.length;
+  var length = msg.length;
 
-	setInterval(() => {
+  setInterval(() => {
     var newMsg = "";
     for (i = 0; i <= length; i++) {
       newMsg += getRandomChar(msg.charAt(i));
@@ -58,9 +58,9 @@ function magicTextGen(element) {
 }
 
 function renderMagicText() {
-	document.querySelectorAll('.magic-text').forEach( (e) => {
-		magicTextGen(e);
-	})
+  document.querySelectorAll('.magic-text').forEach((e) => {
+    magicTextGen(e);
+  })
 }
 renderMagicText();
 
@@ -68,7 +68,7 @@ renderMagicText();
 
 // <> Mobile anchor correction due to doubled size header)
 function offsetAnchor(event, element) {
-  if (window.innerWidth <= 768 ) {
+  if (window.innerWidth <= 768) {
     event.preventDefault();
     content = document.querySelectorAll("#content")[0];
     actualElement = document.getElementById(element.getAttribute("href").replace("#", ""));
@@ -82,3 +82,43 @@ document.querySelectorAll("#nav-contents a").forEach((e) => {
   });
 })
 // Mobile anchor correction </>
+
+// <> Anchor click copy link
+function copyToClipboard() {
+  setTimeout(() => {
+    var cb = document.body.appendChild(document.createElement("input"));
+    cb.value = window.location.href;
+    cb.focus();
+    cb.select();
+    document.execCommand('copy');
+    cb.parentNode.removeChild(cb);
+  }, 50)
+}
+function showNotification(text, bgColor, color) {
+  var noti = document.body.appendChild(document.createElement("span"));
+  noti.id = "notification-box";
+
+  setTimeout(() => {
+    noti.textContent = text;
+    if (bgColor)
+      noti.styles.backgroundColor = bgColor;
+    if (color)
+      noti.styles.backgroundColor = color;
+    noti.classList.add("activate-notification");
+    setTimeout(() => {
+      noti.classList.remove("activate-notification");
+      setTimeout(() => {
+        noti.parentNode.removeChild(noti);
+      }, 200);
+    }, 1500);
+  }, 50);
+}
+
+const currentPageLink = window.location.toString().replaceAll(/(.+?.html)(.*)/gi, '$1');
+document.querySelectorAll(".item-title > a").forEach((e) => {
+  e.addEventListener("click", (event) => {
+    copyToClipboard();
+    showNotification("✅ Link copied successfully.")
+  });
+})
+// Anchor click copy link </>
