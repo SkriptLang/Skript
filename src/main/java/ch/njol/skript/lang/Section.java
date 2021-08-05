@@ -42,17 +42,18 @@ import java.util.List;
  * or not the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
  * should not run it with this event passed in this walk method.
  * <br><br>
- * If you wish to run the section, you should return {@link TriggerSection#first} or {@link TriggerSection#walk(Event, boolean)}
- * where the boolean value is true. The walk method is likely preferred as it will verify that {@link TriggerSection#first} is not null,
- * and, if it is return {@link TriggerSection#getNext()} instead, meaning execution can continue.
- * <br><br>
- * If you do not wish to run this section, you should return {@link TriggerSection#getNext()} or {@link TriggerSection#walk(Event, boolean)}
- * where the boolean value is false. If you do run the section, the code after the section will be ran unless you are using a {@link Trigger}
- * from {@link #loadCode(SectionNode, String, Class[])}.
- * <br><br>
- * It is possible to run the section without a Trigger and not continue on by setting {@link TriggerItem#setNext(TriggerItem)} to null
- * using {@link TriggerSection#last}. It is recommend that you have a way for the code
- * after the section to eventually run, as to not leave users confused.
+ * In the walk method, it is recommended that you return {@link TriggerSection#walk(Event, boolean)}.
+ * This method is very useful, as it will handle most of the things you need to do.
+ * The boolean parameter for the method determines whether or not the section should run.
+ * If it is true, Skript will attempt to run the section's code if it has been loaded. If the section's code hasn't be loaded, Skript will behave as if false was passed.
+ * If it is false, Skript will just move onto the next syntax element after this section.
+ * So, if you are using a normal section and your code should run immediately, you should just return the result of this method with true for the parameter.
+ * However, in cases where you have loaded your code into a trigger using {@link #loadCode(SectionNode, String, Class[])}, it does not matter
+ * if true or false is passed, as the section's code was never actually loaded into the current trigger. Please note that this will result in
+ * all code after the section to run. If you wish to delay the entire execution, you should return <b>null</b> and Skript will not continue on.
+ * You should generally make sure that code after the section will run at some point though.
+ * Also note, that if you aren't returning the result of {@link TriggerSection#walk(Event, boolean)},
+ * you should probably call {@link TriggerSection#debug(Event, boolean)}. The boolean parameter should be false in most cases.
  *
  * @see Skript#registerSection(Class, String...)
  */

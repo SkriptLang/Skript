@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A section that may also be used as an effect,
+ * A {@link Section} that may also be used as an effect,
  * meaning there may be no section to parse.
  * <br><br>
  * When loading code, all EffectSections should first verify whether a section actually
