@@ -264,12 +264,17 @@ public abstract class Variables {
 	
 	/**
 	 * Sets local variables associated with given event.
+	 * If the given map is null, local variables for this event will be <b>removed</b> if they are present!
 	 * Warning: this can overwrite local variables!
 	 * @param event Event.
 	 * @param map New local variables.
 	 */
-	public static void setLocalVariables(Event event, Object map) {
-		localVariables.put(event, (VariablesMap) map);
+	public static void setLocalVariables(Event event, @Nullable Object map) {
+		if (map != null) {
+			localVariables.put(event, (VariablesMap) map);
+		} else {
+			removeLocals(event);
+		}
 	}
 
 	/**
