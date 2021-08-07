@@ -476,25 +476,7 @@ public class ScriptLoader {
 				// Success
 				if (logHandler.getCount() == 0)
 					Skript.info(m_no_errors.toString());
-				
-				// Now, make sure that old files that are no longer there are unloaded
-				// Only if this is done using async loading, though!
-				if (isAsync()) {
-					oldLoadedFiles.removeAll(loadedFiles);
-					for (File script : oldLoadedFiles) {
-						if (script == null)
-							throw new NullPointerException();
-						
-						// Use internal unload method which does not call validateFunctions()
-						unloadScript_(script);
-						String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
-							.resolve(Skript.SCRIPTSFOLDER).relativize(script.toPath()).toString();
-						assert name != null;
-						Functions.clearFunctions(name);
-					}
-					Functions.validateFunctions(); // Manually validate functions
-				}
-				
+
 				if (scriptInfo.files == 0)
 					Skript.warning(m_no_scripts.toString());
 				if (Skript.logNormal() && scriptInfo.files > 0)
@@ -786,14 +768,6 @@ public class ScriptLoader {
 		
 		// In always sync task, enable stuff
 		Callable<Void> callable = () -> {
-			// Unload script IF we're doing async stuff
-			// (else it happened already)
-			File file = config.getFile();
-			if (isAsync()) {
-				if (file != null)
-					unloadScript_(file);
-			}
-			
 			// Now, enable everything!
 			for (ScriptCommand command : commands) {
 				Commands.registerCommand(command);
@@ -822,8 +796,9 @@ public class ScriptLoader {
 				getParser().deleteCurrentEvent();
 				getParser().deleteCurrentSkriptEvent();
 			}
-			
+
 			// Remove the script from the disabled scripts list
+			File file = config.getFile();
 			File disabledFile = new File(file.getParentFile(), "-" + file.getName());
 			disabledFiles.remove(disabledFile);
 			
@@ -1056,9 +1031,7 @@ public class ScriptLoader {
 	 * @return Future of statistics of the newly loaded script.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScript(File script, OpenCloseable openCloseable) {
-		if (!isAsync()) {
-			unloadScript_(script);
-		}
+		unloadScript_(script);
 		Config config = loadStructure(script);
 		Functions.validateFunctions();
 		if (config == null)
@@ -1072,9 +1045,7 @@ public class ScriptLoader {
 	 * @return Future of statistics of newly loaded scripts.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
-		if (!isAsync()) {
-			unloadScripts_(folder);
-		}
+		unloadScripts_(folder);
 		List<Config> configs = loadStructures(folder);
 		Functions.validateFunctions();
 		return loadScripts(configs, openCloseable);
@@ -1240,8 +1211,7 @@ public class ScriptLoader {
 	 */
 	@Deprecated
 	static void loadScripts() {
-		if (!isAsync())
-			disableScripts();
+		disableScripts();
 		loadScripts(OpenCloseable.EMPTY).join();
 	}
 	
