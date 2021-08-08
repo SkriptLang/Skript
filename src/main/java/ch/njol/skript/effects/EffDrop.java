@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.effects;
 
+import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -94,7 +95,7 @@ public class EffDrop extends Effect {
 				if (o instanceof Experience) {
 					final ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
 					orb.setExperience(((Experience) o).getXP());
-					EffSpawn.lastSpawned = orb;
+					EffSecSpawn.lastSpawned = orb;
 				} else {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
