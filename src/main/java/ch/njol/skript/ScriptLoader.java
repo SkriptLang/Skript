@@ -31,7 +31,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
@@ -1117,22 +1116,14 @@ public class ScriptLoader {
 				if (!SkriptParser.validateLine(expr))
 					continue;
 
-				EffectSection section = EffectSection.parse(expr, null, null, null); // Try to parse this as an effect section first
-				if (section != null) {
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + section.toString(null, true));
+				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
+				if (stmt == null)
+					continue;
 
-					items.add(section);
-				} else { // Try to parse this as a statement instead
-					Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
-					if (stmt == null)
-						continue;
+				if (Skript.debug() || n.debug())
+					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
 
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
-
-					items.add(stmt);
-				}
+				items.add(stmt);
 			} else if (n instanceof SectionNode) {
 				String expr = replaceOptions("" + n.getKey());
 				if (!SkriptParser.validateLine(expr))
