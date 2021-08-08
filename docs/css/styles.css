@@ -27,9 +27,9 @@ body {
     background-color: oldlace;
     display: grid;
     /*
-  grid-template-rows: 100vh 100vh;
-  grid-template-columns: minmax(15em, 18em) minmax(80%, 100%);
-  */
+    grid-template-rows: 100vh 100vh;
+    grid-template-columns: minmax(15em, 18em) minmax(80%, 100%);
+    */
     grid-template-columns: 16vw 84vw;
     grid-template-rows: 55px 94vh;
     overflow: hidden;
@@ -64,7 +64,7 @@ a:visited {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-ul {
+.no-list-style {
     list-style: none;
 }
 
@@ -76,7 +76,7 @@ ul {
     top: 0em;
     background-color: #292929;
     padding: 15px;
-    z-index: 9999;
+    z-index: 100;
     bottom: 0px;
 }
 
@@ -106,6 +106,7 @@ ul {
     grid-column-end: 1;
     position: sticky;
     top: 60px;
+    height: max-content;
 }
 
 #nav-title {
@@ -123,9 +124,9 @@ ul {
     height: 35px;
     padding: 10px;
     padding-left: 25px;
-    z-index: 9999;
+    z-index: 50;
     transition: color 0.2s;
-    width: 14.1vw;
+    width: 100%;
 }
 
 #nav-title {
@@ -137,7 +138,7 @@ ul {
 }
 
 #nav-contents {
-    height: calc(97vh - 60px);
+    height: calc(100vh - 60px);
     /* Fix the TOP css of #side-nav */
     width: 100%;
     overflow: scroll;
@@ -175,9 +176,9 @@ ul {
     grid-column-start: 2;
     margin-left: 30px;
     position: relative;
-    top: 55px;
-    height: calc(97vh - 55px);
-    /* Fixed the TOP CSS 55px due to body having overflow hidden and top = 55px so the last 55px is hidden, this will fix it */
+    top: 110px;
+    height: calc(100vh - 110px);
+    /* Fixed the TOP CSS 110px due to body having overflow hidden and top = 110px so the last 110px is hidden, this will fix it */
     padding: 0.22em;
     padding-right: 30px;
     overflow-x: hidden;
@@ -185,6 +186,28 @@ ul {
 }
 
 #content.no-left-panel {
+    grid-column-start: 1;
+    grid-column-end: none;
+    padding: 0 8vw;
+    margin-left: unset;
+}
+
+#content-no-docs {
+    grid-row-start: 1;
+    grid-row-end: 1;
+    grid-column-start: 2;
+    margin-left: 30px;
+    position: relative;
+    top: 55px;
+    height: calc(100vh - 55px);
+    /* Fixed the TOP CSS 55px due to body having overflow hidden and top = 55px so the last 55px is hidden, this will fix it */
+    padding: 0.22em;
+    padding-right: 30px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#content-no-docs.no-left-panel {
     grid-column-start: 1;
     grid-column-end: none;
     padding: 0 8vw;
@@ -215,7 +238,7 @@ table {
 
 .item-title > a {
     text-decoration: none;
-    font-size: 80%;
+    font-size: 100%;
 }
 
 .item-content {
@@ -246,7 +269,7 @@ table {
 /* OVERRIDE */
 
 .item-content .item-details:nth-child(1) td:nth-child(1) {
-    background-color: #deb887;
+    background-color: rgba(185, 183, 180, .6);
 }
 
 .item-content .item-details:nth-child(1) td:nth-child(2) {
@@ -257,11 +280,11 @@ table {
 /* OVERRIDE */
 
 .item-content .item-details:nth-child(odd) .item-table-label {
-    background-color: #deb887;
+    background-color: rgba(185, 183, 180, .6);
 }
 
 .item-content .item-details:nth-child(even) .item-table-label {
-    background-color: rgba(222, 184, 135, 0.8);
+    background-color: rgba(181, 180, 178, 0.45);
 }
 
 .item-details {
@@ -274,7 +297,7 @@ table {
     /* 1n+2 will choose all elements excpet the first */
     padding: 8px;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(0,0,0,.65);
 }
 
 .noleftpad {
@@ -288,7 +311,7 @@ td ul {
 
 .item-description {
     padding: 15px;
-    background-color: rgba(234, 204, 166, 0.4);
+    background-color: rgba(217, 211, 204, 0.4);
 }
 
 .item-description > p {
@@ -338,7 +361,7 @@ td ul {
 .box {
     border-left: 3px solid #ff9800;
     padding: 15px;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.1) !important;
     margin-bottom: 10px;
 }
 
@@ -365,7 +388,7 @@ td ul {
     }
 
     #nav-contents {
-        margin-top: 110px;
+        margin-top: 100px;
     }
 
     #content {
@@ -392,14 +415,6 @@ td ul {
         padding-bottom: 0.1em;
     }
 
-    #nav-title {
-        display: none;
-    }
-
-    #side-nav {
-        top: 0;
-    }
-
     #nav-contents > a {
         font-size: 12px;
     }
@@ -409,6 +424,10 @@ td ul {
     }
     .item-table-label {
         width: 5em;
+    }
+
+    #search-bar {
+        top: calc(4.1em + 24px) !important;
     }
 }
 
@@ -421,14 +440,6 @@ td ul {
         padding: 10px;
         padding-top: 0.1em;
         padding-bottom: 0.1em;
-    }
-
-    #nav-title {
-        display: none;
-    }
-
-    #side-nav {
-        top: 0;
     }
 }
 
@@ -460,8 +471,8 @@ td ul {
         display: none;
     }
 
-    #side-nav {
-        top: 0;
+    #search-bar {
+        left: 20% !important;
     }
 }
 
@@ -521,7 +532,6 @@ ol.custom-list li::before {
 
 code {
     font-family: "Source Code Pro", monospace;
-    font-weight: bold;
 }
 
 pre {
@@ -548,4 +558,60 @@ pre {
 .activate-notification {
   opacity: 1 !important;
   transform: translateY(-20px);
+}
+
+.grid-container {
+  width: 100%;
+  display: inline-grid;
+  grid-template-columns: calc(33% - 1.7%) calc(33% - 1.7%) calc(33% - 1.7%);
+  grid-column-gap: 3%;
+  overflow: hidden;
+}
+
+.link {
+  display: inline-block;
+}
+
+.padding {
+    padding: 32px 0;
+}
+
+.bottom-padding {
+    padding-bottom: 32px;
+}
+
+.bottom-padding {
+    padding-bottom: 32px;
+}
+
+.top-padding {
+    padding-top: 32px;
+}
+
+.top-padding-2 {
+    padding-top: 64px;
+}
+
+#search-bar {
+    padding: 12px;
+    border: none;
+    font-size: 18px;
+    position: fixed;
+    background: white;
+    width: calc(100% - 5px); /* -5px for the scrollbar */
+    left: 16vw;
+    top: 55px;
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
+}
+
+#search-bar:focus {
+    outline: none;
+}
+
+.pre {
+    white-space: pre;
+}
+
+.pre-wrap {
+    white-space: pre-wrap;
 }

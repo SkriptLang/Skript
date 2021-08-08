@@ -21,12 +21,11 @@ package ch.njol.skript.doc;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.base.Joiner;
@@ -221,41 +220,42 @@ public class HTMLGenerator {
 				continue;
 			if (f.getName().endsWith("template.html") || f.getName().endsWith(".md"))
 				continue; // Ignore skeleton and README
-			
+
 			Skript.info("Creating documentation for " + f.getName());
-			
+
 			String content = readFile(f);
 			String page;
 			if (f.getName().endsWith(".html"))
 				page = skeleton.replace("${content}", content); // Content to inside skeleton
 			else // Not HTML, so don't even try to use template.html
 				page = content;
-			
+
 			page = page.replace("${skript.version}", Skript.getVersion().toString()); // Skript version
+			page = page.replace("${skript.build.date}", new SimpleDateFormat("dd/MM/yyyy").format(new Date())); // Build date
 			page = page.replace("${pagename}", f.getName().replace(".html", ""));
-			
+
 			List<String> replace = Lists.newArrayList();
 			int include = page.indexOf("${include"); // Single file includes
 			while (include != -1) {
 				int endIncl = page.indexOf("}", include);
 				String name = page.substring(include + 10, endIncl);
 				replace.add(name);
-				
+
 				include = page.indexOf("${include", endIncl);
 			}
-			
+
 			for (String name : replace) {
 				String temp = readFile(new File(template + "/templates/" + name));
 				temp = temp.replace("${skript.version}", Skript.getVersion().toString());
 				page = page.replace("${include " + name + "}", temp);
 			}
-			
+
 			int generate = page.indexOf("${generate"); // Generate expressions etc.
 			while (generate != -1) {
 				int nextBracket = page.indexOf("}", generate);
 				String[] genParams = page.substring(generate + 11, nextBracket).split(" ");
 				StringBuilder generated = new StringBuilder();
-				
+
 				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
 				String genType = genParams[0];
 				if (genType.equals("expressions")) {
@@ -265,7 +265,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						String desc = generateAnnotated(descTemp, info);
+						String desc = generateAnnotated(descTemp, info, generated.toString());
 						generated.append(desc);
 					}
 				} else if (genType.equals("effects")) {
@@ -275,7 +275,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info));
+						generated.append(generateAnnotated(descTemp, info, generated.toString()));
 					}
 				} else if (genType.equals("conditions")) {
 					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(Skript.getConditions());
@@ -284,7 +284,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info));
+						generated.append(generateAnnotated(descTemp, info, generated.toString()));
 					}
 				} else if (genType.equals("events")) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
@@ -293,7 +293,7 @@ public class HTMLGenerator {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateEvent(descTemp, info));
+						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
 				} else if (genType.equals("classes")) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
@@ -302,7 +302,7 @@ public class HTMLGenerator {
 						if (ClassInfo.NO_DOC.equals(info.getDocName()))
 							continue;
 						assert info != null;
-						generated.append(generateClass(descTemp, info));
+						generated.append(generateClass(descTemp, info, generated.toString()));
 					}
 				} else if (genType.equals("functions")) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
@@ -373,29 +373,39 @@ public class HTMLGenerator {
 	 * annotations. This means expressions, effects and conditions.
 	 * @param descTemp Template for description.
 	 * @param info Syntax element info.
+	 * @param page The page's code to check for ID duplications, can be left empty.
 	 * @return Generated HTML entry.
 	 */
-	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info) {
+	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info, @Nullable String page) {
 		Class<?> c = info.c;
 		String desc = "";
-		
+
 		Name name = c.getAnnotation(Name.class);
 		desc = descTemp.replace("${element.name}", getNullOrEmptyDefault(name.value(), "Unknown Name"));
-		
+
 		Since since = c.getAnnotation(Since.class);
 		desc = desc.replace("${element.since}", getNullOrEmptyDefault(since.value(), "Unknown"));
-		
+
 		Description description = c.getAnnotation(Description.class);
 		desc = desc.replace("${element.desc}", Joiner.on("\n").join(getNullOrEmptyDefault(description.value(), "Unknown description.")).replace("\n\n", "<p>"));
 		desc = desc.replace("${element.desc-safe}", Joiner.on("\n").join(getNullOrEmptyDefault(description.value(), "Unknown description."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
-		
+
 		Examples examples = c.getAnnotation(Examples.class);
 		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getNullOrEmptyDefault(examples.value(), "Missing examples.")));
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getNullOrEmptyDefault(examples.value(), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
-		desc = desc.replace("${element.id}", info.c.getSimpleName());
-		
+
+		DocumentationId DocID = c.getAnnotation(DocumentationId.class);
+		String ID = DocID != null ? DocID.value() : info.c.getSimpleName();
+		// Fix duplicated IDs
+		if (page != null) {
+			if (page.contains("#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			}
+		}
+		desc = desc.replace("${element.id}", ID);
+
 		Events events = c.getAnnotation(Events.class);
 		assert desc != null;
 		desc = handleIf(desc, "${if events}", events != null);
@@ -446,12 +456,12 @@ public class HTMLGenerator {
 			desc = desc.replace(toReplace, patterns.toString());
 			desc = desc.replace("${generate element.patterns-safe " + split[1] + "}", patterns.toString().replace("\\", "\\\\"));
 		}
-		
+
 		assert desc != null;
 		return desc;
 	}
 	
-	private String generateEvent(String descTemp, SkriptEventInfo<?> info) {
+	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getName(), "Unknown Name");
@@ -471,7 +481,15 @@ public class HTMLGenerator {
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
-		desc = desc.replace("${element.id}", info.getId());
+
+		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
+		// Fix duplicated IDs
+		if (page != null) {
+			if (page.contains("#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			}
+		}
+		desc = desc.replace("${element.id}", ID);
 		
 		assert desc != null;
 		desc = handleIf(desc, "${if events}", false);
@@ -494,7 +512,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getNullOrEmptyDefault(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(line);
+				line = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + line : line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
@@ -507,7 +525,7 @@ public class HTMLGenerator {
 		return desc;
 	}
 	
-	private String generateClass(String descTemp, ClassInfo<?> info) {
+	private String generateClass(String descTemp, ClassInfo<?> info, @Nullable String page) {
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getDocName(), "Unknown Name");
@@ -526,8 +544,16 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
-		desc = desc.replace("${element.id}", info.getCodeName());
-		
+
+		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
+		// Fix duplicated IDs
+		if (page != null) {
+			if (page.contains("#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			}
+		}
+		desc = desc.replace("${element.id}", ID);
+
 		assert desc != null;
 		desc = handleIf(desc, "${if events}", false);
 		desc = handleIf(desc, "${if required-plugins}", false);
@@ -585,6 +611,7 @@ public class HTMLGenerator {
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
 		desc = desc.replace("${element.id}", info.getName());
 		
 		assert desc != null;

@@ -1,26 +1,106 @@
 <h1 id="nav-title">Documentation</h1>
 
-<div id="content" class="no-left-panel" style="margin-top: 40px;">
-  <p>
-    <b>Skript</b> is (surprise, surprise) a scripting plugin for the Bukkit platform. It is easy to use for simple tasks, but you can also create really complex things with it. The syntax of Skript is close to English, but it is still not magic. While you might succeed with experimentation for simple tasks, for anything more complex you will need some guidance.
-  </p>
+<div id="content-no-docs" class="no-left-panel" style="display: inline-block;">
+<div style="height: 32px;"></div> <!-- Space -->
+<p> <span style="font-size: 60px; font-weight: bold;">Skript</span> is (surprise, surprise) a scripting plugin for the Bukkit platform. It is easy to use for
+    simple tasks, but you can also create really complex things with it. The syntax of Skript is close to
+    English, but it is still not magic. While you might succeed with experimentation for simple tasks, for
+    anything more complex you will need some guidance. </p>
+<p> This is Skript's documentation. You will find all supported features of the plugin here, along with some
+    useful examples. We don't have tutorials yet, but you can find good ones using whatever search engine you
+    prefer. </p>
 
-  <p>
-    This is Skript's documentation. You will find all supported features of the plugin here, along with some useful examples. We don't have tutorials yet, but you can find good ones using whatever search engine you prefer.
-  </p>
+<p class="box-title">Quick Look</p>
+<pre class="box code" style="height: 400px; overflow: scroll;">
+  <code>
+on chat:<br>
+	event is not cancelled<br>
+<br>
+	if {ChatMute::enabled} = true:<br>
+		player doesn't have permission &quot;staff.chat&quot;<br>
+		cancel event<br>
+		send &quot;&amp;cChat is muted!&quot;<br>
+		stop<br>
+<br>
+	if (difference between {ChatCooldown::playerdata::%uuid of player%} and now) ? 3 seconds &lt; 2 seconds: # if the variable is not set it will be default to 3 seconds which is bigger than 2 seconds therefore the condition will be true<br>
+		player doesn't have permission &quot;chat.cooldown.bypass&quot;<br>
+		cancel event<br>
+		send &quot;&amp;cPlease slow chatting.&quot;<br>
+		stop<br>
+<br>
+	set {ChatCooldown::playerdata::%uuid of player%} to now<br>
+<br>
+	if length of uncolored message &gt; 5:<br>
+		set {_m} to uncolored message<br>
+		if number of uppercase chars in {_m} / length of {_m} &gt; 0.65: # more than 65% is caps<br>
+			player doesn't have permission &quot;chat.caps.bypass&quot;<br>
+			cancel event<br>
+			send &quot;&amp;cYou're are using too many caps!&quot;<br>
+			stop<br>
+<br>
+	if {Chat::playerdata::%player%::last-msg} = uncolored message:<br>
+		player doesn't have permission &quot;chat.repeat.bypass&quot;<br>
+		cancel event<br>
+		send &quot;&amp;cYou can't repeat your last message.&quot;<br>
+		stop<br>
+<br>
+	set {Chat::playerdata::%player%::last-msg} to uncolored message<br>
+<br>
+	#!! Per world chat<br>
+	if {@per-world-chat} = true:<br>
+		set recipients to players in player's world<br>
+		if size of {Chat::global-chat::*} &gt; 0:<br>
+			add {Chat::global-chat::*} to recipients<br>
+<br>
+command /mutechat:<br>
+	permission: staff.chat<br>
+	permission message: &amp;cYou don't have permissions to do that.<br>
+	trigger:<br>
+		if {ChatMute::enabled} = true:<br>
+			set {ChatMute::enabled} to false<br>
+			broadcast &quot;	   &amp;aChat has been unmuted by &amp;f%sender%&quot;<br>
+		else:<br>
+			set {ChatMute::enabled} to true<br>
+			broadcast &quot;	   &amp;cChat has been muted by &amp;f%sender%&quot;<br>
+<br>
+<br>
+command /clearchat:<br>
+	permission: staff.chat<br>
+	permission message: &amp;cYou don't have permissions to do that.<br>
+	aliases: cchat<br>
+	trigger:<br>
+		loop 1000 times:<br>
+			send &quot;&quot; to all players where [input doesn't have permission &quot;staff.bypass&quot;]<br>
+		broadcast &quot;&amp;cChat has been cleared by &amp;f%player%&quot;<br>
+		stop<br>
+  </code>
+</pre>
 
-  <p class="box">
-    Found something incorrect in this documentation? Please report it to the
-    <a href="https://github.com/SkriptLang/Skript/issues">issue tracker</a>.
-  </p>
-  <p class="box">
-    <strong>We are looking for docs authors!</strong>
-    Currently, the only documentation is generated automatically. It would be
-    nice to have some hand-written content such as tutorials on the docs as
-    well. For example, currently we don't have a tutorial on how to use loops
-    here; This makes it harder for newcomers to learn. Check
-    <a href="https://github.com/SkriptLang/Skript/issues/611">this issue</a> for
-    more details and if you're interested in helping out.
-  </p>
-  <p style="font-size: 14px;">Skript • <a href="https://github.com/SkriptLang/Skript/">SkriptLang Team</a> • Styling by <a href="https://github.com/AyhamAl-Ali">Ayham Al-Ali</a> | 2021</p>
+<div id="info" class="grid-container padding">
+    <div class="grid-item">
+        <p class="box-title">Latest Version</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/releases/tag/${latest-version}" target="_blank">${latest-version}</a></p>
+    </div>
+    <div class="grid-item">
+        <p class="box-title">Download</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/releases" target="_blank">Skript ${latest-version}</a></p>
+    </div>
+    <div class="grid-item">
+        <p class="box-title">Contributors</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/graphs/contributors" target="_blank">${contributors-size} Contributors</a></p>
+    </div>
 </div>
+
+<p class="box"> Found something incorrect in this documentation? Please report it to the <a
+        href="https://github.com/SkriptLang/Skript/issues">issue tracker</a>. </p>
+<p class="box"> <strong>We are looking for docs authors!</strong> Currently, the only documentation is generated
+    automatically. It would be nice to have some hand-written content such as tutorials on the docs as well. For
+    example, currently we don't have a tutorial on how to use loops here; This makes it harder for newcomers to
+    learn. Check <a href="https://github.com/SkriptLang/Skript/issues/611">this issue</a> for more details and
+    if you're interested in helping out. </p>
+
+
+<div style="padding-top: 64px;"></div> <!-- Space -->
+<p style="font-size: 14px; text-align: center;">Skript • <a href="https://github.com/SkriptLang/Skript/">SkriptLang Team</a> •
+    Styling by <a href="https://github.com/AyhamAl-Ali">Ayham Al-Ali</a> | 2021 • Generated on ${skript.build.date}</p>
+<div style="padding-top: 16px;"></div> <!-- Space -->
