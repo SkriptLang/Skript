@@ -72,7 +72,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		final List<Argument<?>> currentArguments = Commands.currentArguments;
-		if (currentArguments == null) {
+		if (currentArguments == null || !getParser().isCurrentEvent(ScriptCommandEvent.class)) {
 			Skript.error("The expression 'argument' can only be used within a command", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
