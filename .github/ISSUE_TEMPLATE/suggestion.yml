@@ -1,0 +1,36 @@
+name: Suggestion
+description: Suggest a new feature for Skript.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Guidelines
+        Please make sure that your suggestion isn't something already in Skript, and that it hasn't been suggested before.
+  - type: textarea
+    attributes:
+      label: Suggestion
+      description: |
+        Enter your suggestion here. Try to be as thorough as possible.
+        If you are suggesting something such as an event, please try to leave a link to the Javadoc.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why?
+      description: Tell us why you want to see this feature added.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Other
+      description: Have anything else to add?
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Agreement
+      description: Please agree to the following before submitting your suggestion.
+      options:
+        - label: I have read the guidelines above and confirm I am following them with this suggestion.
+          required: true
+
