@@ -101,8 +101,8 @@ public class EffSecSpawn extends EffectSection {
 	@Nullable
 	private Trigger trigger;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,
@@ -119,17 +119,20 @@ public class EffSecSpawn extends EffectSection {
 		return true;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	protected @Nullable TriggerItem walk(Event e) {
+	@Nullable
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	protected TriggerItem walk(Event e) {
 		lastSpawned = null;
+
+		Object localVars = Variables.copyLocalVariables(e);
 
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
 			consumer = o -> {
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
-				Variables.setLocalVariables(spawnEvent, Variables.copyLocalVariables(e));
+				Variables.setLocalVariables(spawnEvent, localVars);
 				trigger.execute(spawnEvent);
 			};
 		} else {
@@ -158,4 +161,5 @@ public class EffSecSpawn extends EffectSection {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "spawn " + (amount != null ? amount.toString(e, debug) + " of " : "") + types.toString(e, debug) + " " + locations.toString(e, debug);
 	}
+
 }
