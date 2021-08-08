@@ -228,7 +228,7 @@ public class EventValues {
 			if (ev.event.isAssignableFrom(e))
 				return (Getter<? extends T, ? super E>) ev.getter;
 		}
-		// Second check for assignable sub classes.
+		// Second check for assignable subclasses.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.isAssignableFrom(ev.c))
 				continue;
@@ -262,7 +262,7 @@ public class EventValues {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (checkInstanceOf && !e.isInstance(event))
+					if (checkInstanceOf && !ev.event.isInstance(event))
 						return null;
 					Object object = ((Getter<? super T, ? super E>) ev.getter).get(event);
 					if (c.isInstance(object))
@@ -298,11 +298,11 @@ public class EventValues {
 	 * @param e
 	 * @return boolean if true the event value passes for the events.
 	 */
+	@SuppressWarnings("unchecked")
 	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
-		Class<? extends Event>[] excl = ev.excludes;
-		if (excl == null)
+		if (ev.excludes == null)
 			return true;
-		for (Class<? extends Event> ex : excl) {
+		for (Class<? extends Event> ex : (Class<? extends Event>[]) ev.excludes) {
 			if (ex.isAssignableFrom(e)) {
 				Skript.error(ev.excludeErrorMessage);
 				return false;
