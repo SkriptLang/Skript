@@ -157,8 +157,9 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 						colorable.setColor(color);
 					} catch (UnsupportedOperationException ex) {
 						// https://github.com/SkriptLang/Skript/issues/2931
-						if (Skript.logVeryHigh())
-							throw ex;
+						Skript.error("Tried setting the colour of a bed, but this isn't possible in your Minecraft version, " +
+							"since different coloured beds are different materials. " +
+							"Instead, set the block to right material, such as a blue bed."); // Let's just assume it's a bed
 					}
 				}
 			} else if (o instanceof FireworkEffect) {
