@@ -50,8 +50,8 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 
 	private Expression<Number> amount;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[1]);
 		amount = (Expression<Number>) exprs[0];
@@ -62,10 +62,10 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	@Override
 	protected Object[] get(Event e, Object[] source) {
 		Number a = amount.getSingle(e);
+		if (a == null)
+			return new Object[0];
 
 		return get(source, o -> {
-			if (a == null)
-				return null;
 			if (o instanceof ItemStack) {
 				ItemStack is = ((ItemStack) o).clone();
 				is.setAmount(a.intValue());
