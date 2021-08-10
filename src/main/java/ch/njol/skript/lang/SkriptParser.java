@@ -366,19 +366,15 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (types[0] == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
+			if (allowUnparsedLiteral && types[0] == Object.class) {
 				log.clear();
-				final LogEntry e = log.getError();
+				LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
 			for (final Class<? extends T> c : types) {
 				log.clear();
 				assert c != null;
-				final T t = Classes.parse(expr, c, context);
+				T t = Classes.parse(expr, c, context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false);
