@@ -947,7 +947,7 @@ public class BukkitClasses {
 				.description("A player or the console.")
 				.usage("use <a href='expressions.html#LitConsole'>the console</a> for the console",
 						"see <a href='#player'>player</a> for players.")
-				.examples("command /push [<player>]:",
+				.examples("command /push [&lt;player&gt;]:",
 						"\ttrigger:",
 						"\t\tif arg-1 is not set:",
 						"\t\t\tif command sender is console:",

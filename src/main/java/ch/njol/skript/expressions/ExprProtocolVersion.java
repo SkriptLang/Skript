@@ -51,7 +51,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"This can be set in a <a href='events.html#server_list_ping'>server list ping</a> event only",
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
 @Examples({"on server list ping:",
-		"\tset the version string to \"<light green>Version: <orange>%minecraft version%\"",
+		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
 		"\tset the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
