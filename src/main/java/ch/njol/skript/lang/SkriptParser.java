@@ -697,7 +697,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1)
 				return ts.get(0);
@@ -832,7 +832,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1) {
 				return ts.get(0);
