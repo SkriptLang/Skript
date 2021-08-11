@@ -88,7 +88,7 @@ public final class Parameter<T> {
 			try {
 				d = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(type.getC());
 				if (d == null || LiteralUtils.hasUnparsedLiteral(d)) {
-					log.printErrors("'" + def + "' is not " + type.getName().withIndefiniteArticle());
+					log.printErrors("Can't understand this expression: " + def);
 					return null;
 				}
 				log.printLog();
