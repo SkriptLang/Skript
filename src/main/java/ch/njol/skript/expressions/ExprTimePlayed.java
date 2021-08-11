@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -73,8 +74,8 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	
 	@Nullable
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			return CollectionUtils.array(Timespan.class);
 		} else {
 			return null;
@@ -82,7 +83,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		long ticks = ((Timespan) delta[0]).getTicks_i();
 		for (OfflinePlayer offlinePlayer : getExpr().getArray(e)) {
 			long playerTicks = offlinePlayer.getStatistic(TIME_PLAYED);
