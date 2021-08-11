@@ -42,13 +42,12 @@ public abstract class StringUtils {
 	 * @return 1st, 2nd, 3rd, 4th, etc.
 	 */
 	public static String fancyOrderNumber(final int i) {
-		final int imod10 = i % 10;
-		if (imod10 == 1)
-			return i + "st";
-		if (imod10 == 2)
-			return i + "nd";
-		if (imod10 == 3)
-			return i + "rd";
+		if (i == 1)
+			return "1st";
+		if (i == 2)
+			return "2nd";
+		if (i == 3)
+			return "3rd";
 		return i + "th";
 	}
 	

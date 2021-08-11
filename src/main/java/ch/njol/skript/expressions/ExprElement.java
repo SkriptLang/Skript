@@ -30,6 +30,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -127,19 +128,16 @@ public class ExprElement extends SimpleExpression<Object> {
 				break;
 			case 2:
 				assert number != null;
-				prefix = "the " + number.toString(e, debug);
-				// Ordinal
+				prefix = "the ";
+				// Proper ordinal number
 				if (number instanceof Literal) {
 					Number number = ((Literal<Number>) this.number).getSingle();
-					if (number == null || number.intValue() >= 4 || number.intValue() <= 1) {
-						prefix += "th";
-					} else if (number.intValue() == 2) {
-						prefix += "nd";
-					} else if (number.intValue() == 3) {
-						prefix += "rd";
-					}
+					if (number == null)
+						prefix += this.number.toString(e, debug) + "th";
+					else
+						prefix += StringUtils.fancyOrderNumber(number.intValue());
 				} else {
-					prefix += "th";
+					prefix += number.toString(e, debug) + "th";
 				}
 				break;
 			default:
