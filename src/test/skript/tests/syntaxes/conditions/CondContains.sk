@@ -1,5 +1,5 @@
 test "contains condition":
-	# Strings:
+	# Strings
 	assert "abc" contains "b" with "simple string contains failed ##1"
 	assert "abc" contains "abc" with "simple string contains failed ##2"
 	assert "abc" and "cde" contain "c" with "simple string contains failed ##3"
@@ -7,7 +7,7 @@ test "contains condition":
 	assert "abc" and "def" do not contain "ghi" with "simple string contains failed ##5"
 	assert "abc" and "def" does not contain "ab" with "string object failed ##6"
 
-	# Objects:
+	# Objects
 	assert "abc" and "def" contains "abc" with "object contains failed ##1"
 	assert 123 and 456 contains 456 with "object contains failed ##2"
 	assert 123 and 456 does not contain 789 with "object contains failed ##3"
@@ -16,7 +16,7 @@ test "contains condition":
 	assert {_l::*} contains 5 with "object contains failed ##5"
 	assert {_l::*} does not contain 6 with "object contains failed ##6"
 
-	# Inventory:
+	# Inventory
 	set {_inv} to chest inventory with 3 rows
 	set slot 0 of {_inv} to stone named "pp"
 	set slot 1 of {_inv} to dirt
@@ -30,9 +30,6 @@ test "contains condition":
 	assert {_inv} contains 2 dirt with "inventory contains failed ##7"
 	assert {_inv} does not contain 3 dirt with "inventory contains failed ##8"
 
-	# Pickle Man Standards
-
-	# Inventory
 	set {_inv1} to chest inventory with 3 rows
 	set {_inv2} to chest inventory with 3 rows
 	set {_item1} to dirt named "hey"
