@@ -27,7 +27,7 @@ import org.bukkit.Location;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Middle of Location")
-@Description("Returns the Middle/Center of a location. In other words returns the middle of the X and Z coords of a location.")
+@Description("Returns the middle/center of a location. In other words, returns the middle of the X, Z coordinates and the floor value of the Y coordinate of a location.")
 @Examples({
 		"command /stuck:",
 		"\texecutable by: players",
