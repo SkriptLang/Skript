@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.base.Joiner;
@@ -187,12 +186,12 @@ public class HTMLGenerator {
 	}
 	
 	private static final FunctionComparator functionComparator = new FunctionComparator();
-	
+
 	/**
 	 * Generates documentation using template and output directories
 	 * given in the constructor.
 	 */
-	public void generate() {		
+	public void generate() {
 		for (File f : template.listFiles()) {
 			if (f.getName().matches("css|js|assets")) { // Copy CSS/JS/Assets folders
 				String slashName = "/" + f.getName();
@@ -346,7 +345,11 @@ public class HTMLGenerator {
 			
 			i += Character.charCount(c);
 		}
-		return sb.toString();
+		return replaceBR(sb.toString());
+	}
+
+	private static String replaceBR(String page) { // Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the minifyHtml method (Execute after minifyHtml)
+		return page.replaceAll("<br/>", "\n");
 	}
 	
 	private static String handleIf(String desc, String start, boolean value) {
