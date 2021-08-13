@@ -130,6 +130,7 @@ public class EffSecSpawn extends EffectSection {
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
 			consumer = o -> {
+				lastSpawned = o;
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, localVars);
@@ -146,7 +147,7 @@ public class EffSecSpawn extends EffectSection {
 				for (EntityType type : ts) {
 					for (int i = 0; i < a.doubleValue() * type.getAmount(); i++) {
 						if (consumer != null)
-							lastSpawned = type.data.spawn(l, (Consumer) consumer);
+							type.data.spawn(l, (Consumer) consumer); // lastSpawned set within Consumer
 						else
 							lastSpawned = type.data.spawn(l);
 					}
