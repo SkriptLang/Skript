@@ -41,10 +41,10 @@ import ch.njol.util.Kleenean;
 @Description("Counts how many of a particular <a href='../classes.html#itemtype'>item type</a> are in a given inventory.")
 @Examples("message \"You have %number of ores in the player's inventory% ores in your inventory.\"")
 @Since("2.0")
-public class ExprAmountOfItems extends SimpleExpression<Integer> {
-
+public class ExprAmountOfItems extends SimpleExpression<Long> {
+  
 	static {
-		Skript.registerExpression(ExprAmountOfItems.class, Integer.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
+		Skript.registerExpression(ExprAmountOfItems.class, Long.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -61,9 +61,9 @@ public class ExprAmountOfItems extends SimpleExpression<Integer> {
 	}
 	
 	@Override
-	protected Integer[] get(Event e) {
+	protected Long[] get(Event e) {
 		ItemType[] itemTypes = items.getArray(e);
-		int amount = 0;
+		long amount = 0;
 		for (Inventory inventory : inventories.getArray(e)) {
 			itemsLoop: for (ItemStack itemStack : inventory.getContents()) {
 				if (itemStack != null) {
@@ -76,12 +76,12 @@ public class ExprAmountOfItems extends SimpleExpression<Integer> {
 				}
 			}
 		}
-		return new Integer[]{amount};
+		return new Long[]{amount};
 	}
 	
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override
