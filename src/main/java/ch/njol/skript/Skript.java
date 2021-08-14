@@ -901,21 +901,21 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether this server is running Minecraft <tt>major.minor</tt> or higher
 	 */
 	public static boolean isRunningMinecraft(final int major, final int minor) {
-		if (minecraftVersion == UNKNOWN_VERSION) { // Make sure minecraftVersion is properly assigned
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) { // Make sure minecraftVersion is properly assigned. Using compareTo to avoid minecraftVersion NPE see https://gist.github.com/AyhamAl-Ali/9117c5b879e6e1657a33dc76b41d4146#file-skript-version-equals-npe
 			updateMinecraftVersion();
 		}
 		return minecraftVersion.compareTo(major, minor) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final int major, final int minor, final int revision) {
-		if (minecraftVersion == UNKNOWN_VERSION) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
 			updateMinecraftVersion();
 		}
 		return minecraftVersion.compareTo(major, minor, revision) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final Version v) {
-		if (minecraftVersion == UNKNOWN_VERSION) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
 			updateMinecraftVersion();
 		}
 		return minecraftVersion.compareTo(v) >= 0;
