@@ -652,42 +652,38 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 	
 	public boolean isContainedIn(Iterable<ItemStack> items) {
-		int amount = getAmount();
-		for (final ItemData d : types) {
-			int found = 0;
-			for (final ItemStack i : items) {
-				if (d.isOfType(i)) {
-					found += i == null ? 1 : i.getAmount();
-					if (found >= amount) {
-						if (!all)
-							return true;
-						break;
-					}
+		int needed = getAmount();
+		int found = 0;
+		for (ItemStack item : items) {
+			if (item != null && new ItemType(item).isSimilar(this)) {
+				found += item.getAmount();
+				if (found >= needed) {
+					if (!all)
+						return true;
+					break;
 				}
 			}
-			if (all && found < amount)
-				return false;
 		}
+		if (all && found < amount)
+			return false;
 		return all;
 	}
-	
-	public boolean isContainedIn(ItemStack[] list) {
-		int amount = getAmount();
-		for (final ItemData d : types) {
-			int found = 0;
-			for (final ItemStack i : list) {
-				if (d.isOfType(i)) {
-					found += i == null ? 1 : i.getAmount();
-					if (found >= amount) {
-						if (!all)
-							return true;
-						break;
-					}
+
+	public boolean isContainedIn(ItemStack[] items) {
+		int needed = getAmount();
+		int found = 0;
+		for (ItemStack item : items) {
+			if (item != null && new ItemType(item).isSimilar(this)) {
+				found += item.getAmount();
+				if (found >= needed) {
+					if (!all)
+						return true;
+					break;
 				}
 			}
-			if (all && found < amount)
-				return false;
 		}
+		if (all && found < amount)
+			return false;
 		return all;
 	}
 	
