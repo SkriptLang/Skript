@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Material;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.google.gson.Gson;
 
@@ -19,7 +18,6 @@ import com.google.gson.Gson;
  * Unlicense in addition to GPLv3. See
  * <a href="http://unlicense.org">their website</a> for more information.
  */
-@NonNullByDefault(false)
 public class BurgerHelper {
 	
 	/**

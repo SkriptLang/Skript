@@ -697,8 +697,7 @@ public abstract class Classes {
 	/**
 	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
 	 */
-	@Nullable
-	public static SerializedVariable.Value serialize(@Nullable Object o) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object o) {
 		if (o == null)
 			return null;
 		
