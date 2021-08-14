@@ -201,12 +201,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		instance = this;
 	}
 	
-	private static Version minecraftVersion = new Version(666);
+	private static Version minecraftVersion, UNKNOWN_VERSION = new Version(666);
 	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
-	
-	// Check minecraft version and assign it to minecraftVersion var
-	// This method is created to update mc version before onEnable
-	// To fix Utils.HEX_SUPPORTED being assigned before minecraftVersion is properly assigned
+
+	/**
+	 * Check minecraft version and assign it to minecraftVersion field
+	 * This method is created to update MC version before onEnable method
+	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
+	 */
 	public static void updateMinecraftVersion() {
 		String bukkitV = Bukkit.getBukkitVersion();
 		Matcher m = Pattern.compile("\\d+\\.\\d+(\\.\\d+)?").matcher(bukkitV);
@@ -899,17 +901,23 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether this server is running Minecraft <tt>major.minor</tt> or higher
 	 */
 	public static boolean isRunningMinecraft(final int major, final int minor) {
-		if (minecraftVersion.compareTo(new Version(666)) == 0) { updateMinecraftVersion(); } // Make sure minecraftVersion is properly assigned
+		if (minecraftVersion == UNKNOWN_VERSION) { // Make sure minecraftVersion is properly assigned
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final int major, final int minor, final int revision) {
-		if (minecraftVersion.compareTo(new Version(666)) == 0) { updateMinecraftVersion(); }
+		if (minecraftVersion == UNKNOWN_VERSION) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor, revision) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final Version v) {
-		if (minecraftVersion.compareTo(new Version(666)) == 0) { updateMinecraftVersion(); }
+		if (minecraftVersion == UNKNOWN_VERSION) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(v) >= 0;
 	}
 	
