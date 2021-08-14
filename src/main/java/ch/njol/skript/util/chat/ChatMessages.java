@@ -192,6 +192,8 @@ public class ChatMessages {
 		MessageComponent current = new MessageComponent();
 		components.add(current);
 		StringBuilder curStr = new StringBuilder();
+
+		boolean lastWasColor = true;
 		
 		for (int i = 0; i < chars.length; i++) {
 			char c = chars[i];
@@ -260,6 +262,7 @@ public class ChatMessages {
 						
 						// Increment i to tag end
 						i = end;
+						lastWasColor = true;
 						continue;
 					}
 					
@@ -313,11 +316,12 @@ public class ChatMessages {
 				}
 				
 				i++; // Skip this and color char
+				lastWasColor = true;
 				continue;
 			}
 			
 			// Attempt link parsing, if a tag was not found
-			if (linkParseMode == LinkParseMode.STRICT && c == 'h') {
+			if ((linkParseMode == LinkParseMode.STRICT || linkParseMode == LinkParseMode.LENIENT) && c == 'h') {
 				String rest = msg.substring(i); // Get rest of string
 				
 				String link = null;
@@ -350,7 +354,7 @@ public class ChatMessages {
 					components.add(current);
 					continue;
 				}
-			} else if (linkParseMode == LinkParseMode.LENIENT && (i == 0 || chars[i - 1] == ' ')) {
+			} else if (linkParseMode == LinkParseMode.LENIENT && (lastWasColor || i == 0 || chars[i - 1] == ' ')) {
 				// Lenient link parsing
 				String rest = msg.substring(i); // Get rest of string
 				
@@ -365,7 +369,7 @@ public class ChatMessages {
 					// Insert protocol (aka guess it) if it isn't there
 					String url;
 					if (!link.startsWith("http://") && !link.startsWith("https://")) {
-						url = "http://" + link; // Hope that http -> https redirect works on target site...
+						url = "https://" + link;
 					} else {
 						url = link;
 					}
@@ -396,6 +400,7 @@ public class ChatMessages {
 			}
 				
 			curStr.append(c); // Append this char to curStr
+			lastWasColor = false;
 		}
 		
 		String text = curStr.toString();
