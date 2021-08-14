@@ -30,8 +30,8 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
-import ch.njol.skript.effects.Delay;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
+import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
@@ -1113,18 +1113,26 @@ public class ScriptLoader {
 		for (Node n : node) {
 			SkriptLogger.setNode(n);
 			if (n instanceof SimpleNode) {
-				SimpleNode e = (SimpleNode) n;
-				String s = replaceOptions("" + e.getKey());
-				if (!SkriptParser.validateLine(s))
+				String expr = replaceOptions("" + n.getKey());
+				if (!SkriptParser.validateLine(expr))
 					continue;
-				Statement stmt = Statement.parse(s, "Can't understand this condition/effect: " + s);
-				if (stmt == null)
-					continue;
-				if (Skript.debug() || n.debug())
-					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
-				items.add(stmt);
-				if (stmt instanceof Delay)
-					getParser().setHasDelayBefore(Kleenean.TRUE);
+
+				EffectSection section = EffectSection.parse(expr, null, null, null); // Try to parse this as an effect section first
+				if (section != null) {
+					if (Skript.debug() || n.debug())
+						Skript.debug(getParser().getIndentation() + section.toString(null, true));
+
+					items.add(section);
+				} else { // Try to parse this as a statement instead
+					Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
+					if (stmt == null)
+						continue;
+
+					if (Skript.debug() || n.debug())
+						Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
+
+					items.add(stmt);
+				}
 			} else if (n instanceof SectionNode) {
 				String expr = replaceOptions("" + n.getKey());
 				if (!SkriptParser.validateLine(expr))
