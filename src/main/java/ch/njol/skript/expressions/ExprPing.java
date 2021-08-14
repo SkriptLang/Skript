@@ -38,12 +38,12 @@ import org.bukkit.entity.Player;
 			"\ttrigger:",
 			"\t\tsend \"%arg-1%'s ping is %arg-1's ping%\""})
 @Since("2.2-dev36")
-public class ExprPing extends SimplePropertyExpression<Player, Number> {
+public class ExprPing extends SimplePropertyExpression<Player, Long> {
 
 	private static final boolean SUPPORTED = Skript.methodExists(Player.Spigot.class, "getPing");
 
 	static {
-		PropertyExpression.register(ExprPing.class, Number.class, "ping", "players");
+		PropertyExpression.register(ExprPing.class, Long.class, "ping", "players");
 	}
 
 	@Override
@@ -58,13 +58,13 @@ public class ExprPing extends SimplePropertyExpression<Player, Number> {
 	}
 
 	@Override
-	public Number convert(Player player) {
-		return player.spigot().getPing();
+	public Long convert(Player player) {
+		return (long) player.spigot().getPing();
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

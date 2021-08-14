@@ -31,20 +31,20 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("Gets the sea level of a world.")
 @Examples("send \"The sea level in your world is %sea level in player's world%\"")
 @Since("2.5.1")
-public class ExprSeaLevel extends SimplePropertyExpression<World, Number> {
+public class ExprSeaLevel extends SimplePropertyExpression<World, Long> {
 	
 	static {
-		register(ExprSeaLevel.class, Number.class, "sea level", "worlds");
+		register(ExprSeaLevel.class, Long.class, "sea level", "worlds");
 	}
 	
 	@Override
-	public Number convert(World world) {
-		return world.getSeaLevel();
+	public Long convert(World world) {
+		return (long) world.getSeaLevel();
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override
