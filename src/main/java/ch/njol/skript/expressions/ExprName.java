@@ -26,6 +26,9 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.Nameable;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -54,7 +57,7 @@ import ch.njol.util.coll.CollectionUtils;
 import net.md_5.bungee.api.ChatColor;
 
 @Name("Name / Display Name / Tab List Name")
-@Description({"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, inventory, or gamerule.",
+@Description({"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, or gamerule.",
 		"",
 		"<ul>",
 		"\t<li><strong>Players</strong>",
@@ -103,7 +106,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	static {
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "players/entities/itemtypes/inventories/slots" 
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "players/entities/blocks/itemtypes/inventories/slots"
                 + (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 
@@ -142,6 +145,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			}
 		} else if (o instanceof Entity) {
 			return ((Entity) o).getCustomName();
+		} else if (o instanceof Block) {
+			BlockState state = ((Block) o).getState();
+			if (state instanceof Nameable)
+				return ((Nameable) state).getCustomName();
 		} else if (o instanceof ItemType) {
 			ItemMeta m = ((ItemType) o).getItemMeta();
 			return m.hasDisplayName() ? m.getDisplayName() : null;
@@ -202,6 +209,12 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					((Entity) o).setCustomNameVisible(name != null);
 				if (o instanceof LivingEntity)
 					((LivingEntity) o).setRemoveWhenFarAway(name == null);
+			} else if (o instanceof Block) {
+				BlockState state = ((Block) o).getState();
+				if (state instanceof Nameable) {
+					((Nameable) state).setCustomName(name);
+					state.update();
+				}
 			} else if (o instanceof ItemType) {
 				ItemType i = (ItemType) o;
 				ItemMeta m = i.getItemMeta();
