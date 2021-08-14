@@ -216,21 +216,21 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter scriptFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
-			&& !f.getName().startsWith("-");
-	
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& !f.getName().startsWith("-") && !f.isHidden();
+
 	/**
 	 * All disabled script files.
 	 */
 	private static final Set<File> disabledFiles = Collections.synchronizedSet(new HashSet<>());
-	
+
 	/**
 	 * Filter for disabled scripts & folders.
 	 */
 	private static final FileFilter disabledFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
-			&& f.getName().startsWith("-");
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& f.getName().startsWith("-") && !f.isHidden();
 	
 	/**
 	 * Reevaluates {@link #disabledFiles}.
@@ -239,6 +239,7 @@ public class ScriptLoader {
 	private static void updateDisabledScripts(Path path) {
 		disabledFiles.clear();
 		try {
+			// TODO handle AccessDeniedException
 			Files.walk(path)
 				.map(Path::toFile)
 				.filter(disabledFilter::accept)
