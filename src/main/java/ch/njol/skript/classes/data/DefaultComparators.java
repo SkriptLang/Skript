@@ -21,6 +21,7 @@ package ch.njol.skript.classes.data;
 import java.util.Objects;
 
 import ch.njol.skript.aliases.MatchQuality;
+import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
@@ -279,6 +280,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof RabbitData)
+				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
 				assert data != null;
 				EntityData<?> entity = Aliases.getRelatedEntity(data);
