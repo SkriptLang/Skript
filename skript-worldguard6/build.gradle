@@ -1,5 +1,9 @@
 apply plugin: 'java'
 
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ["-source", "1.8", "-target", "1.8"]
+}
+
 dependencies {
 	implementation rootProject
 	implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.2.600'
