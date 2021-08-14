@@ -409,6 +409,80 @@ public class ChatMessages {
 	public static MessageComponent[] parseToArray(String msg) {
 		return parse(msg).toArray(new MessageComponent[0]);
 	}
+
+	/**
+	 * Parses a string that may only contain colour codes using the '§' character to a list of components.
+	 */
+	public static List<MessageComponent> fromParsedString(String msg) {
+		char[] chars = msg.toCharArray();
+
+		List<MessageComponent> components = new ArrayList<>();
+		MessageComponent current = new MessageComponent();
+		components.add(current);
+		StringBuilder curStr = new StringBuilder();
+
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			ChatCode code;
+			String param = "";
+
+			if (c == '§') {
+				// Corner case: this is last character, so we cannot get next
+				if (i == chars.length - 1) {
+					curStr.append(c);
+					continue;
+				}
+
+				char color = chars[i + 1];
+
+				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				ChatColor chatColor = null;
+				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
+					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
+					tryHex = chatColor != null;
+				}
+
+				if (color >= colorChars.length) { // Invalid Unicode color character
+					curStr.append(c);
+					continue;
+				}
+				code = colorChars[color];
+				if (code == null && !tryHex) {
+					curStr.append(c).append(color); // Invalid formatting char, plain append
+				} else {
+					String text = curStr.toString();
+					curStr = new StringBuilder();
+					current.text = text;
+
+					MessageComponent old = current;
+					current = new MessageComponent();
+
+					components.add(current);
+
+					if (tryHex) { // Set color to hex ChatColor
+						current.color = chatColor;
+						i = i + 12; // Skip past all the tags
+					} else if (code.getColorCode() != null) { // Just update color code
+						current.color = ChatColor.getByChar(code.getColorChar());
+					} else {
+						code.updateComponent(current, param); // Call SkriptChatCode update
+					}
+
+					// Copy styles from old to current if needed
+					copyStyles(old, current);
+				}
+
+				i++; // Skip this and color char
+				continue;
+			}
+
+			curStr.append(c); // Append this char to curStr
+		}
+
+		current.text = curStr.toString();
+
+		return components;
+	}
 	
 	public static String toJson(String msg) {
 		ComponentList componentList = new ComponentList(parse(msg));
