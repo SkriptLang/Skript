@@ -217,7 +217,7 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter scriptFilter =
 		f -> f != null
-			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
 			&& !f.getName().startsWith("-") && !f.isHidden();
 
 	/**
@@ -230,7 +230,7 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter disabledFilter =
 		f -> f != null
-			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
 			&& f.getName().startsWith("-") && !f.isHidden();
 	
 	/**
