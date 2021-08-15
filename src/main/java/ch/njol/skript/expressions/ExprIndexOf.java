@@ -41,9 +41,10 @@ import ch.njol.util.Kleenean;
 		"if {_s} contains \"abc\":",
 		"\tset {_s} to the first (index of \"abc\" in {_s} + 3) characters of {_s} # removes everything after the first \"abc\" from {_s}"})
 @Since("2.1")
-public class ExprIndexOf extends SimpleExpression<Integer> {
+public class ExprIndexOf extends SimpleExpression<Long> {
+
 	static {
-		Skript.registerExpression(ExprIndexOf.class, Integer.class, ExpressionType.COMBINED, "[the] (0¦|0¦first|1¦last) index of %string% in %string%");
+		Skript.registerExpression(ExprIndexOf.class, Long.class, ExpressionType.COMBINED, "[the] (0¦|0¦first|1¦last) index of %string% in %string%");
 	}
 	
 	boolean first;
@@ -62,12 +63,12 @@ public class ExprIndexOf extends SimpleExpression<Integer> {
 	
 	@Override
 	@Nullable
-	protected Integer[] get(final Event e) {
+	protected Long[] get(final Event e) {
 		final String h = haystack.getSingle(e), n = needle.getSingle(e);
 		if (h == null || n == null)
-			return new Integer[0];
+			return new Long[0];
 		final int i = first ? h.indexOf(n) : h.lastIndexOf(n);
-		return new Integer[] {Integer.valueOf(i == -1 ? -1 : i + 1)};
+		return new Long[] {(long) (i == -1 ? -1 : i + 1)};
 	}
 	
 	@Override
@@ -76,8 +77,8 @@ public class ExprIndexOf extends SimpleExpression<Integer> {
 	}
 	
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override

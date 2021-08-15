@@ -1,5 +1,5 @@
 test "contains condition":
-	# Strings:
+	# Strings
 	assert "abc" contains "b" with "simple string contains failed ##1"
 	assert "abc" contains "abc" with "simple string contains failed ##2"
 	assert "abc" and "cde" contain "c" with "simple string contains failed ##3"
@@ -7,7 +7,7 @@ test "contains condition":
 	assert "abc" and "def" do not contain "ghi" with "simple string contains failed ##5"
 	assert "abc" and "def" does not contain "ab" with "string object failed ##6"
 
-	# Objects:
+	# Objects
 	assert "abc" and "def" contains "abc" with "object contains failed ##1"
 	assert 123 and 456 contains 456 with "object contains failed ##2"
 	assert 123 and 456 does not contain 789 with "object contains failed ##3"
@@ -16,7 +16,7 @@ test "contains condition":
 	assert {_l::*} contains 5 with "object contains failed ##5"
 	assert {_l::*} does not contain 6 with "object contains failed ##6"
 
-	# Inventory:
+	# Inventory
 	set {_inv} to chest inventory with 3 rows
 	set slot 0 of {_inv} to stone named "pp"
 	set slot 1 of {_inv} to dirt
@@ -29,3 +29,63 @@ test "contains condition":
 	set slot 2 of {_inv} to dirt
 	assert {_inv} contains 2 dirt with "inventory contains failed ##7"
 	assert {_inv} does not contain 3 dirt with "inventory contains failed ##8"
+
+	set {_inv1} to chest inventory with 3 rows
+	set {_inv2} to chest inventory with 3 rows
+	set {_item1} to dirt named "hey"
+	set {_item2} to stone
+	add {_item1} and {_item2} to {_inv1} and {_inv2}
+	assert {_inv1} and {_inv2} contain {_item1} with "1"
+	assert {_inv1} and {_inv2} contain {_item1} and {_item2} with "2"
+	assert {_inv1} and {_inv2} contain {_item1} or {_item2} with "3"
+	assert {_inv1} or {_inv2} contain {_item1} with "4"
+	assert {_inv1} or {_inv2} contain {_item1} and {_item2} with "5"
+	assert {_inv1} or {_inv2} contain {_item1} or {_item2} with "6"
+
+	# String
+	set {_string1} to "yeah"
+	set {_string2} to "leathery"
+	set {_string3} to "ea"
+	set {_string4} to "y"
+	assert {_string1} and {_string2} contain {_string3} with "7"
+	assert {_string1} and {_string2} contain {_string3} and {_string4} with "8"
+	assert {_string1} and {_string2} contain {_string3} or {_string4} with "9"
+	assert {_string1} or {_string2} contain {_string3} with "10"
+	assert {_string1} or {_string2} contain {_string3} and {_string4} with "11"
+	assert {_string1} or {_string2} contain {_string3} or {_string4} with "12"
+
+	set {_string3} to {_string1}
+	set {_string4} to {_string2}
+	assert {_string1} and {_string2} contains {_string3} with "13"
+	assert {_string1} and {_string2} contains {_string3} and {_string4} with "14"
+	assert {_string1} and {_string2} contains {_string3} or {_string4} with "15"
+	assert {_string1} or {_string2} contains {_string3} with "16"
+	assert "yeah leathery" or "yeah" contains {_string3} and {_string4} with "17"
+	assert {_string1} or {_string2} contains {_string3} or {_string4} with "18"
+
+	# Object (item)
+	set {_item} to diamond block of sharpness 3
+	add {_item} and {_item2} to {_list1::*} and {_list2::*}
+	assert {_list1::*} and {_list2::*} contain {_item} with "19"
+	assert {_list1::*} and {_list2::*} contain {_item} and {_item2} with "20"
+	assert {_list1::*} and {_list2::*} contain {_item} or {_item2} with "21"
+	assert {_list1::*} or {_list2::*} contain {_item} with "22"
+	assert {_list1::*} or {_list2::*} contain {_item} and {_item2} with "23"
+	assert {_list1::*} or {_list2::*} contain {_item} or {_item2} with "24"
+
+	clear {_list1::*} and {_list2::*}
+	set {_items::*} to {_item} and {_item2}
+	set {_items2::*} to {_item1} and {_item2}
+	add {_items::*} and {_items2::*} to {_list1::*} and {_list2::*}
+	assert {_list1::*} and {_list2::*} contain {_items::*} with "25"
+	assert {_list1::*} and {_list2::*} contain {_items::*} and {_items2::*} with "26"
+	assert {_list1::*} and {_list2::*} contain {_items::*} or {_items2::*} with "27"
+	assert {_list1::*} or {_list2::*} contain {_items::*} with "28"
+	assert {_list1::*} or {_list2::*} contain {_items::*} and {_items2::*} with "29"
+	assert {_list1::*} or {_list2::*} contain {_items::*} or {_items2::*} with "30"
+	assert {_list1::*} and {_list2::*} don't contain 10 diamond blocks named "kachow" with "31"
+
+	set {_items::*} to a diamond block of knockback 3 and stone
+	set {_inventory} to chest inventory with 3 rows
+	add {_items::*} to {_inventory}
+	assert {_items::*} and {_inventory} contains {_items::1} with "32"
