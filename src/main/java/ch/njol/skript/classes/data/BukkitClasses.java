@@ -947,11 +947,17 @@ public class BukkitClasses {
 				.description("A player or the console.")
 				.usage("use <a href='expressions.html#LitConsole'>the console</a> for the console",
 						"see <a href='#player'>player</a> for players.")
-				.examples("on command /pm:",
-						"	command sender is not the console",
-						"	chance of 10%",
-						"	give coal to the player",
-						"	message \"You got a piece of coal for sending that PM!\"")
+				.examples("command /push [&lt;player&gt;]:",
+						"\ttrigger:",
+						"\t\tif arg-1 is not set:",
+						"\t\t\tif command sender is console:",
+						"\t\t\t\tsend \"You can't push yourself as a console :\\\" to sender",
+						"\t\t\t\tstop",
+						"\t\t\tpush sender upwards with force 2",
+						"\t\t\tsend \"Yay!\"",
+						"\t\telse:",
+						"\t\t\tpush arg-1 upwards with force 2",
+						"\t\t\tsend \"Yay!\" to sender and arg-1")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(CommandSender.class))
 				.parser(new Parser<CommandSender>() {

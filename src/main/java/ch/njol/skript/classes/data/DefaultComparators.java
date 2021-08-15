@@ -231,8 +231,16 @@ public class DefaultComparators {
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
 			public Relation compare(final ItemType i1, final ItemType i2) {
-				if (i1.getAmount() != i2.getAmount())
-					return Relation.NOT_EQUAL;
+				int otherAmount = i2.getAmount();
+				if (i1.getAmount() != otherAmount) {
+					// See https://github.com/SkriptLang/Skript/issues/4278 for reference
+					if (otherAmount != 1) // Don't ignore stack size if the other ItemType has a stack size other than one, even if it may be an alias
+						return Relation.NOT_EQUAL;
+					for (ItemData itemData : i2.getTypes()) {
+						if (!itemData.isAlias()) // Don't ignore stack size if the other ItemType has non alias data.
+							return Relation.NOT_EQUAL;
+					}
+				}
 				return Relation.get(i1.isSimilar(i2));
 			}
 			
