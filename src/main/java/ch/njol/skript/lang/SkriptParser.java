@@ -279,9 +279,17 @@ public class SkriptParser {
 		if (varPattern.matcher(expr).matches()) {
 			String variableName = "" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
 			boolean inExpression = false;
+			int variableDepth = 0;
 			for (char c : variableName.toCharArray()) {
-				if (c == '%')
+				if (c == '%' && variableDepth == 0)
 					inExpression = !inExpression;
+				if (inExpression) {
+					if (c == '{') {
+						variableDepth++;
+					} else if (c == '}')
+						variableDepth--;
+				}
+
 				if (!inExpression && (c == '{' || c == '}'))
 					return null;
 			}
