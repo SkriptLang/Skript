@@ -27,6 +27,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -94,8 +95,8 @@ import net.md_5.bungee.api.ChatColor;
 		"</ul>"})
 @Examples({"on join:",
 		"	player has permission \"name.red\"",
-		"	set the player's display name to \"<red>[admin] <gold>%name of player%\"",
-		"	set the player's tab list name to \"<green>%player's name%\"",
+		"	set the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
+		"	set the player's tab list name to \"&lt;green&gt;%player's name%\"",
 		"set the name of the player's tool to \"Legendary Sword of Awesomeness\""})
 @Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
@@ -106,7 +107,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	static {
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "players/entities/blocks/itemtypes/inventories/slots"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots"
                 + (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 
@@ -137,12 +138,20 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	@Override
 	@Nullable
 	public String convert(Object o) {
+		if (o instanceof OfflinePlayer && ((OfflinePlayer) o).isOnline())
+			o = ((OfflinePlayer) o).getPlayer();
+
 		if (o instanceof Player) {
 			switch (mark) {
-				case 1: return ((Player) o).getName();
-				case 2: return ((Player) o).getDisplayName();
-				case 3: return ((Player) o).getPlayerListName();
+				case 1:
+					return ((Player) o).getName();
+				case 2:
+					return ((Player) o).getDisplayName();
+				case 3:
+					return ((Player) o).getPlayerListName();
 			}
+		} else if (o instanceof OfflinePlayer) {
+			return mark == 1 ? ((OfflinePlayer) o).getName() : null;
 		} else if (o instanceof Entity) {
 			return ((Entity) o).getCustomName();
 		} else if (o instanceof Block) {
