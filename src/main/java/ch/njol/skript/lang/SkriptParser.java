@@ -1403,25 +1403,16 @@ public class SkriptParser {
 						if (i2 == -1)
 							return null;
 					}
-					final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+					ParseLogHandler log = SkriptLogger.startParseLogHandler();
 					try {
 						for (; i2 != -1; i2 = next(expr, i2, context)) {
 							log.clear();
 							res = parse_i(pattern, i2, end + 1);
 							if (res != null) {
-								final ParseLogHandler log2 = SkriptLogger.startParseLogHandler();
+								ParseLogHandler log2 = SkriptLogger.startParseLogHandler();
 								try { // Loop over all types that could go here
-									final Expression<?> e = new SkriptParser("" + expr.substring(i, i2), flags & vi.flagMask, context).parseExpression(vi);
+									Expression<?> e = new SkriptParser("" + expr.substring(i, i2), flags & vi.flagMask, context).parseExpression(vi);
 									if (e != null) {
-//										if (!vi.isPlural[k] && !e.isSingle()) { // Wrong number of arguments
-//											if (context == ParseContext.COMMAND) {
-//												Skript.error(Commands.m_too_many_arguments.toString(vi.classes[k].getName().getIndefiniteArticle(), vi.classes[k].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
-//												return null;
-//											} else {
-//												Skript.error("'" + expr.substring(0, i) + "<...>" + expr.substring(i2) + "' can only accept a single " + vi.classes[k].getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
-//												return null;
-//											}
-//										}
 										if (vi.time != 0) {
 											if (e instanceof Literal<?>)
 												return null;
@@ -1439,9 +1430,6 @@ public class SkriptParser {
 										res.exprs[countUnescaped(pattern, '%', 0, j) / 2] = e;
 										return res;
 									}
-									// results in useless errors most of the time
-//									Skript.error("'" + expr.substring(i, i2) + "' is " + notOfType(vi.classes), ErrorQuality.NOT_AN_EXPRESSION);
-									return null;
 								} finally {
 									log2.printError();
 								}
