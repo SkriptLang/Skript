@@ -57,8 +57,8 @@ public class CondScriptLoaded extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
-		assert ScriptLoader.currentScript != null;
-		currentScriptFile = ScriptLoader.currentScript.getFile();
+		assert getParser().getCurrentScript() != null;
+		currentScriptFile = getParser().getCurrentScript().getFile();
 		return true;
 	}
 	

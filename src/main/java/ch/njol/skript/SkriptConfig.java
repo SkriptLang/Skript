@@ -27,6 +27,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+import ch.njol.skript.hooks.VaultHook;
+import ch.njol.skript.hooks.regions.GriefPreventionHook;
+import ch.njol.skript.hooks.regions.PreciousStonesHook;
+import ch.njol.skript.hooks.regions.ResidenceHook;
+import ch.njol.skript.hooks.regions.WorldGuardHook;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -168,13 +173,8 @@ public abstract class SkriptConfig {
 		}
 	}
 	
-	final static Option<Verbosity> verbosity = new Option<Verbosity>("verbosity", Verbosity.NORMAL, new EnumParser<Verbosity>(Verbosity.class, "verbosity"))
-			.setter(new Setter<Verbosity>() {
-				@Override
-				public void set(final Verbosity v) {
-					SkriptLogger.setVerbosity(v);
-				}
-			});
+	final static Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
+			.setter(SkriptLogger::setVerbosity);
 	
 	public final static Option<EventPriority> defaultEventPriority = new Option<EventPriority>("plugin priority", EventPriority.NORMAL, new Converter<String, EventPriority>() {
 		@Override
@@ -188,9 +188,7 @@ public abstract class SkriptConfig {
 			}
 		}
 	});
-	
-	public final static Option<Boolean> disableDamageCancelChecking = new Option<Boolean>("disable damage event cancellation checking", false);
-	
+
 	public final static Option<Boolean> logPlayerCommands = new Option<Boolean>("log player commands", false);
 	
 	/**
@@ -300,14 +298,22 @@ public abstract class SkriptConfig {
 				
 			});
 
-	public final static Option<Boolean> asyncLoaderEnabled = new Option<Boolean>("asynchronous script loading", false)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					ScriptLoader.loadAsync = t;
+	public final static Option<String> scriptLoaderThreadSize = new Option<>("script loader thread size", "0")
+			.setter(s -> {
+				int asyncLoaderSize;
+				
+				if (s.equalsIgnoreCase("processor count")) {
+					asyncLoaderSize = Runtime.getRuntime().availableProcessors();
+				} else {
+					try {
+						asyncLoaderSize = Integer.parseInt(s);
+					} catch (NumberFormatException e) {
+						Skript.error("Invalid option: " + s);
+						return;
+					}
 				}
 				
+				ScriptLoader.setAsyncLoaderSize(asyncLoaderSize);
 			})
 			.optional(true);
 	
@@ -330,6 +336,42 @@ public abstract class SkriptConfig {
 				}
 				
 			});
+
+	public final static Option<Boolean> disableHookVault = new Option<>("disable hooks.vault", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(VaultHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookGriefPrevention = new Option<>("disable hooks.regions.grief prevention", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(GriefPreventionHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookPreciousStones = new Option<>("disable hooks.regions.precious stones", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(PreciousStonesHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookResidence = new Option<>("disable hooks.regions.residence", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(ResidenceHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookWorldGuard = new Option<>("disable hooks.regions.worldguard", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(WorldGuardHook.class);
+			}
+		});
 
 	/**
 	 * This should only be used in special cases

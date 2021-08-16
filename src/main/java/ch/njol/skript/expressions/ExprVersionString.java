@@ -23,7 +23,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -45,7 +44,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."})
 @Examples({"on server list ping:",
 		"	set the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
-		"	set the version string to \"<light green>Version: <orange>%minecraft version%\""})
+		"	set the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
@@ -59,10 +58,10 @@ public class ExprVersionString extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (ScriptLoader.isCurrentEvent(ServerListPingEvent.class)) {
+		if (getParser().isCurrentEvent(ServerListPingEvent.class)) {
 			Skript.error("The version string expression requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!(PAPER_EVENT_EXISTS && ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class))) {
+		} else if (!(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class))) {
 			Skript.error("The version string expression can't be used outside of a server list ping event");
 			return false;
 		}
@@ -78,7 +77,7 @@ public class ExprVersionString extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Can't change the version string anymore after the server list ping event has already passed");
 			return null;
 		}

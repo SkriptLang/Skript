@@ -26,7 +26,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
@@ -70,11 +69,6 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 	
 	@Override
-	public Class<World> getReturnType() {
-		return World.class;
-	}
-	
-	@Override
 	protected World[] get(final Event e, final Object[] source) {
 		if (source instanceof World[]) // event value (see init)
 			return (World[]) source;
@@ -95,35 +89,41 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 			}
 		});
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	@Nullable
+	public Class<?>[] acceptChange(final ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(World.class);
+		return null;
 	}
-	
+
+	@Override
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta == null)
+			return;
+
+		for (Object o : getExpr().getArray(e)) {
+			if (o instanceof Location) {
+				((Location) o).setWorld((World) delta[0]);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setTime(final int time) {
 		return super.setTime(time, getExpr(), PlayerTeleportEvent.class);
 	}
-	
-	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		Object[] objects = getExpr().getArray(e);
-		
-		if (!(objects instanceof Location[] && delta != null))
-			return;
 
-		for (final Location loc : (Location[]) objects) {
-			loc.setWorld((World) delta[0]);
-		}	
-	}
-	
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(World.class);
-		return null;
+	public Class<World> getReturnType() {
+		return World.class;
 	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	}
+
 }

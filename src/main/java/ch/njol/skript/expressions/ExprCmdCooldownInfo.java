@@ -25,7 +25,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.command.ScriptCommand;
@@ -69,7 +68,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		pattern = matchedPattern;
-		if (!ScriptLoader.isCurrentEvent(ScriptCommandEvent.class)) {
+		if (!getParser().isCurrentEvent(ScriptCommandEvent.class)) {
 			Skript.error("The " + getExpressionName() + " expression can only be used within a command", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

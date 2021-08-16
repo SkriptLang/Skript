@@ -43,6 +43,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -66,7 +67,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
-import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
@@ -100,7 +100,6 @@ import ch.njol.skript.util.EnumUtils;
 import ch.njol.skript.util.InventoryActions;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
-import ch.njol.skript.util.Timespan;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 
@@ -863,18 +862,18 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public boolean canParse(final ParseContext context) {
+					public boolean canParse(ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
 					
 					@Override
-					public String toString(final OfflinePlayer p, final int flags) {
-						return "" + p.getName();
+					public String toString(OfflinePlayer p, int flags) {
+						return p.getName() == null ? p.getUniqueId().toString() : p.getName();
 					}
 					
 					@Override
-					public String toVariableNameString(final OfflinePlayer p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
+					public String toVariableNameString(OfflinePlayer p) {
+						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
 							return "" + p.getUniqueId();
 						else
 							return "" + p.getName();
@@ -889,10 +888,10 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public String getDebugMessage(final OfflinePlayer p) {
+					public String getDebugMessage(OfflinePlayer p) {
 						if (p.isOnline())
 							return Classes.getDebugMessage(p.getPlayer());
-						return "" + p.getName();
+						return toString(p, 0);
 					}
 				}).serializer(new Serializer<OfflinePlayer>() {
 					@Override
@@ -948,11 +947,17 @@ public class BukkitClasses {
 				.description("A player or the console.")
 				.usage("use <a href='expressions.html#LitConsole'>the console</a> for the console",
 						"see <a href='#player'>player</a> for players.")
-				.examples("on command /pm:",
-						"	command sender is not the console",
-						"	chance of 10%",
-						"	give coal to the player",
-						"	message \"You got a piece of coal for sending that PM!\"")
+				.examples("command /push [&lt;player&gt;]:",
+						"\ttrigger:",
+						"\t\tif arg-1 is not set:",
+						"\t\t\tif command sender is console:",
+						"\t\t\t\tsend \"You can't push yourself as a console :\\\" to sender",
+						"\t\t\t\tstop",
+						"\t\t\tpush sender upwards with force 2",
+						"\t\t\tsend \"Yay!\"",
+						"\t\telse:",
+						"\t\t\tpush arg-1 upwards with force 2",
+						"\t\t\tsend \"Yay!\" to sender and arg-1")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(CommandSender.class))
 				.parser(new Parser<CommandSender>() {
@@ -988,7 +993,6 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(InventoryHolder.class))
 				.after("entity", "block")
 				.parser(new Parser<InventoryHolder>() {
-					
 					@Override
 					public boolean canParse(ParseContext context) {
 						return false;
@@ -996,7 +1000,13 @@ public class BukkitClasses {
 					
 					@Override
 					public String toString(InventoryHolder holder, int flags) {
-						return Classes.toString(holder instanceof BlockState ? ((BlockState) holder).getBlock() : holder);
+						if (holder instanceof BlockState) {
+							return Classes.toString(((BlockState) holder).getBlock());
+						} else if (holder instanceof DoubleChest) {
+							return "double chest";
+						} else {
+							return Classes.toString(holder);
+						}
 					}
 					
 					@Override
@@ -1642,8 +1652,7 @@ public class BukkitClasses {
 				.documentationId("FireworkType")
 				.parser(new Parser<FireworkEffect.Type>() {
 					@Override
-					@Nullable
-					public FireworkEffect.Type parse(String input, ParseContext context) {
+					public FireworkEffect.@Nullable Type parse(String input, ParseContext context) {
 						return fireworktypes.parse(input);
 					}
 					
@@ -1879,9 +1888,8 @@ public class BukkitClasses {
 					.requiredPlugins("Minecraft 1.14 or newer")
 					.documentationId("CatType")
 					.parser(new Parser<Cat.Type>() {
-						@Nullable
 						@Override
-						public Cat.Type parse(String expr, ParseContext context) {
+						public Cat.@Nullable Type parse(String expr, ParseContext context) {
 							return races.parse(expr);
 						}
 						

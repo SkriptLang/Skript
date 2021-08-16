@@ -24,7 +24,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -49,7 +48,7 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class)) {
+		if (!getParser().isCurrentEvent(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class)) {
 			Skript.error("The moved blocks are only usable in piston extend and retract events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

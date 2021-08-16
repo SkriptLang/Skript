@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -39,6 +38,7 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
+import ch.njol.util.StringUtils;
 
 /**
  * Parses aliases.
@@ -594,7 +594,7 @@ public class AliasesParser {
 		int start = 0; // Start of next substring
 		int indexStart = 0; // Start of next comma lookup
 		while (start - 1 != data.length()) {
-			int comma = data.indexOf(',', indexStart);
+			int comma = StringUtils.indexOfOutsideGroup(data, ',', '{', '}', indexStart);
 			if (comma == -1) { // No more items than this
 				if (indexStart == 0) { // Nothing was loaded, so no commas at all
 					String item = data.trim();
@@ -606,15 +606,6 @@ public class AliasesParser {
 				}
 			}
 			
-			int bracketOpen = data.indexOf('{', indexStart);
-			int bracketClose = data.indexOf('}', bracketOpen);
-			if (comma < bracketClose && comma > bracketOpen) {
-				// Inside tags, comma lookup goes to end of tags
-				indexStart = bracketClose;
-				continue;
-			}
-			
-			// Not inside tags, so process the item
 			String item = data.substring(start, comma).trim();
 			assert item != null;
 			loadSingleAlias(variations, item);
@@ -715,7 +706,7 @@ public class AliasesParser {
 	 * @return Name fixed.
 	 */
 	protected String fixName(String name) {
-		String result = StringUtils.normalizeSpace(name);
+		String result = org.apache.commons.lang.StringUtils.normalizeSpace(name);
 		
 		int i = result.indexOf('¦');
 		

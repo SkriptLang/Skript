@@ -27,7 +27,6 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -55,13 +54,14 @@ import ch.njol.util.Kleenean;
 @Since("1.3")
 @Events({"damage", "death", "destroy"})
 public class ExprAttacker extends SimpleExpression<Entity> {
+
 	static {
 		Skript.registerExpression(ExprAttacker.class, Entity.class, ExpressionType.SIMPLE, "[the] (attacker|damager)");
 	}
 	
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		if (!ScriptLoader.isCurrentEvent(EntityDamageByEntityEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class)) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		if (!getParser().isCurrentEvent(EntityDamageByEntityEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class)) {
 			Skript.error("Cannot use 'attacker' outside of a damage/death/destroy event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
@@ -69,19 +69,19 @@ public class ExprAttacker extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	protected Entity[] get(final Event e) {
+	protected Entity[] get(Event e) {
 		return new Entity[] {getAttacker(e)};
 	}
 	
 	@Nullable
-	private static Entity getAttacker(final @Nullable Event e) {
+	private static Entity getAttacker(@Nullable Event e) {
 		if (e == null)
 			return null;
 		if (e instanceof EntityDamageByEntityEvent) {
-			final EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) e;
+			EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) e;
 			if (edbee.getDamager() instanceof Projectile) {
-				final Projectile p = (Projectile) edbee.getDamager();
-				final Object o = p.getShooter();
+				Projectile p = (Projectile) edbee.getDamager();
+				Object o = p.getShooter();
 				if (o instanceof Entity)
 					return (Entity) o;
 				return null;
@@ -105,7 +105,7 @@ public class ExprAttacker extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		if (e == null)
 			return "the attacker";
 		return Classes.getDebugMessage(getSingle(e));

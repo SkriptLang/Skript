@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +45,6 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
@@ -63,7 +61,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 		"\tcancel event",
 		"\tsend \"[%player%] >> %message%\" to all players from player"})
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
-@Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), INSERT VERSION (sending objects)")
+@Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
 	
 	private static final boolean SUPPORTS_SENDER = Skript.classExists("org.bukkit.command.CommandSender$Spigot") &&
@@ -135,7 +133,8 @@ public class EffMessage extends Effect {
 						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
 						for (Object object : messageArray) {
-							sendMessage((Player) receiver, sender, new TextComponent(toString(object)));
+							List<MessageComponent> components = ChatMessages.fromParsedString(toString(object));
+							sendMessage((Player) receiver, sender, BungeeConverter.convert(components));
 						}
 					}
 				} else { // Not a player, send plain text with legacy formatting

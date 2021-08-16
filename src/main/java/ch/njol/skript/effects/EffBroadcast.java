@@ -43,7 +43,7 @@ import ch.njol.util.Kleenean;
 		"message to all players instead of broadcasting it."})
 @Examples({"broadcast \"Welcome %player% to the server!\"",
 		"broadcast \"Woah! It's a message!\""})
-@Since("1.0, INSERT VERSION (broadcasting objects)")
+@Since("1.0, 2.6 (broadcasting objects)")
 public class EffBroadcast extends Effect {
 
 	static {

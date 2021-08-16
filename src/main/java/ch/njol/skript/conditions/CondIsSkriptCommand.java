@@ -35,7 +35,7 @@ import ch.njol.skript.doc.Since;
 	"",
 	"# Example 2",
 	"\"sometext\" is a skript command"})
-@Since("INSERT VERSION")
+@Since("2.6")
 public class CondIsSkriptCommand extends PropertyCondition<String> {
 	
 	static {

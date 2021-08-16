@@ -250,7 +250,8 @@ public class FunctionReference<T> {
 			function = (Function<? extends T>) Functions.getFunction(functionName);
 		
 		if (function == null) { // It might be impossible to resolve functions in some cases!
-			Skript.error("Invalid function call to a function that does not exist yet. Be careful when using functions in 'script load' events!");
+			Skript.error("Couldn't resolve call for '" + functionName +
+				"'. Be careful when using functions in 'script load' events!");
 			return null; // Return nothing and hope it works
 		}
 		

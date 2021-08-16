@@ -1,3 +1,6 @@
+on load:
+	suppress conflict warnings
+
 test "replace items":
 	set {_inv} to chest inventory with 3 rows
 	set slot 2 of {_inv} to 54 dirt

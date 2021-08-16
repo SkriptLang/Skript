@@ -50,7 +50,7 @@ import ch.njol.util.Kleenean;
 	"permission of command \"/op\"",
 	"command \"op\"'s permission message",
 	"command \"sk\"'s plugin owner"})
-@Since("INSERT VERSION")
+@Since("2.6")
 public class ExprCommandInfo extends SimpleExpression<String> {
 
 	private enum InfoType {

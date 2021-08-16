@@ -32,11 +32,11 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
+import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.primitives.Booleans;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -51,6 +51,7 @@ import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -248,7 +249,7 @@ public class SkriptParser {
 								x = x2;
 							}
 							final T t = info.c.newInstance();
-							if (t.init(res.exprs, i, ScriptLoader.hasDelayBefore, res)) {
+							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
@@ -268,15 +269,32 @@ public class SkriptParser {
 	}
 	
 	@SuppressWarnings("null")
-	private final static Pattern varPattern = Pattern.compile("((the )?var(iable)? )?\\{([^{}]|%\\{|\\}%)+\\}", Pattern.CASE_INSENSITIVE);
+	private final static Pattern varPattern = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
 	
 	/**
 	 * Prints errors
 	 */
 	@Nullable
 	private static <T> Variable<T> parseVariable(final String expr, final Class<? extends T>[] returnTypes) {
-		if (varPattern.matcher(expr).matches())
-			return Variable.newInstance("" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}')), returnTypes);
+		if (varPattern.matcher(expr).matches()) {
+			String variableName = "" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
+			boolean inExpression = false;
+			int variableDepth = 0;
+			for (char c : variableName.toCharArray()) {
+				if (c == '%' && variableDepth == 0)
+					inExpression = !inExpression;
+				if (inExpression) {
+					if (c == '{') {
+						variableDepth++;
+					} else if (c == '}')
+						variableDepth--;
+				}
+
+				if (!inExpression && (c == '{' || c == '}'))
+					return null;
+			}
+			return Variable.newInstance(variableName, returnTypes);
+		}
 		return null;
 	}
 	
@@ -354,7 +372,6 @@ public class SkriptParser {
 					return null;
 				}
 				log.clear();
-				log.printLog();
 				final LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -553,7 +570,6 @@ public class SkriptParser {
 					return null;
 				}
 				log.clear();
-				log.printLog();
 				final LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -608,8 +624,8 @@ public class SkriptParser {
 				if ((flags & PARSE_LITERALS) != 0) {
 					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
 					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-					if (ScriptLoader.currentScript != null) {
-						Config cs = ScriptLoader.currentScript;
+					if (getParser().getCurrentScript() != null) {
+						Config cs = getParser().getCurrentScript();
 						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
 					}
 					if (!p.suppressMissingAndOrWarnings) {
@@ -660,12 +676,10 @@ public class SkriptParser {
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
 					log.clear();
-					log.printLog();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(types);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
 					log.clear();
-					log.printLog();
 					return (Expression<? extends T>) new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
@@ -711,63 +725,15 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			
-//			String lastExpr = expr;
-//			int end = expr.length();
-//			int expectedEnd = -1;
-//			boolean last = false;
-//			while (m.find() || (last = !last)) {
-//				if (expectedEnd == -1) {
-//					if (last)
-//						break;
-//					expectedEnd = m.start();
-//				}
-//				final int start = last ? 0 : m.end();
-//				final Expression<? extends T> t;
-//				if (context != ParseContext.COMMAND && (start < expr.length() && expr.charAt(start) == '(' || end - 1 > 0 && expr.charAt(end - 1) == ')')) {
-//					if (start < expr.length() && expr.charAt(start) == '(' && end - 1 > 0 && expr.charAt(end - 1) == ')' && next(expr, start, context) == end)
-//						t = new SkriptParser(lastExpr = "" + expr.substring(start + 1, end - 1), flags, context).parseExpression(types);
-//					else
-//						t = null;
-//				} else {
-//					t = new SkriptParser(lastExpr = "" + expr.substring(start, end), flags, context).parseSingleExpr(types);
-//				}
-//				if (t != null) {
-//					isLiteralList &= t instanceof Literal;
-//					if (!last && m.group(1) != null) {
-//						if (and.isUnknown()) {
-//							and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//						} else {
-//							if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//								Skript.warning(MULTIPLE_AND_OR);
-//								and = Kleenean.TRUE;
-//							}
-//						}
-//					}
-//					ts.addFirst(t);
-//					if (last)
-//						break;
-//					end = m.start();
-//					m.region(0, end);
-//				} else {
-//					log.clear();
-//					if (last)
-//						end = -2; // fails the test below
-//				}
-//			}
-//			if (end != expectedEnd) {
-//				log.printError("'" + lastExpr + "' " + Language.get("is") + " " + notOfType(types), ErrorQuality.NOT_AN_EXPRESSION);
-//				return null;
-//			}
-			
-			log.printLog();
+
+			log.clearError();
 			
 			if (ts.size() == 1)
 				return ts.get(0);
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				if (ScriptLoader.currentScript != null) {
-					Config cs = ScriptLoader.currentScript;
+				if (getParser().getCurrentScript() != null) {
+					Config cs = getParser().getCurrentScript();
 					if (!ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction")) {
 						Skript.warning(MISSING_AND_OR + ": " + expr);
 					}
@@ -808,8 +774,8 @@ public class SkriptParser {
 					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
 					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
 					p.suppressMissingAndOrWarnings = suppressMissingAndOrWarnings; // If we suppress warnings here, we suppress them in parser what we created too
-					if (ScriptLoader.currentScript != null) {
-						Config cs = ScriptLoader.currentScript;
+					if (getParser().getCurrentScript() != null) {
+						Config cs = getParser().getCurrentScript();
 						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
 					}
 					for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
@@ -859,12 +825,10 @@ public class SkriptParser {
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
 					log.clear();
-					log.printLog();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(vi);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
 					log.clear();
-					log.printLog();
 					return new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
@@ -919,64 +883,16 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			
-//			String lastExpr = expr;
-//			int end = expr.length();
-//			int expectedEnd = -1;
-//			boolean last = false;
-//			while (m.find() || (last = !last)) {
-//				if (expectedEnd == -1) {
-//					if (last)
-//						break;
-//					expectedEnd = m.start();
-//				}
-//				final int start = last ? 0 : m.end();
-//				final Expression<? extends T> t;
-//				if (context != ParseContext.COMMAND && (start < expr.length() && expr.charAt(start) == '(' || end - 1 > 0 && expr.charAt(end - 1) == ')')) {
-//					if (start < expr.length() && expr.charAt(start) == '(' && end - 1 > 0 && expr.charAt(end - 1) == ')' && next(expr, start, context) == end)
-//						t = new SkriptParser(lastExpr = "" + expr.substring(start + 1, end - 1), flags, context).parseExpression(types);
-//					else
-//						t = null;
-//				} else {
-//					t = new SkriptParser(lastExpr = "" + expr.substring(start, end), flags, context).parseSingleExpr(types);
-//				}
-//				if (t != null) {
-//					isLiteralList &= t instanceof Literal;
-//					if (!last && m.group(1) != null) {
-//						if (and.isUnknown()) {
-//							and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//						} else {
-//							if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//								Skript.warning(MULTIPLE_AND_OR);
-//								and = Kleenean.TRUE;
-//							}
-//						}
-//					}
-//					ts.addFirst(t);
-//					if (last)
-//						break;
-//					end = m.start();
-//					m.region(0, end);
-//				} else {
-//					log.clear();
-//					if (last)
-//						end = -2; // fails the test below
-//				}
-//			}
-//			if (end != expectedEnd) {
-//				log.printError("'" + lastExpr + "' " + Language.get("is") + " " + notOfType(types), ErrorQuality.NOT_AN_EXPRESSION);
-//				return null;
-//			}
-			
-			log.printLog();
+
+			log.clearError();
 			
 			if (ts.size() == 1) {
 				return ts.get(0);
 			}
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				if (ScriptLoader.currentScript != null) {
-					Config cs = ScriptLoader.currentScript;
+				if (getParser().getCurrentScript() != null) {
+					Config cs = getParser().getCurrentScript();
 					if (!ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction"))
 						Skript.warning(MISSING_AND_OR + ": " + expr);
 				} else {
@@ -1002,111 +918,6 @@ public class SkriptParser {
 		}
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	@Nullable
-//	private final Expression<?> parseObjectExpression() {
-//		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
-//		try {
-//			if ((flags & PARSE_EXPRESSIONS) != 0) {
-//				final Expression<?> r = new SkriptParser(expr, PARSE_EXPRESSIONS, context).parseSingleExpr(Object.class);
-//				if (r != null) {
-//					log.printLog();
-//					return r;
-//				}
-//				if ((flags & PARSE_LITERALS) == 0) {
-//					log.printError();
-//					return null;
-//				}
-//				log.clear();
-//			}
-//
-//			if ((flags & PARSE_LITERALS) != 0) {
-//				// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-//				final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-//				for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-//					final Expression<?> e = p.parseExpression(c);
-//					if (e != null) {
-//						log.printLog();
-//						return e;
-//					}
-//					log.clear();
-//				}
-//			}
-//		} finally {
-//			// log has been printed already or is not used after this (except for the error)
-//			log.clear();
-//			log.printLog();
-//		}
-//
-//		final Matcher m = listSplitPattern.matcher(expr);
-//		if (!m.find())
-//			return new UnparsedLiteral(expr, log.getError());
-//		m.reset();
-//
-//		final List<Expression<?>> ts = new ArrayList<Expression<?>>();
-//		Kleenean and = Kleenean.UNKNOWN;
-//		boolean last = false;
-//		boolean isLiteralList = true;
-//		int start = 0;
-//		while (!last) {
-//			final Expression<?> t;
-//			if (context != ParseContext.COMMAND && expr.charAt(start) == '(') {
-//				final int end = next(expr, start, context);
-//				if (end == -1)
-//					return null;
-//				last = end == expr.length();
-//				if (!last) {
-//					m.region(end, expr.length());
-//					if (!m.lookingAt())
-//						return null;
-//				}
-//				t = new SkriptParser("" + expr.substring(start + 1, end - 1), flags, context).parseObjectExpression();
-//			} else {
-//				m.region(start, expr.length());
-//				last = !m.find();
-//				final String sub = last ? expr.substring(start) : expr.substring(start, m.start());
-//				t = new SkriptParser("" + sub, flags, context).parseSingleExpr(Object.class);
-//			}
-//			if (t == null)
-//				return null;
-//			if (!last)
-//				start = m.end();
-//
-//			isLiteralList &= t instanceof Literal;
-//			if (!last && m.group(1) != null) {
-//				if (and.isUnknown()) {
-//					and = Kleenean.get(!m.group(1).equalsIgnoreCase("or")); // nor is and
-//				} else {
-//					if (and != Kleenean.get(!m.group(1).equalsIgnoreCase("or"))) {
-//						Skript.warning(MULTIPLE_AND_OR);
-//						and = Kleenean.TRUE;
-//					}
-//				}
-//			}
-//			ts.add(t);
-//		}
-//		assert ts.size() >= 1 : expr;
-//		if (ts.size() == 1)
-//			return ts.get(0);
-//		if (and.isUnknown())
-//			Skript.warning(MISSING_AND_OR);
-//
-//		final Class<?>[] exprRetTypes = new Class[ts.size()];
-//		int i = 0;
-//		for (final Expression<?> t : ts)
-//			exprRetTypes[i++] = t.getReturnType();
-//
-//		if (isLiteralList) {
-//			final Literal<Object>[] ls = ts.toArray(new Literal[ts.size()]);
-//			assert ls != null;
-//			return new LiteralList<Object>(ls, (Class<Object>) Utils.getSuperType(exprRetTypes), !and.isFalse());
-//		} else {
-//			final Expression<Object>[] es = ts.toArray(new Expression[ts.size()]);
-//			assert es != null;
-//			return new ExpressionList<Object>(es, (Class<Object>) Utils.getSuperType(exprRetTypes), !and.isFalse());
-//		}
-//	}
-	
 	@SuppressWarnings("null")
 	private final static Pattern functionCallPattern = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
 	
@@ -1127,14 +938,31 @@ public class SkriptParser {
 				return null;
 			}
 			
+			String functionName = "" + m.group(1);
+			String args = m.group(2);
+			Expression<?>[] params;
+			
+			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
+			// See https://github.com/SkriptLang/Skript/issues/1532
+			int level = 0;
+			for (char c : args.toCharArray()) {
+				if (c == '(') {
+					level++;
+				} else if (c == ')') {
+					if (level == 0) {
+						log.printLog();
+						return null;
+					}
+					level--;
+				}
+			}
+			
 			if ((flags & PARSE_EXPRESSIONS) == 0) {
 				Skript.error("Functions cannot be used here (or there is a problem with your arguments).");
 				log.printError();
 				return null;
 			}
-			final String functionName = "" + m.group(1);
-			final String args = m.group(2);
-			final Expression<?>[] params;
+			
 			if (args.length() != 0) {
 				final Expression<?> ps = new SkriptParser(args, flags | PARSE_LITERALS, context).suppressMissingAndOrWarnings().parseExpression(Object.class);
 				if (ps == null) {
@@ -1175,7 +1003,7 @@ public class SkriptParser {
 //			@SuppressWarnings("null")
 			
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					ScriptLoader.currentScript != null ? ScriptLoader.currentScript.getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
+					getParser().getCurrentScript() != null ? getParser().getCurrentScript().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
 				log.printError();
 				return null;
@@ -1218,11 +1046,35 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(final String event, final String defaultError) {
-		final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
+		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		try {
-			final NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
+			String[] split = event.split(" with priority ");
+			EventPriority priority;
+			if (split.length != 1) {
+				event = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
+				
+				String priorityString = split[split.length - 1];
+				try {
+					priority = EventPriority.valueOf(priorityString.toUpperCase());
+				} catch (IllegalArgumentException e) { // Priority doesn't exist
+					log.printErrors("The priority " + priorityString + " doesn't exist");
+					return null;
+				}
+			} else {
+				priority = null;
+			}
+			
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
 			if (e != null) {
+				if (priority != null && e.getSecond() instanceof SelfRegisteringSkriptEvent) {
+					log.printErrors("This event doesn't support event priority");
+					return null;
+				}
+				
+				//noinspection ConstantConditions
+				e.getSecond().eventPriority = priority;
+				
 				log.printLog();
 				return e;
 			}
@@ -1573,7 +1425,7 @@ public class SkriptParser {
 										if (vi.time != 0) {
 											if (e instanceof Literal<?>)
 												return null;
-											if (ScriptLoader.hasDelayBefore == Kleenean.TRUE) {
+											if (getParser().getHasDelayBefore() == Kleenean.TRUE) {
 												Skript.error("Cannot use time states after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
 												return null;
 											}
@@ -1832,6 +1684,13 @@ public class SkriptParser {
 			r.isPlural[i] = p.getSecond();
 		}
 		return r;
+	}
+	
+	/**
+	 * @see ParserInstance#get()
+	 */
+	private static ParserInstance getParser() {
+		return ParserInstance.get();
 	}
 	
 }

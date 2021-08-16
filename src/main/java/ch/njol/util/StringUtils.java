@@ -402,7 +402,7 @@ public abstract class StringUtils {
 	public static String replace(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {
 		if (caseSensitive)
 			return "" + haystack.replace(needle, replacement);
-		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), replacement);
+		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), Matcher.quoteReplacement(replacement));
 	}
 	
 	public static String replaceFirst(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {
@@ -419,6 +419,23 @@ public abstract class StringUtils {
 					+ Character.digit(s.charAt(i+1), 16));
 		}
 		return data;
+	}
+	
+	public static int indexOfOutsideGroup(String string, char find, char groupOpen, char groupClose, int i) {
+		int group = 0;
+		for (; i < string.length(); i++) {
+			char c = string.charAt(i);
+			if (c == '\\') {
+				i++;
+			} else if (c == groupOpen) {
+				group++;
+			} else if (c == groupClose) {
+				group--;
+			} else if (c == find && group == 0) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 }

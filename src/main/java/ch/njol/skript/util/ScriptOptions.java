@@ -31,32 +31,18 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class ScriptOptions {
 	
-	private HashMap<File, Set<String>> localWarningSuppression = new HashMap<>();
+	private final HashMap<File, Set<String>> localWarningSuppression = new HashMap<>();
+
+	@Nullable
+	private static ScriptOptions instance;
 	
-	private HashMap<File, Boolean> usesNewLoops = new HashMap<>();
-	
-	@SuppressWarnings("null")
-	private static ScriptOptions instance = null;
-	
-	private ScriptOptions(){
-		ScriptOptions.instance = this;
-	}
+	private ScriptOptions() { }
 	
 	@SuppressWarnings("null")
-	public static ScriptOptions getInstance(){
-		return instance != null ? instance : new ScriptOptions();
+	public static ScriptOptions getInstance() {
+		return instance == null ? (instance = new ScriptOptions()) : instance;
 	}
-	
-	public boolean usesNewLoops(File file){
-		if(usesNewLoops.containsKey(file))
-			return usesNewLoops.get(file);
-		return true;
-	}
-	
-	public void setUsesNewLoops(File file, boolean b){
-		usesNewLoops.put(file, b);
-	}
-	
+
 	public boolean suppressesWarning(@Nullable File scriptFile, String warning) {
 		Set<String> suppressed = localWarningSuppression.get(scriptFile);
 		return suppressed != null && suppressed.contains(warning);

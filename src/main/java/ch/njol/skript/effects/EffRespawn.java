@@ -25,7 +25,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -56,14 +55,14 @@ public class EffRespawn extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (ScriptLoader.isCurrentEvent(PlayerRespawnEvent.class)) { // Just in case someone tries to do this
+		if (getParser().isCurrentEvent(PlayerRespawnEvent.class)) { // Just in case someone tries to do this
 			Skript.error("Respawning the player in a respawn event is not possible", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
 		players = (Expression<Player>) exprs[0];
 		// Force a delay before respawning the player if we're in the death event and there isn't already a delay
 		// Unexpected behavior may occur if we don't do this
-		forceDelay = ScriptLoader.isCurrentEvent(PlayerDeathEvent.class) && isDelayed.isFalse();
+		forceDelay = getParser().isCurrentEvent(PlayerDeathEvent.class) && isDelayed.isFalse();
 		return true;
 	}
 

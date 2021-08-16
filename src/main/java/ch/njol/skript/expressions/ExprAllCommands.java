@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 @Description("Returns all registered commands or all script commands.")
 @Examples({"send \"Number of all commands: %size of all commands%\"",
 	"send \"Number of all script commands: %size of all script commands%\""})
-@Since("INSERT VERSION")
+@Since("2.6")
 public class ExprAllCommands extends SimpleExpression<String> {
 	
 	static {

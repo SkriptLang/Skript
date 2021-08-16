@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,6 +38,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.OpenCloseable;
 
 @Name("Enable/Disable/Reload Script File")
 @Description("Enables, disables, or reloads a script file.")
@@ -71,42 +73,43 @@ public class EffScriptFile extends Effect {
 	@Override
 	protected void execute(Event e) {
 		String name = fileName != null ? fileName.getSingle(e) : "";
-		File f = SkriptCommand.getScriptFromName(name != null ? name : "");
-		if (f == null) {
+		File file = SkriptCommand.getScriptFromName(name != null ? name : "");
+		if (file == null) {
 			return;
 		}
 		switch (mark) {
 			case ENABLE: {
-				if (!f.getName().startsWith("-")) {
+				if (!file.getName().startsWith("-")) {
 					return;
 				}
 				
 				try {
-					f = FileUtils.move(f, new File(f.getParentFile(), f.getName().substring(1)), false);
+					file = FileUtils.move(file, new File(file.getParentFile(), file.getName().substring(1)), false);
 				} catch (final IOException ex) {
 					Skript.exception(ex, "Error while enabling script file: " + name);
 					return;
 				}
-				Config config = ScriptLoader.loadStructure(f);
-				ScriptLoader.loadScripts(config);
+				Config config = ScriptLoader.loadStructure(file);
+				if (config != null)
+					ScriptLoader.loadScripts(Collections.singletonList(config), OpenCloseable.EMPTY);
 				break;
 			}
 			case RELOAD: {
-				if (f.getName().startsWith("-")) {
+				if (file.getName().startsWith("-")) {
 					return;
 				}
 				
-				ScriptLoader.reloadScript(f);
+				ScriptLoader.reloadScript(file, OpenCloseable.EMPTY);
 				break;
 			}
 			case DISABLE: {
-				if (f.getName().startsWith("-")) {
+				if (file.getName().startsWith("-")) {
 					return;
 				}
 				
-				ScriptLoader.unloadScript(f);
+				ScriptLoader.unloadScript(file);
 				try {
-					FileUtils.move(f, new File(f.getParentFile(), "-" + f.getName()), false);
+					FileUtils.move(file, new File(file.getParentFile(), "-" + file.getName()), false);
 				} catch (final IOException ex) {
 					Skript.exception(ex, "Error while disabling script file: " + name);
 					return;
