@@ -426,11 +426,11 @@ public abstract class Commands {
 			aliases = new ArrayList<>(0);
 		final String permission = ScriptLoader.replaceOptions(node.get("permission", ""));
 
-		final String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""));
+		String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""))
+			.replace("\"", "\"\"");
 
 		VariableString permissionMessage = rawPermissionMessage.isEmpty() ?
-				null
-				: VariableString.newInstance(rawPermissionMessage);
+			null : VariableString.newInstance(rawPermissionMessage);
 
 		final SectionNode trigger = (SectionNode) node.get("trigger");
 		if (trigger == null)
@@ -457,7 +457,8 @@ public abstract class Commands {
 			}
 		}
 
-		final String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""));
+		String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""))
+			.replace("\"", "\"\"");
 		boolean usingCooldownMessage = !cooldownMessageString.isEmpty();
 		VariableString cooldownMessage = null;
 		if (usingCooldownMessage) {
