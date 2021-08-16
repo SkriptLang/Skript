@@ -32,8 +32,9 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerFishEvent.State;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.List;
 
 @Name("Fishing")
 @Description("Called when a player triggers a fishing event (catching a fish, failing, etc.)")
@@ -69,15 +70,14 @@ public class EvtFish extends SkriptEvent {
 		}, 0);
 	}
 
-	@SuppressWarnings("null")
-	EnumSet<PlayerFishEvent.State> states = EnumSet.noneOf(State.class);
+	@Nullable
+	private List<State> states = new ArrayList<>();
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		Literal<State> states = (Literal<State>) args[0];
-		if (states != null) {
-			this.states.addAll(Arrays.asList(states.getAll()));
-		}
+		if (args[0] != null)
+			states = Arrays.asList(((Literal<State>) args[0]).getAll());
+
 		return true;
 	}
 

@@ -1967,7 +1967,7 @@ public class BukkitClasses {
 
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
 			Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
+				.user("enchant(ment)? ?offers?")
 				.name("Enchantment Offer")
 				.description("The enchantmentoffer in an enchant prepare event.")
 				.examples("on enchant prepare:",
@@ -2030,7 +2030,7 @@ public class BukkitClasses {
 				.serializer(new EnumSerializer<>(Attribute.class)));
 		EnumUtils<PlayerFishEvent.State> fishStateUtils = new EnumUtils<>(PlayerFishEvent.State.class, "fishing states");
 		Classes.registerClass(new ClassInfo<>(PlayerFishEvent.State.class, "fishingstate")
-				.user("fish(ing|) ?states?")
+				.user("fish(ing)? ?states?")
 				.name("Fishing State")
 				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
 				.usage(fishStateUtils.getAllNames())
