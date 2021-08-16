@@ -49,8 +49,8 @@ import ch.njol.util.Kleenean;
 		"\t\tadd 100 to dropped experience",
 		"on fishing:",
 		"\tadd 70 to dropped experience"})
-@Since("2.1, 2.5.3 (block break event)")
-@Events({"experience spawn", "break / mine", "fish"})
+@Since("2.1, 2.5.3 (block break event), INSERT VERSION (fishing)")
+@Events({"experience spawn", "break / mine", "fishing"})
 public class ExprExperience extends SimpleExpression<Experience> {
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] (spawned|dropped|) [e]xp[erience] [orb[s]]");
