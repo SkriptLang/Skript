@@ -2028,27 +2028,26 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
-		EnumUtils<State> fishStateUtils = new EnumUtils<>(State.class, "fishing states");
-		Classes.registerClass(new ClassInfo<>(State.class, "fishingstate")
+		EnumUtils<PlayerFishEvent.State> fishStateUtils = new EnumUtils<>(PlayerFishEvent.State.class, "fishing states");
+		Classes.registerClass(new ClassInfo<>(PlayerFishEvent.State.class, "fishingstate")
 				.user("fish(ing|) ?states?")
 				.name("Fishing State")
 				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
 				.usage(fishStateUtils.getAllNames())
 				.since("INSERT VERSION")
-				.parser(new Parser<State>() {
+				.parser(new Parser<PlayerFishEvent.State>() {
 					@Override
-					@Nullable
-					public State parse(String s, ParseContext context) {
+					public PlayerFishEvent.State parse(String s, ParseContext context) {
 						return fishStateUtils.parse(s);
 					}
 					
 					@Override
-					public String toString(State o, int flags) {
+					public String toString(PlayerFishEvent.State o, int flags) {
 						return fishStateUtils.toString(o, flags);
 					}
 					
 					@Override
-					public String toVariableNameString(State o) {
+					public String toVariableNameString(PlayerFishEvent.State o) {
 						return o.name();
 					}
 					
@@ -2057,6 +2056,6 @@ public class BukkitClasses {
 						return "\\S+";
 					}
 				})
-				.serializer(new EnumSerializer<>(State.class)));
+				.serializer(new EnumSerializer<>(PlayerFishEvent.State.class)));
 	}
 }
