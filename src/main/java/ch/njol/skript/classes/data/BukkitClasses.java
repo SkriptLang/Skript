@@ -62,6 +62,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerFishEvent.State;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
@@ -2027,35 +2028,35 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
-		EnumUtils<PlayerFishEvent.State> fishStateUtils = new EnumUtils<>(PlayerFishEvent.State.class, "fishing states");
-		Classes.registerClass(new ClassInfo<>(PlayerFishEvent.State.class, "fishingstate")
+		EnumUtils<State> fishStateUtils = new EnumUtils<>(State.class, "fishing states");
+		Classes.registerClass(new ClassInfo<>(State.class, "fishingstate")
 				.user("fish(ing|) ?states?")
-				.name("Fishing state")
+				.name("Fishing State")
 				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
 				.usage(fishStateUtils.getAllNames())
 				.since("INSERT VERSION")
-				.parser(new Parser<PlayerFishEvent.State>() {
-					@Nullable
+				.parser(new Parser<State>() {
 					@Override
-					public PlayerFishEvent.State parse(String s, ParseContext context) {
+					@Nullable
+					public State parse(String s, ParseContext context) {
 						return fishStateUtils.parse(s);
 					}
 					
 					@Override
-					public String toString(PlayerFishEvent.State o, int flags) {
+					public String toString(State o, int flags) {
 						return fishStateUtils.toString(o, flags);
 					}
 					
 					@Override
-					public String toVariableNameString(PlayerFishEvent.State o) {
+					public String toVariableNameString(State o) {
 						return o.name();
 					}
 					
 					@Override
 					public String getVariableNamePattern() {
-						return "\\S";
+						return "\\S+";
 					}
 				})
-				.serializer(new EnumSerializer<>(PlayerFishEvent.State.class)));
+				.serializer(new EnumSerializer<>(State.class)));
 	}
 }

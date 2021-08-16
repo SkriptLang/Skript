@@ -1308,10 +1308,10 @@ heal reasons:
 
 # -- Fishing States --
 fishing states:
-	bite: bite
+	bite: bite, a bite
 	caught_entity: caught entity
 	caught_fish: caught fish
-	failed_attempt: failed attempt
+	failed_attempt: failed attempt, a failed attempt
 	fishing: fishing
 	in_ground: hook in the ground, hook in ground
 	reel_in: reel in

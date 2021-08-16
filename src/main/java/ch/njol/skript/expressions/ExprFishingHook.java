@@ -32,8 +32,7 @@ import ch.njol.skript.lang.ExpressionType;
 
 @Name("Fishing Hook")
 @Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
-@Examples(
-	{"on fishing:",
+@Examples({"on fishing:",
 	"\tteleport player to fishing hook"})
 @Since("INSERT VERSION")
 public class ExprFishingHook extends EventValueExpression<FishHook> {

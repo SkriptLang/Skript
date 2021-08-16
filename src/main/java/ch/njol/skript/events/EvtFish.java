@@ -42,7 +42,7 @@ import java.util.EnumSet;
 	"on fishing state of caught entity:",
 	"\tpush event-entity vector from entity to player"})
 @RequiredPlugins("1.14+ (reel in)")
-@Since("1.0, INSERT VERSION (fishing states, entity, player and hook)")
+@Since("1.0, INSERT VERSION (fishing states, entity and hook)")
 public class EvtFish extends SkriptEvent {
 
 	static {
