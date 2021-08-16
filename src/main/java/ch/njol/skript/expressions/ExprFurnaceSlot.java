@@ -69,8 +69,8 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	static {
 		Skript.registerExpression(ExprFurnaceSlot.class, Slot.class, ExpressionType.PROPERTY,
 				"[the] (0¦ore slot|1¦fuel slot|2¦result [(5¦slot)])",
-				"[the] (0¦ore|1¦fuel|2¦result)[s] slot[s] of %blocks%",
-				"%blocks%'[s] (0¦ore|1¦fuel|2¦result)[s] slot[s]"
+				"[the] (0¦ore|1¦fuel|2¦result) slot[s] of %blocks%",
+				"%blocks%'[s] (0¦ore|1¦fuel|2¦result) slot[s]"
 		);
 	}
 
