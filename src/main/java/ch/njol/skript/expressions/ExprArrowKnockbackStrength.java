@@ -45,7 +45,7 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 	final static boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
 	
 	static {
-		register(ExprArrowKnockbackStrength.class, Long.class, "[the] arrow knockback strength", "projectiles");
+		register(ExprArrowKnockbackStrength.class, Long.class, "arrow knockback strength", "projectiles");
 	}
 	
 	@Nullable
