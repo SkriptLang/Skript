@@ -22,9 +22,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerFishEvent.State;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Arrays;
@@ -32,30 +37,48 @@ import java.util.EnumSet;
 
 @Name("Fishing")
 @Description("Called when a player triggers a fishing event (catching a fish, failing, etc.)")
+@Examples({"on fishing state of caught fish:",
+	"\tsend \"You caught a fish!\" to player",
+	"on fishing state of caught entity:",
+	"\tpush event-entity vector from entity to player"})
 @RequiredPlugins("1.14+ (reel in)")
 @Since("1.0, INSERT VERSION (fishing states, entity, player and hook)")
-@Examples({"on fishing state of fish caught:",
-	"\tsend \"You caught a fish!\" to player",
-	"on fishing state of entity caught:",
-	"\tpush event-entity vector from entity to player"})
 public class EvtFish extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, "[player] fish[ing] [state[s] [of] %-fishingstates%]");
+
+		EventValues.registerEventValue(PlayerFishEvent.class, FishHook.class, new Getter<FishHook, PlayerFishEvent>() {
+			@Override
+			public FishHook get(PlayerFishEvent e) {
+				return e.getHook();
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerFishEvent.class, State.class, new Getter<State, PlayerFishEvent>() {
+			@Override
+			public State get(PlayerFishEvent e) {
+				return e.getState();
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, new Getter<Entity, PlayerFishEvent>() {
+			@Override
+			@Nullable
+			public Entity get(PlayerFishEvent e) {
+				return e.getCaught();
+			}
+		}, 0);
 	}
 
 	@SuppressWarnings("null")
-	EnumSet<PlayerFishEvent.State> states = EnumSet.noneOf(PlayerFishEvent.State.class);
+	EnumSet<PlayerFishEvent.State> states = EnumSet.noneOf(State.class);
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		Literal<PlayerFishEvent.State> states = (Literal<PlayerFishEvent.State>) args[0];
-		if (states == null) {
-			return true;
-		} else {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		Literal<State> states = (Literal<State>) args[0];
+		if (states != null) {
 			this.states.addAll(Arrays.asList(states.getAll()));
-			return true;
 		}
+		return true;
 	}
 
 	@Override
@@ -65,9 +88,7 @@ public class EvtFish extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		if (states.isEmpty())
-			return "fishing";
-		return "fishing states of " + states;
+		return states.isEmpty() ? "fishing" : "fishing states of " + states;
 	}
 
 }

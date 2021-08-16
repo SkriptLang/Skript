@@ -1268,12 +1268,12 @@ heal reasons:
 # -- Fishing States --
 fishing states:
 	bite: bite
-	caught_entity: entity caught, caught entity, caught loot, loot
-	caught_fish: fish caught, caught fish
-	failed_attempt: failed attempt, failed, failure
-	fishing: fishing, cast, rod cast, cast rod
-	in_ground: in ground
-	reel_in: reel in, reeling in
+	caught_entity: caught entity
+	caught_fish: caught fish
+	failed_attempt: failed attempt
+	fishing: fishing
+	in_ground: hook in the ground, hook in ground
+	reel_in: reel in
 
 # -- Cat Types --
 cat types:
