@@ -18,14 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.Converter.ConverterInfo;
@@ -35,7 +27,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ConvertedExpression;
@@ -43,9 +34,16 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.util.ScriptOptions;
+import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Used to access a loop's current value.
@@ -74,7 +72,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	private String name;
 	
 	@SuppressWarnings("null")
-	private Loop loop;
+	private SecLoop loop;
 	
 	// whether this loops a variable
 	boolean isVariableLoop = false;
@@ -82,23 +80,21 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	boolean isIndex = false;
 	
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		name = parser.expr;
 		String s = "" + parser.regexes.get(0).group();
 		int i = -1;
-		final Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(s);
+		Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(s);
 		if (m.matches()) {
 			s = "" + m.group(1);
 			i = Utils.parseInt("" + m.group(2));
 		}
-		final Class<?> c = Classes.getClassFromUserInput(s);
+		Class<?> c = Classes.getClassFromUserInput(s);
 		int j = 1;
-		Loop loop = null;
-		
-		@SuppressWarnings("null")
-		boolean b = ScriptOptions.getInstance().usesNewLoops(getParser().getCurrentScript().getFile());
-		for (final Loop l : getParser().getCurrentLoops()) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || (b ? "value".equals(s) : false) || l.getLoopedExpression().isLoopOf(s)) {
+		SecLoop loop = null;
+
+		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
+			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equals(s) || l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
 					j++;
 					continue;
@@ -133,14 +129,14 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
-	protected <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(final Class<R>... to) {
+	protected <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(Class<R>... to) {
 		if (isVariableLoop && !isIndex) {
 			Class<R> superType = (Class<R>) Utils.getSuperType(to);
 			return new ConvertedExpression<>(this, superType,
 					new ConverterInfo<>(Object.class, superType, new Converter<Object, R>() {
 				@Override
 				@Nullable
-				public R convert(final Object o) {
+				public R convert(Object o) {
 					return Converters.convert(o, to);
 				}
 			}, 0));
@@ -158,30 +154,28 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
+	protected Object[] get(Event e) {
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
 			if (current == null)
 				return null;
 			if (isIndex)
 				return new String[] {current.getKey()};
-			final Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
+			Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 			one[0] = current.getValue();
 			return one;
 		}
-		final Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
+		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		one[0] = loop.getCurrent(e);
 		return one;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		if (e == null)
 			return name;
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked")
-			final Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
 			if (current == null)
 				return Classes.getDebugMessage(null);
 			return isIndex ? "\"" + current.getKey() + "\"" : Classes.getDebugMessage(current.getValue());

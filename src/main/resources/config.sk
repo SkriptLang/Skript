@@ -194,6 +194,17 @@ script loader thread size: 0
 # Do note that though, this option may cause issues with addons and possibly some scripts! Do NOT enable this option unless you have really long
 #   script load times AND you take the risk of lost data and full responsibility!
 
+disable hooks:
+	vault: false
+	regions:
+		grief prevention: false
+		precious stones: false
+		residence: false
+		worldguard: false
+# Controls whether Skript should attempt to hook into the plugins listed above.
+# If you change a setting here while the server is running, a restart is required for that change to take effect.
+# Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
+
 # ==== Variables ====
 
 databases:

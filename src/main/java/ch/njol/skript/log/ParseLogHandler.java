@@ -18,17 +18,13 @@
  */
 package ch.njol.skript.log;
 
+import ch.njol.skript.Skript;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-
-/**
- * @author Peter Güttinger
- */
 public class ParseLogHandler extends LogHandler {
 	
 	@Nullable
@@ -38,27 +34,17 @@ public class ParseLogHandler extends LogHandler {
 	
 	@Override
 	public LogResult log(LogEntry entry) {
-		if (entry.getLevel().intValue() >= Level.SEVERE.intValue()) {
-			LogEntry e = error;
-			if (e == null || entry.getQuality() > e.getQuality()) {
-				error = entry;
-				if (e != null)
-					e.discarded("overridden by '" + entry.getMessage() + "' (" + ErrorQuality.get(entry.getQuality()) + " > " + ErrorQuality.get(e.getQuality()) + ")");
-			}
-		} else {
-			log.add(entry);
+		if (entry.getLevel().intValue() >= Level.SEVERE.intValue()
+				&& (error == null || entry.getQuality() > error.getQuality())) {
+			error = entry;
 		}
+
+		log.add(entry);
 		return LogResult.CACHED;
 	}
-	
+
 	boolean printedErrorOrLog = false;
-	
-	@Override
-	public void onStop() {
-		if (!printedErrorOrLog && Skript.testing())
-			SkriptLogger.LOGGER.warning("Parse log wasn't instructed to print anything at " + SkriptLogger.getCaller());
-	}
-	
+
 	@Override
 	public ParseLogHandler start() {
 		SkriptLogger.startLogHandler(this);
@@ -77,9 +63,15 @@ public class ParseLogHandler extends LogHandler {
 			e.discarded("cleared");
 		log.clear();
 	}
-	
+
+	public void clearError() {
+		if (error != null)
+			error.discarded("cleared");
+		error = null;
+	}
+
 	/**
-	 * Prints the retained log, but no errors
+	 * Prints the retained log
 	 */
 	public void printLog() {
 		printedErrorOrLog = true;

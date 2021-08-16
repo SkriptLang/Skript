@@ -16,15 +16,21 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang;
+package ch.njol.skript.sections;
 
-import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
+import ch.njol.skript.util.LiteralUtils;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -33,52 +39,50 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-/**
- * A trigger section which represents a loop.
- * 
- * @author Peter Güttinger
- */
-public class Loop extends TriggerSection {
+public class SecLoop extends Section {
 
-	private final Expression<?> expr;
+	static {
+		Skript.registerSection(SecLoop.class, "loop %objects%");
+	}
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?> expr;
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
-	
+
 	@Nullable
 	private TriggerItem actualNext;
-	
-	@SuppressWarnings("unchecked")
-	public Loop(final Expression<?> expr, final SectionNode node) {
-		assert expr != null;
-		assert node != null;
+
+	@Override
+	public boolean init(Expression<?>[] exprs,
+						int matchedPattern,
+						Kleenean isDelayed,
+						ParseResult parseResult,
+						SectionNode sectionNode,
+						List<TriggerItem> triggerItems) {
+		expr = LiteralUtils.defendExpression(exprs[0]);
+		if (!LiteralUtils.canInitSafely(expr)) {
+			Skript.error("Can't understand this loop: '" + parseResult.expr.substring(5) + "'");
+			return false;
+		}
+
 		if (Container.class.isAssignableFrom(expr.getReturnType())) {
-			final ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);
+			ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expr.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
-			this.expr = new ContainerExpression((Expression<? extends Container<?>>) expr, type.value());
-		} else {
-			this.expr = expr;
+			expr = new ContainerExpression((Expression<? extends Container<?>>) expr, type.value());
 		}
-		
-		ParserInstance parserInstance = ParserInstance.get();
-		List<TriggerSection> currentSections = parserInstance.getCurrentSections();
-		List<Loop> currentLoops = parserInstance.getCurrentLoops();
-		
-		currentSections.add(this);
-		currentLoops.add(this);
-		try {
-			setTriggerItems(ScriptLoader.loadItems(node));
-		} finally {
-			currentLoops.remove(currentLoops.size() - 1);
-			currentSections.remove(currentSections.size() - 1);
-		}
+
+		loadOptionalCode(sectionNode);
 		super.setNext(this);
+
+		return true;
 	}
-	
+
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
+	protected TriggerItem walk(Event e) {
 		Iterator<?> iter = currentIter.get(e);
 		if (iter == null) {
 			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
@@ -98,35 +102,34 @@ public class Loop extends TriggerSection {
 			return walk(e, true);
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "loop " + expr.toString(e, debug);
 	}
-	
+
 	@Nullable
-	public Object getCurrent(final Event e) {
+	public Object getCurrent(Event e) {
 		return current.get(e);
 	}
-	
+
 	public Expression<?> getLoopedExpression() {
 		return expr;
 	}
-	
+
 	@Override
-	public Loop setNext(final @Nullable TriggerItem next) {
+	public SecLoop setNext(@Nullable TriggerItem next) {
 		actualNext = next;
 		return this;
 	}
-	
+
 	@Nullable
 	public TriggerItem getActualNext() {
 		return actualNext;
 	}
-	
+
 	public void exit(Event event) {
 		current.remove(event);
 		currentIter.remove(event);
 	}
-	
 }

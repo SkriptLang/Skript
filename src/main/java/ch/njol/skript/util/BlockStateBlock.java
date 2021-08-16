@@ -35,12 +35,14 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.bukkit.util.VoxelShape;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.block.BlockSoundGroup;
@@ -484,6 +486,16 @@ public class BlockStateBlock implements Block {
 	@Override
 	public @NotNull float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
 		return state.getBlock().getDestroySpeed(itemStack, considerEnchants);
+	}
+
+	@Override
+	public @NotNull VoxelShape getCollisionShape() {
+		return state.getBlock().getCollisionShape();
+	}
+
+	@Override
+	public float getBreakSpeed(@NotNull Player player) {
+		return state.getBlock().getBreakSpeed(player);
 	}
 
 }

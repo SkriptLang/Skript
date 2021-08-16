@@ -27,6 +27,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+import ch.njol.skript.hooks.VaultHook;
+import ch.njol.skript.hooks.regions.GriefPreventionHook;
+import ch.njol.skript.hooks.regions.PreciousStonesHook;
+import ch.njol.skript.hooks.regions.ResidenceHook;
+import ch.njol.skript.hooks.regions.WorldGuardHook;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -331,6 +336,42 @@ public abstract class SkriptConfig {
 				}
 				
 			});
+
+	public final static Option<Boolean> disableHookVault = new Option<>("disable hooks.vault", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(VaultHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookGriefPrevention = new Option<>("disable hooks.regions.grief prevention", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(GriefPreventionHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookPreciousStones = new Option<>("disable hooks.regions.precious stones", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(PreciousStonesHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookResidence = new Option<>("disable hooks.regions.residence", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(ResidenceHook.class);
+			}
+		});
+	public final static Option<Boolean> disableHookWorldGuard = new Option<>("disable hooks.regions.worldguard", false)
+		.optional(true)
+		.setter(value -> {
+			if (value) {
+				Skript.disableHookRegistration(WorldGuardHook.class);
+			}
+		});
 
 	/**
 	 * This should only be used in special cases

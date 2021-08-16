@@ -18,25 +18,24 @@
  */
 package ch.njol.skript.lang.parser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public class ParserInstance {
 	
@@ -70,7 +69,6 @@ public class ParserInstance {
 	
 	// Sections
 	private List<TriggerSection> currentSections = new ArrayList<>();
-	private List<Loop> currentLoops = new ArrayList<>();
 	private Kleenean hasDelayBefore = Kleenean.FALSE;
 	private String indentation = "";
 	
@@ -116,9 +114,57 @@ public class ParserInstance {
 	public List<TriggerSection> getCurrentSections() {
 		return currentSections;
 	}
-	
-	public List<Loop> getCurrentLoops() {
-		return currentLoops;
+
+	/**
+	 * @return whether {@link #getCurrentSections()} contains
+	 * an section instance of the given class (or subclass).
+	 */
+	public boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
+		for (TriggerSection triggerSection : currentSections) {
+			if (sectionClass.isInstance(triggerSection))
+				return true;
+		}
+		return false;
+	}
+
+	@SafeVarargs
+	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
+		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
+			if (isCurrentSection(sectionClass))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return the outermost section which is an instance of the given class.
+	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
+	 * @see #getCurrentSections()
+	 */
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
+		for (TriggerSection triggerSection : currentSections) {
+			if (sectionClass.isInstance(triggerSection))
+				return (T) triggerSection;
+		}
+		return null;
+	}
+
+	/**
+	 * @return a {@link List} of current sections that are an instance of the given class.
+	 * Modifications to the returned list are not saved.
+	 * @see #getCurrentSections()
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
+		List<T> list = new ArrayList<>();
+		for (TriggerSection triggerSection : currentSections) {
+			if (sectionClass.isInstance(triggerSection))
+				list.add((T) triggerSection);
+		}
+		return list;
 	}
 	
 	/**
@@ -165,10 +211,6 @@ public class ParserInstance {
 	
 	public void setCurrentSections(List<TriggerSection> currentSections) {
 		this.currentSections = currentSections;
-	}
-	
-	public void setCurrentLoops(List<Loop> currentLoops) {
-		this.currentLoops = currentLoops;
 	}
 	
 	/**

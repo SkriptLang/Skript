@@ -18,6 +18,58 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ScriptAliases;
+import ch.njol.skript.bukkitutil.CommandReloader;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.command.ScriptCommand;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.EntryNode;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SimpleNode;
+import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.function.Function;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.PluralizingArgsMessage;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.util.Date;
+import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.Task;
+import ch.njol.skript.variables.TypeHints;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Kleenean;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.OpenCloseable;
+import ch.njol.util.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -44,63 +96,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
-
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ScriptAliases;
-import ch.njol.skript.bukkitutil.CommandReloader;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.command.ScriptCommand;
-import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.SimpleNode;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Conditional;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.While;
-import ch.njol.skript.lang.function.Function;
-import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.variables.TypeHints;
-import ch.njol.skript.variables.Variables;
-import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.OpenCloseable;
-import ch.njol.util.StringUtils;
 
 /**
  * The main class for loading, unloading and reloading scripts.
@@ -221,21 +216,21 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter scriptFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
-			&& !f.getName().startsWith("-");
-	
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& !f.getName().startsWith("-") && !f.isHidden();
+
 	/**
 	 * All disabled script files.
 	 */
 	private static final Set<File> disabledFiles = Collections.synchronizedSet(new HashSet<>());
-	
+
 	/**
 	 * Filter for disabled scripts & folders.
 	 */
 	private static final FileFilter disabledFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
-			&& f.getName().startsWith("-");
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& f.getName().startsWith("-") && !f.isHidden();
 	
 	/**
 	 * Reevaluates {@link #disabledFiles}.
@@ -244,6 +239,7 @@ public class ScriptLoader {
 	private static void updateDisabledScripts(Path path) {
 		disabledFiles.clear();
 		try {
+			// TODO handle AccessDeniedException
 			Files.walk(path)
 				.map(Path::toFile)
 				.filter(disabledFilter::accept)
@@ -1107,125 +1103,43 @@ public class ScriptLoader {
 	/**
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
-	@SuppressWarnings("unchecked")
 	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
 		
 		if (Skript.debug())
 			getParser().setIndentation(getParser().getIndentation() + "    ");
 		
 		ArrayList<TriggerItem> items = new ArrayList<>();
-		
-		Kleenean hadDelayBeforeLastIf = Kleenean.FALSE;
-		
+
 		for (Node n : node) {
 			SkriptLogger.setNode(n);
 			if (n instanceof SimpleNode) {
-				SimpleNode e = (SimpleNode) n;
-				String s = replaceOptions("" + e.getKey());
-				if (!SkriptParser.validateLine(s))
+				String expr = replaceOptions("" + n.getKey());
+				if (!SkriptParser.validateLine(expr))
 					continue;
-				Statement stmt = Statement.parse(s, "Can't understand this condition/effect: " + s);
+
+				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
 				if (stmt == null)
 					continue;
+
 				if (Skript.debug() || n.debug())
 					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
+
 				items.add(stmt);
-				if (stmt instanceof Delay)
-					getParser().setHasDelayBefore(Kleenean.TRUE);
 			} else if (n instanceof SectionNode) {
-				String name = replaceOptions("" + n.getKey());
-				if (!SkriptParser.validateLine(name))
+				String expr = replaceOptions("" + n.getKey());
+				if (!SkriptParser.validateLine(expr))
 					continue;
 				TypeHints.enterScope(); // Begin conditional type hints
-				
-				if (StringUtils.startsWithIgnoreCase(name, "loop ")) {
-					String l = "" + name.substring("loop ".length());
-					RetainingLogHandler h = SkriptLogger.startRetainingLog();
-					Expression<?> loopedExpr;
-					try {
-						loopedExpr = new SkriptParser(l).parseExpression(Object.class);
-						if (loopedExpr != null)
-							loopedExpr = loopedExpr.getConvertedExpression(Object.class);
-						if (loopedExpr == null) {
-							h.printErrors("Can't understand this loop: '" + name + "'");
-							continue;
-						}
-						h.printLog();
-					} finally {
-						h.stop();
-					}
-					
-					if (loopedExpr.isSingle()) {
-						Skript.error("Can't loop " + loopedExpr + " because it's only a single value");
-						continue;
-					}
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + "loop " + loopedExpr.toString(null, true) + ":");
-					
-					Kleenean hadDelayBefore = getParser().getHasDelayBefore();
-					items.add(new Loop(loopedExpr, (SectionNode) n));
-					if (hadDelayBefore != Kleenean.TRUE && getParser().getHasDelayBefore() != Kleenean.FALSE)
-						getParser().setHasDelayBefore(Kleenean.UNKNOWN);
-				} else if (StringUtils.startsWithIgnoreCase(name, "while ")) {
-					String l = "" + name.substring("while ".length());
-					Condition c = Condition.parse(l, "Can't understand this condition: " + l);
-					if (c == null)
-						continue;
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + "while " + c.toString(null, true) + ":");
-					Kleenean hadDelayBefore = getParser().getHasDelayBefore();
-					items.add(new While(c, (SectionNode) n));
-					if (hadDelayBefore != Kleenean.TRUE && getParser().getHasDelayBefore() != Kleenean.FALSE)
-						getParser().setHasDelayBefore(Kleenean.UNKNOWN);
-				} else if (name.equalsIgnoreCase("else")) {
-					if (items.size() == 0
-						|| !(items.get(items.size() - 1) instanceof Conditional)
-						|| ((Conditional) items.get(items.size() - 1)).hasElseClause()
-					) {
-						Skript.error("'else' has to be placed just after an 'if' or 'else if' section");
-						continue;
-					}
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + "else:");
-					
-					Kleenean hadDelayAfterLastIf = getParser().getHasDelayBefore();
-					getParser().setHasDelayBefore(hadDelayBeforeLastIf);
-					((Conditional) items.get(items.size() - 1)).loadElseClause((SectionNode) n);
-					getParser().setHasDelayBefore(hadDelayBeforeLastIf.or(hadDelayAfterLastIf.and(getParser().getHasDelayBefore())));
-				} else if (StringUtils.startsWithIgnoreCase(name, "else if ")) {
-					if (items.size() == 0
-						|| !(items.get(items.size() - 1) instanceof Conditional)
-						|| ((Conditional) items.get(items.size() - 1)).hasElseClause()
-					) {
-						Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
-						continue;
-					}
-					name = "" + name.substring("else if ".length());
-					Condition cond = Condition.parse(name, "can't understand this condition: '" + name + "'");
-					if (cond == null)
-						continue;
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + "else if " + cond.toString(null, true));
-					Kleenean hadDelayAfterLastIf = getParser().getHasDelayBefore();
-					getParser().setHasDelayBefore(hadDelayBeforeLastIf);
-					((Conditional) items.get(items.size() - 1)).loadElseIf(cond, (SectionNode) n);
-					getParser().setHasDelayBefore(
-						hadDelayBeforeLastIf.or(hadDelayAfterLastIf.and(
-							getParser().getHasDelayBefore().and(Kleenean.UNKNOWN))));
-				} else {
-					if (StringUtils.startsWithIgnoreCase(name, "if "))
-						name = "" + name.substring(3);
-					Condition cond = Condition.parse(name, "can't understand this condition: '" + name + "'");
-					if (cond == null)
-						continue;
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + cond.toString(null, true) + ":");
-					Kleenean hadDelayBefore = getParser().getHasDelayBefore();
-					hadDelayBeforeLastIf = hadDelayBefore;
-					items.add(new Conditional(cond, (SectionNode) n));
-					getParser().setHasDelayBefore(hadDelayBefore.or(getParser().getHasDelayBefore().and(Kleenean.UNKNOWN)));
-				}
-				
+
+				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) n, items);
+				if (section == null)
+					continue;
+
+				if (Skript.debug() || n.debug())
+					Skript.debug(getParser().getIndentation() + section.toString(null, true));
+
+				items.add(section);
+
 				// Destroy these conditional type hints
 				TypeHints.exitScope();
 			}
@@ -1427,20 +1341,18 @@ public class ScriptLoader {
 	}
 	
 	/**
-	 * @see ParserInstance#getCurrentLoops()
+	 * @see ParserInstance#getCurrentSections(Class)
 	 */
 	@Deprecated
-	public static List<Loop> getCurrentLoops() {
-		return getParser().getCurrentLoops();
+	public static List<SecLoop> getCurrentLoops() {
+		return getParser().getCurrentSections(SecLoop.class);
 	}
-	
+
 	/**
-	 * @see ParserInstance#setCurrentLoops(List)
+	 * Never use this method, it has no effect.
 	 */
 	@Deprecated
-	public static void setCurrentLoops(List<Loop> currentLoops) {
-		getParser().setCurrentLoops(currentLoops);
-	}
+	public static void setCurrentLoops(List<SecLoop> currentLoops) { }
 	
 	/**
 	 * @see ParserInstance#getCurrentEventName()

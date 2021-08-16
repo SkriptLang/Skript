@@ -241,7 +241,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 	
 	public static <E extends Entity, T extends EntityData<E>> void register(final Class<T> dataClass, final String name, final Class<E> entityClass, final String codeName) throws IllegalArgumentException {
-		register(dataClass, codeName, entityClass, 0, codeName);
+		register(dataClass, name, entityClass, 0, codeName);
 	}
 	
 	@SuppressWarnings("unchecked")

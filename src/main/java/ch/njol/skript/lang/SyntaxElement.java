@@ -23,14 +23,10 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 
 /**
- * Represents a general part of the syntax. Implementing classes/interfaces are {@link Expression} and {@link Statement}.
- * <p>
- * TODO find a better name for this
- * 
- * @author Peter Güttinger
+ * Represents a general part of the syntax.
  */
 public interface SyntaxElement {
-	
+
 	/**
 	 * Called just after the constructor.
 	 * 
@@ -43,14 +39,12 @@ public interface SyntaxElement {
 	 * @see ParserInstance#isCurrentEvent(Class...)
 	 */
 	boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult);
-	
+
 	/**
 	 * @see ParserInstance#get()
 	 */
 	default ParserInstance getParser() {
 		return ParserInstance.get();
 	}
-	
-	// TODO [code style] add equals to be able to find out whether two elements are equal (useful for e.g. 'if <a>: ... [else] if not <a>: ...')
-	
+
 }

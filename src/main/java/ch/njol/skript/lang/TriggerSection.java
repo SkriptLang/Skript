@@ -29,26 +29,22 @@ import ch.njol.skript.lang.parser.ParserInstance;
 
 /**
  * Represents a section of a trigger, e.g. a conditional or a loop
- * 
- * @author Peter Güttinger
- * @see Conditional
- * @see Loop
  */
 public abstract class TriggerSection extends TriggerItem {
 	
 	@Nullable
-	private TriggerItem first = null;
+	protected TriggerItem first = null;
 	@Nullable
 	protected TriggerItem last = null;
 	
 	/**
 	 * Reserved for new Trigger(...)
 	 */
-	protected TriggerSection(final List<TriggerItem> items) {
+	protected TriggerSection(List<TriggerItem> items) {
 		setTriggerItems(items);
 	}
 	
-	protected TriggerSection(final SectionNode node) {
+	protected TriggerSection(SectionNode node) {
 		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
 		currentSections.add(this);
 		try {
@@ -71,22 +67,21 @@ public abstract class TriggerSection extends TriggerItem {
 	 * setTriggerItems(ScriptLoader.loadItems(node));
 	 * ScriptLoader.currentSections.remove(ScriptLoader.currentSections.size() - 1);
 	 * </pre>
-	 * 
-	 * @param items
 	 */
-	protected void setTriggerItems(final List<TriggerItem> items) {
+	protected void setTriggerItems(List<TriggerItem> items) {
 		if (!items.isEmpty()) {
 			first = items.get(0);
-			(last = items.get(items.size() - 1))
-					.setNext(getNext());
-		}
-		for (final TriggerItem item : items) {
-			item.setParent(this);
+			last = items.get(items.size() - 1);
+			last.setNext(getNext());
+
+			for (TriggerItem item : items) {
+				item.setParent(this);
+			}
 		}
 	}
 	
 	@Override
-	public TriggerSection setNext(final @Nullable TriggerItem next) {
+	public TriggerSection setNext(@Nullable TriggerItem next) {
 		super.setNext(next);
 		if (last != null)
 			last.setNext(next);
@@ -94,13 +89,13 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 	
 	@Override
-	public TriggerSection setParent(@Nullable final TriggerSection parent) {
+	public TriggerSection setParent(@Nullable TriggerSection parent) {
 		super.setParent(parent);
 		return this;
 	}
 	
 	@Override
-	protected final boolean run(final Event e) {
+	protected final boolean run(Event e) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -109,7 +104,7 @@ public abstract class TriggerSection extends TriggerItem {
 	protected abstract TriggerItem walk(Event e);
 	
 	@Nullable
-	protected final TriggerItem walk(final Event e, final boolean run) {
+	protected final TriggerItem walk(Event e, boolean run) {
 		debug(e, run);
 		if (run && first != null) {
 			return first;

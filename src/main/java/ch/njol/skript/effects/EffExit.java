@@ -18,27 +18,26 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Conditional;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.While;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.sections.SecConditional;
+import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -105,7 +104,7 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 			return currentSections.size();
 		int r = 0;
 		for (TriggerSection s : currentSections) {
-			if (type == CONDITIONALS ? s instanceof Conditional : s instanceof Loop || s instanceof While)
+			if (type == CONDITIONALS ? s instanceof SecConditional : s instanceof SecLoop || s instanceof SecWhile)
 				r++;
 		}
 		return r;
@@ -122,14 +121,16 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 				assert false : this;
 				return null;
 			}
-			if (n instanceof Loop) {
-				((Loop) n).exit(e);
+			if (n instanceof SecLoop) {
+				((SecLoop) n).exit(e);
+			} else if (n instanceof SecWhile) {
+				((SecWhile) n).reset();
 			}
 
-			if (type == EVERYTHING || type == CONDITIONALS && n instanceof Conditional || type == LOOPS && (n instanceof Loop || n instanceof While))
+			if (type == EVERYTHING || type == CONDITIONALS && n instanceof SecConditional || type == LOOPS && (n instanceof SecLoop || n instanceof SecWhile))
 				i--;
 		}
-		return n instanceof Loop ? ((Loop) n).getActualNext() : n instanceof While ? ((While) n).getActualNext() : n.getNext();
+		return n instanceof SecLoop ? ((SecLoop) n).getActualNext() : n instanceof SecWhile ? ((SecWhile) n).getActualNext() : n.getNext();
 	}
 	
 	@Override

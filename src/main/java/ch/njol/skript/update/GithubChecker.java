@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
@@ -39,7 +37,6 @@ public class GithubChecker implements UpdateChecker {
 	/**
 	 * Github API response for GSON deserialization.
 	 */
-	@NonNullByDefault(value = false)
 	public static class ResponseEntry {
 		public String url;
 	    public String assets_url;
