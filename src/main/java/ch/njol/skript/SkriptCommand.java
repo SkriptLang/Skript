@@ -324,7 +324,7 @@ public class SkriptCommand implements CommandExecutor {
 				info(sender, "info.documentation");
 				info(sender, "info.server", Bukkit.getVersion());
 				info(sender, "info.version", Skript.getVersion());
-				info(sender, "info.addons");
+				info(sender, "info.addons", Skript.getAddons().isEmpty() ? "None" : "");
 				for (SkriptAddon addon : Skript.getAddons()) {
 					PluginDescriptionFile desc = addon.plugin.getDescription();
 					String web = desc.getWebsite();
