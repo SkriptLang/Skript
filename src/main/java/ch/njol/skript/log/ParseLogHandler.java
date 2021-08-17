@@ -70,11 +70,6 @@ public class ParseLogHandler extends LogHandler {
 		error = null;
 	}
 
-	public void clearAll() {
-		clear();
-		clearError();
-	}
-
 	/**
 	 * Prints the retained log
 	 */

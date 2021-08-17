@@ -274,7 +274,7 @@ public class ScriptCommand implements TabExecutor {
 				if (e != null)
 					sender.sendMessage(ChatColor.DARK_RED + e.getMessage());
 				sender.sendMessage(usage);
-				log.clearAll();
+				log.clear();
 				return false;
 			}
 			log.clearError();

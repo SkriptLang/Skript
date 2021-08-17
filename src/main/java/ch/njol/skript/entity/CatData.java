@@ -33,8 +33,7 @@ public class CatData extends EntityData<Cat> {
 			EntityData.register(CatData.class, "cat", Cat.class, "cat");
 	}
 	
-	@Nullable
-	private Cat.Type race = null;
+	private Cat.@Nullable Type race = null;
 	
 	@SuppressWarnings("unchecked")
 	@Override

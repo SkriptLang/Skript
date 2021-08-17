@@ -123,6 +123,8 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 			}
 			if (n instanceof SecLoop) {
 				((SecLoop) n).exit(e);
+			} else if (n instanceof SecWhile) {
+				((SecWhile) n).reset();
 			}
 
 			if (type == EVERYTHING || type == CONDITIONALS && n instanceof SecConditional || type == LOOPS && (n instanceof SecLoop || n instanceof SecWhile))

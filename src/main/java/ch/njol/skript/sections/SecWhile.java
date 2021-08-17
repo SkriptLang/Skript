@@ -34,7 +34,7 @@ import java.util.List;
 public class SecWhile extends Section {
 
 	static {
-		Skript.registerSection(SecWhile.class, "while <.+>");
+		Skript.registerSection(SecWhile.class, "[(1¦do)] while <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -42,6 +42,9 @@ public class SecWhile extends Section {
 
 	@Nullable
 	private TriggerItem actualNext;
+
+	private boolean doWhile;
+	private boolean ranDoWhile = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -55,6 +58,7 @@ public class SecWhile extends Section {
 		condition = Condition.parse(expr, "Can't understand this condition: " + expr);
 		if (condition == null)
 			return false;
+		doWhile = parseResult.mark == 1;
 		loadOptionalCode(sectionNode);
 
 		super.setNext(this);
@@ -65,9 +69,11 @@ public class SecWhile extends Section {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		if (condition.check(e)) {
+		if ((doWhile && !ranDoWhile) || condition.check(e)) {
+			ranDoWhile = true;
 			return walk(e, true);
 		} else {
+			reset();
 			debug(e, false);
 			return actualNext;
 		}
@@ -86,7 +92,11 @@ public class SecWhile extends Section {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "while " + condition.toString(e, debug);
+		return (doWhile ? "do " : "") + "while " + condition.toString(e, debug);
+	}
+
+	public void reset() {
+		ranDoWhile = false;
 	}
 
 }

@@ -29,6 +29,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +61,11 @@ public class SecLoop extends Section {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		expr = exprs[0];
+		expr = LiteralUtils.defendExpression(exprs[0]);
+		if (!LiteralUtils.canInitSafely(expr)) {
+			Skript.error("Can't understand this loop: '" + parseResult.expr.substring(5) + "'");
+			return false;
+		}
 
 		if (Container.class.isAssignableFrom(expr.getReturnType())) {
 			ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);

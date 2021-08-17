@@ -69,8 +69,7 @@ public class EffContinue extends Effect {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		TriggerItem.walk(loop, e);
-		return null;
+		return loop;
 	}
 
 	@Override

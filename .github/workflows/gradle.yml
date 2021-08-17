@@ -11,10 +11,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
-    - name: Set up JDK 1.8
+    - name: Set up JDK 16
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
+        java-version: 16
     - name: Build Skript
       run: ./gradlew nightlyRelease
     - name: Run test scripts

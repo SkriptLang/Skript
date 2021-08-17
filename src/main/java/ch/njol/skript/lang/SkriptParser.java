@@ -279,9 +279,17 @@ public class SkriptParser {
 		if (varPattern.matcher(expr).matches()) {
 			String variableName = "" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
 			boolean inExpression = false;
+			int variableDepth = 0;
 			for (char c : variableName.toCharArray()) {
-				if (c == '%')
+				if (c == '%' && variableDepth == 0)
 					inExpression = !inExpression;
+				if (inExpression) {
+					if (c == '{') {
+						variableDepth++;
+					} else if (c == '}')
+						variableDepth--;
+				}
+
 				if (!inExpression && (c == '{' || c == '}'))
 					return null;
 			}
@@ -363,7 +371,7 @@ public class SkriptParser {
 					log.printError();
 					return null;
 				}
-				log.clearAll();
+				log.clear();
 				final LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -561,7 +569,7 @@ public class SkriptParser {
 					log.printError();
 					return null;
 				}
-				log.clearAll();
+				log.clear();
 				final LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
@@ -667,11 +675,11 @@ public class SkriptParser {
 			
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
-					log.clearAll();
+					log.clear();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(types);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
-					log.clearAll();
+					log.clear();
 					return (Expression<? extends T>) new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
@@ -816,11 +824,11 @@ public class SkriptParser {
 			
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
-					log.clearAll();
+					log.clear();
 					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(vi);
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
-					log.clearAll();
+					log.clear();
 					return new UnparsedLiteral(expr, log.getError());
 				}
 				// results in useless errors most of the time
