@@ -25,6 +25,7 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import ch.njol.util.StringUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
@@ -70,7 +71,6 @@ public class EvtFish extends SkriptEvent {
 		}, 0);
 	}
 
-	@Nullable
 	private List<State> states = new ArrayList<>();
 
 	@Override
@@ -88,7 +88,7 @@ public class EvtFish extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return states.isEmpty() ? "fishing" : "fishing states of " + states;
+		return states.isEmpty() ? "fishing" : "fishing states of " + StringUtils.join(states, ", ", " and ");
 	}
 
 }
