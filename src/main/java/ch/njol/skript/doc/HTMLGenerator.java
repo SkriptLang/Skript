@@ -466,6 +466,7 @@ public class HTMLGenerator {
 	
 
 	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
+		Class<?> c = info.c;
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getName(), "Unknown Name");
@@ -544,6 +545,7 @@ public class HTMLGenerator {
 	}
 	
 	private String generateClass(String descTemp, ClassInfo<?> info, @Nullable String page) {
+		Class<?> c = info.getC();
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getDocName(), "Unknown Name");
