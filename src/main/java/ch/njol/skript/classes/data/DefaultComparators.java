@@ -203,7 +203,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(Block.class, ItemType.class, new Comparator<Block, ItemType>() {
 			@Override
 			public Relation compare(Block b, ItemType it) {
-				return Comparators.compare(it, new ItemType(b));
+				return Comparators.compare(new ItemType(b), it);
 			}
 			
 			@Override
