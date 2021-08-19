@@ -95,11 +95,11 @@ public class AliasesProvider {
 		
 		@Nullable
 		public String insertId(@Nullable String inserted) {
-			if (id == null) // Inserting to nothing
-				return inserted;
-			if (inserted == null)
+			if (inserted == null) // Nothing to insert
 				return id;
 			inserted = inserted.substring(0, inserted.length() - 1); // Strip out -
+			if (id == null) // Inserting to nothing
+				return inserted;
 			
 			String id = this.id;
 			assert id != null;
@@ -340,8 +340,7 @@ public class AliasesProvider {
 		return item;
 	}
 	
-	@Nullable
-	public AliasesMap.AliasData getAliasData(ItemData item) {
+	public AliasesMap.@Nullable AliasData getAliasData(ItemData item) {
 		AliasesMap.AliasData data = aliasesMap.matchAlias(item).getData();
 		if (data == null && parent != null) {
 			return parent.getAliasData(item);

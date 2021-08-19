@@ -18,12 +18,9 @@
  */
 package ch.njol.util;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-
 /**
  * @author Peter Güttinger
  */
-@NonNullByDefault(false)
 public abstract class Math2 {
 	
 	public static int min(final int a, final int b, final int c) {

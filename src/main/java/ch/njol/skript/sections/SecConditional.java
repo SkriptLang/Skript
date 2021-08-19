@@ -20,11 +20,14 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.events.bukkit.SkriptParseEvent;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -38,8 +41,8 @@ public class SecConditional extends Section {
 	static {
 		Skript.registerSection(SecConditional.class,
 			"else",
-			"else if <.+>",
-			"[(1¦if)] <.+>");
+			"else [(1¦parse)] if <.+>",
+			"[(1¦parse if|2¦if)] <.+>");
 	}
 
 	private enum ConditionalType {
@@ -48,6 +51,8 @@ public class SecConditional extends Section {
 
 	private ConditionalType type;
 	private Condition condition;
+	private boolean parseIf;
+	private boolean parseIfPassed;
 
 	private Kleenean hasDelayAfter;
 
@@ -59,10 +64,30 @@ public class SecConditional extends Section {
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
 		type = ConditionalType.values()[matchedPattern];
+		parseIf = parseResult.mark == 1;
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
 			String expr = parseResult.regexes.get(0).group();
+			ParserInstance parser = getParser();
+			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
+			String currentEventName = parser.getCurrentEventName();
+			SkriptEvent currentSkriptEvent = parser.getCurrentSkriptEvent();
+
+			// Change event if using 'parse if'
+			if (parseIf) {
+				//noinspection unchecked
+				parser.setCurrentEvents(new Class[]{SkriptParseEvent.class});
+				parser.setCurrentEventName("parse");
+				parser.setCurrentSkriptEvent(null);
+			}
 			// Don't print a default error if 'if' keyword wasn't provided
 			condition = Condition.parse(expr, parseResult.mark != 0 ? "Can't understand this condition: '" + expr + "'" : null);
+
+			if (parseIf) {
+				parser.setCurrentEvents(currentEvents);
+				parser.setCurrentEventName(currentEventName);
+				parser.setCurrentSkriptEvent(currentSkriptEvent);
+			}
+
 			if (condition == null)
 				return false;
 		}
@@ -79,6 +104,14 @@ public class SecConditional extends Section {
 			}
 		} else {
 			lastIf = null;
+		}
+
+		// ([else] parse if) If condition is valid and false, do not parse the section
+		if (parseIf) {
+			if (!condition.check(new SkriptParseEvent())) {
+				return true;
+			}
+			parseIfPassed = true;
 		}
 
 		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
@@ -113,33 +146,48 @@ public class SecConditional extends Section {
 		return true;
 	}
 
+	@Override
+	@Nullable
+	public TriggerItem getNext() {
+		return getSkippedNext();
+	}
+
+	@Nullable
+	public TriggerItem getNormalNext() {
+		return super.getNext();
+	}
+
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		if (type == ConditionalType.ELSE || condition.check(e)) {
+		if (parseIf && !parseIfPassed) {
+			return getNormalNext();
+		} else if (type == ConditionalType.ELSE || parseIf || condition.check(e)) {
+			TriggerItem skippedNext = getSkippedNext();
 			if (last != null)
-				last.setNext(getSkippedNext());
-			return first != null ? first : getSkippedNext();
+				last.setNext(skippedNext);
+			return first != null ? first : skippedNext;
 		} else {
-			return getNext();
+			return getNormalNext();
 		}
 	}
 
 	@Nullable
 	private TriggerItem getSkippedNext() {
-		TriggerItem next = getNext();
+		TriggerItem next = getNormalNext();
 		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = next.getNext();
+			next = ((SecConditional) next).getNormalNext();
 		return next;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
+		String parseIf = this.parseIf ? "parse " : "";
 		switch (type) {
 			case IF:
-				return "if " + condition.toString(e, debug);
+				return parseIf + "if " + condition.toString(e, debug);
 			case ELSE_IF:
-				return "else if " + condition.toString(e, debug);
+				return "else " + parseIf + "if " + condition.toString(e, debug);
 			case ELSE:
 				return "else";
 			default:
