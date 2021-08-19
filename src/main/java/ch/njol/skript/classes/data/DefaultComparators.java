@@ -202,8 +202,8 @@ public class DefaultComparators {
 		// Block - ItemType
 		Comparators.registerComparator(Block.class, ItemType.class, new Comparator<Block, ItemType>() {
 			@Override
-			public Relation compare(final Block b, final ItemType it) {
-				return Relation.get(it.isOfType(b));
+			public Relation compare(Block b, ItemType it) {
+				return Comparators.compare(it, new ItemType(b));
 			}
 			
 			@Override
@@ -230,7 +230,7 @@ public class DefaultComparators {
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
-			public Relation compare(final ItemType i1, final ItemType i2) {
+			public Relation compare(ItemType i1, ItemType i2) {
 				int otherAmount = i2.getAmount();
 				if (i1.getAmount() != otherAmount) {
 					// See https://github.com/SkriptLang/Skript/issues/4278 for reference
