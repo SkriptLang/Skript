@@ -1679,6 +1679,7 @@ spawn reasons:
 	egg: egg
 	ender_pearl: ender pearl
 	explosion: explosion
+	frozen: frozen
 	infection: infection, infected
 	jockey: jockey
 	lightning: lightning
@@ -1687,8 +1688,10 @@ spawn reasons:
 	nether_portal: nether portal
 	ocelot_baby: ocelot baby
 	patrol: patrol
+	piglin_zombified: piglin zombification
 	raid: raid
 	reinforcements: reinforcements
+	sheared: shear, sheared
 	shoulder_entity: perching, shoulder
 	silverfish_block: silverfish reveal, silverfish trap
 	slime_split: slime split
@@ -1697,8 +1700,6 @@ spawn reasons:
 	trap: trap
 	village_defense: village defense, golem defense, iron golem defense
 	village_invasion: village invasion, village invading
-	sheared: shear, sheared
-	piglin_zombified: piglin zombification
 
 # -- Difficulties --
 difficulties:
