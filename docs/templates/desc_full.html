@@ -1,51 +1,47 @@
-<div class="item-title" id="${element.id}">
-  ${element.name}
-  <a href="#${element.id}">&#128279;</a>
-</div>
-<div class="item-content">
-  <table>
-
-    <tr class="item-details">
-      <td class="item-table-label">Patterns:</td>
-      <td class="noleftpad">
-        <ul>
-          ${generate element.patterns pattern_element.html}
-        </ul>
-      </td>
-    </tr>
-
-    <tr class="item-details">
-      <td class="item-table-label">Since:</td>
-      <td>${element.since}</td>
-    </tr>
-    
-    ${if events}
-    <tr class="item-details">
-      <td class="item-table-label">Usable in events:</td>
-      <td>${element.events}</td>
-    </tr> 
-    ${end}
-    
-    ${if required-plugins}
-    <tr class="item-details">
-      <td class="item-table-label">Requirements:</td>
-      <td>${element.required-plugins}</td>
-    </tr> 
-    ${end}
-
-  </table>
-
-  <div class="item-description">
-    ${element.desc}
+<div class="item-wrapper" id="${element.id}">
+  <div class="item-title">
+    <h1 style="display: inline-block">${element.name}</h1> <a href="#${element.id}">&#128279;</a>
   </div>
+  <div class="item-content">
+    <table>
+      <tr class="item-details">
+        <td class="item-table-label">Patterns:</td>
+        <td class="noleftpad">
+          <ul>
+            ${generate element.patterns pattern_element.html}
+          </ul>
+        </td>
+      </tr>
 
-  <div class="item-examples">
+      <tr class="item-details">
+        <td class="item-table-label">Since:</td>
+        <td>${element.since}</td>
+      </tr>
 
-    Examples:
+      ${if events}
+      <tr class="item-details">
+        <td class="item-table-label">Usable in events:</td>
+        <td>${element.events}</td>
+      </tr>
 
-    <div class="skript-code-block">
-      ${element.examples}
+      ${end} ${if required-plugins}
+      <tr class="item-details">
+        <td class="item-table-label">Requirements:</td>
+        <td>${element.required-plugins}</td>
+      </tr>
+      ${end}
+    </table>
+
+    <div class="item-description">
+      ${element.desc}
     </div>
 
+    <div class="item-examples">
+      <p>Examples:</p>
+
+      <div class="skript-code-block">
+        ${element.examples}
+      </div>
+    </div>
   </div>
 </div>
