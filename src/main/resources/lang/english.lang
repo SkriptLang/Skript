@@ -1800,32 +1800,32 @@ click types:
 
 # -- Inventory Types --
 inventory types:
-	chest: chest inventory
-	dispenser: dispenser inventory
-	dropper: dropper inventory
-	furnace: furnace inventory
-	workbench: workbench inventory
-	crafting: crafting table inventory
-	enchanting: enchanting table inventory
-	brewing: brewing stand inventory
-	player: player inventory
-	creative: creative inventory
-	merchant: merchant inventory, villager inventory
-	ender_chest: ender chest inventory
-	anvil: anvil inventory
-	beacon: beacon inventory
-	hopper: hopper inventory
-	shulker_box: shulker box inventory
-	barrel: barrel inventory
-	blast_furnace: blast furnace inventory
-	lectern: lectern inventory
-	smoker: smoker inventory
-	loom: loom inventory
-	cartography: cartography table inventory
-	grindstone: grindstone inventory
-	stonecutter: stonecutter inventory
-	smithing: smithing inventory
-	composter: composter inventory
+	chest: chest inventory, a chest inventory
+	dispenser: dispenser inventory, a dispenser inventory
+	dropper: dropper inventory, a dropper inventory
+	furnace: furnace inventory, a furnace inventory
+	workbench: workbench inventory, a workbench inventory
+	crafting: crafting table inventory, crafting inventory, a crafting table inventory, a crafting inventory
+	enchanting: enchanting table inventory, enchanting inventory, an enchanting table inventory, an enchanting inventory
+	brewing: brewing stand inventory, a brewing stand inventory
+	player: player inventory, a player inventory
+	creative: creative inventory, a creative inventory,
+	merchant: merchant inventory, villager inventory, a merchant inventory, a villager inventory
+	ender_chest: ender chest inventory, an ender chest inventory
+	anvil: anvil inventory, an anvil inventory
+	beacon: beacon inventory, a beacon inventory
+	hopper: hopper inventory, a hopper inventory
+	shulker_box: shulker box inventory, a shulker box inventory
+	barrel: barrel inventory, a barrel inventory
+	blast_furnace: blast furnace inventory, a blast furnace inventory
+	lectern: lectern inventory, a lectern inventory
+	smoker: smoker inventory, a smoker inventory
+	loom: loom inventory, a loom inventory
+	cartography: cartography table inventory, cartography inventory, a cartography table inventory, a cartography inventory
+	grindstone: grindstone inventory, a grindstone inventory
+	stonecutter: stonecutter inventory, a stonecutter inventory
+	smithing: smithing table inventory, smithing inventory, a smithing table inventory, a smithing inventory
+	composter: composter inventory, a composter inventory
 
 # -- Spawn Reasons --
 spawn reasons:
