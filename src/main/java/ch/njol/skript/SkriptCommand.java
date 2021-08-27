@@ -337,7 +337,7 @@ public class SkriptCommand implements CommandExecutor {
 					if (Bukkit.getPluginManager().getPlugin(dep) != null)
 						dependenciesFound = true;
 				}
-				info(sender, "info.dependencies", dependenciesFound ? "None" : "");
+				info(sender, "info.dependencies", dependenciesFound ? "" : "None");
 				for (String dep : dependencies) {
 					Plugin plugin = Bukkit.getPluginManager().getPlugin(dep);
 					if (plugin != null) {
