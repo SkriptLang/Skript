@@ -345,7 +345,6 @@ public class SkriptCommand implements CommandExecutor {
 						Skript.info(sender, " - " + plugin.getName() + " v" + ver);
 					}
 				}
-
 			} else if (args[0].equalsIgnoreCase("help")) {
 				skriptCommandHelp.showHelp(sender);
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
