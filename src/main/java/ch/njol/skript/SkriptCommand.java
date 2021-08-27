@@ -30,6 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -330,6 +331,21 @@ public class SkriptCommand implements CommandExecutor {
 					String web = desc.getWebsite();
 					Skript.info(sender, " - " + desc.getFullName() + (web != null ? " (" + web + ")" : ""));
 				}
+				List<String> dependencies = Skript.getInstance().getDescription().getSoftDepend();
+				boolean dependenciesFound = false;
+				for (String dep : dependencies) { // Check if any dependency is found in the server plugins
+					if (Bukkit.getPluginManager().getPlugin(dep) != null)
+						dependenciesFound = true;
+				}
+				info(sender, "info.dependencies", dependenciesFound ? "None" : "");
+				for (String dep : dependencies) {
+					Plugin plugin = Bukkit.getPluginManager().getPlugin(dep);
+					if (plugin != null) {
+						String ver = plugin.getDescription().getVersion();
+						Skript.info(sender, " - " + plugin.getName() + " v" + ver);
+					}
+				}
+
 			} else if (args[0].equalsIgnoreCase("help")) {
 				skriptCommandHelp.showHelp(sender);
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {

@@ -141,6 +141,7 @@ skript command:
 		version: Skript Version: <aqua>%s
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
+		dependencies: Installed dependencies: <aqua>%s
 
 # -- Updater --
 updater:
