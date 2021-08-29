@@ -42,9 +42,9 @@ import ch.njol.util.Kleenean;
 @Description("Counts how many of a particular <a href='../classes.html#itemtype'>item type</a> are in a given inventory.")
 @Examples("message \"You have %number of ores in the player's inventory% ores in your inventory.\"")
 @Since("2.0")
-public class ExprAmountOfItems extends SimpleExpression<Integer> {
+public class ExprAmountOfItems extends SimpleExpression<Long> {
 	static {
-		Skript.registerExpression(ExprAmountOfItems.class, Integer.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
+		Skript.registerExpression(ExprAmountOfItems.class, Long.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
 	}
 	
 	@SuppressWarnings("null")
@@ -61,8 +61,8 @@ public class ExprAmountOfItems extends SimpleExpression<Integer> {
 	}
 	
 	@Override
-	protected Integer[] get(final Event e) {
-		int r = 0;
+	protected Long[] get(final Event e) {
+		long r = 0;
 		final ItemType[] types = items.getArray(e);
 		for (final Inventory invi : invis.getArray(e)) {
 			itemsLoop: for (final ItemStack i : invi.getContents()) {
@@ -74,12 +74,12 @@ public class ExprAmountOfItems extends SimpleExpression<Integer> {
 				}
 			}
 		}
-		return new Integer[] {r};
+		return new Long[] {r};
 	}
 	
 	@Override
-	public Integer[] getAll(final Event e) {
-		int r = 0;
+	public Long[] getAll(final Event e) {
+		long r = 0;
 		final ItemType[] types = items.getAll(e);
 		for (final Inventory invi : invis.getAll(e)) {
 			itemsLoop: for (final ItemStack i : invi.getContents()) {
@@ -91,12 +91,12 @@ public class ExprAmountOfItems extends SimpleExpression<Integer> {
 				}
 			}
 		}
-		return new Integer[] {r};
+		return new Long[] {r};
 	}
 	
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override
