@@ -251,6 +251,10 @@ public class Direction implements YggdrasilRobustSerializable {
 		final double pitch = horizontal ? 0 : pitchToRadians(l.getPitch());
 		return getFacing(yaw, pitch);
 	}
+
+	public static BlockFace getOppositeFacing(Location l, boolean horizontal) {
+		return getFacing(l, horizontal).getOppositeFace();
+	}
 	
 	public static BlockFace getFacing(final Vector v, final boolean horizontal) {
 		final double pitch = horizontal ? 0 : Math.atan2(v.getY(), Math.sqrt(Math.pow(v.getX(), 2) + Math.pow(v.getZ(), 2)));

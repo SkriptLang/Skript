@@ -46,45 +46,52 @@ import ch.njol.util.coll.CollectionUtils;
  * @author Peter Güttinger
  */
 @Name("Facing")
-@Description("The facing of an entity or block, i.e. exactly north, south, east, west, up or down (unlike <a href='#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east')")
-@Examples({"# makes a bridge",
+@Description("The facing of an entity or block, i.e. exactly north, south, east, west, up or down (unlike <a href='#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east')" +
+	"" +
+	"NOTE: Changing opposite facing of a block has the same result of changing the block's facing.")
+@Examples({"# Makes a bridge",
 		"loop blocks from the block below the player in the horizontal facing of the player:",
-		"\tset loop-block to cobblestone"})
-@Since("1.4")
+		"",
+		"# Get the block's face you're looking at",
+		"on right click:",
+		"\tsend \"You're looking at %opposite facing of player% side of %type of targeted block%.\""})
+@Since("1.4, INSERT VERSION (opposite)")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	private static final boolean useBlockData = Skript.isRunningMinecraft(1, 13);
 	
 	static {
-		register(ExprFacing.class, Direction.class, "(1¦horizontal|) facing", "livingentities/blocks");
+		register(ExprFacing.class, Direction.class, "[(2¦opposite)] (1¦horizontal|) facing", "livingentities/blocks");
 	}
 	
-	private boolean horizontal;
-	
+	private boolean horizontal, opposite;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		horizontal = parseResult.mark == 1;
+		opposite = parseResult.mark == 2;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	@Nullable
-	public Direction convert(final Object o) {
+	@SuppressWarnings("deprecation")
+	public Direction convert(Object o) {
 		if (o instanceof Block) {
 			if (useBlockData) {
 				BlockData data = ((Block) o).getBlockData();
 				if (data instanceof org.bukkit.block.data.Directional) {
-					return new Direction(((org.bukkit.block.data.Directional) data).getFacing(), 1);
+					return new Direction(opposite ? ((org.bukkit.block.data.Directional) data).getFacing().getOppositeFace() : ((org.bukkit.block.data.Directional) data).getFacing(), 1);
 				}
 			} else {
-				final MaterialData d = ((Block) o).getType().getNewData(((Block) o).getData());
+				MaterialData d = ((Block) o).getType().getNewData(((Block) o).getData());
 				if (d instanceof Directional)
-					return new Direction(((Directional) d).getFacing(), 1);
+					return new Direction(opposite ? ((Directional) d).getFacing().getOppositeFace() : ((Directional) d).getFacing(), 1);
 			}
 			return null;
 		} else if (o instanceof LivingEntity) {
-			return new Direction(Direction.getFacing(((LivingEntity) o).getLocation(), horizontal), 1);
+			BlockFace facing = opposite ? Direction.getFacing(((LivingEntity) o).getLocation(), horizontal).getOppositeFace() : Direction.getFacing(((LivingEntity) o).getLocation(), horizontal);
+			return new Direction(facing, 1);
 		}
 		assert false;
 		return null;
@@ -92,7 +99,7 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	@Override
 	protected String getPropertyName() {
-		return (horizontal ? "horizontal " : "") + "facing";
+		return (horizontal ? "horizontal " : (opposite ? "opposite " : "")) + "facing";
 	}
 	
 	@Override
@@ -102,7 +109,7 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (!Block.class.isAssignableFrom(getExpr().getReturnType()))
 			return null;
 		if (mode == ChangeMode.SET)
@@ -110,13 +117,13 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 		return null;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	@SuppressWarnings("deprecation")
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		assert mode == ChangeMode.SET;
 		assert delta != null;
 		
-		final Block b = (Block) getExpr().getSingle(e);
+		Block b = (Block) getExpr().getSingle(e);
 		if (b == null)
 			return;
 		if (useBlockData) {
@@ -126,7 +133,7 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 				b.setBlockData(data, false);
 			}
 		} else {
-			final MaterialData d = b.getType().getNewData(b.getData());
+			MaterialData d = b.getType().getNewData(b.getData());
 			if (!(d instanceof Directional))
 				return;
 			((Directional) d).setFacingDirection(toBlockFace(((Direction) delta[0]).getDirection(b)));
@@ -138,12 +145,12 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 		}
 	}
 	
-	private static BlockFace toBlockFace(final Vector dir) {
+	private static BlockFace toBlockFace(Vector dir) {
 //		dir.normalize();
 		BlockFace r = null;
 		double d = Double.MAX_VALUE;
-		for (final BlockFace f : BlockFace.values()) {
-			final double a = Math.pow(f.getModX() - dir.getX(), 2) + Math.pow(f.getModY() - dir.getY(), 2) + Math.pow(f.getModZ() - dir.getZ(), 2);
+		for (BlockFace f : BlockFace.values()) {
+			double a = Math.pow(f.getModX() - dir.getX(), 2) + Math.pow(f.getModY() - dir.getY(), 2) + Math.pow(f.getModZ() - dir.getZ(), 2);
 			if (a < d) {
 				d = a;
 				r = f;
