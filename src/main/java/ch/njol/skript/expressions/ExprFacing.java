@@ -99,7 +99,7 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	@Override
 	protected String getPropertyName() {
-		return (horizontal ? "horizontal " : (opposite ? "opposite " : "")) + "facing";
+		return (opposite ? "opposite " : "") + (horizontal ? "horizontal " : "") + "facing";
 	}
 	
 	@Override
