@@ -40,9 +40,9 @@ import ch.njol.util.Kleenean;
 @Examples({"set {var} to line 1 parsed as integer",
 		"if {var} is not set:",
 		"	parse error is set:",
-		"		message \"<red>Line 1 is invalid: %last parse error%\"",
+		"		message \"&lt;red&gt;Line 1 is invalid: %last parse error%\"",
 		"	else:",
-		"		message \"<red>Please put an integer on line 1!\""})
+		"		message \"&lt;red&gt;Please put an integer on line 1!\""})
 @Since("2.0")
 public class ExprParseError extends SimpleExpression<String> {
 	static {
