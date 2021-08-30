@@ -516,26 +516,27 @@ public class VariableString implements Expression<String> {
 					continue;
 				} else if (o instanceof Expression<?>) {
 					text = Classes.toString(((Expression<?>) o).getArray(e), true, mode);
-				} else {
-					assert false;
 				}
 				
 				assert text != null;
-				MessageComponent plain = ChatMessages.plainText(text);
+				List<MessageComponent> components = ChatMessages.fromParsedString(text);
 				if (!message.isEmpty()) { // Copy styles from previous component
-					ChatMessages.copyStyles(message.get(message.size() - 1), plain);
-				} else if (Utils.HEX_SUPPORTED && text.contains("§x")) { // Try to parse hex colors
-					int start = text.lastIndexOf("§x");
-					if (start + 14 < text.length()) {
-						String replace = text.substring(start + 2, start + 14);
-						plain.color = Utils.parseHexColor(replace.replace("&", "").replace("§", ""));
-						plain.text = text.replace("§x" + replace, "");
+					int startSize = message.size();
+					for (int i = 0; i < components.size(); i++) {
+						MessageComponent plain = components.get(i);
+						ChatMessages.copyStyles(message.get(startSize + i - 1), plain);
+						message.add(plain);
 					}
+				} else {
+					message.addAll(components);
 				}
-				message.add(plain);
 			} else {
-				message.add(component);
-				previous = component;
+				MessageComponent componentCopy = component.copy();
+				if (!message.isEmpty()) { // Copy styles from previous component
+					ChatMessages.copyStyles(message.get(message.size() - 1), componentCopy);
+				}
+				message.add(componentCopy);
+				previous = componentCopy;
 			}
 		}
 		

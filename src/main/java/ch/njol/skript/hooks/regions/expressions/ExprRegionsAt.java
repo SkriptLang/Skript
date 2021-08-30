@@ -50,7 +50,7 @@ import ch.njol.util.Kleenean;
 		"	if {_regions::*} is empty:",
 		"		message \"No regions exist at this sign.\"",
 		"	else:",
-		"		message \"Regions containing this sign: <gold>%{_regions::*}%<r>.\""})
+		"		message \"Regions containing this sign: &lt;gold&gt;%{_regions::*}%<r>.\""})
 @Since("2.1")
 public class ExprRegionsAt extends SimpleExpression<Region> {
 	static {
