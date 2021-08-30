@@ -57,7 +57,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @Name("Lore")
 @Description("An item's lore.")
-@Examples("set the 1st line of the item's lore to \"<orange>Excalibur 2.0\"")
+@Examples("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur 2.0\"")
 @Since("2.1")
 public class ExprLore extends SimpleExpression<String> {
 
