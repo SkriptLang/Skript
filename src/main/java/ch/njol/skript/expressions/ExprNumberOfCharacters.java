@@ -38,7 +38,7 @@ import ch.njol.util.Kleenean;
 			"on chat:",
 			"\tif number of uppercase chars in message / length of message > 0.5",
 			"\t\tcancel event",
-			"\t\tsend \"<red>Your message has to many caps!\" to player"})
+			"\t\tsend \"&lt;red&gt;Your message has to many caps!\" to player"})
 @Since("2.5")
 public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 

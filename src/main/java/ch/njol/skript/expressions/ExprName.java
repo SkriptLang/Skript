@@ -95,8 +95,8 @@ import net.md_5.bungee.api.ChatColor;
 		"</ul>"})
 @Examples({"on join:",
 		"	player has permission \"name.red\"",
-		"	set the player's display name to \"<red>[admin] <gold>%name of player%\"",
-		"	set the player's tab list name to \"<green>%player's name%\"",
+		"	set the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
+		"	set the player's tab list name to \"&lt;green&gt;%player's name%\"",
 		"set the name of the player's tool to \"Legendary Sword of Awesomeness\""})
 @Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
