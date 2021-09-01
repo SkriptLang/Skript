@@ -1,218 +1,332 @@
 <h1 id="nav-title">Text in Scripts</h1>
 
-<div id="content">
-Skript allows you to write pieces of text (programmers usually call them strings)
-in the scripts. This is done by putting the text inside double quotes, as follows:
-<div class="skript-code-block">
-"this is text"
-</div>
-Simple, isn't it? If an effect, expression, condition, trigger or function
-accepts something of type text or string, you can use this format to write it
-right there!
-<h2>Formatting Text</h2>
-But isn't just text a bit boring? Worry not, as Minecraft has support for colors,
-styles and other formatting options in chat. Most of the options also work with
-item and entity names.
+<div id="content-no-docs" class="no-left-panel" style="padding-top: 32px;">
+    <h2 class="title">Text (String)</h2>
+    <p class="subtitle">
+        Skript allows you to write pieces of text (programmers usually call them strings) in the scripts. This is done by putting the text inside double quotes, as follows:
+    </p>
+    <div class="box skript-code-block left-margin">"this is text"</div>
+    <p class="subtitle">
+        Simple, isn't it? If an effect, expression, condition, trigger or function accepts something of type text or string, you can use this format to write it right there!
+    </p>
+    <h2 class="title">Formatting Text</h2>
+    <p class="subtitle">
+        But isn't just text a bit boring? Worry not, as Minecraft has support for colors, styles and other formatting options in chat. Most of the options also work with item and entity names.
+    </p>
+    <h2 class="title">Colors</h2>
+    <p class="subtitle">
+        Minecraft has 16 pre-set color codes to be used in text. Skript supports them in two different ways:
+    </p>
+    <p class="box left-margin">
+        Color name tags, for example <b>&lt;red&gt;</b><br/> Minecraft color codes, like <b>§c</b>; using <b>&amp;</b> works, too
+    </p>
+    <p class="subtitle">
+        Here's a table of all colors, including both Skript names and color codes:
+    </p>
+    <table class="colors-table">
+        <tr style="font-weight: 700">
+            <td>Color</td>
+            <td>Code</td>
+            <td>Name</td>
+            <td>Alternative Names</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #000000;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§0</td>
+            <td>black</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #0000aa;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§1</td>
+            <td>blue</td>
+            <td>dark blue</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #00aa00;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§2</td>
+            <td>green</td>
+            <td>dark green</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #00aaaa;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§3</td>
+            <td>cyan</td>
+            <td>aqua, dark cyan, dark aqua, dark turquoise, dark turquois</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #aa0000;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§4</td>
+            <td>red</td>
+            <td>dark red</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #aa00aa;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§5</td>
+            <td>purple</td>
+            <td>dark purple</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #ffaa00;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§6</td>
+            <td>orange</td>
+            <td>orange, gold, dark yellow</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #aaaaaa;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§7</td>
+            <td>grey</td>
+            <td>light grey, gray, light gray, silver</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #555555;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§8</td>
+            <td>grey</td>
+            <td>light grey, gray, light gray, silver</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #5555ff;
+              color: #ffffff;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§9</td>
+            <td>light blue</td>
+            <td>light blue, indigo</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #55ff55;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§a</td>
+            <td>light green</td>
+            <td>lime, lime green</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #55ffff;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§b</td>
+            <td>light cyan</td>
+            <td>light aqua, turquoise, turquois, light blue</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #ff5555;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§c</td>
+            <td>light red</td>
+            <td>pink</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #ff55ff;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§d</td>
+            <td>magenta</td>
+            <td>light purple</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #ffff55;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§e</td>
+            <td>yellow</td>
+            <td>light yellow</td>
+        </tr>
+        <tr>
+            <td style="
+              background-color: #ffffff;
+              color: #000000;
+              width: 10px;
+              height: 10px;
+            "></td>
+            <td>§f</td>
+            <td>white</td>
+            <td></td>
+        </tr>
+    </table>
+    <p class="subtitle">
+        In <b>Minecraft 1.16</b>, support was added for
+        <b>6-digit</b> hexadecimal colors to specify custom colors other than the 16 default color codes. A new tag can be used to format with these colors. The tag looks like this:
+    </p>
+    <div class="box skript-code-block left-margin">&lt;##hex code&gt;</div>
+    <p class="subtitle">Here's what the tag would look like when used in a script:</p>
+    <div class="box skript-code-block left-margin">
+        send "&lt;##123456&gt;Hey %player%!" to player
+    </div>
+    <p class="subtitle">
+        For information not related to Skript, see
+        <a href="https://minecraft.gamepedia.com/Formatting_codes#Color_codes">Minecraft Wiki page</a
+    >
+    concerning colors. Note that depending on Skript configuration, color
+    codes may do more than just change color of text after them. By default,
+    for backwards compatibility, they clear following styles: magic, bold,
+    strikethrough, underlined, italic. Other styles are not affected, and
+    this feature can be toggled of in config.sk.
+  </p>
+  <h2 class="title">Other Styles</h2>
+  <p class="subtitle">
+    Minecraft also has various other styles available. The following are
+    available everywhere, including item and entity names:
+  </p>
 
-<h3>Colors</h3>
-Minecraft has 16 pre-set color codes to be used in text. Skript supports them
-in two different ways:
-<ul>
-  <li>Color name tags, for example &lt;red&gt;</li>
-  <li>(Old) Minecraft color codes, like §c; using &amp; works, too</li>
-</ul>
-<p>
-Here's a table of all colors, including both Skript names and color codes:
-<table>
-  <tr>
-    <td>Code</td>
-    <td>Name</td>
-    <td>Alternative Names</td>
-  </tr>
-  <tr style="background-color: #000000; color: #FFFFFF">
-    <td>§0</td>
-    <td>black</td>
-    <td></td>
-  </tr>
-  <tr style="background-color: #0000AA; color: #FFFFFF">
-    <td>§1</td>
-    <td>blue</td>
-    <td>dark blue</td>
-  </tr>
-  <tr style="background-color: #00AA00; color: #FFFFFF">
-    <td>§2</td>
-    <td>green</td>
-    <td>dark green</td>
-  </tr>
-  <tr style="background-color: #00AAAA; color: #FFFFFF">
-    <td>§3</td>
-    <td>cyan</td>
-    <td>aqua, dark cyan, dark aqua, dark turquoise, dark turquois</td>
-  </tr>
-  <tr style="background-color: #AA0000; color: #FFFFFF">
-    <td>§4</td>
-    <td>red</td>
-    <td>dark red</td>
-  </tr>
-  <tr style="background-color: #AA00AA; color: #FFFFFF">
-    <td>§5</td>
-    <td>purple</td>
-    <td>dark purple</td>
-  </tr>
-  <tr style="background-color: #FFAA00; color: #000000">
-    <td>§6</td>
-    <td>orange</td>
-    <td>orange, gold, dark yellow</td>
-  </tr>
-  <tr style="background-color: #AAAAAA; color: #000000">
-    <td>§7</td>
-    <td>grey</td>
-    <td>light grey, gray, light gray, silver</td>
-  </tr>
-  <tr style="background-color: #555555; color: #FFFFFF">
-    <td>§8</td>
-    <td>grey</td>
-    <td>light grey, gray, light gray, silver</td>
-  </tr>
-  <tr style="background-color: #5555FF; color: #FFFFFF">
-    <td>§9</td>
-    <td>light blue</td>
-    <td>light blue, indigo</td>
-  </tr>
-  <tr style="background-color: #55FF55; color: #000000">
-    <td>§a</td>
-    <td>light green</td>
-    <td>lime, lime green</td>
-  </tr>
-  <tr style="background-color: #55FFFF; color: #000000">
-    <td>§b</td>
-    <td>light cyan</td>
-    <td>light aqua, turquoise, turquois, light blue</td>
-  </tr>
-  <tr style="background-color: #FF5555; color: #000000">
-    <td>§c</td>
-    <td>light red</td>
-    <td>pink</td>
-  </tr>
-  <tr style="background-color: #FF55FF; color: #000000">
-    <td>§d</td>
-    <td>magenta</td>
-    <td>light purple</td>
-  </tr>
-  <tr style="background-color: #FFFF55; color: #000000">
-    <td>§e</td>
-    <td>yellow</td>
-    <td>light yellow</td>
-  </tr>
-  <tr style="background-color: #FFFFFF; color: #000000">
-    <td>§f</td>
-    <td>white</td>
-    <td></td>
-  </tr>
-</table>
-<p>
-In Minecraft 1.16, support was added for 6-digit hexadecimal colors to specify custom colors other than the 16 default color codes.
-A new tag can be used to format with these colors. The tag looks like this: <code><#hex code></code>.
-<br>
-Here's what the tag would look like when used in a script: <code>send "<#123456>Hey %player%!" to player</code>
-<p>
-For information not related to Skript, see
-<a href="https://minecraft.gamepedia.com/Formatting_codes#Color_codes">Minecraft
-Wiki page</a> concerning colors.
-
-Note that depending on Skript configuration, color codes may do more than just
-change color of text after them. By default, for backwards compatibility, they
-clear following styles: magic, bold, strikethrough, underlined, italic. Other
-styles are not affected, and this feature can be toggled of in config.sk.
-
-<h3>Other Styles</h3>
-Minecraft also has various other styles available. The following are available
-everywhere, including item and entity names:
-<table>
-  <tr>
-    <td>Code</td>
-    <td>Name</td>
-    <td>Alternative Names</td>
-  </tr>
-  <tr>
-    <td>§k</td>
-    <td>magic</td>
-    <td>obfuscated</td>
-  </tr>
-  <tr>
-    <td>§l</td>
-    <td style="font-weight: bold">bold</td>
-    <td>b</td>
-  </tr>
-  <tr>
-    <td>§m</td>
-    <td style="text-decoration: line-through">strikethrough</td>
-    <td>strike, s</td>
-  </tr>
-  <tr>
-    <td>§n</td>
-    <td style="text-decoration: line-under">underlined</td>
-    <td>underline, u</td>
-  </tr>
-  <tr>
-    <td>§o</td>
-    <td style="font-style: italic">italic</td>
-    <td>italics, i</td>
-  </tr>
-  <tr>
-    <td>§r</td>
-    <td style="text-decoration: line-through">reset</td>
-    <td>r</td>
-  </tr>
-</table>
-If it wasn't clear from the table, §r clears all other formatting and colors.
-You'll probably use it quite often when sending chat messages from scripts.
-<p>
-Skript also supports certain newer features, which are only available in chat.
-Those do not have formatting codes, so you must use tags for them.
-<table>
-  <tr>
-    <td>Name</td>
-    <td>Alternative Names</td>
-    <td>Description</td>
-  </tr>
-  <tr>
-    <td>link</td>
-    <td>open url, url</td>
-    <td>Opens a link when player clicks on text</td>
-  </tr>
-  <tr>
-    <td>run command</td>
-    <td>command, cmd</td>
-    <td>Makes player execute a chat command when they click on text</td>
-  </tr>
-  <tr>
-    <td>suggest command</td>
-    <td></td>
-    <td>Adds a command to chat prompt of player when clicked</td>
-  </tr>
-  <tr>
-    <td>tooltip</td>
-    <td>show text</td>
-    <td>Shows a tooltip when player hovers over text with their mouse</td>
-  </tr>
-  <tr>
-    <td>font</td>
-    <td>f</td>
-    <td>Change the font of the text 1.16+</td>
-  </tr>
-</table>
-
-All of these styles require a parameter, in format
-<span class="skript-code-inline">&lt;name:parameter&gt;</span>
-For link, parameter must be either http or https url if you want clients to
-recognize it. For others, it can be any text you'd like
-(you can make player run invalid commands if you wish).
-
-<h2>Text and Variables</h2>
-Variable names are text, but obviously formatting that text does no good.
-However, everything else you can do for text, you can do for variable names.
-A guide about this is coming... some day.
-<p>
-Guide written by <a href="https://github.com/bensku">bensku</a>.
+  <table class="colors-table">
+    <tr style="font-weight: 700">
+      <td>Code</td>
+      <td>Name</td>
+      <td>Alternative Names</td>
+    </tr>
+    <tr>
+      <td>§k</td>
+      <td>magic&nbsp;<span class="magic-text" style="position: absolute;">test</span></td>
+      <td>obfuscated</td>
+    </tr>
+    <tr>
+      <td>§l</td>
+      <td style="font-weight: bold">bold</td>
+      <td>b</td>
+    </tr>
+    <tr>
+      <td>§m</td>
+      <td style="text-decoration: line-through">strikethrough</td>
+      <td>strike, s</td>
+    </tr>
+    <tr>
+      <td>§n</td>
+      <td style="text-decoration: underline">underlined</td>
+      <td>underline, u</td>
+    </tr>
+    <tr>
+      <td>§o</td>
+      <td style="font-style: italic">italic</td>
+      <td>italics, i</td>
+    </tr>
+    <tr>
+      <td>§r</td>
+      <td>reset</td>
+      <td>r</td>
+    </tr>
+  </table>
+  <p class="subtitle">
+    If it wasn't clear from the table, §r clears all other formatting and
+    colors. You'll probably use it quite often when sending chat messages
+    from scripts.
+  </p>
+  <p class="subtitle">
+    Skript also supports certain newer features, which are only available in
+    chat. Those do not have formatting codes, so you must use tags for them.
+  </p>
+  <table class="colors-table">
+    <tr style="font-weight: 700">
+      <td>Name</td>
+      <td>Alternative Names</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>link</td>
+      <td>open url, url</td>
+      <td>Opens a link when player clicks on text</td>
+    </tr>
+    <tr>
+      <td>run command</td>
+      <td>command, cmd</td>
+      <td>Makes player execute a chat command when they click on text</td>
+    </tr>
+    <tr>
+      <td>suggest command</td>
+      <td>sgt</td>
+      <td>Adds a command to chat prompt of player when clicked</td>
+    </tr>
+    <tr>
+      <td>tooltip</td>
+      <td>show text, ttp</td>
+      <td>Shows a tooltip when player hovers over text with their mouse</td>
+    </tr>
+    <tr>
+      <td>insertion</td>
+      <td>insert, ins</td>
+      <td>Will append a text at player's current cursor in chat input only while holding SHIFT.</td>
+    </tr>
+  </table>
+  <p class="subtitle">All of these styles require a parameter, in format</p>
+  <div class="box skript-code-block left-margin">
+    &lt;name:parameter&gt;
+  </div>
+  <p class="subtitle">
+    For link, parameter must be either http or https url if you want clients
+    to recognize it. For others, it can be any text you'd like (you can make
+    player run invalid commands if you wish).
+</p>
+  <h2 class="title">Text and Variables</h2>
+  <p class="subtitle">
+    Variable names are text, but obviously formatting that text does no
+    good. However, everything else you can do for text, you can do for
+    variable names. A guide about this is coming... some day.
+  </p>
+  <p style="padding-bottom: 20px">
+    Guide written by <a href="https://github.com/bensku">bensku</a>.
+    </p>
+  <div style="padding-top: 32px;"></div> <!-- Space -->
 </div>

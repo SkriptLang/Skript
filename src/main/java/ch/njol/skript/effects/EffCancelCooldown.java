@@ -36,7 +36,7 @@ import ch.njol.util.Kleenean;
 @Name("Cancel Command Cooldown")
 @Description({"Only usable in commands. Makes it so the current command usage isn't counted towards the cooldown."})
 @Examples({
-		"command /nick <text>:",
+		"command /nick &lt;text&gt;:",
 		"\texecutable by: players",
 		"\tcooldown: 10 seconds",
 		"\ttrigger:",
