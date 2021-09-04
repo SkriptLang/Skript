@@ -234,7 +234,7 @@ if (searchBar) {
       })
 
       searchResultBox = document.getElementById("search-bar-after");
-      if (count > 0) {
+      if (count > 0 && (version != "" || searchValue != "")) {
         searchResultBox.textContent = `${count} ${resultsFoundText}`
         searchResultBox.style.display = null;
       } else {

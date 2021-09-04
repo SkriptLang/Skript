@@ -728,8 +728,8 @@ pre {
     padding: 3px;
     font-size: 12px;
     position: fixed;
-    background: rgb(240, 240, 240);
-    color: rgb(58, 58, 58);
+    background: var(--search-bg-color);
+    color: var(--search-color);
     box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
     right: 0.8%;
     top: 102px;
