@@ -128,16 +128,20 @@ document.querySelectorAll(".item-title > a").forEach((e) => {
 // Anchor click copy link </>
 
 // <> Search Bar
-const versionComparePattern = /.*(\d\.\d(?:\.\d|))(\+|-|).*/gi;
-const versionPattern = /.*v:(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|).*/gi;
+const versionComparePattern = /.*?(\d\.\d(?:\.\d|))(\+|-|).*/gi;
+const versionPattern = /.*?v:(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|).*/gi;
 const resultsFoundText = "result(s) found";
 
 function versionCompare(base, target) { // Return -1, 0, 1
+  // console.log(base + " | " + target)
   base = base.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
   target = target.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
 
+  
   base = parseInt(base) < 100 ? parseInt(base) * 10 : parseInt(base); // convert ten's to hundred's to fix (2.5.1+ not triggering 2.6 by converting 26 -> 260)
   target = parseInt(target) < 100 ? parseInt(target) * 10 : parseInt(target);
+  
+  // console.log(base + " || " + target)
 
   if (target > base)
     return 1
@@ -268,9 +272,9 @@ if (getCookie("darkMode") != "true") {
 
 setTimeout(() => {
   var themeSwitcher = document.getElementById('theme-switch');
-  console.log(themeSwitcher);
+  // console.log(themeSwitcher);
   themeSwitcher.addEventListener('click', (event) => {
-    console.log("1");
+    // console.log("1");
     if (document.body.getAttribute("data-theme") == null) {
       document.body.setAttribute('data-theme', 'white');
       event.target.src = "./assets/light-on-dark.svg";
