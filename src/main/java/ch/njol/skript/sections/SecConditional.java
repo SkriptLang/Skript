@@ -20,6 +20,7 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.events.bukkit.SkriptParseEvent;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -35,18 +36,30 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Name("Conditionals")
+@Description("Conditional sections (if, else if, else) are only executed if the conditions provided are met.")
+@Examples({"if player's health is greater than or equal to 4:",
+		"\tsend \"Your health is okay so far but be careful!\"",
+		"",
+		"else if player's health is greater than 2:",
+		"\tsend \"You need to heal ASAP, your health is very low!\"",
+		"",
+		"else: # Less than 2 hearts",
+		"\tsend \"You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!\""})
+@Since("1.0")
 @SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
 	static {
 		Skript.registerSection(SecConditional.class,
-			"else",
+			"[(1¦parse if|2¦if)] <.+>",
 			"else [(1¦parse)] if <.+>",
-			"[(1¦parse if|2¦if)] <.+>");
+			"else");
 	}
 
 	private enum ConditionalType {
-		ELSE, ELSE_IF, IF
+		 IF, ELSE_IF, ELSE
 	}
 
 	private ConditionalType type;

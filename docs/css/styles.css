@@ -176,11 +176,20 @@ a:visited {
     transition: all 0.1s;
 }
 
+/* Active tab for menu items */
 #global-navigation a:hover,
 .active-tab {
     color: #ffc107;
     /*border-bottom: 3px solid #ff9800;*/
     box-shadow: inset 0 -3px 0 #ff9800;
+}
+
+/* Active tab for sub menus */
+.menu-subtabs .active-tab {
+    color: #ffc107;
+    border-left: 3px solid #ff9800;
+    background: #3a3a3a;
+    box-shadow: unset;
 }
 
 #side-nav {
@@ -330,6 +339,7 @@ table {
     margin-bottom: 40px;
     max-width: 80vw;
     border-bottom: 1px solid var(--element-bottom-border);
+    content-visibility: auto;
 }
 
 .item-table-label {
@@ -751,7 +761,7 @@ pre {
     text-align: right;
     display: inline-block;
     width: 50px;
-    rotate: 180deg;
+    transform: rotate(180deg);
 }
 
 #theme-switch:hover {
@@ -815,6 +825,7 @@ pre {
     box-shadow: inset 0 -3px 0 #ff9800;
 }
 
+/* Hover over submenu items */
 #global-navigation .menu-subtabs a:hover {
     box-shadow: unset;
     border-left: 3px solid #ff9800;

@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import ch.njol.skript.lang.*;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -33,11 +34,6 @@ import com.google.common.io.Files;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
@@ -280,6 +276,15 @@ public class HTMLGenerator {
 					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(Skript.getConditions());
 					Collections.sort(conditions, annotatedComparator);
 					for (SyntaxElementInfo<? extends Condition> info : conditions) {
+						assert info != null;
+						if (info.c.getAnnotation(NoDoc.class) != null)
+							continue;
+						generated.append(generateAnnotated(descTemp, info, generated.toString()));
+					}
+				} else if (genType.equals("sections")) {
+					List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(Skript.getSections());
+					Collections.sort(sections, annotatedComparator);
+					for (SyntaxElementInfo<? extends Section> info : sections) {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;

@@ -21,6 +21,7 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -39,6 +40,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+@Name("Loop")
+@Description("Loop sections are constructs that repeats code for multiple values.")
+@Examples({"loop all players:",
+		"\tsend \"Hello %loop-player%!\" to loop-player",
+		"",
+		"loop items in player's inventory:",
+		"\tif loop-item is dirt:",
+		"\t\tset loop-item to air",
+		"",
+		"loop {Coins::playerdata::*}:",
+		"\tset {Coins::playerdata::%loop-index%::balance} to 5 # Set coins balance of everyone in that list variable to 5"})
+@Since("1.0")
 public class SecLoop extends Section {
 
 	static {

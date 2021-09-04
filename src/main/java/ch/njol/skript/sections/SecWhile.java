@@ -20,6 +20,7 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
@@ -31,6 +32,16 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
+@Name("While Loop")
+@Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
+@Examples({"while player is online:",
+		"\tgive player 1 dirt",
+		"\twait 1 second",
+		"",
+		"while size of all players < 5:",
+		"\tsend \"More players are needed to begin the adventure\" to all players",
+		"\twait 5 seconds"})
+@Since("2.0")
 public class SecWhile extends Section {
 
 	static {
