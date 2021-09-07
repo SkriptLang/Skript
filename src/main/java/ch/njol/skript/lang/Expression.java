@@ -53,7 +53,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	/**
 	 * Get the single value of this expression.
 	 * <p>
-	 * This method may only return null if it always returns null for the given event, i.e. it is equivalent to getting a random element out of {@link #getAll(Event)} or null iff
+	 * This method may only return null if it always returns null for the given event, i.e. it is equivalent to getting a random element out of {@link #getAll(Event)} or null if
 	 * that array is empty.
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
