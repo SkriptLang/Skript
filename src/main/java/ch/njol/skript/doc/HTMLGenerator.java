@@ -422,7 +422,7 @@ public class HTMLGenerator {
 			String[] eventLinks = new String[eventNames.length];
 			for (int i = 0; i < eventNames.length; i++) {
 				String eventName = eventNames[i];
-				eventLinks[i] = "<a href=\"events.html#" + eventName.replace(" ", "_") + "\">" + eventName + "</a>";
+				eventLinks[i] = "<a href=\"events.html#" + eventName.replaceAll("( ?/ ?| +)", "_") + "\">" + eventName + "</a>";
 			}
 			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
 		}
@@ -470,6 +470,7 @@ public class HTMLGenerator {
 	}
 	
 	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
+		Class<?> c = info.c;
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getName(), "Unknown Name");
@@ -499,9 +500,23 @@ public class HTMLGenerator {
 		}
 		desc = desc.replace("${element.id}", ID);
 		
+		Events events = c.getAnnotation(Events.class);
 		assert desc != null;
-		desc = handleIf(desc, "${if events}", false);
-		desc = handleIf(desc, "${if required-plugins}", false);
+		desc = handleIf(desc, "${if events}", events != null);
+		if (events != null) {
+			String[] eventNames = events.value();
+			String[] eventLinks = new String[eventNames.length];
+			for (int i = 0; i < eventNames.length; i++) {
+				String eventName = eventNames[i];
+				eventLinks[i] = "<a href=\"events.html#" + eventName.replaceAll(" ?/ ?", "_").replaceAll(" +", "_") + "\">" + eventName + "</a>";
+			}
+			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
+		}
+		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join(events.value()));
+
+		String[] requiredPlugins = info.getRequiredPlugins();
+		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
+		desc = desc.replace("${element.required-plugins}", Joiner.on("\n<br>").join(requiredPlugins == null ? new String[0] : requiredPlugins));
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -534,6 +549,7 @@ public class HTMLGenerator {
 	}
 	
 	private String generateClass(String descTemp, ClassInfo<?> info, @Nullable String page) {
+		Class<?> c = info.getC();
 		String desc = "";
 		
 		String docName = getNullOrEmptyDefault(info.getDocName(), "Unknown Name");
@@ -563,8 +579,23 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.id}", ID);
 
 		assert desc != null;
-		desc = handleIf(desc, "${if events}", false);
-		desc = handleIf(desc, "${if required-plugins}", false);
+		Events events = c.getAnnotation(Events.class);
+		desc = handleIf(desc, "${if events}", events != null);
+		if (events != null) {
+			String[] eventNames = events.value();
+			String[] eventLinks = new String[eventNames.length];
+			for (int i = 0; i < eventNames.length; i++) {
+				String eventName = eventNames[i];
+				eventLinks[i] = "<a href=\"events.html#" + eventName.replaceAll(" ?/ ?", "_").replaceAll(" +", "_") + "\">" + eventName + "</a>";
+			}
+			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
+		}
+		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join(events.value()));
+
+
+		String[] requiredPlugins = info.getRequiredPlugins();
+		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
+		desc = desc.replace("${element.required-plugins}", Joiner.on("\n<br>").join(requiredPlugins == null ? new String[0] : requiredPlugins));
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -623,7 +654,7 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.id}", info.getName());
 		
 		assert desc != null;
-		desc = handleIf(desc, "${if events}", false);
+		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
 		desc = handleIf(desc, "${if required-plugins}", false);
 		
 		List<String> toGen = Lists.newArrayList();

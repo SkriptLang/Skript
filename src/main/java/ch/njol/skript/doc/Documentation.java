@@ -170,7 +170,8 @@ public class Documentation {
 		String cleanedPatterns =
 				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
 				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
-				.replace("()", ""); // Remove empty mark setting groups (mark¦)
+				.replace("()", "") // Remove empty mark setting groups (mark¦)
+				.replaceAll("\\[\\(((\\w+? ?)+)\\)\\]", "[$1]"); // Remove unnecessary parentheses such as [(script)]
 
 		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
@@ -221,7 +222,7 @@ public class Documentation {
 		cleanedPatterns = cleanedPatterns.replaceAll("\\(([^()]+?)\\|\\)", "[($1)]"); // Matches optional syntaxes that doesn't have nested parentheses
 		cleanedPatterns = cleanedPatterns.replaceAll("\\(\\|([^()]+?)\\)", "[($1)]");
 
-		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses at has nested parentheses
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses that has nested parentheses
 		assert cleanedPatterns != null;
 		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+?)\\|\\)", callback);
 		assert cleanedPatterns != null;

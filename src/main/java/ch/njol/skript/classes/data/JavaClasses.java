@@ -588,14 +588,15 @@ public class JavaClasses {
 				.description("Text is simply text, i.e. a sequence of characters, which can optionally contain expressions which will be replaced with a meaningful representation " +
 						"(e.g. %player% will be replaced with the player's name).",
 						"Because scripts are also text, you have to put text into double quotes to tell Skript which part of the line is an effect/expression and which part is the text.",
-						"Please read the article on <a href='../strings/'>Texts and Variable Names</a> to learn more.")
+						"Please read the article on <a href='./strings/'>Texts and Variable Names</a> to learn more.")
 				.usage("simple: \"...\"",
 						"quotes: \"...\"\"...\"",
 						"expressions: \"...%expression%...\"",
 						"percent signs: \"...%%...\"")
 				.examples("broadcast \"Hello World!\"",
 						"message \"Hello %player%\"",
-						"message \"The id of \"\"%type of tool%\"\" is %id of tool%.\"")
+                        "message \"The id of \"\"%type of tool%\"\" is %id of tool%.\" # Before v2.6 (Double quotes)",
+                        "message \"Type \"Yes\" in chat to accept.\" # After v2.6 (Single quote)")
 				.since("1.0")
 				.parser(new Parser<String>() {
 					@Override

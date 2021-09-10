@@ -51,8 +51,8 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Colour of")
 @Description("The <a href='../classes.html#color'>colour</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
 @Examples({"on click on wool:",
-		"	message \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
-		"	set the colour of the block to black"})
+		"	message \"This wool block is <%color of block%>%color of block%<reset>!\"",
+		"	set the color of the block to black"})
 @Since("1.2")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
@@ -102,7 +102,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "colour of " + getExpr().toString(e, debug);
+		return "color of " + getExpr().toString(e, debug);
 	}
 
 	@Override
