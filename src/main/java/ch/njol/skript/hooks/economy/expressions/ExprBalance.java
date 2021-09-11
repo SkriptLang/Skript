@@ -41,7 +41,7 @@ import ch.njol.skript.hooks.economy.classes.Money;
 		"remove 20$ from the player's balance # replace '$' by whatever currency you use",
 		"add 200 to the player's account # or omit the currency alltogether"})
 @Since("2.0, 2.5 (offline player support)")
-@RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
+@RequiredPlugins({"Vault", "an economy plugin that supports Vault"})
 public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> {
 	static {
 		register(ExprBalance.class, Money.class, "(money|balance|[bank] account)", "offlineplayers");

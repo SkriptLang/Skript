@@ -22,16 +22,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -45,11 +42,12 @@ import ch.njol.util.coll.iterator.EmptyIterator;
  * @author Peter Güttinger
  */
 @Name("Blocks in Region")
-@Description({"All blocks in a <a href='../classes.html#region'>region</a>.",
+@Description({"All blocks in a <a href='./classes.html#region'>region</a>.",
 		"This expression requires a supported regions plugin to be installed."})
 @Examples({"loop all blocks in the region {arena.%{faction.%player%}%}:",
 		"	clear the loop-block"})
 @Since("2.1")
+@RequiredPlugins("Supported regions plugin")
 public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	static {
 		Skript.registerExpression(ExprBlocksInRegion.class, Block.class, ExpressionType.COMBINED,

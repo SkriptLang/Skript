@@ -200,6 +200,12 @@ public final class Skript extends JavaPlugin implements Listener {
 			throw new IllegalStateException("Cannot create multiple instances of Skript!");
 		instance = this;
 	}
+
+	private static boolean docsTemplateFound;
+
+	public static boolean isDocsTemplateFound() {
+		return docsTemplateFound;
+	}
 	
 	@Nullable
 	private static Version version = null;
@@ -329,6 +335,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		handleJvmArguments(); // JVM arguments
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
+
+		docsTemplateFound = new File(getInstance().getDataFolder() + "/doc-templates").exists(); // Mostly used to handle generating hooks docs
 		
 		Language.loadDefault(getAddonInstance());
 		

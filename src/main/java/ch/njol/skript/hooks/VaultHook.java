@@ -57,11 +57,11 @@ public class VaultHook extends Hook<Vault> {
 	@SuppressWarnings("null")
 	@Override
 	protected void loadClasses() throws IOException {
-		if (economy != null)
+		if (economy != null || Skript.isDocsTemplateFound())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".economy");
-		if (chat != null)
+		if (chat != null || Skript.isDocsTemplateFound())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".chat");
-		if (permission != null)
+		if (permission != null || Skript.isDocsTemplateFound())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".permission");
 
 	}

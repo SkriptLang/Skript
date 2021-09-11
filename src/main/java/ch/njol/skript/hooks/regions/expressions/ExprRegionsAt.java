@@ -20,15 +20,12 @@ package ch.njol.skript.hooks.regions.expressions;
 
 import java.util.ArrayList;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Expression;
@@ -42,7 +39,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Regions At")
-@Description({"All <a href='../classes.html#region'>regions</a> at a particular <a href='../classes/#location'>location</a>.",
+@Description({"All <a href='./classes.html#region'>regions</a> at a particular <a href='./classes/#location'>location</a>.",
 		"This expression requires a supported regions plugin to be installed."})
 @Examples({"On click on a sign:",
 		"	line 1 of the clicked block is \"[region info]\"",
@@ -52,6 +49,7 @@ import ch.njol.util.Kleenean;
 		"	else:",
 		"		message \"Regions containing this sign: &lt;gold&gt;%{_regions::*}%<r>.\""})
 @Since("2.1")
+@RequiredPlugins("Supported regions plugin")
 public class ExprRegionsAt extends SimpleExpression<Region> {
 	static {
 		Skript.registerExpression(ExprRegionsAt.class, Region.class, ExpressionType.PROPERTY,

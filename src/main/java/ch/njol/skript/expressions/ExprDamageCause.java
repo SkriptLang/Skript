@@ -34,7 +34,7 @@ import ch.njol.skript.lang.ExpressionType;
  * @author Peter Güttinger
  */
 @Name("Damage Cause")
-@Description("The <a href='../classes.html#damagecause'>damage cause</a> of a damage event. Please click on the link for more information.")
+@Description("The <a href='./classes.html#damagecause'>damage cause</a> of a damage event. Please click on the link for more information.")
 @Examples("damage cause is lava, fire or burning")
 @Since("2.0")
 public class ExprDamageCause extends EventValueExpression<DamageCause> {

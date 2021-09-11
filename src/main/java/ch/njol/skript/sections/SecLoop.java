@@ -41,7 +41,13 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 @Name("Loop")
-@Description("Loop sections are constructs that repeats code for multiple values.")
+@Description({"Loop sections repeat their code with multiple values.",
+			"<b>loop-value</b> is the value of the currently looped variable, and <b>loop-index</b> is the last part of the variable's name (the part where the list variable has its asterisk *)",
+			"",
+			"Ex. if we have a variable like this {SomeVariable::%player%} then when we loop {SomeVariable::*}",
+			"<b>loop-value</b> will be the value we submit to that variable, like 500, \"Yes\", false or any object that Skript understands",
+			"and <b>loop-index</b> will be the last part of the variable {SomeVariable::THIS_PART}, in our example it will be the result of %player% which is the player name like \"Notch\".",
+			"Keep in mind that loop-index is always a string but loop-value can be any object (numbers, strings, players etc.)."})
 @Examples({"loop all players:",
 		"\tsend \"Hello %loop-player%!\" to loop-player",
 		"",
@@ -49,8 +55,12 @@ import java.util.WeakHashMap;
 		"\tif loop-item is dirt:",
 		"\t\tset loop-item to air",
 		"",
-		"loop {Coins::playerdata::*}:",
-		"\tset {Coins::playerdata::%loop-index%::balance} to 5 # Set coins balance of everyone in that list variable to 5"})
+		"loop 10 times:",
+		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+		"\twait 1 second",
+		"",
+		"loop {Coins::*}:",
+		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of the player and loop-value is the actually coins value such as 200"})
 @Since("1.0")
 public class SecLoop extends Section {
 

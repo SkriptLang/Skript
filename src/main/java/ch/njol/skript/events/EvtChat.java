@@ -47,7 +47,7 @@ import ch.njol.skript.util.Task;
 public class EvtChat extends SelfRegisteringSkriptEvent {
 	static {
 		Skript.registerEvent("Chat", EvtChat.class, PlayerChatEventHandler.usesAsyncEvent ? AsyncPlayerChatEvent.class : PlayerChatEvent.class, "chat")
-				.description("Called whenever a player chats. Use <a href='../expressions.html#ExprChatFormat'>chat format</a> to change message format, use <a href='../expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients.")
+				.description("Called whenever a player chats. Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format, use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients.")
 				.examples("on chat:",
 					 	"	if player has permission \"owner\":",
 					 	"		set chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",

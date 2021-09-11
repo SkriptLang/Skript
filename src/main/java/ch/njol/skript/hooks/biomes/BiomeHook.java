@@ -64,7 +64,7 @@ public class BiomeHook extends Hook<Skript> {
 	@SuppressWarnings("null")
 	@Override
 	protected void loadClasses() throws IOException {
-		if (!Skript.isRunningMinecraft(1, 13)) {// Load only if running MC<1.13
+		if (!Skript.isRunningMinecraft(1, 13) && !Skript.isDocsTemplateFound()) {// Load only if running MC<1.13
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName());
 			util19 = new EnumUtils<>(To19Mapping.class, "biomes");
 		}

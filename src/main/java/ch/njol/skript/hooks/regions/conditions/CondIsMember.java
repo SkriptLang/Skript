@@ -18,15 +18,12 @@
  */
 package ch.njol.skript.hooks.regions.conditions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -45,6 +42,7 @@ import ch.njol.util.Kleenean;
 		"	message \"Welcome back to %region%!\"",
 		"	send \"%player% just entered %region%!\" to all members of the region"})
 @Since("2.1")
+@RequiredPlugins("Supported regions plugin")
 public class CondIsMember extends Condition {
 	static {
 		Skript.registerCondition(CondIsMember.class,

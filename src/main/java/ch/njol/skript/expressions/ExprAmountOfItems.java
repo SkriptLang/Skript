@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Amount of Items")
-@Description("Counts how many of a particular <a href='../classes.html#itemtype'>item type</a> are in a given inventory.")
+@Description("Counts how many of a particular <a href='./classes.html#itemtype'>item type</a> are in a given inventory.")
 @Examples("message \"You have %number of ores in the player's inventory% ores in your inventory.\"")
 @Since("2.0")
 public class ExprAmountOfItems extends SimpleExpression<Long> {

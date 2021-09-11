@@ -45,15 +45,22 @@ public abstract class Hook<P extends Plugin> {
 		@SuppressWarnings("unchecked")
 		final P p = (P) Bukkit.getPluginManager().getPlugin(getName());
 		plugin = p;
-		if (p == null)
+		if (p == null) {
+			if (Skript.isDocsTemplateFound())
+				loadClasses();
 			return;
+		}
+
 		if (!init()) {
 			Skript.error(m_hook_error.toString(p.getName()));
 			return;
 		}
+
 		loadClasses();
+
 		if (Skript.logHigh())
 			Skript.info(m_hooked.toString(p.getName()));
+
 		return;
 	}
 	

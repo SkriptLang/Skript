@@ -45,7 +45,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Last Spawned Entity")
-@Description("Holds the entity that was spawned most recently with the <a href='../effects.html#EffSpawn'>spawn effect</a>, drop with the <a href='../effects/#EffDrop'>drop effect</a> or shot with the <a href='../effects/#EffShoot'>shoot effect</a>. " +
+@Description("Holds the entity that was spawned most recently with the <a href='./effects.html#EffSpawn'>spawn effect</a>, drop with the <a href='./effects/#EffDrop'>drop effect</a> or shot with the <a href='./effects/#EffShoot'>shoot effect</a>. " +
 		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
 		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
 @Examples({"spawn a priest",

@@ -18,15 +18,12 @@
  */
 package ch.njol.skript.hooks.chat.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.Expression;
@@ -44,6 +41,7 @@ import ch.njol.util.Kleenean;
 		"	broadcast \"%player's prefix%%player's display name%%player's suffix%: %message%\" to the player's world",
 		"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \""})
 @Since("2.0")
+@RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	static {
 		register(ExprPrefixSuffix.class, String.class, "[chat] (1¦prefix|2¦suffix)", "players");

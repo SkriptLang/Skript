@@ -38,7 +38,7 @@ import java.util.List;
 
 
 @Name("Conditionals")
-@Description("Conditional sections (if, else if, else) are only executed if the conditions provided are met.")
+@Description("Conditional sections (parse if, if, else if, else) are only executed if the conditions provided are met or else-if blocks will be executed if the 'if/else-if' blocks before didn't meet their conditions, otherwise 'else' blocks will be executed (if used) if all of the conditions before were not met.")
 @Examples({"if player's health is greater than or equal to 4:",
 		"\tsend \"Your health is okay so far but be careful!\"",
 		"",
@@ -46,20 +46,24 @@ import java.util.List;
 		"\tsend \"You need to heal ASAP, your health is very low!\"",
 		"",
 		"else: # Less than 2 hearts",
-		"\tsend \"You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!\""})
+		"\tsend \"You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!\"",
+		"",
+		"parse if plugin \"SomePluginName\" is enabled: # parse if %condition%",
+		"\t# This code will only be executed if the condition used is met otherwise Skript will not parse this section therefore will not give any errors/info about this section",
+		""})
 @Since("1.0")
 @SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
 	static {
 		Skript.registerSection(SecConditional.class,
-			"[(1¦parse if|2¦if)] <.+>",
+			"else",
 			"else [(1¦parse)] if <.+>",
-			"else");
+			"[(1¦parse if|2¦if)] <.+>");
 	}
 
 	private enum ConditionalType {
-		 IF, ELSE_IF, ELSE
+		 ELSE, ELSE_IF, IF
 	}
 
 	private ConditionalType type;

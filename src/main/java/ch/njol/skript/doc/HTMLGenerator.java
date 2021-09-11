@@ -516,7 +516,7 @@ public class HTMLGenerator {
 
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on("\n<br>").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -595,7 +595,7 @@ public class HTMLGenerator {
 
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on("\n<br>").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
