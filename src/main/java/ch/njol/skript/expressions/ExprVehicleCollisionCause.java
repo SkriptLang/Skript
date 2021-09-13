@@ -28,36 +28,39 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.Vehicle;
 import org.bukkit.event.Event;
-import org.bukkit.event.vehicle.VehicleEvent;
+import org.bukkit.event.vehicle.VehicleBlockCollisionEvent;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Vehicle")
-@Description("The vehicle in a vehicle event.")
-@Examples({"on vehicle damage:",
-	"\tif the vehicle is a boat:",
-	"\t\tcancel event"})
+@Name("Vehicle Collision Cause")
+@Description("The vehicle collision cause. This will return either a block or an entity.")
+@Examples({"on vehicle collision:",
+	"\tif vehicle collision cause is an entity:",
+	"\t\tkill event-entity",
+	"",
+	"on vehicle block collision:",
+	"\tif collision cause is a block:",
+	"\t\tdamage event-entity by 1 heart"})
 @Since("INSERT VERSION")
-public class ExprVehicle extends SimpleExpression<Vehicle> {
+public class ExprVehicleCollisionCause extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprVehicle.class, Vehicle.class, ExpressionType.SIMPLE, "[the] vehicle");
+		Skript.registerExpression(ExprVehicleCollisionCause.class, Object.class, ExpressionType.SIMPLE, "[the] [vehicle] collision cause");
 	}
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
-		System.out.println(getParser().getCurrentEvents()[0].toString());
-		if (!VehicleEvent.class.isAssignableFrom(getParser().getCurrentEvents()[0])) {
-			Skript.error("Cannot use 'vehicle' outside of a vehicle related events.");
+		if (!getParser().isCurrentEvent(VehicleEntityCollisionEvent.class, VehicleBlockCollisionEvent.class)) {
+			Skript.error("Cannot use 'vehicle collision cause' outside of a vehicle collision event.");
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	protected Vehicle[] get(Event e) {
-		return new Vehicle[] {((VehicleEvent) e).getVehicle()};
+	protected Object[] get(Event e) {
+		return new Object[] { e instanceof VehicleEntityCollisionEvent ? ((VehicleEntityCollisionEvent) e).getEntity() : ((VehicleBlockCollisionEvent) e).getBlock()};
 	}
 
 	@Override
@@ -66,13 +69,13 @@ public class ExprVehicle extends SimpleExpression<Vehicle> {
 	}
 
 	@Override
-	public Class<? extends Vehicle> getReturnType() {
-		return Vehicle.class;
+	public Class<? extends Object> getReturnType() {
+		return Object.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "vehicle";
+		return "vehicle collision cause";
 	}
 
 }

@@ -37,14 +37,14 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@Name("Vehicle")
+@Name("Ride / Mount")
 @Description({"Makes an entity ride another entity, e.g. a minecart, a saddled pig, an arrow, etc."})
 @Examples({"make the player ride a saddled pig",
 		"make the attacker ride the victim"})
 @Since("2.0")
-public class EffVehicle extends Effect {
+public class EffRide extends Effect {
 	static {
-		Skript.registerEffect(EffVehicle.class,
+		Skript.registerEffect(EffRide.class,
 				"(make|let|force) %entities% [to] (ride|mount) [(in|on)] %"+ (PassengerUtils.hasMultiplePassenger() ? "entities" : "entity") +"/entitydatas%",
 				"(make|let|force) %entities% [to] (dismount|(dismount|leave) (from|of|) (any|the[ir]|his|her|) vehicle[s])",
 				"(eject|dismount) (any|the|) passenger[s] (of|from) %entities%");

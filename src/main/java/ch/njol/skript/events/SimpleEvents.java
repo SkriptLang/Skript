@@ -85,11 +85,7 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
-import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
-import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
@@ -398,6 +394,13 @@ public class SimpleEvents {
 						"\tif event-entity is a spider:",
 						"\t\tkill event-entity")
 				.since("1.0");
+//		Even worse than move event
+//		Skript.registerEvent("Vehicle Update", SimpleEvent.class, VehicleUpdateEvent.class, "vehicle update", "updat(e|ing|) [of] [a] vehicle")
+//				.description("Called when a vehicle updates.")
+//				.examples("on vehicle update:",
+//						"\tif event-entity is a boat:",
+//						"\t\tkill vehicle")
+//				.since("INSERT VERSION");
 		if (Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
 			Skript.registerEvent("Entity Mount", SimpleEvent.class, EntityMountEvent.class, "mount[ing]")
 					.description("Called when entity starts riding another.")

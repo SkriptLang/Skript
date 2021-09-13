@@ -106,11 +106,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
-import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.vehicle.VehicleEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.ChunkEvent;
@@ -823,13 +819,6 @@ public final class BukkitEventValues {
 		}, 0);
 		
 		// --- VehicleEvents ---
-		EventValues.registerEventValue(VehicleEvent.class, Vehicle.class, new Getter<Vehicle, VehicleEvent>() {
-			@Override
-			@Nullable
-			public Vehicle get(final VehicleEvent e) {
-				return e.getVehicle();
-			}
-		}, 0);
 		EventValues.registerEventValue(VehicleEvent.class, World.class, new Getter<World, VehicleEvent>() {
 			@Override
 			@Nullable
@@ -844,7 +833,6 @@ public final class BukkitEventValues {
 				return e.getExited();
 			}
 		}, 0);
-		
 		EventValues.registerEventValue(VehicleEnterEvent.class, Entity.class, new Getter<Entity, VehicleEnterEvent>() {
 			@Nullable
 			@Override
@@ -852,8 +840,6 @@ public final class BukkitEventValues {
 				return e.getEntered();
 			}
 		}, 0);
-		
-		// We could error here instead but it's preferable to not do it in this case
 		EventValues.registerEventValue(VehicleDamageEvent.class, Entity.class, new Getter<Entity, VehicleDamageEvent>() {
 			@Nullable
 			@Override
@@ -861,23 +847,35 @@ public final class BukkitEventValues {
 				return e.getAttacker();
 			}
 		}, 0);
-		
 		EventValues.registerEventValue(VehicleDestroyEvent.class, Entity.class, new Getter<Entity, VehicleDestroyEvent>() {
 			@Nullable
 			@Override
 			public Entity get(VehicleDestroyEvent e) {
 				return e.getAttacker();
 			}
-		}, 0);
-		
+	}, 0);
 		EventValues.registerEventValue(VehicleEvent.class, Entity.class, new Getter<Entity, VehicleEvent>() {
-			@Override
 			@Nullable
+			@Override
 			public Entity get(final VehicleEvent e) {
 				return e.getVehicle().getPassenger();
 			}
 		}, 0);
-		
+		EventValues.registerEventValue(VehicleMoveEvent.class, Location.class, new Getter<Location, VehicleMoveEvent>() {
+			@Override
+			@Nullable
+			public Location get(final VehicleMoveEvent e) {
+				return e.getFrom();
+			}
+		}, -1);
+		EventValues.registerEventValue(VehicleMoveEvent.class, Location.class, new Getter<Location, VehicleMoveEvent>() {
+			@Override
+			@Nullable
+			public Location get(final VehicleMoveEvent e) {
+				return e.getTo();
+			}
+		}, 1);
+
 		
 		// === CommandEvents ===
 		// PlayerCommandPreprocessEvent is a PlayerEvent
