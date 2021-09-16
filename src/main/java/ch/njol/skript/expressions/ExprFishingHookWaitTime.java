@@ -34,9 +34,10 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fishing Hook Wait Time")
-@Description("Returns the min and max wait time of the fishing hook")
+@Description({"Returns the minimum and/or maximum waiting time of the fishing hook. Default minimum value is 5 seconds and maximum is 30 seconds.",
+			"NOTE: Changing the values in a non sense results such as setting max time less than min time will set both min and max waiting time to the same provided value."})
 @Examples({"on fish:",
-			"\tset max waiting time of fishing hook to 1 second"})
+			"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"})
 @Events("fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHookWaitTime extends SimpleExpression<Timespan> {
