@@ -83,7 +83,7 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	@Nullable
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "ConstantConditions"})
 	protected String[] get(Event e) {
 		Map<String, Object> variable = (Map<String, Object>) list.getRaw(e);
 
