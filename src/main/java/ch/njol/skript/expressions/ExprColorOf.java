@@ -30,6 +30,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.eclipse.jdt.annotation.Nullable;
@@ -56,19 +60,21 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("1.2")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
+	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
+
 	static {
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects");
 	}
 	
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
 		return true;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	protected Color[] get(Event e, Object[] source) {
 		if (source instanceof FireworkEffect[]) {
 			List<Color> colors = new ArrayList<>();
@@ -83,6 +89,31 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				return null;
 			return colors.toArray(new Color[0]);
 		}
+
+		if (source instanceof ItemType[]) {
+			List<Color> colors = new ArrayList<>();
+			for (ItemType item : (ItemType[]) source) {
+				ItemMeta meta = item.getItemMeta();
+
+				if (meta instanceof LeatherArmorMeta) {
+					LeatherArmorMeta m = (LeatherArmorMeta) meta;
+					colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+
+				} else if (MAPS_AND_POTIONS_COLORS) {
+					if (meta instanceof MapMeta) {
+						MapMeta m = (MapMeta) meta;
+						if (m.getColor() != null)
+							colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+					} else if (meta instanceof PotionMeta) {
+						PotionMeta m = (PotionMeta) meta;
+						if (m.getColor() != null)
+							colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+					}
+				}
+			}
+			return colors.toArray(new Color[0]);
+		}
+
 		return get(source, o -> {
 			Colorable colorable = getColorable(o);
 
@@ -108,6 +139,13 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
+		switch (mode) {
+			case ADD:
+			case REMOVE:
+			case REMOVE_ALL:
+				return null;
+		}
+
 		Class<?> returnType = getExpr().getReturnType();
 
 		if (FireworkEffect.class.isAssignableFrom(returnType))
@@ -128,9 +166,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	@SuppressWarnings("deprecated")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
-		DyeColor color = ((Color) delta[0]).asDyeColor();
+		DyeColor color = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asDyeColor();;
 
 		for (Object o : getExpr().getArray(e)) {
 			if (o instanceof Item || o instanceof ItemType) {
@@ -140,6 +176,29 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					continue;
 
 				MaterialData data = stack.getData();
+
+				if (!(o instanceof Colorable)) { // Items such as Leather armor, potions and maps
+					ItemType item = (ItemType) o;
+					org.bukkit.Color c = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
+					ItemMeta meta = item.getItemMeta();
+
+					if (meta instanceof LeatherArmorMeta) {
+						LeatherArmorMeta m = (LeatherArmorMeta) meta;
+						m.setColor(c);
+						item.setItemMeta(m);
+					} else if (MAPS_AND_POTIONS_COLORS) {
+
+						if (meta instanceof MapMeta) {
+							MapMeta m = (MapMeta) meta;
+							m.setColor(c);
+							item.setItemMeta(m);
+						} else if (meta instanceof PotionMeta) {
+							PotionMeta m = (PotionMeta) meta;
+							m.setColor(c);
+							item.setItemMeta(m);
+						}
+					}
+				}
 
 				if (!(data instanceof Colorable))
 					continue;
@@ -155,11 +214,14 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (colorable != null) {
 					try {
 						colorable.setColor(color);
-					} catch (UnsupportedOperationException ex) {
-						// https://github.com/SkriptLang/Skript/issues/2931
-						Skript.error("Tried setting the colour of a bed, but this isn't possible in your Minecraft version, " +
-							"since different coloured beds are different materials. " +
-							"Instead, set the block to right material, such as a blue bed."); // Let's just assume it's a bed
+					} catch (Exception ex) {
+						if (ex instanceof UnsupportedOperationException) {
+							// https://github.com/SkriptLang/Skript/issues/2931
+							Skript.error("Tried setting the colour of a bed, but this isn't possible in your Minecraft version, " +
+								"since different coloured beds are different materials. " +
+								"Instead, set the block to right material, such as a blue bed."); // Let's just assume it's a bed
+						}
+//						else if (ex instanceof NullPointerException) { } // Some of Colorable subclasses do not accept null as a color
 					}
 				}
 			} else if (o instanceof FireworkEffect) {
