@@ -57,7 +57,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on click on wool:",
 		"	message \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
 		"	set the colour of the block to black"})
-@Since("1.2")
+@Since("1.2, INSERT VERSION (potions, maps and leather armor)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
@@ -81,7 +81,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			
 			for (FireworkEffect effect : (FireworkEffect[]) source) {
 				effect.getColors().stream()
-					.map(SkriptColor::fromBukkitColor)
+					.map(SkriptColor::fromBukkitOrRgbColor)
 					.forEach(colors::add);
 			}
 			
@@ -97,17 +97,17 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 				if (meta instanceof LeatherArmorMeta) {
 					LeatherArmorMeta m = (LeatherArmorMeta) meta;
-					colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+					colors.add(SkriptColor.fromBukkitOrRgbColor(m.getColor()));
 
 				} else if (MAPS_AND_POTIONS_COLORS) {
 					if (meta instanceof MapMeta) {
 						MapMeta m = (MapMeta) meta;
 						if (m.getColor() != null)
-							colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+							colors.add(SkriptColor.fromBukkitOrRgbColor(m.getColor()));
 					} else if (meta instanceof PotionMeta) {
 						PotionMeta m = (PotionMeta) meta;
 						if (m.getColor() != null)
-							colors.add(SkriptColor.fromBukkitColor(m.getColor()));
+							colors.add(SkriptColor.fromBukkitOrRgbColor(m.getColor()));
 					}
 				}
 			}
@@ -253,8 +253,8 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		}
 	}
 
-	@SuppressWarnings("deprecated")
 	@Nullable
+	@SuppressWarnings("deprecated")
 	private Colorable getColorable(Object colorable) {
 		if (colorable instanceof Item || colorable instanceof ItemType) {
 			ItemStack item = colorable instanceof Item ?

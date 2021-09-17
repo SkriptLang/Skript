@@ -43,8 +43,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Dyed")
 @Description("An expression to return items/entities with a color.")
 @Examples({"give player leather chestplate dyed red",
-			"give player potion of invisibility dyed green",
-			"give player filled map with color blue"})
+			"give player potion of invisibility dyed rgb 200, 70, 88",
+			"give player filled map with color rgb(20, 60, 70)"})
 @Since("INSERT VERSION")
 public class ExprDyed extends SimpleExpression<ItemType> {
 
@@ -56,7 +56,6 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	
 	private Expression<ItemType> targets;
 	private Expression<Color> color;
-	private boolean isItemType;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
