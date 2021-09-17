@@ -44,8 +44,16 @@ import java.util.Map.Entry;
 	"Otherwise, this expression will just return the unsorted indices."
 })
 @Examples({"set {l::*} to \"some\", \"cool\" and \"values\"",
-		"broadcast \"%indices of {l::*}%\" # result is 1, 2 and 3",
-		"set {_sorted::*} to sorted indices of {leader-board::*} in ascending order"})
+		"broadcast \"%indices of {l::*}%\" # result is 1, 2 and 3", "",
+		"set {_leader-board::first} to 17",
+		"set {_leader-board::third} to 30",
+		"set {_leader-board::second} to 25",
+		"set {_leader-board::fourth} to 42",
+		"set {_ascending-indices::*} to sorted indices of {_leader-board::*} in ascending order",
+		"broadcast \"%{_ascending-indices::*}%\" #result is first, second, third, fourth",
+		"set {_descending-indices::*} to sorted indices of {_leader-board::*} in descending order",
+		"broadcast \"%{_descending-indices::*}%\" #result is fourth, third, second, first"
+})
 @Since("2.4 (indices), INSERT VERSION (sorting)")
 public class ExprIndices extends SimpleExpression<String> {
 
