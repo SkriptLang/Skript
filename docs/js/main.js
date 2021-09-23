@@ -1,8 +1,11 @@
+const siteVersion = "2.1.0"; // site version is different from skript version
+
 // ID Scroll
 const links = document.querySelectorAll("div.item-wrapper");
 const contents = document.querySelectorAll("#content")[0];
 
-lastActive = null;
+lastActiveSideElement = null;
+navContents = document.getElementById("nav-contents");
 
 if (contents) {
   contents.addEventListener('scroll', (e) => {
@@ -12,13 +15,14 @@ if (contents) {
         const location = window.location.toString().split("#")[0];
         history.replaceState(null, null, location + "#" + ha.id);
         
-        if (lastActive != null) {
-          lastActive.classList.remove("active-item");
+        if (lastActiveSideElement != null) {
+          lastActiveSideElement.classList.remove("active-item");
         }
         
-        lastActive = document.querySelectorAll(`#nav-contents a[href="#${ha.id}"]`)[0];
-        if (lastActive != null) {
-          lastActive.classList.add("active-item");
+        lastActiveSideElement = document.querySelectorAll(`#nav-contents a[href="#${ha.id}"]`)[0];
+        if (lastActiveSideElement != null) {
+          lastActiveSideElement.classList.add("active-item");
+          navContents.scroll(0, lastActiveSideElement.offsetTop - 100);
         }
       }
     });
@@ -33,6 +37,27 @@ if (pageLink === "" || pageLink == window.location.toString()) // home page - wh
 else
   document.querySelectorAll(`#global-navigation a[href="${pageLink}.html"]`)[0].classList.add("active-tab");
 
+// Active syntax
+var lastActiveSyntaxID;
+function toggleSyntax(elementID) {
+  let element = document.getElementById(elementID)
+  if (!element)
+    return
+
+  if (lastActiveSyntaxID != null)
+    document.getElementById(lastActiveSyntaxID).classList.remove("active-syntax");
+
+  element.classList.add("active-syntax");
+  lastActiveSyntaxID = elementID;
+}
+
+const linkHash = window.location.hash.replace("#", "");
+if (linkHash != "") {
+  toggleSyntax(linkHash);
+  setTimeout(() => {
+    offsetAnchor(null, linkHash);
+  }, 10) // after default page loading scroll
+}
 
 // No Left Panel
 for (e in {"content-no-docs": 0, "content": 1}) {
@@ -70,22 +95,29 @@ renderMagicText();
 
 // Magic Text </>
 
-// <> Mobile anchor correction due to doubled size header)
-function offsetAnchor(event, element) {
-  if (window.innerWidth <= 768) {
-    event.preventDefault();
-    content = document.querySelectorAll("#content")[0];
-    actualElement = document.getElementById(element.getAttribute("href").replace("#", ""));
-    content.scroll(0, actualElement.offsetTop - 15);
+// <> Anchor correction due to doubled size header)
+function offsetAnchor(event, id) { // event can be null
+  let content = document.querySelector("#content");
+  let element = document.getElementById(id);
+
+  if (content && element) {
+    if (event != null)
+      event.preventDefault();
+    content.scroll(0, element.offsetTop - 25); // Should be less than the margin in .item-wrapper so it doesn't show the part of the previous .item-wrapper
   }
 }
 
-document.querySelectorAll("#nav-contents a").forEach((e) => {
+
+document.querySelectorAll("a").forEach((e) => {
   e.addEventListener("click", (event) => {
-    offsetAnchor(event, e);
+    let id = e.getAttribute("href").replace("#", "");
+    if (id != "" && id != null) {
+      offsetAnchor(event, id);
+      toggleSyntax(id);
+    }
   });
 })
-// Mobile anchor correction </>
+// Anchor correction </>
 
 // <> Anchor click copy link
 function copyToClipboard() {
@@ -128,20 +160,16 @@ document.querySelectorAll(".item-title > a").forEach((e) => {
 // Anchor click copy link </>
 
 // <> Search Bar
-const versionComparePattern = /.*?(\d\.\d(?:\.\d|))(\+|-|).*/gi;
-const versionPattern = /.*?v:(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|).*/gi;
+const versionComparePattern = /.*(\d\.\d(?:\.\d|))(\+|-|).*/gi;
+const versionPattern = /.*v:(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|).*/gi;
 const resultsFoundText = "result(s) found";
 
 function versionCompare(base, target) { // Return -1, 0, 1
-  // console.log(base + " | " + target)
   base = base.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
   target = target.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
 
-  
   base = parseInt(base) < 100 ? parseInt(base) * 10 : parseInt(base); // convert ten's to hundred's to fix (2.5.1+ not triggering 2.6 by converting 26 -> 260)
   target = parseInt(target) < 100 ? parseInt(target) * 10 : parseInt(target);
-  
-  // console.log(base + " || " + target)
 
   if (target > base)
     return 1
@@ -268,7 +296,16 @@ if (getCookie("darkMode") != "true") {
   document.body.setAttribute('data-theme', 'white')
 } else {
   content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-off.svg" id="theme-switch">`);
+
+  // Auto load from system theme
+  // const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+  // if (darkThemeMq.matches) {
+  //   document.body.removeAttribute('data-theme');
+  // } else {
+  //   document.body.setAttribute('data-theme', 'white')
+  // }
 }
+
 
 setTimeout(() => {
   var themeSwitcher = document.getElementById('theme-switch');
@@ -285,21 +322,59 @@ setTimeout(() => {
       setCookie("darkMode", "true", 99);
     }
   });
-}, 200); // For some reason this wouldn't work in index.html (only) unless I add some delay o.O
+}, 500); // For some reason this wouldn't work in index.html (only) unless I add some delay o.O
 // Dark Mode <>
 
 // <> Placeholders
+const ghAPI = "https://api.github.com/repos/SkriptLang/Skript"
 function replacePlaceholders(html) {
   let innerHTML = html.innerHTML;
   if (innerHTML.includes("${latest-version}")) {
-    let lv = $.getJSON("https://api.github.com/repos/SkriptLang/Skript/releases?per_page=1", (data) => {
+    let lv = $.getJSON(ghAPI + "/releases?per_page=1", (data) => {
       html.innerHTML = html.innerHTML.replaceAll("${latest-version}", data[0]["tag_name"]);
     })
   }
+  if (innerHTML.includes("${latest-version-changelog}")) {
+    let lv = $.getJSON(ghAPI + "/releases?per_page=1", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${stable-version-changelog}", data[0]["body"]).replaceAll("\\r\\n", "<br>");
+    })
+  }
+
+  if (innerHTML.includes("${stable-version}")) {
+    let lv = $.getJSON(ghAPI + "/releases/latest", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${stable-version}", data["tag_name"]);
+    })
+  }
+  if (innerHTML.includes("${stable-version-changelog}")) {
+    let lv = $.getJSON(ghAPI + "/releases/latest", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${stable-version-changelog}", data["body"]).replaceAll("\\r\\n", "<br>");
+    })
+  }
+
+  if (innerHTML.includes("${latest-issue-")) {
+    let lv = $.getJSON(ghAPI + "/issues?per_page=1", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-user}", data[0]["user"]["login"]);
+      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-title}", data[0]["title"]);
+      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-date}", data[0]["created_at"]);
+    })
+  }
+
+  if (innerHTML.includes("${latest-pull-")) {
+    let lv = $.getJSON(ghAPI + "/pulls?per_page=1", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-user}", data[0]["user"]["login"]);
+      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-title}", data[0]["title"]);
+      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-date}", data[0]["created_at"]);
+    })
+  }
+
   if (innerHTML.includes("${contributors-size}")) {
-    let lv = $.getJSON("https://api.github.com/repos/SkriptLang/Skript/contributors?per_page=500", (data) => {
+    let lv = $.getJSON(ghAPI + "/contributors?per_page=500", (data) => {
       html.innerHTML = html.innerHTML.replaceAll("${contributors-size}", data.length);
     })
+  }
+
+  if (innerHTML.includes("${site-version}")) {
+    html.innerHTML = html.innerHTML.replaceAll("${site-version}", siteVersion);
   }
 }
 replacePlaceholders(document.querySelector("body"));
@@ -330,15 +405,66 @@ function getCookie(cname) {
 
 // Cookies </>
 
-// <> HighlightJS 
-// document.addEventListener("DOMContentLoaded", function(event) { 
-//   setTimeout(() => {
-//     document.querySelectorAll('div .skript-code-block').forEach(el => { // This lags the docs pages due to the huge amount of elements being parsed, we can disable this if lag is so bad for some people or keep it because it looks AMAZING!
-//       hljs.highlightElement(el);
-//     });
-//     document.querySelectorAll('pre.code').forEach(el => { // Apply the code formatting on the same <pre> not the <code> inside to not break the styling
-//       hljs.highlightElement(el);
-//     });
-//   }, 100);
-// });
-// HighlightJS </>
+// <> Syntax Highlighting
+
+// ORDER MATTERS!!
+// All regexes must be sorrouneded with () to be able to use group 1 as the whole match since Js doesn't have group 0
+// Example:     .+     = X
+// Example:     (.+)     = ✓
+const patterns = [ // [REGEX, CLASS]
+  [/((?<!#)#(?!#).*)/gi, "sk-comment"], // Must be first, : must be before ::
+  [/(\:|\:\:)/gi, "sk-var"], // 
+  [/((?<!href=)\".+?\")/gi, "sk-string"], // before others to not edit non skript code
+  [/\b(add|give|increase|set|to|from|make|remove( all| every|)|subtract|reduce|delete|clear|reset|send|broadcast|wait|halt|create|(dis)?enchant|shoot|rotate|reload|enable|(re)?start|teleport|feed|heal|hide|kick|(IP(-| )|un|)ban|break|launch|leash|force|message|close|show|reveal|cure|poison|spawn)(?=[ <])\b/gi, "sk-eff"],
+  [/\b(on (?=.+\:))/gi, "sk-event"],
+  [/\b((parse )?if|else if|else|(do )?while|loop(?!-)|return|continue( loop|)|at)\b/gi, "sk-cond"],
+  [/\b((|all )player(s|)|victim|attacker|sender|loop-player|shooter|uuid of |'s uuid|(location of |'s location)|console)\b/gi, "sk-expr"],
+  [/\b((loop|event)-\w+)\b/gi, "sk-loop-value"],
+  [/\b(contains?|(has|have|is|was|were|are|does)(n't| not|)|can('t| ?not|))\b/gi, "sk-cond"],
+  [/\b(command \/.+(?=.*?:))/gi, "sk-command"],
+  [/(&lt;.+?&gt;)/gi, "sk-arg-type"],
+  [/\b(true)\b/gi, "sk-true"],
+  [/\b(stop( (the |)|)(trigger|server|loop|)|cancel|false)\b/gi, "sk-false"],
+  [/({)/gi, "sk-var"],
+  [/(})/gi, "sk-var"],
+  [/(\w+?(?=\(.*?\)))/gi, "sk-function"],
+  [/((\d+?(\.\d+?)?|a) (|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)/gi, "sk-timespan"],
+  [/\b(now)\b/gi, "sk-timespan"],
+]
+
+function highlightElement(element) {
+  
+  let lines = element.innerHTML.split("<br>")
+  
+  for (let j = 0; j < lines.length; j++) {
+    Loop2:
+    for (let i = 0; i < patterns.length; i++) {
+      let match;
+      let regex = patterns[i][0];
+      let oldLine = lines[j];
+      // console.log(regex)
+      
+      while ((match = regex.exec(oldLine)) != null) {
+        lines[j] = lines[j].replaceAll(regex, `<span class='${patterns[i][1]}'>$1</span>`)
+        if (regex.lastIndex == 0) // Break after it reaches the end of exec count to avoid inf loop
+          continue Loop2;
+      }
+    }
+  }
+  element.innerHTML = lines.join("<br>")
+}
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+  setTimeout(() => {
+    document.querySelectorAll('.item-examples .skript-code-block').forEach(el => {
+      highlightElement(el);
+    });
+    document.querySelectorAll('pre code').forEach(el => {
+      highlightElement(el);
+    });
+    document.querySelectorAll('.box.skript-code-block').forEach(el => {
+      highlightElement(el);
+    });
+  }, 100);
+});
+// Syntax Highlighting </>

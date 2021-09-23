@@ -63,7 +63,7 @@
     --red-box-font-color: white;
     --red-box-bg: rgba(0, 0, 0, 0.1);
 
-    --syntax-item-shadow: 0px 0px 15px rgba(0, 0, 0, .1);
+    --syntax-item-shadow: 0px 0px 15px rgba(0, 0, 0, .2);
 
     /* transition: all 1s; */
 }
@@ -131,6 +131,7 @@ a:visited {
 .item-wrapper {
     box-shadow: var(--syntax-item-shadow);
     border-left: 5px solid rgb(255, 152, 0);
+    margin: 35px 0;
 }
 
 /* Pattern right section list items */
@@ -184,10 +185,15 @@ a:visited {
     box-shadow: inset 0 -3px 0 #ff9800;
 }
 
+/* Active syntax */
+.active-syntax {
+    border-left: 5px solid #ff4e4e;
+}
+
 /* Active tab for sub menus */
 .menu-subtabs .active-tab {
-    color: #ffc107;
-    border-left: 3px solid #ff9800;
+    color: #ffc107 !important;
+    /* border-left: 3px solid #ff9800; */
     background: #3a3a3a;
     box-shadow: unset;
 }
@@ -261,18 +267,20 @@ a:visited {
     color: var(--font-color);
     background-color: rgba(0, 0, 0, 0.08);
     border-left: solid 3px #ff9800;
+    font-weight: bold;
 }
 
 #content {
     grid-row-start: 1;
     grid-row-end: 1;
     grid-column-start: 2;
-    /* margin-left: 30px; */
+    padding-left: 30px;
     position: relative;
-    top: 110px;
+    /* top: 110px; */
+    margin-top: 110px;
     height: calc(100vh - 110px);
     /* Fixed the TOP CSS 110px due to body having overflow hidden and top = 110px so the last 110px is hidden, this will fix it */
-    padding: calc(0.22em + 30px);
+    /* padding: calc(0.22em + 30px); */ /* When applied it will break the padding when an anchor is clicked */
     padding-right: 30px;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -336,7 +344,7 @@ table {
 
 .item-content {
     padding-bottom: 40px;
-    margin-bottom: 40px;
+    /* margin-bottom: 40px; */
     max-width: 80vw;
     border-bottom: 1px solid var(--element-bottom-border);
     content-visibility: auto;
@@ -500,7 +508,7 @@ td ul {
 
     #content {
         padding-top: 0px !important;
-        margin-top: 50px;
+        top: 50px;
         margin-left: 10px;
         /* !important to override home */
     }
@@ -779,18 +787,6 @@ pre {
     border: none;
 }
 
-.dropdown-arrow::after {
-    /* content: '🢒' */
-    content: '🢓';
-    position: relative;
-    top: 8px;
-    left: 5px;
-}
-
-/* .dropdown-arrow:hover::after {
-    content: '🢓';
-} */
-
 .menu-subtabs {
     display: none;
     position: absolute;
@@ -799,6 +795,9 @@ pre {
     min-width: 120px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 9;
+    transition: all 3s ease-out;
+    opacity: 0;
+    transform: translateY(-10px);
 }
 
 /* Links inside the dropdown */
@@ -817,7 +816,10 @@ pre {
 
 /* Show the dropdown menu on hover */
 .menu-tab:hover .menu-subtabs {
+    transition: all 3s ease-out;
     display: block;
+    opacity: 1;
+    transform: translateY(0px);
 }
 
 /* Keep the bottom border when hover over the sub-tabs */
@@ -828,5 +830,60 @@ pre {
 /* Hover over submenu items */
 #global-navigation .menu-subtabs a:hover {
     box-shadow: unset;
-    border-left: 3px solid #ff9800;
+    /* border-left: 3px solid #ff9800; */
+    background: rgba(0,0,0,.1);
+}
+
+/* Syntax Highlighting */
+.sk-cond, .sk-loop {
+    color: #a52e91;
+    font-weight: bold;
+}
+.sk-eff  {
+    color: rgb(255, 174, 0)
+}
+.sk-expr {
+    color: rgb(199, 152, 66)
+}
+.sk-event {
+    color: #c23838;
+}
+.sk-command {
+    color: #c27715;
+}
+.sk-arg-type {
+    color: #dbab28;
+}
+.sk-loop-value {
+    color: #ff6600;
+}
+.sk-false {
+    color: #b10000;
+    font-weight: bold;
+}
+.sk-true {
+    color: #20b628;
+    font-weight: bold;
+}
+.sk-operators {
+    font-weight: bold;
+}
+.sk-var {
+    color: #e74040;
+}
+.sk-string [class*="sk-"], .sk-string { /* More specific = higher priority to override other css in strings and comments */
+    color: #34a52a !important;
+    font-weight: unset;
+}
+.sk-comment, .sk-comment [class*="sk-"] {
+    color: #696969 !important;
+    font-weight: unset;
+}
+.sk-function {
+    color: #e873ff;
+    font-weight: bold;
+}
+.sk-timespan {
+    color: #ff5967;
+    font-style: italic;
 }
