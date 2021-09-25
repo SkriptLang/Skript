@@ -139,12 +139,18 @@ a:visited {
 .type-Event {
     border-left: 5px solid rgb(28, 181, 152);
 }
+.type-Event .item-type {
+    color: rgb(28, 181, 152);
+}
 .type-Event .item-examples p {
     background-color: rgb(28, 181, 152);
 }
 
 .type-Effect {
     border-left: 5px solid rgb(139, 255, 0);
+}
+.type-Effect .item-type {
+    color: rgb(139, 255, 0);
 }
 .type-Effect .item-examples p {
     background-color: rgb(139, 255, 0);
@@ -153,12 +159,18 @@ a:visited {
 .type-Expression {
     border-left: 5px solid rgb(255, 152, 0);
 }
+.type-Expression .item-type {
+    color: rgb(255, 152, 0);
+}
 .type-Expression .item-examples p {
     background-color: rgb(255, 152, 0);
 }
 
 .type-Condition {
     border-left: 5px solid rgb(181, 28, 28);
+}
+.type-Condition .item-type {
+    color: rgb(181, 28, 28);
 }
 .type-Condition .item-examples p {
     background-color: rgb(181, 28, 28);
@@ -168,6 +180,9 @@ a:visited {
 .type-Section {
     border-left: 5px solid rgb(181, 28, 121);
 }
+.type-Section .item-type {
+    color: rgb(181, 28, 121);
+}
 .type-Section .item-examples p {
     background-color: rgb(181, 28, 121);
     color: white;
@@ -176,6 +191,9 @@ a:visited {
 .type-Type {
     border-left: 5px solid rgb(0, 100, 255);
 }
+.type-Type .item-type {
+    color: rgb(0, 100, 255);
+}
 .type-Type .item-examples p {
     background-color: rgb(0, 100, 255);
     color: white;
@@ -183,6 +201,9 @@ a:visited {
 
 .type-Function {
     border-left: 5px solid rgb(128, 0, 255);
+}
+.type-Function .item-type {
+    color: rgb(128, 0, 255);
 }
 .type-Function .item-examples p {
     background-color: rgb(128, 0, 255);
