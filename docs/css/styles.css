@@ -618,7 +618,7 @@ td ul {
         left: calc(20% + 150px) !important;
     }
 
-    #search-bar {
+    input#search-bar {
         left: 20%;
     }
 
@@ -696,6 +696,11 @@ td ul {
         top: calc(4.1em + 24px) !important;
         left: 0;
         width: 100% !important;
+    }
+
+    a#search-icon {
+        top: calc(4.1em + 38px);
+        right: 3vw;
     }
 
     #search-bar-after {
