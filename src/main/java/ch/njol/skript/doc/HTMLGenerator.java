@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import ch.njol.skript.lang.*;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,9 @@ public class HTMLGenerator {
 	private File output;
 	
 	private String skeleton;
-	
+
+	private String skriptVersion = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
+
 	public HTMLGenerator(File templateDir, File outputDir) {
 		this.template = templateDir;
 		this.output = outputDir;
@@ -253,44 +256,44 @@ public class HTMLGenerator {
 
 				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
 				String genType = genParams[0];
-				if (genType.equals("expressions")) {
+				if (genType.equals("expressions") || genType.equals("new")) {
 					Iterator<ExpressionInfo<?,?>> it = sortedIterator(Skript.getExpressions(), annotatedComparator);
 					while (it.hasNext()) {
 						ExpressionInfo<?,?> info = it.next();
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						String desc = generateAnnotated(descTemp, info, generated.toString());
+						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
 					}
-				} else if (genType.equals("effects")) {
+				} if (genType.equals("effects") || genType.equals("new")) {
 					List<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(Skript.getEffects());
 					Collections.sort(effects, annotatedComparator);
 					for (SyntaxElementInfo<? extends Effect> info : effects) {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info, generated.toString()));
+						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Effect"));
 					}
-				} else if (genType.equals("conditions")) {
+				} if (genType.equals("conditions") || genType.equals("new")) {
 					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(Skript.getConditions());
 					Collections.sort(conditions, annotatedComparator);
 					for (SyntaxElementInfo<? extends Condition> info : conditions) {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info, generated.toString()));
+						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
-				} else if (genType.equals("sections")) {
+				} if (genType.equals("sections") || genType.equals("new")) {
 					List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(Skript.getSections());
 					Collections.sort(sections, annotatedComparator);
 					for (SyntaxElementInfo<? extends Section> info : sections) {
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info, generated.toString()));
+						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Section"));
 					}
-				} else if (genType.equals("events")) {
+				} if (genType.equals("events") || genType.equals("new")) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
 					Collections.sort(events, eventComparator);
 					for (SkriptEventInfo<?> info : events) {
@@ -299,7 +302,7 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
-				} else if (genType.equals("classes")) {
+				} if (genType.equals("classes") || genType.equals("new")) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
 					Collections.sort(classes, classInfoComparator);
 					for (ClassInfo<?> info : classes) {
@@ -308,7 +311,7 @@ public class HTMLGenerator {
 						assert info != null;
 						generated.append(generateClass(descTemp, info, generated.toString()));
 					}
-				} else if (genType.equals("functions")) {
+				} if (genType.equals("functions") || genType.equals("new")) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
 					Collections.sort(functions, functionComparator);
 					for (JavaFunction<?> info : functions) {
@@ -382,9 +385,10 @@ public class HTMLGenerator {
 	 * @param descTemp Template for description.
 	 * @param info Syntax element info.
 	 * @param page The page's code to check for ID duplications, can be left empty.
+	 * @param type The generated element's type such as "Expression", to replace type placeholders
 	 * @return Generated HTML entry.
 	 */
-	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info, @Nullable String page) {
+	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info, @Nullable String page, String type) {
 		Class<?> c = info.c;
 		String desc = "";
 
@@ -432,7 +436,11 @@ public class HTMLGenerator {
 		assert desc != null;
 		desc = handleIf(desc, "${if required-plugins}", plugins != null);
 		desc = desc.replace("${element.required-plugins}", plugins == null ? "" : Joiner.on(", ").join(plugins.value()));
-		
+
+		desc = handleIf(desc, "${if new-element}", Pattern.compile(skriptVersion + "(?!\\.)").matcher(since.value()).find()); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
+//		System.out.println(since.value() + " | " + skriptVersion);
+		desc = desc.replace("${element.type}", type);
+
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
 		while (generate != -1) {
@@ -517,6 +525,9 @@ public class HTMLGenerator {
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
 		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+
+		desc = handleIf(desc, "${if new-element}", Pattern.compile(skriptVersion + "(?!\\.)").matcher(since).find());
+		desc = desc.replace("${element.type}", "Event");
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -596,6 +607,9 @@ public class HTMLGenerator {
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
 		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+
+		desc = handleIf(desc, "${if new-element}", Pattern.compile(skriptVersion + "(?!\\.)").matcher(since).find());
+		desc = desc.replace("${element.type}", "Type");
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -656,6 +670,9 @@ public class HTMLGenerator {
 		assert desc != null;
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
 		desc = handleIf(desc, "${if required-plugins}", false);
+
+		desc = handleIf(desc, "${if new-element}", Pattern.compile(skriptVersion + "(?!\\.)").matcher(since).find());
+		desc = desc.replace("${element.type}", "Function");
 		
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");

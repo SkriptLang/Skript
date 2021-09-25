@@ -1,9 +1,10 @@
 :root {
-    --font-color: white;
+    --font-color: #f7f7f7;
     --bg-color: #1e1e1e;
 
     --search-color: white;
-    --search-bg-color: rgba(0, 0, 0, 0.55);
+    --search-bg-color: rgb(15, 15, 15);
+    --search-ver-bg-color: rgb(51, 51, 51);
 
     --table-row-color: rgba(38, 38, 38, 0.3);
     --table-row2-color: rgba(0, 0, 0, 0.3);
@@ -39,6 +40,7 @@
 
     --search-color: black;
     --search-bg-color: white;
+    --search-ver-bg-color: rgba(253, 253, 253, 0.7);
 
     --table-row-color: rgba(0, 0, 0, 0.02);
     --table-row2-color: rgba(0, 0, 0, 0.05);
@@ -132,6 +134,59 @@ a:visited {
     box-shadow: var(--syntax-item-shadow);
     border-left: 5px solid rgb(255, 152, 0);
     margin: 35px 0;
+}
+
+.type-Event {
+    border-left: 5px solid rgb(28, 181, 152) !important;
+}
+.type-Event .item-examples p {
+    background-color: rgb(28, 181, 152) !important;
+}
+
+.type-Effect {
+    border-left: 5px solid rgb(139, 255, 0) !important;
+}
+.type-Effect .item-examples p {
+    background-color: rgb(139, 255, 0) !important;
+}
+
+.type-Expression {
+    border-left: 5px solid rgb(255, 152, 0) !important;
+}
+.type-Expression .item-examples p {
+    background-color: rgb(255, 152, 0) !important;
+}
+
+.type-Condition {
+    border-left: 5px solid rgb(181, 28, 28) !important;
+}
+.type-Condition .item-examples p {
+    background-color: rgb(181, 28, 28) !important;
+    color: white;
+}
+
+.type-Section {
+    border-left: 5px solid rgb(181, 28, 121) !important;
+}
+.type-Section .item-examples p {
+    background-color: rgb(181, 28, 121) !important;
+    color: white;
+}
+
+.type-Type {
+    border-left: 5px solid rgb(0, 100, 255) !important;
+}
+.type-Type .item-examples p {
+    background-color: rgb(0, 100, 255) !important;
+    color: white;
+}
+
+.type-Function {
+    border-left: 5px solid rgb(128, 0, 255) !important;
+}
+.type-Function .item-examples p {
+    background-color: rgb(128, 0, 255) !important;
+    color: white;
 }
 
 /* Pattern right section list items */
@@ -342,6 +397,35 @@ table {
     font-size: 100%;
 }
 
+.item-type {
+    font-size: 16px;
+    padding: 10px;
+    color: var(--font-color);
+    padding: 10px;
+    padding-right: 20px;
+    float: right;
+}
+
+#search-icon {
+    position: fixed;
+    right: 1vw;
+    top: 60px;
+    cursor: pointer;
+}
+
+.new-element {
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 3px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: inline;
+    position: relative;
+    top: -2px;
+}
+
 .item-content {
     padding-bottom: 40px;
     /* margin-bottom: 40px; */
@@ -436,7 +520,7 @@ td ul {
 
 .item-examples p {
     background-color: rgb(255, 152, 0);
-    border-left: 3px solid rgba(255, 152, 0, 0.5);
+    /* border-left: 3px solid rgba(255, 152, 0, 0.5); */
     padding: 5px;
     color: var(--box-font-color);
     width: max-content;
@@ -521,6 +605,10 @@ td ul {
         top: calc(4.1em + 24px) !important;
     }
 
+    #search-version {
+        top: calc(4.1em + 24px) !important;
+    }
+
     #global-navigation>a {
         padding: 10px;
         padding-top: 0.1em;
@@ -591,7 +679,15 @@ td ul {
         display: none;
     }
 
+    span .search-bar-version { /* More specific to override the other */
+        left: calc(20% + 150px) !important;
+    }
+
     #search-bar {
+        left: 20%;
+    }
+
+    #search-version {
         left: 20% !important;
     }
 }
@@ -606,12 +702,7 @@ td ul {
     color: var(--font-color);
 }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5 {
+p, h1, h2, h3, h4, h5 {
     color: var(--font-color);
 }
 
@@ -724,18 +815,36 @@ pre {
     padding-top: 64px;
 }
 
+#search-version {
+    padding: 12px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    position: fixed;
+    background: var(--search-ver-bg-color);
+    width: 150px;
+    left: 16vw;
+    top: 55px;
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
+    color: var(--search-color);
+    /* border-bottom: 2px solid rgba(255, 152, 0, 0.9); */
+}
+
 #search-bar {
     padding: 12px;
     border: none;
     font-size: 18px;
     position: fixed;
     background: var(--search-bg-color);
-    width: calc(100% - 5px);
-    /* -5px for the scrollbar */
+    width: calc(84vw);
     left: 16vw;
     top: 55px;
     box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
     color: var(--search-color);
+}
+
+.search-bar-version {
+    left: calc(16vw + 150px) !important;
 }
 
 #search-bar:focus {
@@ -769,7 +878,6 @@ pre {
     text-align: right;
     display: inline-block;
     width: 50px;
-    transform: rotate(180deg);
 }
 
 #theme-switch:hover {
@@ -886,4 +994,9 @@ pre {
 .sk-timespan {
     color: #ff5967;
     font-style: italic;
+}
+
+.new-tab {
+    color: rgb(255, 91, 91) !important;
+    font-weight: 600;
 }

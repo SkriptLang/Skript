@@ -1,4 +1,4 @@
-const siteVersion = "2.1.0"; // site version is different from skript version
+const siteVersion = "2.2.0"; // site version is different from skript version
 
 // ID Scroll
 const links = document.querySelectorAll("div.item-wrapper");
@@ -11,9 +11,9 @@ if (contents) {
   contents.addEventListener('scroll', (e) => {
     links.forEach((ha) => {
       const rect = ha.getBoundingClientRect();
-      if (rect.top > 0 && rect.top < 150) {
-        const location = window.location.toString().split("#")[0];
-        history.replaceState(null, null, location + "#" + ha.id);
+      if (rect.top > 0 && rect.top < 350) {
+        // const location = window.location.toString().split("#")[0];
+        // history.replaceState(null, null, location + "#" + ha.id); // Not needed since lastActiveSideElement + causes history spam
         
         if (lastActiveSideElement != null) {
           lastActiveSideElement.classList.remove("active-item");
@@ -95,7 +95,7 @@ renderMagicText();
 
 // Magic Text </>
 
-// <> Anchor correction due to doubled size header)
+// <> Anchor scroll correction
 function offsetAnchor(event, id) { // event can be null
   let content = document.querySelector("#content");
   let element = document.getElementById(id);
@@ -120,10 +120,10 @@ document.querySelectorAll("a").forEach((e) => {
 // Anchor correction </>
 
 // <> Anchor click copy link
-function copyToClipboard() {
+function copyToClipboard(value) {
   setTimeout(() => {
-    var cb = document.body.appendChild(document.createElement("input"));
-    cb.value = window.location.href;
+    let cb = document.body.appendChild(document.createElement("input"));
+    cb.value = value;
     cb.focus();
     cb.select();
     document.execCommand('copy');
@@ -153,20 +153,33 @@ function showNotification(text, bgColor, color) {
 const currentPageLink = window.location.toString().replaceAll(/(.+?.html)(.*)/gi, '$1');
 document.querySelectorAll(".item-title > a").forEach((e) => {
   e.addEventListener("click", (event) => {
-    copyToClipboard();
+    copyToClipboard(e.href);
     showNotification("✅ Link copied successfully.")
   });
 })
 // Anchor click copy link </>
 
+// <> New element click
+document.querySelectorAll(".new-element").forEach((e) => {
+  e.addEventListener("click", (event) => {
+    searchNow("is:new");
+  });
+})
+
+// New element click </>
+
 // <> Search Bar
-const versionComparePattern = /.*(\d\.\d(?:\.\d|))(\+|-|).*/gi;
-const versionPattern = /.*v:(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|).*/gi;
+const versionComparePattern = /.*?(\d\.\d(?:\.\d|))(\+|-|).*/gi;
+const versionPattern = / ?v(?:ersion|):(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|)/gi;
+const typePattern = / ?t(?:ype|):(condition|expression|type|effect|event|section|function)/gi;
+const newPattern = / ?is:(new)/gi;
 const resultsFoundText = "result(s) found";
 
 function versionCompare(base, target) { // Return -1, 0, 1
+  // console.log(base + " | " + target)
   base = base.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
   target = target.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
+  // console.log(base + " || " + target)
 
   base = parseInt(base) < 100 ? parseInt(base) * 10 : parseInt(base); // convert ten's to hundred's to fix (2.5.1+ not triggering 2.6 by converting 26 -> 260)
   target = parseInt(target) < 100 ? parseInt(target) * 10 : parseInt(target);
@@ -181,109 +194,200 @@ function versionCompare(base, target) { // Return -1, 0, 1
 
 var content = document.getElementById("content");
 if (content) {
-  content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" type="text" placeholder="🔍 Search the docs (filters: v:2.5.3 v:2.2+ v:2.4-)"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
+  let isNewPage = location.href.includes("/new.html");
+  content.insertAdjacentHTML('afterbegin', `<a id="search-icon" ${isNewPage ? 'class="search-icon-new"' : ""} title="Copy the search link."><img src="https://img.icons8.com/color/35/000000/search--v1.png"></a>`);
+  content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" ${isNewPage ? 'class="search-bar-version"' : ""} type="text" placeholder="🔍 Search the docs" title="Available Filters:&#013;&#013;Version:   v:2.5.3 v:2.2+ v:2.4-&#013;Type:      t:expression t:condition etc.&#013;New:       is:new"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
+  if (isNewPage) {
+    let tags = []
+    let options = "<select id='search-version' name='versions' id='versions' onchange='checkVersionFilter()'></select>"
+    content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
+    options = document.getElementById("search-version");
+    $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
+      for (let i = 0; i < data.length; i++) {
+        let tag = data[i]["name"]
+          // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
+            tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
+      }
+      tags = [...new Set(tags)] // remove duplicates
+      for (let i = 0; i < tags.length; i++) {
+        let option = document.createElement('option')
+        option.value = tags[i]
+        option.textContent = "Since v" + tags[i]
+        options.appendChild(option)
+      }
+      searchNow(`v:${tags[0]}+`) // Auto search on load
+    })
+  }
+
 } else {
   content = document.getElementById("content-no-docs")
 }
 
+function checkVersionFilter() {
+  let el = document.getElementById("search-version")
+  if (el) {
+    searchNow(`v:${el.value}+`)
+  }
+
+}
+
 var searchBar = document.getElementById("search-bar");
-if (searchBar) {
-  searchBar.focus() // To easily search without the need to click
-  searchBar.addEventListener('keydown', (event) => {
-    setTimeout(() => { // Important to actually get the value after typing or deleting
-      let allElements = document.querySelectorAll(".item-wrapper");
-      let searchValue = searchBar.value;
-      let count = 0; // Check if any matches found
-      let pass;
+var searchIcon = document.getElementById("search-icon");
+
+// Copy search link
+if (searchIcon) {
+  searchIcon.addEventListener('click', (event) => {
+    let link = window.location.href.split("?")[0] // link without search param
+    link += `?search=${encodeURI(searchBar.value)}`
+    copyToClipboard(link)
+    showNotification("✅ Search link copied.")
+  })
+}
+// Load search link
+var linkParams = new URLSearchParams(window.location.href.split("?")[1])
+if (linkParams && linkParams.get("search")) {
+  setTimeout(() => {
+    searchNow(linkParams.get("search")) // to override new.html
+  }, 500)
+}
+
+function searchNow(value = "") {
+  if (value != "") // Update searchBar value
+    searchBar.value = value;
+  
+  let allElements = document.querySelectorAll(".item-wrapper");
+  let searchValue = searchBar.value;
+  let count = 0; // Check if any matches found
+  let pass;
+
+  // version
+  let version = "";
+  let versionAndUp = false;
+  let versionAndDown = false;
+  if (searchValue.match(versionPattern)) {
+    let verExec = versionPattern.exec(searchValue);
+    version = verExec[1];
+    if (verExec.length > 2) {
+      versionAndUp = verExec[2] == "+" == true;
+      versionAndDown = verExec[2] == "-" == true;
+    }
+    searchValue = searchValue.replaceAll(versionPattern, "") // Don't include filters in the search
+  }
+  
+  // Type
+  let filterType;
+  if (searchValue.match(typePattern)) {
+    filterType = typePattern.exec(searchValue)[1];
+    searchValue = searchValue.replaceAll(typePattern, "")
+  }
+
+  // News
+  let filterNew;
+  if (searchValue.match(newPattern)) {
+    filterNew = newPattern.exec(searchValue)[1] == "new";
+    searchValue = searchValue.replaceAll(newPattern, "")
+  }
+
+  searchValue = searchValue.replaceAll(/( ){2,}/gi, " ") // Filter duplicate spaces
+  searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 ]/gi, ""); // Filter none alphabet and digits to avoid regex errors
+
+  allElements.forEach((e) => {
+    let patterns = document.querySelectorAll(`#${e.id} .item-details .skript-code-block`);
+    for (let i = 0; i < patterns.length; i++) { // Search in the patterns for better results
+      let pattern = patterns[i];
+      let regex = new RegExp(searchValue, "gi")
+      let name = document.querySelectorAll(`#${e.id} .item-title h1`)[0].textContent // Syntax Name
+      let filtersFound = false;
       
-      let version = "";
-      if (searchValue.match(versionPattern)) // Clear version if no version found (above regex will only work of version is actually used otherwise it will result in whatever the text written)
-        version = searchValue.replaceAll(versionPattern, "$1");//.replaceAll(/[^0-9.]/gi, "");
-
-      let versionAndUp = searchValue.replaceAll(versionPattern, "$2") == "+" == true;
-      let versionAndDown = searchValue.replaceAll(versionPattern, "$2") == "-" == true;
-      searchValue = searchValue.replaceAll(versionPattern, "") // Don't include filters in the search
-      searchValue = searchValue.replaceAll(/( ){2,}/gi, " ") // Filter duplicate spaces
-      
-      searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 ]/gi, ""); // Filter none alphabet and digits to avoid regex errors
-
-      allElements.forEach((e) => {
-        let patterns = document.querySelectorAll(`#${e.id} .item-details .skript-code-block`);
-        for (let i = 0; i < patterns.length; i++) { // Search in the patterns for better results
-          let pattern = patterns[i];
-          // let regex = new RegExp("\\b" + searchValue + "\\b", "gi") // Makes live character update useless
-          let regex = new RegExp(searchValue, "gi")
-          let name = document.querySelectorAll(`#${e.id} .item-title h1`)[0].textContent // Syntax Name
-          let versionFound;
-
-          if (version != "") {
-            versionFound = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.includes(version);
-            
-            if (versionAndUp || versionAndDown) {
-              let versions = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.split(",");
-              for (const v in versions) { // split on ',' without space in case some version didn't have space and versionCompare will handle it
-                if (versionAndUp) {
-                  if (versionCompare(version, versions[v]) == 1) {
-                    versionFound = true;
-                    break; // Performance
-                  }
-                } else if (versionAndDown) {
-                  if (versionCompare(version, versions[v]) == -1) {
-                    versionFound = true;
-                    break; // Performance
-                  }
-                }
+      // Version check
+      let versionFound;
+      if (version != "") {
+        versionFound = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.includes(version);
+        
+        if (versionAndUp || versionAndDown) {
+          let versions = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.split(",");
+          for (const v in versions) { // split on ',' without space in case some version didn't have space and versionCompare will handle it
+            if (versionAndUp) {
+              if (versionCompare(version, versions[v]) == 1) {
+                versionFound = true;
+                break; // Performance
+              }
+            } else if (versionAndDown) {
+              if (versionCompare(version, versions[v]) == -1) {
+                versionFound = true;
+                break; // Performance
               }
             }
-          } else {
-            versionFound = true;
           }
-          if ((regex.test(pattern.textContent.replaceAll("[ ]", " ")) || regex.test(name) || searchValue == "") && versionFound) { // Replacing '[ ]' will improve some searching cases such as 'off[ ]hand'
-            pass = true
-            break; // Performance
-          }
-
-          versionFound = false; // Reset
         }
-
-        // if (version == "") // Make sure to reset versionFound
-        //   versionFound = false;
-
-        // Filter
-        let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`)[0];
-        if (pass) {
-          e.style.display = null;
-          if (sideNavItem)
-            sideNavItem.style.display = null;
-          count++;
-        } else {
-          e.style.display = "none";
-          if (sideNavItem)
-            sideNavItem.style.display = "none";
-        }
-
-        pass = false; // Reset
-      })
-
-      searchResultBox = document.getElementById("search-bar-after");
-      if (count > 0 && (version != "" || searchValue != "")) {
-        searchResultBox.textContent = `${count} ${resultsFoundText}`
-        searchResultBox.style.display = null;
       } else {
-        searchResultBox.style.display = "none";
+        versionFound = true;
       }
 
-      if (count == 0) {
-        if (document.getElementById("no-matches") == null)
-        document.getElementById("content").insertAdjacentHTML('beforeend', '<p id="no-matches" style="text-align: center;">No matches found.</p>');
-      } else {
-        if (document.getElementById("no-matches") != null)
-          document.getElementById("no-matches").remove();
+      let filterNewFound = true;
+      if (filterNew) {
+        filterNewFound = document.querySelector(`#${e.id} .item-title .new-element`) != null
       }
-  
-      count = 0; // reset
-    }, 100); // Spam delay for better performance
 
+      let filterTypeFound = true;
+      let filterTypeEl = document.querySelector(`#${e.id} .item-title .item-type`);
+      if (filterType) {
+        filterTypeFound = filterType.toLowerCase() === filterTypeEl.textContent.toLowerCase()
+        // console.log(filterTypeEl.textContent + " | " + filterType + " | " + filterTypeFound)
+      }
+
+      if (filterNewFound && versionFound && filterTypeFound)
+        filtersFound = true
+
+      if ((regex.test(pattern.textContent.replaceAll("[ ]", " ")) || regex.test(name) || searchValue == "") && filtersFound) { // Replacing '[ ]' will improve some searching cases such as 'off[ ]hand'
+        pass = true
+        break; // Performance
+      }
+
+      versionFound = false; // Reset
+    }
+
+    // Filter
+    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`)[0];
+    if (pass) {
+      e.style.display = null;
+      if (sideNavItem)
+        sideNavItem.style.display = null;
+      count++;
+    } else {
+      e.style.display = "none";
+      if (sideNavItem)
+        sideNavItem.style.display = "none";
+    }
+
+    pass = false; // Reset
+  })
+
+  searchResultBox = document.getElementById("search-bar-after");
+  if (count > 0 && (version != "" || searchValue != "")) {
+    searchResultBox.textContent = `${count} ${resultsFoundText}`
+    searchResultBox.style.display = null;
+  } else {
+    searchResultBox.style.display = "none";
+  }
+
+  if (count == 0) {
+    if (document.getElementById("no-matches") == null)
+    document.getElementById("content").insertAdjacentHTML('beforeend', '<p id="no-matches" style="text-align: center;">No matches found.</p>');
+  } else {
+    if (document.getElementById("no-matches") != null)
+      document.getElementById("no-matches").remove();
+  }
+
+  count = 0; // reset
+}
+
+if (searchBar) {
+  searchBar.focus() // To easily search after page loading without the need to click
+  searchBar.addEventListener('keydown', (event) => {
+    setTimeout(() => { // Important to actually get the value after typing or deleting + better performance
+      searchNow();
+    }, 100);
   }); 
 }
 // Search Bar </>
@@ -292,7 +396,7 @@ if (searchBar) {
 
 // Auto load DarkMode from cookies
 if (getCookie("darkMode") != "true") {
-  content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-on-dark.svg" id="theme-switch">`);
+  content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-on.svg" id="theme-switch">`);
   document.body.setAttribute('data-theme', 'white')
 } else {
   content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-off.svg" id="theme-switch">`);
@@ -314,7 +418,7 @@ setTimeout(() => {
     // console.log("1");
     if (document.body.getAttribute("data-theme") == null) {
       document.body.setAttribute('data-theme', 'white');
-      event.target.src = "./assets/light-on-dark.svg";
+      event.target.src = "./assets/light-on.svg";
       setCookie("darkMode", "false", 99);
     } else {
       event.target.src = "./assets/light-off.svg";
@@ -376,6 +480,12 @@ function replacePlaceholders(html) {
   if (innerHTML.includes("${site-version}")) {
     html.innerHTML = html.innerHTML.replaceAll("${site-version}", siteVersion);
   }
+
+  if (innerHTML.includes("${contributors-size}")) {
+    let lv = $.getJSON(ghAPI + "/contributors?per_page=500", (data) => {
+      html.innerHTML = html.innerHTML.replaceAll("${contributors-size}", data.length);
+    })
+  }
 }
 replacePlaceholders(document.querySelector("body"));
 // Placeholders </>
@@ -428,7 +538,7 @@ const patterns = [ // [REGEX, CLASS]
   [/({)/gi, "sk-var"],
   [/(})/gi, "sk-var"],
   [/(\w+?(?=\(.*?\)))/gi, "sk-function"],
-  [/((\d+?(\.\d+?)?|a) (|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)/gi, "sk-timespan"],
+  [/((\d+?(\.\d+?)? |a |)(|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)/gi, "sk-timespan"],
   [/\b(now)\b/gi, "sk-timespan"],
 ]
 

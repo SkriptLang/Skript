@@ -46,8 +46,11 @@ public abstract class Hook<P extends Plugin> {
 		final P p = (P) Bukkit.getPluginManager().getPlugin(getName());
 		plugin = p;
 		if (p == null) {
-			if (Skript.isDocsTemplateFound())
+			if (Skript.canGenerateUnsafeDocs()) {
 				loadClasses();
+				if (Skript.logHigh())
+					Skript.info(m_hooked.toString(getName()));
+			}
 			return;
 		}
 

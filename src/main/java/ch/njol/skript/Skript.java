@@ -22,10 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -202,11 +200,19 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	private static boolean docsTemplateFound;
+	private static boolean generateUnsafeDocs;
 
 	public static boolean isDocsTemplateFound() {
 		return docsTemplateFound;
 	}
-	
+
+	/**
+	 * Checks if Skript is in testing mode and docs template folder is found
+	 */
+	public static boolean canGenerateUnsafeDocs() {
+		return generateUnsafeDocs;
+	}
+
 	@Nullable
 	private static Version version = null;
 	
@@ -336,8 +342,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 
-		docsTemplateFound = new File(getInstance().getDataFolder() + "/doc-templates").exists(); // Mostly used to handle generating hooks docs
-		
 		Language.loadDefault(getAddonInstance());
 		
 		Workarounds.init();
@@ -420,6 +424,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
+
+		 // Mostly used to handle generating hooks docs
+		docsTemplateFound = new File(getDataFolder() + "/doc-templates").exists();
+		generateUnsafeDocs = testing() && new File(getDataFolder() + "/doc-templates").exists();
 		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
