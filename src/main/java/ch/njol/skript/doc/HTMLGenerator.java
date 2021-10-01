@@ -412,8 +412,8 @@ public class HTMLGenerator {
 		String ID = DocID != null ? DocID.value() : info.c.getSimpleName();
 		// Fix duplicated IDs
 		if (page != null) {
-			if (page.contains("#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			if (page.contains("href=\"#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
 			}
 		}
 		desc = desc.replace("${element.id}", ID);
@@ -502,8 +502,8 @@ public class HTMLGenerator {
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
 		// Fix duplicated IDs
 		if (page != null) {
-			if (page.contains("#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			if (page.contains("href=\"#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
 			}
 		}
 		desc = desc.replace("${element.id}", ID);
@@ -583,8 +583,8 @@ public class HTMLGenerator {
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
 		// Fix duplicated IDs
 		if (page != null) {
-			if (page.contains("#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "#" + ID + "\"") + 1);
+			if (page.contains("href=\"#" + ID + "\"")) {
+				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
 			}
 		}
 		desc = desc.replace("${element.id}", ID);

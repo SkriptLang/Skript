@@ -12,6 +12,7 @@
     --table-side2-color: rgba(116, 116, 116, 0.05);
     --table-desc-color: rgba(0, 0, 0, 0.45);
 
+    --code-font-color: white;
     --code-bg-color: rgba(99, 99, 99, 0.2);
 
     --sidebar-items-bg: rgba(0, 0, 0, .2);
@@ -25,6 +26,7 @@
     --table-shadow: 0 0 20px rgba(0, 0, 0, .4);
 
     --box-font-color: black;
+    --box-inner-font-color: white;
     --box-bg: rgba(0, 0, 0, 0.4) !important;
     --red-box-font-color: black;
     --red-box-bg: rgba(0, 0, 0, 0.4);
@@ -48,7 +50,8 @@
     --table-side2-color: rgba(181, 180, 178, 0.45);
     --table-desc-color: rgba(217, 211, 204, 0.4);
 
-    --code-bg-color: rgba(0, 0, 0, 0.08);
+    --code-font-color: white;
+    --code-bg-color: rgb(41, 41, 41);
 
     --sidebar-items-bg: rgba(0, 0, 0, 0.03);
 
@@ -61,7 +64,8 @@
     --table-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 
     --box-font-color: black;
-    --box-bg: rgba(0, 0, 0, 0.1) !important;
+    --box-inner-font-color: white;
+    --box-bg: rgb(41, 41, 41) !important;
     --red-box-font-color: white;
     --red-box-bg: rgba(0, 0, 0, 0.1);
 
@@ -567,7 +571,7 @@ td ul {
     /* border-left: solid 3px #ff9800; */
     padding: 30px;
     font-size: 0.9em;
-    color: var(--font-color);
+    color: var(--code-font-color);
 }
 
 .box-title {
@@ -584,7 +588,7 @@ td ul {
     padding: 15px;
     background-color: var(--box-bg);
     margin-bottom: 10px;
-    color: var(--font-color);
+    color: var(--box-inner-font-color);
 }
 
 .box-title-red {

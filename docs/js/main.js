@@ -192,47 +192,69 @@ function versionCompare(base, target) { // Return -1, 0, 1
     return -1
 }
 
+var searchBar;
+var searchIcon;
+
+// Load search link
+var linkParams = new URLSearchParams(window.location.href.replace("+", "%2B").split("?")[1]) // URLSearchParams decode '+' as space while encodeURI keeps + as is
+if (linkParams && linkParams.get("search")) {
+  setTimeout(() => {
+    searchNow(linkParams.get("search").split("#")[0]) // anchor link sometimes appear after the search param so filter it
+  }, 20) // Until searchBar is loaded
+}
+
 var content = document.getElementById("content");
 if (content) {
   let isNewPage = location.href.includes("/new.html");
   content.insertAdjacentHTML('afterbegin', `<a id="search-icon" ${isNewPage ? 'class="search-icon-new"' : ""} title="Copy the search link."><img src="https://img.icons8.com/color/35/000000/search--v1.png"></a>`);
-  content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" ${isNewPage ? 'class="search-bar-version"' : ""} type="text" placeholder="🔍 Search the docs" title="Available Filters:&#013;&#013;Version:   v:2.5.3 v:2.2+ v:2.4-&#013;Type:      t:expression t:condition etc.&#013;New:       is:new"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
+  content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" ${isNewPage ? 'class="search-bar-version"' : ""} type="text" placeholder="🔍 Search the docs" title="Available Filters:&#13;&#10;&#13;&#10;Version:   v:2.5.3 v:2.2+ v:2.4-&#13;&#10;Type:      t:expression t:condition etc.&#13;&#10;New:       is:new"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
+  searchBar = document.getElementById("search-bar");
+  searchIcon = document.getElementById("search-icon");
+
   if (isNewPage) {
     let tags = []
     let options = "<select id='search-version' name='versions' id='versions' onchange='checkVersionFilter()'></select>"
     content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
     options = document.getElementById("search-version");
+
+    let savedTags = getCookie("skVersions").split(",");
+    for (let i = 0; i < savedTags.length; i++) { // Append saved versions then check
+      let option = document.createElement('option')
+      option.value = savedTags[i]
+      option.textContent = "Since v" + savedTags[i]
+      options.appendChild(option)
+    }
+    if (savedTags && !linkParams.get("search")) // Don't search if the url has a search filter
+      searchNow(`v:${savedTags[0]}+`) // Auto search on load
+
     $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
+      let isThereNew = false;
       for (let i = 0; i < data.length; i++) {
         let tag = data[i]["name"]
-          // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
-            tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
+        // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
+        tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
       }
       tags = [...new Set(tags)] // remove duplicates
+      setCookie("skVersions", tags, 5);
       for (let i = 0; i < tags.length; i++) {
+        if (savedTags.includes(tags[i])) // Only add unsaved versions
+          continue
+
+        isThereNew = true; // Marks that a new version was added to update the search bar
+
         let option = document.createElement('option')
         option.value = tags[i]
         option.textContent = "Since v" + tags[i]
         options.appendChild(option)
       }
-      searchNow(`v:${tags[0]}+`) // Auto search on load
+      if (isThereNew && !linkParams.get("search"))
+        searchNow(`v:${tags[0]}+`)
     })
   }
 
 } else {
   content = document.getElementById("content-no-docs")
 }
-
-function checkVersionFilter() {
-  let el = document.getElementById("search-version")
-  if (el) {
-    searchNow(`v:${el.value}+`)
-  }
-
-}
-
-var searchBar = document.getElementById("search-bar");
-var searchIcon = document.getElementById("search-icon");
 
 // Copy search link
 if (searchIcon) {
@@ -243,12 +265,12 @@ if (searchIcon) {
     showNotification("✅ Search link copied.")
   })
 }
-// Load search link
-var linkParams = new URLSearchParams(window.location.href.split("?")[1])
-if (linkParams && linkParams.get("search")) {
-  setTimeout(() => {
-    searchNow(linkParams.get("search")) // to override new.html
-  }, 500)
+
+function checkVersionFilter() {
+  let el = document.getElementById("search-version")
+  if (el) {
+    searchNow(`v:${el.value}+`)
+  }
 }
 
 function searchNow(value = "") {
@@ -343,28 +365,30 @@ function searchNow(value = "") {
         pass = true
         break; // Performance
       }
-
-      versionFound = false; // Reset
     }
 
     // Filter
-    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`)[0];
+    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`); // Since we have new.html we need to loop this
     if (pass) {
       e.style.display = null;
       if (sideNavItem)
-        sideNavItem.style.display = null;
+        sideNavItem.forEach(e => {
+          e.style.display = null;
+        })
       count++;
     } else {
       e.style.display = "none";
       if (sideNavItem)
-        sideNavItem.style.display = "none";
+        sideNavItem.forEach(e => {
+          e.style.display = "none";
+        })
     }
 
     pass = false; // Reset
   })
 
   searchResultBox = document.getElementById("search-bar-after");
-  if (count > 0 && (version != "" || searchValue != "")) {
+  if (count > 0 && (version != "" || searchValue != "" || filterType || filterNew)) {
     searchResultBox.textContent = `${count} ${resultsFoundText}`
     searchResultBox.style.display = null;
   } else {
