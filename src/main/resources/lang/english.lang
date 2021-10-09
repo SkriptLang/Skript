@@ -2002,6 +2002,7 @@ types:
 	attributetype: attribute type¦s @a
 	enchantmentoffer: enchantment offer¦s @a
 	fishingstate: fishing state¦s @a
+	fishinghook: fishing hook¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

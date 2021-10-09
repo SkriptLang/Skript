@@ -48,13 +48,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Panda.Gene;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -2057,5 +2052,32 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(PlayerFishEvent.State.class)));
+		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
+				.user("fish(ing)? ?hooks")
+				.name("Fishing Hook")
+				.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
+				.defaultExpression(new EventValueExpression<>(FishHook.class))
+				.since("INSERT VERSION")
+				.parser(new Parser<FishHook>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public String toString(FishHook o, int flags) {
+						return "Fish hook " + o.toString();
+					}
+
+					@Override
+					public String toVariableNameString(FishHook o) {
+						return "Fish hook " + o.toString();
+					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "\\S+";
+					}
+				}));
 	}
 }

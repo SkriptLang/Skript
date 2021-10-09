@@ -24,14 +24,14 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Is in Open Water")
+@Name("Fish hook is in Open Water")
 @Description("Check whether or not the fish hook is in open water.")
 @Examples({"on fish:",
-		"\tif hook is in open water:",
+		"\tif fish hook is in open water:",
 		"\t\tsend \"You will catch a shark soon!\""})
 @Events("fishing")
 @Since("INSERT VERSION")
@@ -39,29 +39,28 @@ public class CondIsInOpenWater extends Condition {
 	
 	static {
 		Skript.registerCondition(CondIsInOpenWater.class,
-				"[fish[ing]] hook (is|are) in open water",
-				"[fish[ing]] hook (isn't|is not|aren't|are not) in open water");
+				"%fishinghooks% (is|are) in open water",
+				"%fishinghooks% (isn't|is not|aren't|are not) in open water");
 	}
+
+	private Expression<FishHook> fishHook;
 	
 	@Override
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'hook is in open water' condition can only be used in fish event.");
-			return false;
-		}
+		fishHook = (Expression<FishHook>) exprs[0];
 		setNegated(matchedPattern == 1);
 		return true;
 	}
 	
 	@Override
 	public boolean check(Event e) {
-		return isNegated() ^ ((PlayerFishEvent) e).getHook().isInOpenWater();
+		return fishHook.check(e, FishHook::isInOpenWater, isNegated());
 	}
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "hook is" + (isNegated() ? "n't" : "") + " in open water";
+		return fishHook.toString(e, debug) + " is" + (isNegated() ? "n't" : "") + " in open water";
 	}
 	
 }

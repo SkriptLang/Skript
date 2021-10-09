@@ -22,8 +22,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,27 +38,32 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffPullHookedEntity extends Effect {
 
 	static {
-		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [of [fish[ing]] hook]");
+		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [(1¦of %fishinghooks%)]");
 	}
 
+	private Expression<FishHook> fishHook;
+
 	@Override
-	@SuppressWarnings("null")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
-		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'pull hooked entity' effect can only be used in fish event.");
+	@SuppressWarnings({"null", "unchecked"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if ((!getParser().isCurrentEvent(PlayerFishEvent.class)) && parseResult.mark == 0) {
+			Skript.error("The 'pull hooked entity' effect can either be used in fish event or by providing a fishing hook.");
 			return false;
 		}
+		fishHook = (Expression<FishHook>) exprs[0];
 		return true;
 	}
 
 	@Override
 	protected void execute(Event e) {
-		((PlayerFishEvent) e).getHook().pullHookedEntity();
+		for (FishHook fh : fishHook.getArray(e)) {
+			fh.pullHookedEntity();
+		}
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "pull hooked entity of fishing hook";
+		return "pull hooked entity of " + fishHook.toString(e, debug);
 	}
 
 }

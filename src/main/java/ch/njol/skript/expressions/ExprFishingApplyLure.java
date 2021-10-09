@@ -18,18 +18,15 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fishing Hook Apply Lure")
@@ -38,38 +35,32 @@ import org.eclipse.jdt.annotation.Nullable;
 			"\tset apply lure enchantment of fishing hook to true"})
 @Events("fishing")
 @Since("INSERT VERSION")
-public class ExprFishingApplyLure extends SimpleExpression<Boolean> {
+public class ExprFishingApplyLure extends SimplePropertyExpression<FishHook, Boolean> {
 
 	static {
-		Skript.registerExpression(ExprFishingApplyLure.class, Boolean.class, ExpressionType.SIMPLE,
-			"apply lure [enchant[ment]] [of [fish[ing]] hook]",
-			"[fish[ing]] hook'[s] apply lure [enchant[ment]]");
+		register(ExprFishingApplyLure.class, Boolean.class, "apply lure [enchant[ment]]", "fishinghook");
 	}
 
 	@Override
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'fishing hook apply lure' expression can only be used in fish event.");
-			return false;
-		}
+		setExpr((Expression<FishHook>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	protected @Nullable Boolean[] get(Event e) {
-		FishHook hook = ((PlayerFishEvent) e).getHook();
-		return new Boolean[]{ hook.getApplyLure() };
+	protected String getPropertyName() {
+		return "apply lure of fishing hook";
+	}
+
+	@Override
+	public @Nullable Boolean convert(FishHook fishHook) {
+		return fishHook.getApplyLure();
 	}
 
 	@Override
 	public Class<? extends Boolean> getReturnType() {
 		return Boolean.class;
-	}
-
-	@Override
-	public boolean isSingle() {
-		return true;
 	}
 
 	@Override
@@ -79,15 +70,15 @@ public class ExprFishingApplyLure extends SimpleExpression<Boolean> {
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null || delta[0] == null) {
+		if (delta == null || delta[0] == null)
 			return;
-		}
 
-		((PlayerFishEvent) e).getHook().setApplyLure((Boolean) delta[0]);
+		for (FishHook fh : getExpr().getArray(e))
+			fh.setApplyLure((Boolean) delta[0]);
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "apply lure of fishing hook";
+		return "apply lure of " + getExpr().toString(e, debug);
 	}
 }
