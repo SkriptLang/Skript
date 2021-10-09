@@ -71,7 +71,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		boolean result = init(exprs, matchedPattern, isDelayed, parseResult, sectionNode, triggerItems);
 
 		// Revert any possible changes to the SectionContext caused by the init method,
-		//  see
+		//  see https://github.com/SkriptLang/Skript/pull/4353
 		sectionContext.sectionNode = sectionNode;
 		sectionContext.triggerItems = triggerItems;
 
