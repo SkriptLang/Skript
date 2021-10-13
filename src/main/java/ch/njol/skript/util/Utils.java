@@ -68,11 +68,6 @@ public abstract class Utils {
 	private static final BiMap<EntityData, EntityType> spawnerTypes = HashBiMap.create();
 
 	static {
-		for (org.bukkit.entity.EntityType e : org.bukkit.entity.EntityType.values()) {
-			Class<? extends Entity> c = e.getEntityClass();
-			if (c != null)
-				spawnerTypes.put(EntityData.fromClass(c), e); // Cache Skript EntityData -> Bukkit EntityType
-		}
 	}
 	
 	public final static Random random = new Random();
@@ -724,12 +719,24 @@ public abstract class Utils {
 		return lastIndex;
 	}
 
+	private static void checkSpawnerTypes() { // If this was in static load section it would fail due to MC version field not yet initialized
+		if (!spawnerTypes.isEmpty())
+			return;
+
+		for (org.bukkit.entity.EntityType e : org.bukkit.entity.EntityType.values()) {
+			Class<? extends Entity> c = e.getEntityClass();
+			if (c != null)
+				spawnerTypes.put(EntityData.fromClass(c), e); // Cache Skript EntityData -> Bukkit EntityType
+		}
+	}
+
 	/**
 	 * Convert from Skript's EntityData to Bukkit's EntityType
 	 * @param e Skript's EntityData
 	 * @return Bukkit's EntityType
 	 */
 	public static org.bukkit.entity.EntityType toBukkitEntityType(EntityData e){
+		checkSpawnerTypes();
 		return spawnerTypes.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
 	}
 
@@ -739,6 +746,7 @@ public abstract class Utils {
 	 * @return Skript's EntityData
 	 */
 	public static EntityData toSkriptEntityData(org.bukkit.entity.EntityType e){
+		checkSpawnerTypes();
 		return spawnerTypes.inverse().get(e);
 	}
 
