@@ -28,11 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
@@ -65,6 +64,16 @@ import ch.njol.util.coll.CollectionUtils;
 public abstract class Utils {
 	
 	private Utils() {}
+
+	private static final BiMap<EntityData, EntityType> spawnerTypes = HashBiMap.create();
+
+	static {
+		for (org.bukkit.entity.EntityType e : org.bukkit.entity.EntityType.values()) {
+			Class<? extends Entity> c = e.getEntityClass();
+			if (c != null)
+				spawnerTypes.put(EntityData.fromClass(c), e); // Cache Skript EntityData -> Bukkit EntityType
+		}
+	}
 	
 	public final static Random random = new Random();
 	
@@ -714,5 +723,24 @@ public abstract class Utils {
 		}
 		return lastIndex;
 	}
+
+	/**
+	 * Convert from Skript's EntityData to Bukkit's EntityType
+	 * @param e Skript's EntityData
+	 * @return Bukkit's EntityType
+	 */
+	public static org.bukkit.entity.EntityType toBukkitEntityType(EntityData e){
+		return spawnerTypes.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
+	}
+
+	/**
+	 * Convert from Bukkit's EntityType to Skript's EntityData
+	 * @param e Bukkit's EntityType
+	 * @return Skript's EntityData
+	 */
+	public static EntityData toSkriptEntityData(org.bukkit.entity.EntityType e){
+		return spawnerTypes.inverse().get(e);
+	}
+
 	
 }
