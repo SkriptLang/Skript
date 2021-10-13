@@ -66,9 +66,6 @@ public abstract class Utils {
 	private Utils() {}
 
 	private static final BiMap<EntityData, EntityType> spawnerTypes = HashBiMap.create();
-
-	static {
-	}
 	
 	public final static Random random = new Random();
 	
