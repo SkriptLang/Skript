@@ -29,34 +29,34 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
 @Examples({"if player has speed:",
-		"\tmessage \"You are sonic!\""})
+		"\tsend \"You are sonic!\"",
+		"",
+		"if all players have speed and haste:",
+		"\tbroadcast \"You are ready to MINE!\""})
 @Since("INSERT VERSION")
 public class CondHasPotion extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasPotion.class,
-				"%players% (has|have) [potion [effect]] %potioneffecttypes%",
-				"%players% (doesn't|does not|do not|don't) have [potion [effect]] %potioneffecttypes%");
+				"%livingentities% (has|have) [potion [effect[s]]] %potioneffecttypes%",
+				"%livingentities% (doesn't|does not|do not|don't) have [potion [effect[s]] %potioneffecttypes%");
 	}
 	
-	@SuppressWarnings("null")
-	private Expression<Player> players;
-	@SuppressWarnings("null")
+	private Expression<LivingEntity> livingEntities;
 	private Expression<PotionEffectType> potionEffects;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		players = (Expression<Player>) exprs[0];
+		livingEntities = (Expression<LivingEntity>) exprs[0];
 		potionEffects = (Expression<PotionEffectType>) exprs[1];
 		setNegated(matchedPattern == 1);
 		return true;
@@ -64,7 +64,7 @@ public class CondHasPotion extends Condition {
 
 	@Override
 	public boolean check(Event e) {
-		return players.check(e,
+		return livingEntities.check(e,
 				player -> potionEffects.check(e,
 					player::hasPotionEffect
 				), isNegated());
@@ -72,7 +72,7 @@ public class CondHasPotion extends Condition {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.CAN, e, debug, players,
+		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, livingEntities,
 				"potion " + potionEffects.toString(e, debug));
 	}
 
