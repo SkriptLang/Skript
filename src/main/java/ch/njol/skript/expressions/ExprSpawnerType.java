@@ -50,7 +50,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 	private static final Material MATERIAL_SPAWNER = Aliases.javaItemType("spawner").getMaterial();
 	
 	static {
-		register(ExprSpawnerType.class, EntityData.class, "(entity|creature) type[s]", "blocks");
+		register(ExprSpawnerType.class, EntityData.class, "(spawner|entity|creature) type[s]", "blocks");
 	}
 	
 	@Override
