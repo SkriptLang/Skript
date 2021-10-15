@@ -37,71 +37,79 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Enchant/Disenchant")
 @Description("Enchant or disenchant an existing item.")
 @Examples({"enchant the player's tool with sharpness 5",
-		"disenchant the player's tool"})
-@Since("2.0")
+		"disenchant the player's tool",
+		"",
+		"# For enchanted books",
+		"enchant player's tool with stored unbreaking 3",
+		"disenchant stored enchantmentes of player's tool"})
+@Since("2.0, INSERT VERSION (stored enchantments)")
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
-				"enchant %~itemtypes% with %enchantmenttypes%",
-				"disenchant %~itemtypes%");
+				"enchant %~itemtypes% with [(1¦stored)] %enchantmenttypes%",
+				"disenchant [(1¦stored enchant[ment]s of)] %~itemtypes%");
 	}
 	
 	@SuppressWarnings("null")
-	private Expression<ItemType> item;
+	private Expression<ItemType> items;
 	@Nullable
 	private Expression<EnchantmentType> enchs;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean isStored;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		item = (Expression<ItemType>) exprs[0];
-		if (!ChangerUtils.acceptsChange(item, ChangeMode.SET, ItemStack.class)) {
-			Skript.error(item + " cannot be changed, thus it cannot be (dis)enchanted");
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		items = (Expression<ItemType>) exprs[0];
+		if (!ChangerUtils.acceptsChange(items, ChangeMode.SET, ItemStack.class)) {
+			Skript.error(items + " cannot be changed, thus it cannot be (dis)enchanted");
 			return false;
 		}
+		isStored = parseResult.mark == 1;
 		if (matchedPattern == 0)
 			enchs = (Expression<EnchantmentType>) exprs[1];
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final ItemType i = item.getSingle(e);
-		if (i == null)
-			return;
-		if (enchs != null) {
-			final EnchantmentType[] types = enchs.getArray(e);
-			if (types.length == 0)
-				return;
-			
-			for (final EnchantmentType type : types) {
-				Enchantment ench = type.getType();
-				assert ench != null;
-				i.addEnchantments(new EnchantmentType(ench, type.getLevel()));
+	protected void execute(Event e) {
+		ItemType[] items = this.items.getArray(e);
+		for (ItemType i : items) {
+			if (enchs != null) {
+				EnchantmentType[] types = enchs.getArray(e);
+				if (types.length == 0)
+					return;
+
+				for (EnchantmentType type : types) {
+					Enchantment ench = type.getType();
+					assert ench != null;
+					if (isStored)
+						i.addStoredEnchantments(new EnchantmentType(ench, type.getLevel()));
+					else
+						i.addEnchantments(new EnchantmentType(ench, type.getLevel()));
+				}
+			} else {
+				EnchantmentType[] types = isStored ? i.getStoredEnchantmentTypes() : i.getEnchantmentTypes();
+				if (types == null)
+					return;
+
+				if (isStored)
+					i.removeStoredEnchantments(types);
+				else
+					i.removeEnchantments(types);
 			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
-		} else {
-			final EnchantmentType[] types = i.getEnchantmentTypes();
-			if (types == null)
-				return;
-			
-			for (final EnchantmentType ench : types) {
-				assert ench != null;
-				i.removeEnchantments(ench);
-			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
 		}
+		this.items.change(e, items.clone(), ChangeMode.SET);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return enchs == null ? "disenchant " + item.toString(e, debug) : "enchant " + item.toString(e, debug) + " with " + enchs;
+	public String toString(@Nullable Event e, boolean debug) {
+		if (enchs == null)
+			return "disenchant " + (isStored ? "stored enchantments of " : "") + items.toString(e, debug);
+		else
+			return "enchant " + items.toString(e, debug) + " with " + (isStored ? "stored " : "") + enchs;
 	}
-	
+
 }

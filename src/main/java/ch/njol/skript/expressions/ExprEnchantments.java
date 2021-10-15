@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -42,22 +43,27 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Item Enchantments")
-@Description("All the enchantments an <a href='classes.html#itemtype'>item type</a> has.")
-@Examples("clear enchantments of event-item")
-@Since("2.2-dev36")
+@Description("All the [stored] enchantments an <a href='classes.html#itemtype'>item type</a> has.")
+@Examples({"clear enchantments of event-item",
+		"add unbreaking 2 to enchantments of player's tool # will only remove unbreaking with level 2",
+		"remove sharpness from enchantments of player's tool # doesn't care about enchantment level",
+		"set {_storedEnchantments::*} to stored enchantments of player's tool # for enchanted books"})
+@Since("2.2-dev36, INSERT VERSION (stored enchantments)")
 public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	static {
-		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes");
+		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "[(1¦stored)] enchantments", "itemtypes");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<ItemType> items;
+	private boolean isStored;
 
-	@SuppressWarnings({"null","unchecked"})
 	@Override
+	@SuppressWarnings({"null","unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = (Expression<ItemType>) exprs[0];
+		isStored = parseResult.mark == 1;
 		return true;
 	}
 
@@ -72,8 +78,17 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 		List<EnchantmentType> enchantments = new ArrayList<>();
 		
 		for (ItemType item : items.getArray(e)) {
-			EnchantmentType[] enchants = item.getEnchantmentTypes();
-			
+			EnchantmentType[] enchants;
+			EnchantmentStorageMeta meta = item.getEnchantmentStorageMeta();
+			if (isStored && meta != null) {
+				enchants = meta.getStoredEnchants().entrySet().stream()
+					.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+					.toArray(EnchantmentType[]::new);
+			}
+			else {
+				enchants = item.getEnchantmentTypes();
+			}
+
 			if (enchants == null)
 				continue;
 			
@@ -99,7 +114,7 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
 		
 		if (delta != null && delta.length != 0) {
-			for (int i = 0; i<delta.length; i++) {
+			for (int i = 0; i < delta.length; i++) {
 				if (delta[i] instanceof EnchantmentType)
 					enchants[i] = (EnchantmentType) delta[i];
 				else
@@ -109,36 +124,54 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 		
 		switch (mode) {
 			case ADD:
-				for (ItemType item : source)
-					item.addEnchantments(enchants);
+				for (ItemType item : source) {
+					if (isStored)
+						item.addStoredEnchantments(enchants);
+					else
+						item.addEnchantments(enchants);
+				}
 				break;
 			case REMOVE:
 			case REMOVE_ALL:
 				for (ItemType item : source) {
 					ItemMeta meta = item.getItemMeta();
+					EnchantmentStorageMeta storageMeta = item.getEnchantmentStorageMeta();
 					assert meta != null;
 					for (EnchantmentType enchant : enchants) {
 						Enchantment ench = enchant.getType();
 						assert ench != null;
-						if (enchant.getInternalLevel() == -1
-								|| meta.getEnchantLevel(ench) == enchant.getLevel()) {
-							// Remove directly from meta since it's more efficient on this case
-							meta.removeEnchant(ench);
+						if (isStored && storageMeta != null) {
+							if (enchant.getInternalLevel() == -1 || storageMeta.getStoredEnchantLevel(ench) == enchant.getLevel()) {
+								storageMeta.removeStoredEnchant(ench);
+							}
 						}
-					item.setItemMeta(meta);
+						else if (enchant.getInternalLevel() == -1 || meta.getEnchantLevel(ench) == enchant.getLevel()) {
+								// Remove directly from meta since it's more efficient on this case
+								meta.removeEnchant(ench);
+						}
 					}
+					item.setItemMeta(isStored ? (storageMeta != null ? storageMeta : meta) : meta);
 				}
 				break;
 			case SET:
 				for (ItemType item : source) {
-					item.clearEnchantments();
-					item.addEnchantments(enchants);
+					if (isStored) {
+						item.clearStoredEnchantments();
+						item.addStoredEnchantments(enchants);
+					} else {
+						item.clearEnchantments();
+						item.addEnchantments(enchants);
+					}
 				}
 				break;
 			case DELETE:
 			case RESET:
-				for (ItemType item : source)
-					item.clearEnchantments();
+				for (ItemType item : source) {
+					if (isStored)
+						item.clearStoredEnchantments();
+					else
+						item.clearEnchantments();
+				}
 				break;
 		}
 	}
@@ -150,7 +183,7 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "the enchantments of " + items.toString(e, debug);
+		return "the " + (isStored ? "stored " : "") + "enchantments of " + items.toString(e, debug);
 	}
 	
 }

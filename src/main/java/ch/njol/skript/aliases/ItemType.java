@@ -43,6 +43,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -1164,7 +1165,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			assert type != null; // Bukkit working different than we expect
 			if (!meta.hasEnchant(type))
 				return false;
-			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) < enchantment.getLevel())
+			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) != enchantment.getLevel())
 				return false;
 		}
 		return true;
@@ -1214,6 +1215,109 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		setItemMeta(meta);
 	}
+
+	/**
+	 * Gets all stored enchantments of this item.
+	 * @return the stored enchantments of this item type.
+	 */
+	@Nullable
+	public EnchantmentType[] getStoredEnchantmentTypes() {
+		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
+		if (meta == null)
+			return new EnchantmentType[0];
+
+		Set<Entry<Enchantment, Integer>> enchants = meta.getStoredEnchants().entrySet();
+
+		return enchants.stream()
+			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+			.toArray(EnchantmentType[]::new);
+	}
+
+	/**
+	 * Checks whether this item type has stored enchantments.
+	 * Used for materials such as {@link Material#ENCHANTED_BOOK}
+	 */
+	public boolean hasStoredEnchantments() {
+		ItemType type = getBaseType();
+		ItemMeta meta = type.getItemMeta();
+		if (meta instanceof EnchantmentStorageMeta)
+			return ((EnchantmentStorageMeta) meta).hasStoredEnchants();
+		else
+			return false;
+	}
+
+	/**
+	 * Checks whether this item type contains the given stored enchantments.
+	 * Also checks the enchantment level.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasStoredEnchantments(EnchantmentType... enchantments) {
+		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
+		if (meta == null)
+			return false;
+		if (!hasStoredEnchantments())
+			return false;
+
+		for (EnchantmentType enchantment : enchantments) {
+			Enchantment type = enchantment.getType();
+			assert type != null; // Bukkit working different than we expect
+			if (!meta.hasStoredEnchant(type))
+				return false;
+			if (enchantment.getInternalLevel() != -1 && meta.getStoredEnchantLevel(type) != enchantment.getLevel())
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Adds the given enchantments to the stored enchantments of this item type.
+	 * @param enchantments The enchantments to be added.
+	 */
+	public void addStoredEnchantments(EnchantmentType... enchantments) {
+		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
+		if (meta == null)
+			return;
+
+		for (EnchantmentType enchantment : enchantments) {
+			Enchantment type = enchantment.getType();
+			assert type != null; // Bukkit working different than we expect
+			meta.addStoredEnchant(type, enchantment.getLevel(), true);
+		}
+		setItemMeta(meta);
+	}
+
+	/**
+	 * Removes the given enchantments from the stored enchantments of this item type.
+	 * @param enchantments The enchantments to be removed.
+	 */
+	public void removeStoredEnchantments(EnchantmentType... enchantments) {
+		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
+		if (meta == null)
+			return;
+
+		for (EnchantmentType enchantment : enchantments) {
+			Enchantment type = enchantment.getType();
+			assert type != null; // Bukkit working different than we expect
+			meta.removeStoredEnchant(type);
+		}
+		setItemMeta(meta);
+	}
+
+	/**
+	 * Clears all stored enchantments from this item type
+	 */
+	public void clearStoredEnchantments() {
+		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
+		if (meta == null)
+			return;
+
+		Set<Enchantment> enchants = meta.getStoredEnchants().keySet();
+		for (Enchantment ench : enchants) {
+			assert ench != null;
+			meta.removeStoredEnchant(ench);
+		}
+		setItemMeta(meta);
+	}
 	
 	/**
 	 * Gets item meta that applies to all items represented by this type.
@@ -1221,6 +1325,20 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public ItemMeta getItemMeta() {
 		return globalMeta != null ? globalMeta : types.get(0).getItemMeta();
+	}
+
+	/**
+	 * Gets {@link EnchantmentStorageMeta} that applies to all items represented by this type if possible.
+	 * @return Item meta.
+	 */
+	@Nullable
+	public EnchantmentStorageMeta getEnchantmentStorageMeta() {
+		if (globalMeta != null && globalMeta instanceof EnchantmentStorageMeta)
+			return (EnchantmentStorageMeta) globalMeta;
+		else if (types.get(0).getItemMeta() instanceof EnchantmentStorageMeta)
+			return (EnchantmentStorageMeta) types.get(0).getItemMeta();
+		else
+			return null;
 	}
 
 	/**
