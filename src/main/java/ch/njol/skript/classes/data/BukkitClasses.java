@@ -831,7 +831,9 @@ public class BukkitClasses {
 				})
 				.changer(DefaultChangers.playerChanger)
 				.serializeAs(OfflinePlayer.class));
-		
+
+		Pattern uuidPattern = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
+		Pattern playerNamePattern = Pattern.compile("[a-zA-Z0-9_]+");
 		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
 				.user("offline ?players?")
 				.name("Offline Player")
@@ -844,14 +846,14 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
-					@SuppressWarnings("deprecation")
 					@Override
 					@Nullable
+					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
 						if (context == ParseContext.COMMAND) {
-							if (s.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}"))
+							if (uuidPattern.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!s.matches("[a-zA-Z0-9_]+") || s.length() > 16)
+							else if (!playerNamePattern.matcher(s).matches() || s.length() > 16)
 								return null;
 							return Bukkit.getOfflinePlayer(s);
 						}
