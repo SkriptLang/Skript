@@ -76,6 +76,9 @@ public class EffEnchant extends Effect {
 	@Override
 	protected void execute(Event e) {
 		ItemType[] items = this.items.getArray(e);
+		if (items == null || items.length < 1 || items[0] == null)
+			return;
+
 		for (ItemType i : items) {
 			if (enchs != null) {
 				EnchantmentType[] types = enchs.getArray(e);
