@@ -38,15 +38,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({"give player enchanted book with stored enchantment unbreaking 1 and sharpness 2",
 		"give player 3 diamonds with power 1"})
 @Since("INSERT VERSION")
-public class ExprItemWithStoredEnchantments extends SimpleExpression<ItemType> {
+public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 
 	static {
-		Skript.registerExpression(ExprItemWithStoredEnchantments.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtypes% (with|of) [(1¦stored)] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
+		Skript.registerExpression(ExprItemWithEnchantments.class, ItemType.class, ExpressionType.COMBINED,
+			"%itemtype% (with|of) [(1¦stored)] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<ItemType> items;
+	private Expression<ItemType> item;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<EnchantmentType> enchs;
 	private boolean isStored;
@@ -54,7 +54,7 @@ public class ExprItemWithStoredEnchantments extends SimpleExpression<ItemType> {
 	@Override
 	@SuppressWarnings({"null","unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) exprs[0];
+		item = (Expression<ItemType>) exprs[0];
 		enchs = (Expression<EnchantmentType>) exprs[1];
 		isStored = parseResult.mark == 1;
 		return true;
@@ -64,19 +64,17 @@ public class ExprItemWithStoredEnchantments extends SimpleExpression<ItemType> {
 	@Nullable
 	protected ItemType[] get(Event e) {
 		EnchantmentType[] enchs = this.enchs.getArray(e);
-		ItemType[] items = this.items.getArray(e);
+		ItemType item = this.item.getSingle(e);
+		if (enchs == null || enchs.length < 1 || item == null)
+			return null;
 
 		if (isStored) {
-			for (ItemType item : items) {
-				if (item.getEnchantmentStorageMeta() != null)
-					item.addStoredEnchantments(enchs);
-			}
+			if (item.getEnchantmentStorageMeta() != null)
+				item.addStoredEnchantments(enchs);
 		} else {
-			for (ItemType item : items) {
-				item.addEnchantments(enchs);
-			}
+			item.addEnchantments(enchs);
 		}
-		return items.clone();
+		return new ItemType[]{item};
 	}
 
 	@Override
@@ -86,12 +84,12 @@ public class ExprItemWithStoredEnchantments extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean isSingle() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return items.toString(e, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchs.toString(e, debug);
+		return item.toString(e, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchs.toString(e, debug);
 	}
 	
 }
