@@ -52,9 +52,9 @@ import ch.njol.util.coll.CollectionUtils;
 		"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."})
 @Examples({"on server list ping:",
 		"\tclear the hover list",
-		"\tadd \"<light green>Welcome to the <orange>Minecraft <light green>server!\" to the hover list",
+		"\tadd \"&aWelcome to the &6Minecraft &aserver!\" to the hover list",
 		"\tadd \"\" to the hover list # A blank line",
-		"\tadd \"<light red>There are <orange>%online players count% <light red>online players!\" to the hover list"})
+		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")

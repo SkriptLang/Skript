@@ -1,0 +1,65 @@
+name: Bug Report
+description: Report a bug you've encountered in Skript.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Guidelines
+        Please make sure you are running the latest version of Skript on a supported server platform and version.
+        Try to make sure there are no issues of this same problem currently open either.
+  - type: textarea
+    attributes:
+      label: Skript/Server Version
+      description: Run '/skript info' and paste the full, unmodified output here.
+      value: |
+        ```
+        Replace this text with your output from the command.
+        ```
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: Describe the bug you've encountered. Try to be as thorough as possible.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: What was supposed to happen? If you're not sure, please state so.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        What did you do to make this problem happen? Try to be as thorough as possible.
+        You may include any code if necessary. Please make sure it is actually testable by someone.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Errors or Screenshots
+      description: |
+        Please paste any console errors you've encountered here. Make sure to copy the entire error.
+        If you have encountered any weird behavior in-game that you would like to share, you may share a screenshot or video.
+        If you are going to use a paste site, please use something like https://gist.github.com/ or https://paste.gg/.
+      value: |
+        ```
+        Replace this text with your paste link or errors/screenshots/videos.
+        ```
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Other
+      description: Have anything else to add?
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Agreement
+      description: Please agree to the following before submitting your bug report.
+      options:
+        - label: I have read the guidelines above and confirm I am following them with this report.
+          required: true
