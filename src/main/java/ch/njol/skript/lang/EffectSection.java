@@ -56,7 +56,8 @@ public abstract class EffectSection extends Section {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
 		//noinspection ConstantConditions - For an EffectSection, it may be null
 		hasSection = sectionContext.sectionNode != null;
-		return init(exprs, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
