@@ -21,6 +21,7 @@ package ch.njol.skript.classes.data;
 import java.util.Objects;
 
 import ch.njol.skript.aliases.MatchQuality;
+import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
@@ -279,6 +280,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof RabbitData)
+				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
 				assert data != null;
 				EntityData<?> entity = Aliases.getRelatedEntity(data);
@@ -464,7 +467,7 @@ public class DefaultComparators {
 		ItemType lava = Aliases.javaItemType("lava");
 		Comparators.registerComparator(DamageCause.class, ItemType.class, new Comparator<DamageCause, ItemType>() {
 			@Override
-			public Relation compare(final DamageCause dc, final ItemType t) {
+			public Relation compare(DamageCause dc, ItemType t) {
 				switch (dc) {
 					case FIRE:
 						return Relation.get(t.isOfType(Material.FIRE));
@@ -472,10 +475,13 @@ public class DefaultComparators {
 						return Relation.get(t.equals(lava));
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
-						//$CASES-OMITTED$
-					default:
-						return Relation.NOT_EQUAL;
 				}
+				if (Skript.fieldExists(DamageCause.class, "HOT_FLOOR")
+						&& dc.equals(DamageCause.HOT_FLOOR)) {
+					return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
+				}
+
+				return Relation.NOT_EQUAL;
 			}
 			
 			@Override
