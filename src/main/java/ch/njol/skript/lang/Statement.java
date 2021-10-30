@@ -38,7 +38,11 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 	
 	@SuppressWarnings({"rawtypes", "unchecked", "null"})
 	@Nullable
-	public static Statement parse(final String s, final String defaultError) {
+	public static Statement parse(String s, String defaultError) {
+		EffectSection section = EffectSection.parse(s, null, null, null);
+		if (section != null)
+			return new EffectSectionEffect(section);
+
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			final EffFunctionCall f = EffFunctionCall.parse(s);

@@ -50,11 +50,11 @@ public class EvtChat extends SelfRegisteringSkriptEvent {
 				.description("Called whenever a player chats. Use <a href='../expressions.html#ExprChatFormat'>chat format</a> to change message format, use <a href='../expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients.")
 				.examples("on chat:",
 					 	"	if player has permission \"owner\":",
-					 	"		set chat format to \"<red>[player]<light gray>: <light red>[message]\"",
+					 	"		set chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
 					 	"	else if player has permission \"admin\":",
-					 	"		set chat format to \"<light red>[player]<light gray>: <orange>[message]\"",
+					 	"		set chat format to \"&lt;light red&gt;[player]&lt;light gray&gt;: &lt;orange&gt;[message]\"",
 					 	"	else: #default message format",
-					 	"		set chat format to \"<orange>[player]<light gray>: <white>[message]\"")
+					 	"		set chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\"")
 				.since("1.4.1");
 	}
 	
