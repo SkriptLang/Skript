@@ -31,6 +31,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -45,6 +46,7 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		Skript.registerExpression(ExprXOf.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "%number% of %itemstacks/itemtypes/entitytype%");
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> amount;
 
 	@Override
@@ -77,6 +79,26 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 				return t;
 			}
 		});
+	}
+
+	@Override
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		if (CollectionUtils.containsSuperclass(to, getReturnType()))
+			return (Expression<? extends R>) this;
+
+		if (!CollectionUtils.containsAnySuperclass(to, ItemStack.class, ItemType.class, EntityType.class))
+			return null;
+
+		Expression<? extends R> converted = getExpr().getConvertedExpression(to);
+		if (converted == null)
+			return null;
+
+		ExprXOf exprXOf = new ExprXOf();
+		exprXOf.setExpr(converted);
+		exprXOf.amount = amount;
+		return (Expression<? extends R>) exprXOf;
 	}
 
 	@Override

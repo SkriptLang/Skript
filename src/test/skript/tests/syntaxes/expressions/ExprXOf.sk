@@ -1,0 +1,7 @@
+test "X of":
+	set {_x} to 5
+	assert 1 of {_x} is not set with "incorrect type failed"
+	set {_y} to "zombie" parsed as entitytype
+	assert 2 of {_y} is 2 zombie with "entity type amount failed"
+	set {_z} to stone
+	assert 2 of {_z} is 2 stone with "item failed"
