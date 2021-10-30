@@ -18,27 +18,6 @@
  */
 package ch.njol.skript.entity;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
@@ -65,6 +44,22 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Consumer;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -420,6 +415,24 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		assert loc != null;
 		try {
 			final E e = loc.getWorld().spawn(loc, getType());
+			if (baby.isTrue())
+				EntityUtils.setBaby(e);
+			else if (baby.isFalse())
+				EntityUtils.setAdult(e);
+			set(e);
+			return e;
+		} catch (final IllegalArgumentException e) {
+			if (Skript.testing())
+				Skript.error("Can't spawn " + getType().getName());
+			return null;
+		}
+	}
+
+	@Nullable
+	public E spawn(Location loc, Consumer<E> consumer) {
+		assert loc != null;
+		try {
+			E e = loc.getWorld().spawn(loc, (Class<E>) getType(), consumer);
 			if (baby.isTrue())
 				EntityUtils.setBaby(e);
 			else if (baby.isFalse())

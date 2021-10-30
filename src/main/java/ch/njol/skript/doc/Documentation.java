@@ -51,12 +51,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 /**
  * TODO list special expressions for events and event values
  * TODO compare doc in code with changed one of the webserver and warn about differences?
- * 
+ *
  * @author Peter Güttinger
  */
 @SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
-	
+
 	public static void generate() {
 		if (!generate)
 			return;
@@ -73,9 +73,9 @@ public class Documentation {
 			return;
 		}
 	}
-	
+
 	public final static boolean generate = Skript.testing() && new File(Skript.getInstance().getDataFolder(), "generate-doc").exists(); // don't generate the documentation on normal servers
-	
+
 	private static void asSql(final PrintWriter pw) {
 		pw.println("-- syntax elements");
 //		pw.println("DROP TABLE IF EXISTS syntax_elements;");
@@ -113,7 +113,7 @@ public class Documentation {
 			assert info != null;
 			insertEvent(pw, info);
 		}
-		
+
 		pw.println();
 		pw.println();
 		pw.println("-- classes");
@@ -133,7 +133,7 @@ public class Documentation {
 			assert info != null;
 			insertClass(pw, info);
 		}
-		
+
 		pw.println();
 		pw.println();
 		pw.println("-- functions");
@@ -149,63 +149,127 @@ public class Documentation {
 			insertFunction(pw, func);
 		}
 	}
-	
-	private static String convertRegex(final String regex) {
+
+	private static String convertRegex(String regex, boolean escapeHTML) {
 		if (StringUtils.containsAny(regex, ".[]\\*+"))
 			Skript.error("Regex '" + regex + "' contains unconverted Regex syntax");
-		return escapeHTML("" + regex
-				.replaceAll("\\((.+?)\\)\\?", "[$1]")
-				.replaceAll("(.)\\?", "[$1]"));
+		regex = escapeHTML ? escapeHTML(regex) : regex;
+		return regex.replaceAll("\\((.+?)\\)\\?", "[$1]").replaceAll("(.)\\?", "[$1]");
 	}
-	
-	private static String cleanPatterns(final String patterns) {
-		final String s = StringUtils.replaceAll("" +
-				escapeHTML(patterns) // escape HTML
-				.replaceAll("(?<=[\\(\\|])[-0-9]+?¦", "") // remove marks
-				.replace("()", "") // remove empty mark setting groups (mark¦)
-				.replaceAll("\\(([^|]+?)\\|\\)", "[$1]") // replace (mark¦x|) groups with [x]
-				.replaceAll("\\(\\|([^|]+?)\\)", "[$1]") // dito
-				.replaceAll("\\((.+?)\\|\\)", "[($1)]") // replace (a|b|) with [(a|b)]
-				.replaceAll("\\(\\|(.+?)\\)", "[($1)]") // dito
-		, "(?<!\\\\)%(.+?)(?<!\\\\)%", new Callback<String, Matcher>() { // link & fancy types
-			@Override
-			public String run(final Matcher m) {
-				String s = m.group(1);
-				if (s.startsWith("-"))
-					s = s.substring(1);
-				String flag = "";
-				if (s.startsWith("*") || s.startsWith("~")) {
-					flag = s.substring(0, 1);
-					s = s.substring(1);
-				}
-				final int a = s.indexOf("@");
-				if (a != -1)
-					s = s.substring(0, a);
-				final StringBuilder b = new StringBuilder("%");
-				b.append(flag);
-				boolean first = true;
-				for (final String c : s.split("/")) {
-					assert c != null;
-					if (!first)
-						b.append("/");
-					first = false;
-					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
-					final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-					if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) {
-						b.append("<a href='../classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
-					} else {
-						b.append(c);
-						if (ci != null && ci.getDocName() != ClassInfo.NO_DOC)
-							Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
+
+	private static String convertRegex(String regex) {
+		return convertRegex(regex, true);
+	}
+
+	protected static String cleanPatterns(final String patterns) {
+		return cleanPatterns(patterns, true);
+	}
+
+	protected static String cleanPatterns(final String patterns, boolean escapeHTML) {
+
+		String cleanedPatterns =
+				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
+				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
+				.replace("()", ""); // Remove empty mark setting groups (mark¦)
+
+		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
+			String group = m.group();
+
+			boolean startToEnd = group.contains("(|"); // Due to regex limitation we search from the beginning to the end but if it has '|)' we will begin from the opposite direction
+
+			int depth = 0;
+			int charIndex = 0;
+			char[] chars = group.toCharArray();
+			for (int i = (startToEnd ? 0 : chars.length - 1); (startToEnd ? i < chars.length : i >= 0); i = (startToEnd ? i+1 : i-1)) {
+				char c = chars[i];
+				if (c == ')') {
+					depth++;
+					if (startToEnd && depth == 0) { // Break if the nearest closing parentheses pair is found if startToEnd == true
+						charIndex = i;
+						break;
 					}
+				} else if (c == '(') {
+					depth--;
+					if (!startToEnd && depth == 0) { // Break if the nearest opening parentheses pair is found if startToEnd == false
+						charIndex = i;
+						break;
+					}
+				} else if (c == '\\') { // Escape escaping characters
+					i--;
 				}
-				return "" + b.append("%").toString();
 			}
-		});
+			if (depth == 0 && charIndex != 0) {
+				if (startToEnd) {
+					return "[" +
+						group.substring(0, charIndex)
+						.replace("(|", "") + // Ex. (|(t|y)) -> [(t|y)] & (|x(t|y)) -> [x(t|y)]
+						"]" +
+						group.substring(charIndex + 1, chars.length); // Restore the unchanged after part
+				}
+				else {
+					return group.substring(0, charIndex) + // Restore the unchanged before part
+						"[" +
+						group.substring(charIndex + 1, chars.length)
+						.replace("|)", "") + // Ex. ((t|y)|) -> [(t|y)] & ((t|y)x|) -> [(t|y)x]
+						"]";
+				}
+			} else {
+				return group;
+			}
+		};
+
+		cleanedPatterns = cleanedPatterns.replaceAll("\\(([^()]+?)\\|\\)", "[($1)]"); // Matches optional syntaxes that doesn't have nested parentheses
+		cleanedPatterns = cleanedPatterns.replaceAll("\\(\\|([^()]+?)\\)", "[($1)]");
+
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses at has nested parentheses
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+?)\\|\\)", callback);
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\(\\|(.+)\\)", callback);
+		assert cleanedPatterns != null;
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\(\\|(.+?)\\)", callback);
+		assert cleanedPatterns != null;
+
+		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // Convert %+?% (aka types) inside patterns to links
+			new Callback<String, Matcher>() {
+				@Override
+				public String run(final Matcher m) {
+					String s = m.group(1);
+					if (s.startsWith("-"))
+						s = s.substring(1);
+					String flag = "";
+					if (s.startsWith("*") || s.startsWith("~")) {
+						flag = s.substring(0, 1);
+						s = s.substring(1);
+					}
+					final int a = s.indexOf("@");
+					if (a != -1)
+						s = s.substring(0, a);
+					final StringBuilder b = new StringBuilder("%");
+					b.append(flag);
+					boolean first = true;
+					for (final String c : s.split("/")) {
+						assert c != null;
+						if (!first)
+							b.append("/");
+						first = false;
+						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
+						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
+						if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) {
+							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+						} else {
+							b.append(c);
+							if (ci != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
+								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
+						}
+					}
+					return "" + b.append("%").toString();
+				}
+			});
 		assert s != null : patterns;
 		return s;
 	}
-	
+
 	private static void insertSyntaxElement(final PrintWriter pw, final SyntaxElementInfo<?> info, final String type) {
 		if (info.c.getAnnotation(NoDoc.class) != null)
 			return;
@@ -231,7 +295,7 @@ public class Documentation {
 				escapeHTML(StringUtils.join(info.c.getAnnotation(Examples.class).value(), "\n")),
 				since);
 	}
-	
+
 	private static void insertEvent(final PrintWriter pw, final SkriptEventInfo<?> info) {
 		if (info.getDescription() == SkriptEventInfo.NO_DOC)
 			return;
@@ -263,7 +327,7 @@ public class Documentation {
 				escapeHTML(StringUtils.join(info.getExamples(), "\n")),
 				since);
 	}
-	
+
 	private static void insertClass(final PrintWriter pw, final ClassInfo<?> info) {
 		if (info.getDocName() == ClassInfo.NO_DOC)
 			return;
@@ -290,7 +354,7 @@ public class Documentation {
 				escapeHTML(StringUtils.join(info.getExamples(), "\n")),
 				since);
 	}
-	
+
 	private static void insertFunction(final PrintWriter pw, final JavaFunction<?> func) {
 		final StringBuilder params = new StringBuilder();
 		for (final Parameter<?> p : func.getParameters()) {
@@ -311,27 +375,27 @@ public class Documentation {
 				escapeHTML(StringUtils.join(func.getExamples(), "\n")),
 				since);
 	}
-	
+
 	private static void insertOnDuplicateKeyUpdate(final PrintWriter pw, final String table, final String fields, final String update, final String... values) {
 		for (int i = 0; i < values.length; i++)
 			values[i] = escapeSQL("" + values[i]);
 		pw.println("INSERT INTO " + table + " (" + fields + ") VALUES ('" + StringUtils.join(values, "','") + "') ON DUPLICATE KEY UPDATE " + update + ";");
 	}
-	
+
 	private static void replaceInto(final PrintWriter pw, final String table, final String fields, final String... values) {
 		for (int i = 0; i < values.length; i++)
 			values[i] = escapeSQL("" + values[i]);
 		pw.println("REPLACE INTO " + table + " (" + fields + ") VALUES ('" + StringUtils.join(values, "','") + "');");
 	}
-	
+
 	private static ArrayList<Pattern> validation = new ArrayList<>();
 	static {
 		validation.add(Pattern.compile("<" + "(?!a href='|/a>|br ?/|/?(i|b|u|code|pre|ul|li|em)>)"));
 		validation.add(Pattern.compile("(?<!</a|'|br ?/|/?(i|b|u|code|pre|ul|li|em))" + ">"));
 	}
-	
+
 	private final static String[] urls = {"expressions", "effects", "conditions"};
-	
+
 	@Nullable
 	private static String validateHTML(@Nullable String html, final String baseURL) {
 		if (html == null) {
@@ -377,11 +441,11 @@ public class Documentation {
 		}
 		return html;
 	}
-	
+
 	private static String escapeSQL(final String s) {
 		return "" + s.replace("'", "\\'").replace("\"", "\\\"");
 	}
-	
+
 	public static String escapeHTML(final @Nullable String s) {
 		if (s == null) {
 			assert false;
@@ -389,5 +453,5 @@ public class Documentation {
 		}
 		return "" + s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
 	}
-	
+
 }
