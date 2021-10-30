@@ -48,7 +48,7 @@ import ch.njol.util.Kleenean;
 @Name("Targeted Block")
 @Description("The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.")
 @Examples({"# A command to set the block a player looks at to a specific type:",
-		"command /setblock <material>:",
+		"command /setblock &lt;material&gt;:",
 		"\ttrigger:",
 		"\t\tset targeted block to argument"})
 @Since("1.0")

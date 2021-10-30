@@ -41,16 +41,16 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples("set cost of enchantment offer 1 to 50")
 @Since("2.5")
 @RequiredPlugins("1.11 or newer")
-public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Number>{
+public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
 	static {
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer"))
-			register(ExprEnchantmentOfferCost.class, Number.class, "[enchant[ment]] cost", "enchantmentoffers");
+			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
 	}
 
 	@Override
-	public Number convert(final EnchantmentOffer offer) {
-		return offer.getCost();
+	public Long convert(final EnchantmentOffer offer) {
+		return (long) offer.getCost();
 	}
 
 	@Override
@@ -100,8 +100,8 @@ public class ExprEnchantmentOfferCost extends SimplePropertyExpression<Enchantme
 	}
 
 	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
