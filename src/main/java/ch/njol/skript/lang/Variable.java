@@ -18,24 +18,6 @@
  */
 package ch.njol.skript.lang;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -46,10 +28,12 @@ import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
@@ -60,6 +44,22 @@ import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
 /**
  * @author Peter Güttinger
@@ -168,19 +168,24 @@ public class Variable<T> implements Expression<T> {
 	 */
 	@Nullable
 	public static <T> Variable<T> newInstance(String name, Class<? extends T>[] types) {
-//		if (name.startsWith(LOCAL_VARIABLE_TOKEN) && name.contains(SEPARATOR)) {
-//			Skript.error("Local variables cannot be lists, i.e. must not contain the separator '" + SEPARATOR + "' (error in variable {" + name + "})");
-//			return null;
-//		} else
 		name = "" + name.trim();
 		if (!isValidVariableName(name, true, true))
 			return null;
-		VariableString vs = VariableString.newInstance(name.startsWith(LOCAL_VARIABLE_TOKEN) ? "" + name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name, StringMode.VARIABLE_NAME);
+		VariableString vs = VariableString.newInstance(
+			name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name, StringMode.VARIABLE_NAME);
 		if (vs == null)
 			return null;
 
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
+
+		if (!SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+				&& !ScriptOptions.getInstance().suppressesWarning(ParserInstance.get().getCurrentScript().getFile(), "start expression")
+				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
+			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
+				"You could prefix it with the script's name: " +
+				"{" + StringUtils.substring(ParserInstance.get().getCurrentScript().getFileName(), 0, -3) + "." + name + "}");
+		}
 
 		// Check for local variable type hints
 		if (isLocal && vs.isSimple()) { // Only variable names we fully know already
@@ -197,7 +202,6 @@ public class Variable<T> implements Expression<T> {
 
 				// Or with conversion?
 				for (Class<? extends T> type : types) {
-					assert type != null;
 					if (Converters.converterExists(hint, type)) {
 						// Hint matches, even though converter is needed
 						return new Variable<>(vs, CollectionUtils.array(type), isLocal, isPlural, null);

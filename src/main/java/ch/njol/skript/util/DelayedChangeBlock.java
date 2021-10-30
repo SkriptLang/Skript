@@ -323,7 +323,22 @@ public class DelayedChangeBlock implements Block {
 			return true;
 		}
 	}
-	
+
+	@Override
+	public boolean breakNaturally(boolean triggerEffect) {
+		if (newState != null) {
+			return false;
+		} else {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					b.breakNaturally(triggerEffect);
+				}
+			});
+			return true;
+		}
+	}
+
 	@Override
 	public boolean breakNaturally(ItemStack tool, boolean triggerEffect) {
 		if (newState != null) {
@@ -463,4 +478,8 @@ public class DelayedChangeBlock implements Block {
 		return b.getBreakSpeed(player);
 	}
 
+	@Override
+	public @NotNull String translationKey() {
+		return b.getTranslationKey();
+	}
 }

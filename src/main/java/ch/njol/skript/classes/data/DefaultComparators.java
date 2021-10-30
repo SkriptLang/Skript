@@ -21,6 +21,7 @@ package ch.njol.skript.classes.data;
 import java.util.Objects;
 
 import ch.njol.skript.aliases.MatchQuality;
+import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
@@ -145,11 +146,27 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot slot, ItemType item) {
 				ItemStack stack = slot.getItem();
-				if (stack == null)
+				if (stack == null || stack.getAmount() == 0)
 					return Comparators.compare(new ItemType(Material.AIR), item);
 				return Comparators.compare(new ItemType(stack), item);
 			}
 			
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// ItemType - Slot
+		Comparators.registerComparator(ItemType.class, Slot.class, new Comparator<ItemType, Slot>() {
+			@Override
+			public Relation compare(ItemType item, Slot slot) {
+				ItemStack stack = slot.getItem();
+				if (stack == null || stack.getAmount() == 0)
+					return Comparators.compare(item, new ItemType(Material.AIR));
+				return Comparators.compare(item, new ItemType(stack));
+			}
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -168,12 +185,25 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		// ItemType - ItemStack
+		Comparators.registerComparator(ItemType.class, ItemStack.class, new Comparator<ItemType, ItemStack>() {
+			@Override
+			public Relation compare(ItemType it, ItemStack is) {
+				return Comparators.compare(it, new ItemType(is));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
 		
 		// Block - ItemType
 		Comparators.registerComparator(Block.class, ItemType.class, new Comparator<Block, ItemType>() {
 			@Override
-			public Relation compare(final Block b, final ItemType it) {
-				return Relation.get(it.isOfType(b));
+			public Relation compare(Block b, ItemType it) {
+				return Comparators.compare(new ItemType(b), it);
 			}
 			
 			@Override
@@ -200,24 +230,18 @@ public class DefaultComparators {
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
-			public Relation compare(final ItemType i1, final ItemType i2) {
-				if (i1.isAll() != i2.isAll())
-					return Relation.NOT_EQUAL;
-				if (i1.getAmount() != i2.getAmount())
-					return Relation.NOT_EQUAL;
-				for (ItemData myType : i1.getTypes()) {
-					for (ItemData otherType : i2.getTypes()) {
-						if (myType.matchPlain(otherType)) {
-							return Relation.EQUAL;
-						}
-						boolean plain = myType.isPlain() != otherType.isPlain();
-						// Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
-						if (myType.matchAlias(otherType).isAtLeast(plain ? MatchQuality.EXACT : otherType.isAlias() && !myType.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM)) {
-							return Relation.EQUAL;
-						}
+			public Relation compare(ItemType i1, ItemType i2) {
+				int otherAmount = i2.getAmount();
+				if (i1.getAmount() != otherAmount) {
+					// See https://github.com/SkriptLang/Skript/issues/4278 for reference
+					if (otherAmount != 1) // Don't ignore stack size if the other ItemType has a stack size other than one, even if it may be an alias
+						return Relation.NOT_EQUAL;
+					for (ItemData itemData : i2.getTypes()) {
+						if (!itemData.isAlias()) // Don't ignore stack size if the other ItemType has non alias data.
+							return Relation.NOT_EQUAL;
 					}
 				}
-				return Relation.NOT_EQUAL;
+				return Relation.get(i1.isSimilar(i2));
 			}
 			
 			@Override
@@ -279,6 +303,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof RabbitData)
+				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
 				assert data != null;
 				EntityData<?> entity = Aliases.getRelatedEntity(data);
@@ -464,7 +490,7 @@ public class DefaultComparators {
 		ItemType lava = Aliases.javaItemType("lava");
 		Comparators.registerComparator(DamageCause.class, ItemType.class, new Comparator<DamageCause, ItemType>() {
 			@Override
-			public Relation compare(final DamageCause dc, final ItemType t) {
+			public Relation compare(DamageCause dc, ItemType t) {
 				switch (dc) {
 					case FIRE:
 						return Relation.get(t.isOfType(Material.FIRE));
@@ -472,10 +498,13 @@ public class DefaultComparators {
 						return Relation.get(t.equals(lava));
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
-						//$CASES-OMITTED$
-					default:
-						return Relation.NOT_EQUAL;
 				}
+				if (Skript.fieldExists(DamageCause.class, "HOT_FLOOR")
+						&& dc.equals(DamageCause.HOT_FLOOR)) {
+					return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
+				}
+
+				return Relation.NOT_EQUAL;
 			}
 			
 			@Override
