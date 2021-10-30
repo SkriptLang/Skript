@@ -53,8 +53,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
 		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"[the] %attributetype% (1¦(total|final|modified)) attribute [value] of %entities%",
-				"%entities%'[s] %attributetype% (1¦(total|final|modified)) attribute [value]");
+				"[the] %attributetype% [(1¦(total|final|modified))] attribute [value] of %entities%",
+				"%entities%'[s] %attributetype% [(1¦(total|final|modified))] attribute [value]");
 	}
 	
 	private static final boolean DEFAULTVALUE_EXISTS = Skript.isRunningMinecraft(1, 11);
