@@ -146,7 +146,6 @@ public class TypePatternElement extends PatternElement {
 							newMatchResult.expressions[expressionIndex] = expression;
 							return newMatchResult;
 						}
-						return null;
 					} finally {
 						expressionLogHandler.printError();
 					}
