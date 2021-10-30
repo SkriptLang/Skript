@@ -21,11 +21,11 @@ package ch.njol.skript.util;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import ch.njol.skript.bukkitutil.WorldUtils;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -42,7 +42,6 @@ public class AABB implements Iterable<Block> {
 	final World world;
 	final Vector lowerBound, upperBound;
 
-	private static boolean HAS_MIN_HEIGHT = Skript.classExists("org.bukkit.generator.WorldInfo") && Skript.methodExists(WorldInfo.class, "getMinHeight");
 	//	private final static Vector EPSILON = new Vector(Skript.EPSILON, Skript.EPSILON, Skript.EPSILON);
 	
 	@SuppressWarnings("null")
@@ -66,7 +65,7 @@ public class AABB implements Iterable<Block> {
 	public AABB(final Location center, final double rX, final double rY, final double rZ) {
 		assert rX >= 0 && rY >= 0 && rZ >= 0 : rX + "," + rY + "," + rY;
 		world = center.getWorld();
-		int min = HAS_MIN_HEIGHT ? world.getMinHeight() : 0;
+		int min = WorldUtils.getWorldMinHeight(world);
 		lowerBound = new Vector(center.getX() - rX, Math.max(center.getY() - rY, min), center.getZ() - rZ);
 		upperBound = new Vector(center.getX() + rX, Math.min(center.getY() + rY, world.getMaxHeight() - 1), center.getZ() + rZ);
 	}
@@ -79,7 +78,7 @@ public class AABB implements Iterable<Block> {
 	
 	public AABB(final Chunk c) {
 		world = c.getWorld();
-		int min = HAS_MIN_HEIGHT ? world.getMinHeight() : 0;
+		int min = WorldUtils.getWorldMinHeight(world);
 		lowerBound = c.getBlock(0, min, 0).getLocation().toVector();
 		upperBound = lowerBound.clone().add(new Vector(15, world.getMaxHeight() - 1, 15));
 	}
