@@ -53,8 +53,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
 		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"%attributetype% attribute [value] [(1¦with modifiers)] of %entities%",
-				"%entities%'[s] %attributetype% attribute [value] [(1¦with modifiers)]");
+				"[the] %attributetype% (1¦(total|final|modified)) attribute [value] of %entities%",
+				"%entities%'[s] %attributetype% (1¦(total|final|modified)) attribute [value]");
 	}
 	
 	private static final boolean DEFAULTVALUE_EXISTS = Skript.isRunningMinecraft(1, 11);
@@ -72,8 +72,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	protected Number[] get(Event e, Entity[] entities) {
 		Attribute a = attributes.getSingle(e);
 		return Stream.of(entities)
@@ -90,8 +90,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 		return CollectionUtils.array(Number.class);
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Attribute a = attributes.getSingle(e);
 		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
@@ -126,8 +126,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 		return Number.class;
 	}
 
-	@SuppressWarnings("null") 
 	@Override
+	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
 		return "entity " + getExpr().toString(e, debug) + "'s " + (attributes == null ? "" : attributes.toString(e, debug)) + "attribute";
 	}
