@@ -65,7 +65,17 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(exprs, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+		SectionNode sectionNode = sectionContext.sectionNode;
+		List<TriggerItem> triggerItems = sectionContext.triggerItems;
+
+		boolean result = init(exprs, matchedPattern, isDelayed, parseResult, sectionNode, triggerItems);
+
+		// Revert any possible changes to the SectionContext caused by the init method,
+		//  see https://github.com/SkriptLang/Skript/pull/4353
+		sectionContext.sectionNode = sectionNode;
+		sectionContext.triggerItems = triggerItems;
+
+		return result;
 	}
 
 	public abstract boolean init(Expression<?>[] exprs,
