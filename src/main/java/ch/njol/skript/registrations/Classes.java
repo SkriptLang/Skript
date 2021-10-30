@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.SequenceInputStream;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -386,6 +387,28 @@ public abstract class Classes {
 	}
 	
 	/**
+	 * Clones the given object by calling {@link ClassInfo#clone(Object)},
+	 * getting the {@link ClassInfo} from the closest registered superclass
+	 * (or the given object's class). Supports arrays too.
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Object clone(Object obj) {
+		if (obj == null)
+			return null;
+		if (obj.getClass().isArray()) {
+			int length = Array.getLength(obj);
+			Object clone = Array.newInstance(obj.getClass().getComponentType(), length);
+			for (int i = 0; i < length; i++) {
+				Array.set(clone, i, clone(Array.get(obj, i)));
+			}
+			return clone;
+		} else {
+			ClassInfo classInfo = getSuperClassInfo(obj.getClass());
+			return classInfo.clone(obj);
+		}
+	}
+	
+	/**
 	 * Gets the name a class was registered with.
 	 * 
 	 * @param c The exact class
@@ -548,12 +571,7 @@ public abstract class Classes {
 			public String toVariableNameString(final T o) {
 				throw new UnsupportedOperationException();
 			}
-			
-			@Override
-			public String getVariableNamePattern() {
-				throw new UnsupportedOperationException();
-			}
-		};
+        };
 	}
 	
 	/**
@@ -672,8 +690,7 @@ public abstract class Classes {
 	/**
 	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
 	 */
-	@Nullable
-	public static SerializedVariable.Value serialize(@Nullable Object o) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object o) {
 		if (o == null)
 			return null;
 		

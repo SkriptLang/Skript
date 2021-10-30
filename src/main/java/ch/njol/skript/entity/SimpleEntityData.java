@@ -57,6 +57,8 @@ import org.bukkit.entity.Fish;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
+import org.bukkit.entity.GlowItemFrame;
+import org.bukkit.entity.GlowSquid;
 import org.bukkit.entity.Golem;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Hoglin;
@@ -73,6 +75,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.LlamaSpit;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Marker;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Mule;
@@ -205,7 +208,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		types.add(new SimpleEntityDataInfo("snowball", Snowball.class));
 		types.add(new SimpleEntityDataInfo("snow golem", Snowman.class));
 		types.add(new SimpleEntityDataInfo("spider", Spider.class));
-		types.add(new SimpleEntityDataInfo("squid", Squid.class));
 		types.add(new SimpleEntityDataInfo("bottle of enchanting", ThrownExpBottle.class));
 		types.add(new SimpleEntityDataInfo("tnt", TNTPrimed.class));
 		types.add(new SimpleEntityDataInfo("leash hitch", LeashHitch.class));
@@ -295,9 +297,17 @@ public class SimpleEntityData extends EntityData<Entity> {
 		
 		if (Skript.classExists("org.bukkit.entity.PiglinBrute")) // Added in 1.16.2
 			types.add(new SimpleEntityDataInfo("piglin brute", PiglinBrute.class));
+
+		if (Skript.isRunningMinecraft(1, 17)) {
+			types.add(new SimpleEntityDataInfo("glow squid", GlowSquid.class));
+			types.add(new SimpleEntityDataInfo("marker", Marker.class));
+			types.add(new SimpleEntityDataInfo("glow item frame", GlowItemFrame.class));
+		}
 		
 		// Register zombie after Husk and Drowned to make sure both work
 		types.add(new SimpleEntityDataInfo("zombie", Zombie.class));
+		// Register squid after glow squid to make sure both work
+		types.add(new SimpleEntityDataInfo("squid", Squid.class));
 		
 		// TODO !Update with every version [entities]
 		

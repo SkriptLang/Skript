@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -57,7 +56,7 @@ public class ExprExplosionYield extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (!getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("The explosion radius is only usable in explosion prime events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

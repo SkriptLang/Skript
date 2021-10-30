@@ -29,8 +29,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -75,9 +73,9 @@ public class ExprIP extends SimpleExpression<String> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isProperty = matchedPattern < 2;
-		isConnectEvent = ScriptLoader.isCurrentEvent(PlayerLoginEvent.class);
-		boolean isServerPingEvent = ScriptLoader.isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class));
+		isConnectEvent = getParser().isCurrentEvent(PlayerLoginEvent.class);
+		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
 		if (isProperty) {
 			players = (Expression<Player>) exprs[0];
 		} else if (!isConnectEvent && !isServerPingEvent) {

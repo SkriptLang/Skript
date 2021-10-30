@@ -373,7 +373,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 		final int x = keyAndValue.indexOf(separator);
 		if (x == -1) {
 			final InvalidNode in = new InvalidNode(keyAndValue, comment, this, lineNum);
-			EntryValidator.notAnEntryError(in);
+			EntryValidator.notAnEntryError(in, separator);
 			SkriptLogger.setNode(this);
 			return in;
 		}

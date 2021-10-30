@@ -42,7 +42,7 @@ public class RetainingLogHandler extends LogHandler {
 	boolean printedErrorOrLog = false;
 	
 	@Override
-	public LogResult log(final LogEntry entry) {
+	public LogResult log(LogEntry entry) {
 		log.add(entry);
 		if (entry.getLevel().intValue() >= Level.SEVERE.intValue())
 			numErrors++;
@@ -54,6 +54,12 @@ public class RetainingLogHandler extends LogHandler {
 	public void onStop() {
 		if (!printedErrorOrLog && Skript.testing())
 			SkriptLogger.LOGGER.warning("Retaining log wasn't instructed to print anything at " + SkriptLogger.getCaller());
+	}
+	
+	@Override
+	public RetainingLogHandler start() {
+		SkriptLogger.startLogHandler(this);
+		return this;
 	}
 	
 	public final boolean printErrors() {
@@ -68,17 +74,17 @@ public class RetainingLogHandler extends LogHandler {
 	 * @param def Error to print if no errors were logged, can be null to not print any error if there are none
 	 * @return Whether there were any errors
 	 */
-	public final boolean printErrors(final @Nullable String def) {
+	public final boolean printErrors(@Nullable String def) {
 		return printErrors(def, ErrorQuality.SEMANTIC_ERROR);
 	}
 	
-	public final boolean printErrors(final @Nullable String def, final ErrorQuality quality) {
+	public final boolean printErrors(@Nullable String def, ErrorQuality quality) {
 		assert !printedErrorOrLog;
 		printedErrorOrLog = true;
 		stop();
 		
 		boolean hasError = false;
-		for (final LogEntry e : log) {
+		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue()) {
 				SkriptLogger.log(e);
 				hasError = true;
@@ -102,15 +108,15 @@ public class RetainingLogHandler extends LogHandler {
 	 * @param def Error to send if no errors were logged, can be null to not print any error if there are none
 	 * @return Whether there were any errors to send
 	 */
-	public final boolean printErrors(final CommandSender recipient, final @Nullable String def) {
+	public final boolean printErrors(CommandSender recipient, @Nullable String def) {
 		assert !printedErrorOrLog;
 		printedErrorOrLog = true;
 		stop();
 		
-		final boolean console = recipient == Bukkit.getConsoleSender(); // log as SEVERE instead of INFO
+		boolean console = recipient == Bukkit.getConsoleSender(); // log as SEVERE instead of INFO
 		
 		boolean hasError = false;
-		for (final LogEntry e : log) {
+		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue()) {
 				if (console)
 					SkriptLogger.LOGGER.severe(e.getMessage());
@@ -150,15 +156,15 @@ public class RetainingLogHandler extends LogHandler {
 	
 	@Nullable
 	public LogEntry getFirstError() {
-		for (final LogEntry e : log) {
+		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue())
 				return e;
 		}
 		return null;
 	}
 	
-	public LogEntry getFirstError(final String def) {
-		for (final LogEntry e : log) {
+	public LogEntry getFirstError(String def) {
+		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue())
 				return e;
 		}
@@ -169,7 +175,7 @@ public class RetainingLogHandler extends LogHandler {
 	 * Clears the list of retained log messages.
 	 */
 	public void clear() {
-		for (final LogEntry e : log)
+		for (LogEntry e : log)
 			e.discarded("cleared");
 		log.clear();
 		numErrors = 0;
@@ -185,8 +191,8 @@ public class RetainingLogHandler extends LogHandler {
 	}
 	
 	public Collection<LogEntry> getErrors() {
-		final Collection<LogEntry> r = new ArrayList<>();
-		for (final LogEntry e : log) {
+		Collection<LogEntry> r = new ArrayList<>();
+		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue())
 				r.add(e);
 		}

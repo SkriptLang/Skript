@@ -35,28 +35,28 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Examples({"set {_clientView} to the client view distance of player", "set view distance of player to client view distance of player"})
 @RequiredPlugins("1.13.2+")
 @Since("2.5")
-public class ExprClientViewDistance extends SimplePropertyExpression<Player, Number> {
+public class ExprClientViewDistance extends SimplePropertyExpression<Player, Long> {
 	
 	static {
 		if (Skript.methodExists(Player.class, "getClientViewDistance")) {
-			register(ExprClientViewDistance.class, Number.class, "client view distance[s]", "players");
+			register(ExprClientViewDistance.class, Long.class, "client view distance[s]", "players");
 		}
 	}
 	
 	@Nullable
 	@Override
-	public Number convert(Player player) {
-		return player.getClientViewDistance();
+	public Long convert(Player player) {
+		return (long) player.getClientViewDistance();
 	}
-	
+
+	@Override
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "client view distance";
 	}
-	
-	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
-	}
-	
+
 }

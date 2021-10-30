@@ -18,19 +18,22 @@
  */
 package ch.njol.skript.util;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Math2;
+import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.variables.Variables;
-import ch.njol.util.Math2;
-import ch.njol.yggdrasil.Fields;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
-	
+
+	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
+
 	private org.bukkit.Color bukkit;
 	@Nullable
 	private DyeColor dye;
@@ -56,21 +59,21 @@ public class ColorRGB implements Color {
 	
 	@Override
 	public String getName() {
-		return "RED:" + bukkit.getRed() + ", GREEN:" + bukkit.getGreen() + ", BLUE:" + bukkit.getBlue();
+		return "rgb " + bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
 	}
-	
+
+	@Nullable
 	public static ColorRGB fromString(String string) {
-		String[] split = string.split(", ");
-		int red = NumberUtils.toInt(split[0].replace("RED:", ""));
-		int green = NumberUtils.toInt(split[1].replace("GREEN:", ""));
-		int blue = NumberUtils.toInt(split[2].replace("BLUE:", ""));
-		return new ColorRGB(red, green, blue);
+		Matcher matcher = RGB_PATTERN.matcher(string);
+		if (!matcher.matches())
+			return null;
+		return new ColorRGB(
+			NumberUtils.toInt(matcher.group(1)),
+			NumberUtils.toInt(matcher.group(2)),
+			NumberUtils.toInt(matcher.group(3))
+		);
 	}
-	
-	public static boolean isRGBColor(String string) {
-		return string.startsWith("RED:");
-	}
-	
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);

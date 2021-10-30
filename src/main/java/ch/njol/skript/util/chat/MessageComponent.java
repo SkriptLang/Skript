@@ -84,15 +84,19 @@ public class MessageComponent {
 	@Nullable
 	public ClickEvent clickEvent;
 	
+	/**
+	 * Font of the component. 1.16+. Null for BaseComponents means default font.
+	 */
+	@Nullable
+	public String font;
+	
 	public static class ClickEvent {
-		
 		public ClickEvent(ClickEvent.Action action, String value) {
 			this.action = action;
 			this.value = value;
 		}
 		
-		public static enum Action  {
-			
+		public enum Action  {
 			open_url,
 			
 			run_command,
@@ -115,7 +119,6 @@ public class MessageComponent {
 	}
 	
 	public static class HoverEvent {
-		
 		public HoverEvent(HoverEvent.Action action, String value) {
 			this.action = action;
 			this.value = value;
@@ -148,10 +151,27 @@ public class MessageComponent {
 	public HoverEvent hoverEvent;
 	
 	public static class BooleanSerializer implements JsonSerializer<Boolean> {
-
 		@Override
 		public @Nullable JsonElement serialize(@Nullable Boolean src, @Nullable Type typeOfSrc, @Nullable JsonSerializationContext context) {
 			return src ? new JsonPrimitive(true) : null;
 		}
 	}
+
+	public MessageComponent copy() {
+		MessageComponent messageComponent = new MessageComponent();
+		messageComponent.text = this.text;
+		messageComponent.reset = this.reset;
+		messageComponent.bold = this.bold;
+		messageComponent.italic = this.italic;
+		messageComponent.underlined = this.underlined;
+		messageComponent.strikethrough = this.strikethrough;
+		messageComponent.obfuscated = this.obfuscated;
+		messageComponent.color = this.color;
+		messageComponent.insertion = this.insertion;
+		messageComponent.clickEvent = this.clickEvent;
+		messageComponent.font = this.font;
+		messageComponent.hoverEvent = this.hoverEvent;
+		return messageComponent;
+	}
+
 }

@@ -33,7 +33,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -129,13 +128,13 @@ public class ExprClicked extends SimpleExpression<Object> {
 				final Object type = exprs[0] == null ? null : ((Literal<?>) exprs[0]).getSingle();
 				if (type instanceof EntityData) {
 					entityType = (EntityData<?>) type;
-					if (!ScriptLoader.isCurrentEvent(PlayerInteractEntityEvent.class) && !ScriptLoader.isCurrentEvent(PlayerInteractAtEntityEvent.class)) {
+					if (!getParser().isCurrentEvent(PlayerInteractEntityEvent.class) && !getParser().isCurrentEvent(PlayerInteractAtEntityEvent.class)) {
 						Skript.error("The expression 'clicked entity' may only be used in a click event", ErrorQuality.SEMANTIC_ERROR);
 						return false;
 					}
 				} else {
 					itemType = (ItemType) type;
-					if (!ScriptLoader.isCurrentEvent(PlayerInteractEvent.class)) {
+					if (!getParser().isCurrentEvent(PlayerInteractEvent.class)) {
 						Skript.error("The expression 'clicked block' may only be used in a click event", ErrorQuality.SEMANTIC_ERROR);
 						return false;
 					}
@@ -145,13 +144,13 @@ public class ExprClicked extends SimpleExpression<Object> {
 			case ACTION:
 			case TYPE:
 			case SLOT:
-				if (!ScriptLoader.isCurrentEvent(InventoryClickEvent.class)) {
+				if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
 					Skript.error("The expression '" + clickable.getName() + "' may only be used in an inventory click event", ErrorQuality.SEMANTIC_ERROR);
 					return false;
 				}
 				break;
 			case ENCHANT_BUTTON:
-				if (!ScriptLoader.isCurrentEvent(EnchantItemEvent.class)) {
+				if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
 					Skript.error("The expression 'clicked enchantment button' is only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
 					return false;
 				}

@@ -37,7 +37,7 @@ public class ErrorDescLogHandler extends LogHandler {
 		this(null, null, null);
 	}
 	
-	public ErrorDescLogHandler(final @Nullable String before, final @Nullable String after, final @Nullable String success) {
+	public ErrorDescLogHandler(@Nullable String before, @Nullable String after, @Nullable String success) {
 		this.before = before;
 		this.after = after;
 		this.success = success;
@@ -46,12 +46,18 @@ public class ErrorDescLogHandler extends LogHandler {
 	private boolean hadError = false;
 	
 	@Override
-	public LogResult log(final LogEntry entry) {
+	public LogResult log(LogEntry entry) {
 		if (!hadError && entry.getLevel() == Level.SEVERE) {
 			hadError = true;
 			beforeErrors();
 		}
 		return LogResult.LOG;
+	}
+	
+	@Override
+	public ErrorDescLogHandler start() {
+		SkriptLogger.startLogHandler(this);
+		return this;
 	}
 	
 	protected void beforeErrors() {

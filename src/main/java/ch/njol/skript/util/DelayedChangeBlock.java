@@ -34,12 +34,14 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.bukkit.util.VoxelShape;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.block.BlockSoundGroup;
@@ -47,6 +49,7 @@ import com.destroystokyo.paper.block.BlockSoundGroup;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A block that gets all data from the world, but either delays
@@ -161,7 +164,7 @@ public class DelayedChangeBlock implements Block {
 	public int getZ() {
 		return b.getZ();
 	}
-	
+
 	@Override
 	public Location getLocation() {
 		return b.getLocation();
@@ -320,7 +323,22 @@ public class DelayedChangeBlock implements Block {
 			return true;
 		}
 	}
-	
+
+	@Override
+	public boolean breakNaturally(boolean triggerEffect) {
+		if (newState != null) {
+			return false;
+		} else {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					b.breakNaturally(triggerEffect);
+				}
+			});
+			return true;
+		}
+	}
+
 	@Override
 	public boolean breakNaturally(ItemStack tool, boolean triggerEffect) {
 		if (newState != null) {
@@ -355,7 +373,7 @@ public class DelayedChangeBlock implements Block {
 	public Collection<ItemStack> getDrops(ItemStack tool, @Nullable Entity entity) {
 		return b.getDrops(tool, entity);
 	}
-	
+
 	@Nullable
 	@Override
 	public Location getLocation(final @Nullable Location loc) {
@@ -433,5 +451,35 @@ public class DelayedChangeBlock implements Block {
 	public float getDestroySpeed(ItemStack itemStack) {
 		return b.getDestroySpeed(itemStack);
 	}
-	
+
+	@Override
+	public boolean isPreferredTool(@NotNull ItemStack tool) {
+		return b.isPreferredTool(tool);
+	}
+
+	@Override
+	public boolean isValidTool(@NotNull ItemStack itemStack) {
+		return b.isValidTool(itemStack);
+	}
+
+	@Override
+	public float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
+		return b.getDestroySpeed(itemStack, considerEnchants);
+	}
+
+	@Override
+	@NotNull
+	public VoxelShape getCollisionShape() {
+		return b.getCollisionShape();
+	}
+
+	@Override
+	public float getBreakSpeed(@NotNull Player player) {
+		return b.getBreakSpeed(player);
+	}
+
+	@Override
+	public @NotNull String translationKey() {
+		return b.getTranslationKey();
+	}
 }

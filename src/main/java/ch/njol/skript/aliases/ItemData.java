@@ -49,6 +49,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
@@ -85,7 +86,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	// Load or create material registry
 	static {
-		Gson gson = new GsonBuilder().serializeNulls().create();
+		Gson gson = new GsonBuilder().registerTypeAdapterFactory(EnumTypeAdapter.factory).serializeNulls().create();
 		Path materialsFile = Paths.get(Skript.getInstance().getDataFolder().getAbsolutePath(), "materials.json");
 		if (Files.exists(materialsFile)) {
 			String content = null;
@@ -156,6 +157,14 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	boolean isAlias = false;
 	
 	/**
+	 * Whether this item is a 'plain' item type.
+	 * This is used for comparison, as any item type matched to this item type must also be plain OR be an alias.
+	 * This variable should not be used directly. Use {@link #isPlain()}.
+	 * @see ch.njol.skript.expressions.ExprPlain
+	 */
+	private boolean plain = false;
+	
+	/**
 	 * Some properties about this item.
 	 */
 	int itemFlags;
@@ -185,6 +194,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		this.type = data.type;
 		this.blockValues = data.blockValues;
 		this.isAlias = data.isAlias;
+		this.plain = data.plain;
 		this.itemFlags = data.itemFlags;
 	}
 	
@@ -330,13 +340,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (item.getType() != getType()) {
 			return MatchQuality.DIFFERENT;
 		}
-		
 		BlockValues values = blockValues;
 		if (!itemDataValues) {
 			// Items (held in inventories) don't have block values
 			// If this is an item, given item must not have them either
-			if (itemForm && item.blockValues != null
-					&& !item.blockValues.isDefault()) {
+			if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
 				return MatchQuality.SAME_MATERIAL;
 			}
 		}
@@ -402,33 +410,42 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 */
 	private static MatchQuality compareItemMetas(ItemMeta first, ItemMeta second) {
 		MatchQuality quality = MatchQuality.EXACT; // Lowered as we go on
+		MatchQuality newQuality; // Used to prevent upgrading the quality
 		
 		// Display name
 		String ourName = first.hasDisplayName() ? first.getDisplayName() : null;
 		String theirName = second.hasDisplayName() ? second.getDisplayName() : null;
 		if (!Objects.equals(ourName, theirName)) {
-			quality = ourName != null ? MatchQuality.SAME_MATERIAL : theirName != null ? MatchQuality.SAME_MATERIAL : quality;
+			newQuality = (ourName != null && theirName == null) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
+			if (!newQuality.isBetter(quality))
+				quality = newQuality;
 		}
 		
 		// Lore
 		List<String> ourLore = first.hasLore() ? first.getLore() : null;
 		List<String> theirLore = second.hasLore() ? second.getLore() : null;
 		if (!Objects.equals(ourLore, theirLore)) {
-			quality = ourLore != null ? MatchQuality.SAME_MATERIAL : theirLore != null ? MatchQuality.SAME_MATERIAL : quality;
+			newQuality = (ourLore != null && theirLore == null) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
+			if (!newQuality.isBetter(quality))
+				quality = newQuality;
 		}
 		
 		// Enchantments
 		Map<Enchantment, Integer> ourEnchants = first.getEnchants();
 		Map<Enchantment, Integer> theirEnchants = second.getEnchants();
 		if (!Objects.equals(ourEnchants, theirEnchants)) {
-			quality = !ourEnchants.isEmpty() ? MatchQuality.SAME_MATERIAL : !theirEnchants.isEmpty() ? MatchQuality.SAME_MATERIAL : quality;
+			newQuality = (!ourEnchants.isEmpty() && theirEnchants.isEmpty()) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
+			if (!newQuality.isBetter(quality))
+				quality = newQuality;
 		}
 		
 		// Item flags
 		Set<ItemFlag> ourFlags = first.getItemFlags();
 		Set<ItemFlag> theirFlags = second.getItemFlags();
 		if (!Objects.equals(ourFlags, theirFlags)) {
-			quality = !ourFlags.isEmpty() ? MatchQuality.SAME_MATERIAL : !theirFlags.isEmpty() ? MatchQuality.SAME_MATERIAL : quality;
+			newQuality = (!ourFlags.isEmpty() && theirFlags.isEmpty()) ? MatchQuality.SAME_ITEM : MatchQuality.SAME_MATERIAL;
+			if (!newQuality.isBetter(quality))
+				quality = newQuality;
 		}
 		
 		// Potion data
@@ -547,6 +564,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public void setItemMeta(ItemMeta meta) {
 		stack.setItemMeta(meta);
 		isAlias = false; // This is no longer exact alias
+		plain = false; // This is no longer a plain item
 		itemFlags |= ItemFlags.CHANGED_TAGS;
 	}
 	
@@ -557,7 +575,37 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public void setDurability(int durability) {
 		ItemUtils.setDamage(stack, durability);
 		isAlias = false; // Change happened
+		plain = false; // This is no longer a plain item
 		itemFlags |= ItemFlags.CHANGED_DURABILITY;
+	}
+	
+	/**
+	 * Checks if this item type was created through {@link ch.njol.skript.expressions.ExprPlain}
+	 * and thus has no modifications made to it.
+	 * @return Whether this item type is 'plain'
+	 */
+	public boolean isPlain() {
+		return plain;
+	}
+	
+	public void setPlain(boolean plain) {
+		this.plain = plain;
+	}
+	
+	/**
+	 * Compares this ItemData with another to determine if they are matching "plain" items.
+	 * For these ItemDatas to match, they must share a {@link Material}. One of the following must also be true:
+	 * <ul>
+	 * <li>This ItemData is plain AND the other ItemData is plain</li>
+	 * <li>This ItemData is plain AND the other ItemData is an alias</li>
+	 * <li>This ItemData is an alias AND the other ItemData is plain</li>
+	 * </ul>
+	 * @param other The ItemData to compare with.
+	 * @return Whether these items can be "plain matched"
+	 * @see ch.njol.skript.expressions.ExprPlain
+	 */
+	public boolean matchPlain(ItemData other) {
+		return getType() == other.getType() && ((isPlain() && other.isPlain()) || (isPlain() && other.isAlias()) || (isAlias() && other.isPlain()));
 	}
 
 	@Override

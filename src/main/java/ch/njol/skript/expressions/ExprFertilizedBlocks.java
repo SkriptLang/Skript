@@ -25,7 +25,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -55,7 +54,7 @@ public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(BlockFertilizeEvent.class)) {
+		if (!getParser().isCurrentEvent(BlockFertilizeEvent.class)) {
 			Skript.error("The 'fertilized blocks' are only usable in block fertilize events");
 			return false;
 		}

@@ -60,9 +60,9 @@ skript command:
 		help: Zeigt diese Hilfe an. Benutze '/skript reload/enable/disable/update' um mehr Infos zu erhalten
 		reload:
 			description: Lädt die Konfigurationen, Skripte, alles oder nur bestimmte Skripte neu
-			all: Lädt alle Konfigurationen und Skripte neu
-			config: Lädt alle Konfigurationen neu
-			aliases: Lädt die Itemnamen neu (aliases-*.sk)
+			all: Lädt die Konfiguration, alle Itemnamen und Skripte neu
+			config: Lädt die Konfiguration neu
+			aliases: Lädt die Itemnamen neu (aliases-english.zip oder plugin jar)
 			scripts: Lädt alle Skripte neu
 			<script>: Lädt ein bestimmtes Skript oder einen Ordner neu
 		enable:
@@ -79,6 +79,8 @@ skript command:
 			changes: Listet alle Änderungen seit der aktuellen Version auf (auf englisch)
 			download: Lädt die neueste Version herunter
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
+		gen-docs: Generiert Dokumentation mithilfe von doc-templates im Plugin-Ordner
+		test: Wird zum Ausführen von Skript-Tests verwendet
 	
 	invalid script: Das Skript <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	invalid folder: Der Ordner <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
@@ -88,7 +90,7 @@ skript command:
 		error: %2$s Fehler ¦ist¦sind¦ beim Parsen aufgetreten!
 		script disabled: <gold>%s<reset> ist derzeit deaktiviert. Verwende <gray>/<gold>skript <cyan>enable <red>%s<reset> um es zu aktivieren.
 		
-		config and scripts: die Konfiguration und alle Skripte
+		config, aliases and scripts: die Konfiguration, alle Itemnamen und alle Skripte
 		scripts: alle Skripte
 		main config: Konfiguration
 		aliases: die Itemnamen
@@ -707,7 +709,7 @@ entities:
 		pattern: <age> wilde[r] W(olf|ölfe)
 	angry wolf:
 		name: aggressive¦r Wolf¦e Wölfe @m
-		pattern: <age> aggressive[r]  W(olf|ölfe)
+		pattern: <age> aggressive[r] W(olf|ölfe)
 	peaceful wolf:
 		name: friedliche¦r Wolf¦ Wölfe @m
 		pattern: <age> (friedliche[r]|neutrale[r]) W(olf|ölfe)
@@ -784,33 +786,338 @@ game modes:
 
 # -- Visual Effects --
 visual effects:
-	ender_signal:
-		name: Endersignal¦e @n
-		pattern: Ender[auge[n]]signal[e]
-	mobspawner_flames:
-		name: Mobspawnerflamme¦n @f
-		pattern: [mo(b|nster)[ ]]spawner[-]flamme[n]
-	potion_break:
-		name: Trank...
-		pattern: [%potioneffecttype%][-]trank...
-	smoke:
-		name: Rauch @m
-		pattern: Rauch [%direction%]
-	hurt:
-		name: Verletzung¦en @f
-		pattern: Schaden|Verletzung[en]
-	sheep_eat:
-		name: Grasen @m
-		pattern: Grasen|Gras essen
-	wolf_hearts:
-		name: Wolfherzen @x
-		pattern: Wolfherzen
-	wolf_shake:
-		name: Wolfschütteln @n
-		pattern: Wolfschütteln
-	wolf_smoke:
-		name: Wolfrauch @m
-		pattern: Wolfrauch
+	area_expression: [with [(1¦offset of %-number%, %-number%(,| and) %-number%)][(2¦[and ]speed %-number%)]]
+	effect:
+		ender_signal:
+			name: ender signal @an
+			pattern: ender [eye] signal[s]
+		mobspawner_flames:
+			name: mobspawner flames  @x
+			pattern: [mo(b|nster)][ ]spawner flames
+		potion_break:
+			name: potion break @a
+			pattern: [%potioneffecttype%] potion break[ing]
+		smoke:
+			name: smoke @-
+			pattern: smoke [%direction%]
+	entityeffect:
+		hurt:
+			name: hurt @-
+			pattern: (hurt|damage)
+		sheep_eat:
+			name: sheep eating @a
+			pattern: sheep eat[ing] [a] [grass] [block]
+		wolf_hearts:
+			name: wolf hearts @x
+			pattern: wolf (hearts|tame|being tamed)
+		wolf_shake:
+			name: wolf shaking @a
+			pattern: wolf shak(e|ing)
+		wolf_smoke:
+			name: wolf smoke @-
+			pattern: wolf smok(e|ing)
+		iron_golem_rose:
+			name: iron golem offering rose @an
+			pattern: (iron golem [offering] rose|rose in hand)
+		villager_heart:
+			name: villager hearts @x
+			pattern: villager hearts
+		villager_angry:
+			name: angry villager entity @an
+			pattern: angry villager entity
+		villager_happy:
+			name: happy villager entity @a
+			pattern: happy villager entity
+		witch_magic:
+			name: witch magic @-
+			pattern: witch magic
+		zombie_transform:
+			name: zombie turning to a villager
+			pattern: ([zombie] turning to a villager|zombie transform)
+		firework_explode:
+			name: firework explosion @a
+			pattern: firework explosion
+		arrow_particles:
+			name: arrow particles @x
+			pattern: [tipped] arrow particles
+		rabbit_jump:
+			name: jumping rabbit @a
+			pattern: (jumping rabbit|rabbit jump)
+		love_hearts:
+			name: love hearts @x
+			pattern: (love|breeding) hearts
+		squid_rotate:
+			name: squid rotation reset @a
+			pattern: [squid] rotation reset
+		entity_poof:
+			name: entity poof @-
+			pattern: entity poof
+		guardian_target:
+			name: guardian target @a
+			pattern: guardian target [with laser]
+		shield_block:
+			name: block with shield @-
+			pattern: (block [with a shield]|shield block)
+		shield_break:
+			name: shield break @a
+			pattern: shield break
+		armor_stand_hit:
+			name: armor stand hit @a
+			pattern: armor stand hit
+		thorns_hurt:
+			name: hurt by thorns @-
+			pattern: (hurt|damage) by thorns
+		iron_golem_sheath:
+			name: iron golem sheathing rose
+			pattern: iron golem (sheathing|putting away) rose
+		totem_resurrect:
+			name: resurrection by totem
+			pattern: resurrection [by totem]
+		hurt_drown:
+			name: hurt by drowning @-
+			pattern: (hurt|damage) by drowning
+		hurt_explosion:
+			name: hurt by explosion @-
+			pattern: (hurt|damage) by explosion
+	particle:
+		fireworks_spark:
+			name: firework's spark @-
+			pattern: firework['s] spark
+		crit:
+			name: critical hit @a
+			pattern: (critical hit|crit) [spark]
+		crit_magic:
+			name: magical critical hit @a
+			pattern: (magic[al]|blue) (critical hit|crit) [spark]
+		spell_mob:
+			name: potion swirl @a
+			pattern: [%-color%] potion swirl
+		spell_mob_ambient:
+			name: transparent potion swirl @a
+			pattern: [%-color%] transparent potion swirl
+		spell:
+			name: spell @a
+			pattern: (spell|thrown potion|lingering potion)
+		spell_instant:
+			name: spell @a
+			pattern: instant (spell|thrown potion)
+		spell_witch:
+			name: witch spell @-
+			pattern: (witch (magic|spell)|purple spark)
+		note:
+			name: note @a
+			pattern: note [(of|with) [colo[u]r] %number%]
+		portal:
+			name: portal @a
+			pattern: [nether] portal
+		enchantment_table:
+			name: flying glyph @a
+			pattern: (flying (glyph|letter)|enchantment table)
+		flame:
+			name: flame @-
+			pattern: (flame|fire)
+		lava:
+			name: lava pop @a
+			pattern: lava pop
+		footstep:
+			name: footstep @x
+			pattern: footsteps
+		water_splash:
+			name: water splash @a
+			pattern: [water] splash
+		smoke_normal:
+			name: smoke particle @a
+			pattern: smoke particle
+		explosion_huge:
+			name: huge explosion @a
+			pattern: huge explosion
+		explosion_large:
+			name: large explosion @a
+			pattern: large explosion
+		explosion_normal:
+			name: explosion @an
+			pattern: explosion
+		suspended_depth:
+			name: void fog @-
+			pattern: void fog
+		town_aura:
+			name: small smoke @-
+			pattern: (small smoke|town aura)
+		cloud:
+			name: cloud @a
+			pattern: cloud
+		redstone:
+			name: coloured dust @-
+			pattern: [%-color%] [colo[u]red] dust
+		snowball:
+			name: snowball break @a
+			pattern: snowball break
+		drip_water:
+			name: water drip @a
+			pattern: water drip
+		drip_lava:
+			name: lava drip @a
+			pattern: lava drip
+		snow_shovel:
+			name: snow shovel @-
+			pattern: (snow shovel|snow(man| golem) spawn)
+		slime:
+			name: slime @-
+			pattern: slime
+		heart:
+			name: heart @a
+			pattern: heart
+		villager_angry:
+			name: angry villager @a
+			pattern: (angry villager|[villager] thundercloud)
+		villager_happy:
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+		smoke_large:
+			name: large smoke @-
+			pattern: large smoke
+		item_crack:
+			name: item crack @-
+			pattern: %itemtype% item (break|crack)[ing]
+		block_crack:
+			name: block break @-
+			pattern: %itemtype% break[ing]
+		block_dust:
+			name: block dust @-
+			pattern: [sprinting] dust of [%itemtype%]
+		end_rod:
+			name: end rod @-
+			pattern: end rod
+		falling_dust:
+			name: falling dust @-
+			pattern: falling dust of [%itemtype%]
+
+		# 1.11 particles
+		totem:
+			name: totem @-
+			pattern: totem
+		spit:
+			name: spit @-
+			pattern: spit
+
+		# 1.13 particles
+		squid_ink:
+			name: squid ink @-
+			pattern: squid ink
+		bubble_pop:
+			name: bubble pop @-
+			pattern: bubble pop
+		current_down:
+			name: current down @-
+			pattern: (current|bubble column) down
+		bubble_column_up:
+			name: bubble column up @-
+			pattern: (current|bubble column) up
+		nautilus:
+			name: nautilus @-
+			pattern: nautilus
+		dolphin:
+			name: dolphin @-
+			pattern: dolphin
+
+		# 1.14 particles
+		sneeze:
+			name: sneeze @-
+			pattern: sneeze
+		campfire_cosy_smoke:
+			name: campfire cosy smoke @-
+			pattern: campfire co(s|z)y smoke
+		campfire_signal_smoke:
+			name: campfire signal smoke @-
+			pattern: campfire signal smoke
+		composter:
+			name: composter @-
+			pattern: composter
+		flash:
+			name: flash @-
+			pattern: flash
+		falling_lava:
+			name: falling lava @-
+			pattern: falling lava
+		landing_lava:
+			name: landing lava @-
+			pattern: landing lava
+		falling_water:
+			name: falling water @-
+			pattern: falling water
+		barrier:
+			name: barrier @a
+			pattern: barrier
+		damage_indicator:
+			name: damage indicator @-
+			pattern: damage indicator
+		dragon_breath:
+			name: dragon breath @-
+			pattern: dragon[s] breath
+		mob_appearance:
+			name: mob appearance @-
+			pattern: (mob appearance|guardian ghost)
+		suspended:
+			name: suspended @-
+			pattern: (suspended|underwater)
+		sweep_attack:
+			name: sweep attack @-
+			pattern: sweep attack
+		water_bubble:
+			name: water bubble @-
+			pattern: water bubble
+		water_wake:
+			name: water wake @-
+			pattern: water wake
+		water_drop:
+			name: water drop @-
+			pattern: water drop
+
+		# 1.15 particles
+		dripping_honey:
+			name: dripping honey @-
+			pattern: dripping honey
+		falling_honey:
+			name: falling honey @-
+			pattern: falling honey
+		landing_honey:
+			name: landing honey @-
+			pattern: landing honey
+		falling_nectar:
+			name: falling nectar @-
+			pattern: falling nectar
+
+		# 1.16 particles
+		ash:
+			name: ash @-
+			pattern: ash
+		crimson_spore:
+			name: crimson spore @-
+			pattern: crimson spore
+		soul_fire_flame:
+			name: soul fire flame @-
+			pattern: soul fire flame
+		warped_spore:
+			name: warped spore @-
+			pattern: warped spore
+		dripping_obsidian_tear:
+			name: dripping obsidian tear @-
+			pattern: dripping obsidian tear
+		falling_obsidian_tear:
+			name: falling obsidian tear @-
+			pattern: falling obsidian tear
+		landing_obsidian_tear:
+			name: landing obsidian tear @-
+			pattern: landing obsidian tear
+		soul:
+			name: soul @-
+			pattern: soul
+		reverse_portal:
+			name: reverse portal @-
+			pattern: reverse portal
+		white_ash:
+			name: white ash @-
+			pattern: white ash
 
 # -- Boolean --
 boolean:
@@ -878,9 +1185,46 @@ types:
 	# Hooks
 	money: Geld @n
 	region: Region¦en @f
+	
+# -- Spawn Reasons --
+spawn reasons:
+	bed: bed
+	beehive: beehive
+	breeding: breed, breeding
+	build_irongolem: built iron golem, build iron golem
+	build_snowman: built snowman, build snowman
+	build_wither: built wither, build wither
+	chunk_gen: chunk generation
+	cured: cured
+	custom: customized, customised, custom
+	default: default
+	dispense_egg: dispense egg, dispensing egg
+	drowned: drowned
+	egg: egg
+	ender_pearl: ender pearl
+	explosion: explosion
+	infection: infection, infected
+	jockey: jockey
+	lightning: lightning
+	mount: mount
+	natural: natural
+	nether_portal: nether portal
+	ocelot_baby: ocelot baby
+	patrol: patrol
+	raid: raid
+	reinforcements: reinforcements
+	shoulder_entity: perching, shoulder
+	silverfish_block: silverfish reveal, silverfish trap
+	slime_split: slime split
+	spawner: mob spawner, creature spawner, spawner
+	spawner_egg: spawn egg
+	trap: trap
+	village_defense: village defense, golem defense, iron golem defense
+	village_invasion: village invasion, village invading
+	sheared: shear, sheared
+	piglin_zombified: piglin zombification	
 
 # -- IO Exceptions --
 io exceptions:
 	unknownhostexception: Kann keine Verbindung zu %s aufbauen
 	accessdeniedexception: Zugriff verweigert: %s
-

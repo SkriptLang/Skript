@@ -18,7 +18,12 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.ScriptLoader;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Explosive;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -29,12 +34,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Explosive;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Incendiary")
 @Description("Checks if an entity will create fire when it explodes. This condition is also usable in an explosion prime event.")
@@ -61,7 +60,7 @@ public class CondIncendiary extends Condition {
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = matchedPattern == 2;
-		if (isEvent && !ScriptLoader.isCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (isEvent && !getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("Checking if 'the explosion' is fiery is only possible in an explosion prime event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

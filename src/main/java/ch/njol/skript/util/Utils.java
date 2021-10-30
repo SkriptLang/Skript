@@ -38,6 +38,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.util.Checker;
 import net.md_5.bungee.api.ChatColor;
 
 import com.google.common.collect.Iterables;
@@ -696,6 +697,22 @@ public abstract class Utils {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Class not found!");
 		}
+	}
+	
+	/**
+	 * Finds the index of the last in a {@link List} that matches the given {@link Checker}.
+	 *
+	 * @param list the {@link List} to search.
+	 * @param checker the {@link Checker} to match elements against.
+	 * @return the index of the element found, or -1 if no matching element was found.
+	 */
+	public static <T> int findLastIndex(List<T> list, Checker<T> checker) {
+		int lastIndex = -1;
+		for (int i = 0; i < list.size(); i++) {
+			if (checker.check(list.get(i)))
+				lastIndex = i;
+		}
+		return lastIndex;
 	}
 	
 }

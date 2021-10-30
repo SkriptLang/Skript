@@ -69,6 +69,7 @@ public class ExprItemWithLore extends PropertyExpression<ItemType, ItemType> {
 			.collect(Collectors.toList());
 
 		return get(source, item -> {
+			item = item.clone();
 			ItemMeta meta = item.getItemMeta();
 			meta.setLore(lore);
 			item.setItemMeta(meta);

@@ -65,6 +65,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -101,6 +102,14 @@ public abstract class Commands {
 	
 	static {
 		init(); // separate method for the annotation
+	}
+	public static Set<String> getScriptCommands(){
+		return commands.keySet();
+	}
+	
+	@Nullable
+	public static SimpleCommandMap getCommandMap(){
+		return commandMap;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -260,9 +269,10 @@ public abstract class Commands {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
-				ScriptLoader.setCurrentEvent("effect command", EffectCommandEvent.class);
-				final Effect e = Effect.parse(command, null);
-				ScriptLoader.deleteCurrentEvent();
+				ParserInstance parserInstance = ParserInstance.get();
+				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
+				Effect e = Effect.parse(command, null);
+				parserInstance.deleteCurrentEvent();
 				
 				if (e != null) {
 					log.clear(); // ignore warnings and stuff
@@ -416,11 +426,11 @@ public abstract class Commands {
 			aliases = new ArrayList<>(0);
 		final String permission = ScriptLoader.replaceOptions(node.get("permission", ""));
 
-		final String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""));
+		String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""))
+			.replace("\"", "\"\"");
 
 		VariableString permissionMessage = rawPermissionMessage.isEmpty() ?
-				null
-				: VariableString.newInstance(rawPermissionMessage);
+			null : VariableString.newInstance(rawPermissionMessage);
 
 		final SectionNode trigger = (SectionNode) node.get("trigger");
 		if (trigger == null)
@@ -447,7 +457,8 @@ public abstract class Commands {
 			}
 		}
 
-		final String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""));
+		String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""))
+			.replace("\"", "\"\"");
 		boolean usingCooldownMessage = !cooldownMessageString.isEmpty();
 		VariableString cooldownMessage = null;
 		if (usingCooldownMessage) {
@@ -480,11 +491,12 @@ public abstract class Commands {
 		}
 		
 		Commands.currentArguments = currentArguments;
-		final ScriptCommand c;
+		ScriptCommand c;
 		try {
-			c = new ScriptCommand(config, command, "" + pattern.toString(), currentArguments, description, usage,
+			c = new ScriptCommand(config, command, pattern.toString(), currentArguments, description, usage,
 					aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
 					executableBy, ScriptLoader.loadItems(trigger));
+			c.trigger.setLineNumber(node.getLine());
 		} finally {
 			Commands.currentArguments = null;
 		}
@@ -494,14 +506,13 @@ public abstract class Commands {
 		
 		if (Skript.logVeryHigh() && !Skript.debug())
 			Skript.info("registered command " + desc);
-		currentArguments = null;
 		return c;
 	}
 	
-//	public static boolean skriptCommandExists(final String command) {
-//		final ScriptCommand c = commands.get(command);
-//		return c != null && c.getName().equals(command);
-//	}
+	public static boolean skriptCommandExists(final String command) {
+		final ScriptCommand c = commands.get(command);
+		return c != null && c.getName().equals(command);
+	}
 	
 	public static void registerCommand(final ScriptCommand command) {
 		// Validate that there are no duplicates

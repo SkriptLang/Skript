@@ -58,9 +58,9 @@ skript command:
 		help: Prints this help message. Use '/skript reload/enable/disable/update' to get more info
 		reload:
 			description: Reloads the config, all scripts, everything, or a specific script
-			all: Reloads all configs and all scripts
+			all: Reloads the config, all aliases configs and all scripts
 			config: Reloads the main config
-			aliases: Reloads the aliases configs (aliases-*.sk)
+			aliases: Reloads the aliases configs (aliases-english.zip or plugin jar)
 			scripts: Reloads all scripts
 			<script>: Reloads a specific script or a folder of scripts
 		enable:
@@ -88,7 +88,7 @@ skript command:
 		error: Encountered %2$s error¦¦s¦ while reloading %1$s!
 		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
 
-		config and scripts: the config and all scripts
+		config, aliases and scripts: the config, aliases and all scripts
 		scripts: all scripts
 		main config: the main configuration
 		aliases: the aliases
@@ -158,6 +158,7 @@ updater:
 	downloaded: The latest version of Skript has been downloaded! Restart the server or use /reload to apply the changes.
 	internal error: An internal error occurred while checking for the latest version of Skript. Please refer to the server log for details.
 	custom version: You're currently running a custom Skript version. No updates will be automatically installed.
+	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
 
 # -- Commands --
 commands:
@@ -394,6 +395,9 @@ biomes:
 	soul_sand_valley: soul sand valley
 	warped_forest: warped forest
 	basalt_deltas: basalt deltas
+	# 1.17 biomes
+	dripstone_caves: dripstone caves
+	lush_caves: lush caves
 
 # -- Tree Types --
 tree types:
@@ -540,6 +544,7 @@ chat styles:
 	suggest_command: suggest command, sgt
 	change_page: change page
 	show_text: tooltip, show text, ttp
+	font: font, f
 	insertion: insertion, insert, ins
 
 # -- Directions --
@@ -1144,7 +1149,7 @@ entities:
 		pattern: cyan parrot(|1¦s)
 	gray parrot:
 		name: gray parrot¦s
-		pattern:  gray parrot(|1¦s)
+		pattern: gray parrot(|1¦s)
 	monster:
 		name: monster¦s
 		pattern: monster(|1¦s)
@@ -1251,18 +1256,55 @@ entities:
 	piglin brute:
 		name: piglin brute¦s
 		pattern: <age> piglin brute(|1¦s)|(4¦)piglin brute (kid(|1¦s)|child(|1¦ren))
+	#1.17 entities
+	goat:
+		name: goat¦s
+		pattern: <age> goat(|1¦s)|(4¦)goat (kid(|1¦s)|child(|1¦ren))
+	screaming goat:
+		name: goat¦s
+		pattern: <age> screaming goat(|1¦s)|(4¦)screaming goat (kid(|1¦s)|child(|1¦ren))
+	quiet goat:
+		name: goat¦s
+		pattern: <age> quiet goat(|1¦s)|(4¦)quiet goat (kid(|1¦s)|child(|1¦ren))
+	glow squid:
+		name: glow squid¦s
+		pattern: glow squid(|1¦s)
+	axolotl:
+		name: axolotl¦s @an
+		pattern: <age> axolotl(|1¦s)|(4¦)axolotl (kid(|1¦s)|child(|1¦ren))
+	lucy axolotl:
+		name: axolotl¦s
+		pattern: <age> lucy axolotl(|1¦s)|(4¦)lucy axolotl (kid(|1¦s)|child(|1¦ren))
+	wild axolotl:
+		name: axolotl¦s
+		pattern: <age> wild axolotl(|1¦s)|(4¦)wild axolotl (kid(|1¦s)|child(|1¦ren))
+	gold axolotl:
+		name: axolotl¦s
+		pattern: <age> gold axolotl(|1¦s)|(4¦)gold axolotl (kid(|1¦s)|child(|1¦ren))
+	cyan axolotl:
+		name: axolotl¦s
+		pattern: <age> cyan axolotl(|1¦s)|(4¦)cyan axolotl (kid(|1¦s)|child(|1¦ren))
+	blue axolotl:
+		name: axolotl¦s
+		pattern: <age> blue axolotl(|1¦s)|(4¦)blue axolotl (kid(|1¦s)|child(|1¦ren))
+	marker:
+		name: marker¦s
+		pattern: marker(|1¦s)
+	glow item frame:
+		name: glow item frame¦s
+		pattern: glow item[ ]frame(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
-    custom: unknown, custom, plugin, a plugin
-    eating: eating, consuming, ingesting
-    ender_crystal: end crystal, ender crystal, an end crystal, an ender crystal
-    magic: magic, potion, a potion
-    magic_regen: magic regen, magic regeneration, a magic regen, a magic regeneration, a healing potion, a regeneration potion, healing potion, regeneration potion, regen potion, a regen potion
-    regen: peaceful regeneration, peaceful regen, peaceful
-    satiated: satiated, satisfied, fed, sated
-    wither: withering, withered, wither potion, a wither effect, wither effect, wither
-    wither_spawn: wither spawning, wither spawn, wither summoning, a wither summoning, a wither spawn, a wither spawning
+	custom: unknown, custom, plugin, a plugin
+	eating: eating, consuming, ingesting
+	ender_crystal: end crystal, ender crystal, an end crystal, an ender crystal
+	magic: magic, potion, a potion
+	magic_regen: magic regen, magic regeneration, a magic regen, a magic regeneration, a healing potion, a regeneration potion, healing potion, regeneration potion, regen potion, a regen potion
+	regen: peaceful regeneration, peaceful regen, peaceful
+	satiated: satiated, satisfied, fed, sated
+	wither: withering, withered, wither potion, a wither effect, wither effect, wither
+	wither_spawn: wither spawning, wither spawn, wither summoning, a wither summoning, a wither spawn, a wither spawning
 
 # -- Cat Types --
 cat types:
@@ -1307,6 +1349,7 @@ damage causes:
 	hot_floor: magma, hot floor
 	cramming: cramming
 	dryout: dryout
+	freeze: freeze
 	custom: unknown, custom, plugin, a plugin
 
 # -- Teleport Causes --
@@ -1330,329 +1373,391 @@ game modes:
 
 # -- Visual Effects --
 visual effects:
-	ender_signal:
-		name: ender signal @an
-		pattern: ender [eye] signal[s]
-	mobspawner_flames:
-		name: mobspawner flames  @x
-		pattern: [mo(b|nster)][ ]spawner flames
-	potion_break:
-		name: potion break @a
-		pattern: [%potioneffecttype%] potion break[ing]
-	smoke:
-		name: smoke @-
-		pattern: smoke [%direction%]
-	hurt:
-		name: hurt @-
-		pattern: (hurt|damage)
-	sheep_eat:
-		name: sheep eating @a
-		pattern: sheep eat[ing] [a] [grass] [block]
-	wolf_hearts:
-		name: wolf hearts @x
-		pattern: wolf (hearts|tame|being tamed)
-	wolf_shake:
-		name: wolf shaking @a
-		pattern: wolf shak(e|ing)
-	wolf_smoke:
-		name: wolf smoke @-
-		pattern: wolf smok(e|ing)
-	iron_golem_rose:
-		name: iron golem offering rose @an
-		pattern: (iron golem [offering] rose|rose in hand)
-	villager_hearts:
-		name: villager hearts @x
-		pattern: villager hearts
-	villager_entity_angry:
-		name: angry villager entity @an
-		pattern: angry villager entity
-	villager_entity_happy:
-		name: happy villager entity @a
-		pattern: happy villager entity
-	witch_magic:
-		name: witch magic @-
-		pattern: witch magic
-	zombie_transform:
-		name: zombie turning to a villager
-		pattern: ([zombie] turning to a villager|zombie transform)
-	firework_explode:
-		name: firework explosion @a
-		pattern: firework explosion
-	arrow_particles:
-		name: arrow particles @x
-		pattern: [tipped] arrow particles
-	rabbit_jump:
-		name: jumping rabbit @a
-		pattern: (jumping rabbit|rabbit jump)
-	love_hearts:
-		name: love hearts @x
-		pattern: (love|breeding) hearts
-	squid_rotate:
-		name: squid rotation reset @a
-		pattern: [squid] rotation reset
-	entity_poof:
-		name: entity poof @-
-		pattern: entity poof
-	guardian_target:
-		name: guardian target @a
-		pattern: guardian target [with laser]
-	shield_block:
-		name: block with shield @-
-		pattern: (block [with a shield]|shield block)
-	shield_break:
-		name: shield break @a
-		pattern: shield break
-	armor_stand_hit:
-		name: armor stand hit @a
-		pattern: armor stand hit
-	thorns_hurt:
-		name: hurt by thorns @-
-		pattern: (hurt|damage) by thorns
-	iron_golem_sheath:
-		name: iron golem sheathing rose
-		pattern: iron golem (sheathing|putting away) rose
-	totem_resurrect:
-		name: resurrection by totem
-		pattern: resurrection [by totem]
-	hurt_drown:
-		name: hurt by drowning @-
-		pattern: (hurt|damage) by drowning
-	hurt_explosion:
-		name: hurt by explosion @-
-		pattern: (hurt|damage) by explosion
-	fireworks_spark:
-		name: firework's spark @-
-		pattern: firework['s] spark
-	crit:
-		name: critical hit @a
-		pattern: (critical hit|crit)[ spark]
-	magic_crit:
-		name: magical critical hit @a
-		pattern: (magic[al]|blue) (critical hit|crit) [spark]
-	potion_swirl:
-		name: potion swirl @a
-		pattern: [%-color%] potion swirl
-	potion_swirl_transparent:
-		name: transparent potion swirl @a
-		pattern: [%-color%] transparent potion swirl
-	spell:
-		name: spell @a
-		pattern: (spell|thrown potion|lingering potion)
-	instant_spell:
-		name: spell @a
-		pattern: instant (spell|thrown potion)
-	witch_spell:
-		name: witch spell @-
-		pattern: (witch (magic|spell)|purple spark)
-	note:
-		name: note @a
-		pattern: note
-	portal:
-		name: portal @a
-		pattern: [nether] portal
-	flying_glyph:
-		name: flying glyph @a
-		pattern: (flying (glyph|letter)|enchantment table)
-	flame:
-		name: flame @-
-		pattern: (flame|fire)
-	lava_pop:
-		name: lava pop @a
-		pattern: lava pop
-	footstep:
-		name: footstep @x
-		pattern: footsteps
-	splash:
-		name: water splash @a
-		pattern: [water] splash
-	particle_smoke:
-		name: smoke particle @a
-		pattern: smoke particle
-	explosion_huge:
-		name: huge explosion @a
-		pattern: huge explosion
-	explosion_large:
-		name: large explosion @a
-		pattern: large explosion
-	explosion:
-		name: explosion @an
-		pattern: explosion
-	void_fog:
-		name: void fog @-
-		pattern: void fog
-	small_smoke:
-		name: small smoke @-
-		pattern: (small smoke|town aura)
-	cloud:
-		name: cloud @a
-		pattern: cloud
-	coloured_dust:
-		name: coloured dust @-
-		pattern: (%-color%|colo[u]red) dust
-	snowball_break:
-		name: snowball break @a
-		pattern: snowball break
-	water_drip:
-		name: water drip @a
-		pattern: water drip
-	lava_drip:
-		name: lava drip @a
-		pattern: lava drip
-	snow_shovel:
-		name: snow shovel @-
-		pattern: (snow shovel|snow(man| golem) spawn)
-	slime:
-		name: slime @-
-		pattern: slime
-	heart:
-		name: heart @a
-		pattern: heart
-	angry_villager:
-		name: angry villager @a
-		pattern: (angry villager|[villager] thundercloud)
-	happy_villager:
-		name: happy villager @-
-		pattern: (happy villager|green spark)
-	large_smoke:
-		name: large smoke @-
-		pattern: large smoke
-	item_crack:
-		name: item crack @-
-		pattern: %itemtype% item (break|crack)[ing]
-	block_break:
-		name: block break @-
-		pattern: %itemtype% break[ing]
-	block_dust:
-		name: block dust @-
-		pattern: [sprinting] dust of [%itemtype%]
-	end_rod:
-		name: end rod @-
-		pattern: end rod
-	falling_dust:
-		name: falling dust @-
-		pattern: falling dust of [%itemtype%]
-	totem:
-		name: totem @-
-		pattern: totem
-	spit:
-		name: spit @-
-		pattern: spit
-	squid_ink:
-		name: squid ink @-
-		pattern: squid ink
-	bubble_pop:
-		name: bubble pop @-
-		pattern: bubble pop
-	current_down:
-		name: current down @-
-		pattern: (current|bubble column) down
-	bubble_column_up:
-		name: bubble column up @-
-		pattern: (current|bubble column) up
-	nautilus:
-		name: nautilus @-
-		pattern: nautilus
-	dolphin:
-		name: dolphin @-
-		pattern: dolphin
-	area_expression: [with [offset of %number%, %number%(,| and) %number%][[and ]speed %number%]]
+	area_expression: [with [(1¦offset of %-number%, %-number%(,| and) %-number%)][(2¦[and ]speed %-number%)]]
+	effect:
+		ender_signal:
+			name: ender signal @an
+			pattern: ender [eye] signal[s]
+		mobspawner_flames:
+			name: mobspawner flames  @x
+			pattern: [mo(b|nster)][ ]spawner flames
+		potion_break:
+			name: potion break @a
+			pattern: [%potioneffecttype%] potion break[ing]
+		smoke:
+			name: smoke @-
+			pattern: smoke [%direction%]
+	entityeffect:
+		hurt:
+			name: hurt @-
+			pattern: (hurt|damage)
+		sheep_eat:
+			name: sheep eating @a
+			pattern: sheep eat[ing] [a] [grass] [block]
+		wolf_hearts:
+			name: wolf hearts @x
+			pattern: wolf (hearts|tame|being tamed)
+		wolf_shake:
+			name: wolf shaking @a
+			pattern: wolf shak(e|ing)
+		wolf_smoke:
+			name: wolf smoke @-
+			pattern: wolf smok(e|ing)
+		iron_golem_rose:
+			name: iron golem offering rose @an
+			pattern: (iron golem [offering] rose|rose in hand)
+		villager_heart:
+			name: villager hearts @x
+			pattern: villager hearts
+		villager_angry:
+			name: angry villager entity @an
+			pattern: angry villager entity
+		villager_happy:
+			name: happy villager entity @a
+			pattern: happy villager entity
+		witch_magic:
+			name: witch magic @-
+			pattern: witch magic
+		zombie_transform:
+			name: zombie turning to a villager
+			pattern: ([zombie] turning to a villager|zombie transform)
+		firework_explode:
+			name: firework explosion @a
+			pattern: firework explosion
+		arrow_particles:
+			name: arrow particles @x
+			pattern: [tipped] arrow particles
+		rabbit_jump:
+			name: jumping rabbit @a
+			pattern: (jumping rabbit|rabbit jump)
+		love_hearts:
+			name: love hearts @x
+			pattern: (love|breeding) hearts
+		squid_rotate:
+			name: squid rotation reset @a
+			pattern: [squid] rotation reset
+		entity_poof:
+			name: entity poof @-
+			pattern: entity poof
+		guardian_target:
+			name: guardian target @a
+			pattern: guardian target [with laser]
+		shield_block:
+			name: block with shield @-
+			pattern: (block [with a shield]|shield block)
+		shield_break:
+			name: shield break @a
+			pattern: shield break
+		armor_stand_hit:
+			name: armor stand hit @a
+			pattern: armor stand hit
+		thorns_hurt:
+			name: hurt by thorns @-
+			pattern: (hurt|damage) by thorns
+		iron_golem_sheath:
+			name: iron golem sheathing rose
+			pattern: iron golem (sheathing|putting away) rose
+		totem_resurrect:
+			name: resurrection by totem
+			pattern: resurrection [by totem]
+		hurt_drown:
+			name: hurt by drowning @-
+			pattern: (hurt|damage) by drowning
+		hurt_explosion:
+			name: hurt by explosion @-
+			pattern: (hurt|damage) by explosion
+	particle:
+		fireworks_spark:
+			name: firework's spark @-
+			pattern: firework['s] spark
+		crit:
+			name: critical hit @a
+			pattern: (critical hit|crit) [spark]
+		crit_magic:
+			name: magical critical hit @a
+			pattern: (magic[al]|blue) (critical hit|crit) [spark]
+		spell_mob:
+			name: potion swirl @a
+			pattern: [%-color%] potion swirl
+		spell_mob_ambient:
+			name: transparent potion swirl @a
+			pattern: [%-color%] transparent potion swirl
+		spell:
+			name: spell @a
+			pattern: (spell|thrown potion|lingering potion)
+		spell_instant:
+			name: spell @a
+			pattern: instant (spell|thrown potion)
+		spell_witch:
+			name: witch spell @-
+			pattern: (witch (magic|spell)|purple spark)
+		note:
+			name: note @a
+			pattern: note [(of|with) [colo[u]r] %number%]
+		portal:
+			name: portal @a
+			pattern: [nether] portal
+		enchantment_table:
+			name: flying glyph @a
+			pattern: (flying (glyph|letter)|enchantment table)
+		flame:
+			name: flame @-
+			pattern: (flame|fire)
+		lava:
+			name: lava pop @a
+			pattern: lava pop
+		footstep:
+			name: footstep @x
+			pattern: footsteps
+		water_splash:
+			name: water splash @a
+			pattern: [water] splash
+		smoke_normal:
+			name: smoke particle @a
+			pattern: smoke particle
+		explosion_huge:
+			name: huge explosion @a
+			pattern: huge explosion
+		explosion_large:
+			name: large explosion @a
+			pattern: large explosion
+		explosion_normal:
+			name: explosion @an
+			pattern: explosion
+		suspended_depth:
+			name: void fog @-
+			pattern: void fog
+		town_aura:
+			name: small smoke @-
+			pattern: (small smoke|town aura)
+		cloud:
+			name: cloud @a
+			pattern: cloud
+		redstone:
+			name: coloured dust @-
+			pattern: [%-color%] [colo[u]red] dust
+		snowball:
+			name: snowball break @a
+			pattern: snowball break
+		drip_water:
+			name: water drip @a
+			pattern: water drip
+		drip_lava:
+			name: lava drip @a
+			pattern: lava drip
+		snow_shovel:
+			name: snow shovel @-
+			pattern: (snow shovel|snow(man| golem) spawn)
+		slime:
+			name: slime @-
+			pattern: slime
+		heart:
+			name: heart @a
+			pattern: heart
+		villager_angry:
+			name: angry villager @a
+			pattern: (angry villager|[villager] thundercloud)
+		villager_happy:
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+		smoke_large:
+			name: large smoke @-
+			pattern: large smoke
+		item_crack:
+			name: item crack @-
+			pattern: %itemtype% item (break|crack)[ing]
+		block_crack:
+			name: block break @-
+			pattern: %itemtype% break[ing]
+		block_dust:
+			name: block dust @-
+			pattern: [sprinting] dust of [%itemtype%]
+		end_rod:
+			name: end rod @-
+			pattern: end rod
+		falling_dust:
+			name: falling dust @-
+			pattern: falling dust of [%itemtype%]
 
-	sneeze:
-		name: sneeze @-
-		pattern: sneeze
-	campfire_cosy_smoke:
-		name: campfire cosy smoke @-
-		pattern: campfire co(s|z)y smoke
-	campfire_signal_smoke:
-		name: campfire signal smoke @-
-		pattern: campfire signal smoke
-	composter:
-		name: composter @-
-		pattern: composter
-	flash:
-		name: flash @-
-		pattern: flash
-	falling_lava:
-		name: falling lava @-
-		pattern: falling lava
-	landing_lava:
-		name: landing lava @-
-		pattern: landing lava
-	falling_water:
-		name: falling water @-
-		pattern: falling water
-	barrier:
-		name: barrier @a
-		pattern: barrier
-	damage_indicator:
-		name: damage indicator @-
-		pattern: damage indicator
-	dragon_breath:
-		name: dragon breath @-
-		pattern: dragon[s] breath
-	mob_appearance:
-		name: mob appearance @-
-		pattern: (mob appearance|guardian ghost)
-	suspended:
-		name: suspended @-
-		pattern: (suspended|underwater)
-	sweep_attack:
-		name: sweep attack @-
-		pattern: sweep attack
-	water_bubble:
-		name: water bubble @-
-		pattern: water bubble
-	water_wake:
-		name: water wake @-
-		pattern: water wake
-	water_drop:
-		name: water drop @-
-		pattern: water drop
+		# 1.11 particles
+		totem:
+			name: totem @-
+			pattern: totem
+		spit:
+			name: spit @-
+			pattern: spit
 
-	# 1.15 particles
-	dripping_honey:
-		name: dripping honey @-
-		pattern: dripping honey
-	falling_honey:
-		name: falling honey @-
-		pattern: falling honey
-	landing_honey:
-		name: landing honey @-
-		pattern: landing honey
-	falling_nectar:
-		name: falling nectar @-
-		pattern: falling nectar
-	# 1.16 particles
-	ash:
-		name: ash @-
-		pattern: ash
-	crimson_spore:
-		name: crimson spore @-
-		pattern: crimson spore
-	soul_fire_flame:
-		name: soul fire flame @-
-		pattern: soul fire flame
-	warped_spore:
-		name: warped spore @-
-		pattern: warped spore
-	dripping_obsidian_tear:
-		name: dripping obsidian tear @-
-		pattern: dripping obsidian tear
-	falling_obsidian_tear:
-		name: falling obsidian tear @-
-		pattern: falling obsidian tear
-	landing_obsidian_tear:
-		name: landing obsidian tear @-
-		pattern: landing obsidian tear
-	soul:
-		name: soul @-
-		pattern: soul
-	reverse_portal:
-		name: reverse portal @-
-		pattern: reverse portal
-	white_ash:
-		name: white ash @-
-		pattern: white ash
+		# 1.13 particles
+		squid_ink:
+			name: squid ink @-
+			pattern: squid ink
+		bubble_pop:
+			name: bubble pop @-
+			pattern: bubble pop
+		current_down:
+			name: current down @-
+			pattern: (current|bubble column) down
+		bubble_column_up:
+			name: bubble column up @-
+			pattern: (current|bubble column) up
+		nautilus:
+			name: nautilus @-
+			pattern: nautilus
+		dolphin:
+			name: dolphin @-
+			pattern: dolphin
+
+		# 1.14 particles
+		sneeze:
+			name: sneeze @-
+			pattern: sneeze
+		campfire_cosy_smoke:
+			name: campfire cosy smoke @-
+			pattern: campfire co(s|z)y smoke
+		campfire_signal_smoke:
+			name: campfire signal smoke @-
+			pattern: campfire signal smoke
+		composter:
+			name: composter @-
+			pattern: composter
+		flash:
+			name: flash @-
+			pattern: flash
+		falling_lava:
+			name: falling lava @-
+			pattern: falling lava
+		landing_lava:
+			name: landing lava @-
+			pattern: landing lava
+		falling_water:
+			name: falling water @-
+			pattern: falling water
+		barrier:
+			name: barrier @a
+			pattern: barrier
+		damage_indicator:
+			name: damage indicator @-
+			pattern: damage indicator
+		dragon_breath:
+			name: dragon breath @-
+			pattern: dragon[s] breath
+		mob_appearance:
+			name: mob appearance @-
+			pattern: (mob appearance|guardian ghost)
+		suspended:
+			name: suspended @-
+			pattern: (suspended|underwater)
+		sweep_attack:
+			name: sweep attack @-
+			pattern: sweep attack
+		water_bubble:
+			name: water bubble @-
+			pattern: water bubble
+		water_wake:
+			name: water wake @-
+			pattern: water wake
+		water_drop:
+			name: water drop @-
+			pattern: water drop
+
+		# 1.15 particles
+		dripping_honey:
+			name: dripping honey @-
+			pattern: dripping honey
+		falling_honey:
+			name: falling honey @-
+			pattern: falling honey
+		landing_honey:
+			name: landing honey @-
+			pattern: landing honey
+		falling_nectar:
+			name: falling nectar @-
+			pattern: falling nectar
+
+		# 1.16 particles
+		ash:
+			name: ash @-
+			pattern: ash
+		crimson_spore:
+			name: crimson spore @-
+			pattern: crimson spore
+		soul_fire_flame:
+			name: soul fire flame @-
+			pattern: soul fire flame
+		warped_spore:
+			name: warped spore @-
+			pattern: warped spore
+		dripping_obsidian_tear:
+			name: dripping obsidian tear @-
+			pattern: dripping obsidian tear
+		falling_obsidian_tear:
+			name: falling obsidian tear @-
+			pattern: falling obsidian tear
+		landing_obsidian_tear:
+			name: landing obsidian tear @-
+			pattern: landing obsidian tear
+		soul:
+			name: soul @-
+			pattern: soul
+		reverse_portal:
+			name: reverse portal @-
+			pattern: reverse portal
+		white_ash:
+			name: white ash @-
+			pattern: white ash
+
+		# 1.17 particles
+		light:
+			name: light @-
+			pattern: light
+		#dust_color_transition:
+			#name: dust color transition @a
+			#pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-number%]
+		#vibration:
+			#name: vibration @a
+			#pattern: vibration
+		falling_spore_blossom:
+			name: falling spore blossom @-
+			pattern: falling spore blossom
+		spore_blossom_air:
+			name: spore blossom air @-
+			pattern: spore blossom air
+		small_flame:
+			name: small flame @-
+			pattern: small flame
+		snowflake:
+			name: snowflake @-
+			pattern: snowflake
+		dripping_dripstone_lava:
+			name: dripping dripstone lava @-
+			pattern: dripping dripstone lava
+		falling_dripstone_lava:
+			name: falling dripstone lava @-
+			pattern: falling dripstone lava
+		dripping_dripstone_water:
+			name: dripping dripstone water @-
+			pattern: dripping dripstone water
+		falling_dripstone_water:
+			name: falling dripstone water @-
+			pattern: falling dripstone water
+		glow_squid_ink:
+			name: glow squid ink @-
+			pattern: glow squid ink
+		glow:
+			name: glow @-
+			pattern: glow
+		wax_on:
+			name: wax on @-
+			pattern: wax on
+		wax_off:
+			name: wax off @-
+			pattern: wax off
+		electric_spark:
+			name: electric spark @-
+			pattern: electric spark
+		scrape:
+			name: scrape @-
+			pattern: scrape
 
 # -- Inventory Actions --
 inventory actions:
@@ -1720,6 +1825,7 @@ inventory types:
 	grindstone: grindstone inventory
 	stonecutter: stonecutter inventory
 	smithing: smithing inventory
+	composter: composter inventory
 
 # -- Spawn Reasons --
 spawn reasons:
@@ -1732,6 +1838,7 @@ spawn reasons:
 	chunk_gen: chunk generation
 	cured: cured
 	custom: customized, customised, custom
+	command: command
 	default: default
 	dispense_egg: dispense egg, dispensing egg
 	drowned: drowned
@@ -1757,6 +1864,7 @@ spawn reasons:
 	village_defense: village defense, golem defense, iron golem defense
 	village_invasion: village invasion, village invading
 	sheared: shear, sheared
+	piglin_zombified: piglin zombification
 
 # -- Difficulties --
 difficulties:

@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Lightning")
-@Description("Strike lightning at a given location. Can use 'ligning effect' to create a lightning that does not harm entities or start fires.")
+@Description("Strike lightning at a given location. Can use 'lightning effect' to create a lightning that does not harm entities or start fires.")
 @Examples({"strike lightning at the player",
 		"strike lightning effect at the victim"})
 @Since("1.4")

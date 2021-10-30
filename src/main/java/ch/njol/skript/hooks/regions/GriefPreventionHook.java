@@ -183,9 +183,9 @@ public class GriefPreventionHook extends RegionsPlugin<GriefPrevention> {
 			final Location lower = claim.getLesserBoundaryCorner(), upper = claim.getGreaterBoundaryCorner();
 			if (lower == null || upper == null || lower.getWorld() == null || upper.getWorld() == null || lower.getWorld() != upper.getWorld())
 				return EmptyIterator.get();
-			upper.setY(upper.getWorld().getMaxHeight());
-			upper.setX(upper.getBlockX() + 1);
-			upper.setZ(upper.getBlockZ() + 1);
+			upper.setY(upper.getWorld().getMaxHeight() - 1);
+			upper.setX(upper.getBlockX());
+			upper.setZ(upper.getBlockZ());
 			return new AABB(lower, upper).iterator();
 		}
 		

@@ -24,7 +24,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.EffFunctionCall;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 
@@ -39,7 +38,11 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 	
 	@SuppressWarnings({"rawtypes", "unchecked", "null"})
 	@Nullable
-	public static Statement parse(final String s, final String defaultError) {
+	public static Statement parse(String s, String defaultError) {
+		EffectSection section = EffectSection.parse(s, null, null, null);
+		if (section != null)
+			return new EffectSectionEffect(section);
+
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			final EffFunctionCall f = EffFunctionCall.parse(s);
@@ -57,12 +60,5 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 		}
 		return (Statement) SkriptParser.parse(s, (Iterator) Skript.getStatements().iterator(), defaultError);
 	}
-
-	/**
-	 * Parser instance which is being used or was used to parse this element.
-	 * Note that this variable is naturally not used for static methods.
-	 */
-	@SuppressWarnings("null")
-	protected ParserInstance pi;
 	
 }

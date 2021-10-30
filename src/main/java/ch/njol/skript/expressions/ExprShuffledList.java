@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -46,33 +48,29 @@ public class ExprShuffledList extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprShuffledList.class, Object.class, ExpressionType.COMBINED, "shuffled %objects%");
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> list;
 
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		list = exprs[0].getConvertedExpression(Object.class);
-		return list != null;
+		list = LiteralUtils.defendExpression(exprs[0]);
+		return LiteralUtils.canInitSafely(list);
 	}
 
 	@Override
 	@Nullable
 	protected Object[] get(Event e) {
-		Object[] origin = list.getAll(e);
-		List<Object> shuffled = Arrays.asList(origin.clone()); // Not yet shuffled...
-		
-		try {
-			Collections.shuffle(shuffled);
-		} catch (IllegalArgumentException ex) { // In case elements are not comparable
-			Skript.error("Tried to sort a list, but some objects are not comparable!");
-		}
-		return shuffled.toArray();
+		Object[] origin = list.getArray(e).clone();
+		List<Object> shuffled = Arrays.asList(origin); // Not yet shuffled...
+		Collections.shuffle(shuffled);
+
+		Object[] array = (Object[]) Array.newInstance(getReturnType(), origin.length);
+		return shuffled.toArray(array);
 	}
 
 	@Override
 	public Class<? extends Object> getReturnType() {
-		return Object.class;
+		return list.getReturnType();
 	}
 
 	@Override

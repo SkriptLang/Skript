@@ -18,17 +18,13 @@
  */
 package ch.njol.skript.log;
 
+import ch.njol.skript.Skript;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-
-/**
- * @author Peter Güttinger
- */
 public class ParseLogHandler extends LogHandler {
 	
 	@Nullable
@@ -37,29 +33,25 @@ public class ParseLogHandler extends LogHandler {
 	private final List<LogEntry> log = new ArrayList<>();
 	
 	@Override
-	public LogResult log(final LogEntry entry) {
-		if (entry.getLevel().intValue() >= Level.SEVERE.intValue()) {
-			final LogEntry e = error;
-			if (e == null || entry.getQuality() > e.getQuality()) {
-				error = entry;
-				if (e != null)
-					e.discarded("overridden by '" + entry.getMessage() + "' (" + ErrorQuality.get(entry.getQuality()) + " > " + ErrorQuality.get(e.getQuality()) + ")");
-			}
-		} else {
-			log.add(entry);
+	public LogResult log(LogEntry entry) {
+		if (entry.getLevel().intValue() >= Level.SEVERE.intValue()
+				&& (error == null || entry.getQuality() > error.getQuality())) {
+			error = entry;
 		}
+
+		log.add(entry);
 		return LogResult.CACHED;
 	}
-	
+
 	boolean printedErrorOrLog = false;
-	
+
 	@Override
-	public void onStop() {
-		if (!printedErrorOrLog && Skript.testing())
-			SkriptLogger.LOGGER.warning("Parse log wasn't instructed to print anything at " + SkriptLogger.getCaller());
+	public ParseLogHandler start() {
+		SkriptLogger.startLogHandler(this);
+		return this;
 	}
 	
-	public void error(final String error, final ErrorQuality quality) {
+	public void error(String error, ErrorQuality quality) {
 		log(new LogEntry(SkriptLogger.SEVERE, quality, error));
 	}
 	
@@ -67,13 +59,19 @@ public class ParseLogHandler extends LogHandler {
 	 * Clears all log messages except for the error
 	 */
 	public void clear() {
-		for (final LogEntry e : log)
+		for (LogEntry e : log)
 			e.discarded("cleared");
 		log.clear();
 	}
-	
+
+	public void clearError() {
+		if (error != null)
+			error.discarded("cleared");
+		error = null;
+	}
+
 	/**
-	 * Prints the retained log, but no errors
+	 * Prints the retained log
 	 */
 	public void printLog() {
 		printedErrorOrLog = true;
@@ -92,27 +90,27 @@ public class ParseLogHandler extends LogHandler {
 	 * 
 	 * @param def Error to log if no error has been logged so far, can be null
 	 */
-	public void printError(final @Nullable String def) {
+	public void printError(@Nullable String def) {
 		printedErrorOrLog = true;
 		stop();
-		final LogEntry error = this.error;
+		LogEntry error = this.error;
 		if (error != null)
 			SkriptLogger.log(error);
 		else if (def != null)
 			SkriptLogger.log(new LogEntry(SkriptLogger.SEVERE, ErrorQuality.SEMANTIC_ERROR, def));
-		for (final LogEntry e : log)
+		for (LogEntry e : log)
 			e.discarded("not printed");
 	}
 	
-	public void printError(final String def, final ErrorQuality quality) {
+	public void printError(String def, ErrorQuality quality) {
 		printedErrorOrLog = true;
 		stop();
-		final LogEntry error = this.error;
+		LogEntry error = this.error;
 		if (error != null && error.quality >= quality.quality())
 			SkriptLogger.log(error);
 		else
 			SkriptLogger.log(new LogEntry(SkriptLogger.SEVERE, quality, def));
-		for (final LogEntry e : log)
+		for (LogEntry e : log)
 			e.discarded("not printed");
 	}
 	

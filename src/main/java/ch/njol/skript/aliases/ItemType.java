@@ -553,7 +553,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @see #removeFrom(ItemStack)
 	 * @see #removeFrom(List...)
 	 */
-	@Nullable
 	public ItemStack getRandom() {
 		int numItems = types.size();
 		int index = random.nextInt(numItems);
@@ -762,7 +761,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 					 * item meta is completely different.
 					 */
 					ItemData other = is != null ? new ItemData(is) : null;
-					if (other != null && other.matchAlias(d).isAtLeast(((d.isAlias()) && !other.isAlias()) ? MatchQuality.SAME_MATERIAL : MatchQuality.EXACT)) {
+					if (other == null) {
+						continue;
+					}
+					boolean plain = d.isPlain() != other.isPlain();
+					if (d.matchPlain(other) || other.matchAlias(d).isAtLeast(plain ? MatchQuality.EXACT : (d.isAlias() && !other.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM))) {
 						if (all && amount == -1) {
 							list.set(i, null);
 							removed = 1;
@@ -1149,6 +1152,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	
 	/**
 	 * Checks whether this item type contains the given enchantments.
+	 * Also checks the enchantment level.
 	 * @param enchantments The enchantments to be checked.
 	 */
 	public boolean hasEnchantments(EnchantmentType... enchantments) {
@@ -1159,6 +1163,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			Enchantment type = enchantment.getType();
 			assert type != null; // Bukkit working different than we expect
 			if (!meta.hasEnchant(type))
+				return false;
+			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) < enchantment.getLevel())
 				return false;
 		}
 		return true;

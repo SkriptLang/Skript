@@ -26,7 +26,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -63,7 +62,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(EntityDeathEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityDeathEvent.class)) {
 			Skript.error("The expression 'drops' can only be used in death events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
@@ -82,7 +81,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Can't change the drops anymore after the event has already passed");
 			return null;
 		}

@@ -5,14 +5,18 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.time.LocalTime
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '6.1.0'
-	id 'com.github.hierynomus.license' version '0.14.0'
+	id 'com.github.johnrengelman.shadow' version '7.0.0'
+	id 'com.github.hierynomus.license' version '0.16.1'
+	id 'maven-publish'
 	id 'java'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ["-source", "1.8", "-target", "1.8"]
 }
 
 allprojects {
 	repositories {
-		jcenter()
 		mavenCentral()
 		maven { url 'https://jitpack.io' }
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -24,18 +28,14 @@ allprojects {
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
-	implementation group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.16.4-R0.1-SNAPSHOT'
-	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '1.1.0'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17.1-R0.1-SNAPSHOT'
+	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
-	implementation group: 'com.github.marcelo-mason', name: 'PreciousStones', version: '24e3d4bf67'
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.1', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
 	implementation fileTree(dir: 'lib', include: '*.jar')
-
-	testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-	testImplementation group: 'org.easymock', name: 'easymock', version: '4.2'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -44,7 +44,7 @@ compileTestJava.options.encoding = 'UTF-8'
 task checkAliases {
 	description 'Checks for the existence of the aliases.'
 	doLast {
-		def aliasFolder = new File('skript-aliases')
+		def aliasFolder = project.file('skript-aliases')
 		if (!aliasFolder.exists() || aliasFolder.listFiles().length == 0) {
 			throw new InvalidUserDataException('Aliases are missing from \'skript-aliases\' folder. Consider fetching submodules with \'git submodule update --init\'.')
 		}
@@ -68,13 +68,13 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 
 task sourceJar(type: Jar) {
 	from sourceSets.main.allJava
+	archiveClassifier = "sources"
 }
 
 tasks.withType(ShadowJar) {
 	dependsOn relocateShadowJar
 	configurations = [
-		project.configurations.shadow,
-		project.configurations.compile
+		project.configurations.shadow
 	]
 	dependencies {
 		include(dependency('io.papermc:paperlib'))
@@ -83,6 +83,7 @@ tasks.withType(ShadowJar) {
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
+			'Automatic-Module-Name': 'ch.njol.skript',
 			'Sealed': 'true'
 		)
 	}
@@ -102,6 +103,18 @@ processResources {
 		'release-source'  : '',
 		'release-download': 'null'
 	]
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId "com.github.SkriptLang"
+			artifactId "Skript"
+			version project.version
+			artifact sourceJar
+			artifact tasks.jar
+		}
+	}
 }
 
 license {
@@ -139,8 +152,8 @@ tasks.create('testNaming') {
 // Create a test task with given name, environments dir/file and is it development mode task
 void createTestTask(String name, String environments, boolean devMode) {
 	tasks.create(name) {
-		// Execute JUnit tests, compile Skript and check test naming
-		dependsOn test, jar, testNaming
+		// Compile Skript and check test naming
+		dependsOn jar, testNaming
 		doFirst {
 			if (devMode) {
 				standardInput = System.in
@@ -166,11 +179,11 @@ void createTestTask(String name, String environments, boolean devMode) {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.3.json', false)
+createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.5.json', false)
 createTestTask('skriptTest', 'src/test/skript/environments/main', false)
 createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null
-	? 'paper-1.16.3.json' : project.property('testEnv') + '.json'), true)
+	? 'paper-1.17.json' : project.property('testEnv') + '.json'), true)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
@@ -202,6 +215,7 @@ task githubRelease(type: ShadowJar) {
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
+			'Automatic-Module-Name': 'ch.njol.skript',
 			'Sealed': 'true'
 		)
 	}
@@ -237,6 +251,7 @@ task spigotRelease(type: ShadowJar) {
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
+			'Automatic-Module-Name': 'ch.njol.skript',
 			'Sealed': 'true'
 		)
 	}
@@ -268,6 +283,7 @@ task nightlyRelease(type: ShadowJar) {
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
+			'Automatic-Module-Name': 'ch.njol.skript',
 			'Sealed': 'true'
 		)
 	}

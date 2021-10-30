@@ -34,12 +34,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.VisualEffect;
+import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Play Effect")
 @Description({"Plays a <a href='classes.html#visualeffect'>visual effect</a> at a given location or on a given entity.",
 		"Please note that some effects can only be played on entities, e.g. wolf hearts or the hurt effect, and that these are always visible to all players."})
@@ -47,17 +44,20 @@ import ch.njol.util.Kleenean;
 		"show mob spawner flames at the targeted block to the player"})
 @Since("2.1")
 public class EffVisualEffect extends Effect {
+
 	static {
-		Skript.registerEffect(EffVisualEffect.class, "(play|show) %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %number%)]",
-				"(play|show) %number% %visualeffects% (on|%directions%) %locations% [(to %-players%|in (radius|range) of %number%)]");
+		Skript.registerEffect(EffVisualEffect.class,
+			"(play|show) %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %number%)]",
+			"(play|show) %number% %visualeffects% (on|%directions%) %locations% [(to %-players%|in (radius|range) of %number%)]");
 	}
-	
-	@SuppressWarnings("null")
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<VisualEffect> effects;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Direction> direction;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> where;
+
 	@Nullable
 	private Expression<Player> players;
 	@Nullable
@@ -67,7 +67,7 @@ public class EffVisualEffect extends Effect {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		int base = 0;
 		if (matchedPattern == 1) {
 			count = (Expression<Number>) exprs[0];
@@ -77,50 +77,57 @@ public class EffVisualEffect extends Effect {
 		effects = (Expression<VisualEffect>) exprs[base];
 		direction = (Expression<Direction>) exprs[base + 1];
 		where = exprs[base + 2];
-		if (exprs[base + 3] != null) {
-			if (exprs[3].getReturnType() == Player.class)
-				players = (Expression<Player>) exprs[base + 3];
-			else
-				radius = (Expression<Number>) exprs[base + 3];
-		}
+		players = (Expression<Player>) exprs[base + 3];
+		radius = (Expression<Number>) exprs[base + 4];
+
 		if (effects instanceof Literal) {
-			final VisualEffect[] effs = effects.getAll(null);
-			boolean hasLocationEffect = false, hasEntityEffect = false;
-			for (final VisualEffect e : effs) {
-				if (e.isEntityEffect())
+			//noinspection ConstantConditions
+			VisualEffect[] effs = effects.getArray(null);
+
+			boolean hasLocationEffect = false;
+			boolean hasEntityEffect = false;
+			for (VisualEffect e : effs) {
+				if (e.getType().isEntityEffect())
 					hasEntityEffect = true;
 				else
 					hasLocationEffect = true;
 			}
+
 			if (!hasLocationEffect && players != null)
 				Skript.warning("Entity effects are visible to all players");
 			if (!hasLocationEffect && !direction.isDefault())
 				Skript.warning("Entity effects are always played on an entity");
-			if (hasEntityEffect && !Entity.class.isAssignableFrom(where.getReturnType()))
-				Skript.warning("Entity effects can only be played on entities");
+			if (hasEntityEffect && !Entity.class.isAssignableFrom(where.getReturnType())) {
+				Skript.error("Entity effects can only be played on entities");
+				return false;
+			}
 		}
+
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final VisualEffect[] effs = effects.getArray(e);
-		final Direction[] dirs = direction.getArray(e);
-		final Object[] os = where.getArray(e);
-		final Player[] ps = players != null ? players.getArray(e) : null;
-		final Number rad = radius != null ? radius.getSingle(e) : 32; // 32=default particle radius
-		final Number cnt = count != null ? count.getSingle(e) : 0;
-		assert rad != null;
-		assert cnt != null;
-		for (final Direction d : dirs) {
-			for (final Object o : os) {
+	protected void execute(Event e) {
+		VisualEffect[] effects = this.effects.getArray(e);
+		Direction[] directions = direction.getArray(e);
+		Object[] os = where.getArray(e);
+		Player[] ps = players != null ? players.getArray(e) : null;
+		Number rad = radius != null ? radius.getSingle(e) : 32; // 32=default particle radius
+		Number cnt = count != null ? count.getSingle(e) : 0;
+
+		// noinspection ConstantConditions
+		if (effects == null || directions == null || os == null || rad == null || cnt == null)
+			return;
+
+		for (Direction d : directions) {
+			for (Object o : os) {
 				if (o instanceof Entity) {
-					for (final VisualEffect eff : effs) {
+					for (VisualEffect eff : effects) {
 						eff.play(ps, d.getRelative((Entity) o), (Entity) o, cnt.intValue(), rad.intValue());
 					}
 				} else if (o instanceof Location) {
-					for (final VisualEffect eff : effs) {
-						if (eff.isEntityEffect())
+					for (VisualEffect eff : effects) {
+						if (eff.getType().isEntityEffect())
 							continue;
 						eff.play(ps, d.getRelative((Location) o), null, cnt.intValue(), rad.intValue());
 					}
@@ -132,8 +139,9 @@ public class EffVisualEffect extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "play " + effects.toString(e, debug) + " " + direction.toString(e, debug) + " " + where.toString(e, debug) + (players != null ? " to " + players.toString(e, debug) : "");
+	public String toString(@Nullable Event e, boolean debug) {
+		return "play " + effects.toString(e, debug) + " " + direction.toString(e, debug) + " "
+			+ where.toString(e, debug) + (players != null ? " to " + players.toString(e, debug) : "");
 	}
 	
 }

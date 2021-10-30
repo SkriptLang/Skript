@@ -18,8 +18,12 @@
  */
 package ch.njol.skript.effects;
 
+import java.util.List;
 import java.util.UUID;
 
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.chat.MessageComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -41,7 +45,6 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
@@ -58,7 +61,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 		"\tcancel event",
 		"\tsend \"[%player%] >> %message%\" to all players from player"})
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
-@Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender)")
+@Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
 	
 	private static final boolean SUPPORTS_SENDER = Skript.classExists("org.bukkit.command.CommandSender$Spigot") &&
@@ -66,21 +69,21 @@ public class EffMessage extends Effect {
 	
 	static {
 		if (SUPPORTS_SENDER)
-			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %strings% [to %commandsenders%] [from %-player%]");
+			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%] [from %-player%]");
 		else
-			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %strings% [to %commandsenders%]");
+			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%]");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<? extends String>[] messages;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?>[] messages;
 
 	/**
 	 * Used for {@link EffMessage#toString(Event, boolean)}
 	 */
-	@SuppressWarnings("null")
-	private Expression<String> messageExpr;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?> messageExpr;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<CommandSender> recipients;
 	
 	@Nullable
@@ -88,41 +91,55 @@ public class EffMessage extends Effect {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		messages = exprs[0] instanceof ExpressionList ? ((ExpressionList<String>) exprs[0]).getExpressions() : new Expression[] {exprs[0]};
-		messageExpr = (Expression<String>) exprs[0];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		messageExpr = LiteralUtils.defendExpression(exprs[0]);
+
+		messages = messageExpr instanceof ExpressionList ?
+			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		recipients = (Expression<CommandSender>) exprs[1];
 		if (SUPPORTS_SENDER)
 			sender = (Expression<Player>) exprs[2];
-		return true;
+		return LiteralUtils.canInitSafely(messageExpr);
 	}
 
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event e) {
 		Player sender = this.sender != null ? this.sender.getSingle(e) : null;
-		for (Expression<? extends String> message : messages) {
-			for (CommandSender receiver : recipients.getArray(e)) {
+
+		CommandSender[] commandSenders = recipients.getArray(e);
+
+		for (Expression<?> message : messages) {
+
+			Object[] messageArray = null;
+			List<MessageComponent> messageComponents = null;
+
+			for (CommandSender receiver : commandSenders) {
+				if (receiver instanceof Player && message instanceof VariableString) {
+					if (messageComponents == null)
+						messageComponents = ((VariableString) message).getMessageComponents(e);
+				} else {
+					if (messageArray == null)
+						messageArray = message.getArray(e);
+				}
+
 				if (receiver instanceof Player) { // Can use JSON formatting
 					if (message instanceof VariableString) { // Process formatting that is safe
-						sendMessage((Player) receiver, sender, BungeeConverter
-							.convert(((VariableString) message).getMessageComponents(e)));
+						sendMessage((Player) receiver, sender,
+							BungeeConverter.convert(messageComponents)
+						);
 					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
-						for (String string : message.getArray(e)) {
-							assert string != null;
-							sendMessage((Player) receiver, sender, BungeeConverter
-								.convert(ChatMessages.parse(string)));
+						for (Object object : messageArray) {
+							sendMessage((Player) receiver, sender, BungeeConverter.convert(ChatMessages.parse((String) object)));
 						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
-						for (String string : message.getArray(e)) {
-							assert string != null;
-							assert string != null;
-							sendMessage((Player) receiver, sender, new TextComponent(string));
+						for (Object object : messageArray) {
+							List<MessageComponent> components = ChatMessages.fromParsedString(toString(object));
+							sendMessage((Player) receiver, sender, BungeeConverter.convert(components));
 						}
 					}
 				} else { // Not a player, send plain text with legacy formatting
-					for (String string : message.getArray(e)) {
-						assert string != null;
-						receiver.sendMessage(string);
+					for (Object object : messageArray) {
+						receiver.sendMessage(toString(object));
 					}
 				}
 			}
@@ -136,8 +153,12 @@ public class EffMessage extends Effect {
 			receiver.spigot().sendMessage(components);
 	}
 
+	private String toString(Object object) {
+		return object instanceof String ? (String) object : Classes.toString(object);
+	}
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "send " + messageExpr.toString(e, debug) + " to " + recipients.toString(e, debug) +
 			(sender != null ? " from " + sender.toString(e, debug) : "");
 	}

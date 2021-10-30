@@ -223,32 +223,26 @@ public class ExpressionList<T> implements Expression<T> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		Class<?>[] l = expressions[0].acceptChange(mode);
-		if (l == null)
+		Class<?>[] exprClasses = expressions[0].acceptChange(mode);
+		if (exprClasses == null)
 			return null;
-		final ArrayList<Class<?>> r = new ArrayList<>(Arrays.asList(l));
+		final ArrayList<Class<?>> acceptedClasses = new ArrayList<>(Arrays.asList(exprClasses));
 		for (int i = 1; i < expressions.length; i++) {
-			l = expressions[i].acceptChange(mode);
-			if (l == null)
+			exprClasses = expressions[i].acceptChange(mode);
+			if (exprClasses == null)
 				return null;
-			r.retainAll(Arrays.asList(l));
-			if (r.isEmpty())
+			
+			acceptedClasses.retainAll(Arrays.asList(exprClasses));
+			if (acceptedClasses.isEmpty())
 				return null;
 		}
-		return r.toArray(new Class[r.size()]);
+		return acceptedClasses.toArray(new Class[0]);
 	}
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
-		if (delta == null || delta.length < expressions.length) {
-			for (Expression<?> expr : expressions) {
-				expr.change(e, delta, mode);
-			}
-		} else {
-			for (int i = 0; i < expressions.length; i++) {
-				Expression<?> expr = expressions[i];
-				expr.change(e, new Object[] {delta[i]}, mode);
-			}
+		for (Expression<?> expr : expressions) {
+			expr.change(e, delta, mode);
 		}
 	}
 	

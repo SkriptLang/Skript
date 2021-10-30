@@ -35,8 +35,9 @@ import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.io.ByteStreams;
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.Version;
 
@@ -171,7 +172,9 @@ public class BukkitUnsafe {
 			String data = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
 			
 			Type type = new TypeToken<Map<String,Material>>(){}.getType();
-			materialMap = new Gson().fromJson(data, type);
+			materialMap = new GsonBuilder().
+				registerTypeAdapterFactory(EnumTypeAdapter.factory)
+				.create().fromJson(data, type);
 		}
 		
 		return true;
@@ -201,7 +204,9 @@ public class BukkitUnsafe {
 			String data = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
 			
 			Type type = new TypeToken<Map<Integer,String>>(){}.getType();
-			Map<Integer, String> rawMappings = new Gson().fromJson(data, type);
+			Map<Integer, String> rawMappings = new GsonBuilder().
+				registerTypeAdapterFactory(EnumTypeAdapter.factory)
+				.create().fromJson(data, type);
 			
 			// Process raw mappings
 			Map<Integer, Material> parsed = new HashMap<>(rawMappings.size());

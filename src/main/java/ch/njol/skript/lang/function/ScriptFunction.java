@@ -26,23 +26,26 @@ import ch.njol.skript.effects.EffReturn;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * @author Peter Güttinger
  */
 public class ScriptFunction<T> extends Function<T> {
 	
-	@Nullable
-	final Trigger trigger;
+	private final Trigger trigger;
 	
-	@SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
 	public ScriptFunction(Signature<T> sign, SectionNode node) {
 		super(sign);
 		
 		Functions.currentFunction = this;
 		try {
-			trigger = new Trigger(node.getConfig().getFile(), "function " + sign.getName(),
-					new SimpleEvent(), ScriptLoader.loadItems(node));
+			trigger = new Trigger(
+				node.getConfig().getFile(),
+				"function " + sign.getName(),
+				new SimpleEvent(),
+				ScriptLoader.loadItems(node)
+			);
+			trigger.setLineNumber(node.getLine());
 		} finally {
 			Functions.currentFunction = null;
 		}
@@ -54,11 +57,8 @@ public class ScriptFunction<T> extends Function<T> {
 	
 	/**
 	 * Should only be called by {@link EffReturn}.
-	 * 
-	 * @param e
-	 * @param value
 	 */
-	public final void setReturnValue(final FunctionEvent e, final @Nullable T[] value) {
+	public final void setReturnValue(final @Nullable T[] value) {
 		assert !returnValueSet;
 		returnValueSet = true;
 		returnValue = value;
@@ -68,14 +68,11 @@ public class ScriptFunction<T> extends Function<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	@Nullable
-	public T[] execute(final FunctionEvent e, final Object[][] params) {
-		if (trigger == null)
-			throw new IllegalStateException("trigger for function is not available");
-		
-		Parameter<?>[] parameters = sign.getParameters();
+	public T[] execute(final FunctionEvent<?> e, final Object[][] params) {
+		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
-			final Parameter<?> p = parameters[i];
-			final Object[] val = params[i];
+			Parameter<?> p = parameters[i];
+			Object[] val = params[i];
 			if (p.single && val.length > 0) {
 				Variables.setVariable(p.name, val[0], e, true);
 			} else {
@@ -85,7 +82,6 @@ public class ScriptFunction<T> extends Function<T> {
 			}
 		}
 		
-		assert trigger != null;
 		trigger.execute(e);
 		return returnValue;
 	}

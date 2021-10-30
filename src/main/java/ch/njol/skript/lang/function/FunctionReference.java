@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -34,6 +33,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -97,7 +97,7 @@ public class FunctionReference<T> {
 	@Nullable
 	public final String script;
 	
-	public FunctionReference(final String functionName, final @Nullable Node node, @Nullable final String script, @Nullable final Class<? extends T>[] returnTypes, final Expression<?>[] params) {
+	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script, @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
@@ -113,38 +113,46 @@ public class FunctionReference<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean validateFunction(boolean first) {
+		Function<? extends T> previousFunction = function;
+		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		final Signature<?> sign = Functions.getSignature(functionName);
+		Signature<?> sign = Functions.getSignature(functionName);
 		
 		// Check if the requested function exists
 		if (sign == null) {
-			if (first)
+			if (first) {
 				Skript.error("The function '" + functionName + "' does not exist.");
-			else
+			} else {
 				Skript.error("The function '" + functionName + "' was deleted or renamed, but is still used in other script(s)."
-						+ " These will continue to use the old version of the function until Skript restarts.");
+					+ " These will continue to use the old version of the function until Skript restarts.");
+				function = previousFunction;
+			}
 			return false;
 		}
 		
 		// Validate that return types are what caller expects they are
-		final Class<? extends T>[] returnTypes = this.returnTypes;
+		Class<? extends T>[] returnTypes = this.returnTypes;
 		if (returnTypes != null) {
-			final ClassInfo<?> rt = sign.returnType;
+			ClassInfo<?> rt = sign.returnType;
 			if (rt == null) {
-				if (first)
+				if (first) {
 					Skript.error("The function '" + functionName + "' doesn't return any value.");
-				else
+				} else {
 					Skript.error("The function '" + functionName + "' was redefined with no return value, but is still used in other script(s)."
-							+ " These will continue to use the old version of the function until Skript restarts.");
+						+ " These will continue to use the old version of the function until Skript restarts.");
+					function = previousFunction;
+				}
 				return false;
 			}
 			if (!CollectionUtils.containsAnySuperclass(returnTypes, rt.getC())) {
-				if (first)
+				if (first) {
 					Skript.error("The returned value of the function '" + functionName + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
-				else
+				} else {
 					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
-							+ " These will continue to use the old version of the function until Skript restarts.");
+						+ " These will continue to use the old version of the function until Skript restarts.");
+					function = previousFunction;
+				}
 				return false;
 			}
 			if (first) {
@@ -152,6 +160,7 @@ public class FunctionReference<T> {
 			} else if (single && !sign.single) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
+				function = previousFunction;
 				return false;
 			}
 		}
@@ -162,45 +171,52 @@ public class FunctionReference<T> {
 			// Too many parameters
 			if (parameters.length > sign.getMaxParameters()) {
 				if (first) {
-					if (sign.getMaxParameters() == 0)
+					if (sign.getMaxParameters() == 0) {
 						Skript.error("The function '" + functionName + "' has no arguments, but " + parameters.length + " are given."
-								+ " To call a function without parameters, just write the function name followed by '()', e.g. 'func()'.");
-					else
+							+ " To call a function without parameters, just write the function name followed by '()', e.g. 'func()'.");
+					} else {
 						Skript.error("The function '" + functionName + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
-								+ " but " + parameters.length + " are given."
-								+ " If you want to use lists in function calls, you have to use additional parentheses, e.g. 'give(player, (iron ore and gold ore))'");
+							+ " but " + parameters.length + " are given."
+							+ " If you want to use lists in function calls, you have to use additional parentheses, e.g. 'give(player, (iron ore and gold ore))'");
+					}
 				} else {
 					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
-							+ " These will continue to use the old version of the function until Skript restarts.");
+						+ " These will continue to use the old version of the function until Skript restarts.");
+					function = previousFunction;
 				}
 				return false;
 			}
 		}
+		
 		// Not enough parameters
 		if (parameters.length < sign.getMinParameters()) {
-			if (first)
+			if (first) {
 				Skript.error("The function '" + functionName + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
-						+ " but only " + parameters.length + " " + (parameters.length == 1 ? "is" : "are") + " given.");
-			else
+					+ " but only " + parameters.length + " " + (parameters.length == 1 ? "is" : "are") + " given.");
+			} else {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
-						+ " These will continue to use the old version of the function until Skript restarts.");
+					+ " These will continue to use the old version of the function until Skript restarts.");
+				function = previousFunction;
+			}
 			return false;
 		}
 		
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			final Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
-			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
+			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
-				final Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
+				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
 				if (e == null) {
-					if (first)
+					if (first) {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is not of the required type " + p.type + "."
-								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
-								+ " Please note that storing the value in a variable and then using that variable as parameter will suppress this error, but it still won't work.");
-					else
+							+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
+							+ " Please note that storing the value in a variable and then using that variable as parameter will suppress this error, but it still won't work.");
+					} else {
 						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
-								+ " These will continue to use the old version of the function until Skript restarts.");
+							+ " These will continue to use the old version of the function until Skript restarts.");
+						function = previousFunction;
+					}
 					return false;
 				}
 				parameters[i] = e;
@@ -228,40 +244,41 @@ public class FunctionReference<T> {
 
 	@SuppressWarnings("unchecked")
 	@Nullable
-	protected T[] execute(final Event e) {
+	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
 			function = (Function<? extends T>) Functions.getFunction(functionName);
+		
 		if (function == null) { // It might be impossible to resolve functions in some cases!
-			Skript.error("Invalid function call to a function that does not exist yet. Be careful when using functions in 'script load' events!");
+			Skript.error("Couldn't resolve call for '" + functionName +
+				"'. Be careful when using functions in 'script load' events!");
 			return null; // Return nothing and hope it works
 		}
 		
 		// Prepare parameter values for calling
-		final Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
+		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
 			List<Object> l = new ArrayList<>();
-			for (int i = 0; i < parameters.length; i++)
-				l.addAll(Arrays.asList(parameters[i].getArray(e)));
+			for (Expression<?> parameter : parameters)
+				l.addAll(Arrays.asList(parameter.getArray(e)));
 			params[0] = l.toArray();
+			
 			// Don't allow mutating across function boundary; same hack is applied to variables
 			for (int i = 0; i < params[0].length; i++) {
-				if (params[0][i] instanceof Location)
-					params[0][i] = ((Location) params[0][i]).clone();
+				params[0][i] = Classes.clone(params[0][i]);
 			}
 		} else { // Use parameters in normal way
 			for (int i = 0; i < params.length; i++) {
-				params[i] = parameters[i].getArray(e);
+				Object[] array = parameters[i].getArray(e);
+				params[i] = Arrays.copyOf(array, array.length);
 				// Don't allow mutating across function boundary; same hack is applied to variables
 				for (int j = 0; j < params[i].length; j++) {
-					if (params[i][j] instanceof Location)
-						params[i][j] = ((Location) params[i][j]).clone();
+					params[i][j] = Classes.clone(params[i][j]);
 				}
 			}
 		}
 		
 		// Execute the function
-		assert function != null;
 		return function.execute(params);
 	}
 	
@@ -271,23 +288,23 @@ public class FunctionReference<T> {
 	
 	@Nullable
 	public Class<? extends T> getReturnType() {
-		if (signature == null) {
+		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
-		}
-		assert signature != null;
-		@SuppressWarnings("null")
+		
+		@SuppressWarnings("ConstantConditions")
 		ClassInfo<? extends T> ret = signature.returnType;
 		return ret == null ? null : ret.getC();
 	}
 	
-	public String toString(@Nullable final Event e, final boolean debug) {
-		final StringBuilder b = new StringBuilder(functionName + "(");
+	public String toString(@Nullable Event e, boolean debug) {
+		StringBuilder b = new StringBuilder(functionName + "(");
 		for (int i = 0; i < parameters.length; i++) {
 			if (i != 0)
 				b.append(", ");
 			b.append(parameters[i].toString(e, debug));
 		}
-		return "" + b.append(")");
+		b.append(")");
+		return b.toString();
 	}
 	
 }

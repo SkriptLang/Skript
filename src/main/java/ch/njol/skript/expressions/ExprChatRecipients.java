@@ -25,7 +25,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -67,7 +66,7 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(ScriptLoader.isCurrentEvent(AsyncPlayerChatEvent.class))) {
+		if (!(getParser().isCurrentEvent(AsyncPlayerChatEvent.class))) {
 			Skript.error("Cannot use chat recipients expression outside of a chat event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

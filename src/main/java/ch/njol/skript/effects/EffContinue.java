@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -31,10 +25,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.sections.SecLoop;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 @Name("Continue")
 @Description("Skips the value currently being looped, moving on to the next value if it exists.")
@@ -49,8 +47,19 @@ public class EffContinue extends Effect {
 		Skript.registerEffect(EffContinue.class, "continue [loop]");
 	}
 
-	@SuppressWarnings("null")
-	private Loop loop;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private SecLoop loop;
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		List<SecLoop> loops = getParser().getCurrentSections(SecLoop.class);
+		if (loops.isEmpty()) {
+			Skript.error("Continue may only be used in loops");
+			return false;
+		}
+		loop = loops.get(loops.size() - 1);
+		return true;
+	}
 
 	@Override
 	protected void execute(Event e) {
@@ -60,26 +69,12 @@ public class EffContinue extends Effect {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		TriggerItem.walk(loop, e);
-		return null;
+		return loop;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "continue";
-	}
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		List<Loop> loops = ScriptLoader.currentLoops;
-		if (loops.isEmpty()) {
-			Skript.error("Continue may only be used in loops");
-			return false;
-		}
-		Loop loop = loops.get(loops.size() - 1); // The most recent loop
-		assert loop != null;
-		this.loop = loop;
-		return true;
 	}
 
 }

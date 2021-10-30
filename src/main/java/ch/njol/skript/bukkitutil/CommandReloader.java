@@ -60,7 +60,6 @@ public class CommandReloader {
 		if (syncCommandsMethod == null)
 			return false; // Method not available, can't sync
 		try {
-			assert syncCommandsMethod != null;
 			syncCommandsMethod.invoke(server);
 			return true; // Sync probably succeeded
 		} catch (Throwable e) {

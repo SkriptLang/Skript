@@ -48,7 +48,7 @@ public class CondIsEnchanted extends Condition {
 		PropertyCondition.register(CondIsEnchanted.class, "enchanted [with %-enchantmenttype%]", "itemtypes");
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	@Nullable
 	private Expression<EnchantmentType> enchs;
@@ -65,7 +65,7 @@ public class CondIsEnchanted extends Condition {
 	@Override
 	public boolean check(final Event e) {
 		if (enchs != null)
-			return items.check(e, item -> enchs.check(e, ench -> item.hasEnchantments(ench)), isNegated());
+			return items.check(e, item -> enchs.check(e, item::hasEnchantments), isNegated());
 		else
 			return items.check(e, ItemType::hasEnchantments, isNegated());
 		

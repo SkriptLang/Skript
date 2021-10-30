@@ -32,7 +32,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -267,23 +269,20 @@ public abstract class Aliases {
 				t.setAmount(1);
 		}
 		
-		final String lc = s.toLowerCase();
-		final String of = Language.getSpaced("enchantments.of").toLowerCase();
+		String lc = s.toLowerCase();
+		String of = Language.getSpaced("enchantments.of").toLowerCase();
 		int c = -1;
 		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
-			final ItemType t2 = t.clone();
-			final BlockingLogHandler log = SkriptLogger.startLogHandler(new BlockingLogHandler());
-			try {
+			ItemType t2 = t.clone();
+			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 				if (parseType("" + s.substring(0, c), t2, false) == null)
 					continue;
-			} finally {
-				log.stop();
 			}
 			if (t2.numTypes() == 0)
 				continue;
-			final String[] enchs = lc.substring(c + of.length()).split("\\s*(,|" + Pattern.quote(Language.get("and")) + ")\\s*");
+			String[] enchs = lc.substring(c + of.length()).split("\\s*(,|" + Pattern.quote(Language.get("and")) + ")\\s*");
 			for (final String ench : enchs) {
-				final EnchantmentType e = EnchantmentType.parse("" + ench);
+				EnchantmentType e = EnchantmentType.parse("" + ench);
 				if (e == null)
 					continue outer;
 				t2.addEnchantments(e);
@@ -399,6 +398,22 @@ public abstract class Aliases {
 			Skript.exception(e);
 		}
 	}
+
+	/**
+	 * Temporarily create an alias for a material which may not have an alias yet.
+	 */
+	private static void loadMissingAliases() {
+		if (!Skript.methodExists(Material.class, "getKey"))
+			return;
+		for (Material material : Material.values()) {
+			if (!provider.hasAliasForMaterial(material)) {
+				NamespacedKey key = material.getKey();
+				String name = key.getKey().replace("_", " ");
+				parser.loadAlias(name + "¦s", key.toString());
+				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key.toString());
+			}
+		}
+	}
 	
 	private static void loadInternal() throws IOException {
 		Path dataFolder = Skript.getInstance().getDataFolder().toPath();
@@ -422,6 +437,7 @@ public abstract class Aliases {
 					Path aliasesPath = zipFs.getPath("/", "aliases-english");
 					assert aliasesPath != null;
 					loadDirectory(aliasesPath);
+					loadMissingAliases();
 				}
 			} catch (URISyntaxException e) {
 				assert false;

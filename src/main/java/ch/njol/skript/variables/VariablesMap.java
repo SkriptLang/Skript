@@ -31,40 +31,71 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 
 final class VariablesMap {
-	
+
 	final static Comparator<String> variableNameComparator = new Comparator<String>() {
 		@Override
-		public int compare(final @Nullable String s1, final @Nullable String s2) {
+		public int compare(@Nullable String s1, @Nullable String s2) {
 			if (s1 == null)
 				return s2 == null ? 0 : -1;
+
 			if (s2 == null)
 				return 1;
-			int i = 0, j = 0;
+
+			int i = 0;
+			int j = 0;
+
+			boolean lastNumberNegative = false;
 			while (i < s1.length() && j < s2.length()) {
-				final char c1 = s1.charAt(i), c2 = s2.charAt(j);
-				if ('0' <= c1 && c1 <= '9' && '0' <= c2 && c2 <= '9') { // TODO negative numbers? what about {blah-%number%}? // '-' < '0'
-					final int i2 = StringUtils.findLastDigit(s1, i), j2 = StringUtils.findLastDigit(s2, j);
-					final long n1 = Utils.parseLong("" + s1.substring(i, i2)), n2 = Utils.parseLong("" + s2.substring(j, j2));
+				char c1 = s1.charAt(i);
+				char c2 = s2.charAt(j);
+
+				if ('0' <= c1 && c1 <= '9' && '0' <= c2 && c2 <= '9') {
+					// Numbers/digits are treated differently from other characters.
+					int i2 = StringUtils.findLastDigit(s1, i);
+					int j2 = StringUtils.findLastDigit(s2, j);
+
+					long n1 = Utils.parseLong("" + s1.substring(i, i2));
+					long n2 = Utils.parseLong("" + s2.substring(j, j2));
+
+					// If the number is prefixed by a '-', it should be treated as negative, thus inverting the order.
+					// If the previous number was negative, and the only thing separating them was a '.',
+					//  then this number should also be in inverted order.
+					boolean previousNegative = lastNumberNegative;
+
+					lastNumberNegative = i > 0 && s1.charAt(i - 1) == '-';
+					int isPositive = (lastNumberNegative | previousNegative) ? -1 : 1;
+
 					if (n1 > n2)
-						return 1;
+						return isPositive;
+
 					if (n1 < n2)
+						return -1 * isPositive;
+
+					// Represent same number, but different length, indicating leading zeros
+					if (i2 - i > j2 - j)
 						return -1;
+					if (i2 - i < j2 - j)
+						return 1;
+
 					i = i2;
 					j = j2;
-					continue;
 				} else {
+					// Normal characters
 					if (c1 > c2)
 						return 1;
 					if (c1 < c2)
 						return -1;
+					// Reset the last number flag if we're exiting a number.
+					if (c1 != '.')
+						lastNumberNegative = false;
 					i++;
 					j++;
 				}
 			}
 			if (i < s1.length())
-				return -1;
+				return lastNumberNegative ? -1 : 1;
 			if (j < s2.length())
-				return 1;
+				return lastNumberNegative ? 1 : -1;
 			return 0;
 		}
 	};
@@ -82,19 +113,19 @@ final class VariablesMap {
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
-	final Object getVariable(final String name) {
+	final Object getVariable(String name) {
 		if (!name.endsWith("*")) {
 			return hashMap.get(name);
 		} else {
-			final String[] split = Variables.splitVariableName(name);
+			String[] split = Variables.splitVariableName(name);
 			Map<String, Object> current = treeMap;
 			for (int i = 0; i < split.length; i++) {
-				final String n = split[i];
+				String n = split[i];
 				if (n.equals("*")) {
 					assert i == split.length - 1;
 					return current;
 				}
-				final Object o = current.get(n);
+				Object o = current.get(n);
 				if (o == null)
 					return null;
 				if (o instanceof Map) {
@@ -116,17 +147,17 @@ final class VariablesMap {
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
 	 */
 	@SuppressWarnings("unchecked")
-	final void setVariable(final String name, final @Nullable Object value) {
+	final void setVariable(String name, @Nullable Object value) {
 		if (!name.endsWith("*")) {
 			if (value == null)
 				hashMap.remove(name);
 			else
 				hashMap.put(name, value);
 		}
-		final String[] split = Variables.splitVariableName(name);
+		String[] split = Variables.splitVariableName(name);
 		TreeMap<String, Object> parent = treeMap;
 		for (int i = 0; i < split.length; i++) {
-			final String n = split[i];
+			String n = split[i];
 			Object current = parent.get(n);
 			if (current == null) {
 				if (i == split.length - 1) {
@@ -150,7 +181,7 @@ final class VariablesMap {
 				} else if (i == split.length - 2 && split[i + 1].equals("*")) {
 					assert value == null;
 					deleteFromHashMap(StringUtils.join(split, Variable.SEPARATOR, 0, i + 1), (TreeMap<String, Object>) current);
-					final Object v = ((TreeMap<String, Object>) current).get(null);
+					Object v = ((TreeMap<String, Object>) current).get(null);
 					if (v == null)
 						parent.remove(n);
 					else
@@ -168,7 +199,7 @@ final class VariablesMap {
 						parent.put(n, value);
 					break;
 				} else if (value != null) {
-					final TreeMap<String, Object> c = new TreeMap<>(variableNameComparator);
+					TreeMap<String, Object> c = new TreeMap<>(variableNameComparator);
 					c.put(null, current);
 					parent.put(n, c);
 					parent = c;
@@ -181,12 +212,12 @@ final class VariablesMap {
 	}
 	
 	@SuppressWarnings("unchecked")
-	void deleteFromHashMap(final String parent, final TreeMap<String, Object> current) {
-		for (final Entry<String, Object> e : current.entrySet()) {
+	void deleteFromHashMap(String parent, TreeMap<String, Object> current) {
+		for (Entry<String, Object> e : current.entrySet()) {
 			if (e.getKey() == null)
 				continue;
 			hashMap.remove(parent + Variable.SEPARATOR + e.getKey());
-			final Object val = e.getValue();
+			Object val = e.getValue();
 			if (val instanceof TreeMap) {
 				deleteFromHashMap(parent + Variable.SEPARATOR + e.getKey(), (TreeMap<String, Object>) val);
 			}

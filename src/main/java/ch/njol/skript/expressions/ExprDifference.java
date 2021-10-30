@@ -39,6 +39,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
@@ -72,7 +73,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 		second = exprs[1];
 		final ClassInfo<?> ci;
 		if (first instanceof Variable && second instanceof Variable) {
-			ci = Classes.getExactClassInfo(Object.class);
+			ci = DefaultClasses.OBJECT;
 		} else if (first instanceof Literal<?> && second instanceof Literal<?>) {
 			first = first.getConvertedExpression(Object.class);
 			second = second.getConvertedExpression(Object.class);
