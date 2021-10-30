@@ -40,9 +40,9 @@ public abstract class Parser<T> {
 	 * Parses the input. This method may print an error prior to returning null if the input couldn't be parsed.
 	 * <p>
 	 * Remember to override {@link #canParse(ParseContext)} if this parser doesn't parse at all (i.e. you only use it's toString methods) or only parses for certain contexts.
-	 * 
-	 * Note that this method does not provide {@link ParserInstance}; you won't be able to use logging in multithreaded
-	 * parsing environment.
+	 * <p>
+	 * Note that this method will be called very frequently during script parsing,
+	 * so try to avoid computationally expensive operations in this method when possible.
 	 * 
 	 * @param s The String to parse. This string is already trim()med.
 	 * @param context Context of parsing, may not be null
