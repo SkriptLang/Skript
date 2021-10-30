@@ -50,8 +50,8 @@ import ch.njol.util.Kleenean;
 @Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
 			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
 @Examples({"on damage:",
-	"	victim is a creeper",
-	"	damage the attacked by 1 heart"})
+	"\tvictim is a creeper",
+	"\tdamage the attacked by 1 heart"})
 @Since("1.3, INSERT VERSION (projectile hit event)")
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> {
