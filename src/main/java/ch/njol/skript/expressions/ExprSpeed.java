@@ -46,7 +46,7 @@ import ch.njol.util.Math2;
 public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	
 	static {
-		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-])speed", "players");
+		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-)]speed", "players");
 	}
 	
 	private boolean walk;
