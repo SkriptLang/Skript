@@ -1,6 +1,3 @@
-on load:
-	suppress conflict warnings
-
 test "replace items":
 	set {_inv} to chest inventory with 3 rows
 	set slot 2 of {_inv} to 54 dirt
@@ -44,5 +41,3 @@ test "replace strings":
 	assert {_text::6} is "My name is bob and this is my friend bob!" with "replace all pattern 1 (case sensitivity enabled) (%{_text::5}%) failed"
 	assert {_text::7} is "My name is BOBBY and this is my friend bob!" with "replace first pattern 2 (case sensitivity enabled) (%{_text::8}%) failed"
 	assert {_text::8} is "My name is bob and this is my friend bob!" with "replace first pattern 1 (case sensitivity enabled) (%{_text::7}%) failed"
-
-	

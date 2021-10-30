@@ -40,20 +40,20 @@ import ch.njol.util.coll.CollectionUtils;
 	"\tevent-projectile is an arrow",
 	"\tset arrow knockback strength of event-projectile to 10"})
 @Since("2.5.1")
-public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Projectile, Number> {
+public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Projectile, Long> {
 	
 	final static boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
 	
 	static {
-		register(ExprArrowKnockbackStrength.class, Number.class, "[the] arrow knockback strength", "projectiles");
+		register(ExprArrowKnockbackStrength.class, Long.class, "arrow knockback strength", "projectiles");
 	}
 	
 	@Nullable
 	@Override
-	public Number convert(Projectile arrow) {
+	public Long convert(Projectile arrow) {
 		if (abstractArrowExists)
-			return arrow instanceof AbstractArrow ? ((AbstractArrow) arrow).getKnockbackStrength() : null;
-		return arrow instanceof Arrow ? ((Arrow) arrow).getKnockbackStrength() : null;
+			return arrow instanceof AbstractArrow ? (long) ((AbstractArrow) arrow).getKnockbackStrength() : null;
+		return arrow instanceof Arrow ? (long) ((Arrow) arrow).getKnockbackStrength() : null;
 	}
 	
 	@Nullable
@@ -131,8 +131,8 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override

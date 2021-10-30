@@ -30,7 +30,6 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
-import ch.njol.skript.effects.Delay;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Section;
@@ -42,7 +41,6 @@ import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
@@ -114,7 +112,6 @@ public class ScriptLoader {
 	 * Clears triggers, commands, functions and variable names
 	 */
 	static void disableScripts() {
-		VariableString.variableNames.clear();
 		SkriptEventHandler.removeAllTriggers();
 		Commands.clearCommands();
 		Functions.clearFunctions();
@@ -217,21 +214,21 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter scriptFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
-			&& !f.getName().startsWith("-");
-	
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& !f.getName().startsWith("-") && !f.isHidden();
+
 	/**
 	 * All disabled script files.
 	 */
 	private static final Set<File> disabledFiles = Collections.synchronizedSet(new HashSet<>());
-	
+
 	/**
 	 * Filter for disabled scripts & folders.
 	 */
 	private static final FileFilter disabledFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
-			&& f.getName().startsWith("-");
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& f.getName().startsWith("-") && !f.isHidden();
 	
 	/**
 	 * Reevaluates {@link #disabledFiles}.
@@ -240,6 +237,7 @@ public class ScriptLoader {
 	private static void updateDisabledScripts(Path path) {
 		disabledFiles.clear();
 		try {
+			// TODO handle AccessDeniedException
 			Files.walk(path)
 				.map(Path::toFile)
 				.filter(disabledFilter::accept)
@@ -1104,7 +1102,6 @@ public class ScriptLoader {
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
 	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
-		
 		if (Skript.debug())
 			getParser().setIndentation(getParser().getIndentation() + "    ");
 		
@@ -1113,18 +1110,18 @@ public class ScriptLoader {
 		for (Node n : node) {
 			SkriptLogger.setNode(n);
 			if (n instanceof SimpleNode) {
-				SimpleNode e = (SimpleNode) n;
-				String s = replaceOptions("" + e.getKey());
-				if (!SkriptParser.validateLine(s))
+				String expr = replaceOptions("" + n.getKey());
+				if (!SkriptParser.validateLine(expr))
 					continue;
-				Statement stmt = Statement.parse(s, "Can't understand this condition/effect: " + s);
+
+				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
 				if (stmt == null)
 					continue;
+
 				if (Skript.debug() || n.debug())
 					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
+
 				items.add(stmt);
-				if (stmt instanceof Delay)
-					getParser().setHasDelayBefore(Kleenean.TRUE);
 			} else if (n instanceof SectionNode) {
 				String expr = replaceOptions("" + n.getKey());
 				if (!SkriptParser.validateLine(expr))

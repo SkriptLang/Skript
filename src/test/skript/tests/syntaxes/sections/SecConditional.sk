@@ -11,3 +11,22 @@ test "SecConditional - ParseIf":
 	else:
 		#this code in this section SHOULD be parsed but should NOT be ran
 		assert 10 = 1 with "ParseIf/Else section was parsed and failed"
+
+test "SecConditional":
+	set {_b} to true
+	if 1 is 1:
+		delete {_b}
+		1 = 2
+	else if 1 = 1:
+		assert 1 = 2 with "conditional failed ##1"
+	else:
+		assert 1 = 2 with "conditional failed ##2"
+	if {_b} is set:
+		assert 1 = 2 with "conditional failed ##3"
+
+	if 1 = 2:
+		assert 1 = 2 with "conditional failed ##4"
+	else if 1 = 1:
+		exit 1 section
+	else:
+		assert 1 = 2 with "conditional failed ##5"

@@ -32,24 +32,26 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The maximum stack size of the specified material, e.g. 64 for torches, 16 for buckets, and 1 for swords.")
 @Examples("send \"You can only pick up %max stack size of player's tool% of %type of (player's tool)%\" to player")
 @Since("2.1")
-public class ExprMaxStack extends SimplePropertyExpression<ItemType, Integer> {
+public class ExprMaxStack extends SimplePropertyExpression<ItemType, Long> {
+
 	static {
-		register(ExprMaxStack.class, Integer.class, "max[imum] stack[[ ]size]", "itemtype");
-	}
-	
-	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
-	}
-	
-	@Override
-	protected String getPropertyName() {
-		return "maximum stack size";
+		register(ExprMaxStack.class, Long.class, "max[imum] stack[[ ]size]", "itemtype");
 	}
 	
 	@SuppressWarnings("null")
 	@Override
-	public Integer convert(final ItemType i) {
-		return Integer.valueOf(i.getRandom().getMaxStackSize());
+	public Long convert(final ItemType i) {
+		return (long) i.getRandom().getMaxStackSize();
 	}
+
+	@Override
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "maximum stack size";
+	}
+
 }
