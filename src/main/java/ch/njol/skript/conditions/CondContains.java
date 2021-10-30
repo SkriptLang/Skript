@@ -31,7 +31,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Comparators;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -97,12 +96,10 @@ public class CondContains extends Condition {
 	public boolean check(Event e) {
 		CheckType checkType = this.checkType;
 
-		Object[] containerValues = containers.getArray(e);
+		Object[] containerValues = containers.getAll(e);
 
 		if (containerValues.length == 0)
 			return isNegated();
-
-		boolean containersAnd = containers.getAnd();
 
 		// Change checkType according to values
 		if (checkType == CheckType.UNKNOWN) {
@@ -118,27 +115,25 @@ public class CondContains extends Condition {
 			}
 		}
 
-		Checker<Object> checker;
-		boolean and = containersAnd;
-
 		if (checkType == CheckType.INVENTORY) {
-			checker = o -> {
+			return SimpleExpression.check(containerValues, o -> {
 				Inventory inventory = (Inventory) o;
 
 				return items.check(e, o1 -> {
 					if (o1 instanceof ItemType)
 						return ((ItemType) o1).isContainedIn(inventory);
 					else if (o1 instanceof ItemStack)
-						return inventory.contains((ItemStack) o1);
+						return inventory.containsAtLeast((ItemStack) o1, ((ItemStack) o1).getAmount());
 					else if (o1 instanceof Inventory)
 						return Objects.equals(inventory, o1);
 					else
 						return false;
 				});
-			};
+			}, isNegated(), containers.getAnd());
 		} else if (checkType == CheckType.STRING) {
 			boolean caseSensitive = SkriptConfig.caseSensitive.value();
-			checker = o -> {
+
+			return SimpleExpression.check(containerValues, o -> {
 				String string = (String) o;
 
 				return items.check(e, o1 -> {
@@ -148,15 +143,18 @@ public class CondContains extends Condition {
 						return false;
 					}
 				});
-			};
+			}, isNegated(), containers.getAnd());
 		} else {
 			assert checkType == CheckType.OBJECTS;
 
-			and = false;
-			checker = (o) -> items.check(e, o1 -> Comparators.compare(o, o1) == Relation.EQUAL);
+			return items.check(e, o1 -> {
+				for (Object o2 : containerValues) {
+					if (Comparators.compare(o1, o2) == Relation.EQUAL)
+						return true;
+				}
+				return false;
+			}, isNegated());
 		}
-
-		return SimpleExpression.check(containerValues, checker, isNegated(), and);
 	}
 	
 	@Override
