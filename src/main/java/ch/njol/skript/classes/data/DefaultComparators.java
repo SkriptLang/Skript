@@ -46,6 +46,8 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -602,6 +604,18 @@ public class DefaultComparators {
 				}
 			});
 		}
+
+		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
+			@Override
+			public Relation compare(Inventory inventory, InventoryType inventoryType) {
+				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
 	}
 	
 }
