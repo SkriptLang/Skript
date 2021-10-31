@@ -18,16 +18,15 @@
  */
 package ch.njol.skript.command;
 
+import ch.njol.skript.util.Date;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
-/**
- * @author Peter Güttinger
- */
 public class ScriptCommandEvent extends CommandEvent {
 	
 	private final ScriptCommand skriptCommand;
-	private boolean cooldownCancelled = false;
+	private final Date executionDate = new Date();
 
 	public ScriptCommandEvent(final ScriptCommand command, final CommandSender sender) {
 		super(sender, command.getLabel(), null);
@@ -43,12 +42,12 @@ public class ScriptCommandEvent extends CommandEvent {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean isCooldownCancelled() {
-		return cooldownCancelled;
-	}
-
 	public void setCooldownCancelled(boolean cooldownCancelled) {
-		this.cooldownCancelled = cooldownCancelled;
+		CommandSender sender = getSender();
+		if (sender instanceof Player) {
+			Date date = cooldownCancelled ? null : executionDate;
+			skriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
+		}
 	}
 
 	// Bukkit stuff
