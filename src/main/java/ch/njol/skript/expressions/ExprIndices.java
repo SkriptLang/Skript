@@ -122,7 +122,7 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		String text = "indices of " + list;
+		String text = "indices of " + list.toString(e, debug);
 
 		if (sort)
 			text = "sorted " + text + " in " + (descending ? "descending" : "ascending") + " order";
