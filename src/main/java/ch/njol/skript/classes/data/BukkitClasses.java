@@ -18,16 +18,35 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumSerializer;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BiomeUtils;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DamageCauseUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.EnumUtils;
+import ch.njol.skript.util.InventoryActions;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -73,35 +92,15 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BiomeUtils;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DamageCauseUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.EnumUtils;
-import ch.njol.skript.util.InventoryActions;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
+import java.io.StreamCorruptedException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -111,7 +110,6 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
-	public static Pattern PLAYER_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_]{1,16}");
 
 	static {
 		final boolean GET_ENTITY_METHOD_EXISTS = Skript.methodExists(Bukkit.class, "getEntity", UUID.class);
@@ -794,7 +792,7 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND) {
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!PLAYER_NAME_PATTERN.matcher(s).matches())
+							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
 								return null;
 							return Bukkit.getOfflinePlayer(s);
 						}

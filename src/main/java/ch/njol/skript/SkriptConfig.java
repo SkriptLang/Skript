@@ -311,15 +311,14 @@ public class SkriptConfig {
 			}
 		});
 
-	public final static Option<String> playerNameRegexPattern = new Option<>("player name regex pattern", "[a-zA-Z0-9_]{1,16}")
-		.optional(true)
-		.setter(value -> {
-			try {
-				BukkitClasses.PLAYER_NAME_PATTERN = Pattern.compile(value);
-			} catch (PatternSyntaxException e) {
-				Skript.error("Invalid player name regex pattern: " + e.getMessage());
-			}
-		});
+	public final static Option<Pattern> playerNameRegexPattern = new Option<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{1,16}"), s -> {
+		try {
+			return Pattern.compile(s);
+		} catch (PatternSyntaxException e) {
+			Skript.error("Invalid player name regex pattern: " + e.getMessage());
+			return null;
+		}
+	}).optional(true);
 
 	/**
 	 * This should only be used in special cases
