@@ -18,6 +18,7 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
@@ -50,6 +51,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
@@ -305,6 +308,16 @@ public class SkriptConfig {
 		.setter(value -> {
 			if (value) {
 				Skript.disableHookRegistration(WorldGuardHook.class);
+			}
+		});
+
+	public final static Option<String> playerNameRegexPattern = new Option<>("player name regex pattern", "[a-zA-Z0-9_]{1,16}")
+		.optional(true)
+		.setter(value -> {
+			try {
+				BukkitClasses.PLAYER_NAME_PATTERN = Pattern.compile(value);
+			} catch (PatternSyntaxException e) {
+				Skript.error("Invalid player name regex pattern: " + e.getMessage());
 			}
 		});
 
