@@ -39,7 +39,7 @@ import java.util.Map.Entry;
 
 @Name("Indices of List")
 @Description({
-	"Returns all the indices of a list variable, optionally sorted by their values",
+	"Returns all the indices of a list variable, optionally sorted by their values.",
 	"To sort the indices, all objects in the list must be comparable;",
 	"Otherwise, this expression will just return the unsorted indices."
 })
