@@ -16,15 +16,14 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.localization;
-
 /**
+ * The package for the bukkit plugin Skript.
+ * 
  * @author Peter Güttinger
  */
-public class GeneralWords {
-	
-	public static final Message and = new Message("and");
-	public static final Message or = new Message("or");
-	public static final Message not = new Message("not");
-	
-}
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package ch.njol.skript.patterns;
+
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+

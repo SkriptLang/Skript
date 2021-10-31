@@ -16,15 +16,18 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.localization;
+package ch.njol.skript.patterns;
 
-/**
- * @author Peter Güttinger
- */
-public class GeneralWords {
-	
-	public static final Message and = new Message("and");
-	public static final Message or = new Message("or");
-	public static final Message not = new Message("not");
-	
+import org.eclipse.jdt.annotation.Nullable;
+
+public class MalformedPatternException extends IllegalArgumentException {
+
+	public MalformedPatternException(String pattern, String message) {
+		this(pattern, message, null);
+	}
+
+	public MalformedPatternException(String pattern, String message, @Nullable Throwable cause) {
+		super(message + " [pattern: " + pattern + "]", cause);
+	}
+
 }

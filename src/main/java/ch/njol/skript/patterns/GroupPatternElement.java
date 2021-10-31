@@ -16,34 +16,40 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.localization;
+package ch.njol.skript.patterns;
 
-import java.util.IllegalFormatException;
+import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
+/**
+ * A {@link PatternElement} that represents a group, for example {@code (test)}.
+ */
+public class GroupPatternElement extends PatternElement {
 
-public final class ArgsMessage extends Message {
-	
-	public ArgsMessage(String key) {
-		super(key);
+	private final PatternElement patternElement;
+
+	public GroupPatternElement(PatternElement patternElement) {
+		this.patternElement = patternElement;
 	}
-	
+
+	public PatternElement getPatternElement() {
+		return patternElement;
+	}
+
+	@Override
+	void setNext(@Nullable PatternElement next) {
+		super.setNext(next);
+		patternElement.setLastNext(next);
+	}
+
+	@Override
+	@Nullable
+	public MatchResult match(String expr, MatchResult matchResult) {
+		return patternElement.match(expr, matchResult);
+	}
+
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return "(" + patternElement + ")";
 	}
-	
-	public String toString(Object... args) {
-		try {
-			String val = getValue();
-			return val == null ? key : "" + String.format(val, args);
-		} catch (IllegalFormatException e) {
-			String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
-			Skript.adminBroadcast("<red>" + m);
-			System.err.println("[Skript] " + m);
-			e.printStackTrace();
-			return "[ERROR]";
-		}
-	}
-	
+
 }
