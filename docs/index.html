@@ -1,31 +1,65 @@
 <h1 id="nav-title">Documentation</h1>
 
-<div id="content">
-<p>
-  Skript is (surprise, surprise) a scripting plugin for Bukkit platform. It
-  is easy to use for simple tasks, but yet you can create really complex things
-  with it. The syntax of Skript is close to English, but it is still not magic.
-  While for simple tasks you might succeed with experimentation, for anything
-  more complex you will need some guidance.
-</p>
+<div id="content-no-docs" class="no-left-panel" style="display: inline-block;">
+<div style="height: 32px;"></div> <!-- Space -->
+<p> <span style="font-size: 60px; font-weight: bold;">Skript</span> is (surprise, surprise) a scripting plugin for the Bukkit platform. It is easy to use for
+    simple tasks, but you can also create really complex things with it. The syntax of Skript is close to
+    English, but it is still not magic. While you might succeed with experimentation for simple tasks, for
+    anything more complex you will need some guidance. </p>
+<p> This is Skript's documentation. You will find all supported features of the plugin here, along with some
+    useful examples. We don't have tutorials yet, but you can find good ones using whatever search engine you
+    prefer. </p>
 
-<p>
-  This is the Skript documentation. You will find all supported features of Skript
-  plugin here. You might also find some useful examples, in case you need more
-  than what was shipped with Skript distribution. We do not currently have
-  tutorials here, but you can find good ones using whatever search engine you prefer.
-</p>
+<p class="box-title">Quick Look</p>
+<pre class="box code" style="height: 400px; overflow: scroll;"><code class="bash">
+command /sethome:<br/>
+	permission: skript.home # Permission required for this command<br/>
+	description: Set your home # Description of this command<br/>
+	executable by: players # Console won't be able to run this command<br/>
+	trigger: # The actual trigger/code that will run when someone do /sethome<br/>
+		# Set a unique variable to sender's location<br/>
+		set {home::%uuid of player%} to location of player<br/>
+		# Send a message to the sender<br/>
+		message &quot;Set your home to &lt;grey&gt;%location of player%&lt;reset&gt;&quot;<br/>
+<br/>
+command /home:<br/>
+	permission: skript.home<br/>
+	description: Teleport yourself to your home<br/>
+	trigger:<br/>
+		# Check if that variable we used in /sethome has been set (in other words, if player ever ran /sethome)<br/>
+		if {home::%uuid of player%} is not set:<br/>
+			message &quot;You have not set your home yet!&quot;<br/>
+			stop trigger # stop the code here, lines below won't run<br/>
+		# Teleport the player to their home<br/>
+		teleport player to {home::%uuid of player%}<br/>
+		send &quot;&amp;aYou have been teleported.&quot;<br/>
+</code></pre>
 
-<p class="box">
-  Found something incorrect in this documentation? Please report
-  it to the <a href="https://github.com/SkriptLang/Skript/issues">issue tracker</a>.
-</p>
-<p class="box">
-  <strong>We are looking for docs authors!</strong>
-  Currently, the only documentation is generated automatically. It would be
-  nice to have some hand-written content such as tutorials on the docs as well. For example, currently we don't have
-  a tutorial on how to use loops here; This makes it harder for newcomers to learn.
-  Check <a href="https://github.com/SkriptLang/Skript/issues/611">this issue</a> for
-  more details and if you're interested in helping out.
-</p>
+<div id="info" class="grid-container padding">
+    <div class="grid-item">
+        <p class="box-title">Latest Version</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/releases/tag/${latest-version}" target="_blank">${latest-version}</a></p>
+    </div>
+    <div class="grid-item">
+        <p class="box-title">Download</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/releases" target="_blank">Skript ${latest-version}</a></p>
+    </div>
+    <div class="grid-item">
+        <p class="box-title">Contributors</p>
+        <p class="box"><a class="link" href="https://github.com/SkriptLang/Skript/graphs/contributors" target="_blank">${contributors-size} Contributors</a></p>
+    </div>
 </div>
+
+<p class="box"> Found something incorrect in this documentation? Please report it to the <a
+        href="https://github.com/SkriptLang/Skript/issues">issue tracker</a>. </p>
+<p class="box"> <strong>We are looking for docs authors!</strong> Currently, the only documentation is generated
+    automatically. It would be nice to have some hand-written content such as tutorials on the docs as well. For
+    example, currently we don't have a tutorial on how to use loops here; This makes it harder for newcomers to
+    learn. Check <a href="https://github.com/SkriptLang/Skript/issues/611">this issue</a> for more details and
+    if you're interested in helping out. </p>
+
+
+<div style="padding-top: 64px;"></div> <!-- Space -->
+<p style="font-size: 14px; text-align: center;">Skript • <a href="https://github.com/SkriptLang/Skript/">SkriptLang Team</a> •
+    Styling by <a href="https://github.com/AyhamAl-Ali">Ayham Al-Ali</a> | 2021 • Generated on ${skript.build.date}</p>
+<div style="padding-top: 16px;"></div> <!-- Space -->
