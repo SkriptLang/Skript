@@ -32,8 +32,8 @@ public class WorldUtils {
 	/**
 	 * Get the minimum height of a world.
 	 * <p>
-	 * Starting with MC 1.17, world heights are able to be below y=0 (using data packs)
-	 * and starting with MC 1.18 the world height by default will be y=-64.
+	 * Starting with MC 1.17, minimum world heights are able to be below y=0 (using data packs)
+	 * and starting with MC 1.18 the minimum world height by default will be y=-64.
 	 * <p>
 	 * The method is new in Spigot/Paper 1.17.1, so if the method does not exist it will
 	 * return 0 by default.
