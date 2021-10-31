@@ -80,7 +80,7 @@ public class ExprIndices extends SimpleExpression<String> {
 			list = (Variable<?>) LiteralUtils.defendExpression(exprs[0]);
 
 			if (!list.isList()) {
-				Skript.error("The indices expression must only be used with list variables.");
+				Skript.error("The indices expression must only be used with list variables");
 				return false;
 			}
 			return LiteralUtils.canInitSafely(list);
@@ -125,7 +125,7 @@ public class ExprIndices extends SimpleExpression<String> {
 		String text = "indices of " + list;
 
 		if (sort)
-			text = "sorted " + text + " in " + (descending ? "descending" : "ascending") + "order";
+			text = "sorted " + text + " in " + (descending ? "descending" : "ascending") + " order";
 
 		return text;
 	}
