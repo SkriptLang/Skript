@@ -39,8 +39,6 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -573,12 +571,7 @@ public abstract class Classes {
 			public String toVariableNameString(final T o) {
 				throw new UnsupportedOperationException();
 			}
-			
-			@Override
-			public String getVariableNamePattern() {
-				throw new UnsupportedOperationException();
-			}
-		};
+        };
 	}
 	
 	/**
@@ -697,8 +690,7 @@ public abstract class Classes {
 	/**
 	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
 	 */
-	@Nullable
-	public static SerializedVariable.Value serialize(@Nullable Object o) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object o) {
 		if (o == null)
 			return null;
 		
