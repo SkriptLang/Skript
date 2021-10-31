@@ -52,7 +52,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
 @Examples({"on chat:",
 		"	player has permission \"admin\"",
-		"	set message to \"<red>%message%\"",
+		"	set message to \"&c%message%\"",
 		"",
 		"on first join:",
 		"	set join message to \"Welcome %player% to our awesome server!\"",

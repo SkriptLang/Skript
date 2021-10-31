@@ -264,7 +264,6 @@ public abstract class Commands {
 	static boolean handleEffectCommand(final CommandSender sender, String command) {
 		if (!(sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
 			return false;
-		final boolean wasLocal = Language.setUseLocal(false);
 		try {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
@@ -297,8 +296,6 @@ public abstract class Commands {
 			Skript.exception(e, "Unexpected error while executing effect command '" + command + "' by '" + sender.getName() + "'");
 			sender.sendMessage(ChatColor.RED + "An internal error occurred while executing this effect. Please refer to the server log for details.");
 			return true;
-		} finally {
-			Language.setUseLocal(wasLocal);
 		}
 	}
 	
@@ -395,20 +392,14 @@ public abstract class Commands {
 			pattern.append(']');
 		
 		String desc = "/" + command + " ";
-		final boolean wasLocal = Language.setUseLocal(true); // use localised class names in description
-		try {
-			desc += StringUtils.replaceAll(pattern, "(?<!\\\\)%-?(.+?)%", new Callback<String, Matcher>() {
-				@Override
-				public String run(final @Nullable Matcher m) {
-					assert m != null;
-					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural("" + m.group(1));
-					final String s = p.getFirst();
-					return "<" + Classes.getClassInfo(s).getName().toString(p.getSecond()) + ">";
-				}
-			});
-		} finally {
-			Language.setUseLocal(wasLocal);
-		}
+
+		desc += StringUtils.replaceAll(pattern, "(?<!\\\\)%-?(.+?)%", m1 -> {
+			assert m1 != null;
+			NonNullPair<String, Boolean> p = Utils.getEnglishPlural("" + m1.group(1));
+			String s1 = p.getFirst();
+			return "<" + Classes.getClassInfo(s1).getName().toString(p.getSecond()) + ">";
+		});
+
 		desc = unescape(desc);
 		desc = "" + desc.trim();
 		
@@ -426,11 +417,11 @@ public abstract class Commands {
 			aliases = new ArrayList<>(0);
 		final String permission = ScriptLoader.replaceOptions(node.get("permission", ""));
 
-		final String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""));
+		String rawPermissionMessage = ScriptLoader.replaceOptions(node.get("permission message", ""))
+			.replace("\"", "\"\"");
 
 		VariableString permissionMessage = rawPermissionMessage.isEmpty() ?
-				null
-				: VariableString.newInstance(rawPermissionMessage);
+			null : VariableString.newInstance(rawPermissionMessage);
 
 		final SectionNode trigger = (SectionNode) node.get("trigger");
 		if (trigger == null)
@@ -457,7 +448,8 @@ public abstract class Commands {
 			}
 		}
 
-		final String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""));
+		String cooldownMessageString = ScriptLoader.replaceOptions(node.get("cooldown message", ""))
+			.replace("\"", "\"\"");
 		boolean usingCooldownMessage = !cooldownMessageString.isEmpty();
 		VariableString cooldownMessage = null;
 		if (usingCooldownMessage) {

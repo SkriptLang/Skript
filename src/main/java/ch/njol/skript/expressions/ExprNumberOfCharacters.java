@@ -38,12 +38,12 @@ import ch.njol.util.Kleenean;
 			"on chat:",
 			"\tif number of uppercase chars in message / length of message > 0.5",
 			"\t\tcancel event",
-			"\t\tsend \"<red>Your message has to many caps!\" to player"})
+			"\t\tsend \"&lt;red&gt;Your message has to many caps!\" to player"})
 @Since("2.5")
-public class ExprNumberOfCharacters extends SimpleExpression<Number> {
+public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprNumberOfCharacters.class, Number.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprNumberOfCharacters.class, Long.class, ExpressionType.SIMPLE,
 				"number of upper[ ]case char(acters|s) in %string%",
 				"number of lower[ ]case char(acters|s) in %string%",
 				"number of digit char(acters|s) in %string%");
@@ -65,9 +65,11 @@ public class ExprNumberOfCharacters extends SimpleExpression<Number> {
 	@Override
 	@SuppressWarnings("null")
 	@Nullable
-	protected Number[] get(Event e) {
+	protected Long[] get(Event e) {
 		String str = expr.getSingle(e);
-		int size = 0;
+		if (str == null)
+			return null;
+		long size = 0;
 		if (pattern == 0) {
 			for (int c : (Iterable<Integer>) str.codePoints()::iterator) {
 				if (Character.isUpperCase(c)) size++;
@@ -81,17 +83,17 @@ public class ExprNumberOfCharacters extends SimpleExpression<Number> {
 				if (Character.isDigit(c)) size++;
 			}
 		}
-		return new Number[]{size};
+		return new Long[]{size};
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
@@ -103,4 +105,5 @@ public class ExprNumberOfCharacters extends SimpleExpression<Number> {
 		}
 		return "number of digits";
 	}
+
 }
