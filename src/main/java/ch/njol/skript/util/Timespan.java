@@ -89,7 +89,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 						return null;
 					amount = 1;
 					sub = subs[++i];
-				} else if (sub.matches("^\\d+(.\\d+)?$")) {
+				} else if (sub.matches("^\\d+(\\.\\d+)?$")) {
 					if (i == subs.length - 1)
 						return null;
 					try {
