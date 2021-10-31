@@ -3,40 +3,8 @@
 # Which version of Skript this language file was written for
 version: @version@
 
-# -- General --
-and: and
-or: or
-a: a, an
-is: is
-are: are
-not: not
-# not a: not a(n) # @a:not a @an:not an @x:not
-neither: neither
-nor: nor
-
 # What null (nothing) should show up as in a string/text
 none: <none>
-
-genders:
-	0:
-		id: a
-		definite article: the
-		indefinite article: a
-	1:
-		id: an
-		definite article: the
-		indefinite article: an
-	plural:
-		# id: x
-		definite article: the
-		# indefinite article: #-#
-	# none:
-		# id: -
-		# definite article: #-#
-		# indefinite article: #-#
-	# nominative:
-		# id: +
-		# used for adjectives only
 
 # -- Skript --
 skript:
@@ -180,13 +148,6 @@ hooks:
 
 # -- Aliases --
 aliases:
-	# regexes for Skript
-	any: any:
-	any-skp: any # same as 'any', but a Skript pattern
-	every: (?:every|all)
-	of every: of (?:every|all)
-	of: of(?: any)?
-
 	# Errors and warnings
 	empty string: '' is not an item type
 	invalid item type: '%s' is not an item type
@@ -207,273 +168,9 @@ aliases:
 	# Other messages
 	loaded x aliases from: Loaded %s english aliases from %s
 	loaded x aliases: Loaded a total of %s english aliases
-	anything: anything
-	named: named
-
-# -- Enchantments --
-enchantments:
-	of: of
-	names:
-		protection: Protection
-		fire_protection: Fire Protection
-		feather_falling: Feather Falling
-		blast_protection: Blast Protection
-		projectile_protection: Projectile Protection
-		respiration: Respiration
-		aqua_affinity: Aqua Affinity
-		sharpness: Sharpness
-		smite: Smite
-		bane_of_arthropods: Bane of Arthropods
-		knockback: Knockback
-		fire_aspect: Fire Aspect
-		looting: Looting
-		efficiency: Efficiency
-		silk_touch: Silk Touch
-		unbreaking: Unbreaking
-		fortune: Fortune
-		power: Power
-		punch: Punch
-		flame: Flame
-		infinity: Infinity
-		thorns: Thorns
-		luck: Luck of the Sea
-		lure: Lure
-		depth_strider: Depth Strider
-		mending: Mending
-		frost_walker: Frost Walker
-		vanishing_curse: Curse of Vanishing
-		binding_curse: Curse of Binding
-		# It's sweeping on 1.10 and below for some reason.
-		sweeping: Sweeping Edge
-		# New 1.13 Enchantments
-		channeling: Channeling, Channelling
-		riptide: Riptide
-		impaling: Impaling
-		loyalty: Loyalty
-		luck_of_the_sea: Luck of The Sea
-		# new 1.14 Enchantments
-		multishot: Multishot, Multi-Shot
-		piercing: Piercing
-		quick_charge: Quick Charge
-		# new 1.16 Enchantment
-		soul_speed: Soul Speed
-
-# -- Potion Effects --
-potions:
-	speed: speed, swiftness
-	slow: slowness, slow
-	fast_digging: haste, fast digging, fast mining
-	slow_digging: mining fatigue, slow digging, slow mining
-	increase_damage: strength, increase damage, increased damage
-	heal: instant health, health
-	harm: instant damage, damage
-	jump: jump boost, jump
-	confusion: nausea, confusion
-	regeneration: regeneration
-	damage_resistance: resistance, damage resistance
-	fire_resistance: fire resistance, fire immunity
-	water_breathing: water breathing
-	invisibility: invisibility
-	blindness: blindness
-	night_vision: night vision
-	hunger: hunger
-	weakness: weakness, reduce damage, reduced damage
-	poison: poison
-	wither: wither, wither effect, wither potion effect
-	health_boost: health boost, max health boost, maximum health boost
-	absorption: absorption
-	saturation: saturation
-	luck: luck
-	unluck: bad luck, unluck
-	levitation: levitation, floating
-	glowing: glowing
-
-	# 1.13 potion effect types
-	slow_falling: slow falling, slow fall
-	dolphins_grace: dolphins grace, dolphin's grace
-	conduit_power: conduit power
-
-	# 1.14 potion effect types
-	bad_omen: bad omen
-	hero_of_the_village: hero of the village
-
-# -- Weather --
-weather:
-	clear:
-		name: clear, sun, sunny
-		adjective: sunny
-	rain:
-		name: rain, rainy, raining
-		adjective: rainy
-	thunder:
-		name: thunder, thundering, thunderstorm
-		adjective: thundering
-
-# -- Biomes --
-biomes:
-	swamp: swampland, swamp, marsh
-	swamp_hills: swamp hills
-	forest: forest
-	taiga: taiga
-	desert: desert
-	plains: plains
-	nether: hell, nether
-	the_end: sky, the end
-	ocean: ocean, sea
-	river: river
-	mountains: extreme hills, mountains
-	frozen_ocean: frozen ocean
-	frozen_river: frozen river
-	snowy_tundra: ice plains, snowy tundra
-	snowy_mountains: ice mountains, snowy mountains
-	mushroom_fields: mushroom island, mushroom fields
-	mushroom_field_shore: mushroom shore, mushroom island shore, mushroom fields shore
-	beach: beach
-	desert_hills: desert hills
-	wooded_hills: forest hills, wooded hills
-	taiga_hills: taiga hills
-	mountain_edge: small mountains, hills, mountain edge
-	jungle: jungle
-	jungle_hills: jungle hills
-	jungle_edge: jungle edge
-	deep_ocean: deep ocean
-	stone_shore: stone beach, stone shore
-	snowy_beach: cold beach, snowy beach
-	birch_forest: birch forest
-	birch_forest_hills: birch forest hills
-	dark_forest: roofed forest, black forest, dark forest
-	snowy_taiga: cold taiga, snowy taiga
-	snowy_taiga_hills: cold taiga hills, snowy taiga hills
-	giant_tree_taiga: mega taiga, giant tree taiga, redwood taiga
-	giant_tree_taiga_hills: mega taiga hills, giant tree taiga hills, redwood taiga hills
-	wooded_mountains: extreme hills plus, mountains with trees, wooded mountains
-	savanna: savanna
-	savanna_plateau: savanna plateau
-	badlands: mesa, badlands
-	wooded_badlands_plateau: mesa plateau forest, badlands plateau forest, wooded badlands plateau
-	badlands_plateau: mesa plateau, badlands plateau
-	eroded_badlands: eroded badlands, eroded mesa
-	sunflower_plains: sunflower plains
-	desert_lakes: desert lakes
-	flower_forest: flower forest
-	taiga_mountains: taiga mountains
-	swampland_mountains: swampland mountains, swamp hills
-	ice_spikes: ice plains spikes, spiked ice plains, ice plains with spikes, ice spikes
-	modified_jungle: jungle mountains
-	modified_jungle_edge: jungle edge mountains
-	snowy_taiga_mountains: cold taiga mountains, snowy taiga mountains
-	shattered_savanna: savanna mountains, shattered savanna
-	shattered_savanna_plateau: savanna plateau mountains, shattered savanna plateau
-	eroded badlands: bryce, mesa bryce, mesa (bryce), hoodoos, eroded badlands
-	modified_wooded_badlands_plateau: mesa plateau forest mountains, modified wooded badlands plateau, badlands plateau forest mountains
-	modified_badlands_plateau: mesa plateau mountains, badlands plateau mountains, modified badlands plateau
-	tall_birch_forest: birch forest mountains, tall birch forest
-	tall_birch_hills: birch forest hills mountains, tall birch hills
-	dark_forest_hills: roofed forest mountains, dark forest hills
-	giant_spruce_taiga: mega spruce taiga, giant spruce taiga
-	gravelly_mountains: extreme hills mountains, gravelly mountains
-	modified_gravelly_mountains: extreme hills plus mountains, modified gravelly mountains
-	giant_spruce_taiga_hills: mega spruce taiga hills, giant spruce taiga hills
-	the_void: void, the void
-	small_end_islands: small end islands
-	end_midlands: end midlands
-	end_highlands: end highlands
-	end_barrens: end barrens
-	warm_ocean: warm ocean
-	lukewarm_ocean: lukewarm ocean
-	cold_ocean: cold ocean
-	deep_warm_ocean: deep warm ocean
-	deep_lukewarm_ocean: deep lukewarm ocean
-	deep_cold_ocean: deep cold ocean
-	deep_frozen_ocean: deep frozen ocean
-	# 1.14 biomes
-	bamboo_jungle: bamboo jungle
-	bamboo_jungle_hills: bamboo jungle hills
-	# 1.16 biomes
-	nether_wastes: nether wastes, nether, hell
-	crimson_forest: crimson forest
-	soul_sand_valley: soul sand valley
-	warped_forest: warped forest
-	basalt_deltas: basalt deltas
-	# 1.17 biomes
-	dripstone_caves: dripstone caves
-	lush_caves: lush caves
-
-# -- Tree Types --
-tree types:
-	tree:
-		name: tree¦s
-		pattern: (any )?trees?
-	regular:
-		name: oak¦s
-		pattern: (any )?(regular|normal|oak)( tree)?s?
-	small_regular:
-		name: small oak¦s
-		pattern: small (regular|normal|oak)( tree)?s?
-	big_regular:
-		name: big tree¦s
-		pattern: (big|large) (regular|normal|oak)( tree)?s?
-	redwood:
-		name: redwood¦s
-		pattern: (any )?(fir|pine|spruce|redwood)( tree)?s?
-	small_redwood:
-		name: small redwood¦s
-		pattern: small (fir|pine|spruce|redwood)( tree)?s?
-	big_redwood:
-		name: tall redwood¦s
-		pattern: (big|tall) (fir|pine|spruce|redwood)( tree)?s?
-	mega_redwood:
-		name: mega redwood¦s
-		pattern: (mega|giant) (fir|pine|spruce|redwood)( tree)?s?
-	birch:
-		name: birch¦es
-		pattern: birch( trees?|es)
-	tall_birch:
-		name: tall birch¦es
-		pattern: (tall|big) birch( trees?|es)
-	jungle:
-		name: jungle tree¦s
-		pattern: (any )?jungle( tree)?s?
-	small_jungle:
-		name: small jungle tree¦s
-		pattern: small jungle( tree)?s?
-	big_jungle:
-		name: big jungle tree¦s
-		pattern: (big|tall|huge|giant|large) jungle( tree)?s?
-	cocoa_tree:
-		name: cocoa tree¦s
-		pattern: cocoa trees?
-	acacia:
-		name: acacia¦s
-		pattern: acacia( tree)?s?
-	dark_oak:
-		name: dark oak¦s
-		pattern: dark oak( tree)?s?
-	jungle_bush:
-		name: bush¦es
-		pattern: (jungle )?bush(es)?
-	swamp:
-		name: swamp tree¦s
-		pattern: swamp trees?
-	mushroom:
-		name: huge mushroom¦s
-		pattern: (any )?(huge|giant|large|big) mushrooms?
-	red_mushroom:
-		name: huge red mushroom¦s
-		pattern: (huge|giant|large|big) red mushrooms?
-	brown_mushroom:
-		name: huge brown mushroom¦s
-		pattern: (huge|giant|large|big) brown mushrooms?
 
 # -- Time --
 time:
-	tick: tick¦s
-	second: second¦s
-	minute: minute¦s
-	hour: hour¦s
-	day: day¦s
-	real: real, rl, irl
-	minecraft: mc, minecraft
 	errors:
 		24 hours: A day only has 24 hours
 		12 hours: Using 12-hour format does not allow more than 12 hours
@@ -2029,7 +1726,7 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
-
+  
 # -- IO Exceptions --
 io exceptions:
 	unknownhostexception: Cannot connect to %s
