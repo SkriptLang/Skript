@@ -81,9 +81,9 @@ public class ExprIndices extends SimpleExpression<String> {
 			return true;
 		}
 
-		// things like "all indexes of fake expression" shouldn't have any output at all
+		// things like "all indices of fake expression" shouldn't have any output at all
 		if (LiteralUtils.canInitSafely(exprs[0])) {
-			Skript.error("The indexes expression may only be used with list variables");
+			Skript.error("The indices expression may only be used with list variables");
 		}
 
 		return false;
