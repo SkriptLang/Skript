@@ -1,4 +1,9 @@
 test "sorted indices":
+	assert indices of {single-var} is set to fail with "Should not be able to acquire indices of anything other than a list"
+	assert indices of wooden hoe is set to fail with "Should not be able to acquire indices of anything other than a list"
+
+	assert indices of {_leader-board::*} is not set with "Must be able to acquire indices of a list"
+
 	set {_leader-board::jhonny} to 25
 	set {_leader-board::esteban} to 30
 	set {_leader-board::marcelo} to 17
