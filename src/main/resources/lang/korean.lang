@@ -4,7 +4,7 @@
 version: @version@
 
 # What null (nothing) should show up as in a string/text
-none: <없음>
+none: <none>
 
 # -- Skript --
 skript:
@@ -25,10 +25,10 @@ skript command:
 		description: Skript의 주요 명령어
 		help: 이 도움말 메시지를 표시합니다. 더 많은 정보를 얻으려면 '/skript reload/enable/disable/update/info'를 사용하십시오.
 		reload:
-			description: 구성, 모든 스크립트, 모든 것 또는 특정 스크립트를 다시 로드합니다.
-			all: 구성, 모든 별칭 및 모든 스크립트를 다시 로드합니다.
-			config: 기본 구성을 다시 로드합니다.
-			aliases: 별칭 구성을 다시 로드합니다 (aliases-english.zip 또는 plugin jar)
+			description: 구성(config), 별칭(aliases), 모든 스크립트 또는 특정 스크립트를 다시 로드합니다.
+			all: 구성(config), 별칭(aliases) 및 모든 스크립트를 다시 로드합니다.
+			config: Skript 구성(config)을 다시 로드합니다.
+			aliases: 별칭(aliases)을 다시 로드합니다 (aliases-english.zip 또는 plugin jar)
 			scripts: 모든 스크립트를 다시 로드합니다.
 			<script>: 특정 스크립트 또는 스크립트 폴더를 다시 로드합니다.
 		enable:
@@ -56,10 +56,10 @@ skript command:
 		error: %1$s을(를) 다시 로드하는 동안 %2$s개의 오류를 찾았습니다!
 		script disabled: <gold>%s<reset>은 현재 비활성화되어 있습니다. <gray>/<gold>skript<cyan> <red>%s<reset>을 사용하여 활성화하십시오.
 
-		config, aliases and scripts: 구성, 별칭 및 모든 스크립트
+		config, aliases and scripts: 구성(config), 별칭(aliases) 및 모든 스크립트
 		scripts: 모든 스크립트
-		main config: 주요 구성
-		aliases: 별칭
+		main config: 주요 구성(main config)
+		aliases: 별칭(aliases)
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>폴더 속 모든 스크립트
 		x scripts in folder: <gold>%1$s<reset> 폴더 속 <gold>%2$s<reset>개의 스크립트
