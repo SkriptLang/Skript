@@ -330,7 +330,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		Language.loadDefault(getAddonInstance());
+		getAddonInstance();
 		
 		Workarounds.init();
 		
@@ -345,10 +345,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 		
-		final File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
-		final File config = new File(getDataFolder(), "config.sk");
-		final File features = new File(getDataFolder(), "features.sk");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists()) {
+		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+		File config = new File(getDataFolder(), "config.sk");
+		File features = new File(getDataFolder(), "features.sk");
+		File lang = new File(getDataFolder(), "lang");
+		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -357,19 +358,33 @@ public final class Skript extends JavaPlugin implements Listener {
 						throw new IOException("Could not create the directory " + scripts);
 					populateExamples = true;
 				}
+
+				boolean populateLanguageFiles = false;
+				if (!lang.isDirectory()) {
+					if (!lang.mkdirs())
+						throw new IOException("Could not create the directory " + lang);
+					populateLanguageFiles = true;
+				}
+
 				f = new ZipFile(getFile());
-				for (final ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
+				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (e.getName().startsWith(SCRIPTSFOLDER + "/") && populateExamples) {
-						final String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
 						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
+					} else if (populateLanguageFiles
+							&& e.getName().startsWith("lang/")
+							&& e.getName().endsWith(".lang")
+							&& !e.getName().endsWith("/default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
 							saveTo = config;
 //					} else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
-//						final File af = new File(getDataFolder(), e.getName());
+//						File af = new File(getDataFolder(), e.getName());
 //						if (!af.exists())
 //							saveTo = af;
 					} else if (e.getName().startsWith("features.sk")) {
@@ -377,7 +392,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							saveTo = features;
 					}
 					if (saveTo != null) {
-						final InputStream in = f.getInputStream(e);
+						InputStream in = f.getInputStream(e);
 						try {
 							assert in != null;
 							FileUtils.save(in, saveTo);
@@ -387,13 +402,13 @@ public final class Skript extends JavaPlugin implements Listener {
 					}
 				}
 				info("Successfully generated the config and the example scripts.");
-			} catch (final ZipException e) {} catch (final IOException e) {
+			} catch (ZipException ignored) {} catch (IOException e) {
 				error("Error generating the default files: " + ExceptionUtils.toString(e));
 			} finally {
 				if (f != null) {
 					try {
 						f.close();
-					} catch (final IOException e) {}
+					} catch (IOException ignored) {}
 				}
 			}
 		}
@@ -472,9 +487,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
-		
-		Language.setUseLocal(true);
-		
+
 		Commands.registerListeners();
 		
 		if (logNormal())
@@ -512,8 +525,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-				
-				Language.setUseLocal(false);
 				
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
