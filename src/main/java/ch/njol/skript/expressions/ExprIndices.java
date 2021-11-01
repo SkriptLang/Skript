@@ -76,16 +76,16 @@ public class ExprIndices extends SimpleExpression<String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		sort = matchedPattern > 1;
 		descending = parseResult.mark == 1;
-		if (exprs[0] instanceof Variable<?>) {
-			list = (Variable<?>) LiteralUtils.defendExpression(exprs[0]);
-
-			if (!list.isList()) {
-				Skript.error("The indices expression must only be used with list variables");
-				return false;
-			}
-			return LiteralUtils.canInitSafely(list);
+		if (exprs[0] instanceof Variable<?> && ((Variable<?>) exprs[0]).isList()) {
+			list = (Variable<?>) exprs[0];
+			return true;
 		}
-		Skript.error("The indices expression must only be used with list variables.");
+
+		// things like "all indexes of fake expression" shouldn't have any output at all
+		if (LiteralUtils.canInitSafely(exprs[0])) {
+			Skript.error("The indexes expression may only be used with list variables");
+		}
+
 		return false;
 	}
 
