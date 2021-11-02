@@ -51,13 +51,14 @@ function toggleSyntax(elementID) {
   lastActiveSyntaxID = elementID;
 }
 
-const linkHash = window.location.hash.replace("#", "");
-if (linkHash != "") {
-  toggleSyntax(linkHash);
-  setTimeout(() => {
-    offsetAnchor(null, linkHash);
-  }, 10) // after default page loading scroll
-}
+// Auto hash scroll on page load
+document.addEventListener('DOMContentLoaded', (e) => {
+  const linkHash = window.location.hash.replace("#", "");
+  if (linkHash != "") {
+    toggleSyntax(linkHash);
+    offsetAnchor(null, linkHash)
+  }
+});
 
 // No Left Panel
 for (e in {"content-no-docs": 0, "content": 1}) {
@@ -219,12 +220,14 @@ if (content) {
 
     let savedTags = getCookie("skVersions").split(",");
     for (let i = 0; i < savedTags.length; i++) { // Append saved versions then check
-      let option = document.createElement('option')
-      option.value = savedTags[i]
-      option.textContent = "Since v" + savedTags[i]
-      options.appendChild(option)
+      if (savedTags[i] != "") {
+        let option = document.createElement('option')
+        option.value = savedTags[i]
+        option.textContent = "Since v" + savedTags[i]
+        options.appendChild(option)
+      }
     }
-    if (savedTags && !linkParams.get("search")) // Don't search if the url has a search filter
+    if (savedTags && !linkParams.get("search")) // Don't search for versions if the url has a search filter
       searchNow(`v:${savedTags[0]}+`) // Auto search on load
 
     $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
@@ -419,7 +422,7 @@ if (searchBar) {
 // <> Dark Mode 
 
 // Auto load DarkMode from cookies
-if (getCookie("darkMode") != "true") {
+if (getCookie("darkMode") == "false") {
   content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-on.svg" id="theme-switch">`);
   document.body.setAttribute('data-theme', 'white')
 } else {

@@ -67,7 +67,7 @@ public class EvtBlock extends SkriptEvent {
 				.since("1.0, 2.6 (BlockData support)");
 			Skript.registerEvent("Place", EvtBlock.class, new Class[]{BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class}, "[block] (plac(e|ing)|build[ing]) [[of] %itemtypes/blockdatas%]")
 				.description("Called when a player places a block.")
-				.examples("on place:", "on place of a furnace, workbench or chest:", "on break of chest[type=right] or chest[type=left]")
+				.examples("on place:", "on place of a furnace, workbench or chest:", "on place of chest[type=right] or chest[type=left]")
 				.requiredPlugins("Minecraft 1.13+ (BlockData)")
 				.since("1.0, 2.6 (BlockData support)");
 			Skript.registerEvent("Fade", EvtBlock.class, BlockFadeEvent.class, "[block] fad(e|ing) [[of] %itemtypes/blockdatas%]")

@@ -65,9 +65,13 @@ public class HTMLGenerator {
 	private static <T> Iterator<T> sortedIterator(Iterator<T> it, Comparator<? super T> comparator) {
 		List<T> list = new ArrayList<>();
 		while (it.hasNext()) {
-			list.add(it.next());
+			T item = it.next();
+			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generating process
+			if (item instanceof SyntaxElementInfo && ((SyntaxElementInfo) item).c.getAnnotation(Name.class) == null)
+				continue;
+			list.add(item);
 		}
-		
+
 		Collections.sort(list, comparator);
 		return list.iterator();
 	}
@@ -256,7 +260,9 @@ public class HTMLGenerator {
 
 				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
 				String genType = genParams[0];
-				if (genType.equals("expressions") || genType.equals("new")) {
+				boolean isNewPage = genType.equals("new");
+
+				if (genType.equals("expressions") || isNewPage) {
 					Iterator<ExpressionInfo<?,?>> it = sortedIterator(Skript.getExpressions(), annotatedComparator);
 					while (it.hasNext()) {
 						ExpressionInfo<?,?> info = it.next();
@@ -266,8 +272,10 @@ public class HTMLGenerator {
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
 					}
-				} if (genType.equals("effects") || genType.equals("new")) {
-					List<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(Skript.getEffects());
+				} if (genType.equals("effects") || isNewPage) {
+					Collection<SyntaxElementInfo<? extends Effect>> filteredEffects = Skript.getEffects();
+//					filteredEffects.removeIf(el -> el.c.getAnnotation(Name.class) == null);
+					List<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(filteredEffects);
 					Collections.sort(effects, annotatedComparator);
 					for (SyntaxElementInfo<? extends Effect> info : effects) {
 						assert info != null;
@@ -275,8 +283,10 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Effect"));
 					}
-				} if (genType.equals("conditions") || genType.equals("new")) {
-					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(Skript.getConditions());
+				} if (genType.equals("conditions") || isNewPage) {
+					Collection<SyntaxElementInfo<? extends Condition>> filteredConditions = Skript.getConditions();
+//					filteredConditions.removeIf(el -> el.c.getAnnotation(Name.class) == null);
+					List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(filteredConditions);
 					Collections.sort(conditions, annotatedComparator);
 					for (SyntaxElementInfo<? extends Condition> info : conditions) {
 						assert info != null;
@@ -284,8 +294,10 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
-				} if (genType.equals("sections") || genType.equals("new")) {
-					List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(Skript.getSections());
+				} if (genType.equals("sections") || isNewPage) {
+					Collection<SyntaxElementInfo<? extends Section>> filteredSections = Skript.getSections();
+//					filteredSections.removeIf(el -> el.c.getAnnotation(Name.class) == null);
+					List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(filteredSections);
 					Collections.sort(sections, annotatedComparator);
 					for (SyntaxElementInfo<? extends Section> info : sections) {
 						assert info != null;
@@ -293,7 +305,7 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Section"));
 					}
-				} if (genType.equals("events") || genType.equals("new")) {
+				} if (genType.equals("events") || isNewPage) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
 					Collections.sort(events, eventComparator);
 					for (SkriptEventInfo<?> info : events) {
@@ -302,16 +314,16 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("classes") || genType.equals("new")) {
+				} if (genType.equals("classes") || isNewPage) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
 					Collections.sort(classes, classInfoComparator);
 					for (ClassInfo<?> info : classes) {
-						if (ClassInfo.NO_DOC.equals(info.getDocName()))
+						if (ClassInfo.NO_DOC.equals(info.getDocName()) || info.getDocName() == null)
 							continue;
 						assert info != null;
 						generated.append(generateClass(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("functions") || genType.equals("new")) {
+				} if (genType.equals("functions") || isNewPage) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
 					Collections.sort(functions, functionComparator);
 					for (JavaFunction<?> info : functions) {

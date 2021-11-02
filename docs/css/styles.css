@@ -37,7 +37,7 @@
 [data-theme="white"] {
     --font-color: black;
     --font-secondary-color: rgba(0, 0, 0, .65);
-    --bg-color: oldlace;
+    --bg-color: #fffbf4;
     --table-color: white;
 
     --search-color: black;

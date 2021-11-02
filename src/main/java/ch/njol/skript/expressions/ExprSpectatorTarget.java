@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -25,11 +26,18 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@NoDoc
+@Name("Spectator Target")
+@Description({"Returns the entity which is followed by the camera of the player when in spectator mode."})
+@Examples({"command /spectate <player>:",
+	"\texecutable by: players",
+	"\ttrigger:",
+	"\t\tset gamemode of player to spectator # otherwise below won't do anything",
+	"\t\tset spectator target of player to arg-1",
+	"\t\tsend \"Spectating %arg-1%\" to player"})
+@Since("2.4")
 public class ExprSpectatorTarget extends SimplePropertyExpression<Player, Entity> {
 
 	static {

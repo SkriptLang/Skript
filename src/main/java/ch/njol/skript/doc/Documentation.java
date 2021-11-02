@@ -260,7 +260,7 @@ public class Documentation {
 							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
 						} else {
 							b.append(c);
-							if (ci != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
+							if (ci != null && ci.getDocName() != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
 								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
 						}
 					}
