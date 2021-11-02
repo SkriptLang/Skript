@@ -374,7 +374,7 @@ public class FlatFileStorage extends VariablesStorage {
 							return;
 						}
 					}
-					final File tempFile = new File(Skript.getInstance().getDataFolder(), "variables.csv.temp");
+					File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
 					PrintWriter pw = null;
 					try {
 						pw = new PrintWriter(tempFile, "UTF-8");
