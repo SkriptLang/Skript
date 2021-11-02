@@ -27,6 +27,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
+import ch.njol.skript.config.Config;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -179,12 +180,14 @@ public class Variable<T> implements Expression<T> {
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
-		if (!SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-				&& !ScriptOptions.getInstance().suppressesWarning(ParserInstance.get().getCurrentScript().getFile(), "start expression")
+		Config currentScript = ParserInstance.get().getCurrentScript();
+		if (currentScript != null
+				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+				&& !ScriptOptions.getInstance().suppressesWarning(currentScript.getFile(), "start expression")
 				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(ParserInstance.get().getCurrentScript().getFileName(), 0, -3) + "." + name + "}");
+				"{" + StringUtils.substring(currentScript.getFileName(), 0, -3) + "." + name + "}");
 		}
 
 		// Check for local variable type hints
