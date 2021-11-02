@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.NumberArithmetic;
@@ -36,15 +32,16 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.regex.Pattern;
+
 public class JavaClasses {
-	public JavaClasses() {}
-	
-	public final static int VARIABLENAME_NUMBERACCURACY = 8;
-	
+
+	public static final int VARIABLENAME_NUMBERACCURACY = 8;
+	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?[0-9]+");
+	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?[0-9]+(?>\\.[0-9]+)?%?");
+
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
 				.user("objects?")
@@ -64,42 +61,40 @@ public class JavaClasses {
 						"set {_temp} to 2*{_temp} - 2.5")
 				.since("1.0")
 				// is registered after all other number classes
-				.defaultExpression(new SimpleLiteral<Number>(1, true))
+				.defaultExpression(new SimpleLiteral<>(1, true))
 				.parser(new Parser<Number>() {
 					@Override
 					@Nullable
-					public Number parse(final String s, final ParseContext context) {
-						try {
-							return Long.valueOf(s);
-						} catch (final NumberFormatException e) {}
+					public Number parse(String s, ParseContext context) {
+						if (!NUMBER_PATTERN.matcher(s).matches())
+							return null;
+						if (INTEGER_PATTERN.matcher(s).matches()) {
+							try {
+								return Long.valueOf(s);
+							} catch (NumberFormatException ignored) { }
+						}
 						try {
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
-							if (d.isNaN() || d.isInfinite()) {
+							if (d.isNaN() || d.isInfinite())
 								return null;
-							}
 							return d;
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Number n, final int flags) {
+					public String toString(Number n, int flags) {
 						return StringUtils.toString(n.doubleValue(), SkriptConfig.numberAccuracy.value());
 					}
 					
 					@Override
-					public String toVariableNameString(final Number n) {
+					public String toVariableNameString(Number n) {
 						return StringUtils.toString(n.doubleValue(), VARIABLENAME_NUMBERACCURACY);
 					}
-					
+                }).serializer(new Serializer<Number>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+(\\.\\d+)?";
-					}
-				}).serializer(new Serializer<Number>() {
-					@Override
-					public Fields serialize(final Number n) {
+					public Fields serialize(Number n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -109,20 +104,19 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Number o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Number o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + n;
+
 					@Override
 					@Nullable
-					public Number deserialize(final String s) {
+					public Number deserialize(String s) {
 						try {
 							return Integer.valueOf(s);
-						} catch (final NumberFormatException e) {}
+						} catch (NumberFormatException ignored) {}
 						try {
 							return Double.valueOf(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -141,31 +135,28 @@ public class JavaClasses {
 				.parser(new Parser<Long>() {
 					@Override
 					@Nullable
-					public Long parse(final String s, final ParseContext context) {
+					public Long parse(String s, ParseContext context) {
+						if (!INTEGER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							return Long.valueOf(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Long l, final int flags) {
+					public String toString(Long l, int flags) {
 						return "" + l;
 					}
 					
 					@Override
-					public String toVariableNameString(final Long l) {
+					public String toVariableNameString(Long l) {
 						return "" + l;
 					}
-					
+                }).serializer(new Serializer<Long>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+";
-					}
-				}).serializer(new Serializer<Long>() {
-					@Override
-					public Fields serialize(final Long n) {
+					public Fields serialize(Long n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -175,17 +166,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Long o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Long o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + l;
+
 					@Override
 					@Nullable
-					public Long deserialize(final String s) {
+					public Long deserialize(String s) {
 						try {
 							return Long.parseLong(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -202,31 +192,28 @@ public class JavaClasses {
 				.parser(new Parser<Integer>() {
 					@Override
 					@Nullable
-					public Integer parse(final String s, final ParseContext context) {
+					public Integer parse(String s, ParseContext context) {
+						if (!INTEGER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							return Integer.valueOf(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Integer i, final int flags) {
+					public String toString(Integer i, int flags) {
 						return "" + i;
 					}
 					
 					@Override
-					public String toVariableNameString(final Integer i) {
+					public String toVariableNameString(Integer i) {
 						return "" + i;
 					}
-					
+                }).serializer(new Serializer<Integer>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+";
-					}
-				}).serializer(new Serializer<Integer>() {
-					@Override
-					public Fields serialize(final Integer n) {
+					public Fields serialize(Integer n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -236,17 +223,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Integer o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Integer o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + i;
+
 					@Override
 					@Nullable
-					public Integer deserialize(final String s) {
+					public Integer deserialize(String s) {
 						try {
 							return Integer.parseInt(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -265,35 +251,31 @@ public class JavaClasses {
 				.parser(new Parser<Double>() {
 					@Override
 					@Nullable
-					public Double parse(final String s, final ParseContext context) {
+					public Double parse(String s, ParseContext context) {
+						if (!NUMBER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
-							if (d.isNaN() || d.isInfinite()) {
+							if (d.isNaN() || d.isInfinite())
 								return null;
-							}
 							return d;
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Double d, final int flags) {
+					public String toString(Double d, int flags) {
 						return StringUtils.toString(d, SkriptConfig.numberAccuracy.value());
 					}
 					
 					@Override
-					public String toVariableNameString(final Double d) {
+					public String toVariableNameString(Double d) {
 						return StringUtils.toString(d, VARIABLENAME_NUMBERACCURACY);
 					}
-					
+                }).serializer(new Serializer<Double>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+(\\.\\d+)?";
-					}
-				}).serializer(new Serializer<Double>() {
-					@Override
-					public Fields serialize(final Double n) {
+					public Fields serialize(Double n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -303,17 +285,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Double o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Double o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + d;
+
 					@Override
 					@Nullable
-					public Double deserialize(final String s) {
+					public Double deserialize(String s) {
 						try {
 							return Double.parseDouble(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -330,35 +311,32 @@ public class JavaClasses {
 				.parser(new Parser<Float>() {
 					@Override
 					@Nullable
-					public Float parse(final String s, final ParseContext context) {
+					public Float parse(String s, ParseContext context) {
+						if (!NUMBER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							Float f = s.endsWith("%") ? Float.parseFloat(s.substring(0, s.length() - 1)) / 100 : Float.parseFloat(s);
 							if (f.isNaN() || f.isInfinite()) {
 								return null;
 							}
 							return f;
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Float f, final int flags) {
+					public String toString(Float f, int flags) {
 						return StringUtils.toString(f, SkriptConfig.numberAccuracy.value());
 					}
 					
 					@Override
-					public String toVariableNameString(final Float f) {
+					public String toVariableNameString(Float f) {
 						return StringUtils.toString(f.doubleValue(), VARIABLENAME_NUMBERACCURACY);
 					}
-					
+                }).serializer(new Serializer<Float>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+(\\.\\d+)?";
-					}
-				}).serializer(new Serializer<Float>() {
-					@Override
-					public Fields serialize(final Float n) {
+					public Fields serialize(Float n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -368,17 +346,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Float o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Float o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + f;
+
 					@Override
 					@Nullable
-					public Float deserialize(final String s) {
+					public Float deserialize(String s) {
 						try {
 							return Float.parseFloat(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -402,7 +379,7 @@ public class JavaClasses {
 					
 					@Override
 					@Nullable
-					public Boolean parse(final String s, final ParseContext context) {
+					public Boolean parse(String s, ParseContext context) {
 						if (truePattern.matcher(s).matches())
 							return Boolean.TRUE;
 						if (falsePattern.matcher(s).matches())
@@ -414,22 +391,17 @@ public class JavaClasses {
 					private final Message falseName = new Message("boolean.false.name");
 					
 					@Override
-					public String toString(final Boolean b, final int flags) {
+					public String toString(Boolean b, int flags) {
 						return b ? trueName.toString() : falseName.toString();
 					}
 					
 					@Override
-					public String toVariableNameString(final Boolean b) {
+					public String toVariableNameString(Boolean b) {
 						return "" + b;
 					}
-					
+                }).serializer(new Serializer<Boolean>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "(true|false)";
-					}
-				}).serializer(new Serializer<Boolean>() {
-					@Override
-					public Fields serialize(final Boolean n) {
+					public Fields serialize(Boolean n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -439,14 +411,13 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Boolean o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Boolean o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + b;
+
 					@Override
 					@Nullable
-					public Boolean deserialize(final String s) {
+					public Boolean deserialize(String s) {
 						if (s.equals("true"))
 							return Boolean.TRUE;
 						if (s.equals("false"))
@@ -466,31 +437,28 @@ public class JavaClasses {
 				.parser(new Parser<Short>() {
 					@Override
 					@Nullable
-					public Short parse(final String s, final ParseContext context) {
+					public Short parse(String s, ParseContext context) {
+						if (!INTEGER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							return Short.valueOf(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Short s, final int flags) {
+					public String toString(Short s, int flags) {
 						return "" + s;
 					}
 					
 					@Override
-					public String toVariableNameString(final Short s) {
+					public String toVariableNameString(Short s) {
 						return "" + s;
 					}
-					
+                }).serializer(new Serializer<Short>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+";
-					}
-				}).serializer(new Serializer<Short>() {
-					@Override
-					public Fields serialize(final Short n) {
+					public Fields serialize(Short n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -500,17 +468,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Short o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Short o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + s;
+
 					@Override
 					@Nullable
-					public Short deserialize(final String s) {
+					public Short deserialize(String s) {
 						try {
 							return Short.parseShort(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -527,31 +494,28 @@ public class JavaClasses {
 				.parser(new Parser<Byte>() {
 					@Override
 					@Nullable
-					public Byte parse(final String s, final ParseContext context) {
+					public Byte parse(String s, ParseContext context) {
+						if (!INTEGER_PATTERN.matcher(s).matches())
+							return null;
 						try {
 							return Byte.valueOf(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
 					
 					@Override
-					public String toString(final Byte b, final int flags) {
+					public String toString(Byte b, int flags) {
 						return "" + b;
 					}
 					
 					@Override
-					public String toVariableNameString(final Byte b) {
+					public String toVariableNameString(Byte b) {
 						return "" + b;
 					}
-					
+                }).serializer(new Serializer<Byte>() {
 					@Override
-					public String getVariableNamePattern() {
-						return "-?\\d+";
-					}
-				}).serializer(new Serializer<Byte>() {
-					@Override
-					public Fields serialize(final Byte n) {
+					public Fields serialize(Byte n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -561,17 +525,16 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final Byte o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(Byte o, Fields f) {
 						assert false;
 					}
-					
-//						return "" + b;
+
 					@Override
 					@Nullable
-					public Byte deserialize(final String s) {
+					public Byte deserialize(String s) {
 						try {
 							return Byte.parseByte(s);
-						} catch (final NumberFormatException e) {
+						} catch (NumberFormatException e) {
 							return null;
 						}
 					}
@@ -600,7 +563,7 @@ public class JavaClasses {
 				.parser(new Parser<String>() {
 					@Override
 					@Nullable
-					public String parse(final String s, final ParseContext context) {
+					public String parse(String s, ParseContext context) {
 						switch (context) {
 							case DEFAULT: // in DUMMY, parsing is handled by VariableString
 								assert false;
@@ -620,34 +583,27 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public boolean canParse(final ParseContext context) {
-						if (context == ParseContext.DEFAULT)
-							return false;
-						return true;
+					public boolean canParse(ParseContext context) {
+						return context != ParseContext.DEFAULT;
 					}
 					
 					@Override
-					public String toString(final String s, final int flags) {
+					public String toString(String s, int flags) {
 						return s;
 					}
 					
 					@Override
-					public String getDebugMessage(final String s) {
+					public String getDebugMessage(String s) {
 						return '"' + s + '"';
 					}
 					
 					@Override
-					public String toVariableNameString(final String s) {
+					public String toVariableNameString(String s) {
 						return s;
 					}
-					
+                }).serializer(new Serializer<String>() {
 					@Override
-					public String getVariableNamePattern() {
-						return ".*";
-					}
-				}).serializer(new Serializer<String>() {
-					@Override
-					public Fields serialize(final String n) {
+					public Fields serialize(String n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
 					}
 					
@@ -657,13 +613,12 @@ public class JavaClasses {
 					}
 					
 					@Override
-					public void deserialize(final String o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(String o, Fields f) {
 						assert false;
 					}
-					
-//						return s;
+
 					@Override
-					public String deserialize(final String s) {
+					public String deserialize(String s) {
 						return s;
 					}
 					

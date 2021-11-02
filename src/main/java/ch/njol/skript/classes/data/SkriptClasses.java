@@ -106,11 +106,7 @@ public class SkriptClasses {
 					public String getDebugMessage(final ClassInfo c) {
 						return c.getCodeName();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
+
 				})
 				.serializer(new Serializer<ClassInfo>() {
 					@Override
@@ -180,11 +176,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final WeatherType o) {
 						return "" + o.name().toLowerCase();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "[a-z]+";
-					}
+
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
 		
@@ -244,11 +236,6 @@ public class SkriptClasses {
 						}
 						return "" + b.toString();
 					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "itemtype:.+";
-					}
 				})
 				.cloner(ItemType::clone)
 				.serializer(new YggdrasilSerializer<>()));
@@ -280,11 +267,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Time o) {
 						return "time:" + o.getTicks();
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "time:\\d+";
 					}
 				}).serializer(new YggdrasilSerializer<Time>() {
 //						return "" + t.getTicks();
@@ -336,11 +318,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Timespan o) {
 						return "timespan:" + o.getMilliSeconds();
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "timespan:\\d+";
 					}
 				}).serializer(new YggdrasilSerializer<Timespan>() {
 //						return "" + t.getMilliSeconds();
@@ -438,11 +415,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Timeperiod o) {
 						return "timeperiod:" + o.start + "-" + o.end;
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "timeperiod:\\d+-\\d+";
 					}
 				}).serializer(new YggdrasilSerializer<Timeperiod>() {
 //						return t.start + "-" + t.end;
@@ -545,11 +517,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Direction o) {
 						return o.toString();
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return ".*";
 					}
 				})
 				.serializer(new YggdrasilSerializer<Direction>() {
@@ -676,11 +643,6 @@ public class SkriptClasses {
 					public String toVariableNameString(Slot o) {
 						return "slot:" + o.toString();
 					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "slot:.+";
-					}
 				})
 				.serializeAs(ItemStack.class));
 
@@ -712,11 +674,6 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "[a-z ]+";
-					}
 				}));
 
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
@@ -744,11 +701,6 @@ public class SkriptClasses {
 					public String toVariableNameString(final StructureType o) {
 						return "" + o.name().toLowerCase();
 					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "[a-z ]+";
-					}
 				}).serializer(new EnumSerializer<>(StructureType.class)));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
@@ -774,11 +726,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final EnchantmentType o) {
 						return o.toString();
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return ".+";
 					}
 				})
 				.serializer(new YggdrasilSerializer<EnchantmentType>() {
@@ -833,11 +780,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\d+";
-					}
+
 				})
 				.serializer(new YggdrasilSerializer<Experience>() {
 //						return "" + xp;
@@ -877,10 +820,6 @@ public class SkriptClasses {
 						return e.toString();
 					}
 
-					@Override
-					public String getVariableNamePattern() {
-						return ".*";
-					}
 				})
 				.serializer(new YggdrasilSerializer<>()));
 		
