@@ -247,9 +247,9 @@ public class ScriptCommand implements TabExecutor {
 		}
 
 		Runnable runnable = () -> {
-			if (sender instanceof Player)
-				setLastUsage(((Player) sender).getUniqueId(), event, new Date());
 			execute2(event, sender, commandLabel, rest);
+			if (sender instanceof Player && !event.isCooldownCancelled())
+				setLastUsage(((Player) sender).getUniqueId(), event, new Date());
 		};
 		if (Bukkit.isPrimaryThread()) {
 			runnable.run();
