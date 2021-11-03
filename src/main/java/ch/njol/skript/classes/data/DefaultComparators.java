@@ -56,6 +56,8 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
