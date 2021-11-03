@@ -135,12 +135,12 @@ public class BlockUtils {
 	}
 
 	/**
-	 * Gets the actual CraftBukkit block from the given argument,
+	 * Extracts the actual CraftBukkit block from the given argument,
 	 * by extracting the block from {@link DelayedChangeBlock} if the given argument is a {@link DelayedChangeBlock}.
 	 *
 	 * @return the actual CB block from the given argument
 	 */
-	public static Block getBlock(Block block) {
+	public static Block extractBlock(Block block) {
 		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
 	}
 

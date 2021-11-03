@@ -247,7 +247,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(Block.class, Block.class, new Comparator<Block, Block>() {
 			@Override
 			public Relation compare(Block b1, Block b2) {
-				return Relation.get(BlockUtils.getBlock(b1).equals(BlockUtils.getBlock(b2)));
+				return Relation.get(BlockUtils.extractBlock(b1).equals(BlockUtils.extractBlock(b2)));
 			}
 
 			@Override
