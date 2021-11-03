@@ -593,6 +593,18 @@ public class DefaultComparators {
 				}
 			});
 		}
+
+		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
+			@Override
+			public Relation compare(Inventory inventory, InventoryType inventoryType) {
+				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
 	}
 	
 }
