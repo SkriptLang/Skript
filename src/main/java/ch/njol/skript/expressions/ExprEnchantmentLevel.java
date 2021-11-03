@@ -112,8 +112,12 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 					case REMOVE:
 						newItemLevel = oldLevel - changeValue;
 						break;
-					default: // case SET
+					case SET:
 						newItemLevel = changeValue;
+						break;
+					default:
+						assert false;
+						return;
 				}
 
 				if (newItemLevel <= 0) {
