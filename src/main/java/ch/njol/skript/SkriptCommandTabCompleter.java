@@ -86,7 +86,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				options.add("aliases");
 				options.add("scripts");
 			}
-		} else {
+		} else if (args.length < 2) {
 			options.add("help");
 			options.add("reload");
 			options.add("enable");
