@@ -18,49 +18,61 @@
  */
 package ch.njol.skript.command;
 
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.util.Date;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
-/**
- * @author Peter Güttinger
- */
 public class ScriptCommandEvent extends CommandEvent {
-	
-	private final ScriptCommand skriptCommand;
-	private boolean cooldownCancelled = false;
 
-	public ScriptCommandEvent(final ScriptCommand command, final CommandSender sender) {
+	private final ScriptCommand skriptCommand;
+	private final Date executionDate = new Date();
+	private boolean cooldownCancelled;
+
+	public ScriptCommandEvent(ScriptCommand command, CommandSender sender) {
 		super(sender, command.getLabel(), null);
 		skriptCommand = command;
 	}
-	
+
 	public ScriptCommand getSkriptCommand() {
 		return skriptCommand;
 	}
-	
+
 	@Override
 	public String[] getArgs() {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Only accurate when this event is not delayed (yet)
+	 */
 	public boolean isCooldownCancelled() {
 		return cooldownCancelled;
 	}
 
 	public void setCooldownCancelled(boolean cooldownCancelled) {
-		this.cooldownCancelled = cooldownCancelled;
+		if (Delay.isDelayed(this)) {
+			CommandSender sender = getSender();
+			if (sender instanceof Player) {
+				Date date = cooldownCancelled ? null : executionDate;
+				skriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
+			}
+		} else {
+			this.cooldownCancelled = cooldownCancelled;
+		}
 	}
 
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();
-	
+
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-	
+
 }

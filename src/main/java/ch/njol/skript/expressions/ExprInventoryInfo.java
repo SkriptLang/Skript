@@ -39,7 +39,9 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Inventory Holder/Viewers/Rows/Slots")
-@Description("Gets the amount of rows/slots, viewers and holder of an inventory.")
+@Description("Gets the amount of rows/slots, viewers and holder of an inventory." +
+	"" +
+	"NOTE: 'Viewers' expression returns a list of players viewing the inventory. Note that a player is considered to be viewing their own inventory and internal crafting screen even when said inventory is not open.")
 @Examples({"event-inventory's amount of rows",
 		   "holder of player's top inventory",
 		   "{_inventory}'s viewers"})

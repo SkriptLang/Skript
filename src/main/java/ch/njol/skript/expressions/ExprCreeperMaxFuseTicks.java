@@ -36,16 +36,16 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The max fuse ticks that a creeper has.")
 @Examples("set target entity's max fuse ticks to 20 #1 second")
 @Since("2.5")
-public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEntity, Number> {
+public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
 		if(Skript.methodExists(LivingEntity.class, "getMaxFuseTicks"))
-			register(ExprCreeperMaxFuseTicks.class, Number.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
+			register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
 	}
 
 	@Override
-	public Number convert(LivingEntity e) {
-		return e instanceof Creeper ? ((Creeper) e).getMaxFuseTicks() : 0;
+	public Long convert(LivingEntity e) {
+		return e instanceof Creeper ? (long) ((Creeper) e).getMaxFuseTicks() : 0;
 	}
 	
 	@Override
@@ -88,15 +88,15 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 			}
 		}
 	}
-	
+
+	@Override
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "creeper max fuse ticks";
-	}
-	
-	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
 	}
 	
 }
