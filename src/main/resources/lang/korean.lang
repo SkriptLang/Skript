@@ -10,13 +10,13 @@ none: <none>
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
 	prefix: <gray>[<gold>Skript<gray>] # not used
-	quotes error: 따옴표(")가 잘못되었습니다. 인용문 텍스트에서 따옴표를 사용하려면 ""을 두 배로 늘립니다.
-	brackets error: 대괄호 금액 또는 배치가 잘못되었습니다. 각 여는 브래킷에 해당하는 닫는 브래킷이 있는지 확인하십시오.
-	invalid reload: Skript은 Bukkit의 '/reload'또는 Skript의 '/skript reload'명령어로 만 다시로드 할 수 있습니다.
-	no scripts: 스크립트를 찾지 못했습니다. 아마도 일부를 작성해야합니다 ;)
+	quotes error: 따옴표(")가 잘못되었습니다. 인용문 텍스트에서 따옴표를 사용하려면 따옴표를 두 개 입력해야 합니다.
+	brackets error: 대괄호의 양 또는 위치가 잘못되었습니다. 각 여는 대괄호에 닫는 대괄호가 입력되어있는지 확인하십시오.
+	invalid reload: Skript는 Bukkit의 '/reload' 또는 스크립트의 '/skript reload' 로만 다시 로드할 수 있습니다.
+	no scripts: 스크립트를 찾을 수 없습니다. 일부 스크립트를 작성해야 합니다 ;)
 	no errors: 모든 스크립트가 오류없이 로드되었습니다.
-	scripts loaded: %s개의 스크립트중 %s개의 트리거, %s개의 명령어를 %s만에 로드했습니다.
-	finished loading: 로딩이 완료되었습니다.
+	scripts loaded: %s개의 스크립트 중 총 %s개의 트리거, %s개의 명령어를 %s 만에 로드했습니다.
+	finished loading: 로딩을 완료했습니다.
 
 # -- Skript command --
 skript command:
@@ -25,10 +25,10 @@ skript command:
 		description: Skript의 주요 명령어
 		help: 이 도움말 메시지를 표시합니다. 더 많은 정보를 얻으려면 '/skript reload/enable/disable/update/info'를 사용하십시오.
 		reload:
-			description: 구성, 모든 스크립트, 모든 것 또는 특정 스크립트를 다시로드합니다.
-			all: 모든 구성, 별칭 구성을 및 모든 스크립트를 다시 로드합니다.
-			config: 기본 구성을 다시 로드합니다.
-			aliases: 별칭 구성을 다시 로드합니다 (aliases-english.zip 또는 plugin jar)
+			description: 구성(config), 별칭(aliases), 모든 스크립트 또는 특정 스크립트를 다시 로드합니다.
+			all: 구성(config), 별칭(aliases) 및 모든 스크립트를 다시 로드합니다.
+			config: Skript 구성(config)을 다시 로드합니다.
+			aliases: 별칭(aliases)을 다시 로드합니다 (aliases-english.zip 또는 plugin jar)
 			scripts: 모든 스크립트를 다시 로드합니다.
 			<script>: 특정 스크립트 또는 스크립트 폴더를 다시 로드합니다.
 		enable:
@@ -42,67 +42,67 @@ skript command:
 		update:
 			description: 업데이트를 확인하거나, 변경 로그를 읽거나, 최신 버전의 Skript를 다운로드합니다.
 			check: 새 버전을 확인합니다.
-			changes: 현재 버전 이후의 모든 변경 사항을 나열합니다.
+			changes: 현재 버전의 모든 변경 사항을 나열합니다.
 			download: 최신 버전을 다운로드합니다.
 		info: Skript의 별명 및 문서에 대한 링크가있는 메시지를 표시합니다
 		gen-docs: 플러그인 폴더의 문서 템플릿을 사용하여 문서를 생성합니다.
-		test: Skript 테스트 실행에 사용
+		test: Skript 테스트를 실행할 때 사용됩니다.
 		
-	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red>라는 스크립트를 찾을 수 없습니다!
-	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red>라는 폴더를 찾을 수 없습니다!
+	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 스크립트를 찾을 수 없습니다!
+	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 폴더를 찾을 수 없습니다!
 	reload:
 		reloading: %s을(를) 다시 로드하는 중입니다...
 		reloaded: %s을(를) 다시 로드했습니다.
-		error: %1$s을(를) 다시 로드하는 동안 %2$s개의 오류가 발생했습니다!
+		error: %1$s을(를) 다시 로드하는 동안 %2$s개의 오류를 발견했습니다!
 		script disabled: <gold>%s<reset>은 현재 비활성화되어 있습니다. <gray>/<gold>skript<cyan> <red>%s<reset>을 사용하여 활성화하십시오.
 
-		config, aliases and scripts: 구성, 별칭 구성을 및 모든 스크립트
+		config, aliases and scripts: 구성(config), 별칭(aliases) 및 모든 스크립트
 		scripts: 모든 스크립트
-		main config: 주요 구성
-		aliases: aliases
+		main config: 주요 구성(main config)
+		aliases: 별칭(aliases)
 		script: <gold>%s<reset>
-		scripts in folder: <gold>%s<reset>폴더속 모든 스크립트
-		x scripts in folder: <gold> %1$s<reset>폴더속 <gold>%2$s<reset>개의 스크립트
-		empty folder: <gold>%s<reset>에 활성화 된 스크립트가 없습니다.
+		scripts in folder: <gold>%s<reset>폴더 속 모든 스크립트
+		x scripts in folder: <gold>%1$s<reset> 폴더 속 <gold>%2$s<reset>개의 스크립트
+		empty folder: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
 	enable:
 		all:
-			enabling: 비활성화 된 모든 스크립트를 활성화하는 중...
-			enabled: 이전에 비활성화 된 모든 스크립트를 성공적으로 활성화 및 파싱했습니다.
-			error: 비활성화 된 스크립트를 구문 분석하는 동안 %s개의 오류가 발생했습니다!
-			io error: 스크립트를 로드 할 수 없습니다 (일부 스크립트의 이름이 이미 변경되어 서버가 다시 시작될 때 활성화 됨): %s
+			enabling: 비활성화된 모든 스크립트를 활성화하는 중...
+			enabled: 비활성화된 모든 스크립트를 성공적으로 활성화하고 구문을 분석했습니다.
+			error: 비활성화된 스크립트의 구문을 분석하는 동안 %s개의 오류를 발견했습니다!
+			io error: 스크립트를 로드할 수 없습니다 (일부 스크립트의 이름이 변경되어 서버가 다시 시작될 때 활성화됩니다): %s
 		single:
-			already enabled: <gold> %s<reset>이 이미 활성화되었습니다! <gray>/<gold>skript<cyan> reload <red>%s<reset>을 사용하여 변경된 경우 다시로드하십시오.
-			enabling: <gold>%s<reset>을(를) 활성화 중...
-			enabled: <gold>%s<reset>을(를) 활성화하고 구문 분석했습니다.
-			error: <gold>%1$s<red>을(를) 구문 분석하는 동안 %2$s개의 오류가 발생했습니다!
+			already enabled: <gold> %s<reset>이(가) 이미 활성화되었습니다! 파일이 변경된 경우 <gray>/<gold>skript<cyan> reload <red>%s<reset>을(를) 사용하여 다시 로드하십시오.
+			enabling: <gold>%s<reset>을(를) 활성화하는 중...
+			enabled: <gold>%s<reset>을(를) 활성화하고 구문을 분석했습니다.
+			error: <gold>%1$s<red>의 구문을 분석하는 동안 %2$s개의 오류를 발견했습니다!
 			io error: <gold>%s<red>을(를) 활성화 할 수 없습니다: %s
 		folder:
-			empty: <gold>%s<reset>에 비활성화 된 스크립트가 없습니다.
+			empty: <gold>%s<reset>에 비활성화된 스크립트가 없습니다.
 			enabling: <gold>%1$s<reset>에서 <gold>%2$s<reset>개의 스크립트를 활성화하는 중...
-			enabled: <gold>%1$s<reset>에서 이전에 <gold>%2$s<reset>개의 스크립트를 성공적으로 활성화 및 구문 분석했습니다.
-			error: <gold>%1$s<red>에서 스크립트를 구문 분석하는 동안 %2$s개의 오류가 발생했습니다!
-			io error: <gold>%s<red>에서 스크립트를 활성화하는 동안 오류가 발생했습니다 (서버가 다시 시작될 때 일부 스크립트가 활성화 될 수 있음): %s
+			enabled: <gold>%1$s<reset>에서 비활성화된 <gold>%2$s<reset>개의 스크립트를 성공적으로 활성화하고 구문을 분석했습니다.
+			error: <gold>%1$s<red>의 스크립트의 구문을 분석하는 동안 %2$s개의 오류를 발견했습니다!
+			io error: <gold>%s<red>의 스크립트를 활성화하는 동안 오류가 발생했습니다 (서버가 다시 시작될 때 일부 스크립트가 활성화될 수 있습니다): %s
 	disable:
 		all:
 			disabled: 모든 스크립트를 성공적으로 비활성화했습니다.
-			io error: 모든 스크립트의 이름을 바꿀 수 없습니다. 서버를 다시 시작할 때 일부 스크립트가 다시 활성화됩니다: %s
+			io error: 모든 스크립트를 비활성화 할 수 없습니다 (서버를 다시 시작할 때 일부 스크립트가 다시 활성화될 수 있습니다): %s
 		single:
-			already disabled: <gold>%s<reset>은 이미 비활성화되었습니다!
+			already disabled: <gold>%s<reset>은(는) 이미 비활성화되었습니다!
 			disabled: <gold>%s<reset>을(를) 비활성화했습니다.
-			io error: <gold>%s<red>의 이름을 바꿀 수 없습니다. 서버를 다시 시작할 때 다시 활성화됩니다: %s
+			io error: <gold>%s<red>의 이름을 바꿀 수 없습니다 (서버를 다시 시작할 때 다시 활성화됩니다): %s
 		folder:
-			empty: <gold>%s<reset>에 활성화 된 스크립트가 없습니다.
+			empty: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
 			disabled: <gold>%1$s<reset>에서 <gold>%2$s<reset>개의 스크립트를 성공적으로 비활성화했습니다.
-			io error: <gold>%s<red>에서 스크립트를 비활성화 할 수 없습니다 (서버가 다시 시작될 때 일부 스크립트가 비활성화 될 수 있음): %s
+			io error: <gold>%s<red>의 스크립트를 비활성화 할 수 없습니다 (서버가 다시 시작될 때 일부 스크립트가 비활성화될 수 있음): %s
 	update:
-		# check/download: see Updater
+		# check/download: Updater 확인
 		changes:
 			# multiple versions:
-			# 	title: Skript의 이 버전 (<gold>%s<r>) 이후 <gold>%s<r> 업데이트가 릴리스되었습니다.
-			# 	footer: 버전 유형 <gold>/skript update changes <version> <reset>의 변경 로그를 표시하려면
-			# invalid version: <gold>%s<red> 버전에 대한 변경 로그가 없습니다.
+			# 	title: 이 버전의 Skript (<gold>%s<r>) 이후 <gold>%s<r> 업데이트가 릴리스되었습니다.
+			# 	footer: 버전의 변경 사항을 보려면 <gold>'/skript update changes <version>'<reset>를 입력하십시오.
+			# invalid version: <gold>%s<red> 버전에 대한 변경 사항이 없습니다.
 			title: <bold><cyan>%s<reset> (%s)
-			next page: <grey>%s의 %s페이지입니다. 다음 페이지의 <gold>/skript update changes %s <gray>를 입력합니다 (위쪽 화살표 키 사용).
+			next page: <grey>%s의 %s페이지입니다. 다음 페이지를 보려면 <gold>/skript update changes %s <gray>를 입력하십시오 (위쪽 화살표 키를 사용해보십시오)
 	info:
 		aliases: Skript의 별명은 여기에서 찾을 수 있습니다: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://skriptlang.github.io/Skript
@@ -112,71 +112,71 @@ skript command:
 
 # -- Updater --
 updater:
-	not started: Skript는 아직 최신 버전을 확인하지 않았습니다. <gold>/skript update check <reset>을 사용하십시오.
+	not started: Skript는 아직 최신 버전을 확인하지 않았습니다. <gold>/skript update check <reset>를 사용해 최신 버전을 확인하십시오.
 	checking: Skript의 최신 버전 확인 중...
-	check in progress: 현재 새 버전 확인이 진행 중입니다.
-	updater disabled: 업데이터가 비활성화되어 있으므로 Skript의 최신 버전을 확인하지 않았습니다.
+	check in progress: 현재 새 버전을 확인하고 있습니다.
+	updater disabled: 업데이터가 비활성화되어 있어 Skript의 최신 버전을 확인하지 않았습니다.
 	check error: <red>Skript의 최신 버전을 확인하는 동안 오류가 발생했습니다: <light red>%s
 	running latest version: 현재 안정적인 최신 Skript 버전을 실행하고 있습니다.
-	running latest version (beta): 현재 <i>베타<r>버전의 Skript을 실행하고 있으며 새로운 <i>stable<r>버전을 사용할 수 없습니다. 최신 베타 버전으로 수동 업데이트해야합니다.
+	running latest version (beta): 현재 <i>베타<r> 버전의 Skript을 실행하고 있으며 새로운 <i>안정<r> 버전이 없습니다. 최신 베타 버전으로 수동으로 업데이트해야합니다.
 	update available: Skript의 새로운 버전을 사용할 수 있습니다: <gold>%s<reset> (현재 <gold>%s<reset>을(를) 실행 중입니다)
-	downloading: Skript <gold>%s<reset> 다운로드 중...
-	download in progress: Skript의 최신 버전은 현재 다운로드 중입니다.
-	download error: <red> Skript의 최신 버전을 다운로드하는 중에 오류가 발생했습니다: <light red>%s
-	downloaded: Skript의 최신 버전이 다운로드되었습니다! 서버를 다시 시작하거나 /reload를 사용하여 변경 사항을 적용하십시오.
+	downloading: Skript <gold>%s<reset> 을(를) 다운로드하는 중...
+	download in progress: 현재 Skript의 최신 버전을 다운로드 중입니다.
+	download error: <red>Skript의 최신 버전을 다운로드하는 중에 오류가 발생했습니다: <light red>%s
+	downloaded: Skript의 최신 버전이 다운로드되었습니다! 서버를 다시 시작하거나 '/reload' 를 사용하여 변경 사항을 적용하십시오.
 	internal error: <red>Skript의 최신 버전을 확인하는 중에 내부 오류가 발생했습니다. 자세한 내용은 서버 로그를 참조하십시오.
-	custom version: 현재 맞춤 Skript 버전을 실행하고 있습니다. 업데이트가 자동으로 설치되지 않습니다.
-	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
+	custom version: 현재 변경된 Skript 버전을 실행하고 있습니다. 업데이트가 자동으로 설치되지 않습니다.
+	nightly build: 현재 개발 버전의 Skript를 실행하고 있습니다. 업데이트가 자동으로 설치되지 않습니다.
 
 # -- Commands --
 commands:
-	no permission message: <red>이 명령어를 사용할 권한이 없습니다
-	cooldown message: 이 명령어을 너무 자주 사용하고 있습니다. 나중에 다시 시도하십시오
-	executable by players: <red>이 명령어는 플레이어만 사용할 수 있습니다
-	executable by console: <red>이 명령어은 콘솔에서만 사용할 수 있습니다
+	no permission message: <red>이 명령어를 사용할 권한이 없습니다.
+	cooldown message: 이 명령어를 너무 자주 사용하고 있습니다. 나중에 다시 시도하십시오.
+	executable by players: <red>이 명령어는 플레이어만 사용할 수 있습니다.
+	executable by console: <red>이 명령어은 콘솔에서만 사용할 수 있습니다.
 	correct usage: 올바른 사용법:
-	invalid argument: <gray>'%s <gray>'<reset> 인수가 잘못되었습니다:
+	invalid argument: <gray>'%s <gray>'<reset> 인수가 잘못되었습니다. 허용되는 항목은 다음과 같습니다:
 	too many arguments: 이 명령어는 단일 %2$s만 허용합니다.
 	internal error: <red>이 명령어를 수행하는 중 내부 오류가 발생했습니다.
-	no player starts with: 이름이 '%s'(으)로 시작하는 온라인 플레이어가 없습니다
-	multiple players start with: 온라인에서 이름이 '%s'(으)로 시작하는 여러 플레이어가 있습니다
+	no player starts with: 이름이 '%s'(으)로 시작하는 온라인 플레이어가 없습니다.
+	multiple players start with: 이름이 '%s'(으)로 시작하는 여러 온라인 플레이어가 있습니다.
 
 # -- Hooks --
 hooks:
-	hooked: %s에 성공적으로 연결
-	error: %1$s에 연결할 수 없습니다. Skript가 %1$s의 설치된 버전을 지원하지 않는 경우 발생할 수 있습니다
+	hooked: %s에 성공적으로 연결했습니다.
+	error: %1$s에 연결할 수 없습니다. Skript가 %1$s의 설치된 버전을 지원하지 않는 경우 발생할 수 있습니다.
 
 # -- Aliases --
 aliases:
 	# Errors and warnings
-	empty string: ''는 아이템 유형이 아닙니다
-	invalid item type: '%s'은(는) 아이템 유형이 아닙니다
-	empty name: Aliases에는 이름이 있어야합니다
-	brackets error: 대괄호의 잘못된 사용
-	not enough brackets: 문자 %s ('%s')로 시작하는 섹션을 닫아야합니다.
-	too many brackets: 문자 %s ('%s')가 존재하지 않는 섹션을 닫습니다.
-	unknown variation: 변형 %s이(가) 전에 정의되지 않았습니다
-	missing aliases: 다음 Minecraft ID에는 Aliases이 없습니다.
-	empty alias: Alias에 Minecraft ID 또는 태그가 정의되어 있지 않습니다
-	invalid minecraft id: Minecraft ID %s이(가) 유효하지 않습니다
-	useless variation: 변형에는 Minecraft ID 또는 태그가 지정되어 있지 않으므로 쓸모가 없습니다.
-	invalid tags: 지정된 태그가 유효한 JSON에 정의되어 있지 않습니다
-	unexpected section: 여기에는 섹션이 허용되지 않습니다
+	empty string: ''은(는) 아이템 유형이 아닙니다.
+	invalid item type: '%s'은(는) 아이템 유형이 아닙니다.
+	empty name: 별명에는 이름이 있어야합니다.
+	brackets error: 대괄호가 올바르지 않습니다.
+	not enough brackets: 문자 %s ('%s')(으)로 시작하는 섹션을 닫아야합니다.
+	too many brackets: 문자 %s ('%s')이(가) 존재하지 않는 섹션을 닫습니다.
+	unknown variation: 변형(variation) %s이(가) 정의되지 않았습니다.
+	missing aliases: 다음의 Minecraft id 가 별명을 가지고 있지 않습니다:
+	empty alias: Alias에 Minecraft ID 또는 태그가 정의되어 있지 않습니다.
+	invalid minecraft id: Minecraft ID %s이(가) 유효하지 않습니다.
+	useless variation: 변형(variation)에 Minecraft ID 또는 태그가 지정되어 있지 않으므로 사용할 수 없습니다.
+	invalid tags: 지정된 태그가 올바른 JSON에 정의되어 있지 않습니다.
+	unexpected section: 여기에는 섹션이 허용되지 않습니다.
 	invalid variation section: 섹션은 변형 섹션이어야하지만 %s는 유효한 변형 이름이 아닙니다.
-	outside section: Aliases은 섹션에 넣어야합니다
+	outside section: 별명(aliases)은 섹션에 넣어야합니다.
 
 	# Other messages
-	loaded x aliases from: %s에서 %s 한국 aliases을 로드했습니다.
-	loaded x aliases: 한국어 aliases 총 %s개를 로드했습니다.
+	loaded x aliases from: %s에서 %s 한국어 별명(aliases)을 로드했습니다.
+	loaded x aliases: 한국어 별명(aliases)을 총 %s개 로드했습니다.
 
 # -- Time --
 time:
 	errors:
-		24 hours: 하루 24 시간 만 있습니다
-		12 hours: 12 시간 형식을 사용하면 12 시간을 초과 할 수 없습니다
-		60 minutes: 한 시간에 60 분만 있습니다
+		24 hours: 하루는 24시간 이며, 24시간을 초과할 수 없습니다.
+		12 hours: 12시간 형식을 사용하면 12시간을 초과할 수 없습니다.
+		60 minutes: 한 시간은 60분이며, 60분을 초과할 수 없습니다.
 
 # -- IO Exceptions --
 io exceptions:
-	unknownhostexception: Cannot connect to %s
-	accessdeniedexception: Access denied for %s
+	unknownhostexception: %s에 연결할 수 없습니다.
+	accessdeniedexception: %s의 액세스가 거부되었습니다.
