@@ -20,6 +20,7 @@ package ch.njol.skript.classes.data;
 
 import java.util.List;
 
+import ch.njol.skript.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -137,11 +138,6 @@ import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.BlockStateBlock;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DelayedChangeBlock;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 
@@ -1001,20 +997,24 @@ public final class BukkitEventValues {
 				}
 			}, 0);
 		}
-		// CraftItemEvent REMIND maybe re-add this when Skript parser is reworked?
-//		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, new Getter<ItemStack, CraftItemEvent>() {
-//			@Override
-//			@Nullable
-//			public ItemStack get(final CraftItemEvent e) {
-//				return e.getRecipe().getResult();
-//			}
-//		}, 0);
 		// PrepareItemCraftEvent
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Slot.class, new Getter<Slot, PrepareItemCraftEvent>() {
 			@Override
-			@Nullable
 			public Slot get(final PrepareItemCraftEvent e) {
 				return new InventorySlot(e.getInventory(), 9);
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, ItemType.class, new Getter<ItemType, PrepareItemCraftEvent>() {
+			@Override
+			public ItemType get(final PrepareItemCraftEvent e) {
+				ItemStack item = e.getInventory().getResult();
+				return new ItemType(item != null ? item : new ItemStack(Material.AIR));
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, new Getter<Inventory, PrepareItemCraftEvent>() {
+			@Override
+			public Inventory get(final PrepareItemCraftEvent e) {
+				return e.getInventory();
 			}
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Player.class, new Getter<Player, PrepareItemCraftEvent>() {
@@ -1053,6 +1053,14 @@ public final class BukkitEventValues {
 				}
 			}, 0);
 		}
+		// CraftItemEvent
+		EventValues.registerEventValue(CraftItemEvent.class, ItemType.class, new Getter<ItemType, CraftItemEvent>() {
+			@Override
+			@Nullable
+			public ItemType get(CraftItemEvent e) {
+				return new ItemType(e.getRecipe().getResult());
+			}
+		}, 0);
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, new Getter<Player, InventoryOpenEvent>() {
 			@Override
