@@ -31,9 +31,12 @@ import org.bukkit.command.TabCompleter;
 import ch.njol.skript.tests.runner.TestMode;
 import ch.njol.util.StringUtils;
 
+import javax.annotation.Nullable;
+
 public class SkriptCommandTabCompleter implements TabCompleter {
 		
 	@Override
+	@Nullable
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		ArrayList<String> options = new ArrayList<>();
 		
@@ -41,28 +44,11 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			return null;
 		}
 		
-		if (args[0].length() == 0) {
-			options.add("help");
-			options.add("reload");
-			options.add("enable");
-			options.add("disable");
-			options.add("update");
-			options.add("info");
-			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists()) {
-				options.add("gen-docs");
-			}
-			if (TestMode.DEV_MODE) {
-				options.add("test");
-			}
-		}
-		
-		else if (args[0].equalsIgnoreCase("update")) {
+		if (args[0].equalsIgnoreCase("update")) {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
-		}
-		
-		else if (args[0].matches("(?i)(reload|disable|enable)")) {
+		} else if (args[0].matches("(?i)(reload|disable|enable)")) {
 			File scripts = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER);
 			String scriptArg = StringUtils.join(args, " ", 1, args.length); 
 			String fs = File.separator;
@@ -89,7 +75,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					}); 
 				
 			// TODO handle file permissions
-			} catch ( IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
@@ -99,6 +85,19 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				options.add("config");
 				options.add("aliases");
 				options.add("scripts");
+			}
+		} else {
+			options.add("help");
+			options.add("reload");
+			options.add("enable");
+			options.add("disable");
+			options.add("update");
+			options.add("info");
+			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists()) {
+				options.add("gen-docs");
+			}
+			if (TestMode.DEV_MODE) {
+				options.add("test");
 			}
 		}
 		
