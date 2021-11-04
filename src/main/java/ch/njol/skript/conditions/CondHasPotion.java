@@ -46,8 +46,8 @@ public class CondHasPotion extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasPotion.class,
-				"%livingentities% (has|have) [potion [effect[s]]] %potioneffecttypes%",
-				"%livingentities% (doesn't|does not|do not|don't) have [potion [effect[s]] %potioneffecttypes%");
+				"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
+				"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%");
 	}
 	
 	private Expression<LivingEntity> livingEntities;
@@ -65,8 +65,8 @@ public class CondHasPotion extends Condition {
 	@Override
 	public boolean check(Event e) {
 		return livingEntities.check(e,
-				player -> potionEffects.check(e,
-					player::hasPotionEffect
+				livingEntity -> potionEffects.check(e,
+					livingEntity::hasPotionEffect
 				), isNegated());
 	}
 
