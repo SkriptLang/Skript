@@ -44,7 +44,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			return null;
 		}
 		
-		if (args[0].equalsIgnoreCase("update")) {
+		if (args[0].equalsIgnoreCase("update") && args.length < 3) {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
