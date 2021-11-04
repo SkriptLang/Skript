@@ -246,20 +246,16 @@ public class ScriptCommand implements TabExecutor {
 			}
 		}
 
-		if (Bukkit.isPrimaryThread()) {
+		Runnable runnable = () -> {
 			execute2(event, sender, commandLabel, rest);
 			if (sender instanceof Player && !event.isCooldownCancelled())
 				setLastUsage(((Player) sender).getUniqueId(), event, new Date());
+		};
+		if (Bukkit.isPrimaryThread()) {
+			runnable.run();
 		} else {
 			// must not wait for the command to complete as some plugins call commands in such a way that the server will deadlock
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					execute2(event, sender, commandLabel, rest);
-					if (sender instanceof Player && !event.isCooldownCancelled())
-						setLastUsage(((Player) sender).getUniqueId(), event, new Date());
-				}
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), runnable);
 		}
 
 		return true; // Skript prints its own error message anyway
