@@ -144,7 +144,7 @@ public class EntityUtils {
 	 * @param e Bukkit's EntityType
 	 * @return Skript's EntityData
 	 */
-	public static EntityData toSkriptEntityData(org.bukkit.entity.EntityType e){
+	public static EntityData toSkriptEntityData(org.bukkit.entity.EntityType e) {
 		return SPAWNER_TYPES.inverse().get(e);
 	}
 	
