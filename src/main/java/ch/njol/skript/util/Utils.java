@@ -412,10 +412,13 @@ public abstract class Utils {
 	 * @param data the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
+	 * @throws IllegalStateException when there are no players online
 	 */
 	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) {
+			Predicate<ByteArrayDataInput> messageVerifier, String... data) throws IllegalStateException {
 		Player firstPlayer = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+		if (firstPlayer == null)
+			throw new IllegalStateException("There are no players online");
 		return sendPluginMessage(firstPlayer, channel, messageVerifier, data);
 	}
 

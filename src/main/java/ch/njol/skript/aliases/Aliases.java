@@ -310,17 +310,14 @@ public abstract class Aliases {
 	@Nullable
 	private static ItemType parseType(final String s, final ItemType t, final boolean isAlias) {
 		ItemType i;
-		final String type = s;
-		if (type.isEmpty()) {
+		if (s.isEmpty()) {
 			t.add(new ItemData(Material.AIR));
 			return t;
-		} else if (type.matches("\\d+")) {
-			Skript.error("Numeric ids are not supported anymore.");
+		} else if (s.matches("\\d+")) {
 			return null;
-		} else if ((i = getAlias(type)) != null) {
+		} else if ((i = getAlias(s)) != null) {
 			for (ItemData d : i) {
-				d = d.clone();
-				t.add(d);
+				t.add(d.clone());
 			}
 			return t;
 		}
