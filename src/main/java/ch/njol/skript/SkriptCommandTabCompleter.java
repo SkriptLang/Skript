@@ -43,7 +43,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			return null;
 		}
 		
-		if (args[0].equalsIgnoreCase("update") && args.length == 3) {
+		if (args[0].equalsIgnoreCase("update") && args.length == 2) {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
@@ -82,7 +82,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			}
 			
 			// These will be added even if there are incomplete script arg
-			if (args.length == 3) {
+			if (args.length == 2) {
 				options.add("all");
 				if (args[0].equalsIgnoreCase("reload")) {
 					options.add("config");
