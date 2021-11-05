@@ -36,10 +36,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
-@Examples({"if player has speed:",
+@Examples({"if player has potion speed:",
 		"\tsend \"You are sonic!\"",
 		"",
-		"if all players have speed and haste:",
+		"if all players have potion effects speed and haste:",
 		"\tbroadcast \"You are ready to MINE!\""})
 @Since("INSERT VERSION")
 public class CondHasPotion extends Condition {
