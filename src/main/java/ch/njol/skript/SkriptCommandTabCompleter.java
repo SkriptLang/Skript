@@ -18,20 +18,19 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.tests.runner.TestMode;
+import ch.njol.util.StringUtils;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.util.StringUtils;
-
-import javax.annotation.Nullable;
 
 public class SkriptCommandTabCompleter implements TabCompleter {
 		
@@ -44,11 +43,11 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			return null;
 		}
 		
-		if (args[0].equalsIgnoreCase("update") && args.length < 3) {
+		if (args[0].equalsIgnoreCase("update") && args.length == 3) {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
-		} else if (args[0].matches("(?i)(reload|disable|enable)")) {
+		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length == 2) {
 			File scripts = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER);
 			String scriptArg = StringUtils.join(args, " ", 1, args.length); 
 			String fs = File.separator;
@@ -57,12 +56,14 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				// Live update, this will get all old and new (even not loaded) scripts
 				Files.walk(scripts.toPath())
 					.map(Path::toFile)
-					.filter(f -> (!f.isDirectory() && f.getName().toLowerCase().endsWith(".sk")) || f.isDirectory()) // filter folders and skript files only 
+					.filter(f -> (!f.isDirectory() && f.getName().toLowerCase().endsWith(".sk")) ||
+						f.isDirectory()) // filter folders and skript files only
 					.filter(f -> { // Filtration for enable, disable and reload
 						if (args[0].equalsIgnoreCase("enable"))
 							return f.getName().startsWith("-");
 						else // reload & disable both accepts only non-hyphened files and not hidden folders
-							return !f.getAbsolutePath().matches(".*?(\\\\-|/-|^-).*") && (f.isDirectory() && !f.getAbsolutePath().matches(".*?(\\\\\\.|/\\.|^\\.).*") || !f.isDirectory());
+							return !f.getAbsolutePath().matches(".*?(\\\\-|/-|^-).*") && (f.isDirectory() &&
+								!f.getAbsolutePath().matches(".*?(\\\\\\.|/\\.|^\\.).*") || !f.isDirectory());
 					})
 					.filter(f -> { // Autocomplete incomplete script name arg
 						return scriptArg.length() > 0 ? f.getName().startsWith(scriptArg) : true;
@@ -70,7 +71,8 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					.forEach(f -> {
 						if (!f.toString().equals(scripts.toString()))
 							options.add(f.toString()
-								.replace(scripts.toPath().toString() + (!f.isDirectory() && f.getParentFile().toPath().toString().equals(scripts.toPath().toString()) ? fs : ""), "") // Extract file short path, and remove '/' from the beginning of files in root only
+								.replace(scripts.toPath() + (!f.isDirectory() && f.getParentFile().toPath().toString()
+									.equals(scripts.toPath().toString()) ? fs : ""), "") // Extract file short path, and remove '/' from the beginning of files in root only
 								+ (f.isDirectory() && f.toString().length() > 0 ? fs : "")); // add File.separator at the end of directories
 					}); 
 				
@@ -80,7 +82,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			}
 			
 			// These will be added even if there are incomplete script arg
-			if (args.length < 3) {
+			if (args.length == 3) {
 				options.add("all");
 				if (args[0].equalsIgnoreCase("reload")) {
 					options.add("config");
@@ -88,7 +90,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					options.add("scripts");
 				}
 			}
-		} else if (args.length < 2) {
+		} else if (args.length == 1) {
 			options.add("help");
 			options.add("reload");
 			options.add("enable");
