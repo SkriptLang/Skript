@@ -18,17 +18,11 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.EntityType;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-
-import ch.njol.skript.Skript;
+import org.bukkit.entity.*;
 
 /**
  * Utility class for quick {@link Entity} methods
@@ -37,7 +31,10 @@ public class EntityUtils {
 	
 	private static final boolean HAS_PIGLINS = Skript.classExists("org.bukkit.entity.Piglin");
 
-	private static final BiMap<EntityData, org.bukkit.entity.EntityType> SPAWNER_TYPES = HashBiMap.create();// Cache Skript EntityData -> Bukkit EntityType
+	/**
+	 * Cache Skript EntityData -> Bukkit EntityType
+	 */
+	private static final BiMap<EntityData, org.bukkit.entity.EntityType> SPAWNER_TYPES = HashBiMap.create();
 
 	static {
 		for (org.bukkit.entity.EntityType e : org.bukkit.entity.EntityType.values()) {
@@ -135,7 +132,7 @@ public class EntityUtils {
 	 * @param e Skript's EntityData
 	 * @return Bukkit's EntityType
 	 */
-	public static org.bukkit.entity.EntityType toBukkitEntityType(EntityData e) {
+	public static EntityType toBukkitEntityType(EntityData e) {
 		return SPAWNER_TYPES.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
 	}
 
@@ -144,7 +141,7 @@ public class EntityUtils {
 	 * @param e Bukkit's EntityType
 	 * @return Skript's EntityData
 	 */
-	public static EntityData toSkriptEntityData(org.bukkit.entity.EntityType e) {
+	public static EntityData toSkriptEntityData(EntityType e) {
 		return SPAWNER_TYPES.inverse().get(e);
 	}
 	
