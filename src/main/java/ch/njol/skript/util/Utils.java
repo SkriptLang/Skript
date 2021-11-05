@@ -18,21 +18,18 @@
  */
 package ch.njol.skript.util;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import ch.njol.skript.aliases.ItemType;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
@@ -716,6 +713,38 @@ public abstract class Utils {
 				lastIndex = i;
 		}
 		return lastIndex;
+	}
+
+	/**
+	 * Convert ItemStacks to ItemTypes
+	 *
+	 * @param items ItemStacks to replace
+	 * @return converted ItemStacks to ItemTypes
+	 */
+	public static ItemType[] toItemTypes(ItemStack[] items) {
+		List<ItemType> its = new ArrayList<>(items.length);
+		for (ItemStack item : items) {
+			its.add(new ItemType(item));
+		}
+		return its.toArray(new ItemType[items.length]);
+	}
+
+	/**
+	 * Convert ItemStacks to ItemTypes
+	 * With the ability to replace nulls with AIR
+	 *
+	 * @param items ItemStacks to replace
+	 * @return converted ItemStacks to ItemTypes
+	 */
+	public static ItemType[] toItemTypes(ItemStack[] items, boolean replaceNullWithAir) {
+		if (!replaceNullWithAir)
+			return toItemTypes(items);
+
+		List<ItemType> its = new ArrayList<>(items.length);
+		for (ItemStack item : items) {
+			its.add(new ItemType(item == null ? new ItemStack(Material.AIR) : item));
+		}
+		return its.toArray(new ItemType[items.length]);
 	}
 	
 }

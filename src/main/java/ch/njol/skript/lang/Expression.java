@@ -205,7 +205,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	public boolean isDefault();
 	
 	/**
-	 * Returns the same as {@link #getArray(Event)} but as an iterator. This method should be overriden by expressions intended to be looped to increase performance.
+	 * Returns the same as {@link #getArray(Event)} but as an iterator. This method should be overridden by expressions intended to be looped to increase performance.
 	 * 
 	 * @param e The event
 	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.

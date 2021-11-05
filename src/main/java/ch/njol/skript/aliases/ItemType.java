@@ -1288,6 +1288,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return data.getType();
 	}
 
+	public ItemStack getItemStack() {
+		Material mat = getMaterial();
+		ItemStack item = new ItemStack(mat, Math.max(amount, 1));
+		item.setItemMeta(getItemMeta());
+		return item;
+	}
+
 	/**
 	 * Returns a base item type of this. Essentially, this calls
 	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
