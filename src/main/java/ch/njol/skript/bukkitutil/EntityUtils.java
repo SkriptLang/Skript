@@ -34,10 +34,10 @@ public class EntityUtils {
 	/**
 	 * Cache Skript EntityData -> Bukkit EntityType
 	 */
-	private static final BiMap<EntityData, org.bukkit.entity.EntityType> SPAWNER_TYPES = HashBiMap.create();
+	private static final BiMap<EntityData, EntityType> SPAWNER_TYPES = HashBiMap.create();
 
 	static {
-		for (org.bukkit.entity.EntityType e : org.bukkit.entity.EntityType.values()) {
+		for (EntityType e : EntityType.values()) {
 			Class<? extends Entity> c = e.getEntityClass();
 			if (c != null)
 				SPAWNER_TYPES.put(EntityData.fromClass(c), e);
