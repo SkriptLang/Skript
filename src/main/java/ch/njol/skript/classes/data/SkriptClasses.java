@@ -289,7 +289,10 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Timespan.class, "timespan")
 				.user("time ?spans?")
 				.name("Timespan")
-				.description("A timespan is a difference of two different dates or times, e.g '10 minutes'. Timespans are always displayed as real life time, but can be defined as minecraft time, e.g. '5 minecraft days and 12 hours'.",
+				.description("A timespan is a difference of two different dates or times, " +
+						"e.g '10 minutes'. Timespans are always displayed as real life time, but can be defined as minecraft time, " +
+						"e.g. '5 minecraft days and 12 hours'.",
+						"NOTE: Months always have the value of 30 days, and years of 365 days.",
 						"See <a href='#date'>date</a> and <a href='#time'>time</a> for the other time types of Skript.")
 				.usage("&lt;number&gt; [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days/weeks/months/years [[,/and] &lt;more...&gt;]",
 						"[###:]##:##[.####] ([hours:]minutes:seconds[.milliseconds])")
