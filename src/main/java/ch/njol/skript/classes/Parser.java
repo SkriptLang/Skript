@@ -40,9 +40,9 @@ public abstract class Parser<T> {
 	 * Parses the input. This method may print an error prior to returning null if the input couldn't be parsed.
 	 * <p>
 	 * Remember to override {@link #canParse(ParseContext)} if this parser doesn't parse at all (i.e. you only use it's toString methods) or only parses for certain contexts.
-	 * 
-	 * Note that this method does not provide {@link ParserInstance}; you won't be able to use logging in multithreaded
-	 * parsing environment.
+	 * <p>
+	 * Note that this method will be called very frequently during script parsing,
+	 * so try to avoid computationally expensive operations in this method when possible.
 	 * 
 	 * @param s The String to parse. This string is already trim()med.
 	 * @param context Context of parsing, may not be null
@@ -103,17 +103,7 @@ public abstract class Parser<T> {
 	 * @return The given object's representation in a variable name.
 	 */
 	public abstract String toVariableNameString(final T o);
-	
-	/**
-	 * Returns a pattern that matches all possible outputs of {@link #toVariableNameString(Object)}. This is used to test for variable conflicts.
-	 * <p>
-	 * This pattern is inserted directly into another pattern, i.e. without any surrounding parantheses, and the pattern is compiled without any checks, thus an invalid pattern
-	 * will crash Skript.
-	 * 
-	 * @return A valid Regex pattern string matching all possible return values of {@link #toVariableNameString(Object)}
-	 */
-	public abstract String getVariableNamePattern();
-	
+
 	/**
 	 * Returns a string representation of the given object to be used for debugging.<br>
 	 * The Parser of 'Block' for example returns the block's type in toString, while this method also returns the coordinates of the block.<br>
