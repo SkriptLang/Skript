@@ -81,13 +81,13 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 							if (r2 == null)
 								continue;
 							if (r != null) {
-								Skript.error("Multiple regions with the name '" + s + "' exist.");
+								Skript.error("Multiple regions with the name '" + s + "' exist");
 								return null;
 							}
 							r = r2;
 						}
 						if (r == null) {
-							Skript.error("Region '" + s + "' could not be found.");
+							Skript.error("Region '" + s + "' could not be found");
 							return null;
 						}
 						return r;
