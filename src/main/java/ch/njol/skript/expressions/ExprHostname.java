@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -48,17 +47,17 @@ public class ExprHostname extends SimpleExpression<String> {
 	}
 
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings({"null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerLoginEvent.class)) {
-			Skript.error("The hostname expression must be used in a player connect event.");
+			Skript.error("The hostname expression must be used in a player connect event");
 			return false;
 		}
 		return true;
 	}
 	
-	@Nullable
 	@Override
+	@Nullable
 	protected String[] get(Event e) {
 		return new String[] {((PlayerLoginEvent) e).getHostname()};
 	}
