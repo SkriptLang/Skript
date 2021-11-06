@@ -117,7 +117,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * 
 	 * @param e The event
 	 * @param c A checker
-	 * @param negated The cheking condition's negated state. This is used to invert the output of the checker if set to true (i.e. <tt>negated ^ checker.check(...)</tt>)
+	 * @param negated The checking condition's negated state. This is used to invert the output of the checker if set to true (i.e. <tt>negated ^ checker.check(...)</tt>)
 	 * @return Whether this expression matches or doesn't match the given checker depending on the condition's negated state.
 	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
 	 */
