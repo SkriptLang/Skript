@@ -539,7 +539,7 @@ public class BukkitClasses {
 							world = Bukkit.getWorld(m.group(1));
 
 						if (world == null) {
-							Skript.error("World '" + m.group(1) + "' could not be found.");
+							Skript.error("World '" + m.group(1) + "' could not be found");
 							return null;
 						}
 						return world;
