@@ -74,6 +74,11 @@ public class SecLoop extends Section {
 			expr = new ContainerExpression((Expression<? extends Container<?>>) expr, type.value());
 		}
 
+		if (expr.isSingle()) {
+			Skript.error("Can't loop " + expr + " because it's only a single value");
+			return false;
+		}
+
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
