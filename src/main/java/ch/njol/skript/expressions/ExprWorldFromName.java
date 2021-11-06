@@ -37,10 +37,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Returns the world from a string.")
 @Examples("world from the name \"%{game::world}%\"")
 @Since("INSERT VERSION")
-public class ExprWorldFromString extends SimpleExpression<World> {
+public class ExprWorldFromName extends SimpleExpression<World> {
 
 	static {
-		Skript.registerExpression(ExprWorldFromString.class, World.class, ExpressionType.SIMPLE, "[the] world (of|from|with) [the] name %string%");
+		Skript.registerExpression(ExprWorldFromName.class, World.class, ExpressionType.SIMPLE, "[the] world (of|from|with) [the] name %string%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
