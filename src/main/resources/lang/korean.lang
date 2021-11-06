@@ -108,7 +108,8 @@ skript command:
 		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://skriptlang.github.io/Skript
 		version: Skript 버전: <aqua>%s
 		server: 서버 버전: <aqua>%s
-		addons: 설치된 Skript 애드온:
+		addons: 설치된 Skript 애드온: <aqua>%s
+		dependencies: 설치된 종속성: <aqua>%s
 
 # -- Updater --
 updater:

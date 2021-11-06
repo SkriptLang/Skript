@@ -195,7 +195,7 @@ public abstract class Aliases {
 	}
 	
 	/**
-	 * @return The ietm's gender or -1 if no name is found
+	 * @return The item's gender or -1 if no name is found
 	 */
 	public static int getGender(ItemData item) {
 		MaterialName n = getMaterialNameData(item);
