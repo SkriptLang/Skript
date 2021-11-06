@@ -18,13 +18,11 @@
  */
 package ch.njol.skript.bukkitutil;
 
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import org.bukkit.entity.*;
 
 /**
  * Utility class for quick {@link Entity} methods
@@ -32,6 +30,19 @@ import ch.njol.skript.Skript;
 public class EntityUtils {
 	
 	private static final boolean HAS_PIGLINS = Skript.classExists("org.bukkit.entity.Piglin");
+
+	/**
+	 * Cache Skript EntityData -> Bukkit EntityType
+	 */
+	private static final BiMap<EntityData, EntityType> SPAWNER_TYPES = HashBiMap.create();
+
+	static {
+		for (EntityType e : EntityType.values()) {
+			Class<? extends Entity> c = e.getEntityClass();
+			if (c != null)
+				SPAWNER_TYPES.put(EntityData.fromClass(c), e);
+		}
+	}
 	
 	/**
 	 * Check if an entity is ageable.
@@ -114,6 +125,24 @@ public class EntityUtils {
 	 */
 	public static boolean isAdult(Entity entity) {
 		return getAge(entity) >= 0;
+	}
+
+	/**
+	 * Convert from Skript's EntityData to Bukkit's EntityType
+	 * @param e Skript's EntityData
+	 * @return Bukkit's EntityType
+	 */
+	public static EntityType toBukkitEntityType(EntityData e) {
+		return SPAWNER_TYPES.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
+	}
+
+	/**
+	 * Convert from Bukkit's EntityType to Skript's EntityData
+	 * @param e Bukkit's EntityType
+	 * @return Skript's EntityData
+	 */
+	public static EntityData toSkriptEntityData(EntityType e) {
+		return SPAWNER_TYPES.inverse().get(e);
 	}
 	
 }
