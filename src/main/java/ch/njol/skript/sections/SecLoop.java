@@ -75,7 +75,7 @@ public class SecLoop extends Section {
 		}
 
 		if (expr.isSingle()) {
-			Skript.error("Can't loop " + expr + " because it's only a single value.");
+			Skript.error("Can't loop " + expr + " because it's only a single value");
 			return false;
 		}
 
