@@ -35,7 +35,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("World From Name")
 @Description("Returns the world from a string.")
-@Examples("world from the name \"%{game::world}%\"")
+@Examples({"world from the name {game::world-name}",
+			"the world \"world\""})
 @Since("INSERT VERSION")
 public class ExprWorldFromName extends SimpleExpression<World> {
 

@@ -531,18 +531,12 @@ public class BukkitClasses {
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
 						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						World world = null;
 						if (context == ParseContext.COMMAND || context == ParseContext.CONFIG)
-							world = Bukkit.getWorld(s);
+							return Bukkit.getWorld(s);
 						final Matcher m = parsePattern.matcher(s);
 						if (m.matches())
-							world = Bukkit.getWorld(m.group(1));
-
-						if (world == null) {
-							Skript.error("World '" + m.group(1) + "' could not be found");
-							return null;
-						}
-						return world;
+							return Bukkit.getWorld(m.group(1));
+						return null;
 					}
 					
 					@Override
