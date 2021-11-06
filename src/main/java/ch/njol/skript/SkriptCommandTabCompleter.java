@@ -82,13 +82,11 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			}
 			
 			// These will be added even if there are incomplete script arg
-			if (args.length == 2) {
-				options.add("all");
-				if (args[0].equalsIgnoreCase("reload")) {
-					options.add("config");
-					options.add("aliases");
-					options.add("scripts");
-				}
+			options.add("all");
+			if (args[0].equalsIgnoreCase("reload")) {
+				options.add("config");
+				options.add("aliases");
+				options.add("scripts");
 			}
 		} else if (args.length == 1) {
 			options.add("help");
