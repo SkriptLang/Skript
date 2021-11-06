@@ -172,8 +172,6 @@ aliases:
 
 # -- Time --
 time:
-	real: real, rl, irl
-	minecraft: mc, minecraft
 	errors:
 		24 hours: A day only has 24 hours
 		12 hours: Using 12-hour format does not allow more than 12 hours
