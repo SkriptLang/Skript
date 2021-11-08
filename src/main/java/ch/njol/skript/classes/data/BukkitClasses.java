@@ -1860,11 +1860,6 @@ public class BukkitClasses {
 					public String toVariableNameString(PlayerFishEvent.State o) {
 						return o.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				})
 				.serializer(new EnumSerializer<>(PlayerFishEvent.State.class)));
 		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
@@ -1887,11 +1882,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(FishHook o) {
 						return "Fish hook " + o.toString();
-					}
-
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				}));
 	}
