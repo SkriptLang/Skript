@@ -259,7 +259,7 @@ public class Variable<T> implements Expression<T> {
 		StringBuilder stringBuilder = new StringBuilder()
 			.append("{");
 		if (local)
-			stringBuilder.append("_");
+			stringBuilder.append(LOCAL_VARIABLE_TOKEN);
 		stringBuilder.append(StringUtils.substring(name.toString(e, debug), 1, -1))
 			.append("}");
 
