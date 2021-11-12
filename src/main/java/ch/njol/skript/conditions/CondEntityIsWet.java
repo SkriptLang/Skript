@@ -16,34 +16,33 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.localization;
-
-import java.util.IllegalFormatException;
+package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.*;
+import org.bukkit.entity.Entity;
 
-public final class ArgsMessage extends Message {
+@Name("Entity is Wet")
+@Description("Checks whether an entity is wet or not (in water, rain or a bubble column).")
+@Examples("if player is wet:")
+@RequiredPlugins("Paper 1.16+")
+@Since("INSERT VERSION")
+public class CondEntityIsWet extends PropertyCondition<Entity> {
 	
-	public ArgsMessage(String key) {
-		super(key);
+	static {
+		if (Skript.methodExists(Entity.class, "isInWaterOrRainOrBubbleColumn"))
+			register(CondEntityIsWet.class, PropertyType.BE, "wet", "entities");
 	}
-	
+
 	@Override
-	public String toString() {
-		throw new UnsupportedOperationException();
+	public boolean check(Entity entity) {
+		return entity.isInWaterOrRainOrBubbleColumn();
 	}
-	
-	public String toString(Object... args) {
-		try {
-			String val = getValue();
-			return val == null ? key : "" + String.format(val, args);
-		} catch (IllegalFormatException e) {
-			String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
-			Skript.adminBroadcast("<red>" + m);
-			System.err.println("[Skript] " + m);
-			e.printStackTrace();
-			return "[ERROR]";
-		}
+
+	@Override
+	protected String getPropertyName() {
+		return "wet";
 	}
-	
+
 }
