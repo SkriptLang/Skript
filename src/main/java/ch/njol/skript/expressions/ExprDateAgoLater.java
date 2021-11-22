@@ -65,11 +65,11 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Nullable
     @SuppressWarnings("null")
     protected Date[] get(Event e) {
+		if (this.date == null || this.date.getSingle(e) == null || this.timespan == null || this.timespan.getSingle(e) == null)
+			return null;
+
         Timespan timespan = this.timespan.getSingle(e);
         Date date = this.date == null ? new Date() : new Date(this.date.getSingle(e).getTimestamp());
-        if (timespan == null || date == null)
-            return null;
-
         if (ago)
             date.subtract(timespan);
         else
