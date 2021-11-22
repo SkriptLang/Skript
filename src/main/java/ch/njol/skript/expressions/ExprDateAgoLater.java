@@ -45,6 +45,15 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
                 "%timespan% (later|(from|after) [the] [date] %-date%)");
     }
 
+    @Override
+    @SuppressWarnings({"unchecked", "null"})
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        timespan = (Expression<Timespan>) exprs[0];
+        date = (Expression<Date>) exprs[1];
+        ago = matchedPattern == 0;
+        return true;
+    }
+
     @SuppressWarnings("null")
     private Expression<Timespan> timespan;
     @Nullable
@@ -52,21 +61,21 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 
     private boolean ago;
 
-    @SuppressWarnings("null")
-    @Nullable
     @Override
+    @Nullable
+    @SuppressWarnings("null")
     protected Date[] get(Event e) {
         Timespan timespan = this.timespan.getSingle(e);
-        Date date = this.date == null ? new Date() : this.date.getSingle(e);
-        if (timespan == null || date == null) {
+        Date date = this.date == null ? new Date() : new Date(this.date.getSingle(e).getTimestamp());
+        if (timespan == null || date == null)
             return null;
-        }
-        if (ago) {
+
+        if (ago)
             date.subtract(timespan);
-        } else {
+        else
             date.add(timespan);
-        }
-        return new Date[]{date};
+
+        return new Date[] { date };
     }
 
     @Override
@@ -82,14 +91,5 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Override
     public String toString(@Nullable Event e, boolean debug) {
         return timespan.toString(e, debug) + " " + (ago ? "ago" : "later");
-    }
-
-    @SuppressWarnings({"unchecked", "null"})
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        timespan = (Expression<Timespan>) exprs[0];
-        date = (Expression<Date>) exprs[1];
-        ago = matchedPattern == 0;
-        return true;
     }
 }
