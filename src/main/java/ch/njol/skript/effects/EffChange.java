@@ -283,12 +283,12 @@ public class EffChange extends Effect {
 	
 	@Override
 	protected void execute(Event e) {
-		Expression<?> changer = this.changer;
 		Object[] delta = changer == null ? null : changer.getArray(e);
 		List<ChangeMode> modes = List.of(ChangeMode.DELETE, ChangeMode.RESET, ChangeMode.TOGGLE);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
-		if ((delta == null || delta.length == 0) && (!modes.contains(mode))) {
-			if (changed.acceptChange(ChangeMode.DELETE) != null)
+
+		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
+			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;
 		}

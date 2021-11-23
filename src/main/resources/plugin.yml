@@ -22,25 +22,7 @@ name: Skript
 
 description: Customize Minecraft's mechanics with simple scripts written in plain English sentences.
 
-authors:
-    - Njol
-    - Mirreski
-    - bensku
-    - TheBentoBox
-    - FranKusmiruk
-    - ShaneBeee
-    - Blueyescat
-    - JRoy
-    - Nicofisi
-    - APickledWalrus
-    - xXAndrew28Xx
-    - Syst3ms
-    - TheLimeGlass
-    - Pikachu920
-    - Sashie
-    - Wealthyturtle
-    - OfficialDonut
-    - eyesniper2
+authors: [Njol, Mirreski, 'SkriptLang Team', Contributors]
 
 website: https://skriptlang.github.io/Skript
 
