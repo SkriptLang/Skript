@@ -35,14 +35,16 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
-@Examples({"set {_yesterday} to 1 day ago"})
+@Examples({"set {_yesterday} to 1 day ago",
+			"set {_hourAfter} to 1 hour after {someOtherDate}",
+			"set {_hoursBefore} to 5 hours before {someOtherDate}"})
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 
     static {
         Skript.registerExpression(ExprDateAgoLater.class, Date.class, ExpressionType.COMBINED,
-                "%timespan% (ago|in the past|1:before [the] [date] %-date%)",
-                "%timespan% (later|1:(from|after) [the] [date] %-date%)");
+                "%timespan% (ago|in the past|before [the] [date] %-date%)",
+                "%timespan% (later|(from|after) [the] [date] %-date%)");
     }
 
     @SuppressWarnings("null")
@@ -50,7 +52,6 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Nullable
     private Expression<Date> date;
     private boolean ago;
-    private boolean isUsingDate;
 
     @Override
     @SuppressWarnings({"unchecked", "null"})
@@ -58,7 +59,6 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
         timespan = (Expression<Timespan>) exprs[0];
         date = (Expression<Date>) exprs[1];
         ago = matchedPattern == 0;
-		isUsingDate = parseResult.hasTag("1");
         return true;
     }
 
@@ -66,11 +66,11 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Nullable
     @SuppressWarnings("null")
     protected Date[] get(Event e) {
-		if ((date == null && isUsingDate) || timespan == null)
+		if (timespan == null)
 			return null;
 
         Timespan timespan = this.timespan.getSingle(e);
-		Date date = isUsingDate ? this.date.getSingle(e) : new Date();
+		Date date = this.date != null ? this.date.getSingle(e) : new Date();
 		if (timespan == null || date == null)
 			return null;
 
@@ -89,7 +89,7 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return timespan.toString(e, debug) + " " + (ago ? (isUsingDate ? "before " + date.toString(e, debug) : "ago")
-			: (isUsingDate ? "after " + date.toString(e, debug) : "later"));
+        return timespan.toString(e, debug) + " " + (ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
+			: (date != null ? "after " + date.toString(e, debug) : "later"));
     }
 }
