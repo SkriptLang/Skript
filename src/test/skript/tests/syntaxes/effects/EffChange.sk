@@ -1,33 +1,33 @@
 test "change modes":
   set {_x} to 0
-  asset {_x} is 0 with "{_x} should be set to 0"
-  asset {_isToggled} is false with "{_isToggled} should be set to false"
+  assert {_x} is 0 with "{_x} should be set to 0"
+  assert {_isToggled} is false with "{_isToggled} should be set to false"
   add 1 to {_x}
-  asset {_x} is 1 with "{_x} should be incremented to 1"
+  assert {_x} is 1 with "{_x} should be incremented to 1"
   remove 1 from {_x}
-  asset {_x} is 1 with "{_x} should be decremented to 1"
+  assert {_x} is 1 with "{_x} should be decremented to 1"
   delete {_x}
-  asset {_x} is null with "{_x} should be deleted"
+  assert {_x} is null with "{_x} should be deleted"
 
   add "a" to {_letters::*}
-  asset {_letters::1} is "a" with "{_letters::1} should be set to 'a'"
+  assert {_letters::1} is "a" with "{_letters::1} should be set to 'a'"
   add "b" to {_letters::*}
-  asset {_letters::2} is "b" with "{_letters::2} should be set to 'b'"
+  assert {_letters::2} is "b" with "{_letters::2} should be set to 'b'"
   remove "b" from {_letters::*}
-  asset {_letters::2} is null with "{_letters::2} should be removed"
+  assert {_letters::2} is null with "{_letters::2} should be removed"
   clear {_letters::*}
-  asset amount of {_letters::*} is 0 with "{_letters::*} should be cleared"
+  assert amount of {_letters::*} is 0 with "{_letters::*} should be cleared"
 
   set {_isToggled} to false
   toggle {_isToggled}
-  asset {_isToggled} is true with "{_isToggled} should be toggled to true"
+  assert {_isToggled} is true with "{_isToggled} should be toggled to true"
   set {_toggle::*} to false, false and false
-  asset {_toggle::1} is false with "{_toggle::1} should be set to false"
-  asset {_toggle::2} is false with "{_toggle::2} should be set to false"
-  asset {_toggle::3} is false with "{_toggle::3} should be set to false"
+  assert {_toggle::1} is false with "{_toggle::1} should be set to false"
+  assert {_toggle::2} is false with "{_toggle::2} should be set to false"
+  assert {_toggle::3} is false with "{_toggle::3} should be set to false"
   toggle {_toggle::*}
-  asset {_toggle::1} is true with "{_toggle::1} should be toggled to true"
-  asset {_toggle::2} is true with "{_toggle::2} should be toggled to true"
-  asset {_toggle::3} is true with "{_toggle::3} should be toggled to true"
+  assert {_toggle::1} is true with "{_toggle::1} should be toggled to true"
+  assert {_toggle::2} is true with "{_toggle::2} should be toggled to true"
+  assert {_toggle::3} is true with "{_toggle::3} should be toggled to true"
   set {_isToggle} to toggled {_isToggle}
-  asset {_isToggle} is false with "{_isToggle} should be toggled to false"
+  assert {_isToggle} is false with "{_isToggle} should be toggled to false"
