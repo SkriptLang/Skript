@@ -78,7 +78,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"# toggle:",
 		"toggle player's flight mode",
 		"toggle player's gravity"})
-@Since("1.0 (set, add, remove, delete), 2.0 (remove all)")
+@Since("1.0 (set, add, remove, delete), 2.0 (remove all), INSERT VERSION (toggle)")
 public class EffChange extends Effect {
 	private static Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
