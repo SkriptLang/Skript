@@ -21,6 +21,10 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 import java.util.logging.Level;
 
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Powerable;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -86,7 +90,7 @@ public class EffChange extends Effect {
 			{"give %~objects% %objects%", ChangeMode.ADD},
 			
 			{"set %~objects% to %objects%", ChangeMode.SET},
-			{"toggle %booleans%", ChangeMode.SET},
+			{"(toggle|switch) (%booleans%|[[the] state of] %blocks%)", ChangeMode.SET},
 			
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
 			
@@ -287,11 +291,23 @@ public class EffChange extends Effect {
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
 			if (changer == null && mode == ChangeMode.SET) {
-				Boolean[] values = Arrays.stream(changed.getArray(e))
-					.map(value -> (Boolean) value)
-					.map(value -> !value)
-					.toArray(Boolean[]::new);
-				changed.change(e, values, ChangeMode.SET);
+				Object[] values = changed.getArray(e);
+				if (values instanceof Block[]) {
+					for (Block b : (Block[]) values) {
+						BlockData data = b.getBlockData();
+						if (data instanceof Openable) // open = NOT was open
+							((Openable) data).setOpen(!((Openable) data).isOpen());
+						else if (data instanceof Powerable) // power = NOT power
+							((Powerable) data).setPowered(!((Powerable) data).isPowered());
+						b.setBlockData(data);
+					}
+				} else if (values instanceof Boolean[]) {
+					Arrays.stream(changed.getArray(e))
+						.map(value -> (Boolean) value)
+						.map(value -> !value)
+						.toArray(Boolean[]::new);	
+					changed.change(e, values, ChangeMode.SET);
+				}
 			} else if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;

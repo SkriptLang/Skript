@@ -53,9 +53,8 @@ import ch.njol.util.Kleenean;
 @Since("1.4")
 public class EffToggleBlock extends Effect {
 	
-	// TODO Make this as effect
 	static {
-		// Skript.registerEffect(EffToggleBlock.class, "(close|turn off|de[-]activate) %blocks%", "(toggle|switch) [[the] state of] %blocks%", "(open|turn on|activate) %blocks%");
+		Skript.registerEffect(EffToggleBlock.class, "(close|turn off|de[-]activate) %blocks%", "(open|turn on|activate) %blocks%");
 	}
 	
 	@Nullable
@@ -74,14 +73,13 @@ public class EffToggleBlock extends Effect {
 	
 	@SuppressWarnings("null")
 	private Expression<Block> blocks;
-	private int toggle;
+	private boolean open;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		blocks = (Expression<Block>) vars[0];
-		toggle = matchedPattern - 1;
-		System.out.println("EffToggleBlock#init");
+		open = matchedPattern == 1;
 		return true;
 	}
 	
@@ -133,21 +131,16 @@ public class EffToggleBlock extends Effect {
 		// 1.13 and newer: use BlockData
 		for (Block b : blocks.getArray(e)) {
 			BlockData data = b.getBlockData();
-			if (toggle == -1) {
+			if (!open) {
 				if (data instanceof Openable)
 					((Openable) data).setOpen(false);
 				else if (data instanceof Powerable)
 					((Powerable) data).setPowered(false);
-			} else if (toggle == 1) {
+			} else {
 				if (data instanceof Openable)
 					((Openable) data).setOpen(true);
 				else if (data instanceof Powerable)
 					((Powerable) data).setPowered(true);
-			} else {
-				if (data instanceof Openable) // open = NOT was open
-					((Openable) data).setOpen(!((Openable) data).isOpen());
-				else if (data instanceof Powerable) // power = NOT power
-					((Powerable) data).setPowered(!((Powerable) data).isPowered());
 			}
 			
 			b.setBlockData(data);
@@ -174,10 +167,10 @@ public class EffToggleBlock extends Effect {
 			MethodHandle mh = setDataMethod;
 			assert mh != null;
 			try {
-				if (toggle == -1)
+				if (!open)
 					mh.invokeExact(b, (byte) (data & ~bitFlags[type]));
-				else if (toggle == 0)
-					mh.invokeExact(b, (byte) (data ^ bitFlags[type]));
+				// else if (toggle == 0)
+				// 	mh.invokeExact(b, (byte) (data ^ bitFlags[type])); // TODO Need to move this line in EffChange#execute
 				else
 					mh.invokeExact(b, (byte) (data | bitFlags[type]));
 			} catch (Throwable ex) {

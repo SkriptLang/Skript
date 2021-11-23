@@ -29,3 +29,5 @@ test "change modes":
   asset {_toggle::1} is true with "{_toggle::1} should be toggled to true"
   asset {_toggle::2} is true with "{_toggle::2} should be toggled to true"
   asset {_toggle::3} is true with "{_toggle::3} should be toggled to true"
+  set {_isToggle} to toggled {_isToggle}
+  asset {_isToggle} is false with "{_isToggle} should be toggled to false"
