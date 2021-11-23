@@ -98,10 +98,6 @@ public class ExprSaturation extends PropertyExpression<Player, Number> {
 				for (Player player : getExpr().getArray(e))
 					player.setSaturation(0);
 				break;
-			case TOGGLE:
-				for (Player player : getExpr().getArray(e))
-					player.setSaturation(player.getSaturation() == 100 ? 0 : 100);
-				break;
 		}
 	}
 	

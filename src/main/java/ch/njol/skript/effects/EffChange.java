@@ -19,7 +19,6 @@
 package ch.njol.skript.effects;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.event.Event;
@@ -48,6 +47,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 
 /**
  * @author Peter Güttinger
@@ -86,6 +86,7 @@ public class EffChange extends Effect {
 			{"give %~objects% %objects%", ChangeMode.ADD},
 			
 			{"set %~objects% to %objects%", ChangeMode.SET},
+			{"toggle %booleans%", ChangeMode.SET},
 			
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
 			
@@ -95,8 +96,6 @@ public class EffChange extends Effect {
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
 			
 			{"reset %~objects%", ChangeMode.RESET},
-
-			{"toggle %~objects%", ChangeMode.TOGGLE}
 	});
 	
 	static {
@@ -131,7 +130,8 @@ public class EffChange extends Effect {
 				}
 				break;
 			case SET:
-				changer = exprs[1];
+				if (matchedPattern == 3)
+					changer = exprs[1];
 				changed = exprs[0];
 				break;
 			case REMOVE_ALL:
@@ -153,9 +153,6 @@ public class EffChange extends Effect {
 			case RESET:
 				changed = exprs[0];
 				break;
-			case TOGGLE:
-				changed = exprs[0];
-				break;
 		}
 		
 		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
@@ -174,7 +171,11 @@ public class EffChange extends Effect {
 				return false;
 			switch (mode) {
 				case SET:
-					Skript.error(what + " can't be set to anything", ErrorQuality.SEMANTIC_ERROR);
+					if (matchedPattern == 3) {
+						Skript.error(what + " can't be set to anything", ErrorQuality.SEMANTIC_ERROR);
+					} else if (!CollectionUtils.containsSuperclass(changed.acceptChange(ChangeMode.SET), Boolean.class)) {
+						Skript.error(what + " cannot be toggled", ErrorQuality.SEMANTIC_ERROR);
+					}
 					break;
 				case DELETE:
 					if (changed.acceptChange(ChangeMode.RESET) != null)
@@ -198,8 +199,6 @@ public class EffChange extends Effect {
 					else
 						Skript.error(what + " can't be reset", ErrorQuality.SEMANTIC_ERROR);
 					break;
-				case TOGGLE:
-					Skript.error(what + " can't be toggled", ErrorQuality.SEMANTIC_ERROR);
 			}
 			return false;
 		}
@@ -284,11 +283,16 @@ public class EffChange extends Effect {
 	@Override
 	protected void execute(Event e) {
 		Object[] delta = changer == null ? null : changer.getArray(e);
-		List<ChangeMode> modes = List.of(ChangeMode.DELETE, ChangeMode.RESET, ChangeMode.TOGGLE);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
-			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
+			if (changer == null && mode == ChangeMode.SET) {
+				Boolean[] values = Arrays.stream(changed.getArray(e))
+					.map(value -> (Boolean) value)
+					.map(value -> !value)
+					.toArray(Boolean[]::new);
+				changed.change(e, values, ChangeMode.SET);
+			} else if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;
 		}
@@ -304,6 +308,8 @@ public class EffChange extends Effect {
 				return "add " + changer.toString(e, debug) + " to " + changed.toString(e, debug);
 			case SET:
 				assert changer != null;
+				if (CollectionUtils.containsSuperclass(changed.acceptChange(ChangeMode.SET), Boolean.class))
+					return "toggle " + changed.toString(e, debug);
 				return "set " + changed.toString(e, debug) + " to " + changer.toString(e, debug);
 			case REMOVE:
 				assert changer != null;
@@ -315,8 +321,6 @@ public class EffChange extends Effect {
 				return "delete/clear " + changed.toString(e, debug);
 			case RESET:
 				return "reset " + changed.toString(e, debug);
-			case TOGGLE:
-				return "toggle " + changed.toString(e, debug);
 		}
 		assert false;
 		return "";

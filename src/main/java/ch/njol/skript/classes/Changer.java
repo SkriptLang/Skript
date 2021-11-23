@@ -37,7 +37,7 @@ import ch.njol.skript.lang.Expression;
 public interface Changer<T> {
 	
 	public static enum ChangeMode {
-		ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET, TOGGLE;
+		ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET;
 	}
 	
 	/**

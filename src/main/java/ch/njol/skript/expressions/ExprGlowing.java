@@ -57,7 +57,7 @@ public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.TOGGLE)
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 			return new Class[] {Boolean.class};
 		return null;
 	}
@@ -65,11 +65,7 @@ public class ExprGlowing extends SimplePropertyExpression<Entity, Boolean> {
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		for (final Entity entity : getExpr().getArray(e)) {
-			if (mode == ChangeMode.TOGGLE) {
-				entity.setGlowing(!entity.isGlowing());
-			} else {
-				entity.setGlowing(delta == null ? false : (Boolean) delta[0]);
-			}
+			entity.setGlowing(delta == null ? false : (Boolean) delta[0]);
 		}
 	}
 }

@@ -82,7 +82,7 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 			Skript.error("Can't cancel the event anymore after it has already passed");
 			return null;
 		}
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.TOGGLE)
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(Boolean.class);
 		return null;
 	}
@@ -98,10 +98,6 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 			case SET:
 				assert delta != null;
 				((Cancellable) e).setCancelled((Boolean) delta[0]);
-				break;
-			case TOGGLE:
-				Cancellable cancellable = (Cancellable) e;
-				cancellable.setCancelled(!cancellable.isCancelled());
 				break;
 		}
 	}

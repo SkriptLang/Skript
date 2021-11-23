@@ -135,7 +135,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.RESET || mode == ChangeMode.TOGGLE)
+		if (mode == ChangeMode.RESET)
 			return null;
 		for (Expression<?> expr : variables.getExpressions()) {
 			if (!((Variable<?>) expr).isList()) { // It's a single variable

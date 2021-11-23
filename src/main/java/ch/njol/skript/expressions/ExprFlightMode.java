@@ -48,7 +48,7 @@ public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET || mode == Changer.ChangeMode.TOGGLE) {
+		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET) {
 			return CollectionUtils.array(Boolean.class);
 		}
 		return null;
@@ -58,11 +58,7 @@ public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		boolean state = mode != Changer.ChangeMode.RESET && delta != null && (boolean) delta[0];
 		for (Player player : getExpr().getArray(event)) {
-			if (mode == Changer.ChangeMode.TOGGLE) {
-				player.setAllowFlight(!player.getAllowFlight());
-			} else {
-				player.setAllowFlight(state);
-			}
+			player.setAllowFlight(state);
 		}
 	}
 

@@ -51,7 +51,6 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		switch (mode) {
 			case SET:
-			case TOGGLE:
 				return CollectionUtils.array(Boolean.class);
 			default:
 				return null;
@@ -61,11 +60,6 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		if (delta == null || delta[0] == null) {
-			if (mode == Changer.ChangeMode.TOGGLE) {
-				for (LivingEntity entity : getExpr().getArray(event)) {
-					entity.setAI(!entity.hasAI());
-				}
-			}
 			return;
 		}
 		boolean value = (Boolean) delta[0];
