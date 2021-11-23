@@ -40,7 +40,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Saturation")
 @Description("The saturation of a player. If used in a player event, it can be omitted and will default to event-player.")
 @Examples("set saturation of player to 20")
-@Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable), INSERT VERSION (toggle support)")
+@Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable)")
 public class ExprSaturation extends PropertyExpression<Player, Number> {
 
 	static {

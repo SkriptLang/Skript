@@ -33,7 +33,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Flight Mode")
 @Description("Whether the player(s) are allowed to fly. Use <a href=effects.html#EffMakeFly>Make Fly</a> effect to force player(s) to fly.")
 @Examples({"set flight mode of player to true", "send \"%flying state of all players%\""})
-@Since("2.2-dev34, INSERT VERSION (toggle support)")
+@Since("2.2-dev34")
 public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 
 	static {

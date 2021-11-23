@@ -60,9 +60,12 @@ public class DefaultChangers {
 					return CollectionUtils.array(PotionEffectType[].class, ItemType[].class, Inventory.class);
 				case REMOVE_ALL:
 					return CollectionUtils.array(PotionEffectType[].class, ItemType[].class);
-				default: // REMIND reset entity? (unshear, remove held item, reset weapon/armour, ...)
+				case SET:
+				case RESET: // REMIND reset entity? (unshear, remove held item, reset weapon/armour, ...)
 					return null;
 			}
+			assert false;
+			return null;
 		}
 		
 		@Override
@@ -265,7 +268,7 @@ public class DefaultChangers {
 							}
 						}
 						break;
-					default:
+					case RESET:
 						assert false;
 				}
 				InventoryHolder holder = invi.getHolder();
@@ -340,7 +343,7 @@ public class DefaultChangers {
 						}
 						state.update();
 						break;
-					default:
+					case RESET:
 						assert false;
 				}
 			}

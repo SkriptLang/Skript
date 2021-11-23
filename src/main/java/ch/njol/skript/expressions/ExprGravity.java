@@ -33,7 +33,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Name("Gravity")
 @Description("If entity is affected by gravity or not, i.e. if it has Minecraft 1.10+ NoGravity flag.")
 @Examples({"set gravity of player off"})
-@Since("2.2-dev21, INSERT VERSION (toggle support)")
+@Since("2.2-dev21")
 public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {

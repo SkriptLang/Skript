@@ -45,7 +45,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"set whitelist to false",
 	"add all players to whitelist",
 	"reset the whitelist"})
-@Since("2.5.2, INSERT VERSION (toggle support)")
+@Since("2.5.2")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	
 	static {
