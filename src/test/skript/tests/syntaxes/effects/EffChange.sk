@@ -7,14 +7,14 @@ test "change modes":
   remove 1 from {_x}
   assert {_x} is 1 with "{_x} should be decremented to 1"
   delete {_x}
-  assert {_x} is null with "{_x} should be deleted"
+  assert {_x} is set with "{_x} should be deleted"
 
   add "a" to {_letters::*}
   assert {_letters::1} is "a" with "{_letters::1} should be set to 'a'"
   add "b" to {_letters::*}
   assert {_letters::2} is "b" with "{_letters::2} should be set to 'b'"
   remove "b" from {_letters::*}
-  assert {_letters::2} is null with "{_letters::2} should be removed"
+  assert {_letters::2} is set with "{_letters::2} should be removed"
   clear {_letters::*}
   assert amount of {_letters::*} is 0 with "{_letters::*} should be cleared"
 
@@ -29,5 +29,4 @@ test "change modes":
   assert {_toggle::1} is true with "{_toggle::1} should be toggled to true"
   assert {_toggle::2} is true with "{_toggle::2} should be toggled to true"
   assert {_toggle::3} is true with "{_toggle::3} should be toggled to true"
-  set {_isToggle} to toggled {_isToggle}
-  assert {_isToggle} is false with "{_isToggle} should be toggled to false"
+  assert toggled {_isToggle} is false with "{_isToggle} should be toggled to false"

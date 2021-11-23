@@ -31,6 +31,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -39,22 +40,27 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 
 /**
  * @author Peter Güttinger
  */
 @SuppressWarnings("deprecation")
-@Name("Toggle Block")
-@Description("Toggle the state of a block.")
+@Name("Toggle")
+@Description("Toggle the state of a block or booleans values.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
 		"on projectile hit:",
 		"\tprojectile is arrow",
-		"\ttoggle the block at the arrow"})
-@Since("1.4")
-public class EffToggleBlock extends Effect {
+		"\ttoggle the block at the arrow",
+		"",
+		"# With booleans",
+		"toggle gravity of player"
+})
+@Since("1.4, INSERT VERSION (booleans)")
+public class EffToggle extends Effect {
 	
 	static {
-		Skript.registerEffect(EffToggleBlock.class, "(close|turn off|de[-]activate) %blocks%", "(open|turn on|activate) %blocks%");
+		Skript.registerEffect(EffToggle.class, "(close|turn off|de[-]activate) %blocks%", "(toggle|switch) [[the] state of] %booleans/blocks%", "(open|turn on|activate) %blocks%");
 	}
 	
 	@Nullable
@@ -71,15 +77,17 @@ public class EffToggleBlock extends Effect {
 		setDataMethod = mh;
 	}
 	
-	@SuppressWarnings("null")
-	private Expression<Block> blocks;
-	private boolean open;
+	private Expression<?> expressions;
+	private int toggle;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		blocks = (Expression<Block>) vars[0];
-		open = matchedPattern == 1;
+		expressions = (Expression<?>) vars[0];
+		toggle = matchedPattern - 1;
+		if (!CollectionUtils.containsSuperclass(expressions.acceptChange(ChangeMode.SET), Boolean.class)) {
+			Skript.error(expressions.toString(null, false) + " cannot be toggled");
+			return false;
+		}
 		return true;
 	}
 	
@@ -123,24 +131,40 @@ public class EffToggleBlock extends Effect {
 	
 	@Override
 	protected void execute(final Event e) {
+		Object[] values = expressions.getArray(e);
+		if (values instanceof Boolean[]) {
+			for (int i = 0; i < values.length; i++) {
+				Boolean value = (Boolean) values[i];
+				if (values[i] == null)
+					continue;
+				expressions.change(e, new Boolean[] {!value}, ChangeMode.SET);
+			}
+			return;
+		}
+		
 		if (!flattening) {
 			executeLegacy(e);
 			return;
 		}
 		
 		// 1.13 and newer: use BlockData
-		for (Block b : blocks.getArray(e)) {
+		for (Block b : (Block[]) expressions.getArray(e)) {
 			BlockData data = b.getBlockData();
-			if (!open) {
+			if (toggle == -1) {
 				if (data instanceof Openable)
 					((Openable) data).setOpen(false);
 				else if (data instanceof Powerable)
 					((Powerable) data).setPowered(false);
-			} else {
+			} else if (toggle == 1) {
 				if (data instanceof Openable)
 					((Openable) data).setOpen(true);
 				else if (data instanceof Powerable)
 					((Powerable) data).setPowered(true);
+			} else {
+				if (data instanceof Openable) // open = NOT was open
+					((Openable) data).setOpen(!((Openable) data).isOpen());
+				else if (data instanceof Powerable) // power = NOT power
+					((Powerable) data).setPowered(!((Powerable) data).isPowered());
 			}
 			
 			b.setBlockData(data);
@@ -152,7 +176,7 @@ public class EffToggleBlock extends Effect {
 	 * @param e Event.
 	 */
 	private void executeLegacy(Event e) {
-		for (Block b : blocks.getArray(e)) {
+		for (Block b : (Block[]) expressions.getArray(e)) {
 			int type = b.getType().getId();
 			
 			byte data = b.getData();
@@ -167,10 +191,10 @@ public class EffToggleBlock extends Effect {
 			MethodHandle mh = setDataMethod;
 			assert mh != null;
 			try {
-				if (!open)
+				if (toggle == -1)
 					mh.invokeExact(b, (byte) (data & ~bitFlags[type]));
-				// else if (toggle == 0)
-				// 	mh.invokeExact(b, (byte) (data ^ bitFlags[type])); // TODO Need to move this line in EffChange#execute
+				else if (toggle == 0)
+					mh.invokeExact(b, (byte) (data ^ bitFlags[type]));
 				else
 					mh.invokeExact(b, (byte) (data | bitFlags[type]));
 			} catch (Throwable ex) {
@@ -181,7 +205,7 @@ public class EffToggleBlock extends Effect {
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return "toggle " + blocks.toString(e, debug);
+		return "toggle " + expressions.toString(e, debug);
 	}
 	
 }
