@@ -78,7 +78,8 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
 			case SET:
-				Bukkit.setWhitelist((Boolean) delta[0]);
+				if (delta != null)
+					Bukkit.setWhitelist((Boolean) delta[0]);
 				break;
 			case ADD:
 				if (delta != null) {

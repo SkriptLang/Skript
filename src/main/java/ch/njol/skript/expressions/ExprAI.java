@@ -49,12 +49,7 @@ public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		switch (mode) {
-			case SET:
-				return CollectionUtils.array(Boolean.class);
-			default:
-				return null;
-		}
+		return mode == Changer.ChangeMode.SET ? CollectionUtils.array(Boolean.class) : null;
 	}
 	
 	@Override
