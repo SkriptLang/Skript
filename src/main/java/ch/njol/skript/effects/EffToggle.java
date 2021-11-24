@@ -48,7 +48,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @SuppressWarnings("deprecation")
 @Name("Toggle")
-@Description("Toggle the state of a block or booleans values.")
+@Description("Toggle a boolean or the state of a block.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
 		"on projectile hit:",
 		"\tprojectile is arrow",
