@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -55,8 +53,7 @@ public class ExprToggled extends SimpleExpression<Boolean> {
   
   @Override
   protected @Nullable Boolean[] get(Event e) {
-    Boolean[] values = booleanExpr.getArray(e);
-    return Arrays.stream(values).map(value -> !value).toArray(Boolean[]::new);
+    return booleanExpr.stream(e).map(value -> !value).toArray(Boolean[]::new);
   }
 
   @Override

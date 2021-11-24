@@ -73,10 +73,7 @@ import ch.njol.util.Kleenean;
 		"delete {variable}",
 		"# reset:",
 		"reset walk speed of player",
-		"reset chunk at the targeted block",
-		"# toggle:",
-		"toggle player's flight mode",
-		"toggle player's gravity"})
+		"reset chunk at the targeted block"})
 @Since("1.0 (set, add, remove, delete), 2.0 (remove all), INSERT VERSION (toggle)")
 public class EffChange extends Effect {
 	private static Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {

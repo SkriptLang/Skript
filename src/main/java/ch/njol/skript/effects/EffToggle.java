@@ -21,7 +21,7 @@ package ch.njol.skript.effects;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -78,16 +78,16 @@ public class EffToggle extends Effect {
 		setDataMethod = mh;
 	}
 	
-	private Expression<?> expressions;
+	private Expression<?> toggledExpr;
 	private int toggle;
 	
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		expressions = (Expression<?>) vars[0];
+		toggledExpr = (Expression<?>) vars[0];
 		toggle = matchedPattern - 1;
-		Object type = expressions.getReturnType();
-		if (type instanceof Boolean && !CollectionUtils.containsSuperclass(expressions.acceptChange(ChangeMode.SET), Boolean.class)) {
-			Skript.error(expressions.toString(null, false) + " cannot be toggled");
+		Object type = toggledExpr.getReturnType();
+		if (type instanceof Boolean && !CollectionUtils.containsSuperclass(toggledExpr.acceptChange(ChangeMode.SET), Boolean.class)) {
+			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
 			return false;
 		}
 		return true;
@@ -133,80 +133,80 @@ public class EffToggle extends Effect {
 	
 	@Override
 	protected void execute(final Event e) {
-		Object[] values = expressions.getArray(e);
-		if (values[0] instanceof Boolean) {
-			Boolean[] newValues = Arrays.stream(values)
-				.map(value -> (Boolean) value)
-				.map(value -> !value)
-				.toArray(Boolean[]::new);
-			expressions.change(e, newValues, ChangeMode.SET);
-			return;
-		}
-		
-		if (!flattening) {
-			executeLegacy(e);
-			return;
-		}
-		
-		// 1.13 and newer: use BlockData
-		for (Block b : (Block[]) expressions.getArray(e)) {
-			BlockData data = b.getBlockData();
-			if (toggle == -1) {
-				if (data instanceof Openable)
-					((Openable) data).setOpen(false);
-				else if (data instanceof Powerable)
-					((Powerable) data).setPowered(false);
-			} else if (toggle == 1) {
-				if (data instanceof Openable)
-					((Openable) data).setOpen(true);
-				else if (data instanceof Powerable)
-					((Powerable) data).setPowered(true);
-			} else {
-				if (data instanceof Openable) // open = NOT was open
-					((Openable) data).setOpen(!((Openable) data).isOpen());
-				else if (data instanceof Powerable) // power = NOT power
-					((Powerable) data).setPowered(!((Powerable) data).isPowered());
+		ArrayList<Boolean> toggled = new ArrayList<>();
+		toggledExpr.stream(e).forEach(o -> {
+			if (o instanceof Block) {
+				Block block = (Block) o;
+				if (!flattening) {
+					executeLegacy(block);
+					return;
+				}
+				
+				// 1.13 and newer: use BlockData
+				BlockData data = block.getBlockData();
+				if (toggle == -1) {
+					if (data instanceof Openable)
+						((Openable) data).setOpen(false);
+					else if (data instanceof Powerable)
+						((Powerable) data).setPowered(false);
+				} else if (toggle == 1) {
+					if (data instanceof Openable)
+						((Openable) data).setOpen(true);
+					else if (data instanceof Powerable)
+						((Powerable) data).setPowered(true);
+				} else {
+					if (data instanceof Openable) // open = NOT was open
+						((Openable) data).setOpen(!((Openable) data).isOpen());
+					else if (data instanceof Powerable) // power = NOT power
+						((Powerable) data).setPowered(!((Powerable) data).isPowered());
+				}
+				
+				block.setBlockData(data);
+				
+			} else if (o instanceof Boolean) {
+				toggled.add((Boolean) o);
 			}
-			
-			b.setBlockData(data);
+		});
+
+		if (toggled.size() > 0) {
+			toggledExpr.change(e, toggled.toArray(Boolean[]::new), ChangeMode.SET);
 		}
+		
 	}
 	
 	/**
 	 * Handles toggling blocks on 1.12 and older.
 	 * @param e Event.
 	 */
-	private void executeLegacy(Event e) {
-		for (Block b : (Block[]) expressions.getArray(e)) {
-			int type = b.getType().getId();
-			
-			byte data = b.getData();
-			if (doors[type] == true && (data & 0x8) == 0x8) {
-				b = b.getRelative(BlockFace.DOWN);
-				type = b.getType().getId();
-				if (doors[type] != true)
-					continue;
-				data = b.getData();
-			}
-			
-			MethodHandle mh = setDataMethod;
-			assert mh != null;
-			try {
-				if (toggle == -1)
-					mh.invokeExact(b, (byte) (data & ~bitFlags[type]));
-				else if (toggle == 0)
-					mh.invokeExact(b, (byte) (data ^ bitFlags[type]));
-				else
-					mh.invokeExact(b, (byte) (data | bitFlags[type]));
-			} catch (Throwable ex) {
-				Skript.exception(ex);
-			}
+	private void executeLegacy(Block b) {
+		int type = b.getType().getId();
+		
+		byte data = b.getData();
+		if (doors[type] == true && (data & 0x8) == 0x8) {
+			b = b.getRelative(BlockFace.DOWN);
+			type = b.getType().getId();
+			if (doors[type] != true)
+				return;
+			data = b.getData();
+		}
+		
+		MethodHandle mh = setDataMethod;
+		assert mh != null;
+		try {
+			if (toggle == -1)
+				mh.invokeExact(b, (byte) (data & ~bitFlags[type]));
+			else if (toggle == 0)
+				mh.invokeExact(b, (byte) (data ^ bitFlags[type]));
+			else
+				mh.invokeExact(b, (byte) (data | bitFlags[type]));
+		} catch (Throwable ex) {
+			Skript.exception(ex);
 		}
 	}
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return "toggle " + expressions.toString(e, debug);
+		return "toggle " + toggledExpr.toString(e, debug);
 	}
 	
 }
