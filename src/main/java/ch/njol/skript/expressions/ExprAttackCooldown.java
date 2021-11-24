@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.entity.HumanEntity;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\tset damage to 0",
 	"\t\tsend \"Your hit was too weak! wait until your weapon is fully charged next time.\" to attacker"})
 @Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.15+")
 public class ExprAttackCooldown extends SimplePropertyExpression<HumanEntity, Float> {
 
 	static {
