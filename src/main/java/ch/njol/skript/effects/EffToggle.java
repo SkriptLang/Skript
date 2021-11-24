@@ -48,7 +48,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @SuppressWarnings("deprecation")
 @Name("Toggle")
-@Description("Toggle the state of a block or booleans values.")
+@Description("Toggle a boolean or the state of a block.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
 		"on projectile hit:",
 		"\tprojectile is arrow",
@@ -85,8 +85,7 @@ public class EffToggle extends Effect {
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		toggledExpr = (Expression<?>) vars[0];
 		toggle = matchedPattern - 1;
-		Object type = toggledExpr.getReturnType();
-		if (type instanceof Boolean && !CollectionUtils.containsSuperclass(toggledExpr.acceptChange(ChangeMode.SET), Boolean.class)) {
+		if (toggledExpr.getReturnType() == Boolean.class && !CollectionUtils.containsSuperclass(toggledExpr.acceptChange(ChangeMode.SET), Boolean.class)) {
 			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
 			return false;
 		}
