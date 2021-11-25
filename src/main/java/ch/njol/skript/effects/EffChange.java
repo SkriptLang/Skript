@@ -74,7 +74,7 @@ import ch.njol.util.Kleenean;
 		"# reset:",
 		"reset walk speed of player",
 		"reset chunk at the targeted block"})
-@Since("1.0 (set, add, remove, delete), 2.0 (remove all), INSERT VERSION (toggle)")
+@Since("1.0 (set, add, remove, delete), 2.0 (remove all)")
 public class EffChange extends Effect {
 	private static Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
@@ -90,7 +90,7 @@ public class EffChange extends Effect {
 			
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
 			
-			{"reset %~objects%", ChangeMode.RESET},
+			{"reset %~objects%", ChangeMode.RESET}
 	});
 	
 	static {
@@ -146,7 +146,6 @@ public class EffChange extends Effect {
 				break;
 			case RESET:
 				changed = exprs[0];
-				break;
 		}
 		
 		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
