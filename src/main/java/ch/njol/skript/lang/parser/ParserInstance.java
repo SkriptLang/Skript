@@ -18,6 +18,17 @@
  */
 package ch.njol.skript.lang.parser;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
@@ -27,15 +38,6 @@ import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 public class ParserInstance {
 	
@@ -120,7 +122,9 @@ public class ParserInstance {
 	 * an section instance of the given class (or subclass).
 	 */
 	public boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
-		for (TriggerSection triggerSection : currentSections) {
+		List<TriggerSection> reversedSections = currentSections;
+		Collections.reverse(reversedSections);
+		for (TriggerSection triggerSection : reversedSections) {
 			if (sectionClass.isInstance(triggerSection))
 				return true;
 		}
@@ -144,7 +148,9 @@ public class ParserInstance {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		for (TriggerSection triggerSection : currentSections) {
+		List<TriggerSection> reversedSections = currentSections;
+		Collections.reverse(reversedSections);
+		for (TriggerSection triggerSection : reversedSections) {
 			if (sectionClass.isInstance(triggerSection))
 				return (T) triggerSection;
 		}
