@@ -77,18 +77,22 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 		}
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private ExpressionList<?> variables;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Object> holders;
 
-	private ExprRelationalVariable<?> source;
-	private Class<? extends T>[] types;
-	private Class<T> superType;
+	@Nullable
+	private final ExprRelationalVariable<?> source;
+
+	private final Class<? extends T>[] types;
+	private final Class<T> superType;
 
 	public ExprRelationalVariable() {
 		this(null, (Class<? extends T>) Object.class);
 	}
 
-	private ExprRelationalVariable(ExprRelationalVariable<?> source, Class<? extends T>... types) {
+	private ExprRelationalVariable(@Nullable ExprRelationalVariable<?> source, Class<? extends T>... types) {
 		this.source = source;
 		if (source != null) {
 			this.variables = source.variables;
@@ -123,7 +127,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 		Object[] holders = this.holders.getArray(e);
 		for (Expression<?> expr : variables.getExpressions()) {
 			String varName = ((Variable<?>) expr).getName().toString(e);
-			if (varName.contains(Variable.SEPARATOR)) { // It's a list
+			if (varName.contains(Variable.SEPARATOR)) { // It's a list or list index
 				Collections.addAll(values, PersistentDataUtils.getList(varName, holders));
 			} else { // It's a single variable
 				Collections.addAll(values, PersistentDataUtils.getSingle(varName, holders));
@@ -142,7 +146,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 		if (mode == ChangeMode.RESET)
 			return null;
 		for (Expression<?> expr : variables.getExpressions()) {
-			if (!((Variable<?>) expr).isList()) { // It's a single variable
+			if (!((Variable<?>) expr).isList()) { // It's a single variable or index of a list
 				if (mode == ChangeMode.REMOVE_ALL)
 					return null;
 				return CollectionUtils.array(Object.class);
@@ -175,7 +179,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 			case DELETE:
 				for (Expression<?> expr : variables.getExpressions()) {
 					String varName = ((Variable<?>) expr).getName().toString(e);
-					if (varName.contains(Variable.SEPARATOR)) { // It's a list
+					if (varName.contains(Variable.SEPARATOR)) { // It's a list or list index
 						PersistentDataUtils.removeList(varName, holders);
 					} else { // It's a single variable
 						PersistentDataUtils.removeSingle(varName, holders);

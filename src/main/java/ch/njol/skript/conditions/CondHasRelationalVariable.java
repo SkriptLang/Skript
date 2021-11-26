@@ -57,7 +57,9 @@ public class CondHasRelationalVariable extends Condition {
 		}
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Object> holders;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private ExpressionList<?> variables;
 
 	@Override

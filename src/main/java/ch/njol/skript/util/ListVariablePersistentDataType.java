@@ -18,11 +18,14 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -62,32 +65,34 @@ public final class ListVariablePersistentDataType implements PersistentDataType<
 
 	@Override
 	public byte[] toPrimitive(Map<String, Value> complex, PersistentDataAdapterContext context) {
-		int bufferLength = 0;
-
-		for (Entry<String, Value> entry : complex.entrySet()) {
-			// Store it: index -> type -> data
-			bufferLength += INT_LENGTH + entry.getKey().getBytes(SERIALIZED_CHARSET).length
-						+ INT_LENGTH + entry.getValue().type.getBytes(SERIALIZED_CHARSET).length 
-						+ INT_LENGTH + entry.getValue().data.length;
-		}
-
-		ByteBuffer bb = ByteBuffer.allocate(bufferLength);
+		ByteBuffer intConverter = ByteBuffer.allocate(4);
+		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
 
 		for (Entry<String, Value> entry : complex.entrySet()) {
 			byte[] indexBytes = entry.getKey().getBytes(SERIALIZED_CHARSET);
 			byte[] typeBytes = entry.getValue().type.getBytes(SERIALIZED_CHARSET);
 
-			bb.putInt(indexBytes.length);
-			bb.put(indexBytes);
+			try {
+				intConverter.putInt(indexBytes.length);
+				byteArray.write(intConverter.array());
+				intConverter.clear();
+				byteArray.write(indexBytes);
 
-			bb.putInt(typeBytes.length);
-			bb.put(typeBytes);
+				intConverter.putInt(typeBytes.length);
+				byteArray.write(intConverter.array());
+				intConverter.clear();
+				byteArray.write(typeBytes);
 
-			bb.putInt(entry.getValue().data.length);
-			bb.put(entry.getValue().data);
+				intConverter.putInt(entry.getValue().data.length);
+				byteArray.write(intConverter.array());
+				intConverter.clear();
+				byteArray.write(entry.getValue().data);
+			} catch (IOException e) { // This is very bad
+				throw Skript.exception(e);
+			}
 		}
 
-		return bb.array();
+		return byteArray.toByteArray();
 	}
 
 	@Override
