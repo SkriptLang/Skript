@@ -122,9 +122,7 @@ public class ParserInstance {
 	 * an section instance of the given class (or subclass).
 	 */
 	public boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
-		List<TriggerSection> reversedSections = currentSections;
-		Collections.reverse(reversedSections);
-		for (TriggerSection triggerSection : reversedSections) {
+		for (TriggerSection triggerSection : currentSections) {
 			if (sectionClass.isInstance(triggerSection))
 				return true;
 		}
@@ -148,7 +146,7 @@ public class ParserInstance {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		List<TriggerSection> reversedSections = currentSections;
+		List<TriggerSection> reversedSections = new ArrayList<>(currentSections);
 		Collections.reverse(reversedSections);
 		for (TriggerSection triggerSection : reversedSections) {
 			if (sectionClass.isInstance(triggerSection))
