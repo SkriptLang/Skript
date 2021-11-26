@@ -1057,7 +1057,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 
 			try {
-				IS_RUNNING = MC_SERVER.getClass().getMethod("isRunning");
+				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
+				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
+				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
