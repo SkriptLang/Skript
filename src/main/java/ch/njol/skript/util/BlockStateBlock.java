@@ -278,7 +278,12 @@ public class BlockStateBlock implements Block {
 	public boolean isSolid() {
 		return state.getBlock().isSolid();
 	}
-	
+
+	@Override
+	public boolean isCollidable() {
+		return state.getBlock().isCollidable();
+	}
+
 	@Override
 	public double getTemperature() {
 		return state.getBlock().getTemperature();

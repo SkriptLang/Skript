@@ -278,7 +278,12 @@ public class DelayedChangeBlock implements Block {
 	public boolean isSolid() {
 		return b.isSolid();
 	}
-	
+
+	@Override
+	public boolean isCollidable() {
+		return b.isCollidable();
+	}
+
 	@Override
 	public double getTemperature() {
 		return b.getTemperature();
