@@ -66,9 +66,6 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Nullable
     @SuppressWarnings("null")
     protected Date[] get(Event e) {
-		if (timespan == null)
-			return null;
-
         Timespan timespan = this.timespan.getSingle(e);
 		Date date = this.date != null ? this.date.getSingle(e) : new Date();
 		if (timespan == null || date == null)
