@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.expressions.base;
 
+import ch.njol.skript.SkriptAddon;
+import fr.mrcubee.finder.plugin.PluginFinder;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.Skript;
@@ -29,6 +31,7 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.Kleenean;
+import org.bukkit.plugin.Plugin;
 
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
@@ -39,17 +42,20 @@ import ch.njol.util.Kleenean;
  * @see #register(Class, Class, String, String)
  */
 public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
-	
+
 	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
-	 * 
+	 *
 	 * @param c
 	 * @param type
 	 * @param property The name of the property
 	 * @param fromType Should be plural but doesn't have to be
 	 */
 	public static <T> void register(final Class<? extends Expression<T>> c, final Class<T> type, final String property, final String fromType) {
-		Skript.registerExpression(c, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? Skript.getAddon(plugin.getName()) : Skript.getAddonInstance();
+
+		Skript.addonRegisterExpression(skriptAddon, c, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
 	}
 	
 	@SuppressWarnings("null")

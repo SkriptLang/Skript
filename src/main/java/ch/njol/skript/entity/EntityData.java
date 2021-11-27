@@ -20,6 +20,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.ClassInfo;
@@ -44,12 +45,14 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import fr.mrcubee.finder.plugin.PluginFinder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -181,8 +184,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
 		
-		public EntityDataInfo(final Class<T> dataClass, final String codeName, final String[] codeNames, final int defaultName, final Class<? extends Entity> entityClass) throws IllegalArgumentException {
-			super(new String[codeNames.length], dataClass, dataClass.getName());
+		public EntityDataInfo(final SkriptAddon addon, final Class<T> dataClass, final String codeName, final String[] codeNames, final int defaultName, final Class<? extends Entity> entityClass) throws IllegalArgumentException {
+			super(addon, new String[codeNames.length], dataClass, dataClass.getName());
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
@@ -195,6 +198,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			}
 			
 			Language.addListener(this, LanguageListenerPriority.LATEST); // will initialise patterns, LATEST to make sure that m_age_pattern is updated before this
+		}
+
+		public EntityDataInfo(final Class<T> dataClass, final String codeName, final String[] codeNames, final int defaultName, final Class<? extends Entity> entityClass) throws IllegalArgumentException {
+			this(null, dataClass, codeName, codeNames, defaultName, entityClass);
 		}
 		
 		@Override
@@ -236,7 +243,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity, T extends EntityData<E>> void register(final Class<T> dataClass, final String name, final Class<E> entityClass, final int defaultName, final String... codeNames) throws IllegalArgumentException {
-		final EntityDataInfo<T> info = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityClass);
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? Skript.getAddon(plugin.getName()) : Skript.getAddonInstance();
+
+		final EntityDataInfo<T> info = new EntityDataInfo<>(skriptAddon, dataClass, name, codeNames, defaultName, entityClass);
 		for (int i = 0; i < infos.size(); i++) {
 			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
 				infos.add(i, (EntityDataInfo<EntityData<?>>) info);

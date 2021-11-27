@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import java.util.Locale;
 
+import ch.njol.skript.SkriptAddon;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -45,14 +46,15 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends SyntaxElementI
 	private String[] requiredPlugins;
 	
 	/**
+	 * @param addon The addon that registered the event.
 	 * @param name Capitalised name of the event without leading "On" which is added automatically (Start the name with an asterisk to prevent this).
 	 * @param patterns
 	 * @param c The SkriptEvent's class
 	 * @param originClassPath The class path for the origin of this event.
 	 * @param events The Bukkit-Events this SkriptEvent listens to
 	 */
-	public SkriptEventInfo(String name, final String[] patterns, final Class<E> c, final String originClassPath, final Class<? extends Event>[] events) {
-		super(patterns, c, originClassPath);
+	public SkriptEventInfo(final SkriptAddon addon, String name, final String[] patterns, final Class<E> c, final String originClassPath, final Class<? extends Event>[] events) {
+		super(addon, patterns, c, originClassPath);
 		assert name != null;
 		assert patterns != null && patterns.length > 0;
 		assert c != null;
@@ -82,7 +84,18 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends SyntaxElementI
 		// uses the name without 'on ' or '*'
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 	}
-	
+
+	/**
+	 * @param name Capitalised name of the event without leading "On" which is added automatically (Start the name with an asterisk to prevent this).
+	 * @param patterns
+	 * @param c The SkriptEvent's class
+	 * @param originClassPath The class path for the origin of this event.
+	 * @param events The Bukkit-Events this SkriptEvent listens to
+	 */
+	public SkriptEventInfo(String name, final String[] patterns, final Class<E> c, final String originClassPath, final Class<? extends Event>[] events) {
+		this(null, name, patterns, c, originClassPath, events);
+	}
+
 	/**
 	 * Use this as {@link #description(String...)} to prevent warnings about missing documentation.
 	 */

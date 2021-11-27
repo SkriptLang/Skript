@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.SkriptAddon;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInfo<E> {
@@ -26,14 +27,22 @@ public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInf
 	@Nullable
 	public ExpressionType expressionType;
 	
-	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
-		this(patterns, returnType, c, originClassPath, null);
+	public ExpressionInfo(final SkriptAddon addon, final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
+		this(addon, patterns, returnType, c, originClassPath, null);
 	}
-	
-	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath, @Nullable ExpressionType expressionType) throws IllegalArgumentException {
-		super(patterns, c, originClassPath);
+
+	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
+		this(null, patterns, returnType, c, originClassPath);
+	}
+
+	public ExpressionInfo(final SkriptAddon addon, final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath, @Nullable ExpressionType expressionType) throws IllegalArgumentException {
+		super(addon, patterns, c, originClassPath);
 		this.returnType = returnType;
 		this.expressionType = expressionType;
+	}
+
+	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath, @Nullable ExpressionType expressionType) throws IllegalArgumentException {
+		this(null, patterns, returnType, c, originClassPath, expressionType);
 	}
 	
 	/**

@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.SkriptAddon;
+
 import java.util.Arrays;
 
 /**
@@ -25,15 +27,24 @@ import java.util.Arrays;
  * @param <E> the syntax element this info is for
  */
 public class SyntaxElementInfo<E extends SyntaxElement> {
-	
+
+	public final SkriptAddon addon;
 	public final Class<E> c;
 	public final String[] patterns;
 	public final String originClassPath;
-	
-	public SyntaxElementInfo(final String[] patterns, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
-		this.patterns = patterns;
+
+	public SyntaxElementInfo(final SkriptAddon addon, final String[] patterns, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
+		this.addon = addon;
 		this.c = c;
 		this.originClassPath = originClassPath;
+
+		if (addon != null) {
+			for (int i = 0; i < patterns.length; i++) {
+				if (patterns[i] != null)
+					patterns[i] = String.format("[%s] %s", addon.getName(), patterns[i]);
+			}
+		}
+		this.patterns = patterns;
 		try {
 			c.getConstructor();
 //			if (!c.getDeclaredConstructor().isAccessible())
@@ -45,7 +56,11 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 			throw new IllegalStateException("Skript cannot run properly because a security manager is blocking it!");
 		}
 	}
-	
+
+	public SyntaxElementInfo(final String[] patterns, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
+		this(null, patterns, c, originClassPath);
+	}
+
 	/**
 	 * Get the class that represents this element.
 	 * @return The Class of the element

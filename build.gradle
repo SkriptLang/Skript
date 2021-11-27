@@ -23,6 +23,10 @@ allprojects {
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://papermc.io/repo/repository/maven-public/' }
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
+		maven {
+			url 'http://nexus.mrcubee.net/repository/minecraft/'
+			allowInsecureProtocol = true
+		}
 	}
 }
 
@@ -32,6 +36,8 @@ dependencies {
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
+	shadow group: 'fr.mrcubee.minecraft.library', name: 'plugin-finder', version: '1.0'
+
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.1', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
@@ -78,8 +84,10 @@ tasks.withType(ShadowJar) {
 	]
 	dependencies {
 		include(dependency('io.papermc:paperlib'))
+		include(dependency('fr.mrcubee.minecraft.library:plugin-finder'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
+	relocate 'fr.mrcubee.finder.plugin', 'ch.njol.skript.finderlib'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',

@@ -54,6 +54,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import ch.njol.skript.lang.Section;
+import fr.mrcubee.finder.plugin.PluginFinder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -1212,6 +1213,21 @@ public final class Skript extends JavaPlugin implements Listener {
 		addons.put(p.getName(), addon);
 		return addon;
 	}
+
+	/**
+	 * Registers an addon to Skript. This is currently not required for addons to work, but the returned {@link SkriptAddon} provides useful methods for registering syntax elements
+	 * and adding new strings to Skript's localization system (e.g. the required "types.[type]" strings for registered classes).
+	 */
+	public static SkriptAddon registerAddon() {
+		final JavaPlugin plugin = (JavaPlugin) PluginFinder.INSTANCE.findPluginCaller();
+
+		checkAcceptRegistrations();
+		if (addons.containsKey(plugin.getName()))
+			throw new IllegalArgumentException("The plugin " + plugin.getName() + " is already registered");
+		final SkriptAddon addon = new SkriptAddon(plugin);
+		addons.put(plugin.getName(), addon);
+		return addon;
+	}
 	
 	@Nullable
 	public static SkriptAddon getAddon(final JavaPlugin p) {
@@ -1257,9 +1273,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this condition
 	 */
 	public static <E extends Condition> void registerCondition(final Class<E> condition, final String... patterns) throws IllegalArgumentException {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, condition, originClassPath);
+		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(skriptAddon, patterns, condition, originClassPath);
 		conditions.add(info);
 		statements.add(info);
 	}
@@ -1271,9 +1290,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this effect
 	 */
 	public static <E extends Effect> void registerEffect(final Class<E> effect, final String... patterns) throws IllegalArgumentException {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, effect, originClassPath);
+		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(skriptAddon, patterns, effect, originClassPath);
 		effects.add(info);
 		statements.add(info);
 	}
@@ -1286,9 +1308,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see Section
 	 */
 	public static <E extends Section> void registerSection(Class<E> section, String... patterns) throws IllegalArgumentException {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, section, originClassPath);
+		SyntaxElementInfo<E> info = new SyntaxElementInfo<>(skriptAddon, patterns, section, originClassPath);
 		sections.add(info);
 	}
 
@@ -1324,11 +1349,28 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @throws IllegalArgumentException if returnType is not a normal class
 	 */
 	public static <E extends Expression<T>, T> void registerExpression(final Class<E> c, final Class<T> returnType, final ExpressionType type, final String... patterns) throws IllegalArgumentException {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
+		addonRegisterExpression(skriptAddon, c, returnType, type, patterns);
+	}
+
+	/**
+	 * Registers an expression for an addon.
+	 *
+	 * @param addon The addon that register the expression.
+	 * @param c The expression's class
+	 * @param returnType The superclass of all values returned by the expression
+	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
+	 * @param patterns Skript patterns that match this expression
+	 * @throws IllegalArgumentException if returnType is not a normal class
+	 */
+	public static <E extends Expression<T>, T> void addonRegisterExpression(final SkriptAddon addon, final Class<E> c, final Class<T> returnType, final ExpressionType type, final String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		if (returnType.isAnnotation() || returnType.isArray() || returnType.isPrimitive())
 			throw new IllegalArgumentException("returnType must be a normal type");
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final ExpressionInfo<E, T> info = new ExpressionInfo<>(patterns, returnType, c, originClassPath, type);
+		final ExpressionInfo<E, T> info = new ExpressionInfo<>(addon, patterns, returnType, c, originClassPath, type);
 		expressions.add(expressionTypesStartIndices[type.ordinal()], info);
 		for (int i = type.ordinal(); i < ExpressionType.values().length; i++) {
 			expressionTypesStartIndices[i]++;
@@ -1371,10 +1413,13 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
 	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event> event, final String... patterns) {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, CollectionUtils.array(event));
+		final SkriptEventInfo<E> r = new SkriptEventInfo<>(skriptAddon, name, patterns, c, originClassPath, CollectionUtils.array(event));
 		events.add(r);
 		return r;
 	}
@@ -1389,10 +1434,13 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
 	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event>[] events, final String... patterns) {
+		final Plugin plugin = (Plugin) PluginFinder.INSTANCE.findPluginCaller();
+		final SkriptAddon skriptAddon = (plugin != null) ? addons.get(plugin.getName()) : getAddonInstance();
+
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, events);
+		final SkriptEventInfo<E> r = new SkriptEventInfo<>(skriptAddon, name, patterns, c, originClassPath, events);
 		Skript.events.add(r);
 		return r;
 	}

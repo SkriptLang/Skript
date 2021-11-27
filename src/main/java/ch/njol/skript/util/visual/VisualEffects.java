@@ -100,7 +100,7 @@ public class VisualEffects {
 		for (int i = 0; i < visualEffectTypes.length; i++) {
 			patterns[i] = visualEffectTypes[i].getPattern();
 		}
-		elementInfo = new SyntaxElementInfo<>(patterns, VisualEffect.class, VisualEffect.class.getName());
+		elementInfo = new SyntaxElementInfo<>(Skript.getAddonInstance(), patterns, VisualEffect.class, VisualEffect.class.getName());
 	}
 
 	private static void registerColorable(String id) {
