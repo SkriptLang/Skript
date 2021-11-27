@@ -52,7 +52,7 @@ import ch.njol.util.Kleenean;
 @Since("1.4.4, INSERT VERSION (3D biomes)")
 public class ExprBiome extends PropertyExpression<Location, Biome> {
 	static {
-		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %location%", "%location%'[s] biome");
+		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %locations%", "%locations%'[s] biome");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})
