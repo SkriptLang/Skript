@@ -63,7 +63,9 @@ public class DefaultConverters {
 	public DefaultConverters() {}
 	
 	static {
-		
+		// Integer - Long
+		Converters.registerConverter(Integer.class, Long.class, Integer::longValue);
+
 		// OfflinePlayer - PlayerInventory
 		Converters.registerConverter(OfflinePlayer.class, PlayerInventory.class, new Converter<OfflinePlayer, PlayerInventory>() {
 			@Override

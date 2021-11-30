@@ -228,10 +228,16 @@ public final class Skript extends JavaPlugin implements Listener {
 			return ServerPlatform.BUKKIT_UNKNOWN;
 		}
 	}
-	
-	public static boolean using64BitJava() {
-		// Property returned should either be "Java HotSpot(TM) 64-Bit Server VM" or "OpenJDK 64-Bit Server VM"
-		return System.getProperty("java.vm.name").contains("64");
+
+	/**
+	 * Returns true if the underlying installed Java/JVM is 32-bit, false otherwise.
+	 * Note that this depends on a internal system property and these can always be overridden by user using -D JVM options,
+	 * more specifically, this method will return false on non OracleJDK/OpenJDK based JVMs, that don't include bit information in java.vm.name system property.
+	 * @return Whether the installed Java/JVM is 32-bit or not.
+	 */
+	private static boolean using32BitJava() {
+		// Property returned should either be "Java HotSpot(TM) 32-Bit Server VM" or "OpenJDK 32-Bit Server VM" if 32-bit and using OracleJDK/OpenJDK
+		return System.getProperty("java.vm.name").contains("32");
 	}
 	
 	/**
@@ -280,12 +286,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			Skript.warning("Skript officially supports Paper and Spigot.");
 		}
 		
-		// Throw a warning if the user is using 32-bit Java, since that is known to potentially cause StackOverflowErrors
-		if (!using64BitJava()) {
-			Skript.warning("You are currently using 32-bit Java. This may result in a StackOverflowError when loading aliases.");
-			Skript.warning("Please update to 64-bit Java to remove this warning.");
-		}
-		
 		// If nothing got triggered, everything is probably ok
 		return true;
 	}
@@ -330,7 +330,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		Language.loadDefault(getAddonInstance());
+		getAddonInstance();
 		
 		Workarounds.init();
 		
@@ -345,10 +345,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 		
-		final File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
-		final File config = new File(getDataFolder(), "config.sk");
-		final File features = new File(getDataFolder(), "features.sk");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists()) {
+		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+		File config = new File(getDataFolder(), "config.sk");
+		File features = new File(getDataFolder(), "features.sk");
+		File lang = new File(getDataFolder(), "lang");
+		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -357,19 +358,33 @@ public final class Skript extends JavaPlugin implements Listener {
 						throw new IOException("Could not create the directory " + scripts);
 					populateExamples = true;
 				}
+
+				boolean populateLanguageFiles = false;
+				if (!lang.isDirectory()) {
+					if (!lang.mkdirs())
+						throw new IOException("Could not create the directory " + lang);
+					populateLanguageFiles = true;
+				}
+
 				f = new ZipFile(getFile());
-				for (final ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
+				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (e.getName().startsWith(SCRIPTSFOLDER + "/") && populateExamples) {
-						final String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
 						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
+					} else if (populateLanguageFiles
+							&& e.getName().startsWith("lang/")
+							&& e.getName().endsWith(".lang")
+							&& !e.getName().endsWith("/default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
 							saveTo = config;
 //					} else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
-//						final File af = new File(getDataFolder(), e.getName());
+//						File af = new File(getDataFolder(), e.getName());
 //						if (!af.exists())
 //							saveTo = af;
 					} else if (e.getName().startsWith("features.sk")) {
@@ -377,7 +392,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							saveTo = features;
 					}
 					if (saveTo != null) {
-						final InputStream in = f.getInputStream(e);
+						InputStream in = f.getInputStream(e);
 						try {
 							assert in != null;
 							FileUtils.save(in, saveTo);
@@ -387,13 +402,13 @@ public final class Skript extends JavaPlugin implements Listener {
 					}
 				}
 				info("Successfully generated the config and the example scripts.");
-			} catch (final ZipException e) {} catch (final IOException e) {
+			} catch (ZipException ignored) {} catch (IOException e) {
 				error("Error generating the default files: " + ExceptionUtils.toString(e));
 			} finally {
 				if (f != null) {
 					try {
 						f.close();
-					} catch (final IOException e) {}
+					} catch (IOException ignored) {}
 				}
 			}
 		}
@@ -433,14 +448,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		try {
 			Aliases.load(); // Loaded before anything that might use them
 		} catch (StackOverflowError e) {
-			if (using64BitJava()) {
-				throw e; // Uh oh, this shouldn't happen. Re-throw the error.
-			} else {
+			if (using32BitJava()) {
 				Skript.error("");
 				Skript.error("There was a StackOverflowError that occured while loading aliases.");
 				Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
 				Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
 				Skript.error("");
+			} else {
+				throw e; // Uh oh, this shouldn't happen. Re-throw the error.
 			}
 		}
 		
@@ -454,6 +469,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
+		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitClasses();
@@ -472,9 +488,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
-		
-		Language.setUseLocal(true);
-		
+
 		Commands.registerListeners();
 		
 		if (logNormal())
@@ -512,8 +526,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-				
-				Language.setUseLocal(false);
 				
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
