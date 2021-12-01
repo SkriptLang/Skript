@@ -19,7 +19,6 @@
 package ch.njol.skript.lang.parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,9 +145,8 @@ public class ParserInstance {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		List<TriggerSection> reversedSections = new ArrayList<>(currentSections);
-		Collections.reverse(reversedSections);
-		for (TriggerSection triggerSection : reversedSections) {
+		for (int i = currentSections.size(); i-- > 0;) {
+			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
 				return (T) triggerSection;
 		}
