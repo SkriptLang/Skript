@@ -52,14 +52,14 @@ import java.util.List;
 	"on preparing crafting:",
 	"\tset crafting result item to wood"})
 @Since("INSERT VERSION")
-public class ExprCraftingSlots extends SimpleExpression<ItemType> {
+public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	
 	static {
-		Skript.registerExpression(ExprCraftingSlots.class, ItemType.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprCraftingSlots.class, ItemStack.class, ExpressionType.COMBINED,
 				"[the] crafting [inventory] result (slot|item) [of %inventories%]",
 				"%inventories%'[s] crafting [inventory] result (slot|item)",
-				"[the] crafting [inventory] matrix [(slots|items|shape)] [of %inventories%]",
-				"%inventories%'[s] crafting [inventory] matrix [(slots|items|shape)]");
+				"[the] crafting [inventory] (matrix|grid) [(slots|items|shape)] [of %inventories%]",
+				"%inventories%'[s] crafting [inventory] (matrix|grid) [(slots|items|shape)]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -78,7 +78,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
+	protected ItemStack[] get(Event e) {
 		Inventory[] invis = this.invis.getArray(e);
 		if (invis == null)
 			return null;
@@ -95,7 +95,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 				items.add(craft.getResult());
 			}
 		}
-		return Utils.toItemTypes(items.toArray(new ItemStack[0]), true);
+		return items.toArray(new ItemStack[0]);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 		switch (mode) {
 			case SET:
 			case DELETE:
-				return CollectionUtils.array(ItemType[].class);
+				return CollectionUtils.array(ItemStack[].class);
 			default:
 				return null;
 		}
@@ -112,7 +112,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Inventory[] invis = this.invis.getArray(e);
-		ItemType[] items = (ItemType[]) delta;
+		ItemStack[] items = (ItemStack[]) delta;
 		if (invis == null)
 			return;
 
@@ -142,12 +142,12 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 				if (isMatrix) {
 					List<ItemStack> itemStacks = new ArrayList<>(9);
 					for (int i = 0; i < 9; i++) { // list must be 9 if not we will fill it manually with AIR
-						itemStacks.add(items.length >= (i+1) ? items[i].getItemStack() : AIR);
+						itemStacks.add(items.length >= (i+1) ? items[i] : AIR);
 					}
 					((CraftingInventory) invi).setMatrix(itemStacks.toArray(new ItemStack[0]));
 				} else {
 					if (items[0] != null) {
-						((CraftingInventory) invi).setResult(items[0].getItemStack());
+						((CraftingInventory) invi).setResult(items[0]);
 					}
 				}
 			}
@@ -160,8 +160,8 @@ public class ExprCraftingSlots extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public Class<? extends ItemType> getReturnType() {
-		return ItemType.class;
+	public Class<? extends ItemStack> getReturnType() {
+		return ItemStack.class;
 	}
 	
 	@Override
