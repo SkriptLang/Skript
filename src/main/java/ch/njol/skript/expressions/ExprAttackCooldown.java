@@ -39,7 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprAttackCooldown extends SimplePropertyExpression<HumanEntity, Float> {
 
 	static {
-		register(ExprAttackCooldown.class, Float.class, "attack[ing] cooldown", "players");
+		register(ExprAttackCooldown.class, Float.class, "attack cooldown", "players");
 	}
 
 	@Override
