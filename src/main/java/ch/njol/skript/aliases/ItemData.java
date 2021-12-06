@@ -120,7 +120,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
 	 */
-	private static final boolean itemDataValues = !Skript.isRunningMinecraft(1, 13);
+	public static final boolean itemDataValues = !Skript.isRunningMinecraft(1, 13);
 	
 	/**
 	 * ItemStack, which is used for everything but serialization.
