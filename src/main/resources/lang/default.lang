@@ -309,6 +309,9 @@ time:
 	minute: minute¦s
 	hour: hour¦s
 	day: day¦s
+	week: week¦s
+	month: month¦s
+	year: year¦s
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
