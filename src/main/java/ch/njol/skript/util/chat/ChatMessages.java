@@ -580,13 +580,13 @@ public class ChatMessages {
 	public static String stripStyles(String text) {
 		List<MessageComponent> components = parse(text);
 		StringBuilder sb = new StringBuilder();
-		for (MessageComponent component : components) { // It also strips bracket color codes
+		for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
 			sb.append(component.text);
 		}
 		String plain = sb.toString();
 
 		if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-			plain = plain.replace("[§&]x", "");
+			plain = plain.replaceAll("[§&]x", "");
 
 		plain = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
 
