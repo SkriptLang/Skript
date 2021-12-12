@@ -1,6 +1,3 @@
-on load:
-	suppress conflict warnings
-
 test "list index with asterisk":
 	set {_test::%2*3%} to "stuff"
 	assert {_test::6} is "stuff" with "multiplication in variable name failed"

@@ -192,6 +192,8 @@ public class ChatMessages {
 		MessageComponent current = new MessageComponent();
 		components.add(current);
 		StringBuilder curStr = new StringBuilder();
+
+		boolean lastWasColor = true;
 		
 		for (int i = 0; i < chars.length; i++) {
 			char c = chars[i];
@@ -260,6 +262,7 @@ public class ChatMessages {
 						
 						// Increment i to tag end
 						i = end;
+						lastWasColor = true;
 						continue;
 					}
 					
@@ -313,11 +316,12 @@ public class ChatMessages {
 				}
 				
 				i++; // Skip this and color char
+				lastWasColor = true;
 				continue;
 			}
 			
 			// Attempt link parsing, if a tag was not found
-			if (linkParseMode == LinkParseMode.STRICT && c == 'h') {
+			if ((linkParseMode == LinkParseMode.STRICT || linkParseMode == LinkParseMode.LENIENT) && c == 'h') {
 				String rest = msg.substring(i); // Get rest of string
 				
 				String link = null;
@@ -350,7 +354,7 @@ public class ChatMessages {
 					components.add(current);
 					continue;
 				}
-			} else if (linkParseMode == LinkParseMode.LENIENT && (i == 0 || chars[i - 1] == ' ')) {
+			} else if (linkParseMode == LinkParseMode.LENIENT && (lastWasColor || i == 0 || chars[i - 1] == ' ')) {
 				// Lenient link parsing
 				String rest = msg.substring(i); // Get rest of string
 				
@@ -365,7 +369,7 @@ public class ChatMessages {
 					// Insert protocol (aka guess it) if it isn't there
 					String url;
 					if (!link.startsWith("http://") && !link.startsWith("https://")) {
-						url = "http://" + link; // Hope that http -> https redirect works on target site...
+						url = "https://" + link;
 					} else {
 						url = link;
 					}
@@ -396,6 +400,7 @@ public class ChatMessages {
 			}
 				
 			curStr.append(c); // Append this char to curStr
+			lastWasColor = false;
 		}
 		
 		String text = curStr.toString();
@@ -408,6 +413,80 @@ public class ChatMessages {
 	@SuppressWarnings("null")
 	public static MessageComponent[] parseToArray(String msg) {
 		return parse(msg).toArray(new MessageComponent[0]);
+	}
+
+	/**
+	 * Parses a string that may only contain colour codes using the '§' character to a list of components.
+	 */
+	public static List<MessageComponent> fromParsedString(String msg) {
+		char[] chars = msg.toCharArray();
+
+		List<MessageComponent> components = new ArrayList<>();
+		MessageComponent current = new MessageComponent();
+		components.add(current);
+		StringBuilder curStr = new StringBuilder();
+
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			ChatCode code;
+			String param = "";
+
+			if (c == '§') {
+				// Corner case: this is last character, so we cannot get next
+				if (i == chars.length - 1) {
+					curStr.append(c);
+					continue;
+				}
+
+				char color = chars[i + 1];
+
+				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				ChatColor chatColor = null;
+				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
+					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
+					tryHex = chatColor != null;
+				}
+
+				if (color >= colorChars.length) { // Invalid Unicode color character
+					curStr.append(c);
+					continue;
+				}
+				code = colorChars[color];
+				if (code == null && !tryHex) {
+					curStr.append(c).append(color); // Invalid formatting char, plain append
+				} else {
+					String text = curStr.toString();
+					curStr = new StringBuilder();
+					current.text = text;
+
+					MessageComponent old = current;
+					current = new MessageComponent();
+
+					components.add(current);
+
+					if (tryHex) { // Set color to hex ChatColor
+						current.color = chatColor;
+						i = i + 12; // Skip past all the tags
+					} else if (code.getColorCode() != null) { // Just update color code
+						current.color = ChatColor.getByChar(code.getColorChar());
+					} else {
+						code.updateComponent(current, param); // Call SkriptChatCode update
+					}
+
+					// Copy styles from old to current if needed
+					copyStyles(old, current);
+				}
+
+				i++; // Skip this and color char
+				continue;
+			}
+
+			curStr.append(c); // Append this char to curStr
+		}
+
+		current.text = curStr.toString();
+
+		return components;
 	}
 	
 	public static String toJson(String msg) {
@@ -501,20 +580,15 @@ public class ChatMessages {
 	public static String stripStyles(String text) {
 		List<MessageComponent> components = parse(text);
 		StringBuilder sb = new StringBuilder();
-		for (MessageComponent component : components) {
+		for (MessageComponent component : components) { // It also strips bracket color codes
 			sb.append(component.text);
 		}
 		String plain = sb.toString();
-		
-		// To be extra safe, strip valid <, >, §, &; protects against bugs in parser
+
 		if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-			plain = plain.replaceAll("[§&]x", "");
-		/*
-			1st Replace: strips json
-			2nd Replace: strips colors using <color name> (NOTE: This regex expression replaces any two words surrounded by <> such as <any text>)
-			3rd Replace: strips colors & or §
-		*/
-		plain = plain.replaceAll("<(link|(open |)url|(run |)command|cmd|suggest command|sgt|tooltip|show text|ttp|insertion|insert|ins|f|font):(.*?)>", "$2").replaceAll("<\\w+? ?\\w+?>", "").replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // (NOTE: These values are changable in message config, so this better be improved later)
+			plain = plain.replace("[§&]x", "");
+
+		plain = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
 
 		assert plain != null;
 		return plain;

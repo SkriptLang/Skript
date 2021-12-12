@@ -26,6 +26,10 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.Nameable;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -54,7 +58,7 @@ import ch.njol.util.coll.CollectionUtils;
 import net.md_5.bungee.api.ChatColor;
 
 @Name("Name / Display Name / Tab List Name")
-@Description({"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, inventory, or gamerule.",
+@Description({"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, or gamerule.",
 		"",
 		"<ul>",
 		"\t<li><strong>Players</strong>",
@@ -91,8 +95,8 @@ import net.md_5.bungee.api.ChatColor;
 		"</ul>"})
 @Examples({"on join:",
 		"	player has permission \"name.red\"",
-		"	set the player's display name to \"<red>[admin] <gold>%name of player%\"",
-		"	set the player's tab list name to \"<green>%player's name%\"",
+		"	set the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
+		"	set the player's tab list name to \"&lt;green&gt;%player's name%\"",
 		"set the name of the player's tool to \"Legendary Sword of Awesomeness\""})
 @Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
@@ -103,7 +107,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	static {
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "players/entities/itemtypes/inventories/slots" 
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots"
                 + (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 
@@ -134,14 +138,26 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	@Override
 	@Nullable
 	public String convert(Object o) {
+		if (o instanceof OfflinePlayer && ((OfflinePlayer) o).isOnline())
+			o = ((OfflinePlayer) o).getPlayer();
+
 		if (o instanceof Player) {
 			switch (mark) {
-				case 1: return ((Player) o).getName();
-				case 2: return ((Player) o).getDisplayName();
-				case 3: return ((Player) o).getPlayerListName();
+				case 1:
+					return ((Player) o).getName();
+				case 2:
+					return ((Player) o).getDisplayName();
+				case 3:
+					return ((Player) o).getPlayerListName();
 			}
+		} else if (o instanceof OfflinePlayer) {
+			return mark == 1 ? ((OfflinePlayer) o).getName() : null;
 		} else if (o instanceof Entity) {
 			return ((Entity) o).getCustomName();
+		} else if (o instanceof Block) {
+			BlockState state = ((Block) o).getState();
+			if (state instanceof Nameable)
+				return ((Nameable) state).getCustomName();
 		} else if (o instanceof ItemType) {
 			ItemMeta m = ((ItemType) o).getItemMeta();
 			return m.hasDisplayName() ? m.getDisplayName() : null;
@@ -202,6 +218,12 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					((Entity) o).setCustomNameVisible(name != null);
 				if (o instanceof LivingEntity)
 					((LivingEntity) o).setRemoveWhenFarAway(name == null);
+			} else if (o instanceof Block) {
+				BlockState state = ((Block) o).getState();
+				if (state instanceof Nameable) {
+					((Nameable) state).setCustomName(name);
+					state.update();
+				}
 			} else if (o instanceof ItemType) {
 				ItemType i = (ItemType) o;
 				ItemMeta m = i.getItemMeta();
