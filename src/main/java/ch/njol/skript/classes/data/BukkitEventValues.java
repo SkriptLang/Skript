@@ -18,9 +18,24 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.List;
-
-import ch.njol.skript.util.*;
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.events.EvtMoveOn;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.events.bukkit.SkriptStartEvent;
+import ch.njol.skript.events.bukkit.SkriptStopEvent;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.BlockStateBlock;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DelayedChangeBlock;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.slot.InventorySlot;
+import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -126,20 +141,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.events.EvtMoveOn;
-import ch.njol.skript.events.bukkit.ScriptEvent;
-import ch.njol.skript.events.bukkit.SkriptStartEvent;
-import ch.njol.skript.events.bukkit.SkriptStopEvent;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.slot.InventorySlot;
-import ch.njol.skript.util.slot.Slot;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -151,7 +153,8 @@ public final class BukkitEventValues {
 	
 	private static final boolean offHandSupport = Skript.isRunningMinecraft(1, 9);
 	private static final boolean NAMESPACE_SUPPORT = Skript.classExists("org.bukkit.NamespacedKey");
-	
+	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
+
 	static {
 		
 		// === WorldEvents ===
@@ -1004,11 +1007,11 @@ public final class BukkitEventValues {
 				return new InventorySlot(e.getInventory(), 9);
 			}
 		}, 0);
-		EventValues.registerEventValue(PrepareItemCraftEvent.class, ItemType.class, new Getter<ItemType, PrepareItemCraftEvent>() {
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, ItemStack.class, new Getter<ItemStack, PrepareItemCraftEvent>() {
 			@Override
-			public ItemType get(final PrepareItemCraftEvent e) {
+			public ItemStack get(final PrepareItemCraftEvent e) {
 				ItemStack item = e.getInventory().getResult();
-				return item != null ? new ItemType(item) : new ItemType(Material.AIR);
+				return item != null ? item : AIR_IS;
 			}
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, new Getter<Inventory, PrepareItemCraftEvent>() {
@@ -1054,11 +1057,11 @@ public final class BukkitEventValues {
 			}, 0);
 		}
 		// CraftItemEvent
-		EventValues.registerEventValue(CraftItemEvent.class, ItemType.class, new Getter<ItemType, CraftItemEvent>() {
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, new Getter<ItemStack, CraftItemEvent>() {
 			@Override
 			@Nullable
-			public ItemType get(CraftItemEvent e) {
-				return new ItemType(e.getRecipe().getResult());
+			public ItemStack get(CraftItemEvent e) {
+				return e.getRecipe().getResult();
 			}
 		}, 0);
 		//InventoryOpenEvent
