@@ -41,50 +41,59 @@ import ch.njol.util.Kleenean;
 @Description("Enchant or disenchant an existing item.")
 @Examples({"enchant the player's tool with sharpness 5",
 		"disenchant the player's tool",
+		"disenchant the player's tool of unbreaking and sharpness",
 		"",
 		"# For enchanted books",
 		"enchant player's tool with stored unbreaking 3",
 		"disenchant stored enchantmentes of player's tool"})
-@Since("2.0, INSERT VERSION (stored enchantments)")
+@Since("2.0, INSERT VERSION (stored, specific disenchant)")
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
-				"enchant %~itemtypes% with [(1¦stored)] %enchantmenttypes%",
-				"disenchant [(1¦stored enchant[ment]s of)] %~itemtypes%");
+				"enchant %~itemtypes% with [(isStored:stored)] %enchantmenttypes%",
+				"disenchant %~itemtypes% [(isSpecificDisenchant:of %-enchantmenttypes%)]",
+				"disenchant (isStored:stored (isSpecificDisenchant:%-enchantmenttypes%|enchant[ment]s) of) %~itemtypes%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<ItemType> items;
 	@Nullable
 	private Expression<EnchantmentType> enchs;
-	private boolean isStored;
+	private boolean isStored, isDisenchant, isSpecificDisenchant;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) exprs[0];
+		if (matchedPattern == 2)
+			items = (Expression<ItemType>) exprs[1];
+		else
+			items = (Expression<ItemType>) exprs[0];
+
 		if (!ChangerUtils.acceptsChange(items, ChangeMode.SET, ItemStack.class)) {
 			Skript.error(items + " cannot be changed, thus it cannot be (dis)enchanted");
 			return false;
 		}
-		isStored = parseResult.mark == 1;
-		if (matchedPattern == 0)
-			enchs = (Expression<EnchantmentType>) exprs[1];
+		isStored = parseResult.tags.contains("isStored");
+		isDisenchant = matchedPattern > 0;
+		isSpecificDisenchant = parseResult.tags.contains("isSpecificDisenchant");
+		enchs = exprs.length == 2 ? (Expression<EnchantmentType>) exprs[(matchedPattern == 2 ? 0 : 1)] : null;
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event e) {
 		ItemType[] items = this.items.getArray(e);
 		if (items == null || items.length < 1 || items[0] == null)
 			return;
+		EnchantmentType[] types = null;
+		if ((isSpecificDisenchant || !isDisenchant)) {
+			types = enchs.getArray(e);
+			if (types == null)
+				return;
+		}
 
 		for (ItemType i : items) {
-			if (enchs != null) {
-				EnchantmentType[] types = enchs.getArray(e);
-				if (types.length == 0)
-					return;
-
+			if (!isDisenchant) {
 				for (EnchantmentType type : types) {
 					Enchantment ench = type.getType();
 					assert ench != null;
@@ -94,7 +103,9 @@ public class EffEnchant extends Effect {
 						i.addEnchantments(new EnchantmentType(ench, type.getLevel()));
 				}
 			} else {
-				EnchantmentType[] types = isStored ? i.getStoredEnchantmentTypes() : i.getEnchantmentTypes();
+				if (!isSpecificDisenchant)
+					types = isStored ? i.getStoredEnchantmentTypes() : i.getEnchantmentTypes();
+
 				if (types == null)
 					return;
 
@@ -110,7 +121,9 @@ public class EffEnchant extends Effect {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		if (enchs == null)
-			return "disenchant " + (isStored ? "stored enchantments of " : "") + items.toString(e, debug);
+			return "disenchant " + (isStored ? "stored " + (isSpecificDisenchant ? enchs.toString(e, debug) :
+				"enchantments") + " of " : "") + items.toString(e, debug) + (!isStored && isSpecificDisenchant ? " of " +
+				enchs.toString(e, debug) : "");
 		else
 			return "enchant " + items.toString(e, debug) + " with " + (isStored ? "stored " : "") + enchs;
 	}
