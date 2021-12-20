@@ -235,6 +235,24 @@ biomes:
 	# 1.17 biomes
 	dripstone_caves: dripstone caves
 	lush_caves: lush caves
+	# 1.18 biomes
+	windswept_hills: windswept hills
+	snowy_plains: snowy plains
+	sparse_jungle: sparse jungle
+	stony_shore: stony shore
+	old_growth_pine_taiga: old growth pine taiga
+	windswept_forest: windswept forest
+	wooded_badlands: wooded badlands
+	windswept_gravelly_hills: windswept gravelly hills
+	old_growth_birch_forest: old growth birch forest
+	old_growth_spruce_taiga: old growth spruce taiga
+	windswept_savanna: windswept savanna
+	meadow: meadow
+	grove: grove
+	snowy_slopes: snowy slopes
+	frozen_peaks: frozen peaks
+	jagged_peaks: jagged peaks
+	stony_peaks: stony peaks
 
 # -- Tree Types --
 tree types:
