@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.hooks.regions.classes;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -37,6 +27,15 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @author Peter Güttinger
@@ -82,10 +81,14 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 							if (r2 == null)
 								continue;
 							if (r != null) {
-								Skript.error("Multiple regions with the name '" + s + "' exist.");
+								Skript.error("Multiple regions with the name '" + s + "' exist");
 								return null;
 							}
 							r = r2;
+						}
+						if (r == null) {
+							Skript.error("Region '" + s + "' could not be found");
+							return null;
 						}
 						return r;
 					}
