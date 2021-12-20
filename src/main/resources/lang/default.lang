@@ -235,24 +235,24 @@ biomes:
 	# 1.17 biomes
 	dripstone_caves: dripstone caves
 	lush_caves: lush caves
-  # 1.18 biomes
-  meadow: meadow
-  snowy_slopes: snowy slopes
-  jagged_peaks: jagged peaks
-  stony_peaks: stony peaks
-  frozen_peaks: frozen peaks
-  grove: grove
-  old_growth_birch_forest: old growth birch forest, tall birch forest
-  old_growth_pine_taiga: old growth pine taiga, giant tree taiga
-  old_growth_spruce_taiga: old growth spruce taiga, giant spruce taiga
-  snowy_plains: snowy plains, snowy tundra
-  sparse_jungle: sparse jungle, jungle edge
-  stony_shore: stony shore, stone shore
-  windswept_hills: windswept hills, mountains
-  windswept_forest: windswept forest, wooded mountains
-  windswept_gravelly_hills: windswept gravelly hills, gravelly mountains
-  windswept_savanna: windswept savanna, shattered savanna
-  wooded_badlands: wooded badlands, wooded mesa, mesa forest, badlands forest
+	# 1.18 biomes
+	meadow: meadow
+	snowy_slopes: snowy slopes
+	jagged_peaks: jagged peaks
+	stony_peaks: stony peaks
+	frozen_peaks: frozen peaks
+	grove: grove
+	old_growth_birch_forest: old growth birch forest, tall birch forest
+	old_growth_pine_taiga: old growth pine taiga, giant tree taiga
+	old_growth_spruce_taiga: old growth spruce taiga, giant spruce taiga
+	snowy_plains: snowy plains, snowy tundra
+	sparse_jungle: sparse jungle, jungle edge
+	stony_shore: stony shore, stone shore
+	windswept_hills: windswept hills, mountains
+	windswept_forest: windswept forest, wooded mountains
+	windswept_gravelly_hills: windswept gravelly hills, gravelly mountains
+	windswept_savanna: windswept savanna, shattered savanna
+	wooded_badlands: wooded badlands, wooded mesa, mesa forest, badlands forest
 
 # -- Tree Types --
 tree types:
