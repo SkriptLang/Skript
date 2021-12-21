@@ -90,7 +90,7 @@ public class SkriptCommand implements CommandExecutor {
 	
 	private static void reloading(CommandSender sender, String what, final Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
-		Skript.info(sender, StringUtils.fixCapitalization(m_reloading.toString(what) + "\n "));
+		Skript.info(sender, StringUtils.fixCapitalization(m_reloading.toString(what)));
 	}
 	
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");

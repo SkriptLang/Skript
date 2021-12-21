@@ -736,7 +736,7 @@ public class ScriptLoader {
 					
 					event = replaceOptions(event);
 					
-					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 					if (parsedEvent == null || !parsedEvent.getSecond().shouldLoadEvent())
 						continue;
 					
@@ -1160,7 +1160,7 @@ public class ScriptLoader {
 			event = "" + event.substring("on ".length());
 		
 		NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent =
-			SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+			SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 		if (parsedEvent == null) {
 			assert false;
 			return null;
