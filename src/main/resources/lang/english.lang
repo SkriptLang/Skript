@@ -108,7 +108,8 @@ skript command:
 		documentation: Skript's documentation can be found here: <aqua>https://skriptlang.github.io/Skript
 		version: Skript Version: <aqua>%s
 		server: Server Version: <aqua>%s
-		addons: Installed Skript Addons:
+		addons: Installed Skript Addons: <aqua>%s
+		dependencies: Installed dependencies: <aqua>%s
 
 # -- Updater --
 updater:

@@ -201,6 +201,24 @@ public final class Skript extends JavaPlugin implements Listener {
 		instance = this;
 	}
 	
+	private static Version minecraftVersion = new Version(666), UNKNOWN_VERSION = new Version(666);
+	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
+
+	/**
+	 * Check minecraft version and assign it to minecraftVersion field
+	 * This method is created to update MC version before onEnable method
+	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
+	 */
+	public static void updateMinecraftVersion() {
+		String bukkitV = Bukkit.getBukkitVersion();
+		Matcher m = Pattern.compile("\\d+\\.\\d+(\\.\\d+)?").matcher(bukkitV);
+		if (!m.find()) {
+			minecraftVersion = new Version(666, 0, 0);
+		} else {
+			minecraftVersion = new Version("" + m.group());
+		}
+	}
+	
 	@Nullable
 	private static Version version = null;
 	
@@ -469,6 +487,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
+		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitClasses();
@@ -879,9 +898,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 	}
 	
-	private static Version minecraftVersion = new Version(666);
-	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
-	
 	public static Version getMinecraftVersion() {
 		return minecraftVersion;
 	}
@@ -897,14 +913,23 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether this server is running Minecraft <tt>major.minor</tt> or higher
 	 */
 	public static boolean isRunningMinecraft(final int major, final int minor) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) { // Make sure minecraftVersion is properly assigned.
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final int major, final int minor, final int revision) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor, revision) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final Version v) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(v) >= 0;
 	}
 	
@@ -1056,7 +1081,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 
 			try {
-				IS_RUNNING = MC_SERVER.getClass().getMethod("isRunning");
+				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
+				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
+				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
