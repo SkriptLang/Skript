@@ -141,9 +141,7 @@ public class LogEntry {
 
 		Config c = node.getConfig();
 
-//		String t = "    "; // Because \t shows unknown char in mc
 		boolean isError = level.intValue() == Level.SEVERE.intValue();
-
 		ArgsMessage details;
 		ArgsMessage lineInfo = WARNING_LINE_INFO;
 		if (level.intValue() == Level.WARNING.intValue())  // warnings
