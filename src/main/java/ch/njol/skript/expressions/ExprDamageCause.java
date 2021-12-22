@@ -30,9 +30,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Damage Cause")
 @Description("The <a href='./classes.html#damagecause'>damage cause</a> of a damage event. Please click on the link for more information.")
 @Examples("damage cause is lava, fire or burning")
@@ -46,7 +43,12 @@ public class ExprDamageCause extends EventValueExpression<DamageCause> {
 	public ExprDamageCause() {
 		super(DamageCause.class);
 	}
-	
+
+	@Override
+	public boolean setTime(int time) {
+		return time != 1; // allow past and present
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "the damage cause";

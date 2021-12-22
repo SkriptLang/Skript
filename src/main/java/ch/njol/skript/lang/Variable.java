@@ -259,9 +259,24 @@ public class Variable<T> implements Expression<T> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		if (e != null)
-			return Classes.toString(get(e));
-		return "{" + (local ? "_" : "") + StringUtils.substring(name.toString(e, debug), 1, -1) + "}" + (debug ? "(as " + superType.getName() + ")" : "");
+		StringBuilder stringBuilder = new StringBuilder()
+			.append("{");
+		if (local)
+			stringBuilder.append(LOCAL_VARIABLE_TOKEN);
+		stringBuilder.append(StringUtils.substring(name.toString(e, debug), 1, -1))
+			.append("}");
+
+		if (debug) {
+			stringBuilder.append(" (");
+			if (e != null) {
+				stringBuilder.append(Classes.toString(get(e)))
+					.append(", ");
+			}
+			stringBuilder.append("as ")
+				.append(superType.getName())
+				.append(")");
+		}
+		return stringBuilder.toString();
 	}
 
 	@Override
