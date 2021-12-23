@@ -141,12 +141,11 @@ public class LogEntry {
 
 		Config c = node.getConfig();
 
-		boolean isError = level.intValue() == Level.SEVERE.intValue();
 		ArgsMessage details;
 		ArgsMessage lineInfo = WARNING_LINE_INFO;
 		if (level.intValue() == Level.WARNING.intValue())  // warnings
 			details = WARNING_DETAILS;
-		else if (isError) { // errors
+		else if (level.intValue() == Level.SEVERE.intValue()) { // errors
 			details = ERROR_DETAILS;
 			lineInfo = ERROR_LINE_INFO;
 		}
@@ -154,13 +153,10 @@ public class LogEntry {
 			details = OTHER_DETAILS;
 		
 		return
-			Utils.replaceEnglishChatStyles(lineInfo.toString(String.valueOf(node.getLine()), c.getFileName())) +
-			"\n" +
-			Utils.replaceEnglishChatStyles(details.toString(message)) +
+			Utils.replaceEnglishChatStyles(lineInfo.toString(String.valueOf(node.getLine()), c.getFileName()).replaceAll("\\\\n", "\n")) +
+			Utils.replaceEnglishChatStyles(details.toString(message).replaceAll("\\\\n", "\n")) +
 			from +
-			"\n" +
-			Utils.replaceEnglishChatStyles(LINE_DETAILS.toString(node.save().trim())) +
-			"\n ";
+			Utils.replaceEnglishChatStyles(LINE_DETAILS.toString(node.save().trim()).replaceAll("\\\\n", "\n"));
 	}
 	
 }
