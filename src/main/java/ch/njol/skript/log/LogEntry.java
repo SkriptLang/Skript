@@ -112,7 +112,7 @@ public class LogEntry {
 	}
 	
 	public String getMessage() {
-		return toString();
+		return toFormattedString();
 	}
 	
 	private boolean used = false;
@@ -140,6 +140,14 @@ public class LogEntry {
 			return message;
 
 		Config c = node.getConfig();
+		return message + from + " (" + c.getFileName() + ", line " + node.getLine() + ": " + node.save().trim() + "')";
+	}
+
+	public String toFormattedString() {
+		if (node == null || level.intValue() < Level.WARNING.intValue())
+			return message;
+
+		Config c = node.getConfig();
 
 		ArgsMessage details;
 		ArgsMessage lineInfo = WARNING_LINE_INFO;
@@ -151,12 +159,11 @@ public class LogEntry {
 		}
 		else // anything else
 			details = OTHER_DETAILS;
-		
-		return
-			Utils.replaceEnglishChatStyles(lineInfo.toString(String.valueOf(node.getLine()), c.getFileName()).replaceAll("\\\\n", "\n")) +
-			Utils.replaceEnglishChatStyles(details.toString(message).replaceAll("\\\\n", "\n")) +
-			from +
-			Utils.replaceEnglishChatStyles(LINE_DETAILS.toString(node.save().trim()).replaceAll("\\\\n", "\n"));
+
+		return Utils.replaceEnglishChatStyles(
+			lineInfo.toString(String.valueOf(node.getLine()), c.getFileName()).replaceAll("\\\\n", "\n") +
+			details.toString(message).replaceAll("\\\\n", "\n") + from +
+			LINE_DETAILS.toString(node.save().trim()).replaceAll("\\\\n", "\n"));
 	}
 	
 }

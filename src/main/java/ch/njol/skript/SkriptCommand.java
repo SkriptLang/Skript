@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.log.TimingLogHandler;
+import ch.njol.skript.util.Timespan;
+import ch.njol.util.OpenCloseable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -88,7 +91,7 @@ public class SkriptCommand implements CommandExecutor {
 	
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 	
-	private static void reloading(CommandSender sender, String what, final Object... args) {
+	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
 		Skript.info(sender, StringUtils.fixCapitalization(m_reloading.toString(what)));
 	}
@@ -96,12 +99,14 @@ public class SkriptCommand implements CommandExecutor {
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
 	
-	private static void reloaded(CommandSender sender, RedirectingLogHandler r, String what, Object... args) {
+	private static void reloaded(CommandSender sender, RedirectingLogHandler r, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
+		String timeTaken  = String.valueOf(new Timespan(timingLogHandler.getTimeTaken()));
+
 		if (r.numErrors() == 0)
-			Skript.info(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, String.valueOf(r.getTimeTaken())))));
+			Skript.info(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken))));
 		else
-			Skript.error(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), String.valueOf(r.getTimeTaken())))));
+			Skript.error(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), timeTaken))));
 	}
 	
 	private static void info(CommandSender sender, String what, Object... args) {
@@ -121,7 +126,8 @@ public class SkriptCommand implements CommandExecutor {
 			throw new IllegalArgumentException();
 		if (!skriptCommandHelp.test(sender, args))
 			return true;
-		try (RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, "").start()) {
+		try (RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, "").start();
+		TimingLogHandler timingLogHandler = new TimingLogHandler().start()) {
 			if (args[0].equalsIgnoreCase("reload")) {
 				if (args[1].equalsIgnoreCase("all")) {
 					reloading(sender, "config, aliases and scripts");
@@ -132,27 +138,27 @@ public class SkriptCommand implements CommandExecutor {
 					if (!ScriptLoader.isAsync())
 						ScriptLoader.disableScripts();
 					
-					ScriptLoader.loadScripts(logHandler)
+					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
-							reloaded(sender, logHandler, "config, aliases and scripts"));
+							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts"));
 				} else if (args[1].equalsIgnoreCase("scripts")) {
 					reloading(sender, "scripts");
 					
 					if (!ScriptLoader.isAsync())
 						ScriptLoader.disableScripts();
 					
-					ScriptLoader.loadScripts(logHandler)
+					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
-							reloaded(sender, logHandler, "scripts"));
+							reloaded(sender, logHandler, timingLogHandler, "scripts"));
 				} else if (args[1].equalsIgnoreCase("config")) {
 					reloading(sender, "main config");
 					SkriptConfig.load();
-					reloaded(sender, logHandler, "main config");
+					reloaded(sender, logHandler, timingLogHandler, "main config");
 				} else if (args[1].equalsIgnoreCase("aliases")) {
 					reloading(sender, "aliases");
 					Aliases.clear();
 					Aliases.load();
-					reloaded(sender, logHandler, "aliases");
+					reloaded(sender, logHandler, timingLogHandler, "aliases");
 				} else {
 					File f = getScriptFromArgs(sender, args, 1);
 					if (f == null)
@@ -163,18 +169,18 @@ public class SkriptCommand implements CommandExecutor {
 							return true;
 						}
 						reloading(sender, "script", f.getName());
-						ScriptLoader.reloadScript(f, logHandler)
+						ScriptLoader.reloadScript(f, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo ->
-								reloaded(sender, logHandler, "script", f.getName()));
+								reloaded(sender, logHandler, timingLogHandler, "script", f.getName()));
 					} else {
 						reloading(sender, "scripts in folder", f.getName());
-						ScriptLoader.reloadScripts(f, logHandler)
+						ScriptLoader.reloadScripts(f, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo -> {
 								int enabled = scriptInfo.files;
 								if (enabled == 0)
 									info(sender, "reload.empty folder", f.getName());
 								else
-									reloaded(sender, logHandler, "x scripts in folder", f.getName(), enabled);
+									reloaded(sender, logHandler, timingLogHandler, "x scripts in folder", f.getName(), enabled);
 							});
 					}
 				}
