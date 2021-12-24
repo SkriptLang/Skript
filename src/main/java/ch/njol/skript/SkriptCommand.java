@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.util.Timespan;
 import ch.njol.util.OpenCloseable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -101,7 +100,7 @@ public class SkriptCommand implements CommandExecutor {
 	
 	private static void reloaded(CommandSender sender, RedirectingLogHandler r, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
-		String timeTaken  = String.valueOf(new Timespan(timingLogHandler.getTimeTaken()));
+		String timeTaken  = String.valueOf(timingLogHandler.getTimeTaken());
 
 		if (r.numErrors() == 0)
 			Skript.info(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken))));
