@@ -20,6 +20,7 @@ package ch.njol.skript.conditions;
 
 import java.io.File;
 
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.config.Config;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -59,6 +60,10 @@ public class CondScriptLoaded extends Condition {
 		scripts = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
 		assert getParser().getCurrentScript() != null;
+		if (getParser().isCurrentEvent(EffectCommandEvent.class)) {
+			Skript.error("The condition 'script loaded' can not be used in command effects.");
+			return false;
+		}
 		Config cs = getParser().getCurrentScript();
 		if (cs != null)
 			currentScriptFile = cs.getFile();
