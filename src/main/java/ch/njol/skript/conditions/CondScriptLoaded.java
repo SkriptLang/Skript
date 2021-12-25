@@ -60,8 +60,8 @@ public class CondScriptLoaded extends Condition {
 		scripts = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
 		assert getParser().getCurrentScript() != null;
-		if (getParser().isCurrentEvent(EffectCommandEvent.class)) {
-			Skript.error("The condition 'script loaded' can not be used in command effects.");
+		if (getParser().isCurrentEvent(EffectCommandEvent.class) && scripts == null) {
+			Skript.error("The condition 'script loaded' require a script name argument when used in effect commands.");
 			return false;
 		}
 		Config cs = getParser().getCurrentScript();
