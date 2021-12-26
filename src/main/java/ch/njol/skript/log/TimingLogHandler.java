@@ -16,6 +16,10 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
+
+/**
+ * A {@link LogHandler} that records the time since its creation.
+ */
 package ch.njol.skript.log;
 
 public class TimingLogHandler extends LogHandler {
@@ -32,10 +36,16 @@ public class TimingLogHandler extends LogHandler {
 		return SkriptLogger.startLogHandler(this);
 	}
 
+	/**
+	 * @return the time in milliseconds of when this log handler was created.
+	 */
 	public long getStart() {
 		return start;
 	}
 
+	/**
+	 * @return the time in milliseconds between now and this log handler's creation.
+	 */
 	public long getTimeTaken() {
 		return System.currentTimeMillis() - start;
 	}

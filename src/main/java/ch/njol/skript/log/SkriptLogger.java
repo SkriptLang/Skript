@@ -181,7 +181,7 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
-		LOGGER.log(entry.getLevel(), "[Skript] " + entry.getMessage());
+		LOGGER.log(entry.getLevel(), "[Skript] " + entry.toFormattedString());
 	}
 	
 	public static void logAll(Collection<LogEntry> entries) {

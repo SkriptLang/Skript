@@ -126,7 +126,7 @@ public class SkriptCommand implements CommandExecutor {
 		if (!skriptCommandHelp.test(sender, args))
 			return true;
 		try (RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, "").start();
-		TimingLogHandler timingLogHandler = new TimingLogHandler().start()) {
+			TimingLogHandler timingLogHandler = new TimingLogHandler().start()) {
 			if (args[0].equalsIgnoreCase("reload")) {
 				if (args[1].equalsIgnoreCase("all")) {
 					reloading(sender, "config, aliases and scripts");
