@@ -59,14 +59,12 @@ public class CondScriptLoaded extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
-		assert getParser().getCurrentScript() != null;
-		if (getParser().isCurrentEvent(EffectCommandEvent.class) && scripts == null) {
-			Skript.error("The condition 'script loaded' requires a script name argument when used in effect commands");
+		Config cs = getParser().getCurrentScript();
+		if (cs == null && scripts == null) {
+			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
 			return false;
 		}
-		Config cs = getParser().getCurrentScript();
-		if (cs != null)
-			currentScriptFile = cs.getFile();
+		currentScriptFile = cs.getFile();
 		return true;
 	}
 	
@@ -74,8 +72,6 @@ public class CondScriptLoaded extends Condition {
 	public boolean check(Event e) {
 		Expression<String> scripts = this.scripts;
 		if (scripts == null) {
-			if (currentScriptFile == null)
-				return isNegated();
 			return ScriptLoader.getLoadedFiles().contains(currentScriptFile);
 		}
 		
