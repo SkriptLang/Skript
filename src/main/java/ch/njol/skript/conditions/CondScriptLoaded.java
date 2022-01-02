@@ -72,7 +72,7 @@ public class CondScriptLoaded extends Condition {
 	public boolean check(Event e) {
 		Expression<String> scripts = this.scripts;
 		if (scripts == null) {
-			return ScriptLoader.getLoadedFiles().contains(currentScriptFile);
+			return ScriptLoader.getLoadedFiles().contains(currentScriptFile) ^ isNegated();
 		}
 		
 		return scripts.check(e,
