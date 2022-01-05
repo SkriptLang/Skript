@@ -161,19 +161,18 @@ public class LogEntry {
 		}
 
 		// Replace configured messages chat styles without user variables
-		String lineInfoMsg = Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue());
-		String detailsMsg = Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue());
-		String lineDetailsMsg = Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue());
+		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
+		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
+		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
 
 		return
-			replaceNewline(String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName())) +
-			replaceNewline(String.format(detailsMsg, message.replaceAll("§", "&"))) + from +
-			replaceNewline(String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&")));
+			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) +
+			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
+			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
 	}
 
 	private String replaceNewline(String s) {
-		return
-			s.replaceAll("\\\\n", "\n");
+		return s.replaceAll("\\\\n", "\n");
 	}
 	
 }

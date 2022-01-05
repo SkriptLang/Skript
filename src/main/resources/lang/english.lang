@@ -51,8 +51,8 @@ skript command:
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	reload:
-		warning line info: <gold><bold>Line %s: <gray>(%s)\n
-		error line info: <light red><bold>Line %s: <gray>(%s)\n
+		warning line info: <gold><bold>Line %s:<gray> (%s)\n
+		error line info: <light red><bold>Line %s:<gray> (%s)\n
 		reloading: Reloading <gold>%s<reset>...
 		reloaded: <lime>Successfully reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
 		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
