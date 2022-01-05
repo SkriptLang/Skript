@@ -22,6 +22,9 @@
  */
 package ch.njol.skript.log;
 
+/**
+ * A log handler that records the time since its creation.
+ */
 public class TimingLogHandler extends LogHandler {
 
 	private final long start = System.currentTimeMillis();

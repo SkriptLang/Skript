@@ -112,7 +112,7 @@ public class LogEntry {
 	}
 	
 	public String getMessage() {
-		return toString();
+		return message;
 	}
 	
 	private boolean used = false;
