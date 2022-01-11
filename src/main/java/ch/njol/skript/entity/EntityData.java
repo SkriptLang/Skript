@@ -77,7 +77,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
 
-	private static final Pattern REGEX_PATTERN = Pattern.compile("(a-zA-Z -)+");
+	private static final Pattern REGEX_PATTERN = Pattern.compile("[a-zA-Z -]+");
 
 	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
 		@Override
