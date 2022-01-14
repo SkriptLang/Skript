@@ -475,7 +475,9 @@ public abstract class Utils {
 	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.RESET};
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
+	
 	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
+	
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -587,9 +589,10 @@ public abstract class Utils {
 	@SuppressWarnings("null")
 	@Nullable
 	public static ChatColor parseHexColor(String hex) {
-		hex = hex.replace("#", "");
-		if (hex.length() < 6)
+		if (!HEX_SUPPORTED || !hex.matches("(?i)#[0-9a-z]{6}")) // Proper hex code validation
 			return null;
+		
+		hex = hex.replace("#", "");
 		try {
 			return ChatColor.of('#' + hex.substring(0, 6));
 		} catch (IllegalArgumentException e) {
