@@ -1051,14 +1051,37 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
+	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String originalEvent, String defaultError) {
+		RetainingLogHandler log = SkriptLogger.startRetainingLog();
+		try {
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> normalEvent = new SkriptParser(originalEvent, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
+			if (normalEvent != null) {
+				log.printLog();
+				return normalEvent;
+			}
+
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> priorityEvent = parsePriorityEvent(originalEvent);
+			if (priorityEvent != null) {
+				log.printLog();
+				return priorityEvent;
+			}
+
+			log.printErrors(defaultError);
+			return null;
+		} finally {
+			log.stop();
+		}
+	}
+
+	@Nullable
+	private static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsePriorityEvent(String event) {
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		try {
 			String[] split = event.split(" with priority ");
 			EventPriority priority;
 			if (split.length != 1) {
 				event = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-				
+
 				String priorityString = split[split.length - 1];
 				try {
 					priority = EventPriority.valueOf(priorityString.toUpperCase());
@@ -1067,29 +1090,29 @@ public class SkriptParser {
 					return null;
 				}
 			} else {
-				priority = null;
+				log.printErrors();
+				return null;
 			}
-			
+
 			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
 			if (e != null) {
-				if (priority != null && e.getSecond() instanceof SelfRegisteringSkriptEvent) {
+				if (e.getSecond() instanceof SelfRegisteringSkriptEvent) {
 					log.printErrors("This event doesn't support event priority");
 					return null;
 				}
-				
-				//noinspection ConstantConditions
+
 				e.getSecond().eventPriority = priority;
-				
+
 				log.printLog();
 				return e;
 			}
-			log.printErrors(defaultError);
+			log.printErrors();
 			return null;
 		} finally {
 			log.stop();
 		}
 	}
-	
+
 	@Nullable
 	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent() {
 		assert context == ParseContext.EVENT;
