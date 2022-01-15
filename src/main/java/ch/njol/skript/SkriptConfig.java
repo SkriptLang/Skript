@@ -311,7 +311,7 @@ public class SkriptConfig {
 			}
 		});
 
-	public final static Option<Pattern> playerNameRegexPattern = new Option<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{3,16}"), s -> {
+	public final static Option<Pattern> playerNameRegexPattern = new Option<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{1,16}"), s -> {
 		try {
 			return Pattern.compile(s);
 		} catch (PatternSyntaxException e) {
