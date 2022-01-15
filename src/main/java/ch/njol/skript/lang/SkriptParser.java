@@ -949,16 +949,10 @@ public class SkriptParser {
 			
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
-			int level = 0;
-			for (char c : args.toCharArray()) {
-				if (c == '(') {
-					level++;
-				} else if (c == ')') {
-					if (level == 0) {
-						log.printLog();
-						return null;
-					}
-					level--;
+			for (int i = 0; i < args.length(); i = next(args, i, context)) {
+				if (i == -1) {
+					log.printLog();
+					return null;
 				}
 			}
 			
@@ -988,7 +982,7 @@ public class SkriptParser {
 			} else {
 				params = new Expression[0];
 			}
-			
+
 //			final List<Expression<?>> params = new ArrayList<Expression<?>>();
 //			if (args.length() != 0) {
 //				final int p = 0;
@@ -1006,7 +1000,7 @@ public class SkriptParser {
 //				}
 //			}
 //			@SuppressWarnings("null")
-			
+
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
 					getParser().getCurrentScript() != null ? getParser().getCurrentScript().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
