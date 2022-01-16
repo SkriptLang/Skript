@@ -115,6 +115,17 @@ publishing {
 			artifact tasks.jar
 		}
 	}
+
+	repositories {
+		maven {
+			name = "repo"
+			url = "https://repo.skriptlang.org/releases"
+			credentials {
+				username = System.getenv("MAVEN_USERNAME")
+				password = System.getenv("MAVEN_PASSWORD")
+			}
+		}
+	}
 }
 
 license {
