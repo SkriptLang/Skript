@@ -29,7 +29,7 @@ public class ScriptCommandEvent extends CommandEvent {
 	private final ScriptCommand scriptCommand;
 	private final String commandLabel;
 	private final String rest;
-  private final Date executionDate = new Date();
+	private final Date executionDate = new Date();
 	private boolean cooldownCancelled;
 
 	/**
@@ -48,7 +48,7 @@ public class ScriptCommandEvent extends CommandEvent {
 	/**
 	 * @return The script command executed.
 	 */
-	public ScriptCommand getSkriptCommand() {
+	public ScriptCommand getScriptCommand() {
 		return scriptCommand;
 	}
 
@@ -79,7 +79,7 @@ public class ScriptCommandEvent extends CommandEvent {
 			CommandSender sender = getSender();
 			if (sender instanceof Player) {
 				Date date = cooldownCancelled ? null : executionDate;
-				skriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
+				scriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
 			}
 		} else {
 			this.cooldownCancelled = cooldownCancelled;
