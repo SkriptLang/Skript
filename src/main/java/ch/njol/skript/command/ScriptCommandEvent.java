@@ -18,19 +18,19 @@
  */
 package ch.njol.skript.command;
 
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.util.Date;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
-/**
- * @author Peter Güttinger
- */
 public class ScriptCommandEvent extends CommandEvent {
 	
 	private final ScriptCommand scriptCommand;
 	private final String commandLabel;
 	private final String rest;
-
-	private boolean cooldownCancelled = false;
+  private final Date executionDate = new Date();
+	private boolean cooldownCancelled;
 
 	/**
 	 * @param scriptCommand The script command executed.
@@ -67,24 +67,35 @@ public class ScriptCommandEvent extends CommandEvent {
 		return rest;
 	}
 
+	/**
+	 * Only accurate when this event is not delayed (yet)
+	 */
 	public boolean isCooldownCancelled() {
 		return cooldownCancelled;
 	}
 
 	public void setCooldownCancelled(boolean cooldownCancelled) {
-		this.cooldownCancelled = cooldownCancelled;
+		if (Delay.isDelayed(this)) {
+			CommandSender sender = getSender();
+			if (sender instanceof Player) {
+				Date date = cooldownCancelled ? null : executionDate;
+				skriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
+			}
+		} else {
+			this.cooldownCancelled = cooldownCancelled;
+		}
 	}
 
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();
-	
+
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-	
+
 }

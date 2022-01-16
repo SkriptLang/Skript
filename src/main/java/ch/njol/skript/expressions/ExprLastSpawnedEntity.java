@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
@@ -32,7 +33,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffDrop;
 import ch.njol.skript.effects.EffShoot;
-import ch.njol.skript.effects.EffSpawn;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -45,7 +45,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Last Spawned Entity")
-@Description("Holds the entity that was spawned most recently with the <a href='../effects.html#EffSpawn'>spawn effect</a>, drop with the <a href='../effects/#EffDrop'>drop effect</a> or shot with the <a href='../effects/#EffShoot'>shoot effect</a>. " +
+@Description("Holds the entity that was spawned most recently with the spawn effect, drop with the <a href='../effects/#EffDrop'>drop effect</a> or shot with the <a href='../effects/#EffShoot'>shoot effect</a>. " +
 		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
 		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
 @Examples({"spawn a priest",
@@ -78,7 +78,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	protected Entity[] get(final Event e) {
-		final Entity en = from == 0 ? EffSpawn.lastSpawned :  from == 1 ? EffShoot.lastSpawned : EffDrop.lastSpawned;
+		final Entity en = from == 0 ? EffSecSpawn.lastSpawned :  from == 1 ? EffShoot.lastSpawned : EffDrop.lastSpawned;
 		if (en == null)
 			return null;
 		if (!type.isInstance(en))

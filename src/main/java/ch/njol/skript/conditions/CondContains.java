@@ -31,7 +31,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Comparators;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -124,7 +123,7 @@ public class CondContains extends Condition {
 					if (o1 instanceof ItemType)
 						return ((ItemType) o1).isContainedIn(inventory);
 					else if (o1 instanceof ItemStack)
-						return inventory.contains((ItemStack) o1);
+						return inventory.containsAtLeast((ItemStack) o1, ((ItemStack) o1).getAmount());
 					else if (o1 instanceof Inventory)
 						return Objects.equals(inventory, o1);
 					else
