@@ -25,6 +25,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -45,8 +46,6 @@ import java.util.Map.Entry;
  */
 public final class ListVariablePersistentDataType implements PersistentDataType<byte[], Map<String, Value>> {
 
-	// An int is 4 bytes
-	private static final int INT_LENGTH = 4;
 	// Charset used for converting bytes and Strings
 	private static final Charset SERIALIZED_CHARSET = StandardCharsets.UTF_8;
 
@@ -65,28 +64,23 @@ public final class ListVariablePersistentDataType implements PersistentDataType<
 
 	@Override
 	public byte[] toPrimitive(Map<String, Value> complex, PersistentDataAdapterContext context) {
-		ByteBuffer intConverter = ByteBuffer.allocate(4);
 		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+		DataOutputStream outputStream = new DataOutputStream(byteArray);
 
 		for (Entry<String, Value> entry : complex.entrySet()) {
 			byte[] indexBytes = entry.getKey().getBytes(SERIALIZED_CHARSET);
 			byte[] typeBytes = entry.getValue().type.getBytes(SERIALIZED_CHARSET);
 
 			try {
-				intConverter.putInt(indexBytes.length);
-				byteArray.write(intConverter.array());
-				intConverter.clear();
-				byteArray.write(indexBytes);
+				outputStream.writeInt(indexBytes.length);
+				outputStream.write(indexBytes);
 
-				intConverter.putInt(typeBytes.length);
-				byteArray.write(intConverter.array());
-				intConverter.clear();
-				byteArray.write(typeBytes);
+				outputStream.writeInt(typeBytes.length);
+				outputStream.write(typeBytes);
 
-				intConverter.putInt(entry.getValue().data.length);
-				byteArray.write(intConverter.array());
-				intConverter.clear();
-				byteArray.write(entry.getValue().data);
+				byte[] data = entry.getValue().data;
+				outputStream.writeInt(data.length);
+				outputStream.write(data);
 			} catch (IOException e) { // This is very bad
 				throw Skript.exception(e);
 			}
