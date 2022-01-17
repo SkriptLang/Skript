@@ -63,15 +63,18 @@ public class CondScriptLoaded extends Condition {
 		if (cs == null && scripts == null) {
 			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
 			return false;
+		} else if (cs != null) {
+			currentScriptFile = cs.getFile();
 		}
-		currentScriptFile = cs.getFile();
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(Event e) {
 		Expression<String> scripts = this.scripts;
 		if (scripts == null) {
+			if (currentScriptFile == null)
+				return isNegated();
 			return ScriptLoader.getLoadedFiles().contains(currentScriptFile) ^ isNegated();
 		}
 		
