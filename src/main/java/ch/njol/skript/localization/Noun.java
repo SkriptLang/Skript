@@ -18,35 +18,33 @@
  */
 package ch.njol.skript.localization;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Peter Güttinger
  */
 public class Noun extends Message {
 	
-	public final static String GENDERS_SECTION = "genders.";
+	public static final String GENDERS_SECTION = "genders.";
 	
 	// TODO remove NO_GENDER and add boolean/flag uncountable (e.g. Luft: 'die Luft', aber nicht 'eine Luft')
-	public final static int PLURAL = -2, NO_GENDER = -3; // -1 is sometimes used as 'not set'
-	public final static String PLURAL_TOKEN = "x", NO_GENDER_TOKEN = "-";
+	public static final int PLURAL = -2, NO_GENDER = -3; // -1 is sometimes used as 'not set'
+	public static final String PLURAL_TOKEN = "x", NO_GENDER_TOKEN = "-";
 	
 	@Nullable
 	private String singular, plural;
 	private int gender = 0;
 	
-	public Noun(final String key) {
+	public Noun(String key) {
 		super(key);
 	}
 	
@@ -58,14 +56,14 @@ public class Noun extends Message {
 			gender = 0;
 			return;
 		}
-		final int g = value.lastIndexOf('@');
+		int g = value.lastIndexOf('@');
 		if (g != -1) {
 			gender = getGender("" + value.substring(g + 1).trim(), key);
 			value = "" + value.substring(0, g).trim();
 		} else {
 			gender = 0;
 		}
-		final NonNullPair<String, String> p = Noun.getPlural(value);
+		NonNullPair<String, String> p = Noun.getPlural(value);
 		singular = p.getFirst();
 		plural = p.getSecond();
 		if (gender == PLURAL && !Objects.equals(singular, plural))
@@ -78,7 +76,7 @@ public class Noun extends Message {
 		return "" + singular;
 	}
 	
-	public String toString(final boolean plural) {
+	public String toString(boolean plural) {
 		validate();
 		return plural ? "" + this.plural : "" + singular;
 	}
@@ -96,7 +94,7 @@ public class Noun extends Message {
 		return toString(Language.F_DEFINITE_ARTICLE);
 	}
 	
-	public String withDefiniteArticle(final boolean plural) {
+	public String withDefiniteArticle(boolean plural) {
 		return toString(Language.F_DEFINITE_ARTICLE | (plural ? Language.F_PLURAL : 0));
 	}
 	
@@ -116,7 +114,7 @@ public class Noun extends Message {
 	 * @param flags
 	 * @return The article with a trailing space (as no article is possible in which case the empty string is returned)
 	 */
-	public static String getArticleWithSpace(final int gender, final int flags) {
+	public static String getArticleWithSpace(int gender, int flags) {
 		if (gender == PLURAL) {
 			if ((flags & Language.F_DEFINITE_ARTICLE) != 0)
 				return definitePluralArticle + " ";
@@ -142,24 +140,24 @@ public class Noun extends Message {
 	 * @param flags
 	 * @return <tt>{@link #getArticleWithSpace(int, int) getArticleWithSpace}(getGender(), flags)</tt>
 	 */
-	public final String getArticleWithSpace(final int flags) {
+	public final String getArticleWithSpace(int flags) {
 		return getArticleWithSpace(getGender(), flags);
 	}
 	
-	public String toString(final int flags) {
+	public String toString(int flags) {
 		validate();
-		final StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		b.append(getArticleWithSpace(flags));
 		b.append((flags & Language.F_PLURAL) != 0 ? plural : singular);
 		return "" + b.toString();
 	}
 	
-	public String withAmount(final double amount) {
+	public String withAmount(double amount) {
 		validate();
 		return Skript.toString(amount) + " " + (amount == 1 ? singular : plural);
 	}
 	
-	public String withAmount(final double amount, final int flags) {
+	public String withAmount(double amount, int flags) {
 		validate();
 		if (amount == 1) {
 			if (gender == NO_GENDER)
@@ -179,9 +177,9 @@ public class Noun extends Message {
 		return Skript.toString(amount) + " " + (amount == 1 ? singular : plural);
 	}
 	
-	public String toString(final Adjective a, final int flags) {
+	public String toString(Adjective a, int flags) {
 		validate();
-		final StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		b.append(getArticleWithSpace(flags));
 		b.append(a.toString(gender, flags));
 		b.append(" ");
@@ -189,11 +187,11 @@ public class Noun extends Message {
 		return "" + b.toString();
 	}
 	
-	public String toString(final Adjective[] adjectives, final int flags, final boolean and) {
+	public String toString(Adjective[] adjectives, int flags, boolean and) {
 		validate();
 		if (adjectives.length == 0)
 			return toString(flags);
-		final StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		b.append(getArticleWithSpace(flags));
 		b.append(Adjective.toString(adjectives, getGender(), flags, and));
 		b.append(" ");
@@ -215,13 +213,13 @@ public class Noun extends Message {
 	 * @param s String with ¦ plural markers but without a @gender
 	 * @return (singular, plural)
 	 */
-	public static NonNullPair<String, String> getPlural(final String s) {
-		final NonNullPair<String, String> r = new NonNullPair<>("", "");
+	public static NonNullPair<String, String> getPlural(String s) {
+		NonNullPair<String, String> r = new NonNullPair<>("", "");
 		int part = 3; // 1 = singular, 2 = plural, 3 = both
 		int i = StringUtils.count(s, '¦');
 		int last = 0, c = -1;
 		while ((c = s.indexOf('¦', c + 1)) != -1) {
-			final String x = s.substring(last, c).trim();
+			String x = s.substring(last, c);
 			if ((part & 1) != 0)
 				r.setFirst(r.getFirst() + x);
 			if ((part & 2) != 0)
@@ -230,7 +228,7 @@ public class Noun extends Message {
 			last = c + 1;
 			i--;
 		}
-		final String x = s.substring(last);
+		String x = s.substring(last);
 		if ((part & 1) != 0)
 			r.setFirst(r.getFirst() + x);
 		if ((part & 2) != 0)
@@ -246,36 +244,36 @@ public class Noun extends Message {
 	 * @param s Some string
 	 * @return The same string with normalized plural markers
 	 */
-	public static String normalizePluralMarkers(final String s) {
-		final int c = StringUtils.count(s, '¦');
+	public static String normalizePluralMarkers(String s) {
+		int c = StringUtils.count(s, '¦');
 		if (c % 3 == 0)
 			return s;
 		if (c % 3 == 2) {
-			final int g = s.lastIndexOf('@');
+			int g = s.lastIndexOf('@');
 			if (g == -1)
 				return s + "¦";
 			return s.substring(0, g) + "¦" + s.substring(g);
 		}
-		final int x = s.lastIndexOf('¦');
-		final int g = s.lastIndexOf('@');
+		int x = s.lastIndexOf('¦');
+		int g = s.lastIndexOf('@');
 		if (g == -1)
 			return s.substring(0, x) + "¦" + s.substring(x) + "¦";
 		return s.substring(0, x) + "¦" + s.substring(x, g) + "¦" + s.substring(g);
 	}
 	
-	final static HashMap<String, Integer> genders = new HashMap<>();
+	static final HashMap<String, Integer> genders = new HashMap<>();
 	
 	/**
 	 * @param gender Gender id as defined in [language].lang (i.e. without the leading @)
 	 * @param key Key to use in error messages§
 	 * @return The gender's id
 	 */
-	public static int getGender(final String gender, final String key) {
+	public static int getGender(String gender, String key) {
 		if (gender.equalsIgnoreCase(PLURAL_TOKEN))
 			return PLURAL;
 		if (gender.equalsIgnoreCase(NO_GENDER_TOKEN))
 			return NO_GENDER;
-		final Integer i = genders.get(gender);
+		Integer i = genders.get(gender);
 		if (i != null)
 			return i;
 		Skript.warning("Undefined gender '" + gender + "' at " + key);
@@ -283,12 +281,12 @@ public class Noun extends Message {
 	}
 	
 	@Nullable
-	public static String getGenderID(final int gender) {
+	public static String getGenderID(int gender) {
 		if (gender == PLURAL)
 			return PLURAL_TOKEN;
 		if (gender == NO_GENDER)
 			return NO_GENDER_TOKEN;
-		return (Language.useLocal && Language.localized != null ? Language.localized : Language.english).get("genders." + gender + ".id");
+		return Language.get_("genders." + gender + ".id");
 	}
 	
 	/**
@@ -299,8 +297,8 @@ public class Noun extends Message {
 	 * @param key Key to report in case of error.
 	 * @return (stripped string, gender or -1 if none)
 	 */
-	public static NonNullPair<String, Integer> stripGender(String s, final String key) {
-		final int c = s.lastIndexOf('@');
+	public static NonNullPair<String, Integer> stripGender(String s, String key) {
+		int c = s.lastIndexOf('@');
 		int g = -1;
 		if (c != -1) {
 			g = getGender("" + s.substring(c + 1).trim(), key);
@@ -309,84 +307,59 @@ public class Noun extends Message {
 		return new NonNullPair<>(s, g);
 	}
 	
-	final static List<String> indefiniteArticles = new ArrayList<>(3);
-	final static List<String> definiteArticles = new ArrayList<>(3);
+	static final List<String> indefiniteArticles = new ArrayList<>(3);
+	static final List<String> definiteArticles = new ArrayList<>(3);
 	static String definitePluralArticle = "";
 	
-	final static List<String> localIndefiniteArticles = new ArrayList<>(3);
-	final static List<String> localDefiniteArticles = new ArrayList<>(3);
-	static String localDefinitePluralArticle = "";
-	
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				Map<String, String> lang = Language.useLocal ? Language.localized : Language.english;
-				if (lang == null)
-					lang = Language.english;
-				genders.clear();
-				indefiniteArticles.clear();
-				definiteArticles.clear();
-				for (int i = 0; i < 100; i++) {
-					final String g = lang.get(GENDERS_SECTION + i + ".id");
-					if (g == null)
-						break;
-					if (g.equalsIgnoreCase(PLURAL_TOKEN) || g.equalsIgnoreCase(NO_GENDER_TOKEN)) {
-						Skript.error("gender #" + i + " uses a reserved character as ID, please use something different!");
-						continue;
-					}
-					genders.put(g, i);
-					final String ia = lang.get(GENDERS_SECTION + i + ".indefinite article");
-					indefiniteArticles.add(ia == null ? "" : ia);
-					final String da = lang.get(GENDERS_SECTION + i + ".definite article");
-					definiteArticles.add(da == null ? "" : da);
+		Language.addListener(() -> {
+			genders.clear();
+			indefiniteArticles.clear();
+			definiteArticles.clear();
+
+			for (int i = 0; i < 100; i++) {
+				if (!Language.keyExistsDefault(GENDERS_SECTION + i + ".id"))
+					break;
+				String g = Language.get(GENDERS_SECTION + i + ".id");
+				if (g.equalsIgnoreCase(PLURAL_TOKEN) || g.equalsIgnoreCase(NO_GENDER_TOKEN)) {
+					Skript.error("gender #" + i + " uses a reserved character as ID, please use something different!");
+					continue;
 				}
-				if (genders.isEmpty()) {
-					Skript.error("No genders defined in language file " + Language.getName() + ".lang!");
-					indefiniteArticles.add("");
-					definiteArticles.add("");
-				}
-				final String dpa = lang.get(GENDERS_SECTION + "plural.definite article");
-				if (dpa == null)
-					Skript.error("Missing entry '" + GENDERS_SECTION + "plural.definite article' in the " + Language.getName() + " language file!");
-				definitePluralArticle = dpa == null ? "" : dpa;
-				
-				if (Language.useLocal || localIndefiniteArticles.isEmpty()) {
-					localIndefiniteArticles.clear();
-					localIndefiniteArticles.addAll(indefiniteArticles);
-					localDefiniteArticles.clear();
-					localDefiniteArticles.addAll(definiteArticles);
-					localDefinitePluralArticle = definitePluralArticle;
-				}
+				genders.put(g, i);
+				String ia = Language.get_(GENDERS_SECTION + i + ".indefinite article");
+				indefiniteArticles.add(ia == null ? "" : ia);
+				String da = Language.get_(GENDERS_SECTION + i + ".definite article");
+				definiteArticles.add(da == null ? "" : da);
 			}
+			if (genders.isEmpty()) {
+				Skript.error("No genders defined in the language file!");
+				indefiniteArticles.add("");
+				definiteArticles.add("");
+			}
+			String dpa = Language.get_(GENDERS_SECTION + "plural.definite article");
+			if (dpa == null)
+				Skript.error("Missing entry '" + GENDERS_SECTION + "plural.definite article' in the language file!");
+			definitePluralArticle = dpa == null ? "" : dpa;
 		}, LanguageListenerPriority.EARLIEST);
 	}
 	
-	public static String stripIndefiniteArticle(final String s) {
-		for (final String a : indefiniteArticles) {
+	public static String stripIndefiniteArticle(String s) {
+		for (String a : indefiniteArticles) {
 			if (StringUtils.startsWithIgnoreCase(s, a + " "))
 				return "" + s.substring(a.length() + 1);
 		}
 		return s;
 	}
 	
-	public static boolean isIndefiniteArticle(final String s) {
+	public static boolean isIndefiniteArticle(String s) {
 		return indefiniteArticles.contains(s.toLowerCase());
 	}
-	
-	public static boolean isLocalIndefiniteArticle(final String s) {
-		return localIndefiniteArticles.contains(s.toLowerCase());
-	}
-	
-	public static boolean isDefiniteArticle(final String s) {
+
+	public static boolean isDefiniteArticle(String s) {
 		return definiteArticles.contains(s.toLowerCase()) || definitePluralArticle.equalsIgnoreCase(s);
 	}
-	
-	public static boolean isLocalDefiniteArticle(final String s) {
-		return localDefiniteArticles.contains(s.toLowerCase()) || localDefinitePluralArticle.equalsIgnoreCase(s);
-	}
-	
-	public static String toString(final String singular, final String plural, final int gender, final int flags) {
+
+	public static String toString(String singular, String plural, int gender, int flags) {
 		return getArticleWithSpace(gender, flags) + ((flags & Language.F_PLURAL) != 0 ? plural : singular);
 	}
 	
