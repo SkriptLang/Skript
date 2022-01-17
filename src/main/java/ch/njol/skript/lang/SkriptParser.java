@@ -1043,32 +1043,9 @@ public class SkriptParser {
 	public static ParseResult parse(final String text, final String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern, 0, 0);
 	}
-	
-	@Nullable
-	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String originalEvent, String defaultError) {
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
-		try {
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> normalEvent = new SkriptParser(originalEvent, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
-			if (normalEvent != null) {
-				log.printLog();
-				return normalEvent;
-			}
-
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> priorityEvent = parsePriorityEvent(originalEvent);
-			if (priorityEvent != null) {
-				log.printLog();
-				return priorityEvent;
-			}
-
-			log.printErrors(defaultError);
-			return null;
-		} finally {
-			log.stop();
-		}
-	}
 
 	@Nullable
-	private static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsePriorityEvent(String event) {
+	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		try {
 			String[] split = event.split(" with priority ");
@@ -1084,13 +1061,14 @@ public class SkriptParser {
 					return null;
 				}
 			} else {
-				log.printErrors();
-				return null;
+				priority = null;
 			}
+
+			getParser().getData(SkriptEvent.EventPriorityData.class).setEventPriority(priority);
 
 			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
 			if (e != null) {
-				if (e.getSecond() instanceof SelfRegisteringSkriptEvent) {
+				if (priority != null && !e.getSecond().isEventPrioritySupported()) {
 					log.printErrors("This event doesn't support event priority");
 					return null;
 				}
@@ -1100,7 +1078,7 @@ public class SkriptParser {
 				log.printLog();
 				return e;
 			}
-			log.printErrors();
+			log.printErrors(defaultError);
 			return null;
 		} finally {
 			log.stop();
