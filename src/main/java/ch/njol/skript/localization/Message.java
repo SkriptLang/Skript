@@ -78,7 +78,7 @@ public class Message {
 	 * @return This message's value or null if it doesn't exist.
 	 */
 	@Nullable
-	protected final String getValue() {
+	public final String getValue() {
 		validate();
 		return value;
 	}
