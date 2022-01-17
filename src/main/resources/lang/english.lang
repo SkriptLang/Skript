@@ -51,10 +51,16 @@ skript command:
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	reload:
-		reloading: Reloading %s...
-		reloaded: Successfully reloaded %s.
-		error: Encountered %2$s error¦¦s¦ while reloading %1$s!
+		warning line info: <gold><bold>Line %s:<gray> (%s)\n
+		error line info: <light red><bold>Line %s:<gray> (%s)\n
+		reloading: Reloading <gold>%s<reset>...
+		reloaded: <lime>Successfully reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
 		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
+		warning details: <yellow>    %s\n
+		error details: <light red>    %s\n
+		other details: <white>    %s\n
+		line details: <gold>    Line: <gray>%s\n <reset>
 
 		config, aliases and scripts: the config, aliases and all scripts
 		scripts: all scripts

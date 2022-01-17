@@ -25,7 +25,6 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -75,12 +74,14 @@ public abstract class EffectSection extends Section {
 	@SuppressWarnings({"unchecked", "rawtypes", "ConstantConditions"})
 	public static EffectSection parse(String expr, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		sectionContext.sectionNode = sectionNode;
-		sectionContext.triggerItems = triggerItems;
 
-		return (EffectSection) SkriptParser.parse(expr, (Iterator) Skript.getSections().stream()
-				.filter(info -> EffectSection.class.isAssignableFrom(info.c))
-				.iterator(), defaultError);
+		return sectionContext.modify(sectionNode, triggerItems, () ->
+			(EffectSection) SkriptParser.parse(
+				expr,
+				(Iterator) Skript.getSections().stream()
+					.filter(info -> EffectSection.class.isAssignableFrom(info.c))
+					.iterator(),
+				defaultError));
 	}
 
 }
