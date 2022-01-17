@@ -1043,7 +1043,7 @@ public class SkriptParser {
 	public static ParseResult parse(final String text, final String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern, 0, 0);
 	}
-	
+
 	@Nullable
 	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
@@ -1052,7 +1052,7 @@ public class SkriptParser {
 			EventPriority priority;
 			if (split.length != 1) {
 				event = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-				
+
 				String priorityString = split[split.length - 1];
 				try {
 					priority = EventPriority.valueOf(priorityString.toUpperCase());
@@ -1063,17 +1063,14 @@ public class SkriptParser {
 			} else {
 				priority = null;
 			}
-			
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
+
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent(priority);
 			if (e != null) {
-				if (priority != null && e.getSecond() instanceof SelfRegisteringSkriptEvent) {
+				if (priority != null && !e.getSecond().isEventPrioritySupported()) {
 					log.printErrors("This event doesn't support event priority");
 					return null;
 				}
-				
-				//noinspection ConstantConditions
-				e.getSecond().eventPriority = priority;
-				
+
 				log.printLog();
 				return e;
 			}
@@ -1083,24 +1080,24 @@ public class SkriptParser {
 			log.stop();
 		}
 	}
-	
+
 	@Nullable
-	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent() {
+	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(@Nullable EventPriority eventPriority) {
 		assert context == ParseContext.EVENT;
 		assert flags == PARSE_LITERALS;
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			for (final SkriptEventInfo<?> info : Skript.getEvents()) {
+			for (SkriptEventInfo<?> info : Skript.getEvents()) {
 				for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
-						final ParseResult res = parse_i(pattern, 0, 0);
+						ParseResult res = parse_i(pattern, 0, 0);
 						if (res != null) {
-							final SkriptEvent e = info.c.newInstance();
-							final Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
-							assert ls != null;
+							SkriptEvent e = info.c.newInstance();
+							e.eventPriority = eventPriority;
+							Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
 							if (!e.init(ls, i, res)) {
 								log.printError();
 								return null;
@@ -1108,9 +1105,7 @@ public class SkriptParser {
 							log.printLog();
 							return new NonNullPair<>(info, e);
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}
