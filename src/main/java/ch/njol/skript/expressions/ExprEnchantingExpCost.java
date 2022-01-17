@@ -45,10 +45,10 @@ import ch.njol.util.coll.CollectionUtils;
 			"\tsend \"Cost: %the displayed enchanting cost%\" to player"})
 @Events("enchant")
 @Since("2.5")
-public class ExprEnchantingExpCost extends SimpleExpression<Number> {
+public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprEnchantingExpCost.class, Number.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprEnchantingExpCost.class, Long.class, ExpressionType.SIMPLE,
 				"[the] [displayed] ([e]xp[erience]|enchanting) cost");
 	}
 
@@ -63,8 +63,8 @@ public class ExprEnchantingExpCost extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event e) {
-		return new Number[]{((EnchantItemEvent) e).getExpLevelCost()};
+	protected Long[] get(Event e) {
+		return new Long[]{(long) ((EnchantItemEvent) e).getExpLevelCost()};
 	}
 
 	@Override
@@ -107,8 +107,8 @@ public class ExprEnchantingExpCost extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
