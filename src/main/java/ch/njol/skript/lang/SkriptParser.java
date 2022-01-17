@@ -1071,8 +1071,6 @@ public class SkriptParser {
 					return null;
 				}
 
-				e.getSecond().eventPriority = priority;
-
 				log.printLog();
 				return e;
 			}
