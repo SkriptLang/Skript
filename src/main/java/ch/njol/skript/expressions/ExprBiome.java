@@ -41,16 +41,18 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Biome")
-@Description("The biome at a certain location. Please note that biomes are only defined for x/z-columns, i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter. ")
+@Description({"The biome at a certain location. Please note that biomes are only defined for x/z-columns",
+	"(i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter), up until Minecraft 1.15.x.",
+	"As of Minecraft 1.16, biomes are now 3D (per block vs column)."})
 @Examples({"# damage player in deserts constantly",
 		"every real minute:",
 		"	loop all players:",
 		"		biome at loop-player is desert",
 		"		damage the loop-player by 1"})
-@Since("1.4.4")
+@Since("1.4.4, INSERT VERSION (3D biomes)")
 public class ExprBiome extends PropertyExpression<Location, Biome> {
 	static {
-		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %location%", "%location%'[s] biome");
+		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %locations%", "%locations%'[s] biome");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})
@@ -62,12 +64,7 @@ public class ExprBiome extends PropertyExpression<Location, Biome> {
 	
 	@Override
 	protected Biome[] get(final Event e, final Location[] source) {
-		return get(source, new Converter<Location, Biome>() {
-			@Override
-			public Biome convert(final Location l) {
-				return l.getWorld().getBiome(l.getBlockX(), l.getBlockZ());
-			}
-		});
+		return get(source, location -> location.getBlock().getBiome());
 	}
 	
 	@Override
@@ -83,7 +80,7 @@ public class ExprBiome extends PropertyExpression<Location, Biome> {
 		if (mode == ChangeMode.SET) {
 			assert delta != null;
 			for (final Location l : getExpr().getArray(e))
-				l.getWorld().setBiome(l.getBlockX(), l.getBlockZ(), (Biome) delta[0]);
+				l.getBlock().setBiome((Biome) delta[0]);
 		} else {
 			super.change(e, delta, mode);
 		}
