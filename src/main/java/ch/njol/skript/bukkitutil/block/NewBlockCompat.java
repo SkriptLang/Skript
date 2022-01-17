@@ -356,7 +356,8 @@ public class NewBlockCompat implements BlockCompat {
 			return new NewBlockValues(type, data, false);
 		} catch (IllegalArgumentException e) {
 			Skript.error("Parsing block state " + combined + " failed!");
-			e.printStackTrace();
+			if (Skript.debug())
+				e.printStackTrace();
 			return null;
 		}
 	}

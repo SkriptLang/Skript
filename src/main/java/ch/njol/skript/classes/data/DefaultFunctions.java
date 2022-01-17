@@ -20,6 +20,8 @@ package ch.njol.skript.classes.data;
 
 import java.util.Calendar;
 
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.JavaFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -37,6 +39,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -311,7 +314,7 @@ public class DefaultFunctions {
 		
 		// the location expression doesn't work, so why not make a function for the same purpose
 		// FIXME document on ExprLocation as well
-		Functions.registerFunction(new SimpleJavaFunction<Location>("location", new Parameter[] {
+		Functions.registerFunction(new JavaFunction<Location>("location", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("z", DefaultClasses.NUMBER, true, null),
@@ -320,9 +323,15 @@ public class DefaultFunctions {
 			new Parameter<>("pitch", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true))
 		}, DefaultClasses.LOCATION, true) {
 			@Override
-			public Location[] executeSimple(Object[][] params) {
+			@Nullable
+			public Location[] execute(FunctionEvent<?> e, Object[][] params) {
+				for (int i : new int[] {0, 1, 2, 4, 5}) {
+					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
+						return null;
+				}
+
 				World world = params[3].length == 1 ? (World) params[3][0] : Bukkit.getWorlds().get(0); // fallback to main world of server
-				
+
 				return new Location[] {new Location(world,
 					((Number) params[0][0]).doubleValue(), ((Number) params[1][0]).doubleValue(), ((Number) params[2][0]).doubleValue(),
 					((Number) params[4][0]).floatValue(), ((Number) params[5][0]).floatValue())};
