@@ -1009,14 +1009,14 @@ public final class BukkitEventValues {
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, ItemStack.class, new Getter<ItemStack, PrepareItemCraftEvent>() {
 			@Override
-			public ItemStack get(final PrepareItemCraftEvent e) {
+			public ItemStack get(PrepareItemCraftEvent e) {
 				ItemStack item = e.getInventory().getResult();
 				return item != null ? item : AIR_IS;
 			}
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, new Getter<Inventory, PrepareItemCraftEvent>() {
 			@Override
-			public Inventory get(final PrepareItemCraftEvent e) {
+			public Inventory get(PrepareItemCraftEvent e) {
 				return e.getInventory();
 			}
 		}, 0);
