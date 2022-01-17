@@ -81,9 +81,6 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	/**
 	 * @return the {@link EventPriority} to be used for this event.
 	 * Defined by the user-specified priority, or otherwise the default event priority.
-	 *
-	 * This method will always return the default event when called
-	 * from {@link SkriptEvent#init(Literal[], int, ParseResult)}.
 	 */
 	public EventPriority getEventPriority() {
 		return eventPriority != null ? eventPriority : SkriptConfig.defaultEventPriority.value();
@@ -94,33 +91,6 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	 */
 	public boolean isEventPrioritySupported() {
 		return true;
-	}
-
-	static {
-		ParserInstance.registerData(EventPriorityData.class, EventPriorityData::new);
-	}
-
-	/**
-	 * A {@link ParserInstance.Data} object that stores the nullable {@link EventPriority}
-	 * for the SkriptEvent that is currently being parsed.
-	 */
-	public static class EventPriorityData extends ParserInstance.Data {
-
-		@Nullable
-		private EventPriority eventPriority = null;
-
-		public EventPriorityData(ParserInstance parserInstance) {
-			super(parserInstance);
-		}
-
-		@Nullable
-		public EventPriority getEventPriority() {
-			return eventPriority;
-		}
-
-		public void setEventPriority(@Nullable  EventPriority eventPriority) {
-			this.eventPriority = eventPriority;
-		}
 	}
 
 }

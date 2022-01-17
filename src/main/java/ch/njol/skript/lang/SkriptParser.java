@@ -1064,9 +1064,7 @@ public class SkriptParser {
 				priority = null;
 			}
 
-			getParser().getData(SkriptEvent.EventPriorityData.class).setEventPriority(priority);
-
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent(priority);
 			if (e != null) {
 				if (priority != null && !e.getSecond().isEventPrioritySupported()) {
 					log.printErrors("This event doesn't support event priority");
@@ -1086,22 +1084,22 @@ public class SkriptParser {
 	}
 
 	@Nullable
-	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent() {
+	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(@Nullable EventPriority eventPriority) {
 		assert context == ParseContext.EVENT;
 		assert flags == PARSE_LITERALS;
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			for (final SkriptEventInfo<?> info : Skript.getEvents()) {
+			for (SkriptEventInfo<?> info : Skript.getEvents()) {
 				for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
-						final ParseResult res = parse_i(pattern, 0, 0);
+						ParseResult res = parse_i(pattern, 0, 0);
 						if (res != null) {
-							final SkriptEvent e = info.c.newInstance();
-							final Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
-							assert ls != null;
+							SkriptEvent e = info.c.newInstance();
+							e.eventPriority = eventPriority;
+							Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
 							if (!e.init(ls, i, res)) {
 								log.printError();
 								return null;
@@ -1109,9 +1107,7 @@ public class SkriptParser {
 							log.printLog();
 							return new NonNullPair<>(info, e);
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}
