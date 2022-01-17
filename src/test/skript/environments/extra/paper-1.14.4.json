@@ -4,7 +4,7 @@
 		{"source": "server.properties.generic", "target": "server.properties"}
 	],
 	"downloads": [
-		{"source": "https://papermc.io/api/v1/paper/1.14.4/latest/download", "target": "paperclip.jar"}
+		{"source": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar", "target": "paperclip.jar"}
 	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
