@@ -167,7 +167,7 @@ public abstract class SkriptLogger {
 		if (entry == null)
 			return;
 		if (Skript.testing() && getNode() != null && getNode().debug())
-			System.out.print("---> " + entry.level + "/" + ErrorQuality.get(entry.quality) + ": " + entry.getMessage() + " ::" + LogEntry.findCaller());
+			System.out.print("---> " + entry.level + "/" + ErrorQuality.get(entry.quality) + ": " + entry + " ::" + LogEntry.findCaller());
 		for (LogHandler h : getHandlers()) {
 			LogResult r = h.log(entry);
 			switch (r) {
@@ -181,7 +181,7 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
-		LOGGER.log(entry.getLevel(), "[Skript] " + entry.getMessage());
+		LOGGER.log(entry.getLevel(), "[Skript] " + entry.toFormattedString());
 	}
 	
 	public static void logAll(Collection<LogEntry> entries) {
