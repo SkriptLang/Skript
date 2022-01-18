@@ -72,7 +72,6 @@ public class Environment {
 		}
 
 		public String getSource() {
-			System.out.println("wrong source");
 			return source;
 		}
 
@@ -212,7 +211,6 @@ public class Environment {
 		for (Resource resource : downloads) {
 			assert resource != null;
 			String source = resource.getSource();
-			System.out.println("Source: " + source + " | " + resource + " | " + resource.getTarget());
 			URL url = new URL(source);
 			Path target = env.resolve(resource.getTarget());
 			Files.createDirectories(target.getParent());
