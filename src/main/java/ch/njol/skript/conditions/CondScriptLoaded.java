@@ -20,7 +20,6 @@ package ch.njol.skript.conditions;
 
 import java.io.File;
 
-import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.config.Config;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -71,7 +70,6 @@ public class CondScriptLoaded extends Condition {
 
 	@Override
 	public boolean check(Event e) {
-		Expression<String> scripts = this.scripts;
 		if (scripts == null) {
 			if (currentScriptFile == null)
 				return isNegated();
@@ -85,9 +83,8 @@ public class CondScriptLoaded extends Condition {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		Expression<String> scripts = this.scripts;
-		
 		String scriptName;
+
 		if (scripts == null)
 			scriptName = "script";
 		else
