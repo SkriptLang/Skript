@@ -19,7 +19,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -29,7 +28,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
@@ -83,7 +81,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 		if (invis == null)
 			return null;
 
-		List<ItemStack> items = new ArrayList<>(0);
+		List<ItemStack> items = new ArrayList<>();
 		for (Inventory invi : invis) {
 			if (!(invi instanceof CraftingInventory))
 				continue;
@@ -100,14 +98,11 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case DELETE:
-				return CollectionUtils.array(ItemStack[].class);
-			default:
-				return null;
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
+			return CollectionUtils.array(ItemStack[].class);
+
+		return null;
 		}
-	}
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
@@ -140,11 +135,11 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 				if (!(invi instanceof CraftingInventory))
 					continue;
 				if (isMatrix) {
-					List<ItemStack> itemStacks = new ArrayList<>(9);
+					ItemStack[] itemStacks = new ItemStack[9];
 					for (int i = 0; i < 9; i++) { // list must be 9 if not we will fill it manually with AIR
-						itemStacks.add(items.length >= (i+1) ? items[i] : AIR);
+						itemStacks[i] = items.length >= (i+1) ? items[i] : AIR;
 					}
-					((CraftingInventory) invi).setMatrix(itemStacks.toArray(new ItemStack[0]));
+					((CraftingInventory) invi).setMatrix(itemStacks);
 				} else {
 					if (items[0] != null) {
 						((CraftingInventory) invi).setResult(items[0]);
