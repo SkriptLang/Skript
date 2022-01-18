@@ -110,8 +110,8 @@ public class Comparators {
 			}
 		}
 		
-		// same class but no comparator
-		if (s == f && f != Object.class && s != Object.class) {
+		// same class or superclass but no comparator
+		if ((s == f && f != Object.class) || (s.getSuperclass() == f.getSuperclass() && f.getSuperclass() != Object.class)) {
 			return Comparator.equalsComparator;
 		}
 		
