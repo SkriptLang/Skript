@@ -59,7 +59,8 @@ public class EffConnect extends Effect {
 	@Override
 	protected void execute(Event e) {
 		String server = this.server.getSingle(e);
-		if (server == null)
+		Player[] players = this.players.getArray(e);
+		if (server == null || players.length == 0)
 			return;
 
 		// the message channel is case sensitive so let's fix that
@@ -68,7 +69,7 @@ public class EffConnect extends Effect {
 				// for loop isn't as pretty a stream, but will be faster with tons of servers
 				for (String validServer : response.readUTF().split(", ")) {
 					if (validServer.equalsIgnoreCase(server)) {
-						for (Player player : players.getArray(e))
+						for (Player player : players)
 							Utils.sendPluginMessage(player, BUNGEE_CHANNEL, CONNECT_CHANNEL, validServer);
 						break;
 					}
