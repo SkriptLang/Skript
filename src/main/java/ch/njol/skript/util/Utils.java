@@ -19,6 +19,8 @@
 package ch.njol.skript.util;
 
 import java.util.*;
+
+import ch.njol.util.*;
 import ch.njol.util.coll.CollectionUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -719,26 +721,5 @@ public abstract class Utils {
 		}
 		return lastIndex;
 	}
-
-	/**
-	 * Removes the first n elements from a Collection that matches the filter
-	 *
-	 * @param coll the {@link Collection} to remove from.
-	 * @param n the amount of elements to remove
-	 * @param filter the {@link Predicate} / filter that will be checked to remove the elements
-	 * @return amount of elements that matched the filter and have been removed.
-	 */
-	public <E> int removeFirstIf(Collection<E> coll, int n, Predicate<E> filter) {
-		Iterator<E> each = coll.iterator();
-		int removed = 0;
-
-		for (; each.hasNext() && n > 0; n--) {
-			if (filter.test(each.next())) {
-				each.remove();
-				removed++;
-			}
-		}
-		return removed;
-}
 	
 }

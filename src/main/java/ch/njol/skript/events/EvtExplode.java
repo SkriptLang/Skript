@@ -31,7 +31,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @SuppressWarnings("unchecked")
 public class EvtExplode extends SkriptEvent {
 
-	private final static int ENTITY = 1, BLOCK = 2, ANY = ENTITY | BLOCK;
+	private static final int ANY = 0, ENTITY = 1, BLOCK = 2;
 
 	static {
 		Class<? extends Event>[] eventTypes = CollectionUtils.array(EntityExplodeEvent.class, BlockExplodeEvent.class);
@@ -39,39 +39,46 @@ public class EvtExplode extends SkriptEvent {
 		Skript.registerEvent("entity/block explode", EvtExplode.class, eventTypes, "[(1¦entity|2¦block)] explo(d(e|ing)|sion)")
 				.description(
 					"Called when an entity (a primed TNT or a creeper) explodes " +
-					"OR Called when a block explodes. (Also triggered by <a href='effects.html#EffExplosion'>create explosion effect</a>)" +
-					" " +
-					"If explosion type is specified only that type of explosion will trigger the event.")
+					"a block explodes, or with the <a href='effects.html#EffExplosion'>create explosion effect</a>",
+					"If explosion type is specified, only that type of explosion will trigger the event.")
 				.examples("on explode:",
 						"\tbroadcast \"a(n) %explosion type% just exploded.\"",
+
 						"on block explode:",
-
 						"\tbroadcast \"A block just exploded\"",
-						"on entity explode:",
 
+						"on entity explode:",
 						"\tbroadcast \"An entity just exploded\"")
 				.since("1.0, INSERT VERSION (block explode)");
 	}
 	
-	@Nullable
 	private int type;
 	
 	@Override
 	@SuppressWarnings("null")
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
-		type = parser.mark == 0 ? ANY : parser.mark;
+	public boolean init(Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+		type = parser.mark;
 		return true;
 	}
 	
 	@Override
 	@SuppressWarnings("null")
-	public boolean check(final Event e) {
-		return type == ENTITY ? e instanceof EntityExplodeEvent : (type == BLOCK ? e instanceof BlockExplodeEvent : true);   
+	public boolean check(Event e) {
+		return type == ENTITY ? e instanceof EntityExplodeEvent : (type == BLOCK ? e instanceof BlockExplodeEvent : true);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return (type == ENTITY ? "entity " : (type == BLOCK ? "block " : "")) + "explode";
 	}
-	
+
+	@Override
+	public Class<? extends Event> @Nullable [] getEventClasses() {
+		if (type == BLOCK)
+			return new Class[]{BlockExplodeEvent.class};
+		else if (type == ENTITY)
+			return new Class[]{EntityExplodeEvent.class};
+		else
+			return new Class[]{BlockExplodeEvent.class, EntityExplodeEvent.class};
+	}
 }

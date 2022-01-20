@@ -67,7 +67,7 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 	@Override
 	@Nullable
 	protected Number[] get(Event e) {
-		return new Number[]{ typeGetYield(e) };
+		return new Number[]{ getYield(e) };
 	}
 
 	@Override
@@ -93,29 +93,29 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 		// Yield can be a value from 0 to 1
 		switch (mode) {
 			case SET:
-				typeSetYield(event, n);
+				setYield(event, n);
 				break;
 			case ADD:
-				float add = typeGetYield(event) + n;
+				float add = getYield(event) + n;
 				if (add < 0)
 					return;
-				typeSetYield(event, add);
+				setYield(event, add);
 				break;
 			case REMOVE:
-				float subtract = typeGetYield(event) - n;
+				float subtract = getYield(event) - n;
 				if (subtract < 0)
 					return;
-				typeSetYield(event, subtract);
+				setYield(event, subtract);
 				break;
 			case DELETE:
-				typeSetYield(event, 0);
+				setYield(event, 0);
 				break;
 			default:
 				assert false;
 		}
 	}
 
-	private float typeGetYield(Event e) {
+	private float getYield(Event e) {
 		if (e instanceof EntityExplodeEvent) {
 			return ((EntityExplodeEvent) e).getYield();
 		} else {
@@ -123,7 +123,7 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 		}
 	}
 	
-	private void typeSetYield(Event e, float yield) {
+	private void setYield(Event e, float yield) {
 		if (e instanceof EntityExplodeEvent) {
 			((EntityExplodeEvent) e).setYield(yield);
 		} else {

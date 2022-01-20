@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -45,10 +46,10 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Exploded Blocks")
-@Description("Get all the blocks that were destroyed in an entity/block explode event (Can be set/removed from/deleted/added to)")
+@Description("Get all the blocks that were destroyed in an explode event")
 @Examples({
 	"on block explode:",
-	"\tadd exploded blocks to {_exploded-blocks::*}",
+	"\tset {_exploded-blocks::*} to exploded blocks",
 	"\t",
 	"\tloop exploded blocks:",
 	"\t\tif loop-block is sand:",
@@ -93,7 +94,12 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 	@Nullable
 	public Iterator<? extends Block> iterator(Event e) {
 		List<Block> blocks = getBlocks(e);
-		return new ArrayList(blocks).iterator();
+		return new ArrayList(blocks).iterator(); // Prevent ConcurrentModificationException
+	}
+
+	@Override
+	public @Nullable <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		return null;
 	}
 
 	@Override
@@ -123,13 +129,10 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 			case ADD:
 				if (mode != ChangeMode.ADD)
 					blocks.clear();
-					
+
 				if (mode != ChangeMode.DELETE) {
 					assert delta != null;
 					for (Object o : delta) {
-						if (o instanceof ItemType)
-							continue;
-	
 						if (((Block) o).getType() != Material.AIR) // Performance
 							blocks.add((Block) o);
 					}
