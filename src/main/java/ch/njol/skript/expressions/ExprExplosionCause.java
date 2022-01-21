@@ -24,10 +24,11 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -45,53 +46,62 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprExplosionCause extends SimpleExpression<Object> {
 
-	private static final int ENTITY = 1, BLOCK = 2, ANY = ENTITY | BLOCK;
-	private int type;
-	
 	static {
 		Skript.registerExpression(ExprExplosionCause.class, Object.class, ExpressionType.SIMPLE, "(explosion cause|detonator)");
 	}
-	
+
+	private Class<?> returnType;
+	private Class<?>[] returnTypes;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(BlockExplodeEvent.class, EntityExplodeEvent.class)) {
-			Skript.error("Explosion cause can only be retrieved from explode event.");
+			Skript.error("Explosion cause can only be retrieved from explode event");
 			return false;
 		}
 
 		if (getParser().isCurrentEvent(BlockExplodeEvent.class) && getParser().isCurrentEvent(EntityExplodeEvent.class))
-			type = ANY;
+			returnType = Object.class;
 		else if (getParser().isCurrentEvent(BlockExplodeEvent.class))
-			type = BLOCK;
+			returnType = Block.class;
 		else if (getParser().isCurrentEvent(EntityExplodeEvent.class))
-			type = ENTITY;
+			returnType = Entity.class;
+		returnTypes = new Class[] {returnType};
 
 		return true;
 	}
 
-	// Attempting to fix an issue when using `on explode` without specifications and getting name of `explosion cause`
-	// returning <none> because it returns Object.class and ExprName parses it as OfflinePlayer
 	@Override
-	protected @Nullable <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(Class<R>... to) {
-		for (Class c : to) {
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public @Nullable <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		if (CollectionUtils.containsSuperclass(to, getReturnType()))
+			return (Expression<? extends R>) this;
+
+		boolean b = false;
+		for (Class<?> c : to) {
 			ConverterInfo entityConv = Converters.getConverterInfo(Entity.class, c);
-			if (entityConv != null)
-				return new ConvertedExpression(this, c, entityConv);
 			ConverterInfo blockConv = Converters.getConverterInfo(Block.class, c);
-			if (blockConv != null)
-				return new ConvertedExpression(this, c, blockConv);
+			if (entityConv != null || blockConv != null) {
+				b = true;
+				break;
+			}
 		}
-		return null;
+		if (!b) {
+			return null;
+		}
+
+		ExprExplosionCause exprExplosionCause = new ExprExplosionCause();
+		exprExplosionCause.returnTypes = to;
+		exprExplosionCause.returnType = Utils.getSuperType(to);
+		return (Expression<? extends R>) exprExplosionCause;
 	}
 
-	@Nullable
 	@Override
+	@Nullable
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected Object[] get(Event e) {
-		if (e instanceof EntityExplodeEvent) {
-			return new Entity[]{((EntityExplodeEvent) e).getEntity()};
-		} else {
-			return new Block[]{((BlockExplodeEvent) e).getBlock()};
-		}
+		Object value = e instanceof EntityExplodeEvent ? ((EntityExplodeEvent) e).getEntity() : ((BlockExplodeEvent) e).getBlock();
+		return Converters.convertArray(new Object[] {value}, returnTypes, (Class) returnType);
 	}
 
 	@Override
@@ -101,12 +111,7 @@ public class ExprExplosionCause extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		if (type == BLOCK)
-			return Block.class;
-		else if (type == ENTITY)
-			return Entity.class;
-		else
-			return Object.class;
+		return returnType;
 	}
 	
 	@Override
