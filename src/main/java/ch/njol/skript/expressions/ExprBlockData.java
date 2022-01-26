@@ -20,22 +20,26 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 
 @Name("Block Data")
 @Description("Get the <a href='classes.html#blockdata'>block data</a> associated with a block. This data can also be used to set blocks.")
 @Examples({"set {data} to block data of target block",
-	"set block at player to {data}"})
+	"set block at player to {data}",
+	"set block data of target block to oak_stairs[facing=south;waterlogged=true]"})
 @RequiredPlugins("Minecraft 1.13+")
-@Since("2.5")
+@Since("2.5, 2.5.2 (set)")
 public class ExprBlockData extends SimplePropertyExpression<Block, BlockData> {
 	
 	static {
@@ -47,6 +51,25 @@ public class ExprBlockData extends SimplePropertyExpression<Block, BlockData> {
 	@Override
 	public BlockData convert(Block block) {
 		return block.getBlockData();
+	}
+	
+	@Nullable
+	@Override
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(BlockData.class);
+		return null;
+	}
+	
+	@Override
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta == null)
+			return;
+		
+		BlockData blockData = ((BlockData) delta[0]);
+		for (Block block : getExpr().getArray(e)) {
+			block.setBlockData(blockData);
+		}
 	}
 	
 	@Override

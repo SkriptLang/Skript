@@ -39,6 +39,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
@@ -65,8 +66,6 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@SuppressWarnings("null")
 	private Class<?> relativeType;
 	
-	private boolean bothVariables;
-	
 	@SuppressWarnings({"unchecked", "null", "unused"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -74,8 +73,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 		second = exprs[1];
 		final ClassInfo<?> ci;
 		if (first instanceof Variable && second instanceof Variable) {
-			bothVariables = true;
-			ci = Classes.getExactClassInfo(Object.class);
+			ci = DefaultClasses.OBJECT;
 		} else if (first instanceof Literal<?> && second instanceof Literal<?>) {
 			first = first.getConvertedExpression(Object.class);
 			second = second.getConvertedExpression(Object.class);
@@ -105,7 +103,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second), ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
-		if (bothVariables) {
+		if (ci.getC().equals(Object.class)) {
 			// Initialize less stuff, basically
 			relativeType = Object.class; // Relative math type would be null which the parser doesn't like
 		} else {
@@ -124,9 +122,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 			return null;
 		final Object[] one = (Object[]) Array.newInstance(relativeType, 1);
 		
-		// If we're comparing variables, math is null right now
-		if (bothVariables) {
-			ClassInfo<?> info = Classes.getSuperClassInfo(f.getClass());
+		// If we're comparing object expressions, such as variables, math is null right now
+		if (relativeType.equals(Object.class)) {
+			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(f.getClass(), s.getClass()));
 			math = info.getMath();
 			if (math == null) { // User did something stupid, just return <none> for them
 				return one;

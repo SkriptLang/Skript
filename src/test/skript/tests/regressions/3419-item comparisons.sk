@@ -20,11 +20,11 @@ test "item comparisons":
 	set {_b} to a diamond named "Fake Diamond"
 
 	assert {_a} is a diamond with "{_a} is not a diamond (it should be)"
-	assert {_a} is a diamond named "" with "{_a} is not an unnamed diamond (it should be)"
+	assert {_a} is a plain diamond with "{_a} is not an unnamed diamond (it should be)"
 	assert {_a} is not a diamond named "Fake Diamond" with "{_a} is a diamond named ""Fake Diamond"" (it shouldn't be)"
 
 	assert {_b} is a diamond with "{_b} is not a diamond (it should be)"
-	assert {_b} is not a diamond named "" with "{_b} is an unnamed diamond (it shouldn't be)"
+	assert {_b} is not a plain diamond with "{_b} is an unnamed diamond (it shouldn't be)"
 	assert {_b} is a diamond named "Fake Diamond" with "{_b} is not a diamond named ""Fake Diamond"" (it should be)"
 
 	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Different Name Comparisons)"
@@ -68,14 +68,14 @@ test "item comparisons":
 	set {_b} to an ender dragon skull named "Skully Skull"
 
 	assert {_a} is a skeleton skull with "{_a} is not a skeleton skull (it should be)"
-	assert {_a} is not a skeleton skull named "" with "{_a} is an unnamed skeleton skull (it shouldn't be)"
+	assert {_a} is not a plain skeleton skull with "{_a} is an unnamed skeleton skull (it shouldn't be)"
 	assert {_a} is a skeleton skull named "Skulliest Skull" with "{_a} is not a skeleton skull named ""Skulliest Skull"" (it should be)"
 
 	assert {_a} is not an ender dragon skull with "{_a} is an ender dragon skull (it should't be)"
 	assert {_a} is not an ender dragon skull named "Skulliest Skull" with "{_a} is an ender dragon skull named ""Skulliest Skull"" (it shouldn't be)"
 
 	assert {_b} is an ender dragon skull with "{_b} is not an ender dragon skull (it should be)"
-	assert {_b} is not an ender dragon skull named "" with "{_b} is an unnamed ender dragon skull (it shouldn't be)"
+	assert {_b} is not a plain ender dragon skull with "{_b} is an unnamed ender dragon skull (it shouldn't be)"
 	assert {_b} is an ender dragon skull named "Skully Skull" with "{_b} is not an ender dragon skull named ""Skully Skull"" (it should be)"
 
 	assert {_b} is not a skeleton skull with "{_b} is a skeleton skull (it shouldn't be)"
@@ -110,7 +110,7 @@ test "item comparisons":
 	set {_inventory} to inventory of block at spawn of world "world"
 	add 64 diamonds and 64 diamonds named "Fake Diamond" to {_inventory}
 
-	remove 4 diamonds named "" from {_inventory}
+	remove 4 of plain diamonds from {_inventory}
 	assert {_inventory} contains 60 diamonds and 64 diamonds named "Fake Diamond" with "4 unnamed diamonds were not properly removed."
 
 	remove 4 diamonds named "Fake Diamond" from {_inventory}
@@ -124,3 +124,17 @@ test "item comparisons":
 	assert {_inventory} is empty with "{_inventory} still has diamonds, but it shouldn't."
 
 	set block at spawn of world "world" to air
+
+	# Different Meta Comparisons
+
+	set {_one} to a diamond sword of sharpness 1 named "TEST"
+	set {_two} to a diamond sword of sharpness 1
+
+	assert {_one} is {_two} with "a diamond sword of sharpness 1 named ""TEST"" should be a diamond sword of sharpness 1"
+	assert {_two} is not {_one} with "a diamond sword of sharpness 1 should NOT be a diamond sword of sharpness 1 named ""TEST"""
+
+	set {_three} to a sand block of unbreaking 3 with lore "Sandy Block"
+	set {_four} to a sand block of unbreaking 3
+
+	assert {_three} is {_four} with "a sand block of unbreaking 3 with lore ""Sandy Block"" should be a sand block of unbreaking 3"
+	assert {_four} is not {_three} with "a sand block of unbreaking 3 should NOT be a sand block of unbreaking 3 with lore ""Sandy Block"""

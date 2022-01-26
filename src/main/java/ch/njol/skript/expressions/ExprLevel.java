@@ -25,7 +25,6 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
@@ -46,34 +45,31 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 		"set the player's level to 0"})
 @Since("<i>unknown</i> (before 2.1)")
 @Events("level change")
-public class ExprLevel extends SimplePropertyExpression<Player, Integer> {
+public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	static {
-		register(ExprLevel.class, Integer.class, "level", "players");
+		register(ExprLevel.class, Long.class, "level", "players");
 	}
 	
 	@Override
-	protected Integer[] get(final Event e, final Player[] source) {
-		return super.get(source, new Converter<Player, Integer>() {
-			@Override
-			public Integer convert(final Player p) {
-				if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
-					return getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel();
-				}
-				return p.getLevel();
+	protected Long[] get(final Event e, final Player[] source) {
+		return super.get(source, p -> {
+			if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
+				return (long) (getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel());
 			}
+			return (long) p.getLevel();
 		});
 	}
 	
 	@Override
 	@Nullable
-	public Integer convert(final Player p) {
+	public Long convert(final Player p) {
 		assert false;
 		return null;
 	}
 	
 	@Override
-	public Class<Integer> getReturnType() {
-		return Integer.class;
+	public Class<Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override
@@ -81,15 +77,15 @@ public class ExprLevel extends SimplePropertyExpression<Player, Integer> {
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL)
 			return null;
-		if (ScriptLoader.isCurrentEvent(PlayerRespawnEvent.class) && !ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().isCurrentEvent(PlayerRespawnEvent.class) && !getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Cannot change a player's level in a respawn event. Add a delay of 1 tick or change the 'new level' in a death event.");
 			return null;
 		}
-		if (ScriptLoader.isCurrentEvent(PlayerDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().isCurrentEvent(PlayerDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !getParser().getHasDelayBefore().isTrue()) {
 			Skript.warning("Changing the player's level in a death event will change the player's level before he dies. " +
 					"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after he dies.");
 		}
-		if (getTime() == -1 && !ScriptLoader.isCurrentEvent(PlayerDeathEvent.class))
+		if (getTime() == -1 && !getParser().isCurrentEvent(PlayerDeathEvent.class))
 			return null;
 		return new Class[] {Number.class};
 	}

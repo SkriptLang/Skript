@@ -71,6 +71,7 @@ public class EffDoIf extends Effect  {
 	@Override
 	public TriggerItem walk(Event e) {
 		if (condition.check(e)) {
+			effect.setParent(getParent());
 			effect.setNext(getNext());
 			return effect;
 		}

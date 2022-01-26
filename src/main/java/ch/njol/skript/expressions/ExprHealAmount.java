@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
@@ -56,7 +55,7 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(EntityRegainHealthEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
 			Skript.error("The expression 'heal amount' may only be used in a healing event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

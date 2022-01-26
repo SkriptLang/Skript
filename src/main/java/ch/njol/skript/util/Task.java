@@ -70,6 +70,9 @@ public abstract class Task implements Runnable, Closeable {
 	@SuppressWarnings("deprecation")
 	private void schedule(final long delay) {
 		assert !isAlive();
+		if (!Skript.getInstance().isEnabled())
+			return;
+		
 		if (period == -1) {
 			if (async) {
 				taskID = Skript.isRunningMinecraft(1, 4, 6) ?

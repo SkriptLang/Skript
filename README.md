@@ -12,8 +12,8 @@ Skript requires **Spigot** to work. You heard it right, Bukkit does *not* work.
 **Paper**, which is a fork of Spigot, is recommended; it is required for some
 parts of Skript to be available.
 
-Skript supports only the **latest** patch versions of Minecraft 1.9, 1.10, 1.11, 1.12, 1.13, 1.14 and 1.15.
-For example, this means that 1.12.2 is supported, but 1.12.1 is *not*.
+Skript supports only the **latest** patch versions of Minecraft 1.9+.
+For example, this means that 1.16.4 is supported, but 1.16.3 is *not*.
 Testing with all old patch versions is not feasible for us.
 
 Minecraft 1.8 and earlier are not, and will not be supported. New Minecraft
@@ -106,13 +106,13 @@ In addition to that, if you are contributing Java code, check our
 If you use Skript as (soft) dependency for your plugin, and use maven or Gradle,
 this is for you.
 
-First, you need to add the JitPack repository at the **END** of all your repositories. Skript is not available in Maven Central.
+First, you need to add the Maven repository at the **END** of all your repositories. Skript is not available in Maven Central.
 ```gradle
 repositories {
     jcenter()
     ...
     maven {
-        url 'https://jitpack.io'
+        url 'https://repo.skriptlang.org/releases'
     }
 }
 ```
@@ -121,8 +121,9 @@ Or, if you use Maven:
 ```maven
 <repositories>
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>skript-releases</id>
+        <name>Skript Repository</name>
+        <url>https://repo.skriptlang.org/releases</url>
     </repository>
 </repositories>
 ```
@@ -152,7 +153,7 @@ dependencies {
 
 An example of the version tag would be ```dev37c```.
 
-> Note: If Gradle isn't able to resolve Skript's dependencies, just [disable the resolution of transitive dependencies](https://docs.gradle.org/current/userguide/managing_transitive_dependencies.html#sub:disabling_resolution_transitive_dependencies) for Skript in your project.
+> Note: If Gradle isn't able to resolve Skript's dependencies, just [disable the resolution of transitive dependencies](https://docs.gradle.org/current/userguide/resolution_rules.html#sec:disabling_resolution_transitive_dependencies) for Skript in your project.
 
 Or, if you use Maven:
 ```

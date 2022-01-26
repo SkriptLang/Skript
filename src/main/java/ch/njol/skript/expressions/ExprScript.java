@@ -21,7 +21,6 @@ package ch.njol.skript.expressions;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
@@ -59,7 +58,7 @@ public class ExprScript extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		final Config script = ScriptLoader.currentScript;
+		final Config script = getParser().getCurrentScript();
 		if (script == null) {
 			assert false;
 			return false;

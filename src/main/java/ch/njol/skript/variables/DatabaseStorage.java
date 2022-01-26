@@ -165,7 +165,7 @@ public class DatabaseStorage extends VariablesStorage {
 		synchronized (db) {
 			final Plugin p = Bukkit.getPluginManager().getPlugin("SQLibrary");
 			if (p == null || !(p instanceof SQLibrary)) {
-				Skript.error("You need the plugin SQLibrary in order to use a database with Skript. You can download the latest version from http://dev.bukkit.org/server-mods/sqlibrary/files/");
+				Skript.error("You need the plugin SQLibrary in order to use a database with Skript. You can download the latest version from https://dev.bukkit.org/projects/sqlibrary/files/");
 				return false;
 			}
 

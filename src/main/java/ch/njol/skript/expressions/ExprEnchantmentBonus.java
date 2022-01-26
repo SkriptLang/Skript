@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -42,15 +41,15 @@ import ch.njol.util.Kleenean;
 			"\tsend \"There are %enchantment bonus% bookshelves surrounding this enchantment table!\" to player"})
 @Events("enchant prepare")
 @Since("2.5")
-public class ExprEnchantmentBonus extends SimpleExpression<Number> {
+public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprEnchantmentBonus.class, Number.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
+		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(PrepareItemEnchantEvent.class)) {
+		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
 			Skript.error("The enchantment bonus is only usable in an enchant prepare event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
@@ -59,8 +58,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event e) {
-		return new Number[]{((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
+	protected Long[] get(Event e) {
+		return new Long[]{(long) ((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
 	}
 
 	@Override
@@ -70,8 +69,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Number> {
 
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

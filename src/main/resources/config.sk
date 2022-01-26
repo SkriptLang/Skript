@@ -1,4 +1,4 @@
-﻿#     __________________________________________________________
+#     __________________________________________________________
 #    / /                                                   / /\ \
 #    \_\___________________________________________________\_\/ /
 #        / /    _____    __            __                    / /
@@ -93,7 +93,7 @@ use player UUIDs in variable names: false
 date format: default
 # The date format to be used when dates should be displayed.
 # This can be 'default' to use Java's default date format for the system's language.
-# The format is that of Java's SimpleDateFormat as defined here: http://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html
+# The format is that of Java's SimpleDateFormat as defined here: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
 # some examples:
 #  d/M/yyyy h:mm a => 15/7/2012 8:53 PM
 #  dd.MM.yyyy, HH:mm => 16.03.2013, 09:33
@@ -119,7 +119,7 @@ plugin priority: high
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
 
 
-log player commands: true
+log player commands: false
 # Whether Skript should log the usage of custom commands.
 # They will be logged as [INFORMATION] in this format: '<player>: /<command> <arguments>'
 
@@ -140,11 +140,6 @@ case sensitive: false
 # Whether Skript's functions should be case sensitive or not.
 # This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
-
-disable variable conflict warnings: false
-# Disables warnings of potential variable name conflicts if set to true.
-# I recommend to not touch this option, but if you do so you should at least set it back to false
-# whenever you create new scripts with new variables.
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
@@ -182,6 +177,28 @@ keep command last usage dates: false
 # When a cooldown is set on a command, the last usage date is kept in memory (or in a variable if cooldown storage is specified),
 # but when the player uses the command again after the cooldown period is over, the last usage will be deleted as it's no longer needed,
 # If you need to use the expression 'last usage date', then you'll want to enable this.
+
+script loader thread size: 0
+# Enables asynchronous script loading, which will load scripts in the background instead of blocking the server to load scripts.
+# Setting this to a value of 0 or lower will disabled asynchronous loading, and all scripts will be loaded on the main server thread.
+# Setting this to a value of 1 will enabled asynchronous loading, which won't block the main server.
+# Setting this to a value of 2 or higher will enable parallel loading as well as asynchronous loading,
+#   which will distribute the loading of scripts over multiple threads. This could cause issues if your scripts depend on
+#   their loading order (function definitions are always loaded in advance, so they won't be affected).
+# You may also set this option to 'processor count' (without apostrophes) to use the number of available processors.
+# Do note that though, this option may cause issues with addons and possibly some scripts! Do NOT enable this option unless you have really long
+#   script load times AND you take the risk of lost data and full responsibility!
+
+disable hooks:
+	vault: false
+	regions:
+		grief prevention: false
+		precious stones: false
+		residence: false
+		worldguard: false
+# Controls whether Skript should attempt to hook into the plugins listed above.
+# If you change a setting here while the server is running, a restart is required for that change to take effect.
+# Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
 
 # ==== Variables ====
 

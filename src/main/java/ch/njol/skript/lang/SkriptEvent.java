@@ -19,10 +19,14 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A SkriptEvent is like a condition. It is called when any of the registered events occurs.
@@ -30,34 +34,36 @@ import org.bukkit.event.Event;
  * (e.g. the rightclick event is included in the PlayerInteractEvent which also includes lefclicks, thus the SkriptEvent {@link EvtClick} checks whether it was a rightclick or
  * not).<br/>
  * It is also needed if the event has parameters.
- * 
- * @author Peter Güttinger
+ *
  * @see Skript#registerEvent(String, Class, Class, String...)
  * @see Skript#registerEvent(String, Class, Class[], String...)
  */
 public abstract class SkriptEvent implements SyntaxElement, Debuggable {
-	
+
+	@Nullable
+	EventPriority eventPriority;
+
 	@Override
-	public final boolean init(final ch.njol.skript.lang.Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public final boolean init(ch.njol.skript.lang.Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/**
 	 * called just after the constructor
-	 * 
+	 *
 	 * @param args
 	 */
-	public abstract boolean init(final Literal<?>[] args, int matchedPattern, ParseResult parseResult);
-	
+	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
+
 	/**
 	 * Checks whether the given Event applies, e.g. the leftclick event is only part of the PlayerInteractEvent, and this checks whether the player leftclicked or not. This method
 	 * will only be called for events this SkriptEvent is registered for.
-	 * 
+	 *
 	 * @param e
 	 * @return true if this is SkriptEvent is represented by the Bukkit Event or false if not
 	 */
 	public abstract boolean check(Event e);
-	
+
 	/**
 	 * Script loader checks this before loading items in event. If false is
 	 * returned, they are not parsed and the event is not registered.
@@ -66,10 +72,33 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	public boolean shouldLoadEvent() {
 		return true;
 	}
-	
+
+	/**
+	 * @return the Event classes to use in {@link ch.njol.skript.lang.parser.ParserInstance},
+	 * or {@code null} if the Event classes this SkriptEvent was registered with should be used.
+	 */
+	public Class<? extends Event> @Nullable[] getEventClasses() {
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		return toString(null, false);
 	}
-	
+
+	/**
+	 * @return the {@link EventPriority} to be used for this event.
+	 * Defined by the user-specified priority, or otherwise the default event priority.
+	 */
+	public EventPriority getEventPriority() {
+		return eventPriority != null ? eventPriority : SkriptConfig.defaultEventPriority.value();
+	}
+
+	/**
+	 * @return whether this SkriptEvent supports event priorities
+	 */
+	public boolean isEventPrioritySupported() {
+		return true;
+	}
+
 }

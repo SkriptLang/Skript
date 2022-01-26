@@ -19,6 +19,8 @@
 package ch.njol.skript.expressions;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -62,10 +64,14 @@ public class ExprItemWithLore extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	protected ItemType[] get(Event e, ItemType[] source) {
-		String[] lore = this.lore.getArray(e);
+		List<String> lore = this.lore.stream(e)
+			.flatMap(l -> Arrays.stream(l.split("\n")))
+			.collect(Collectors.toList());
+
 		return get(source, item -> {
+			item = item.clone();
 			ItemMeta meta = item.getItemMeta();
-			meta.setLore(Arrays.asList(lore));
+			meta.setLore(lore);
 			item.setItemMeta(meta);
 			return item;
 		});

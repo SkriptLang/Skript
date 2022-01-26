@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * furthermore a constant can be assigned to any number of fields.
  * <p>
  * This class defines methods similar to those in {@link Enum} with minor differences, e.g. {@link #values()} returns a {@link List} instead of an array.
- * 
+ *
  * @author Peter Güttinger
  */
 @ThreadSafe
@@ -56,7 +56,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	@SuppressWarnings("unchecked")
 	protected PseudoEnum(final String name) throws IllegalArgumentException {
 		this.name = name;
-		info = getInfo(getClass());
+		info = (Info<T>) getInfo(getClass());
 		info.writeLock.lock();
 		try {
 			if (info.map.containsKey(name))
@@ -71,7 +71,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	
 	/**
 	 * Returns the unique name of this constant.
-	 * 
+	 *
 	 * @return The unique name of this constant.
 	 * @see Enum#name()
 	 */
@@ -81,7 +81,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	
 	/**
 	 * Returns {@link #name()}.
-	 * 
+	 *
 	 * @return {@link #name()}
 	 * @see Enum#toString()
 	 */
@@ -93,7 +93,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	/**
 	 * Returns the unique ID of this constant. This will not be used by Yggdrasil and can thus change freely across version, in particular reordering and inserting constants is
 	 * permitted.
-	 * 
+	 *
 	 * @return The unique ID of this constant.
 	 * @see Enum#ordinal()
 	 */
@@ -119,7 +119,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	
 	/**
 	 * Prevents cloning of pseudo-enums. If you want to make your enums cloneable, create a <tt>(name, constantToClone)</tt> constructor.
-	 * 
+	 *
 	 * @return newer returns normally
 	 * @throws CloneNotSupportedException always
 	 */
@@ -131,18 +131,18 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	/**
 	 * Returns this constant's pseudo-enum class, i.e. the first non-anonymous superclass of this constant. This class is the same for all constants inheriting from a common class
 	 * independently from whether they define an anonymous subclass.
-	 * 
+	 *
 	 * @return This constant's pseudo-enum class.
 	 * @see Enum#getDeclaringClass()
 	 */
 	@SuppressWarnings("unchecked")
 	public final Class<T> getDeclaringClass() {
-		return getDeclaringClass(getClass());
+		return (Class<T>) getDeclaringClass(getClass());
 	}
 	
 	/**
 	 * Returns the common base class for constants of the given type, i.e. the first non-anonymous superclass of <tt>type</tt>.
-	 * 
+	 *
 	 * @return The pseudo-enum class of the given class.
 	 * @see Enum#getDeclaringClass()
 	 */
@@ -159,7 +159,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	 * The returned list is a copy of the internal list at the time this method was called.
 	 * <p>
 	 * Please note that you
-	 * 
+	 *
 	 * @return All constants registered so far.
 	 * @see Enum#valueOf(Class, String)
 	 */
@@ -172,7 +172,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	 * c).
 	 * <p>
 	 * The returned list is a copy of the internal list at the time this method was called.
-	 * 
+	 *
 	 * @return All constants registered so far.
 	 * @throws IllegalArgumentException If <tt>{@link #getDeclaringClass(Class) getDeclaringClass}(c) != c</tt> (i.e. if the given class is anonymous).
 	 * @see Enum#valueOf(Class, String)
@@ -194,7 +194,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	
 	/**
 	 * Returns the constant with the given ID.
-	 * 
+	 *
 	 * @param id The constant's ID
 	 * @return The constant with the given ID.
 	 * @throws IndexOutOfBoundsException if ID is < 0 or >= {@link #numConstants()}

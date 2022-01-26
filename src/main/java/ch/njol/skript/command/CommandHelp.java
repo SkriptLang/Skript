@@ -40,7 +40,7 @@ public class CommandHelp {
 	private final static String DEFAULTENTRY = "description";
 	
 	private final static ArgsMessage m_invalid_argument = new ArgsMessage("commands.invalid argument");
-	private final static Message m_usage = new Message("commands.usage");
+	private final static Message m_usage = new Message("skript command.usage");
 	
 	private String command;
 	@Nullable

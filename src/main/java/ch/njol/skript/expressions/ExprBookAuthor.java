@@ -18,9 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -29,8 +28,8 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Book Author")
@@ -44,19 +43,38 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 		register(ExprBookAuthor.class, String.class, "[book] (author|writer|publisher)", "itemtypes");
 	}
 	
-	private static final ItemType book = Aliases.javaItemType("book with text");
-	
+	@Nullable
 	@Override
-	protected String getPropertyName() {
-		return "author";
+	public String convert(ItemType item) {
+		ItemMeta meta = item.getItemMeta();
+		
+		if (meta instanceof BookMeta)
+			return ((BookMeta) meta).getAuthor();
+		
+		return null;
 	}
 	
 	@Nullable
 	@Override
-	public String convert(ItemType item) {
-		if (!book.isOfType(item.getMaterial()))
-			return null;
-		return ((BookMeta) item.getItemMeta()).getAuthor();
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
+			return CollectionUtils.array(String.class);
+		return null;
+	}
+	
+	@SuppressWarnings("null")
+	@Override
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		String author = delta == null ? null : (String) delta[0];
+		
+		for (ItemType item : getExpr().getArray(e)) {
+			ItemMeta meta = item.getItemMeta();
+			
+			if (meta instanceof BookMeta) {
+				((BookMeta) meta).setAuthor(author);
+				item.setItemMeta(meta);
+			}
+		}
 	}
 	
 	@Override
@@ -64,34 +82,10 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 		return String.class;
 	}
 	
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET || mode == Changer.ChangeMode.DELETE)
-			return CollectionUtils.array(String.class);
-		return null;
+	protected String getPropertyName() {
+		return "book author";
 	}
 	
-	@SuppressWarnings("null")
-	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		ItemStack itemStack = getExpr().getSingle(e).getRandom();
-		if (itemStack == null || !book.isOfType(itemStack))
-			return;
-		BookMeta bookMeta = (BookMeta) itemStack.getItemMeta();
-		switch (mode){
-			case SET:
-				bookMeta.setAuthor(delta == null ? "" : (String) delta[0]);
-				break;
-			case RESET:
-			case DELETE:
-				bookMeta.setAuthor("");
-				break;
-				//$CASES-OMITTED$
-			default:
-				assert false;
-		}
-		itemStack.setItemMeta(bookMeta);
-	}
 }
 

@@ -18,25 +18,26 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Conditional;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.While;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.sections.SecConditional;
+import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -70,7 +71,7 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		switch (matchedPattern) {
 			case 0:
-				breakLevels = ScriptLoader.currentSections.size() + 1;
+				breakLevels = getParser().getCurrentSections().size() + 1;
 				type = EVERYTHING;
 				break;
 			case 1:
@@ -97,12 +98,13 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 		return true;
 	}
 	
-	private static int numLevels(final int type) {
+	private static int numLevels(int type) {
+		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
 		if (type == EVERYTHING)
-			return ScriptLoader.currentSections.size();
+			return currentSections.size();
 		int r = 0;
-		for (final TriggerSection s : ScriptLoader.currentSections) {
-			if (type == CONDITIONALS ? s instanceof Conditional : s instanceof Loop || s instanceof While)
+		for (TriggerSection s : currentSections) {
+			if (type == CONDITIONALS ? s instanceof SecConditional : s instanceof SecLoop || s instanceof SecWhile)
 				r++;
 		}
 		return r;
@@ -119,13 +121,16 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 				assert false : this;
 				return null;
 			}
-			if (type == EVERYTHING || type == CONDITIONALS && n instanceof Conditional || type == LOOPS && (n instanceof Loop || n instanceof While))
+			if (n instanceof SecLoop) {
+				((SecLoop) n).exit(e);
+			} else if (n instanceof SecWhile) {
+				((SecWhile) n).reset();
+			}
+
+			if (type == EVERYTHING || type == CONDITIONALS && n instanceof SecConditional || type == LOOPS && (n instanceof SecLoop || n instanceof SecWhile))
 				i--;
 		}
-		if (n instanceof Loop) {
-			((Loop) n).getCurrentIter().remove(e);
-		}
-		return n instanceof Loop ? ((Loop) n).getActualNext() : n instanceof While ? ((While) n).getActualNext() : n.getNext();
+		return n instanceof SecLoop ? ((SecLoop) n).getActualNext() : n instanceof SecWhile ? ((SecWhile) n).getActualNext() : n.getNext();
 	}
 	
 	@Override

@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
@@ -82,9 +83,9 @@ public abstract class Variables {
 			}
 			
 			@SuppressWarnings("unchecked")
-			private final void init() {
+			private void init() {
 				// used by asserts
-				info = (ClassInfo<? extends ConfigurationSerializable>) Classes.getExactClassInfo(Object.class);
+				info = (ClassInfo<? extends ConfigurationSerializable>) (ClassInfo<?>) Classes.getExactClassInfo(Object.class);
 			}
 			
 			@SuppressWarnings({"unchecked"})
@@ -241,10 +242,7 @@ public abstract class Variables {
 	 */
 	final static VariablesMap variables = new VariablesMap();
 
-	/**
-	 * Not to be accessed outside of Bukkit's main thread!
-	 */
-	private final static Map<Event, VariablesMap> localVariables = new HashMap<>();
+	private final static Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
 	
 	/**
 	 * Remember to lock with {@link #getReadLock()} and to not make any changes!
@@ -266,12 +264,33 @@ public abstract class Variables {
 	
 	/**
 	 * Sets local variables associated with given event.
+	 * If the given map is null, local variables for this event will be <b>removed</b> if they are present!
 	 * Warning: this can overwrite local variables!
 	 * @param event Event.
 	 * @param map New local variables.
 	 */
-	public static void setLocalVariables(Event event, Object map) {
-		localVariables.put(event, (VariablesMap) map);
+	public static void setLocalVariables(Event event, @Nullable Object map) {
+		if (map != null) {
+			localVariables.put(event, (VariablesMap) map);
+		} else {
+			removeLocals(event);
+		}
+	}
+
+	/**
+	 * Creates a copy of the VariablesMap for local variables in an event.
+	 * @param event The event to copy local variables from.
+	 * @return A VariablesMap copy for the local variables in an event.
+	 */
+	@Nullable
+	public static Object copyLocalVariables(Event event) {
+		VariablesMap from = localVariables.get(event);
+		if (from == null)
+			return null;
+		VariablesMap copy = new VariablesMap();
+		copy.hashMap.putAll(from.hashMap);
+		copy.treeMap.putAll(from.treeMap);
+		return copy;
 	}
 	
 	/**
@@ -291,7 +310,7 @@ public abstract class Variables {
 	 * Returns the internal value of the requested variable.
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
-	 * 
+	 *
 	 * @param name
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
 	 */
@@ -315,7 +334,7 @@ public abstract class Variables {
 						return change.value;
 				}
 			}
-				
+			
 			try {
 				variablesLock.readLock().lock();
 				return variables.getVariable(n);
@@ -327,7 +346,7 @@ public abstract class Variables {
 	
 	/**
 	 * Sets a variable.
-	 * 
+	 *
 	 * @param name The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
 	 */
@@ -348,9 +367,7 @@ public abstract class Variables {
 		}
 		if (local) {
 			assert e != null : n;
-			VariablesMap map = localVariables.get(e);
-			if (map == null)
-				localVariables.put(e, map = new VariablesMap());
+			VariablesMap map = localVariables.computeIfAbsent(e, event -> new VariablesMap());
 			map.setVariable(n, value);
 		} else {
 			setVariable(n, value);
@@ -433,7 +450,7 @@ public abstract class Variables {
 	 * Must be called on Bukkit's main thread.
 	 * <p>
 	 * This method directly invokes {@link VariablesStorage#save(String, String, byte[])}, i.e. you should not be holding any database locks or such when calling this!
-	 * 
+	 *
 	 * @param name
 	 * @param value
 	 * @param source
@@ -484,7 +501,7 @@ public abstract class Variables {
 	
 	/**
 	 * Stores loaded variables into the variables map and the appropriate databases.
-	 * 
+	 *
 	 * @return How many variables were not stored anywhere
 	 */
 	@SuppressWarnings("null")
@@ -523,8 +540,7 @@ public abstract class Variables {
 		return new SerializedVariable(name, var);
 	}
 	
-	@Nullable
-	public static SerializedVariable.Value serialize(final @Nullable Object value) {
+	public static SerializedVariable.@Nullable Value serialize(final @Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
 		return Classes.serialize(value);
 	}

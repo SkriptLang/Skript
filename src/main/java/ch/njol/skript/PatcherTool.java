@@ -68,8 +68,8 @@ public class PatcherTool {
 		}
 		
 		// Open jars and patch target
-		try (FileSystem source = FileSystems.newFileSystem(currentFile, null); 
-				FileSystem target = FileSystems.newFileSystem(patchedFile, null)) {
+		try (FileSystem source = FileSystems.newFileSystem(currentFile, (ClassLoader) null);
+				FileSystem target = FileSystems.newFileSystem(patchedFile, (ClassLoader) null)) {
 			assert source != null;
 			assert target != null;
 			new PatcherTool(source, target).patch(options);

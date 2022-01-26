@@ -50,7 +50,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.0, 2.2-dev26 (maps and potions)")
 public class EffColorItems extends Effect {
 	
-	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor");
+	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
 	
 	static {
 		Skript.registerEffect(EffColorItems.class,

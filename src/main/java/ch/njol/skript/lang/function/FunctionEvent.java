@@ -26,7 +26,7 @@ public final class FunctionEvent<T> extends Event {
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();
 	
-	private Function<? extends T> function;
+	private final Function<? extends T> function;
 	
 	public FunctionEvent(Function<? extends T> function) {
 		this.function = function;
@@ -44,4 +44,5 @@ public final class FunctionEvent<T> extends Event {
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
+	
 }

@@ -52,6 +52,7 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 
 	private final ExprTernary<?> source;
 	private final Class<T> superType;
+	private final Class<? extends T>[] types;
 	@Nullable
 	private Expression<Object> ifTrue;
 	@Nullable
@@ -72,6 +73,7 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 			this.ifFalse = source.ifFalse;
 			this.condition = source.condition;
 		}
+		this.types = types;
 		this.superType = (Class<T>) Utils.getSuperType(types);
 	}
 
@@ -93,7 +95,7 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 	protected T[] get(Event e) {
 		Object[] values = condition.check(e) ? ifTrue.getArray(e) : ifFalse.getArray(e);
 		try {
-			return Converters.convertStrictly(values, superType);
+			return Converters.convertArray(values, types, superType);
 		} catch (ClassCastException e1) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

@@ -29,7 +29,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.profile.PlayerProfile;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -53,9 +52,9 @@ import ch.njol.util.coll.CollectionUtils;
 		"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."})
 @Examples({"on server list ping:",
 		"\tclear the hover list",
-		"\tadd \"<light green>Welcome to the <orange>Minecraft <light green>server!\" to the hover list",
+		"\tadd \"&aWelcome to the &6Minecraft &aserver!\" to the hover list",
 		"\tadd \"\" to the hover list # A blank line",
-		"\tadd \"<light red>There are <orange>%online players count% <light red>online players!\" to the hover list"})
+		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
@@ -74,7 +73,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The hover list expression requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class)) {
+		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
 			Skript.error("The hover list expression can't be used outside of a server list ping event");
 			return false;
 		}
@@ -92,7 +91,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Can't change the hover list anymore after the server list ping event has already passed");
 			return null;
 		}

@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -43,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Applied Enchantments")
 @Description({"The applied enchantments in an enchant event.",
 				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
-@Examples({"on enchant",
+@Examples({"on enchant:",
 			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
 @Events("enchant")
 @Since("2.5")
@@ -55,7 +54,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(EnchantItemEvent.class)) {
+		if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
 			Skript.error("The applied enchantments are only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

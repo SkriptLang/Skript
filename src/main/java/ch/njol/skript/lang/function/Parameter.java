@@ -59,20 +59,24 @@ public final class Parameter<T> {
 	final boolean single;
 	
 	@SuppressWarnings("null")
-	public Parameter(final String name, final ClassInfo<T> type, final boolean single, final @Nullable Expression<? extends T> def) {
+	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
 		this.name = name != null ? name.toLowerCase() : null;
 		this.type = type;
 		this.def = def;
 		this.single = single;
 	}
 	
+	/**
+	 * Get the Type of this parameter.
+	 * @return Type of the parameter
+	 */
 	public ClassInfo<T> getType() {
 		return type;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
-	public static <T> Parameter<T> newInstance(final String name, final ClassInfo<T> type, final boolean single, final @Nullable String def) {
+	public static <T> Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("An argument's name must be a valid variable name.");
 			// ... because it will be made available as local variable
@@ -81,7 +85,7 @@ public final class Parameter<T> {
 		Expression<? extends T> d = null;
 		if (def != null) {
 //			if (def.startsWith("%") && def.endsWith("%")) {
-//				final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+//				RetainingLogHandler log = SkriptLogger.startRetainingLog();
 //				try {
 //					d = new SkriptParser("" + def.substring(1, def.length() - 1), SkriptParser.PARSE_EXPRESSIONS, ParseContext.FUNCTION_DEFAULT).parseExpression(type.getC());
 //					if (d == null) {
@@ -93,7 +97,7 @@ public final class Parameter<T> {
 //					log.stop();
 //				}
 //			} else {
-			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			
 			// Parse the default value literal
 			try {
@@ -132,8 +136,30 @@ public final class Parameter<T> {
 		return new Parameter<>(name, type, single, d);
 	}
 	
+	/**
+	 * Get the name of this parameter.
+	 * <p>Will be used as name for the local variable that contains value of it inside function.</p>
+	 * @return Name of this parameter
+	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Get the Expression that will be used to provide the default value of this parameter when the function is called.
+	 * @return Expression that will provide default value of this parameter
+	 */
+	@Nullable
+	public Expression<? extends T> getDefaultExpression() {
+		return def;
+	}
+	
+	/**
+	 * Get whether this parameter takes one or many values.
+	 * @return True if this parameter takes one value, false otherwise
+	 */
+	public boolean isSingleValue() {
+		return single;
 	}
 	
 	@Override

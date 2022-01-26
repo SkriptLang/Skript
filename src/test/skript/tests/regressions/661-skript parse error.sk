@@ -1,0 +1,7 @@
+test "difference expression with parse expression":
+	set {_a} to 3
+	set {_b} to 5
+	assert difference between {_a} and {_b} is 2 with "difference expr with a=var and b=var failed"
+	assert difference between {_a} and "%{_b}%" parsed as a number is 2 with "difference expr with a=var and b=parse failed"
+	assert difference between "%{_a}%" parsed as a number and {_b} is 2 with "difference expr with a=parse and b=var failed"
+	assert difference between "%{_a}%" parsed as a number and "%{_b}%" parsed as a number is 2 with "difference expr with a=parse and b=parse failed"

@@ -42,15 +42,21 @@ import ch.njol.util.StringUtils;
 @Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
 @Examples({"message \"Online players: %join all players with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"",
 		"set {_s::*} to the string argument split at \",\""})
-@Since("2.1")
+@Since("2.1, 2.5.2 (regex support)")
 public class ExprJoinSplit extends SimpleExpression<String> {
+	
 	static {
 		Skript.registerExpression(ExprJoinSplit.class, String.class, ExpressionType.COMBINED,
-				"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %-string%]",
-				"split %string% (at|using|by) [[the] delimiter] %string%", "%string% split (at|using|by) [[the] delimiter] %string%");
+			"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %-string%]",
+			"split %string% (at|using|by) [[the] delimiter] %string%",
+			"%string% split (at|using|by) [[the] delimiter] %string%",
+			"regex split %string% (at|using|by) [[the] delimiter] %string%",
+			"regex %string% split (at|using|by) [[the] delimiter] %string%");
 	}
 	
 	private boolean join;
+	private boolean regex;
+	
 	@SuppressWarnings("null")
 	private Expression<String> strings;
 	@Nullable
@@ -60,6 +66,7 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		join = matchedPattern == 0;
+		regex = matchedPattern >= 3;
 		strings = (Expression<String>) exprs[0];
 		delimiter = (Expression<String>) exprs[1];
 		return true;
@@ -75,7 +82,7 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 		if (join) {
 			return new String[] {StringUtils.join(s, d)};
 		} else {
-			return s[0].split(Pattern.quote(d), -1);
+			return s[0].split(regex ? d : Pattern.quote(d), -1);
 		}
 	}
 	
@@ -91,7 +98,7 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return join ? "join " + strings.toString(e, debug) + (delimiter != null ? " with " + delimiter.toString(e, debug) : "") : "split " + strings.toString(e, debug) + (delimiter != null ? " at " + delimiter.toString(e, debug) : "");
+		return join ? "join " + strings.toString(e, debug) + (delimiter != null ? " with " + delimiter.toString(e, debug) : "") : ((regex ? "regex " : "") + "split " + strings.toString(e, debug) + (delimiter != null ? " at " + delimiter.toString(e, debug) : ""));
 	}
 	
 }

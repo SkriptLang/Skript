@@ -21,23 +21,31 @@ package ch.njol.skript.expressions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.ThrowableProjectile;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.DroppedItemSlot;
 import ch.njol.skript.util.slot.ItemFrameSlot;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.skript.util.slot.ThrowableProjectileSlot;
 
 @Name("Item of an Entity")
 @Description("An item associated with an entity. For dropped item entities, it gets, obviously, the item that was dropped. "
-		+ "For item frames, the item inside the frame is returned. Other entities do not have items associated with them.")
+		+ "For item frames, the item inside the frame is returned. For throwable projectiles (snowballs, enderpearls etc.),"
+		+ "it gets the displayed item. Other entities do not have items associated with them.")
 @Examples("")
-@Since("2.2-dev35, 2.2-dev36 (improved)")
+@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles)")
+@RequiredPlugins("Minecraft 1.15.2+ (throwable projectiles)")
 public class ExprItemFrameSlot extends SimplePropertyExpression<Entity, Slot> {
+	
+	private static final boolean PROJECTILE_SUPPORT = Skript.classExists("org.bukkit.entity.ThrowableProjectile");
 	
 	static {
 		register(ExprItemFrameSlot.class, Slot.class, "item", "entities");
@@ -50,6 +58,8 @@ public class ExprItemFrameSlot extends SimplePropertyExpression<Entity, Slot> {
 			return new ItemFrameSlot((ItemFrame) e);
 		else if (e instanceof Item)
 			return new DroppedItemSlot((Item) e);
+		else if (PROJECTILE_SUPPORT && e instanceof ThrowableProjectile)
+			return new ThrowableProjectileSlot((ThrowableProjectile) e);
 		return null; // Other entities don't have associated items
 	}
 

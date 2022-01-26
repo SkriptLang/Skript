@@ -26,6 +26,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Steerable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.HorseInventory;
@@ -76,25 +77,32 @@ public class EffEquip extends Effect implements Testable {
 		return true;
 	}
 	
-	private final static boolean supportsHorses = Skript.classExists("org.bukkit.entity.Horse");
-	private final static boolean newHorses = Skript.classExists("org.bukkit.entity.AbstractHorse");
-	private final static boolean supportsLlamas = Skript.classExists("org.bukkit.entity.Llama");
+	private static final boolean SUPPORTS_HORSES = Skript.classExists("org.bukkit.entity.Horse");
+	private static final boolean NEW_HORSES = Skript.classExists("org.bukkit.entity.AbstractHorse");
+	private static final boolean SUPPORTS_LLAMAS = Skript.classExists("org.bukkit.entity.Llama");
+	private static final boolean SUPPORTS_STEERABLE = Skript.classExists("org.bukkit.entity.Steerable");
 	
-	private static final ItemType helmet = Aliases.javaItemType("helmet");
-	private static final ItemType chestplate = Aliases.javaItemType("chestplate");
-	private static final ItemType leggings = Aliases.javaItemType("leggings");
-	private static final ItemType boots = Aliases.javaItemType("boots");
-	private static final ItemType horseArmor = Aliases.javaItemType("horse armor");
-	private static final ItemType saddle = Aliases.javaItemType("saddle");
-	private static final ItemType chest = Aliases.javaItemType("chest");
-	private static final ItemType carpet = Aliases.javaItemType("carpet");
+	private static final ItemType HELMET = Aliases.javaItemType("helmet");
+	private static final ItemType CHESTPLATE = Aliases.javaItemType("chestplate");
+	private static final ItemType LEGGINGS = Aliases.javaItemType("leggings");
+	private static final ItemType BOOTS = Aliases.javaItemType("boots");
+	private static final ItemType HORSE_ARMOR = Aliases.javaItemType("horse armor");
+	private static final ItemType SADDLE = Aliases.javaItemType("saddle");
+	private static final ItemType CHEST = Aliases.javaItemType("chest");
+	private static final ItemType CARPET = Aliases.javaItemType("carpet");
 	
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void execute(final Event e) {
 		final ItemType[] ts = types.getArray(e);
 		for (final LivingEntity en : entities.getArray(e)) {
-			if (en instanceof Pig) {
+			if (SUPPORTS_STEERABLE && en instanceof Steerable) {
+				for (ItemType it : ts) {
+					if (SADDLE.isOfType(it.getMaterial())) {
+						((Steerable) en).setSaddle(true);
+					}
+				}
+			} else if (en instanceof Pig) {
 				for (final ItemType t : ts) {
 					if (t.isOfType(Material.SADDLE)) {
 						((Pig) en).setSaddle(true);
@@ -102,42 +110,42 @@ public class EffEquip extends Effect implements Testable {
 					}
 				}
 				continue;
-			} else if (supportsLlamas && en instanceof Llama) {
+			} else if (SUPPORTS_LLAMAS && en instanceof Llama) {
 				LlamaInventory invi = ((Llama) en).getInventory();
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
-						if (carpet.isOfType(item)) {
+						if (CARPET.isOfType(item)) {
 							invi.setDecor(item);
-						} else if (chest.isOfType(item)) {
+						} else if (CHEST.isOfType(item)) {
 							((Llama) en).setCarryingChest(true);
 						}
 					}
 				}
 				continue;
-			} else if (newHorses && en instanceof AbstractHorse) {
+			} else if (NEW_HORSES && en instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
 				final Inventory invi = ((AbstractHorse) en).getInventory();
 				for (final ItemType t : ts) {
 					for (final ItemStack item : t.getAll()) {
-						if (saddle.isOfType(item)) {
+						if (SADDLE.isOfType(item)) {
 							invi.setItem(0, item); // Slot 0=saddle
-						} else if (horseArmor.isOfType(item)) {
+						} else if (HORSE_ARMOR.isOfType(item)) {
 							invi.setItem(1, item); // Slot 1=armor
-						} else if (chest.isOfType(item) && en instanceof ChestedHorse) {
+						} else if (CHEST.isOfType(item) && en instanceof ChestedHorse) {
 							((ChestedHorse) en).setCarryingChest(true);
 						}
 					}
 				}
 				continue;
-			} else if (supportsHorses && en instanceof Horse) {
+			} else if (SUPPORTS_HORSES && en instanceof Horse) {
 				final HorseInventory invi = ((Horse) en).getInventory();
 				for (final ItemType t : ts) {
 					for (final ItemStack item : t.getAll()) {
-						if (saddle.isOfType(item)) {
+						if (SADDLE.isOfType(item)) {
 							invi.setSaddle(item);
-						} else if (horseArmor.isOfType(item)) {
+						} else if (HORSE_ARMOR.isOfType(item)) {
 							invi.setArmor(item);
-						} else if (chest.isOfType(item)) {
+						} else if (CHEST.isOfType(item)) {
 							((Horse) en).setCarryingChest(true);
 						}
 					}
@@ -151,13 +159,13 @@ public class EffEquip extends Effect implements Testable {
 				for (final ItemStack item : t.getAll()) {
 					// Blocks are visible in head slot, too
 					// TODO skulls; waiting for decoration aliases
-					if (helmet.isOfType(item) || item.getType().isBlock())
+					if (HELMET.isOfType(item) || item.getType().isBlock())
 						equip.setHelmet(item);
-					else if (chestplate.isOfType(item))
+					else if (CHESTPLATE.isOfType(item))
 						equip.setChestplate(item);
-					else if (leggings.isOfType(item))
+					else if (LEGGINGS.isOfType(item))
 						equip.setLeggings(item);
-					else if (boots.isOfType(item))
+					else if (BOOTS.isOfType(item))
 						equip.setBoots(item);
 					
 					// We have no idea where to equip other items

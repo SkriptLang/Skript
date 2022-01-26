@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -26,7 +27,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
@@ -49,12 +49,13 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The world the event occurred in.")
 @Examples({"world is \"world_nether\"",
 		"teleport the player to the world's spawn",
-		"set the weather in the player's world to rain"})
+		"set the weather in the player's world to rain",
+		"set {_world} to world of event-chunk"})
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
-		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities%]", "%locations/entities%'[s] world");
+		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
 	}
 	
 	@Override
@@ -70,11 +71,6 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 	
 	@Override
-	public Class<World> getReturnType() {
-		return World.class;
-	}
-	
-	@Override
 	protected World[] get(final Event e, final Object[] source) {
 		if (source instanceof World[]) // event value (see init)
 			return (World[]) source;
@@ -87,40 +83,51 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 						return ((PlayerTeleportEvent) e).getTo().getWorld();
 					else
 						return ((Entity) o).getWorld();
-				}
-				if (o instanceof Location)
+				} else if (o instanceof Location) {
 					return ((Location) o).getWorld();
+				} else if (o instanceof Chunk) {
+					return ((Chunk) o).getWorld();
+				}
 				assert false : o;
 				return null;
 			}
 		});
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	@Nullable
+	public Class<?>[] acceptChange(final ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(World.class);
+		return null;
 	}
-	
+
+	@Override
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta == null)
+			return;
+
+		for (Object o : getExpr().getArray(e)) {
+			if (o instanceof Location) {
+				((Location) o).setWorld((World) delta[0]);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setTime(final int time) {
 		return super.setTime(time, getExpr(), PlayerTeleportEvent.class);
 	}
-	
-	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (!(getExpr().getAll(e) instanceof Location[] && delta != null)) return;
 
-		for (final Location loc : (Location[]) getExpr().getAll(e)) {
-				loc.setWorld((World) delta[0]);
-		}	
-	}
-	
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(World.class);
-		return null;
+	public Class<World> getReturnType() {
+		return World.class;
 	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	}
+
 }

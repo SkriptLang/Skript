@@ -21,8 +21,8 @@ package ch.njol.skript.util.chat;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Chat codes; includes color codes (<a href="http://wiki.vg/Chat#Colors">reference</a>)
- * and also, some formatting codes (mostly <a href="http://wiki.vg/Chat">this</a>)
+ * Chat codes; includes color codes (<a href="https://wiki.vg/Chat#Colors">reference</a>)
+ * and also, some formatting codes (mostly <a href="https://wiki.vg/Chat">this</a>)
  */
 public interface ChatCode {
 	

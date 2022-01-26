@@ -1,0 +1,18 @@
+test "potion effects":
+	set {_l} to location of spawn of world "world"
+	spawn a sheep at {_l}
+	set {_e} to last spawned sheep
+
+	set {_p} to potion effect of speed 1 without particles for 10 minutes
+	add {_p} to potion effects of {_e}
+
+	assert type of potion effects of {_e} contains speed with "the sheep should have had the speed potion type"
+
+	set {_i} to potion of speed
+	assert type of potion effects of {_i} contains speed with "the item should have had the speed potion type"
+
+	set {_i} to potion of slowness
+	assert type of potion effects of {_i} contains slowness with "the item should have had the slowness potion type"
+
+	kill {_e}
+	kill all dropped items in radius 10 around {_e}

@@ -20,6 +20,8 @@ package ch.njol.skript.config;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Pattern;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -266,6 +268,8 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return "'" + s.replace("\t", "->").replace(' ', '_').replaceAll("\\s", "?") + "' [-> = tab, _ = space, ? = other whitespace]";
 	}
 	
+	private static final Pattern fullLinePattern = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
+	
 	private final SectionNode load_i(final ConfigReader r) throws IOException {
 		boolean indentationSet = false;
 		String fullLine;
@@ -339,9 +343,17 @@ public class SectionNode extends Node implements Iterable<Node> {
 			if (value.endsWith(":") && (config.simple
 					|| value.indexOf(config.separator) == -1
 					|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
-					) && !fullLine.matches("([^#]|##)*#-#(\\s.*)?")) {
-				nodes.add(SectionNode.load("" + value.substring(0, value.length() - 1), comment, this, r));
-				continue;
+					)) {
+				boolean matches = false;
+				try {
+					matches = fullLine.contains("#") && fullLinePattern.matcher(fullLine).matches();
+				} catch (StackOverflowError e) { // Probably a very long line
+					Node.handleNodeStackOverflow(e, fullLine);
+				}
+				if (!matches) {
+					nodes.add(SectionNode.load("" + value.substring(0, value.length() - 1), comment, this, r));
+					continue;
+				}
 			}
 			
 			if (config.simple) {
@@ -361,7 +373,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 		final int x = keyAndValue.indexOf(separator);
 		if (x == -1) {
 			final InvalidNode in = new InvalidNode(keyAndValue, comment, this, lineNum);
-			EntryValidator.notAnEntryError(in);
+			EntryValidator.notAnEntryError(in, separator);
 			SkriptLogger.setNode(this);
 			return in;
 		}
@@ -438,7 +450,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * @param other
 	 * @param excluded keys and sections to exclude
-	 * @return <tt>false</tt> iff this and the other SectionNode contain the exact same set of keys
+	 * @return <tt>false</tt> if this and the other SectionNode contain the exact same set of keys
 	 */
 	public boolean setValues(final SectionNode other, final String... excluded) {
 		boolean r = false;

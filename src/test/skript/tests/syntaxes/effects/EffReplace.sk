@@ -41,5 +41,3 @@ test "replace strings":
 	assert {_text::6} is "My name is bob and this is my friend bob!" with "replace all pattern 1 (case sensitivity enabled) (%{_text::5}%) failed"
 	assert {_text::7} is "My name is BOBBY and this is my friend bob!" with "replace first pattern 2 (case sensitivity enabled) (%{_text::8}%) failed"
 	assert {_text::8} is "My name is bob and this is my friend bob!" with "replace first pattern 1 (case sensitivity enabled) (%{_text::7}%) failed"
-
-	

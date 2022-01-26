@@ -19,11 +19,13 @@
 package ch.njol.skript.registrations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -56,11 +58,73 @@ public class EventValues {
 			this.excludes = excludes;
 			this.excludeErrorMessage = excludeErrorMessage;
 		}
+		
+		/**
+		 * Get the class that represents the Event.
+		 * @return The class of the Event associated with this event value
+		 */
+		public Class<E> getEventClass() {
+			return event;
+		}
+		
+		/**
+		 * Get the class that represents Value.
+		 * @return The class of the Value associated with this event value
+		 */
+		public Class<T> getValueClass() {
+			return c;
+		}
+		
+		/**
+		 * Get the classes that represent the excluded for this Event value.
+		 * @return The classes of the Excludes associated with this event value
+		 */
+		@Nullable
+		@SuppressWarnings("null")
+		public Class<? extends E>[] getExcludes() {
+			if (excludes != null)
+				return Arrays.copyOf(excludes, excludes.length);
+			return new Class[0];
+		}
+		
+		/**
+		 * Get the error message used when encountering an exclude value.
+		 * @return The error message to use when encountering an exclude
+		 */
+		@Nullable
+		public String getExcludeErrorMessage() {
+			return excludeErrorMessage;
+		}
 	}
 	
 	private final static List<EventValueInfo<?, ?>> defaultEventValues = new ArrayList<>(30);
 	private final static List<EventValueInfo<?, ?>> futureEventValues = new ArrayList<>();
 	private final static List<EventValueInfo<?, ?>> pastEventValues = new ArrayList<>();
+	
+	/**
+	 * The past time of an event value. Represented by "past" or "former".
+	 */
+	public static final int TIME_PAST = -1;
+	
+	/**
+	 * The current time of an event value.
+	 */
+	public static final int TIME_NOW = 0;
+	
+	/**
+	 * The future time of an event value.
+	 */
+	public static final int TIME_FUTURE = 1;
+	
+	/**
+	 * Get Event Values list for the specified time
+	 * @param time The time of the event values. One of
+	 * {@link EventValues#TIME_PAST}, {@link EventValues#TIME_NOW} or {@link EventValues#TIME_FUTURE}.
+	 * @return An immutable copy of the event values list for the specified time
+	 */
+	public static List<EventValueInfo<?, ?>> getEventValuesListForTime(int time) {
+		return ImmutableList.copyOf(getEventValuesList(time));
+	}
 	
 	private static List<EventValueInfo<?, ?>> getEventValuesList(int time) {
 		if (time == -1)
@@ -164,7 +228,7 @@ public class EventValues {
 			if (ev.event.isAssignableFrom(e))
 				return (Getter<? extends T, ? super E>) ev.getter;
 		}
-		// Second check for assignable sub classes.
+		// Second check for assignable subclasses.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.isAssignableFrom(ev.c))
 				continue;
@@ -198,7 +262,7 @@ public class EventValues {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (checkInstanceOf && !e.isInstance(event))
+					if (checkInstanceOf && !ev.event.isInstance(event))
 						return null;
 					Object object = ((Getter<? super T, ? super E>) ev.getter).get(event);
 					if (c.isInstance(object))
@@ -212,11 +276,14 @@ public class EventValues {
 			boolean b = !ev.event.isAssignableFrom(e);
 			if (b && !e.isAssignableFrom(ev.event))
 				continue;
+			
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
+			if (getter == null)
+				continue;
+			
 			if (!checkExcludes(ev, e))
 				return null;
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
-			if (getter != null)
-				return getter;
+			return getter;
 		}
 		// If the check should try again matching event values with a 0 time (most event values).
 		if (allowDefault && time != 0)
@@ -231,11 +298,11 @@ public class EventValues {
 	 * @param e
 	 * @return boolean if true the event value passes for the events.
 	 */
+	@SuppressWarnings("unchecked")
 	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
-		Class<? extends Event>[] excl = ev.excludes;
-		if (excl == null)
+		if (ev.excludes == null)
 			return true;
-		for (Class<? extends Event> ex : excl) {
+		for (Class<? extends Event> ex : (Class<? extends Event>[]) ev.excludes) {
 			if (ex.isAssignableFrom(e)) {
 				Skript.error(ev.excludeErrorMessage);
 				return false;

@@ -62,6 +62,7 @@ public class Delay extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		getParser().setHasDelayBefore(Kleenean.TRUE);
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			long millis = ((Literal<Timespan>) duration).getSingle().getMilliSeconds();
@@ -78,7 +79,7 @@ public class Delay extends Effect {
 		debug(e, true);
 		final long start = Skript.debug() ? System.nanoTime() : 0;
 		final TriggerItem next = getNext();
-		if (next != null) {
+		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			delayed.add(e);
 			final Timespan d = duration.getSingle(e);
 			if (d == null)

@@ -32,6 +32,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 
@@ -43,14 +44,16 @@ import ch.njol.util.Kleenean;
 @Examples({"apply swiftness 2 to the player",
 		"remove haste from the victim",
 		"on join:",
-		"	apply potion of strength of tier {strength.%player%} to the player for 999 days"})
-@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect)")
+		"\tapply potion of strength of tier {strength.%player%} to the player for 999 days",
+		"apply potion effects of player's tool to player"})
+@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects)")
 public class EffPotion extends Effect {
 	static {
 		Skript.registerEffect(EffPotion.class,
 				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
 				"apply ambient [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] without [any] particles to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]"
+				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] without [any] particles to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
+				"apply %potioneffects% to %livingentities%"
 				//, "apply %itemtypes% to %livingentities%"
 				/*,"remove %potioneffecttypes% from %livingentities%"*/);
 	}
@@ -66,16 +69,23 @@ public class EffPotion extends Effect {
 	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<Timespan> duration;
+	@SuppressWarnings("null")
+	private Expression<PotionEffect> potionEffects;
 	private boolean apply;
 	private boolean ambient; // Ambient means less particles
 	private boolean particles; // Particles or no particles?
+	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		apply = matchedPattern < 3;
+		potionEffect = matchedPattern == 3;
 		replaceExisting = parseResult.mark == 1;
-		if (apply) {
+		if (potionEffect) {
+			potionEffects = (Expression<PotionEffect>) exprs[0];
+			entities = (Expression<LivingEntity>) exprs[1];
+		} else if (apply) {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			tier = (Expression<Number>) exprs[1];
 			entities = (Expression<LivingEntity>) exprs[2];
@@ -106,51 +116,60 @@ public class EffPotion extends Effect {
 	
 	@Override
 	protected void execute(final Event e) {
-		final PotionEffectType[] ts = potions.getArray(e);
-		if (ts.length == 0)
-			return;
-		if (!apply) {
-			for (LivingEntity en : entities.getArray(e)) {
-				for (final PotionEffectType t : ts)
-					en.removePotionEffect(t);
+		if (potionEffect) {
+			for (LivingEntity livingEntity : entities.getArray(e)) {
+				PotionEffect[] potionEffects = this.potionEffects.getArray(e);
+				PotionEffectUtils.addEffects(livingEntity, potionEffects);
 			}
-			return;
-		}
-		int a = 0;
-		if (tier != null) {
-			final Number amp = tier.getSingle(e);
-			if (amp == null)
+		} else {
+			final PotionEffectType[] ts = potions.getArray(e);
+			if (ts.length == 0)
 				return;
-			a = amp.intValue() - 1;
-		}
-		int d = DEFAULT_DURATION;
-		if (duration != null) {
-			final Timespan dur = duration.getSingle(e);
-			if (dur == null)
+			if (!apply) {
+				for (LivingEntity en : entities.getArray(e)) {
+					for (final PotionEffectType t : ts)
+						en.removePotionEffect(t);
+				}
 				return;
-			d = (int) (dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE: dur.getTicks_i());
-		}
-		for (final LivingEntity en : entities.getArray(e)) {
-			for (final PotionEffectType t : ts) {
-				int duration = d;
-				if (!replaceExisting) {
-					if (en.hasPotionEffect(t)) {
-						for (final PotionEffect eff : en.getActivePotionEffects()) {
-							if (eff.getType() == t) {
-								duration += eff.getDuration();
-								break;
+			}
+			int a = 0;
+			if (tier != null) {
+				final Number amp = tier.getSingle(e);
+				if (amp == null)
+					return;
+				a = amp.intValue() - 1;
+			}
+			int d = DEFAULT_DURATION;
+			if (duration != null) {
+				final Timespan dur = duration.getSingle(e);
+				if (dur == null)
+					return;
+				d = (int) (dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks_i());
+			}
+			for (final LivingEntity en : entities.getArray(e)) {
+				for (final PotionEffectType t : ts) {
+					int duration = d;
+					if (!replaceExisting) {
+						if (en.hasPotionEffect(t)) {
+							for (final PotionEffect eff : en.getActivePotionEffects()) {
+								if (eff.getType() == t) {
+									duration += eff.getDuration();
+									break;
+								}
 							}
 						}
 					}
+					en.addPotionEffect(new PotionEffect(t, duration, a, ambient, particles), true);
 				}
-				en.addPotionEffect(new PotionEffect(t, duration, a, ambient, particles), true);
 			}
 		}
 	}
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		if (apply)
+		if (potionEffect)
+			return "apply " + potionEffects.toString(e, debug) + " to " + entities.toString(e, debug);
+		else if (apply)
 			return "apply " + potions.toString(e, debug) + (tier != null ? " of tier " + tier.toString(e, debug) : "") + " to " + entities.toString(e, debug) + (duration != null ? " for " + duration.toString(e, debug) : "");
 		else
 			return "remove " + potions.toString(e, debug) + " from " + entities.toString(e, debug);

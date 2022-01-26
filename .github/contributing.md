@@ -77,7 +77,7 @@ time to [learn](https://help.github.com/categories/bootcamp/).
 
 ### When Programming
 We recommend using an IDE; you can find some set up instructions in README.
-Please also follow our [code conventions](https://github.com/SkriptLang/Skript/blob/master/.github/code-conventions.md).
+Please also follow our [code conventions](https://github.com/SkriptLang/Skript/blob/master/code-conventions.md).
 
 ### After Programming
 Test your changes. Actually, test more than your changes: if you think that you

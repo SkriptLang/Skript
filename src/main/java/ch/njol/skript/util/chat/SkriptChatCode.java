@@ -137,6 +137,13 @@ public enum SkriptChatCode implements ChatCode {
 		}
 	},
 
+	font(true) {
+		@Override
+		public void updateComponent(MessageComponent component, String param) {
+			component.font = param;
+		}
+	},
+
 	// Other
 
     insertion(true) {

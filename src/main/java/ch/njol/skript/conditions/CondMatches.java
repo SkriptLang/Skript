@@ -1,0 +1,103 @@
+/**
+ * This file is part of Skript.
+ *
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * Copyright Peter Güttinger, SkriptLang team and contributors
+ */
+
+package ch.njol.skript.conditions;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+
+@Name("Matches")
+@Description("Checks whether the defined strings match the input regexes (Regular expressions).")
+@Examples({"on chat:",
+	"\tif message partially matches \"\\d\":",
+	"\t\tsend \"Message contains a digit!\"",
+	"\tif message doesn't match \"[A-Za-z]+\":",
+	"\t\tsend \"Message doesn't only contain letters!\""})
+@Since("2.5.2")
+public class CondMatches extends Condition {
+	
+	static {
+		Skript.registerCondition(CondMatches.class,
+			"%strings% (1¦match[es]|2¦do[es](n't| not) match) %strings%",
+			"%strings% (1¦partially match[es]|2¦do[es](n't| not) partially match) %strings%");
+	}
+	
+	@SuppressWarnings("null")
+	Expression<String> strings;
+	@SuppressWarnings("null")
+	Expression<String> regex;
+	
+	boolean partial;
+	
+	@Override
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		strings = (Expression<String>) exprs[0];
+		regex = (Expression<String>) exprs[1];
+		partial = matchedPattern == 1;
+		setNegated(parseResult.mark == 1);
+		return true;
+	}
+	
+	@Override
+	public boolean check(Event e) {
+		String[] txt = strings.getAll(e);
+		String[] regexes = regex.getAll(e);
+		if (txt.length < 1 || regexes.length < 1) return false;
+		boolean result;
+		boolean stringAnd = strings.getAnd();
+		boolean regexAnd = regex.getAnd();
+		if (stringAnd) {
+			if (regexAnd) {
+				result = Arrays.stream(txt).allMatch((str) -> Arrays.stream(regexes).parallel().map(Pattern::compile).allMatch((pattern -> matches(str, pattern))));
+			} else {
+				result = Arrays.stream(txt).allMatch((str) -> Arrays.stream(regexes).parallel().map(Pattern::compile).anyMatch((pattern -> matches(str, pattern))));
+			}
+		} else if (regexAnd) {
+			result = Arrays.stream(txt).anyMatch((str) -> Arrays.stream(regexes).parallel().map(Pattern::compile).allMatch((pattern -> matches(str, pattern))));
+		} else {
+			result = Arrays.stream(txt).anyMatch((str) -> Arrays.stream(regexes).parallel().map(Pattern::compile).anyMatch((pattern -> matches(str, pattern))));
+		}
+		return result == isNegated();
+	}
+	
+	public boolean matches(String str, Pattern pattern) {
+		return partial ? pattern.matcher(str).find() : str.matches(pattern.pattern());
+	}
+	
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return strings.toString(e, debug) + " " + (isNegated() ? "doesn't match" : "matches") + " " + regex.toString(e, debug);
+	}
+	
+}

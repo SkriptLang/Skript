@@ -81,7 +81,7 @@ public class GriefPreventionHook extends RegionsPlugin<GriefPrevention> {
 		} catch (final NoSuchFieldException e) {} catch (final SecurityException e) {}
 		if (getClaim == null && claimsField == null) {
 			Skript.error("Skript " + Skript.getVersion() + " is not compatible with GriefPrevention " + plugin.getDescription().getVersion() + "."
-					+ " Please report this at http://dev.bukkit.org/bukkit-plugins/skript/tickets/ if this error occurred after you updated GriefPrevention.");
+					+ " Please report this at https://github.com/SkriptLang/Skript/issues/ if this error occurred after you updated GriefPrevention.");
 			return false;
 		}
 		return super.init();
@@ -183,9 +183,9 @@ public class GriefPreventionHook extends RegionsPlugin<GriefPrevention> {
 			final Location lower = claim.getLesserBoundaryCorner(), upper = claim.getGreaterBoundaryCorner();
 			if (lower == null || upper == null || lower.getWorld() == null || upper.getWorld() == null || lower.getWorld() != upper.getWorld())
 				return EmptyIterator.get();
-			upper.setY(upper.getWorld().getMaxHeight());
-			upper.setX(upper.getBlockX() + 1);
-			upper.setZ(upper.getBlockZ() + 1);
+			upper.setY(upper.getWorld().getMaxHeight() - 1);
+			upper.setX(upper.getBlockX());
+			upper.setZ(upper.getBlockZ());
 			return new AABB(lower, upper).iterator();
 		}
 		

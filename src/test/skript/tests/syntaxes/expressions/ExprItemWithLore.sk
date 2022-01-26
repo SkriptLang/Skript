@@ -1,0 +1,19 @@
+test "item with lore as one string without newline":
+	set {_i1} to 1 of stone with lore "first line"
+	assert the line 1 of lore of {_i1} is "first line" with "has correct first line"
+
+test "item with lore as multiple string without newline":
+	set {_i2} to 1 of stone with lore "first line" and "second line"
+	assert the line 1 of lore of {_i2} is "first line" with "has correct first line"
+	assert the line 2 of lore of {_i2} is "second line" with "has correct second line"
+
+test "item with lore as one string with newline":
+	set {_i3} to 1 of stone with lore "first line%nl%second line"
+	assert the line 1 of lore of {_i3} is "first line" with "has correct first line"
+	assert the line 2 of lore of {_i3} is "second line" with "has correct second line"
+
+test "item with lore as multiple string with newline":
+	set {_i4} to 1 of stone with lore "first line%nl%second line" and "third line"
+	assert the line 1 of lore of {_i4} is "first line" with "has correct first line"
+	assert the line 2 of lore of {_i4} is "second line" with "has correct second line"
+	assert the line 3 of lore of {_i4} is "third line" with "has correct third line"

@@ -19,11 +19,10 @@
 package ch.njol.skript.tests.runner;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.lang.function.SimpleJavaFunction;
+import ch.njol.skript.registrations.DefaultClasses;
 
 /**
  * Functions available only to testing scripts.
@@ -32,22 +31,23 @@ import ch.njol.skript.registrations.Classes;
 public class TestFunctions {
 	
 	static {
-		ClassInfo<String> stringClass = Classes.getExactClassInfo(String.class);
+		ClassInfo<String> stringClass = DefaultClasses.STRING;
 		Parameter<?>[] stringsParam = new Parameter[] {new Parameter<>("strs", stringClass, false, null)};
 		
-		Functions.registerFunction(new JavaFunction<Boolean>("caseEquals", stringsParam, Classes.getExactClassInfo(Boolean.class), true) {
+		Functions.registerFunction(new SimpleJavaFunction<Boolean>("caseEquals", stringsParam, DefaultClasses.BOOLEAN, true) {
 			@Override
-			public Boolean[] execute(final FunctionEvent e, final Object[][] params) {
-				final Object[] strs = params[0];
+			public Boolean[] executeSimple(final Object[][] params) {
+				Object[] strs = params[0];
 				for (int i = 0; i < strs.length - 1; i++)
 					if (!strs[i].equals(strs[i+1]))
 						return new Boolean[] {false};
 				return new Boolean[] {true};
 			}
 		}.description("Checks if the contents of a list of strings are strictly equal with case sensitivity.")
-				.examples("caseEquals(\"hi\", \"Hi\") = false", 
+			.examples("caseEquals(\"hi\", \"Hi\") = false",
 						"caseEquals(\"text\", \"text\", \"text\") = true", 
 						"caseEquals({some list variable::*})")
-				.since("2.5"));
+			.since("2.5"));
 	}
+	
 }

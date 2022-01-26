@@ -20,6 +20,8 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
@@ -33,16 +35,17 @@ import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.registrations.Converters;
 
 @Name("Type of")
-@Description({"Type of a block, an item, en entity or an inventory.",
+@Description({"Type of a block, item, entity, inventory or potion effect.",
 	"Types of items and blocks are item types similar to them but have amounts",
 	"of one, no display names and, on Minecraft 1.13 and newer versions, are undamaged.",
-	"Types of entities and inventories are entity types and inventory types known to Skript."})
+	"Types of entities and inventories are entity types and inventory types known to Skript.",
+	"Types of potion effects are potion effect types."})
 @Examples({"on rightclick on an entity:",
 		"	message \"This is a %type of clicked entity%!\""})
-@Since("1.4")
+@Since("1.4, 2.5.2 (potion effect)")
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 	static {
-		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories");
+		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories/potioneffects");
 	}
 	
 	@Override
@@ -59,6 +62,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return ((ItemType) o).getBaseType();
 		} else if (o instanceof Inventory) {
 			return ((Inventory) o).getType();
+		} else if (o instanceof PotionEffect) {
+			return ((PotionEffect) o).getType();
 		}
 		assert false;
 		return null;
@@ -66,8 +71,10 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 	
 	@Override
 	public Class<? extends Object> getReturnType() {
-		return EntityData.class.isAssignableFrom(getExpr().getReturnType()) ? EntityData.class
-				: ItemStack.class.isAssignableFrom(getExpr().getReturnType()) ? ItemStack.class : Object.class;
+		Class<?> returnType = getExpr().getReturnType();
+		return EntityData.class.isAssignableFrom(returnType) ? EntityData.class
+				: ItemStack.class.isAssignableFrom(returnType) ? ItemStack.class
+				: PotionEffectType.class.isAssignableFrom(returnType) ? PotionEffectType.class : Object.class;
 	}
 	
 	@Override

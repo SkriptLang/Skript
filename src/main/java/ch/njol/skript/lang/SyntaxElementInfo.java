@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.lang;
 
+import java.util.Arrays;
+
 /**
  * @author Peter Güttinger
  * @param <E> the syntax element this info is for
@@ -44,4 +46,27 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 		}
 	}
 	
+	/**
+	 * Get the class that represents this element.
+	 * @return The Class of the element
+	 */
+	public Class<E> getElementClass() {
+		return c;
+	}
+	
+	/**
+	 * Get the patterns of this syntax element.
+	 * @return Array of Skript patterns for this element
+	 */
+	public String[] getPatterns() {
+		return Arrays.copyOf(patterns, patterns.length);
+	}
+	
+	/**
+	 * Get the original classpath for this element.
+	 * @return The original ClassPath for this element
+	 */
+	public String getOriginClassPath() {
+		return originClassPath;
+	}
 }

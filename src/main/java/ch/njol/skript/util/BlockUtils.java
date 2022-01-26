@@ -18,8 +18,11 @@
  */
 package ch.njol.skript.util;
 
-import java.util.Arrays;
-
+import ch.njol.skript.aliases.ItemData;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.block.BlockCompat;
+import ch.njol.skript.bukkitutil.block.BlockSetter;
+import ch.njol.skript.bukkitutil.block.BlockValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,17 +32,12 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.aliases.ItemData;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.BlockSetter;
-import ch.njol.skript.bukkitutil.block.BlockValues;
+import java.util.Arrays;
 
 /**
  * TODO !Update with every version [blocks] - also update aliases-*.sk
- * 
- * @author Peter Güttinger
  */
-public abstract class BlockUtils {
+public class BlockUtils {
 	
 	/**
 	 * Sets the given block.
@@ -54,8 +52,7 @@ public abstract class BlockUtils {
 		if (applyPhysics)
 			flags |= BlockSetter.APPLY_PHYSICS;
 		BlockCompat.SETTER.setBlock(block, type, blockValues, flags);
-		
-		
+
 		return true;
 	}
 	
@@ -68,7 +65,7 @@ public abstract class BlockUtils {
 	}
 	
 	@SuppressWarnings("null")
-	public static Iterable<Block> getBlocksAround(final Block b) {
+	public static Iterable<Block> getBlocksAround(Block b) {
 		return Arrays.asList(b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST));
 	}
 	
@@ -82,17 +79,15 @@ public abstract class BlockUtils {
 	 * @return Location of the block, including its direction
 	 */
 	@Nullable
-	public static Location getLocation(final @Nullable Block b) {
+	public static Location getLocation(@Nullable Block b) {
 		if (b == null)
 			return null;
-		final Location l = b.getLocation().add(0.5, 0.5, 0.5);
-//		final Material m = b.getType();
-//		if (Directional.class.isAssignableFrom(m.getData())) {
-//			final BlockFace f = ((Directional) m.getNewData(b.getData())).getFacing();
-//			l.setPitch(Direction.getPitch(Math.sin(f.getModY())));
-//			l.setYaw(Direction.getYaw(Math.atan2(f.getModZ(), f.getModX())));
-//		}
-		// TODO figure out what this code means
+		Location l = b.getLocation().add(0.5, 0.5, 0.5);
+		BlockFace blockFace = Direction.getFacing(b);
+		if (blockFace != BlockFace.SELF) {
+			l.setPitch(Direction.getPitch(Math.sin(blockFace.getModY())));
+			l.setYaw(Direction.getYaw(Math.atan2(blockFace.getModZ(), blockFace.getModX())));
+		}
 		return l;
 	}
 	
@@ -113,6 +108,30 @@ public abstract class BlockUtils {
 		} catch (IllegalArgumentException ignore) {
 			return null;
 		}
+	}
+
+	/**
+	 * Get the string version of a block, including type and location.
+	 * ex: 'stone' at 1.5, 1.5, 1.5 in world 'world'
+	 *
+	 * @param block Block to get string of
+	 * @param flags
+	 * @return String version of block
+	 */
+	@Nullable
+	public static String blockToString(Block block, int flags) {
+		String type = ItemType.toString(block, flags);
+		Location location = getLocation(block);
+		if (location == null) {
+			return null;
+		}
+
+		double x = location.getX();
+		double y = location.getY();
+		double z = location.getZ();
+		String world = location.getWorld().getName();
+
+		return String.format("'%s' at %s, %s, %s in world '%s'", type, x, y, z, world);
 	}
 	
 }

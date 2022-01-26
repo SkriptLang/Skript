@@ -116,11 +116,9 @@ public class NewBlockCompat implements BlockCompat {
 		private ItemType specialTorchFloors;
 		
 		private boolean typesLoaded = false;
-
-		/**
-		 * Cached BlockFace values.
-		 */
-		private BlockFace[] faces = BlockFace.values();
+		
+		private static final BlockFace[] CARDINAL_FACES =
+			new BlockFace[] {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 		
 		@SuppressWarnings("null") // Late initialization with loadTypes() to avoid circular dependencies
 		public NewBlockSetter() {}
@@ -197,7 +195,7 @@ public class NewBlockCompat implements BlockCompat {
 				if (Bed.class.isAssignableFrom(dataType)) {
 					Bed data;
 					if (ourValues != null)
-						data = (Bed) ourValues.data;
+						data = (Bed) ourValues.data.clone();
 					else
 						data = (Bed) Bukkit.createBlockData(type);
 					
@@ -229,7 +227,7 @@ public class NewBlockCompat implements BlockCompat {
 				if (Bisected.class.isAssignableFrom(dataType) && !Tag.STAIRS.isTagged(type) && !Tag.TRAPDOORS.isTagged(type)) {
 					Bisected data;
 					if (ourValues != null)
-						data = (Bisected) ourValues.data;
+						data = (Bisected) ourValues.data.clone();
 					else
 						data = (Bisected) Bukkit.createBlockData(type);
 					
@@ -276,8 +274,7 @@ public class NewBlockCompat implements BlockCompat {
 
 		@Nullable
 		private BlockFace findWallTorchSide(Block block) {
-			for (BlockFace face : faces) {
-				assert face != null;
+			for (BlockFace face : CARDINAL_FACES) {
 				Block relative = block.getRelative(face);
 				if (relative.getType().isOccluding() || specialTorchSides.isOfType(relative))
 					return face.getOppositeFace(); // Torch can be rotated towards from this face
@@ -359,7 +356,8 @@ public class NewBlockCompat implements BlockCompat {
 			return new NewBlockValues(type, data, false);
 		} catch (IllegalArgumentException e) {
 			Skript.error("Parsing block state " + combined + " failed!");
-			e.printStackTrace();
+			if (Skript.debug())
+				e.printStackTrace();
 			return null;
 		}
 	}

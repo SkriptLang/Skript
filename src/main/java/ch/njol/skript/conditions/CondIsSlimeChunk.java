@@ -20,6 +20,7 @@ package ch.njol.skript.conditions;
 
 import java.util.Random;
 
+import ch.njol.skript.Skript;
 import org.bukkit.Chunk;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -43,6 +44,8 @@ import ch.njol.skript.doc.Since;
 		"\t\t\tsend \"Nope, it isn't\""})
 @Since("2.3")
 public class CondIsSlimeChunk extends PropertyCondition<Chunk> {
+
+	private static final boolean CHUNK_METHOD_EXISTS = Skript.methodExists(Chunk.class, "isSlimeChunk");
 	
 	static {
 		register(CondIsSlimeChunk.class, "([a] slime chunk|slime chunks|slimey)", "chunk");
@@ -50,6 +53,9 @@ public class CondIsSlimeChunk extends PropertyCondition<Chunk> {
 	
 	@Override
 	public boolean check(Chunk chunk) {
+		if (CHUNK_METHOD_EXISTS)
+			return chunk.isSlimeChunk();
+
 		Random random = new Random(chunk.getWorld().getSeed() +
 				(0x4c1906L * chunk.getX() * chunk.getX()) +
 				(0x5ac0dbL * chunk.getX()) +

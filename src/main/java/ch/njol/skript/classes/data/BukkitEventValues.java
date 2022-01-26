@@ -20,8 +20,10 @@ package ch.njol.skript.classes.data;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -62,6 +64,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -86,6 +89,7 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerEvent;
@@ -118,6 +122,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -129,6 +134,9 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.events.EvtMoveOn;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.events.bukkit.SkriptStartEvent;
+import ch.njol.skript.events.bukkit.SkriptStopEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.BlockStateBlock;
 import ch.njol.skript.util.BlockUtils;
@@ -147,6 +155,7 @@ public final class BukkitEventValues {
 	public BukkitEventValues() {}
 	
 	private static final boolean offHandSupport = Skript.isRunningMinecraft(1, 9);
+	private static final boolean NAMESPACE_SUPPORT = Skript.classExists("org.bukkit.NamespacedKey");
 	
 	static {
 		
@@ -406,6 +415,13 @@ public final class BukkitEventValues {
 				return e.getEntity().getWorld();
 			}
 		}, 0);
+		EventValues.registerEventValue(EntityEvent.class, Location.class, new Getter<Location, EntityEvent>() {
+			@Override
+			@Nullable
+			public Location get(final EntityEvent e) {
+				return e.getEntity().getLocation();
+			}
+		}, 0);
 		// EntityDamageEvent
 		EventValues.registerEventValue(EntityDamageEvent.class, DamageCause.class, new Getter<DamageCause, EntityDamageEvent>() {
 			@Override
@@ -467,6 +483,17 @@ public final class BukkitEventValues {
 				return e.getEntity();
 			}
 		}, 0);
+		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlockFace")) {
+			EventValues.registerEventValue(ProjectileHitEvent.class, Direction.class, new Getter<Direction, ProjectileHitEvent>() {
+				@Override
+				@Nullable
+				public Direction get(final ProjectileHitEvent e) {
+					BlockFace theHitFace = e.getHitBlockFace();
+					if (theHitFace == null) return null;
+					return new Direction(theHitFace, 1);
+				}
+			}, 0);
+		}
 		// ProjectileLaunchEvent
 		EventValues.registerEventValue(ProjectileLaunchEvent.class, Entity.class, new Getter<Entity, ProjectileLaunchEvent>() {
 			@Override
@@ -637,6 +664,35 @@ public final class BukkitEventValues {
 				return new ItemType(e.getItem().getItemStack());
 			}
 		}, 0);
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, new Getter<Entity, PlayerPickupItemEvent>() {
+			@Override
+			public @Nullable Entity get(PlayerPickupItemEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
+		// EntityPickupItemEvent
+		if (Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent")) {
+			EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, new Getter<Entity, EntityPickupItemEvent>() {
+				@Override
+				public @Nullable Entity get(EntityPickupItemEvent e) {
+					return e.getEntity();
+				}
+			}, 0);
+			EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, new Getter<Item, EntityPickupItemEvent>() {
+				@Override
+				@Nullable
+				public Item get(final EntityPickupItemEvent e) {
+					return e.getItem();
+				}
+			}, 0);
+			EventValues.registerEventValue(EntityPickupItemEvent.class, ItemType.class, new Getter<ItemType, EntityPickupItemEvent>() {
+				@Override
+				@Nullable
+				public ItemType get(final EntityPickupItemEvent e) {
+					return new ItemType(e.getItem().getItemStack());
+				}
+			}, 0);
+		}
 		// PlayerItemConsumeEvent
 		if (Skript.supports("org.bukkit.event.player.PlayerItemConsumeEvent")) {
 			EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemType.class, new Getter<ItemType, PlayerItemConsumeEvent>() {
@@ -876,6 +932,32 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		
+		// === ServerEvents ===
+		// Script load/unload event
+		EventValues.registerEventValue(ScriptEvent.class, CommandSender.class, new Getter<CommandSender, ScriptEvent>() {
+			@Nullable
+			@Override
+			public CommandSender get(ScriptEvent e) {
+				return Bukkit.getConsoleSender();
+			}
+		}, 0);
+		// Server load event
+		EventValues.registerEventValue(SkriptStartEvent.class, CommandSender.class, new Getter<CommandSender, SkriptStartEvent>() {
+			@Nullable
+			@Override
+			public CommandSender get(SkriptStartEvent e) {
+				return Bukkit.getConsoleSender();
+			}
+		}, 0);
+		// Server stop event
+		EventValues.registerEventValue(SkriptStopEvent.class, CommandSender.class, new Getter<CommandSender, SkriptStopEvent>() {
+			@Nullable
+			@Override
+			public CommandSender get(SkriptStopEvent e) {
+				return Bukkit.getConsoleSender();
+			}
+		}, 0);
+		
 		// === InventoryEvents ===
 		// InventoryClickEvent
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class, new Getter<Player, InventoryClickEvent>() {
@@ -978,6 +1060,29 @@ public final class BukkitEventValues {
 				return null;
 			}
 		}, 0);
+		// CraftEvents - recipe namespaced key strings
+		if (NAMESPACE_SUPPORT) {
+			EventValues.registerEventValue(CraftItemEvent.class, String.class, new Getter<String, CraftItemEvent>() {
+				@Nullable
+				@Override
+				public String get(CraftItemEvent e) {
+					Recipe recipe = e.getRecipe();
+					if (recipe instanceof Keyed)
+						return ((Keyed) recipe).getKey().toString();
+					return null;
+				}
+			}, 0);
+			EventValues.registerEventValue(PrepareItemCraftEvent.class, String.class, new Getter<String, PrepareItemCraftEvent>() {
+				@Nullable
+				@Override
+				public String get(PrepareItemCraftEvent e) {
+					Recipe recipe = e.getRecipe();
+					if (recipe instanceof Keyed)
+						return ((Keyed) recipe).getKey().toString();
+					return null;
+				}
+			}, 0);
+		}
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, new Getter<Player, InventoryOpenEvent>() {
 			@Override
@@ -1038,6 +1143,15 @@ public final class BukkitEventValues {
 				return e.getWorld();
 			}
 		}, 0);
+		if (Skript.methodExists(PortalCreateEvent.class, "getEntity")) { // Minecraft 1.14+
+			EventValues.registerEventValue(PortalCreateEvent.class, Entity.class, new Getter<Entity, PortalCreateEvent>() {
+				@Override
+				@Nullable
+				public Entity get(final PortalCreateEvent e) {
+					return e.getEntity();
+				}
+			}, 0);
+		}
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemType.class, new Getter<ItemType, PlayerEditBookEvent>() {
 			@Override
@@ -1092,6 +1206,13 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
+		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new Getter<Location, PlayerTeleportEvent>() {
+			@Override
+			@Nullable
+			public Location get(final PlayerTeleportEvent e) {
+				return e.getFrom();
+			}
+		}, -1);
 		//PlayerToggleFlightEvent
 		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, new Getter<Player, PlayerToggleFlightEvent>() {
 			@Override
@@ -1199,5 +1320,13 @@ public final class BukkitEventValues {
 				return evt.getEntity();
 			}
 		}, 0);
+		// PlayerChangedWorldEvent
+		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
+			@Nullable
+			@Override
+			public World get(PlayerChangedWorldEvent e) {
+				return e.getFrom();
+			}
+		}, -1);
 	}
 }
