@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 		"on connect:",
 		"\thostname is \"testers.example.com\"",
 		"\tsend \"Welcome back tester!\""})
-@Since("INSERT VERSION")
+@Since("2.6.1")
 public class ExprHostname extends SimpleExpression<String> {
 
 	static {
