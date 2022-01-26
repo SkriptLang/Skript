@@ -16,33 +16,41 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
-import org.bukkit.entity.Entity;
+/**
+ * A {@link LogHandler} that records the time since its creation.
+ */
+package ch.njol.skript.log;
 
-@Name("Entity is Wet")
-@Description("Checks whether an entity is wet or not (in water, rain or a bubble column).")
-@Examples("if player is wet:")
-@RequiredPlugins("Paper 1.16+")
-@Since("2.6.1")
-public class CondEntityIsWet extends PropertyCondition<Entity> {
-	
-	static {
-		if (Skript.methodExists(Entity.class, "isInWaterOrRainOrBubbleColumn"))
-			register(CondEntityIsWet.class, PropertyType.BE, "wet", "entities");
+/**
+ * A log handler that records the time since its creation.
+ */
+public class TimingLogHandler extends LogHandler {
+
+	private final long start = System.currentTimeMillis();
+
+	@Override
+	public LogResult log(LogEntry entry) {
+		return LogResult.LOG;
 	}
 
 	@Override
-	public boolean check(Entity entity) {
-		return entity.isInWaterOrRainOrBubbleColumn();
+	public TimingLogHandler start() {
+		return SkriptLogger.startLogHandler(this);
 	}
 
-	@Override
-	protected String getPropertyName() {
-		return "wet";
+	/**
+	 * @return the time in milliseconds of when this log handler was created.
+	 */
+	public long getStart() {
+		return start;
+	}
+
+	/**
+	 * @return the time in milliseconds between now and this log handler's creation.
+	 */
+	public long getTimeTaken() {
+		return System.currentTimeMillis() - start;
 	}
 
 }

@@ -182,7 +182,7 @@ public class ExprParse extends SimpleExpression<Object> {
 			}
 			LogEntry err = h.getError();
 			if (err != null) {
-				lastError = err.getMessage();
+				lastError = err.toString();
 			} else {
 				if (c != null) {
 					lastError = t + " could not be parsed as " + c.getName().withIndefiniteArticle();
