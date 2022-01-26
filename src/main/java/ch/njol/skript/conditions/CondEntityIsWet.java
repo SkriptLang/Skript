@@ -27,7 +27,7 @@ import org.bukkit.entity.Entity;
 @Description("Checks whether an entity is wet or not (in water, rain or a bubble column).")
 @Examples("if player is wet:")
 @RequiredPlugins("Paper 1.16+")
-@Since("INSERT VERSION")
+@Since("2.6.1")
 public class CondEntityIsWet extends PropertyCondition<Entity> {
 	
 	static {

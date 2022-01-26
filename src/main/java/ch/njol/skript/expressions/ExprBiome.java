@@ -49,7 +49,7 @@ import ch.njol.util.Kleenean;
 		"	loop all players:",
 		"		biome at loop-player is desert",
 		"		damage the loop-player by 1"})
-@Since("1.4.4, INSERT VERSION (3D biomes)")
+@Since("1.4.4, 2.6.1 (3D biomes)")
 public class ExprBiome extends PropertyExpression<Location, Biome> {
 	static {
 		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %locations%", "%locations%'[s] biome");
