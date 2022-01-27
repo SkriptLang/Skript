@@ -119,9 +119,9 @@ public class RetainingLogHandler extends LogHandler {
 		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue()) {
 				if (console)
-					SkriptLogger.LOGGER.severe(e.getMessage());
+					SkriptLogger.LOGGER.severe(e.toFormattedString());
 				else
-					recipient.sendMessage(e.getMessage());
+					recipient.sendMessage(e.toFormattedString());
 				e.logged();
 				hasError = true;
 			} else {

@@ -580,15 +580,16 @@ public class ChatMessages {
 	public static String stripStyles(String text) {
 		List<MessageComponent> components = parse(text);
 		StringBuilder sb = new StringBuilder();
-		for (MessageComponent component : components) {
+		for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
 			sb.append(component.text);
 		}
 		String plain = sb.toString();
-		
-		// To be extra safe, strip <, >, § and &; protects against bugs in parser
-		if (Utils.HEX_SUPPORTED) // Strip '§x'
-			plain = plain.replace("§x", "");
-		plain = plain.replace("<", "").replace(">", "").replace("§", "").replace("&", "");
+
+		if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
+			plain = plain.replaceAll("[§&]x", "");
+
+		plain = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
+
 		assert plain != null;
 		return plain;
 	}
