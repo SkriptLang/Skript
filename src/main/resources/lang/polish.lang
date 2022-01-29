@@ -1,0 +1,189 @@
+# Default English language file
+
+# Which version of Skript this language file was written for
+version: 2.6.1
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ created by & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] # not used
+	quotes error: Invalid use of quotes ("). If you want to use quotes in "quoted text", double them: "".
+	brackets error: Invalid amount or placement of brackets. Please make sure that each opening bracket has a corresponding closing bracket.
+	invalid reload: Skript may only be reloaded by either Bukkit's '/reload' or Skript's '/skript reload' command.
+	no scripts: No scripts were found, maybe you should write some ;)
+	no errors: All scripts loaded without errors.
+	scripts loaded: Loaded %s script¦¦s¦ with a total of %s trigger¦¦s¦ and %s command¦¦s¦ in %s
+	finished loading: Finished loading.
+
+# -- Skript command --
+skript command:
+	usage: Usage:
+	help:
+		description: Skript's main command
+		help: Prints this help message. Use '/skript reload/enable/disable/update' to get more info
+		reload:
+			description: Reloads the config, all scripts, everything, or a specific script
+			all: Reloads the config, all aliases configs and all scripts
+			config: Reloads the main config
+			aliases: Reloads the aliases configs (aliases-english.zip or plugin jar)
+			scripts: Reloads all scripts
+			<script>: Reloads a specific script or a folder of scripts
+		enable:
+			description: Enables all scripts or a specific one
+			all: Enables all scripts
+			<script>: Enables a specific script or a folder of scripts
+		disable:
+			description: Disables all scripts or a specific one
+			all: Disables all scripts
+			<script>: Disables a specific script or a folder of scripts
+		update:
+			description: Check for updates, read the changelog, or download the latest version of Skript
+			check: Checks for a new version
+			changes: Lists all changes since the current version
+			download: Download the newest version
+		info: Prints a message with links to Skript's aliases and documentation
+		gen-docs: Generates documentation using doc-templates in plugin folder
+		test: Used for running Skript tests
+
+	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
+	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
+	reload:
+		warning line info: <gold><bold>Line %s:<gray> (%s)\n
+		error line info: <light red><bold>Line %s:<gray> (%s)\n
+		reloading: Reloading <gold>%s<reset>...
+		reloaded: <lime>Successfully reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
+		warning details: <yellow>    %s\n
+		error details: <light red>    %s\n
+		other details: <white>    %s\n
+		line details: <gold>    Line: <gray>%s\n <reset>
+
+		config, aliases and scripts: the config, aliases and all scripts
+		scripts: all scripts
+		main config: the main configuration
+		aliases: the aliases
+		script: <gold>%s<reset>
+		scripts in folder: all scripts in <gold>%s<reset>
+		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>
+		empty folder: <gold>%s<reset>r does not contain any enabled scripts.
+	enable:
+		all:
+			enabling: Enabling all disabled scripts...
+			enabled: Successfully enabled & parsed all previously disabled scripts.
+			error: Encountered %s error¦¦s¦ while parsing disabled scripts!
+			io error: Could not load any scripts (some scripts might have been renamed already and will be enabled when the server restarts): %s
+		single:
+			already enabled: <gold>%s<reset> is already enabled! Use <gray>/<gold>skript <cyan>reload <red>%s<reset> to reload it if it was changed.
+			enabling: Enabling <gold>%s<reset>...
+			enabled: Successfully enabled & parsed <gold>%s<reset>.
+			error: Encountered %2$s error¦¦s¦ while parsing <gold>%1$s<red>!
+			io error: Could not enable <gold>%s<red>: %s
+		folder:
+			empty: <gold>%s<reset> does not contain any disabled scripts.
+			enabling: Enabling <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>...
+			enabled: Successfully enabled & parsed <gold>%2$s<reset> previously disabled scripts in <gold>%1$s<reset>.
+			error: Encountered %2$s error¦¦s¦ while parsing scripts in <gold>%1$s<red>!
+			io error: Error while enabling scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
+	disable:
+		all:
+			disabled: Successfully disabled all scripts.
+			io error: Could not rename all scripts - some scripts will be enabled again when you restart the server: %s
+		single:
+			already disabled: <gold>%s<reset> is already disabled!
+			disabled: Successfully disabled <gold>%s<reset>.
+			io error: Could not rename <gold>%s<red>, it will be enabled again when you restart the server: %s
+		folder:
+			empty: <gold>%s<reset> does not contain any enabled scripts,
+			disabled: Successfully disabled <gold>%2$s<reset> script(s) in <gold>%1$s<reset>.
+			io error: Could not disable any script in <gold>%s<red> (some scripts might get disabled when the server restarts): %s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
+			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
+			# invalid version: No changelog for the version <gold>%s<red> available
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>page %s of %s. Type <gold>/skript update changes %s<gray> for the next page (hint: use the up arrow key)
+	info:
+		aliases: Skript's aliases can be found here: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skript's documentation can be found here: <aqua>https://skriptlang.github.io/Skript
+		version: Skript Version: <aqua>%s
+		server: Server Version: <aqua>%s
+		addons: Installed Skript Addons: <aqua>%s
+		dependencies: Installed dependencies: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript has not yet checked for the latest version. Use <gold>/skript update check<reset> to do so.
+	checking: Checking for the latest version of Skript...
+	check in progress: Checking for a new version is currently in progress.
+	updater disabled: The updater is disabled, so a check for the latest version of Skript was not performed.
+	check error: <red>There was an error checking for the latest version of Skript:<light red> %s
+	running latest version: You're currently running the latest stable version of Skript.
+	running latest version (beta): You're currently running a <i>beta<r> version of Skript, and no new <i>stable<r> version is available. Please note that you have to update to newer beta versions manually!
+	update available: A new version of Skript is available: <gold>%s<reset> (you're currently running <gold>%s<reset>)
+	downloading: Downloading Skript <gold>%s<reset>...
+	download in progress: The latest version of Skript is currently being downloaded.
+	download error: <red>There was an error downloading the latest version of Skript:<light red> %s
+	downloaded: The latest version of Skript has been downloaded! Restart the server or use /reload to apply the changes.
+	internal error: An internal error occurred while checking for the latest version of Skript. Please refer to the server log for details.
+	custom version: You're currently running a custom Skript version. No updates will be automatically installed.
+	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
+
+# -- Commands --
+commands:
+	no permission message: You don't have the required permission to use this command
+	cooldown message: You are using this command too often, please try again later
+	executable by players: This command can only be used by players
+	executable by console: This command can only be used by the console
+	correct usage: Correct usage:
+	invalid argument: Invalid argument <gray>'%s<gray>'<reset>. Allowed are:
+	too many arguments: This command can only accept a single %2$s.
+	internal error: An internal error occurred while attempting to perform this command.
+	no player starts with: There is no player online whose name starts with '%s'
+	multiple players start with: There are several players online whose names start with '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Successfully hooked into %s
+	error: Could not hook into %1$s. This can happen if Skript doesn't support the installed version of %1$s
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' is not an item type
+	invalid item type: '%s' is not an item type
+	empty name: An alias must have name
+	brackets error: Invalid use of brackets
+	not enough brackets: Section starting at character %s ('%s') must be closed
+	too many brackets: Character %s ('%s') closes a nonexistent section
+	unknown variation: The variation %s has not been defined before
+	missing aliases: Following Minecraft ids do not have any aliases:
+	empty alias: Alias has no Minecraft id or tags defined
+	invalid minecraft id: Minecraft id %s is not valid
+	useless variation: Variation has no Minecraft id or tags specified, so it is useless
+	invalid tags: Specified tags are not defined in valid JSON
+	unexpected section: Sections are not allowed here
+	invalid variation section: A section should be variation section, but %s is not valid variation name
+	outside section: Aliases must be put in sections
+
+	# Other messages
+	loaded x aliases from: Loaded %s english aliases from %s
+	loaded x aliases: Loaded a total of %s english aliases
+
+# -- Time --
+time:
+	errors:
+		24 hours: A day only has 24 hours
+		12 hours: Using 12-hour format does not allow more than 12 hours
+		60 minutes: An hour only has 60 minutes
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: Cannot connect to %s
+	accessdeniedexception: Access denied for %s
