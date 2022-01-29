@@ -18,39 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.Objects;
-
-import ch.njol.skript.aliases.MatchQuality;
-import ch.njol.skript.entity.RabbitData;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.slot.EquipmentSlot;
-import ch.njol.util.Kleenean;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Wither;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
@@ -60,16 +27,39 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.util.Date;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Wither;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Objects;
 
 @SuppressWarnings({"rawtypes"})
 public class DefaultComparators {
@@ -129,16 +119,14 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot o1, Number o2) {
 				if (o1 instanceof SlotWithIndex) {
-					boolean same = ((SlotWithIndex) o1).getIndex() == o2.intValue();
-					if (same) // Slot has index and the index is same with number
-						return Relation.EQUAL;
+					return Relation.get(((SlotWithIndex) o1).getIndex() - o2.intValue());
 				}
 				return Relation.NOT_EQUAL;
 			}
 
 			@Override
 			public boolean supportsOrdering() {
-				return false;
+				return true;
 			}
 			
 		});
