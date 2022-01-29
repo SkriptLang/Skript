@@ -104,9 +104,9 @@ skript command:
 		# check/download: see Updater
 		changes:
 			# multiple versions:
-			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
-			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
-			# invalid version: No changelog for the version <gold>%s<red> available
+			# 	title: <gold>%s<r> aktualizacj¦a¦i¦ zostało wydanych od wydania tej wersji (<gold>%s<r>) Skript'a:
+			# 	footer: Aby pokazać listę zmian wersji, napisz <gold>/skript update changes <version><reset>
+			# invalid version: Nie ma listy zmian dla wersji <gold>%s<red>
 			title: <bold><cyan>%s<reset> (%s)
 			next page: <grey>strona %s. z %s. Wpisz <gold>/skript update changes %s<gray> by przewinąć stronę (podpowiedź: użyj strzałki w górę na klawiaturze)
 	info:
@@ -173,8 +173,8 @@ aliases:
 	outside section: Aliasy muszą zostać wpisane w sekcjach
 
 	# Other messages
-	loaded x aliases from: Załadowano %s angielskich aliasów z %s
-	loaded x aliases: Załadowano łącznie %s angielskich aliasów
+	loaded x aliases from: Załadowano %s aliasów z %s
+	loaded x aliases: Załadowano łącznie %s aliasów
 
 # -- Time --
 time:
