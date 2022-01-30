@@ -143,9 +143,11 @@ a:visited {
 .type-Event {
     border-left: 5px solid rgb(28, 181, 152);
 }
+
 .type-Event .item-type {
     color: rgb(28, 181, 152);
 }
+
 .type-Event .item-examples p {
     background-color: rgb(28, 181, 152);
 }
@@ -153,9 +155,11 @@ a:visited {
 .type-Effect {
     border-left: 5px solid rgb(139, 255, 0);
 }
+
 .type-Effect .item-type {
     color: rgb(139, 255, 0);
 }
+
 .type-Effect .item-examples p {
     background-color: rgb(139, 255, 0);
 }
@@ -163,9 +167,11 @@ a:visited {
 .type-Expression {
     border-left: 5px solid rgb(255, 152, 0);
 }
+
 .type-Expression .item-type {
     color: rgb(255, 152, 0);
 }
+
 .type-Expression .item-examples p {
     background-color: rgb(255, 152, 0);
 }
@@ -173,9 +179,11 @@ a:visited {
 .type-Condition {
     border-left: 5px solid rgb(181, 28, 28);
 }
+
 .type-Condition .item-type {
     color: rgb(181, 28, 28);
 }
+
 .type-Condition .item-examples p {
     background-color: rgb(181, 28, 28);
     color: white;
@@ -184,20 +192,37 @@ a:visited {
 .type-Section {
     border-left: 5px solid rgb(181, 28, 121);
 }
+
 .type-Section .item-type {
     color: rgb(181, 28, 121);
 }
+
 .type-Section .item-examples p {
     background-color: rgb(181, 28, 121);
+    color: white;
+}
+
+.type-EffectSection {
+    border-left: 5px solid rgb(199, 0, 255);
+}
+
+.type-EffectSection .item-type {
+    color: rgb(199, 0, 255);
+}
+
+.type-EffectSection .item-examples p {
+    background-color: rgb(199, 0, 255);
     color: white;
 }
 
 .type-Type {
     border-left: 5px solid rgb(0, 100, 255);
 }
+
 .type-Type .item-type {
     color: rgb(0, 100, 255);
 }
+
 .type-Type .item-examples p {
     background-color: rgb(0, 100, 255);
     color: white;
@@ -206,9 +231,11 @@ a:visited {
 .type-Function {
     border-left: 5px solid rgb(128, 0, 255);
 }
+
 .type-Function .item-type {
     color: rgb(128, 0, 255);
 }
+
 .type-Function .item-examples p {
     background-color: rgb(128, 0, 255);
     color: white;
@@ -269,9 +296,22 @@ a:visited {
 div.active-syntax {
     border-left: 5px solid #ff4e4e;
 }
+
 div.active-syntax .item-examples p {
     background-color: #ff4e4e;
     color: white;
+}
+
+.item-examples p {
+    cursor: pointer;
+}
+
+.example-details-closed:before {
+    content: '▶ ';
+}
+
+.example-details-opened:before {
+    content: '▼ ';
 }
 
 /* Active tab for sub menus */
@@ -364,7 +404,8 @@ div.active-syntax .item-examples p {
     margin-top: 110px;
     height: calc(100vh - 110px);
     /* Fixed the TOP CSS 110px due to body having overflow hidden and top = 110px so the last 110px is hidden, this will fix it */
-    /* padding: calc(0.22em + 30px); */ /* When applied it will break the padding when an anchor is clicked */
+    /* padding: calc(0.22em + 30px); */
+    /* When applied it will break the padding when an anchor is clicked */
     padding-right: 30px;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -572,6 +613,7 @@ td ul {
     padding: 30px;
     font-size: 0.9em;
     color: var(--code-font-color);
+    display: none;
 }
 
 .box-title {
@@ -639,7 +681,8 @@ td ul {
         display: none;
     }
 
-    span .search-bar-version { /* More specific to override the other */
+    span .search-bar-version {
+        /* More specific to override the other */
         left: calc(20% + 150px) !important;
     }
 
@@ -732,7 +775,8 @@ td ul {
         top: calc(4.1em + 24px) !important;
     }
 
-    span .search-bar-version { /* More specific to override the other */
+    span .search-bar-version {
+        /* More specific to override the other */
         left: 150px !important;
     }
 
@@ -750,13 +794,16 @@ td ul {
     div.item-content {
         max-width: 100vw;
     }
+
     div.grid-container {
         grid-template-columns: initial;
     }
+
     .box.code {
         height: 300px;
         font-size: 14px;
     }
+
     p.item-type {
         display: none;
     }
@@ -772,7 +819,12 @@ td ul {
     color: var(--font-color);
 }
 
-p, h1, h2, h3, h4, h5 {
+p,
+h1,
+h2,
+h3,
+h4,
+h5 {
     color: var(--font-color);
 }
 
@@ -929,7 +981,7 @@ pre {
     color: var(--search-color);
     box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
     right: 0.8%;
-    top: 102px;
+    top: 101px;
     text-align: right;
 }
 
@@ -1009,58 +1061,76 @@ pre {
 #global-navigation .menu-subtabs a:hover {
     box-shadow: unset;
     /* border-left: 3px solid #ff9800; */
-    background: rgba(0,0,0,.1);
+    background: rgba(0, 0, 0, .1);
 }
 
 /* Syntax Highlighting */
-.sk-cond, .sk-loop {
+.sk-cond,
+.sk-loop {
     color: #a52e91;
     font-weight: bold;
 }
-.sk-eff  {
+
+.sk-eff {
     color: rgb(255, 174, 0)
 }
+
 .sk-expr {
     color: rgb(199, 152, 66)
 }
+
 .sk-event {
     color: #c23838;
 }
+
 .sk-command {
     color: #c27715;
 }
+
 .sk-arg-type {
     color: #dbab28;
 }
+
 .sk-loop-value {
     color: #ff6600;
 }
+
 .sk-false {
     color: #b10000;
     font-weight: bold;
 }
+
 .sk-true {
     color: #20b628;
     font-weight: bold;
 }
+
 .sk-operators {
     font-weight: bold;
 }
+
 .sk-var {
     color: #e74040;
 }
-.sk-string [class*="sk-"], .sk-string { /* More specific = higher priority to override other css in strings and comments */
+
+.sk-string [class*="sk-"],
+.sk-string {
+    /* More specific = higher priority to override other css in strings and comments */
     color: #34a52a !important;
     font-weight: unset;
 }
-.sk-comment, .sk-comment [class*="sk-"] {
+
+.sk-comment,
+.sk-comment [class*="sk-"] {
     color: #696969 !important;
     font-weight: unset;
 }
+
 .sk-function {
     color: #e873ff;
     font-weight: bold;
 }
+
 .sk-timespan {
     color: #ff5967;
     font-style: italic;

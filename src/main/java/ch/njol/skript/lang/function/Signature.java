@@ -63,15 +63,25 @@ public class Signature<T> {
 	 * References (function calls) to function with this signature.
 	 */
 	final Collection<FunctionReference<?>> calls;
-	
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
+
+	/**
+	 * References (function calls) to function with this signature.
+	 */
+	final String originClassPath;
+
+	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single, String originClassPath) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
 		this.returnType = returnType;
 		this.single = single;
-		
+		this.originClassPath = originClassPath;
+
 		calls = new ArrayList<>();
+	}
+
+	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
+		this(script, name ,parameters, returnType, single, "");
 	}
 	
 	public String getName() {
@@ -95,7 +105,11 @@ public class Signature<T> {
 	public boolean isSingle() {
 		return single;
 	}
-	
+
+	public String getOriginClassPath() {
+		return originClassPath;
+	}
+
 	/**
 	 * Gets maximum number of parameters that the function described by this
 	 * signature is able to take.

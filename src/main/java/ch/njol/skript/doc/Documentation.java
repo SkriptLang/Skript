@@ -256,11 +256,11 @@ public class Documentation {
 						first = false;
 						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
 						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-						if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) {
+						if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) { // equals method throws null error when doc name is null
 							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
 						} else {
 							b.append(c);
-							if (ci != null && ci.getDocName() != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
+							if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC)
 								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
 						}
 					}

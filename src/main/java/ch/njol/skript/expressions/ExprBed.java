@@ -35,7 +35,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
  */
 @Name("Bed")
 @Description("The bed location of a player, i.e. the spawn point of a player if he ever slept in a bed and the bed still exists and is unobstructed.")
-@Examples({"bed of player exists:",
+@Examples({"if bed of player exists:",
 		"	teleport player the the player's bed",
 		"else:",
 		"	teleport the player to the world's spawn point"})

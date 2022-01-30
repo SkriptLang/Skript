@@ -311,9 +311,7 @@ public class DefaultFunctions {
 		}).description("Gets a world from its name.")
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
-		
-		// the location expression doesn't work, so why not make a function for the same purpose
-		// FIXME document on ExprLocation as well
+
 		Functions.registerFunction(new JavaFunction<Location>("location", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),

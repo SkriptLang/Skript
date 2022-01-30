@@ -45,8 +45,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-// TODO this won't show up in the docs, sections don't have a tab. We should create a tab for them,
-//  and maybe add EffectSections to the effects page as well
 @Name("Spawn")
 @Description({"Spawn a creature. This can be used as an effect and as a section.",
 	"If it is used as a section, the section is run before the entity is added to the world.",

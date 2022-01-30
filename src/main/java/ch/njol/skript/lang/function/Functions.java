@@ -21,7 +21,6 @@ package ch.njol.skript.lang.function;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -229,10 +228,10 @@ public abstract class Functions {
 				return signError("Cannot recognise the type '" + returnType + "'");
 			}
 		}
-		
+
 		@SuppressWarnings({"unchecked", "null"})
 		Signature<?> sign = new Signature<>(script, name,
-			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn);
+			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn, "");
 
 		// Register this signature
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, script);

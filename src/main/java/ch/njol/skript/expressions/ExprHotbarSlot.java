@@ -33,9 +33,10 @@ import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 
 @Name("Hotbar Slot")
-@Description({"The slot number of the currently selected hotbar slot."})
+@Description({"The currently selected hotbar <a href='./classes.html#slot'>slot</a>. To retrieve its number use <a href='#ExprSlotIndex'>Slot Index</a> expression."})
 @Examples({"message \"%player's current hotbar slot%\"",
-            "set player's selected hotbar slot to slot 4 of player"})
+            "set player's selected hotbar slot to slot 4 of player",
+			"send \"index of player's current hotbar slot = 1\" # second slot from the left"})
 @Since("2.2-dev36")
 public class ExprHotbarSlot extends SimplePropertyExpression<Player, Slot> {
 
