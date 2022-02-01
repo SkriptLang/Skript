@@ -55,8 +55,10 @@ function toggleSyntax(elementID) {
 document.addEventListener('DOMContentLoaded', (e) => {
   const linkHash = window.location.hash.replace("#", "");
   if (linkHash != "") {
-    toggleSyntax(linkHash);
-    offsetAnchor(null, linkHash)
+    setTimeout(() => {
+      toggleSyntax(linkHash);
+      offsetAnchor(null, linkHash)
+    }, 30); // respect other search and link changers
   }
 });
 
@@ -227,7 +229,7 @@ if (content) {
         options.appendChild(option)
       }
     }
-    if (savedTags && !linkParams.get("search")) // Don't search for versions if the url has a search filter
+    if (savedTags && !linkParams.get("search") && !window.location.href.match(/.*?#.+/)) // Don't search for versions if the url has a search filter nor hash link
       searchNow(`v:${savedTags[0]}+`) // Auto search on load
 
     $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
@@ -521,14 +523,14 @@ replacePlaceholders(document.querySelector("body"));
 function setCookie(cname, cvalue, exdays) {
   const d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  let expires = "expires="+d.toUTCString();
+  let expires = "expires=" + d.toUTCString();
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; SameSite=None; Secure";
 }
 
 function getCookie(cname) {
   let name = cname + "=";
   let ca = document.cookie.split(';');
-  for(let i = 0; i < ca.length; i++) {
+  for (let i = 0; i < ca.length; i++) {
     let c = ca[i];
     while (c.charAt(0) == ' ') {
       c = c.substring(1);
@@ -574,8 +576,7 @@ function highlightElement(element) {
   let lines = element.innerHTML.split("<br>")
 
   for (let j = 0; j < lines.length; j++) {
-    Loop2:
-    for (let i = 0; i < patterns.length; i++) {
+    Loop2: for (let i = 0; i < patterns.length; i++) {
       let match;
       let regex = patterns[i][0];
       let oldLine = lines[j];
@@ -591,7 +592,7 @@ function highlightElement(element) {
   element.innerHTML = lines.join("<br>")
 }
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("DOMContentLoaded", function (event) {
   setTimeout(() => {
     document.querySelectorAll('.item-examples .skript-code-block').forEach(el => {
       highlightElement(el);
@@ -607,7 +608,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // Syntax Highlighting </>
 
 
-// <> Collapsible Examples
+// <> Example Collapse
 var examples = document.querySelectorAll(".item-examples p");
 if (examples) {
   examples.forEach(e => {
@@ -626,4 +627,4 @@ if (examples) {
     })
   })
 }
-// Collapsible Examples </>
+// Example Collapse </>

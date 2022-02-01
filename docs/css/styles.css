@@ -138,6 +138,7 @@ a:visited {
     box-shadow: var(--syntax-item-shadow);
     border-left: 5px solid rgb(255, 152, 0);
     margin: 35px 0;
+    overflow: hidden;
 }
 
 .type-Event {
@@ -352,16 +353,17 @@ div.active-syntax .item-examples p {
     width: 100%;
 }
 
-#nav-title {
+/* #nav-title {
     font-size: clamp(1.25em, 1.35vw, 2em);
-}
+} */
 
 #nav-title:hover {
     color: rgba(255, 152, 0, 0.9);
 }
 
 #nav-contents {
-    height: calc(100vh - 60px);
+    /* height: calc(100vh - 60px); */
+    height: 93vh;
     /* Fix the TOP css of #side-nav */
     width: 100%;
     overflow: scroll;
@@ -499,7 +501,6 @@ table {
 .item-content {
     padding-bottom: 40px;
     /* margin-bottom: 40px; */
-    max-width: 80vw;
     border-bottom: 1px solid var(--element-bottom-border);
     content-visibility: auto;
 }
