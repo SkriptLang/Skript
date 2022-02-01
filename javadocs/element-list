@@ -35,7 +35,7 @@ ch.njol.skript.lang.parser
 ch.njol.skript.lang.util
 ch.njol.skript.localization
 ch.njol.skript.log
-ch.njol.skript.module.worldguard6
+ch.njol.skript.patterns
 ch.njol.skript.registrations
 ch.njol.skript.sections
 ch.njol.skript.tests
