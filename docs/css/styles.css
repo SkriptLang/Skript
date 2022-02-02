@@ -499,6 +499,7 @@ table {
 }
 
 .item-content {
+    padding-bottom: 25px;
     border-bottom: 1px solid var(--element-bottom-border);
     content-visibility: auto;
 }
@@ -593,7 +594,7 @@ td ul {
     padding: 5px;
     color: var(--box-font-color);
     width: max-content;
-    margin: 25px 0;
+    margin-top: 25px;
 }
 
 .item-examples .skript-code-block {
