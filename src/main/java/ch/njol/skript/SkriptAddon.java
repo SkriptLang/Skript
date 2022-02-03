@@ -18,116 +18,162 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.iterator.EnumerationIterable;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.Module;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.util.coll.iterator.EnumerationIterable;
-
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
- * 
- * @author Peter Güttinger
  */
 public final class SkriptAddon {
 	
 	public final JavaPlugin plugin;
 	public final Version version;
-	private final String name;
 	
 	/**
 	 * Package-private constructor. Use {@link Skript#registerAddon(JavaPlugin)} to get a SkriptAddon for your plugin.
 	 * 
-	 * @param p
+	 * @param plugin The plugin representing the SkriptAddon to be registered.
 	 */
-	SkriptAddon(final JavaPlugin p) {
-		plugin = p;
-		name = "" + p.getName();
-		Version v;
+	SkriptAddon(JavaPlugin plugin) {
+		this.plugin = plugin;
+
+		Version version;
+		String descriptionVersion = plugin.getDescription().getVersion();
 		try {
-			v = new Version("" + p.getDescription().getVersion());
+			version = new Version(descriptionVersion);
 		} catch (final IllegalArgumentException e) {
-			final Matcher m = Pattern.compile("(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?").matcher(p.getDescription().getVersion());
+			Matcher m = Pattern.compile("(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?").matcher(descriptionVersion);
 			if (!m.find())
-				throw new IllegalArgumentException("The version of the plugin " + p.getName() + " does not contain any numbers: " + p.getDescription().getVersion());
-			v = new Version(Utils.parseInt("" + m.group(1)), m.group(2) == null ? 0 : Utils.parseInt("" + m.group(2)), m.group(3) == null ? 0 : Utils.parseInt("" + m.group(3)));
-			Skript.warning("The plugin " + p.getName() + " uses a non-standard version syntax: '" + p.getDescription().getVersion() + "'. Skript will use " + v + " instead.");
+				throw new IllegalArgumentException("The version of the plugin " + plugin.getName() + " does not contain any numbers: " + descriptionVersion);
+			version = new Version(Utils.parseInt("" + m.group(1)), m.group(2) == null ? 0 : Utils.parseInt("" + m.group(2)), m.group(3) == null ? 0 : Utils.parseInt("" + m.group(3)));
+			Skript.warning("The plugin " + plugin.getName() + " uses a non-standard version syntax: '" + descriptionVersion + "'. Skript will use " + version + " instead.");
 		}
-		version = v;
+		this.version = version;
 	}
 	
 	@Override
-	public final String toString() {
-		return name;
+	public String toString() {
+		return plugin.getName();
 	}
 	
 	public String getName() {
-		return name;
+		return plugin.getName();
 	}
-	
+
 	/**
-	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
-	 * 
-	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
-	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
-	 *            as well. Use an empty array to load all subpackages of the base package.
-	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
+	 *
+	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
+	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
+	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
 	 * @return This SkriptAddon
 	 */
-	public SkriptAddon loadClasses(String basePackage, final String... subPackages) throws IOException {
-		assert subPackages != null;
-		final JarFile jar = new JarFile(getFile());
+	public SkriptAddon loadClasses(String basePackage, String... subPackages) {
+		return loadClasses(null, true, basePackage, true, subPackages);
+	}
+
+	/**
+	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
+	 *
+	 * @param withClass A consumer that will run with each found class.
+	 * @param initialize Whether classes found in the package search should be initialized.
+	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
+	 * @param recursive Whether to recursively search through the subpackages provided.
+	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
+	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
+	 * @return This SkriptAddon
+	 */
+	@SuppressWarnings("ThrowableNotThrown")
+	public SkriptAddon loadClasses(@Nullable Consumer<Class<?>> withClass, boolean initialize, String basePackage, boolean recursive, String... subPackages) {
 		for (int i = 0; i < subPackages.length; i++)
 			subPackages[i] = subPackages[i].replace('.', '/') + "/";
 		basePackage = basePackage.replace('.', '/') + "/";
-		try {
-			for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class")) {
+
+		int depth = !recursive ? StringUtils.count(basePackage, '/') + 1 : 0;
+
+		File file = getFile();
+		if (file == null) {
+			Skript.error("Unable to retrieve file from addon '" + getName() + "'. Classes will not be loaded.");
+			return this;
+		}
+
+		try (final JarFile jar = new JarFile(file)) {
+			boolean hasWithClass = withClass != null;
+			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
+				String name = e.getName();
+				if (name.startsWith(basePackage) && name.endsWith(".class") && (recursive || StringUtils.count(name, '/') <= depth)) {
 					boolean load = subPackages.length == 0;
-					for (final String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
+					for (String subPackage : subPackages) {
+						if (e.getName().startsWith(subPackage, basePackage.length())) {
 							load = true;
 							break;
 						}
 					}
+
 					if (load) {
-						final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
+						String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 						try {
-							Class.forName(c, true, plugin.getClass().getClassLoader());
-						} catch (final ClassNotFoundException ex) {
-							Skript.exception(ex, "Cannot load class " + c + " from " + this);
-						} catch (final ExceptionInInitializerError err) {
+							Class<?> clazz = Class.forName(c, initialize, plugin.getClass().getClassLoader());
+							if (hasWithClass)
+								withClass.accept(clazz);
+						} catch (ClassNotFoundException ex) {
+							Skript.exception(ex, "Cannot load class " + c);
+						} catch (ExceptionInInitializerError err) {
 							Skript.exception(err.getCause(), this + "'s class " + c + " generated an exception while loading");
 						}
-						continue;
 					}
 				}
 			}
-		} finally {
-			try {
-				jar.close();
-			} catch (final IOException e) {}
+		} catch (IOException e) {
+			Skript.exception(e, "Failed to load classes for addon: " + plugin.getName());
 		}
 		return this;
+	}
+
+	/**
+	 * Loads all module classes found in the package search.
+	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
+	 * @param subPackages Specific subpackages to search in (e.g. 'conditions').
+	 *                    If no subpackages are provided, all subpackages will be searched.
+	 *                    Note that the search will go no further than the first layer of subpackages.
+	 */
+	@SuppressWarnings("ThrowableNotThrown")
+	public SkriptAddon loadModules(String basePackage, String... subPackages) {
+		return loadClasses(c -> {
+			if (Module.class.isAssignableFrom(c) && !c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
+				try {
+					((Module) c.getConstructor().newInstance()).register(this);
+				} catch (Exception e) {
+					Skript.exception(e, "Failed to load registration " + c);
+				}
+			}
+		}, false, basePackage, false, subPackages);
 	}
 	
 	@Nullable
 	private String languageFileDirectory = null;
 	
 	/**
-	 * Makes Skript load language files from the specified directory, e.g. "lang" or "skript lang" if you have a lang folder yourself. Localised files will be read from the
-	 * plugin's jar and the plugin's data folder, but the default English file is only taken from the jar and <b>must</b> exist!
+	 * Loads language files from the specified directory (e.g. "lang") into Skript.
+	 * Localized files will be read from the plugin's jar and the plugin's data file,
+	 * but the <b>default.lang</b> file is only taken from the jar and <b>must</b> exist!
 	 * 
 	 * @param directory Directory name
 	 * @return This SkriptAddon
@@ -142,7 +188,11 @@ public final class SkriptAddon {
 		Language.loadDefault(this);
 		return this;
 	}
-	
+
+	/**
+	 * @return The language file directory set for this addon.
+	 * It must first be set using {@link #setLanguageFileDirectory(String)}.
+	 */
 	@Nullable
 	public String getLanguageFileDirectory() {
 		return languageFileDirectory;
@@ -152,27 +202,25 @@ public final class SkriptAddon {
 	private File file = null;
 	
 	/**
-	 * @return The jar file of the plugin. The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar
-	 *         file. The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
+	 * @return The jar file of the plugin.
+	 * 			After this method is first called, the file will be cached for future use.
 	 */
 	@Nullable
 	public File getFile() {
 		if (file != null)
 			return file;
 		try {
-			final Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
+			Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
 			getFile.setAccessible(true);
 			file = (File) getFile.invoke(plugin);
 			return file;
-		} catch (final NoSuchMethodException e) {
+		} catch (NoSuchMethodException | IllegalArgumentException e) {
 			Skript.outdatedError(e);
-		} catch (final IllegalArgumentException e) {
-			Skript.outdatedError(e);
-		} catch (final IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			assert false;
-		} catch (final SecurityException e) {
+		} catch (SecurityException e) {
 			throw new RuntimeException(e);
-		} catch (final InvocationTargetException e) {
+		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e.getCause());
 		}
 		return null;

@@ -480,14 +480,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultFunctions();
 		
 		ChatMessages.registerListeners();
-		
-		try {
-			getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections");
-		} catch (final Exception e) {
-			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
-			setEnabled(false);
-			return;
-		}
+
+		getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections")
+			.loadModules("org.skriptlang.skript");
 
 		Commands.registerListeners();
 		
@@ -500,42 +495,23 @@ public final class Skript extends JavaPlugin implements Listener {
 			@Override
 			public void run() {
 				assert Bukkit.getWorlds().get(0).getFullTime() == tick;
-				
+
 				// Load hooks from Skript jar
-				try {
-					try (JarFile jar = new JarFile(getFile())) {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
-							if (e.getName().startsWith("ch/njol/skript/hooks/") && e.getName().endsWith("Hook.class") && StringUtils.count("" + e.getName(), '/') <= 5) {
-								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
-								try {
-									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
-										hook.getDeclaredConstructor().setAccessible(true);
-										hook.getDeclaredConstructor().newInstance();
-									}
-								} catch (final ClassNotFoundException ex) {
-									Skript.exception(ex, "Cannot load class " + c);
-								} catch (final ExceptionInInitializerError err) {
-									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
-								}
-							}
+				getAddonInstance().loadClasses(c -> {
+					if (Hook.class.isAssignableFrom(c) && !c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
+						try {
+							c.getDeclaredConstructor().newInstance();
+						} catch (Exception ex) {
+							Skript.exception(ex, "Failed to load hook class " + c);
 						}
 					}
-				} catch (final Exception e) {
-					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
-					Skript.exception(e);
-				}
+				}, false, "ch.njol.skript.hooks", false);
 				finishedLoadingHooks = true;
 				
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
 					tainted = true;
-					try {
-						getAddonInstance().loadClasses("ch.njol.skript", "tests");
-					} catch (IOException e) {
-						Skript.exception("Failed to load testing environment.");
-						Bukkit.getServer().shutdown();
-					}
+					getAddonInstance().loadClasses("ch.njol.skript", "tests");
 				}
 				
 				stopAcceptingRegistrations();
