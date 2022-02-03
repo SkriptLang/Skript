@@ -42,7 +42,8 @@ public class ExprPlayerProtocolVersion extends SimplePropertyExpression<Player, 
 	@Override
 	@Nullable
 	public Integer convert(Player player) {
-		return player.getProtocolVersion();
+		int version = player.getProtocolVersion();
+		return version == -1 ? null : version;
 	}
 
 	@Override
