@@ -21,40 +21,41 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.bukkit.Location;
+import org.bukkit.entity.HumanEntity;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Middle of Location")
-@Description("Returns the middle/center of a location. In other words, returns the middle of the X, Z coordinates and the floor value of the Y coordinate of a location.")
-@Examples({
-		"command /stuck:",
-		"\texecutable by: players",
-		"\ttrigger:",
-		"\t\tteleport player to the center of player's location",
-		"\t\tsend \"You're no longer stuck.\""})
+@Name("Attack Cooldown")
+@Description({"Returns the current cooldown for a player's attack. This is used to calculate damage, with 1.0 representing a fully charged attack and 0.0 representing a non-charged attack.",
+	"NOTE: Currently this can not be set to anything."})
+@Examples({"on damage:",
+	"\tif attack cooldown of attacker < 1:",
+	"\t\tset damage to 0",
+	"\t\tsend \"Your hit was too weak! wait until your weapon is fully charged next time.\" to attacker"})
 @Since("2.6.1")
-public class ExprMiddleOfLocation extends SimplePropertyExpression<Location, Location> {
-	
+@RequiredPlugins("Minecraft 1.15+")
+public class ExprAttackCooldown extends SimplePropertyExpression<HumanEntity, Float> {
+
 	static {
-		register(ExprMiddleOfLocation.class, Location.class, "(middle|center) [point]", "location");
+		register(ExprAttackCooldown.class, Float.class, "attack cooldown", "players");
 	}
-	
+
 	@Override
 	@Nullable
-	public Location convert(Location loc) {
-		return new Location(loc.getWorld(), loc.getBlockX() + 0.5, loc.getBlockY(), loc.getBlockZ() + 0.5);
+	public Float convert(HumanEntity e) {
+		return e.getAttackCooldown();
 	}
-	
+
 	@Override
-	public Class<? extends Location> getReturnType() {
-		return Location.class;
+	public Class<? extends Float> getReturnType() {
+		return Float.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
-		return "middle point";
+		return "attack cooldown";
 	}
-	
+
 }
