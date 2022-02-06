@@ -54,7 +54,7 @@ import java.util.Map.Entry;
 		"set {_descending-indices::*} to sorted indices of {_leader-board::*} in descending order",
 		"broadcast \"%{_descending-indices::*}%\" #result is fourth, third, second, first"
 })
-@Since("2.4 (indices), INSERT VERSION (sorting)")
+@Since("2.4 (indices), 2.6.1 (sorting)")
 public class ExprIndices extends SimpleExpression<String> {
 
 	static {

@@ -73,6 +73,14 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 		return true;
 	}
 
+	/**
+	 * @return the Event classes to use in {@link ch.njol.skript.lang.parser.ParserInstance},
+	 * or {@code null} if the Event classes this SkriptEvent was registered with should be used.
+	 */
+	public Class<? extends Event> @Nullable[] getEventClasses() {
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		return toString(null, false);
