@@ -31,6 +31,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * A section that can decide what it does with its contents, as code isn't parsed by default.
@@ -152,10 +153,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		sectionContext.sectionNode = sectionNode;
-		sectionContext.triggerItems = triggerItems;
-
-		return (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
+		return sectionContext.modify(sectionNode, triggerItems,
+			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
 	}
 
 	static {
@@ -170,6 +169,30 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		public SectionContext(ParserInstance parserInstance) {
 			super(parserInstance);
+		}
+
+		/**
+		 * Modifies this SectionContext temporarily, for the duration of the {@link Supplier#get()} call,
+		 * reverting the changes afterwards.
+		 *
+		 * This must be used instead of manually modifying the fields of this instance,
+		 * unless you also revert the changes afterwards.
+		 *
+		 * See https://github.com/SkriptLang/Skript/pull/4353 and https://github.com/SkriptLang/Skript/issues/4473.
+		 */
+		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
+			SectionNode prevSectionNode = this.sectionNode;
+			List<TriggerItem> prevTriggerItems = this.triggerItems;
+
+			this.sectionNode = sectionNode;
+			this.triggerItems = triggerItems;
+
+			T result = supplier.get();
+
+			this.sectionNode = prevSectionNode;
+			this.triggerItems = prevTriggerItems;
+
+			return result;
 		}
 
 	}
