@@ -34,6 +34,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -107,10 +108,16 @@ public class ExprIndices extends SimpleExpression<String> {
 
 		if (sort) {
 			int direction = descending ? -1 : 1;
-			return variable.entrySet().stream()
+			String[] strings = variable.entrySet().stream()
 				.sorted((a, b) -> compare(a, b, direction))
 				.map(Entry::getKey)
 				.toArray(String[]::new);
+
+			if (debug) {
+				System.out.println("strings: " + Arrays.toString(strings));
+			}
+
+			return strings;
 		}
 
 		return variable.keySet().toArray(new String[0]);
