@@ -84,6 +84,10 @@ public class ExprIndices extends SimpleExpression<String> {
 
 			debug = sort && !descending;
 
+			if (sort) {
+				System.out.println("init: " + parseResult.expr + " ; debug: " + debug);
+			}
+
 			return true;
 		}
 
