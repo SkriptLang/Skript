@@ -72,12 +72,17 @@ public class ExprIndices extends SimpleExpression<String> {
 	private boolean sort;
 	private boolean descending;
 
+	private boolean debug;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		sort = matchedPattern > 1;
 		descending = parseResult.mark == 1;
 		if (exprs[0] instanceof Variable<?> && ((Variable<?>) exprs[0]).isList()) {
 			list = (Variable<?>) exprs[0];
+
+			debug = sort && !descending;
+
 			return true;
 		}
 
@@ -85,6 +90,7 @@ public class ExprIndices extends SimpleExpression<String> {
 		if (LiteralUtils.canInitSafely(exprs[0])) {
 			Skript.error("The indices expression may only be used with list variables");
 		}
+
 
 		return false;
 	}
@@ -132,6 +138,12 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	// Extracted method for better readability
 	private int compare(Entry<String, Object> a, Entry<String, Object> b, int direction) {
-		return Comparators.compare(a.getValue(), b.getValue()).getRelation() * direction;
+		int rv = Comparators.compare(a.getValue(), b.getValue()).getRelation() * direction;
+
+		if (debug) {
+			System.out.println("a: " + a.getValue() + " ; b: " + b.getValue() + " ; direction: " + direction + " ; rv: " + rv);
+		}
+
+		return rv;
 	}
 }
