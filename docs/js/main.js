@@ -2,7 +2,7 @@ const siteVersion = "2.2.0"; // site version is different from skript version
 
 // ID Scroll
 const links = document.querySelectorAll("div.item-wrapper");
-const contents = document.querySelectorAll("#content")[0];
+const contents = document.querySelector("#content");
 
 lastActiveSideElement = null;
 navContents = document.getElementById("nav-contents");
@@ -421,43 +421,6 @@ if (searchBar) {
   });
 }
 // Search Bar </>
-
-// <> Dark Mode
-
-// Auto load DarkMode from cookies
-if (getCookie("darkMode") == "false") {
-  content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-on.svg" id="theme-switch">`);
-  document.body.setAttribute('data-theme', 'white')
-} else {
-  content.insertAdjacentHTML('beforeend', `<img style="z-index: 99;" src="./assets/light-off.svg" id="theme-switch">`);
-
-  // Auto load from system theme
-  // const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
-  // if (darkThemeMq.matches) {
-  //   document.body.removeAttribute('data-theme');
-  // } else {
-  //   document.body.setAttribute('data-theme', 'white')
-  // }
-}
-
-
-setTimeout(() => {
-  var themeSwitcher = document.getElementById('theme-switch');
-  // console.log(themeSwitcher);
-  themeSwitcher.addEventListener('click', (event) => {
-    // console.log("1");
-    if (document.body.getAttribute("data-theme") == null) {
-      document.body.setAttribute('data-theme', 'white');
-      event.target.src = "./assets/light-on.svg";
-      setCookie("darkMode", "false", 99);
-    } else {
-      event.target.src = "./assets/light-off.svg";
-      document.body.removeAttribute('data-theme');
-      setCookie("darkMode", "true", 99);
-    }
-  });
-}, 500); // For some reason this wouldn't work in index.html (only) unless I add some delay o.O
-// Dark Mode <>
 
 // <> Placeholders
 const ghAPI = "https://api.github.com/repos/SkriptLang/Skript"
