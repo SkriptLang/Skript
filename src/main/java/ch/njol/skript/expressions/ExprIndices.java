@@ -24,6 +24,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
@@ -35,6 +36,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -119,6 +121,11 @@ public class ExprIndices extends SimpleExpression<String> {
 
 			if (debug) {
 				System.out.println("strings: " + Arrays.toString(strings));
+				Iterator<ExpressionInfo<?, ?>> iterator = Skript.getExpressions();
+				while (iterator.hasNext()) {
+					ExpressionInfo<?, ?> expressionInfo = iterator.next();
+					System.out.println("  exprC: " + expressionInfo.c.getSimpleName());
+				}
 			}
 
 			return strings;
