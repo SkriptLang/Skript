@@ -32,12 +32,17 @@
     --red-box-bg: rgba(0, 0, 0, 0.4);
 
     --syntax-item-shadow: 0px 0px 15px rgba(0, 0, 0, .5);
+
+    --wrapper-bg-color: transparent;
+
+    --scrollbar-track-bg-color: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb-bg-color: rgba(255, 255, 255, 0.4);
 }
 
 [data-theme="white"] {
     --font-color: black;
     --font-secondary-color: rgba(0, 0, 0, .65);
-    --bg-color: #fffbf4;
+    --bg-color: #f5f5f5;
     --table-color: white;
 
     --search-color: black;
@@ -46,18 +51,18 @@
 
     --table-row-color: rgba(0, 0, 0, 0.02);
     --table-row2-color: rgba(0, 0, 0, 0.05);
-    --table-side-color: rgba(185, 183, 180, .6);
-    --table-side2-color: rgba(181, 180, 178, 0.45);
-    --table-desc-color: rgba(217, 211, 204, 0.4);
+    --table-side-color: rgb(224 224 224 / 60%);
+    --table-side2-color: rgb(202 202 202 / 45%);
+    --table-desc-color: rgb(211 211 211 / 40%);
 
     --code-font-color: white;
     --code-bg-color: rgb(41, 41, 41);
 
-    --sidebar-items-bg: rgba(0, 0, 0, 0.03);
+    --sidebar-items-bg: rgba(0, 0, 0, 0.07);
 
     --element-bottom-border: rgba(0, 0, 0, 0.1);
 
-    --link-color: #ffad32;
+    --link-color: #bb7000;
     --link-hover-color: #dd8500;
     --link-visited-color: #ff9800;
 
@@ -70,6 +75,11 @@
     --red-box-bg: rgba(0, 0, 0, 0.1);
 
     --syntax-item-shadow: 0px 0px 15px rgba(0, 0, 0, .2);
+
+    --wrapper-bg-color: white;
+
+    --scrollbar-track-bg-color: rgba(0, 0, 0, 0.03);
+    --scrollbar-thumb-bg-color: rgba(48, 48, 51, 0.4);
 
     /* transition: all 1s; */
 }
@@ -84,17 +94,17 @@ html {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: var(--scrollbar-track-bg-color);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(48, 48, 51, 0.2);
+    background-color: var(--scrollbar-thumb-bg-color);
     border-radius: 10px;
 }
 
@@ -138,6 +148,7 @@ a:visited {
     box-shadow: var(--syntax-item-shadow);
     border-left: 5px solid rgb(255, 152, 0);
     margin: 35px 0;
+    background-color: var(--wrapper-bg-color)
 }
 
 .type-Event {
@@ -772,7 +783,7 @@ td ul {
     }
 
     #search-bar-after {
-        top: calc(4.1em + 24px) !important;
+        top: calc(4.1em + 94px) !important;
     }
 
     span .search-bar-version {
@@ -980,8 +991,8 @@ pre {
     background: var(--search-bg-color);
     color: var(--search-color);
     box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .05);
-    right: 0.8%;
-    top: 101px;
+    right: 15px;
+    top: 100px;
     text-align: right;
 }
 
