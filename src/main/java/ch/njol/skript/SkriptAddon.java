@@ -103,6 +103,9 @@ public final class SkriptAddon {
 					}
 					if (load) {
 						final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
+
+						System.out.println("class load: " + c);
+
 						try {
 							Class.forName(c, true, plugin.getClass().getClassLoader());
 						} catch (final ClassNotFoundException ex) {
