@@ -215,48 +215,49 @@ if (content) {
   searchIcon = document.getElementById("search-icon");
 
   if (isNewPage) {
-    let tags = []
-    let options = "<select id='search-version' name='versions' id='versions' onchange='checkVersionFilter()'></select>"
-    content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
-    options = document.getElementById("search-version");
+    setTimeout(() => {
+      let tags = []
+      let options = "<select id='search-version' name='versions' id='versions' onchange='checkVersionFilter()'></select>"
+      content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
+      options = document.getElementById("search-version");
 
-    let savedTags = getCookie("skVersions").split(",");
-    for (let i = 0; i < savedTags.length; i++) { // Append saved versions then check
-      if (savedTags[i] != "") {
-        let option = document.createElement('option')
-        option.value = savedTags[i]
-        option.textContent = "Since v" + savedTags[i]
-        options.appendChild(option)
+      let savedTags = getCookie("skVersions").split(",");
+      for (let i = 0; i < savedTags.length; i++) { // Append saved versions then check
+        if (savedTags[i] != "") {
+          let option = document.createElement('option')
+          option.value = savedTags[i]
+          option.textContent = "Since v" + savedTags[i]
+          options.appendChild(option)
+        }
       }
-    }
-    if (savedTags && !linkParams.get("search") && !window.location.href.match(/.*?#.+/)) // Don't search for versions if the url has a search filter nor hash link
-      searchNow(`v:${savedTags[0]}+`) // Auto search on load
+      if (savedTags && !linkParams.get("search") && !window.location.href.match(/.*?#.+/)) // Don't search for versions if the url has a search filter nor hash link
+        searchNow(`v:${savedTags[0]}+`) // Auto search on load
 
-    $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
-      let isThereNew = false;
-      for (let i = 0; i < data.length; i++) {
-        let tag = data[i]["name"]
-        // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
-        tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
-      }
-      tags = [...new Set(tags)] // remove duplicates
-      setCookie("skVersions", tags, 5);
-      for (let i = 0; i < tags.length; i++) {
-        if (savedTags.includes(tags[i])) // Only add unsaved versions
-          continue
+      $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
+        let isThereNew = false;
+        for (let i = 0; i < data.length; i++) {
+          let tag = data[i]["name"]
+          // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
+          tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
+        }
+        tags = [...new Set(tags)] // remove duplicates
+        setCookie("skVersions", tags, 5);
+        for (let i = 0; i < tags.length; i++) {
+          if (savedTags.includes(tags[i])) // Only add unsaved versions
+            continue
 
-        isThereNew = true; // Marks that a new version was added to update the search bar
+          isThereNew = true; // Marks that a new version was added to update the search bar
 
-        let option = document.createElement('option')
-        option.value = tags[i]
-        option.textContent = "Since v" + tags[i]
-        options.appendChild(option)
-      }
-      if (isThereNew && !linkParams.get("search"))
-        searchNow(`v:${tags[0]}+`)
-    })
+          let option = document.createElement('option')
+          option.value = tags[i]
+          option.textContent = "Since v" + tags[i]
+          options.appendChild(option)
+        }
+        if (isThereNew && !linkParams.get("search"))
+          searchNow(`v:${tags[0]}+`)
+      })
+    }, 20);
   }
-
 } else {
   content = document.getElementById("content-no-docs")
 }
