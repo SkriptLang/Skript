@@ -138,7 +138,6 @@ a:visited {
     box-shadow: var(--syntax-item-shadow);
     border-left: 5px solid rgb(255, 152, 0);
     margin: 35px 0;
-    overflow: hidden;
 }
 
 .type-Event {
