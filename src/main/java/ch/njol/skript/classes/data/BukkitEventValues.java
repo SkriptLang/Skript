@@ -817,7 +817,7 @@ public final class BukkitEventValues {
 			public Hanging get(final HangingEvent e) {
 				return e.getEntity();
 			}
-		}, 0);
+		}, 0); // Note: will not work in HangingEntityBreakEvent due to event-entity being parsed as HangingBreakByEntityEvent#getRemover() from code down below
 		EventValues.registerEventValue(HangingEvent.class, World.class, new Getter<World, HangingEvent>() {
 			@Override
 			@Nullable
