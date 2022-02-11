@@ -35,6 +35,7 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.sections.SecWhile;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -78,6 +79,8 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	boolean isVariableLoop = false;
 	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
 	boolean isIndex = false;
+	// if this is a while loop then return the current iteration when calling loop-value
+	boolean isWhileLoop = false;
 	
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
@@ -165,6 +168,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			one[0] = current.getValue();
 			return one;
 		}
+//		else if (isWhileLoop) {
+//		}
+
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		one[0] = loop.getCurrent(e);
 		return one;

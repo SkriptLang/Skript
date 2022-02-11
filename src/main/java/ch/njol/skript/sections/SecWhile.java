@@ -34,7 +34,7 @@ import java.util.List;
 public class SecWhile extends Section {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[(1¦do)] while <.+>");
+		Skript.registerSection(SecWhile.class, "[(:do)] while <.+> [(failCheck:fail[s] at %number%)]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -46,7 +46,12 @@ public class SecWhile extends Section {
 	private boolean doWhile;
 	private boolean ranDoWhile = false;
 
+	private boolean isFailCheck;
+	private int walkCounter = 0;
+	private Expression<Number> failsAt;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,
@@ -58,9 +63,11 @@ public class SecWhile extends Section {
 		condition = Condition.parse(expr, "Can't understand this condition: " + expr);
 		if (condition == null)
 			return false;
-		doWhile = parseResult.mark == 1;
-		loadOptionalCode(sectionNode);
+		doWhile = parseResult.hasTag("do");
+		isFailCheck = parseResult.hasTag("failCheck");
+		failsAt = (Expression<Number>) exprs[0];
 
+		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
 		return true;
@@ -69,8 +76,15 @@ public class SecWhile extends Section {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		if ((doWhile && !ranDoWhile) || condition.check(e)) {
+		Number failsAt = 0;
+		if (this.failsAt != null) {
+			if ((failsAt = this.failsAt.getSingle(e)) == null)
+				failsAt = Long.MAX_VALUE;
+		}
+
+		if (((doWhile && !ranDoWhile) || condition.check(e)) && walkCounter < failsAt.longValue()) {
 			ranDoWhile = true;
+			walkCounter++;
 			return walk(e, true);
 		} else {
 			reset();
@@ -99,4 +113,7 @@ public class SecWhile extends Section {
 		ranDoWhile = false;
 	}
 
+	public int getWalkCounter() {
+		return walkCounter;
+	}
 }
