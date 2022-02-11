@@ -39,10 +39,10 @@ import org.eclipse.jdt.annotation.Nullable;
 			"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested."})
 @Examples("set age of targeted block to max age of targeted block")
 @Since("INSERT VERSION")
-public class ExprAge extends SimplePropertyExpression<Block, Number> {
+public class ExprBlockAge extends SimplePropertyExpression<Block, Number> {
 	
 	static {
-		register(ExprAge.class, Number.class, "((max:max[imum]|) age)", "block");
+		register(ExprBlockAge.class, Number.class, "((max:max[imum]|) age)", "block");
 	}
 
 	boolean isMax;
