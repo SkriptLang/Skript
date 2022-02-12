@@ -34,7 +34,7 @@ import java.util.List;
 public class SecWhile extends Section {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[(:do)] while <.+> [(failCheck:fail[s] at %number%)]");
+		Skript.registerSection(SecWhile.class, "[(:do)] while <.+> [[(to|and)] (fail[s]|exit [loop]) at %number%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -46,7 +46,6 @@ public class SecWhile extends Section {
 	private boolean doWhile;
 	private boolean ranDoWhile = false;
 
-	private boolean isFailCheck;
 	private int walkCounter = 0;
 	private Expression<Number> failsAt;
 
@@ -64,7 +63,6 @@ public class SecWhile extends Section {
 		if (condition == null)
 			return false;
 		doWhile = parseResult.hasTag("do");
-		isFailCheck = parseResult.hasTag("failCheck");
 		failsAt = (Expression<Number>) exprs[0];
 
 		loadOptionalCode(sectionNode);
