@@ -37,7 +37,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Hanging Entity/Remover")
-@Description("Returns the hanging entity or remover.")
+@Description("Returns the hanging entity or remover in hanging <a href='/events.html#break_mine'>break</a> and <a href='/events.html#place'>place</a> events.")
 @Examples({"on break of item frame:",
 		"\tif item of hanging entity is diamond pickaxe:",
 		"\t\tcancel event",
@@ -47,7 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprHanging extends SimpleExpression<Entity> {
 	
 	static {
-		Skript.registerExpression(ExprHanging.class, Entity.class, ExpressionType.SIMPLE, "hanging (:entity|:remover)");
+		Skript.registerExpression(ExprHanging.class, Entity.class, ExpressionType.SIMPLE, "[the] hanging (entity|:remover)");
 	}
 
 	private boolean isRemover;
@@ -68,15 +68,12 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
-		if (!(e instanceof HangingEvent))
-			return null;
-
-		Entity entity;
-		if (!(e instanceof HangingBreakByEntityEvent))
-			entity = isRemover ? null : ((HangingEvent) e).getEntity();
-		else
-			entity = isRemover ? ((HangingBreakByEntityEvent) e).getRemover() : ((HangingEvent) e).getEntity();
+	public Entity[] get(Event e) {
+		Entity entity = null;
+		if (!isRemover)
+			entity = ((HangingEvent) e).getEntity();
+		else if (e instanceof HangingBreakByEntityEvent)
+			entity = ((HangingBreakByEntityEvent) e).getRemover();
 
 		return new Entity[] { entity };
 	}
