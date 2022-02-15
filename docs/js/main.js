@@ -8,15 +8,16 @@ lastActiveSideElement = null;
 navContents = document.getElementById("nav-contents");
 
 if (contents) {
-  contents.addEventListener('scroll', (e) => {
-    links.forEach((ha) => {
-      const rect = ha.getBoundingClientRect();
-      if (rect.top > 0 && rect.top < 350) {
-        // const location = window.location.toString().split("#")[0];
-        // history.replaceState(null, null, location + "#" + ha.id); // Not needed since lastActiveSideElement + causes history spam
-        
-        if (lastActiveSideElement != null) {
-          lastActiveSideElement.classList.remove("active-item");
+  setTimeout(() => {
+    contents.addEventListener('scroll', (e) => {
+      links.forEach((ha) => {
+        const rect = ha.getBoundingClientRect();
+        if (rect.top > 0 && rect.top < 350) {
+          // const location = window.location.toString().split("#")[0];
+          // history.replaceState(null, null, location + "#" + ha.id); // Not needed since lastActiveSideElement + causes history spam
+          
+          if (lastActiveSideElement != null) {
+            lastActiveSideElement.classList.remove("active-item");
         }
         
         lastActiveSideElement = document.querySelectorAll(`#nav-contents a[href="#${ha.id}"]`)[0];
@@ -26,7 +27,7 @@ if (contents) {
         }
       }
     });
-  });
+  })}, 50); // respect auto hash scroll
 }
   
   
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
     setTimeout(() => {
       toggleSyntax(linkHash);
       offsetAnchor(null, linkHash)
-    }, 30); // respect other search and link changers
+    }, 40); // respect other search and link changers
   }
 });
 
