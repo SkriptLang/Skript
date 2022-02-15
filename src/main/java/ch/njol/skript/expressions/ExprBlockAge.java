@@ -75,7 +75,7 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Integer> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return (mode == ChangeMode.SET || mode == ChangeMode.RESET) && !isMax ? CollectionUtils.array(Number.class) : null;
+		return !isMax && (mode == ChangeMode.SET || mode == ChangeMode.RESET) ? CollectionUtils.array(Number.class) : null;
 	}
 	
 	@Override
