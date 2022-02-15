@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -35,17 +37,19 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Block Age")
-@Description({"Returns the age of a block. 'Age' represents the different growth stages that a crop-like block can go through.",
+@Description({"Returns the age or max age of a block. 'Age' represents the different growth stages that a crop-like block can go through.",
 			"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested."})
 @Examples("set age of targeted block to max age of targeted block")
+@RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
-public class ExprBlockAge extends SimplePropertyExpression<Block, Number> {
+public class ExprBlockAge extends SimplePropertyExpression<Block, Integer> {
 	
 	static {
-		register(ExprBlockAge.class, Number.class, "((max:max[imum]|) age)", "block");
+		if (Skript.classExists("org.bukkit.block.data.Ageable"))
+			register(ExprBlockAge.class, Integer.class, "[:max[imum]] age", "block");
 	}
 
-	boolean isMax;
+	private boolean isMax = false;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -57,7 +61,7 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Number> {
 
 	@Override
 	@Nullable
-	public Number convert(Block block) {
+	public Integer convert(Block block) {
 		BlockData bd = block.getBlockData();
 		if (bd instanceof Ageable) {
 			if (isMax)
@@ -71,14 +75,13 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Number> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return mode == ChangeMode.SET || mode == ChangeMode.RESET ? CollectionUtils.array(Number.class) : null;
+		return (mode == ChangeMode.SET || mode == ChangeMode.RESET) && !isMax ? CollectionUtils.array(Number.class) : null;
 	}
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET && (delta == null || delta[0] == null)) {
+		if (mode == ChangeMode.SET && (delta == null || delta[0] == null))
 			return;
-		}
 
 		int value = mode == ChangeMode.RESET ? 0 : ((Number) delta[0]).intValue();
 		for (Block block : getExpr().getArray(event)) {
@@ -91,13 +94,13 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Number> {
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 	
 	@Override
 	protected String getPropertyName() {
-		return isMax ? "max " : "" + "age";
+		return (isMax ? "max " : "") + "age";
 	}
 	
 }
