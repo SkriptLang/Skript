@@ -30,7 +30,7 @@ if (contents) {
 }
   
   
-  // Active Tab
+// Active Tab
 const pageLink = window.location.toString().replaceAll(/(.*)\/(.+?).html(.*)/gi, '$2');
 if (pageLink === "" || pageLink == window.location.toString()) // home page - when there is no `.+?.html` pageLink will = windown.location due to current regex
   document.querySelectorAll('#global-navigation a[href="index.html"]')[0].classList.add("active-tab");
@@ -39,6 +39,7 @@ else
 
 // Active syntax
 var lastActiveSyntaxID;
+
 function toggleSyntax(elementID) {
   let element = document.getElementById(elementID)
   if (!element)
@@ -133,6 +134,7 @@ function copyToClipboard(value) {
     cb.parentNode.removeChild(cb);
   }, 50)
 }
+
 function showNotification(text, bgColor, color) {
   var noti = document.body.appendChild(document.createElement("span"));
   noti.id = "notification-box";
@@ -424,63 +426,89 @@ if (searchBar) {
 
 // <> Placeholders
 const ghAPI = "https://api.github.com/repos/SkriptLang/Skript"
-function replacePlaceholders(html) {
-  let innerHTML = html.innerHTML;
+
+function replacePlaceholders(element) {
+  let innerHTML = element.innerHTML;
   if (innerHTML.includes("${latest-version}")) {
-    let lv = $.getJSON(ghAPI + "/releases?per_page=1", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${latest-version}", data[0]["tag_name"]);
-    })
+    getApiValue(element, "latest-version", "releases", (data) => {
+      return data[0]["tag_name"];
+    });
   }
+
   if (innerHTML.includes("${latest-version-changelog}")) {
-    let lv = $.getJSON(ghAPI + "/releases?per_page=1", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${stable-version-changelog}", data[0]["body"]).replaceAll("\\r\\n", "<br>");
-    })
+    getApiValue(element, "latest-version-changelog", "releases", (data) => {
+      return data["body"].replaceAll("\\r\\n", "<br>");
+    });
   }
 
   if (innerHTML.includes("${stable-version}")) {
-    let lv = $.getJSON(ghAPI + "/releases/latest", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${stable-version}", data["tag_name"]);
-    })
+    getApiValue(element, "stable-version", "releases/latest", (data) => {
+      return data["tag_name"];
+    });
   }
+
   if (innerHTML.includes("${stable-version-changelog}")) {
-    let lv = $.getJSON(ghAPI + "/releases/latest", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${stable-version-changelog}", data["body"]).replaceAll("\\r\\n", "<br>");
-    })
+    getApiValue(element, "stable-version-changelog", "releases/latest", (data) => {
+      return data["body"].replaceAll("\\r\\n", "<br>");
+    });
   }
 
   if (innerHTML.includes("${latest-issue-")) {
-    let lv = $.getJSON(ghAPI + "/issues?per_page=1", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-user}", data[0]["user"]["login"]);
-      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-title}", data[0]["title"]);
-      html.innerHTML = html.innerHTML.replaceAll("${latest-issue-date}", data[0]["created_at"]);
-    })
+    getApiValue(element, "latest-issue-user", "issues?per_page=1", (data) => {
+      return data[0]["user"]["login"];
+    });
+    getApiValue(element, "latest-issue-title", "issues?per_page=1", (data) => {
+      return data[0]["title"];
+    });
+    getApiValue(element, "latest-issue-date", "issues?per_page=1", (data) => {
+      return data[0]["created_at"];
+    });
   }
 
   if (innerHTML.includes("${latest-pull-")) {
-    let lv = $.getJSON(ghAPI + "/pulls?per_page=1", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-user}", data[0]["user"]["login"]);
-      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-title}", data[0]["title"]);
-      html.innerHTML = html.innerHTML.replaceAll("${latest-pull-date}", data[0]["created_at"]);
-    })
-  }
-
-  if (innerHTML.includes("${contributors-size}")) {
-    let lv = $.getJSON(ghAPI + "/contributors?per_page=500", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${contributors-size}", data.length);
-    })
+    getApiValue(element, "latest-pull-user", "pulls?per_page=1", (data) => {
+      return data[0]["user"]["login"];
+    });
+    getApiValue(element, "latest-pull-title", "pulls?per_page=1", (data) => {
+      return data[0]["title"];
+    });
+    getApiValue(element, "latest-pull-date", "pulls?per_page=1", (data) => {
+      return data[0]["created_at"];
+    });
   }
 
   if (innerHTML.includes("${site-version}")) {
-    html.innerHTML = html.innerHTML.replaceAll("${site-version}", siteVersion);
+    element.innerHTML = element.innerHTML.replaceAll("${site-version}", siteVersion);
   }
 
   if (innerHTML.includes("${contributors-size}")) {
-    let lv = $.getJSON(ghAPI + "/contributors?per_page=500", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${contributors-size}", data.length);
-    })
+    getApiValue(element, "contributors-size", "contributors?per_page=500", (data) => {
+      return data.length;
+    });
   }
 }
-replacePlaceholders(document.querySelector("body"));
+
+function getApiValue(element, placeholder, apiPathName, callback) {
+  let innerHTML = element.innerHTML;
+  if (innerHTML.includes(`\${${placeholder}}`)) {
+    let cv = getCookie(`ghapi-${placeholder}`); // cached value
+    if (cv) {
+      element.innerHTML = element.innerHTML.replaceAll(`\${${placeholder}}`, cv);
+    } else {
+      $.getJSON(ghAPI + `/${apiPathName}`, (data) => {
+        let value = callback(data);
+        element.innerHTML = element.innerHTML.replaceAll(`\${${placeholder}}`, value);
+        setCookie(`ghapi-${placeholder}`, value, 0.2);
+      })
+    }
+  }
+}
+
+// To save performance we use the class "placeholder" on the wrapper element of elements that contains the placeholder
+// To only select those elements and replace their innerHTML
+document.querySelectorAll(".placeholder").forEach(e => {
+  replacePlaceholders(e);
+});
 // Placeholders </>
 
 // <> Cookies
@@ -518,7 +546,7 @@ const patterns = [ // [REGEX, CLASS]
   [/((?<!#)#(?!#).*)/gi, "sk-comment"], // Must be first, : must be before ::
   [/(\:|\:\:)/gi, "sk-var"],
   [/((?<!href=)\".+?\")/gi, "sk-string"], // before others to not edit non skript code
-  [/\b(add|give|increase|set|to|from|make|remove( all| every|)|subtract|reduce|delete|clear|reset|send|broadcast|wait|halt|create|(dis)?enchant|shoot|rotate|reload|enable|(re)?start|teleport|feed|heal|hide|kick|(IP(-| )|un|)ban|break|launch|leash|force|message|close|show|reveal|cure|poison|spawn)(?=[ <])\b/gi, "sk-eff"],
+  // [/\b(add|give|increase|set|make|remove( all| every|)|subtract|reduce|delete|clear|reset|send|broadcast|wait|halt|create|(dis)?enchant|shoot|rotate|reload|enable|(re)?start|teleport|feed|heal|hide|kick|(IP(-| )|un|)ban|break|launch|leash|force|message|close|show|reveal|cure|poison|spawn)(?=[ <])\b/gi, "sk-eff"], // better to be off since it can't be much improved due to how current codes are made (can't detect \s nor \t)
   [/\b(on (?=.+\:))/gi, "sk-event"],
   [/\b((parse )?if|else if|else|(do )?while|loop(?!-)|return|continue( loop|)|at)\b/gi, "sk-cond"],
   [/\b((|all )player(s|)|victim|attacker|sender|loop-player|shooter|uuid of |'s uuid|(location of |'s location)|console)\b/gi, "sk-expr"],
@@ -527,9 +555,8 @@ const patterns = [ // [REGEX, CLASS]
   [/\b(command \/.+(?=.*?:))/gi, "sk-command"],
   [/(&lt;.+?&gt;)/gi, "sk-arg-type"],
   [/\b(true)\b/gi, "sk-true"],
-  [/\b(stop( (the |)|)(trigger|server|loop|)|cancel|false)\b/gi, "sk-false"],
-  [/({)/gi, "sk-var"],
-  [/(})/gi, "sk-var"],
+  [/\b(stop( (the |)|)(trigger|server|loop|)|cancel( event)?|false)\b/gi, "sk-false"],
+  [/({|})/gi, "sk-var"],
   [/(\w+?(?=\(.*?\)))/gi, "sk-function"],
   [/((\d+?(\.\d+?)? |a |)(|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)/gi, "sk-timespan"],
   [/\b(now)\b/gi, "sk-timespan"],

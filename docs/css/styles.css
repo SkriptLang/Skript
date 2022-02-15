@@ -1083,11 +1083,11 @@ pre {
 }
 
 .sk-eff {
-    color: rgb(255, 174, 0)
+    color: rgb(255, 174, 0);
 }
 
 .sk-expr {
-    color: rgb(199, 152, 66)
+    color: rgb(255, 174, 25);
 }
 
 .sk-event {
