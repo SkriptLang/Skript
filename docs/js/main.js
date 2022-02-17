@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
     setTimeout(() => {
       toggleSyntax(linkHash);
       offsetAnchor(null, linkHash)
-    }, 40); // respect other search and link changers
+    }, 20); // respect other search and link changers
   }
 });
 
