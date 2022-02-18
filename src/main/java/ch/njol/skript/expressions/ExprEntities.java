@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -180,35 +181,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					return false;
 				});
 		} else {
-			if (worlds == null && returnType == Player.class)
+			if (worlds == null && chunks == null && returnType == Player.class)
 				return super.iterator(e);
 
-			return new NonNullIterator<Entity>() {
-					private World[] ws = worlds == null ? Bukkit.getWorlds().toArray(new World[0]) : worlds.getArray(e);
-					private EntityData<?>[] ts = types.getAll(e);
-					private int w = -1;
-					@Nullable
-					private Iterator<? extends Entity> curIter = null;
-
-					@Override
-					@Nullable
-					protected Entity getNext() {
-						while (true) {
-							while (curIter == null || !curIter.hasNext()) {
-								w++;
-								if (w == ws.length)
-									return null;
-								curIter = ws[w].getEntitiesByClass(returnType).iterator();
-							}
-							while (curIter.hasNext()) {
-								Entity current = curIter.next();
-								for (EntityData<?> t : ts) {
-									if (t.isInstance(current))
-										return current;
-								}
-							}
-						}
-					}};
+			if (chunks != null) {
+				return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
+			} else {
+				return Arrays.stream(EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null)).iterator();
+			}
 		}
 	}
 
