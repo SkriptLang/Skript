@@ -23,7 +23,7 @@ on damage:
         send "Ouch! You took %damage% damage." to the victim
         add damage to {damage::%uuid of victim%::taken}
         if the attacker is a player:
-            add damage to {damage::%uuid of victim%::dealt}
+            add damage to {damage::%uuid of attacker%::dealt}
 
 #
 # This example allows players to wear specified blocks as hats.
