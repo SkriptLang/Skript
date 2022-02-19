@@ -37,7 +37,7 @@ command /home <text> [<text>]:
         else if {homes::%uuid of player%::%arg-1%} is set:
             teleport player to {homes::%uuid of player%::%arg-1%}
         else:
-            send "You have home named <green>%arg-1%<reset>." to player
+            send "You have no home named <green>%arg-1%<reset>." to player
 
 #
 # An /item command that accepts Skript item aliases.
