@@ -19,7 +19,7 @@ command /chest menu:
     permission: skript.example.menu
     trigger:
         set {_menu} to a new chest inventory with 1 row named "Simple Menu"
-        set slot 4 of {_chest} to stone named "Button" # Slots are numbered 0, 1, 2...
+        set slot 4 of {_menu} to stone named "Button" # Slots are numbered 0, 1, 2...
 
 on inventory click: # Listen for players clicking in an inventory.
     name of event-inventory is "Simple Menu" # Make sure it's our menu.
