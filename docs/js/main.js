@@ -211,7 +211,7 @@ if (linkParams && linkParams.get("search")) {
 
 var content = document.getElementById("content");
 if (content) {
-  let isNewPage = location.href.includes("/new.html");
+  let isNewPage = linkParams.get("isNew") != null;
   content.insertAdjacentHTML('afterbegin', `<a id="search-icon" ${isNewPage ? 'class="search-icon-new"' : ""} title="Copy the search link."><img src="https://img.icons8.com/color/35/000000/search--v1.png"></a>`);
   content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" ${isNewPage ? 'class="search-bar-version"' : ""} type="text" placeholder="Search the docs 🔍" title="Available Filters:&#13;&#10;&#13;&#10;Version:   v:2.5.3 v:2.2+ v:2.4-&#13;&#10;Type:      t:expression t:condition etc.&#13;&#10;New:       is:new"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
   searchBar = document.getElementById("search-bar");
@@ -377,7 +377,7 @@ function searchNow(value = "") {
     }
 
     // Filter
-    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`); // Since we have new.html we need to loop this
+    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`); // Since we have new addition filter we need to loop this
     if (pass) {
       e.style.display = null;
       if (sideNavItem)

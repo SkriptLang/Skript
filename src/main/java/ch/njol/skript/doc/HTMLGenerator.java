@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import ch.njol.skript.lang.*;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.base.Joiner;
@@ -263,9 +264,9 @@ public class HTMLGenerator {
 
 				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
 				String genType = genParams[0];
-				boolean isNewPage = genType.equals("new");
+				boolean isDocsPage = genType.equals("docs");
 
-				if (genType.equals("expressions") || isNewPage) {
+				if (genType.equals("expressions") || isDocsPage) {
 					Iterator<ExpressionInfo<?,?>> it = sortedIterator(Skript.getExpressions(), annotatedComparator);
 					while (it.hasNext()) {
 						ExpressionInfo<?,?> info = it.next();
@@ -275,7 +276,7 @@ public class HTMLGenerator {
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
 					}
-				} if (genType.equals("effects") || isNewPage) {
+				} if (genType.equals("effects") || isDocsPage) {
 					Iterator<SyntaxElementInfo<? extends Effect>> it = sortedIterator(Skript.getEffects().iterator(), annotatedComparator);
 					while (it.hasNext()) {
 						SyntaxElementInfo<? extends Effect> info = it.next();
@@ -295,7 +296,7 @@ public class HTMLGenerator {
 							generated.append(generateAnnotated(descTemp, info, generated.toString(), "EffectSection"));
 						}
 					}
-				} if (genType.equals("conditions") || isNewPage) {
+				} if (genType.equals("conditions") || isDocsPage) {
 					Iterator<SyntaxElementInfo<? extends Condition>> it = sortedIterator(Skript.getConditions().iterator(), annotatedComparator);
 					while (it.hasNext()) {
 						SyntaxElementInfo<? extends Condition> info = it.next();
@@ -304,7 +305,7 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
-				} if (genType.equals("sections") || isNewPage) {
+				} if (genType.equals("sections") || isDocsPage) {
 					Iterator<SyntaxElementInfo<? extends Section>> it = sortedIterator(Skript.getSections().iterator(), annotatedComparator);
 					while (it.hasNext()) {
 						SyntaxElementInfo<? extends Section> info = it.next();
@@ -313,7 +314,7 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Section"));
 					}
-				} if (genType.equals("events") || isNewPage) {
+				} if (genType.equals("events") || isDocsPage) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
 					events.sort(eventComparator);
 					for (SkriptEventInfo<?> info : events) {
@@ -322,7 +323,7 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("classes") || isNewPage) {
+				} if (genType.equals("classes") || isDocsPage) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
 					classes.sort(classInfoComparator);
 					for (ClassInfo<?> info : classes) {
@@ -331,7 +332,7 @@ public class HTMLGenerator {
 						assert info != null;
 						generated.append(generateClass(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("functions") || isNewPage) {
+				} if (genType.equals("functions") || isDocsPage) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
 					functions.sort(functionComparator);
 					for (JavaFunction<?> info : functions) {
@@ -373,14 +374,15 @@ public class HTMLGenerator {
 			
 			i += Character.charCount(c);
 		}
-		return replaceBR(sb.toString());
+		return replaceBr(sb.toString());
 	}
 
-	private static String replaceBR(String page) { // Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the minifyHtml method (Execute after minifyHtml)
+	private static String replaceBr(String page) { // Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the minifyHtml method (Execute after minifyHtml)
 		return page.replaceAll("<br/>", "\n");
 	}
 	
 	private static String handleIf(String desc, String start, boolean value) {
+		assert desc != null;
 		int ifStart = desc.indexOf(start);
 		while (ifStart != -1) {
 			int ifEnd = desc.indexOf("${end}", ifStart);
@@ -413,19 +415,19 @@ public class HTMLGenerator {
 		String desc;
 
 		Name name = c.getAnnotation(Name.class);
-		desc = descTemp.replace("${element.name}", getNullOrEmptyDefault((name != null ? name.value() : null), "Unknown Name"));
+		desc = descTemp.replace("${element.name}", getDefaultIfNullOrEmpty((name != null ? name.value() : null), "Unknown Name"));
 
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", getNullOrEmptyDefault((since != null ? since.value() : null), "Unknown"));
+		desc = desc.replace("${element.since}", getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown"));
 
 		Description description = c.getAnnotation(Description.class);
-		desc = desc.replace("${element.desc}", Joiner.on("\n").join(getNullOrEmptyDefault((description != null ? description.value() : null), "Unknown description.")).replace("\n\n", "<p>"));
-		desc = desc.replace("${element.desc-safe}", Joiner.on("\n").join(getNullOrEmptyDefault((description != null ? description.value() : null), "Unknown description."))
+		desc = desc.replace("${element.desc}", Joiner.on("\n").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description.")).replace("\n\n", "<p>"));
+		desc = desc.replace("${element.desc-safe}", Joiner.on("\n").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		Examples examples = c.getAnnotation(Examples.class);
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getNullOrEmptyDefault((examples != null ? examples.value() : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getNullOrEmptyDefault((examples != null ? examples.value() : null), "Missing examples."))
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples.")));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		DocumentationId DocID = c.getAnnotation(DocumentationId.class);
@@ -439,7 +441,6 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.id}", ID);
 
 		Events events = c.getAnnotation(Events.class);
-		assert desc != null;
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
 			String[] eventNames = (events != null ? events.value() : null);
@@ -453,9 +454,12 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
 		
 		RequiredPlugins plugins = c.getAnnotation(RequiredPlugins.class);
-		assert desc != null;
 		desc = handleIf(desc, "${if required-plugins}", plugins != null);
 		desc = desc.replace("${element.required-plugins}", plugins == null ? "" : Joiner.on(", ").join((plugins != null ? plugins.value() : null)));
+
+		String returnType = (info instanceof ExpressionInfo) ? ((ExpressionInfo<?,?>) info).getReturnType().getSimpleName() : null;
+		desc = handleIf(desc, "${if return-type}", returnType != null);
+		desc = desc.replace("${element.return-type}", returnType == null ? "" : returnType);
 
 //		TODO LATER
 //		String addon = info.originClassPath;
@@ -484,7 +488,7 @@ public class HTMLGenerator {
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
 			//Skript.info("Pattern is " + pattern);
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getNullOrEmptyDefault(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
@@ -506,13 +510,13 @@ public class HTMLGenerator {
 		Class<?> c = info.c;
 		String desc;
 		
-		String docName = getNullOrEmptyDefault(info.getName(), "Unknown Name");
+		String docName = getDefaultIfNullOrEmpty(info.getName(), "Unknown Name");
 		desc = descTemp.replace("${element.name}", docName);
 		
-		String since = getNullOrEmptyDefault(info.getSince(), "Unknown");
+		String since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
 		desc = desc.replace("${element.since}", since);
 		
-		String[] description = getNullOrEmptyDefault(info.getDescription(), "Missing description.");
+		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
 		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description).replace("\n\n", "<p>"));
 		desc = desc
 				.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
@@ -523,7 +527,7 @@ public class HTMLGenerator {
 //		desc = desc.replace("${element.by-addon}", addon);
 		desc = handleIf(desc, "${if by-addon}", false);
 
-		String[] examples = getNullOrEmptyDefault(info.getExamples(), "Missing examples.");
+		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
@@ -539,7 +543,6 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.id}", ID);
 		
 		Events events = c.getAnnotation(Events.class);
-		assert desc != null;
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
 			String[] eventNames = (events != null ? events.value() : null);
@@ -558,7 +561,8 @@ public class HTMLGenerator {
 
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
 		desc = desc.replace("${element.type}", "Event");
-		
+		desc = handleIf(desc, "${if return-type}", false);
+
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
 		while (generate != -1) {
@@ -574,7 +578,7 @@ public class HTMLGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getNullOrEmptyDefault(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + line : line);
 				String parsed = pattern.replace("${element.pattern}", line);
@@ -593,13 +597,13 @@ public class HTMLGenerator {
 		Class<?> c = info.getC();
 		String desc;
 		
-		String docName = getNullOrEmptyDefault(info.getDocName(), "Unknown Name");
+		String docName = getDefaultIfNullOrEmpty(info.getDocName(), "Unknown Name");
 		desc = descTemp.replace("${element.name}", docName);
 		
-		String since = getNullOrEmptyDefault(info.getSince(), "Unknown");
+		String since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
 		desc = desc.replace("${element.since}", since);
 		
-		String[] description = getNullOrEmptyDefault(info.getDescription(), "Missing description.");
+		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
 		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description).replace("\n\n", "<p>"));
 		desc = desc
 				.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
@@ -610,7 +614,7 @@ public class HTMLGenerator {
 //		desc = desc.replace("${element.by-addon}", addon);
 		desc = handleIf(desc, "${if by-addon}", false);
 
-		String[] examples = getNullOrEmptyDefault(info.getExamples(), "Missing examples.");
+		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
@@ -624,7 +628,6 @@ public class HTMLGenerator {
 		}
 		desc = desc.replace("${element.id}", ID);
 
-		assert desc != null;
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
@@ -645,7 +648,8 @@ public class HTMLGenerator {
 
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
 		desc = desc.replace("${element.type}", "Type");
-		
+		desc = handleIf(desc, "${if return-type}", false);
+
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
 		while (generate != -1) {
@@ -661,7 +665,7 @@ public class HTMLGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(template + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			String[] lines = getNullOrEmptyDefault(info.getUsage(), "Missing patterns.");
+			String[] lines = getDefaultIfNullOrEmpty(info.getUsage(), "Missing patterns.");
 			if (lines == null)
 				continue;
 			for (String line : lines) {
@@ -682,13 +686,13 @@ public class HTMLGenerator {
 	private String generateFunction(String descTemp, JavaFunction<?> info) {
 		String desc = "";
 		
-		String docName = getNullOrEmptyDefault(info.getName(), "Unknown Name");
+		String docName = getDefaultIfNullOrEmpty(info.getName(), "Unknown Name");
 		desc = descTemp.replace("${element.name}", docName);
 		
-		String since = getNullOrEmptyDefault(info.getSince(), "Unknown");
+		String since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
 		desc = desc.replace("${element.since}", since);
 		
-		String[] description = getNullOrEmptyDefault(info.getDescription(), "Missing description.");
+		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
 		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description));
 		desc = desc
 				.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
@@ -699,7 +703,7 @@ public class HTMLGenerator {
 //		desc = desc.replace("${element.by-addon}", addon);
 		desc = handleIf(desc, "${if by-addon}", false);
 
-		String[] examples = getNullOrEmptyDefault(info.getExamples(), "Missing examples.");
+		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
@@ -707,9 +711,12 @@ public class HTMLGenerator {
 
 		desc = desc.replace("${element.id}", info.getName());
 		
-		assert desc != null;
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
 		desc = handleIf(desc, "${if required-plugins}", false);
+
+		ClassInfo<?> returnType = info.getReturnType();
+		desc = handleIf(desc, "${if return-type}", returnType != null);
+		desc = desc.replace("${element.return-type}", returnType == null ? "" : WordUtils.capitalizeFully(returnType.toString())); // proper case might not be always correct here, TODO check & fix that if possible
 
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
 		desc = desc.replace("${element.type}", "Function");
@@ -780,11 +787,11 @@ public class HTMLGenerator {
 	 * @param string the String to check
 	 * @param message the String to return if either condition is true
 	 */
-	public String getNullOrEmptyDefault(@Nullable String string, String message) {
+	public String getDefaultIfNullOrEmpty(@Nullable String string, String message) {
 		return (string == null || string.isEmpty()) ? message : string; // Null check first otherwise NullPointerException is thrown
 	}
 	
-	public String[] getNullOrEmptyDefault(@Nullable String[] string, String message) {
+	public String[] getDefaultIfNullOrEmpty(@Nullable String[] string, String message) {
 		return (string == null || string.length == 0 || string[0].equals("")) ? new String[]{ message } : string; // Null check first otherwise NullPointerException is thrown
 	}
 			

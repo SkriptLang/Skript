@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -263,6 +264,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 */
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode);
+
+	/**
+	 * Tests all accepted change modes, and if yes what type it expects the <code>delta</code> to be.
+	 * @return A HashMap contains ChangeMode as the key and accepted types of that mode as the value
+	 */
+	default HashMap<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
+		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
+		for (ChangeMode cm : ChangeMode.values()) {
+			Class<?>[] ac = acceptChange(cm);
+			if (ac != null && ac.length > 0)
+				map.put(cm, ac);
+		}
+		return map;
+	}
 	
 	/**
 	 * Changes the expression's value by the given amount. This will only be called on supported modes and with the desired <code>delta</code> type as returned by

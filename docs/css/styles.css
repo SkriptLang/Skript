@@ -28,7 +28,7 @@
     --box-font-color: black;
     --box-inner-font-color: white;
     --box-bg: rgba(0, 0, 0, 0.4) !important;
-    --red-box-font-color: black;
+    --red-box-font-color: #1e1e1e;
     --red-box-bg: rgba(0, 0, 0, 0.4);
 
     --syntax-item-shadow: 0px 0px 15px rgba(0, 0, 0, .5);
