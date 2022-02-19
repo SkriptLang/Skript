@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -207,7 +208,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * Checks if Skript is in testing mode and docs template folder is found
+	 * Checks if system properties have 'skript.forceregisterhooks' set to true and docs template folder is found
 	 */
 	public static boolean canGenerateUnsafeDocs() {
 		return generateUnsafeDocs;
@@ -460,7 +461,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		 // Mostly used to handle generating hooks docs
 		docsTemplateFound = new File(getDataFolder() + "/doc-templates").exists();
-		generateUnsafeDocs = testing() && new File(getDataFolder() + "/doc-templates").exists();
+		generateUnsafeDocs = Objects.equals(System.getProperty("skript.forceregisterhooks"), "true") && new File(getDataFolder() + "/doc-templates").exists();
 		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
