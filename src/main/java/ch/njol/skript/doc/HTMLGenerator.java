@@ -55,6 +55,7 @@ public class HTMLGenerator {
 
 	private String skriptVersion = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
 	private final Pattern NEW_TAG_PATTERN = Pattern.compile(skriptVersion + "(?!\\.)");
+	private final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
 	public HTMLGenerator(File templateDir, File outputDir) {
 		this.template = templateDir;
@@ -458,7 +459,13 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.required-plugins}", plugins == null ? "" : Joiner.on(", ").join((plugins != null ? plugins.value() : null)));
 
 		String returnType = (info instanceof ExpressionInfo) ? ((ExpressionInfo<?,?>) info).getReturnType().getSimpleName() : null;
+		ClassInfo<?> ci = null;
+		if (returnType != null)
+			ci = Classes.getClassInfoNoError(returnType.toLowerCase());
+		String returnTypeLink = ci != null ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
 		desc = handleIf(desc, "${if return-type}", returnType != null);
+		desc = desc.replaceAll("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}", returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
+		desc = RETURN_TYPE_LINK_PATTERN.matcher(desc).replaceAll(returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
 		desc = desc.replace("${element.return-type}", returnType == null ? "" : returnType);
 
 //		TODO LATER
@@ -715,8 +722,13 @@ public class HTMLGenerator {
 		desc = handleIf(desc, "${if required-plugins}", false);
 
 		ClassInfo<?> returnType = info.getReturnType();
+		ClassInfo<?> ci = null;
+		if (returnType != null)
+			ci = Classes.getClassInfoNoError(returnType.getCodeName());
+		String returnTypeLink = ci != null ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
 		desc = handleIf(desc, "${if return-type}", returnType != null);
-		desc = desc.replace("${element.return-type}", returnType == null ? "" : WordUtils.capitalizeFully(returnType.toString())); // proper case might not be always correct here, TODO check & fix that if possible
+		desc = RETURN_TYPE_LINK_PATTERN.matcher(desc).replaceAll(returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
+		desc = desc.replace("${element.return-type}", returnType == null ? "" : WordUtils.capitalizeFully(returnType.toString()));
 
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
 		desc = desc.replace("${element.type}", "Function");
