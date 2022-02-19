@@ -9,6 +9,7 @@ command /simple chest:
     trigger:
         set {_chest} to a new chest inventory named "Simple Chest"
         set slot 0 of {_chest} to apple # Slots are numbered 0, 1, 2...
+        open {_chest} to player
 
 #
 # An example of listening for click events in a chest inventory.
