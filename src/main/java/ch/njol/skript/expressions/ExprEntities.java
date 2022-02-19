@@ -184,11 +184,13 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			if (worlds == null && chunks == null && returnType == Player.class)
 				return super.iterator(e);
 
+			Entity[] entities;
 			if (chunks != null) {
-				return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
+				entities = EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e));
 			} else {
-				return Arrays.stream(EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null)).iterator();
+				entities = EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null);
 			}
+			return Arrays.stream(entities).iterator();
 		}
 	}
 
