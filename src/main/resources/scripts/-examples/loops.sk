@@ -4,7 +4,7 @@
 # Multi-value expressions like `all players` can also be looped.
 #
 
-command /loop example:
+command /loopexample:
     permission: skript.example.loop
     trigger:
         set {_number} to 5
@@ -20,7 +20,7 @@ command /loop example:
 # A while-loop can run indefinitely and freeze the server, so make sure to add a delay or an exit condition.
 #
 
-command /while example:
+command /whileexample:
     permission: skript.example.while
     trigger:
         set {_number} to 5
@@ -35,12 +35,24 @@ command /while example:
                 exit loop
         send "The list has %size of {_list::*}% bananas."
 
+command /doWhileExample:
+    permission: skript.example.dowhile
+    trigger:
+        set {_number} to a random integer between 0 and 6 # Player will get 1 to 3 apples
+        do while {_number} is greater than 3: # This will always run at least once, even if {_number} is less than or equal to 3
+            give the player an apple
+            remove 1 from {_number}
+        send "Finished giving out apples!"
+
+        do while true is false: # this will run once - the condition is checked AFTER the code is executed
+            send "I will only run ONCE!"
+
 #
 # Examples for looping collections of specific types, such as players, blocks and items.
 # This shows how loops can be used to simplify more complex actions.
 #
 
-command /another loop example:
+command /anotherloopexample:
     permission: skript.example.loop
     trigger:
         send "Listing all players:"

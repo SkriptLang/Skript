@@ -36,7 +36,7 @@ variables:
     score::%player% = 100
     some variable = "Hello"
 
-command /variable test:
+command /variabletest:
     permission: skript.example.variables
     trigger:
         add 1 to {score::%player%}

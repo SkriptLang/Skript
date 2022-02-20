@@ -4,7 +4,7 @@
 # Players will be able to take the item out.
 #
 
-command /simple chest:
+command /simplechest:
     permission: skript.example.chest
     trigger:
         set {_chest} to a new chest inventory named "Simple Chest"
@@ -16,7 +16,7 @@ command /simple chest:
 # This can be used to create fancy button-style interfaces for users.
 #
 
-command /chest menu:
+command /chestmenu:
     permission: skript.example.menu
     trigger:
         set {_menu} to a new chest inventory with 1 row named "Simple Menu"

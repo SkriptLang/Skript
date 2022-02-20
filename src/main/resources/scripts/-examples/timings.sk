@@ -21,7 +21,7 @@ every 5 minutes:
 # This example shows how the `wait` effect can be used to delay code being run.
 #
 
-command /wait example:
+command /waitexample:
     permission: skript.example.wait
     trigger:
         send "Waiting for two seconds..."

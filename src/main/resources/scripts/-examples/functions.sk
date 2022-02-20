@@ -22,7 +22,7 @@ function giveApple(name: text, amount: number) :: item:
     set the item amount of {_item} to {_amount}
     return {_item} # Gives this value to the code that called the function.
 
-command /apple example:
+command /appleexample:
     permission: skript.example.apple
     trigger:
         send "Giving you an apple!"
@@ -36,6 +36,7 @@ command /apple example:
 
 function destroyOre(source: block) :: blocks:
     add {_source} to {_found::*}
+    break {_source} naturally using an iron pickaxe
     loop blocks in radius 1 of {_source}:
         loop-block is any ore
         break loop-block naturally using an iron pickaxe
@@ -43,7 +44,7 @@ function destroyOre(source: block) :: blocks:
             add destroyOre(loop-block) to {_found::*}
     return {_found::*}
 
-command /ore example:
+command /oreexample:
     permission: skript.example.ore
     trigger:
         send "Destroying all connected ore."

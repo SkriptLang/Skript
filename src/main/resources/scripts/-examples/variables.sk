@@ -10,8 +10,7 @@ command /timer:
     permission: skript.example.timer
     trigger:
         if {timer} is set:
-            set {_difference} to difference between {timer} and now
-            send "This command was last run %{_difference}% ago."
+            send "This command was last run %time since {timer}% ago."
         else:
             send "This command has never been run."
         set {timer} to now
@@ -39,7 +38,7 @@ command /outfit:
 # This list variable is local, and so will not be kept between uses of the command.
 #
 
-command /shopping list:
+command /shoppinglist:
     permission: skript.example.list
     trigger:
         add "bacon" to {_shopping list::*}
