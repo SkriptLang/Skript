@@ -635,6 +635,12 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// PlayerDropItemEvent
+		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, new Getter<Player, PlayerDropItemEvent>() {
+			@Override
+			public @Nullable Player get(PlayerDropItemEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Item.class, new Getter<Item, PlayerDropItemEvent>() {
 			@Override
 			@Nullable
@@ -650,6 +656,12 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// PlayerPickupItemEvent
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, new Getter<Player, PlayerPickupItemEvent>() {
+			@Override
+			public @Nullable Player get(PlayerPickupItemEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Item.class, new Getter<Item, PlayerPickupItemEvent>() {
 			@Override
 			@Nullable
@@ -662,12 +674,6 @@ public final class BukkitEventValues {
 			@Nullable
 			public ItemType get(final PlayerPickupItemEvent e) {
 				return new ItemType(e.getItem().getItemStack());
-			}
-		}, 0);
-		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, new Getter<Entity, PlayerPickupItemEvent>() {
-			@Override
-			public @Nullable Entity get(PlayerPickupItemEvent e) {
-				return e.getPlayer();
 			}
 		}, 0);
 		// EntityPickupItemEvent
