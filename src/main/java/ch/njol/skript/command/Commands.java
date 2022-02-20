@@ -18,21 +18,29 @@
  */
 package ch.njol.skript.command;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -53,31 +61,20 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.validate.SectionValidator;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.StringMode;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.Utils;
-import ch.njol.util.Callback;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.StringUtils;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //TODO option to disable replacement of <color>s in command arguments?
 
@@ -340,8 +337,7 @@ public abstract class Commands {
 		final ScriptCommand existingCommand = commands.get(command);
 		if (alsoRegister && existingCommand != null && existingCommand.getLabel().equals(command)) {
 			final File f = existingCommand.getScript();
-			File f2 = node.getConfig().getFile();
-			Skript.error("A command with the name /" + existingCommand.getName() + (f2 != null ? " in " + f2.getName() : "") + " is already defined" + (f == null ? "" : " in " + f.getName()));
+			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined" + (f == null ? "" : " in " + f.getName()));
 			return null;
 		}
 		
@@ -512,7 +508,8 @@ public abstract class Commands {
 		if (existingCommand != null && existingCommand.getLabel().equals(command.getLabel())) {
 			final File f = existingCommand.getScript();
 			File f2 = command.getScript();
-			Skript.error("A command with the name /" + existingCommand.getName() + (f2 != null ? " in " + f2.getName() : "") + " is already defined" + (f == null ? "" : " in " + f.getName()));
+			assert f2 != null;
+			Skript.error("A command with the name /" + existingCommand.getName() + " in " + f2.getName() + " is already defined" + (f == null ? "" : " in " + f.getName()));
 			return;
 		}
 		
