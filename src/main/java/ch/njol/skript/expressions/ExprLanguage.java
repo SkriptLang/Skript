@@ -62,7 +62,7 @@ public class ExprLanguage extends SimplePropertyExpression<Player, String> {
 		if (USE_DEPRECATED_METHOD) {
 			assert getLocaleMethod != null;
 			try {
-				return (String) getLocaleMethod.invoke();
+				return (String) getLocaleMethod.invoke(p.spigot());
 			} catch (Throwable e) {
 				Skript.exception(e);
 				return null;
