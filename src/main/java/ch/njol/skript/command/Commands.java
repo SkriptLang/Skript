@@ -340,7 +340,8 @@ public abstract class Commands {
 		final ScriptCommand existingCommand = commands.get(command);
 		if (alsoRegister && existingCommand != null && existingCommand.getLabel().equals(command)) {
 			final File f = existingCommand.getScript();
-			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined" + (f == null ? "" : " in " + f.getName()));
+			File f2 = node.getConfig().getFile();
+			Skript.error("A command with the name /" + existingCommand.getName() + (f2 != null ? " in " + f2.getName() : "") + " is already defined" + (f == null ? "" : " in " + f.getName()));
 			return null;
 		}
 		
@@ -510,7 +511,8 @@ public abstract class Commands {
 		final ScriptCommand existingCommand = commands.get(command.getLabel());
 		if (existingCommand != null && existingCommand.getLabel().equals(command.getLabel())) {
 			final File f = existingCommand.getScript();
-			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined" + (f == null ? "" : " in " + f.getName()));
+			File f2 = command.getScript();
+			Skript.error("A command with the name /" + existingCommand.getName() + (f2 != null ? " in " + f2.getName() : "") + " is already defined" + (f == null ? "" : " in " + f.getName()));
 			return;
 		}
 		
