@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -40,7 +41,6 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -606,6 +606,27 @@ public class SimpleEvents {
 					"\t\tcancel the event",
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
+		}
+//		Disabled until it gets fixed (being sent at least 3 times on both Paper and Spigot)
+//		See https://github.com/PaperMC/Paper/issues/4844#issuecomment-1047067975
+//		if (Skript.classExists("org.bukkit.event.inventory.PrepareAnvilEvent")) {
+//			Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
+//				.description("Called when an item is put in a slot for repair by an anvil")
+//				.requiredPlugins("Minecraft 1.9 or newer")
+//				.examples("on anvil prepare:",
+//					"\tevent-itemstack is set",
+//					"\tchance of 20%:",
+//					"\t\tadd anvil repair cost to player's level",
+//					"\t\tsend \"You're are LUCKY! You got your levels back.\" to player")
+//				.since("INSERT VERSION");
+//		}
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
+				.description("Called when an anvil is damaged from being used")
+				.requiredPlugins("Paper 1.13 or newer")
+				.examples("on anvil damage:",
+					"\t\tcancel the event")
+				.since("INSERT VERSION");
 		}
 	}
 }
