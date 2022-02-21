@@ -35,17 +35,17 @@ command /whileexample:
                 exit loop
         send "The list has %size of {_list::*}% bananas."
 
-command /doWhileExample:
+command /dowhileexample:
     permission: skript.example.dowhile
     trigger:
-        set {_number} to a random integer between 0 and 6 # Player will get 1 to 3 apples
-        do while {_number} is greater than 3: # This will always run at least once, even if {_number} is less than or equal to 3
+        set {_number} to a random integer between 0 and 6 # The player will get 1 to 3 apples.
+        do while {_number} is greater than 3: # This will always run at least once, even if `{_number} is less than or equal to 3`.
             give the player an apple
             remove 1 from {_number}
         send "Finished giving out apples!"
 
-        do while true is false: # this will run once - the condition is checked AFTER the code is executed
-            send "I will only run ONCE!"
+        do while true is false: # This will run once - the condition is checked AFTER the code is executed.
+            send "I will run only once!"
 
 #
 # Examples for looping collections of specific types, such as players, blocks and items.

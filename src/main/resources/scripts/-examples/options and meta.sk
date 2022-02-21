@@ -40,4 +40,5 @@ command /variabletest:
     permission: skript.example.variables
     trigger:
         add 1 to {score::%player%}
+        send "Your score is now %{score::%player%}%."
         send {some variable}

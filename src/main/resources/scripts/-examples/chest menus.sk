@@ -33,9 +33,7 @@ on inventory click: # Listen for players clicking in an inventory.
 
 #
 # An example of making and filling a fancy inventory with a function.
-# This demonstrates another way you can use chest inventories.
-#
-# If you wanted to test this example, you could open the result of `makeMenu` to a player.
+# This demonstrates another way you can use chest inventories, and a safe way of listening to specific ones.
 #
 
 aliases:
@@ -43,15 +41,22 @@ aliases:
 
 function makeMenu(name: text, rows: number) :: inventory:
     set {_gui} to a new chest inventory with {_rows} rows with name {_name}
-    add {_name} to {inventory names::*}
     loop {_rows} * 9 times: # Fill the inventory with random items.
         set slot loop-number - 1 of {_gui} to random item out of menu items
     return {_gui}
 
-on inventory click: # Listen for players clicking in an inventory.
-    if {inventory names::*} contains name of event-inventory: # Make sure it's our menu.
-        cancel event
-        send "You clicked!"
+command /fancymenu:
+    permission: skript.example.menu
+    trigger:
+        set {_menu} to makeMenu("hello", 4)
+        add {_menu} to {my inventories::*} # Prepare to listen to this inventory.
+        open {_menu} to player
 
-on inventory close:
-    remove name of event-inventory from {inventory names::*}
+on inventory click: # Listen for players clicking in any inventory.
+    if {my inventories::*} contains event-inventory: # Make sure it's our menu.
+        cancel event
+        send "You clicked slot %index of event-slot%!"
+
+on inventory close: # No longer need to listen to this inventory.
+    {my inventories::*} contains event-inventory
+    remove event-inventory from {my inventories::*}
