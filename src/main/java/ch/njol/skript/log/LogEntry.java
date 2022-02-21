@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.log;
 
+import java.util.Objects;
 import java.util.logging.Level;
 
 import ch.njol.skript.localization.ArgsMessage;
@@ -160,13 +161,17 @@ public class LogEntry {
 			details = OTHER_DETAILS;
 		}
 
+		String from = this.from;
+		if (!Objects.equals(from, ""))
+			from = "§7   " + from + "\n";
+
 		// Replace configured messages chat styles without user variables
 		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
 		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
 		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
 
 		return
-			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) +
+			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is needed to replace as a string
 			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
 			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
 	}
