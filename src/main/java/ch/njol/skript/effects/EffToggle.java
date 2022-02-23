@@ -32,6 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -40,7 +41,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 
 /**
  * @author Peter Güttinger
@@ -84,7 +84,7 @@ public class EffToggle extends Effect {
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		toggledExpr = (Expression<?>) vars[0];
 		toggle = matchedPattern - 1;
-		if (toggledExpr.getReturnType() == Boolean.class && !CollectionUtils.containsSuperclass(toggledExpr.acceptChange(ChangeMode.SET), Boolean.class)) {
+		if (toggledExpr.getReturnType().isAssignableFrom(Boolean.class) && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET)) {
 			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
 			return false;
 		}
