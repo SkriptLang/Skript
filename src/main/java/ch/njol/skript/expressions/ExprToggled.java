@@ -32,7 +32,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Toggled")
+@Name("Toggled Boolean")
 @Description("The toggled boolean value.")
 @Examples("set {_gravity} to toggled player's gravity")
 @Since("INSERT VERSION")
