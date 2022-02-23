@@ -32,7 +32,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Toggled")
+@Name("Toggled Boolean")
 @Description("The toggled boolean value.")
 @Examples("set {_gravity} to toggled player's gravity")
 @Since("INSERT VERSION")
@@ -52,7 +52,8 @@ public class ExprToggled extends SimpleExpression<Boolean> {
 	}
 	
 	@Override
-	protected @Nullable Boolean[] get(Event e) {
+	@Nullable
+	protected Boolean[] get(Event e) {
 		return booleanExpr.stream(e).map(value -> !value).toArray(Boolean[]::new);
 	}
 
