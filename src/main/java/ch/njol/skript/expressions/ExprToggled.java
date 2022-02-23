@@ -38,37 +38,37 @@ import ch.njol.util.Kleenean;
 @Since("INSERT VERSION")
 public class ExprToggled extends SimpleExpression<Boolean> {
 
-  static {
-    Skript.registerExpression(ExprToggled.class, Boolean.class, ExpressionType.COMBINED, "(toggled|switched) %booleans%");
-  }
+	static {
+		Skript.registerExpression(ExprToggled.class, Boolean.class, ExpressionType.COMBINED, "(toggled|switched) %booleans%");
+	}
 
-  private Expression<Boolean> booleanExpr;
+	private Expression<Boolean> booleanExpr;
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-    booleanExpr = (Expression<Boolean>) exprs[0];
-    return true;
-  }
-  
-  @Override
-  protected @Nullable Boolean[] get(Event e) {
-    return booleanExpr.stream(e).map(value -> !value).toArray(Boolean[]::new);
-  }
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		booleanExpr = (Expression<Boolean>) exprs[0];
+		return true;
+	}
+	
+	@Override
+	protected @Nullable Boolean[] get(Event e) {
+		return booleanExpr.stream(e).map(value -> !value).toArray(Boolean[]::new);
+	}
 
-  @Override
-  public boolean isSingle() {
-    return booleanExpr.isSingle();
-  }
-  
-  @Override
-  public Class<? extends Boolean> getReturnType() {
-    return Boolean.class;
-  }
+	@Override
+	public boolean isSingle() {
+		return booleanExpr.isSingle();
+	}
+	
+	@Override
+	public Class<? extends Boolean> getReturnType() {
+		return Boolean.class;
+	}
 
-  @Override
-  public String toString(@Nullable Event e, boolean debug) {
-    return "toggled " + booleanExpr.toString(e, debug);
-  }
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "toggled " + booleanExpr.toString(e, debug);
+	}
 
 }
