@@ -21,6 +21,7 @@ package ch.njol.skript.effects;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.ArrayList;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -131,6 +132,7 @@ public class EffToggle extends Effect {
 	
 	@Override
 	protected void execute(final Event e) {
+		ArrayList<Boolean> toggledValues = new ArrayList<>();
 		for (Object o : toggledExpr.getArray(e)) {
 			if (o instanceof Block) {
 				Block block = (Block) o;
@@ -161,9 +163,11 @@ public class EffToggle extends Effect {
 				block.setBlockData(data);
 				
 			} else if (o instanceof Boolean) {
-				toggledExpr.change(e, new Boolean[]{ !(Boolean) o }, ChangeMode.SET);
+				toggledValues.add(!(Boolean) o);
 			}
 		}
+
+		toggledExpr.change(e, toggledValues.toArray(), ChangeMode.SET);
 		
 	}
 	
