@@ -53,18 +53,6 @@ function toggleSyntax(elementID) {
   lastActiveSyntaxID = elementID;
 }
 
-// Auto hash scroll on page load
-document.addEventListener('DOMContentLoaded', (e) => {
-  const linkHash = window.location.hash.replace("#", "").split("?")[0];
-  if (linkHash != "") {
-    setTimeout(() => {
-      toggleSyntax(linkHash);
-      // offsetAnchor(null, linkHash) // bugged in some browsers
-      searchNow("#" + linkHash);
-    }, 20); // respect other search and link changers
-  }
-});
-
 // No Left Panel
 for (e in {"content-no-docs": 0, "content": 1}) {
   let noLeftPanel = document.querySelectorAll(`#${e}.no-left-panel`)[0];
@@ -160,7 +148,7 @@ function showNotification(text, bgColor, color) {
 const currentPageLink = window.location.toString().replaceAll(/(.+?.html)(.*)/gi, '$1');
 document.querySelectorAll(".item-title > a").forEach((e) => {
   e.addEventListener("click", (event) => {
-    copyToClipboard(window.location.toString().split(/[?#]/g)[0] + "#" + e.href.split("#")[1]);
+    copyToClipboard(window.location.toString().split(/[?#]/g)[0] + "?search=#" + e.parentElement.parentElement.id);
     showNotification("✅ Link copied successfully.")
   });
 })
@@ -204,10 +192,7 @@ var searchIcon;
 var linkParams = new URLSearchParams(window.location.href.replace("+", "%2B").split("?")[1]) // URLSearchParams decode '+' as space while encodeURI keeps + as is
 if (linkParams && linkParams.get("search")) {
   setTimeout(() => {
-    let search = (linkParams.get("search"));
-    if (!search.includes("#")) { // hash links are higher priority
-      searchNow(search) // anchor link sometimes appear after the search param so filter it
-    }
+    searchNow(linkParams.get("search")) // anchor link sometimes appear after the search param so filter it
   }, 20) // Until searchBar is loaded
 }
 
