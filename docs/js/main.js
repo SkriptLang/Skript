@@ -322,7 +322,7 @@ function searchNow(value = "") {
   }
 
   searchValue = searchValue.replaceAll(/( ){2,}/gi, " ") // Filter duplicate spaces
-  searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 #]/gi, ""); // Filter none alphabet and digits to avoid regex errors
+  searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 #_]/gi, ""); // Filter none alphabet and digits to avoid regex errors
 
   allElements.forEach((e) => {
     let patterns = document.querySelectorAll(`#${e.id} .item-details .skript-code-block`);
