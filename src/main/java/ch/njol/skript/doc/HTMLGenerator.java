@@ -70,7 +70,7 @@ public class HTMLGenerator {
 		while (it.hasNext()) {
 			T item = it.next();
 			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generating process
-			if (item instanceof SyntaxElementInfo && ((SyntaxElementInfo) item).c.getAnnotation(Name.class) == null) {
+			if (item instanceof SyntaxElementInfo && ((SyntaxElementInfo) item).c.getAnnotation(Name.class) == null && ((SyntaxElementInfo) item).c.getAnnotation(NoDoc.class) == null) {
 				Skript.warning("Skipping class '" + ((SyntaxElementInfo<?>) item).c + "' from docs due to missing Name Annotation");
 				continue;
 			}
@@ -462,7 +462,7 @@ public class HTMLGenerator {
 		ClassInfo<?> ci = null;
 		if (returnType != null)
 			ci = Classes.getClassInfoNoError(returnType.toLowerCase());
-		String returnTypeLink = ci != null ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
+		String returnTypeLink = (ci != null && !ClassInfo.NO_DOC.equals(ci.getDocName()) && ci.getDocName() != null) ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
 		desc = handleIf(desc, "${if return-type}", returnType != null);
 		desc = desc.replaceAll("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}", returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
 		desc = RETURN_TYPE_LINK_PATTERN.matcher(desc).replaceAll(returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
@@ -725,7 +725,7 @@ public class HTMLGenerator {
 		ClassInfo<?> ci = null;
 		if (returnType != null)
 			ci = Classes.getClassInfoNoError(returnType.getCodeName());
-		String returnTypeLink = ci != null ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
+		String returnTypeLink = (ci != null && !ClassInfo.NO_DOC.equals(ci.getDocName()) && ci.getDocName() != null) ? "$1" + getDefaultIfNullOrEmpty(ci.getDocumentationID(), ci.getCodeName()) : "";
 		desc = handleIf(desc, "${if return-type}", returnType != null);
 		desc = RETURN_TYPE_LINK_PATTERN.matcher(desc).replaceAll(returnType == null ? "" : returnTypeLink); // do not link to unknown classinfos
 		desc = desc.replace("${element.return-type}", returnType == null ? "" : WordUtils.capitalizeFully(returnType.toString()));
