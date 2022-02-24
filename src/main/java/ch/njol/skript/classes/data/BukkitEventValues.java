@@ -20,6 +20,7 @@ package ch.njol.skript.classes.data;
 
 import java.util.List;
 
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -84,6 +85,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -1019,6 +1021,29 @@ public final class BukkitEventValues {
 			@Nullable
 			public Inventory get(final InventoryClickEvent e) {
 				return e.getClickedInventory();
+			}
+		}, 0);
+		// PrepareAnvilEvent
+		EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, new Getter<ItemStack, PrepareAnvilEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(final PrepareAnvilEvent e) {
+				return e.getResult();
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, new Getter<Inventory, PrepareAnvilEvent>() {
+			@Override
+			@Nullable
+			public Inventory get(final PrepareAnvilEvent e) {
+				return e.getInventory();
+			}
+		}, 0);
+		// AnvilDamagedEvent
+		EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
+			@Override
+			@Nullable
+			public Inventory get(final AnvilDamagedEvent e) {
+				return e.getInventory();
 			}
 		}, 0);
 		//BlockFertilizeEvent

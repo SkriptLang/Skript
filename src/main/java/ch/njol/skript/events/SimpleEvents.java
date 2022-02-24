@@ -59,6 +59,7 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -607,22 +608,18 @@ public class SimpleEvents {
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
 		}
-//		Disabled until it gets fixed (being sent at least 3 times on both Paper and Spigot)
-//		See https://github.com/PaperMC/Paper/issues/4844#issuecomment-1047067975
-//		if (Skript.classExists("org.bukkit.event.inventory.PrepareAnvilEvent")) {
-//			Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
-//				.description("Called when an item is put in a slot for repair by an anvil")
-//				.requiredPlugins("Minecraft 1.9 or newer")
-//				.examples("on anvil prepare:",
-//					"\tevent-itemstack is set",
-//					"\tchance of 20%:",
-//					"\t\tadd anvil repair cost to player's level",
-//					"\t\tsend \"You're are LUCKY! You got your levels back.\" to player")
-//				.since("INSERT VERSION");
-//		}
+		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
+			.description("Called when an item is put in a slot for repair by an anvil. Please not that this event is called multiple times in a single item slot move.")
+			.requiredPlugins("Minecraft 1.9 or newer")
+			.examples("on anvil prepare:",
+				"\tevent-item is set # result item",
+				"\tchance of 5%:",
+				"\t\tset repair cost to repair cost * 50%",
+				"\t\tsend \"You're are LUCKY! You got 50% discount.\" to player")
+			.since("INSERT VERSION");
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
-				.description("Called when an anvil is damaged from being used")
+				.description("Called when an anvil is damaged/broken from being used to repair/rename items.")
 				.requiredPlugins("Paper 1.13 or newer")
 				.examples("on anvil damage:",
 					"\t\tcancel the event")
