@@ -1039,13 +1039,15 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// AnvilDamagedEvent
-		EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
-			@Override
-			@Nullable
-			public Inventory get(final AnvilDamagedEvent e) {
-				return e.getInventory();
-			}
-		}, 0);
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
+				@Override
+				@Nullable
+				public Inventory get(final AnvilDamagedEvent e) {
+					return e.getInventory();
+				}
+			}, 0);
+		}
 		//BlockFertilizeEvent
 		if(Skript.classExists("org.bukkit.event.block.BlockFertilizeEvent")) {
 			EventValues.registerEventValue(BlockFertilizeEvent.class, Player.class, new Getter<Player, BlockFertilizeEvent>() {
