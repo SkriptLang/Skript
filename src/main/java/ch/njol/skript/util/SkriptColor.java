@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -66,6 +67,7 @@ public enum SkriptColor implements Color {
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
 	private final static String LANGUAGE_NODE = "colors";
+	private final static Pattern COLOR_CHAR_PATTERN = Pattern.compile("§");
 	
 	static {
 		colors.addAll(Arrays.asList(values()));
@@ -219,7 +221,18 @@ public enum SkriptColor implements Color {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Replace chat color character '§' with '&'
+	 * This is an alternative method to {@link ChatColor#stripColor(String)}
+	 * But does not strip the color code.
+	 * @param s string to replace chat color character of.
+	 * @return String with replaced chat color character
+	 */
+	public static String replaceColorChar(String s) {
+		return COLOR_CHAR_PATTERN.matcher(s).replaceAll("&");
+	}
+
 	@Override
 	public String toString() {
 		return adjective == null ? "" + name() : adjective.toString(-1, 0);
