@@ -109,8 +109,6 @@ this is for you.
 First, you need to add the Maven repository at the **END** of all your repositories. Skript is not available in Maven Central.
 ```gradle
 repositories {
-    jcenter()
-    ...
     maven {
         url 'https://repo.skriptlang.org/releases'
     }
