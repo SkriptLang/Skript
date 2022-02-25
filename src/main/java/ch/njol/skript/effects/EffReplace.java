@@ -111,12 +111,12 @@ public class EffReplace extends Effect {
 			this.haystack.change(e, haystack, ChangeMode.SET);
 		} else {
 			for (Inventory inv : (Inventory[]) haystack)
-				for (ItemType item : (ItemType[]) needles)
-					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(item.getMaterial()).entrySet()) {
+				for (ItemType needle : (ItemType[]) needles)
+					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
 						int slot = entry.getKey();
 						ItemStack itemStack = entry.getValue();
 
-						if (item.isSimilar(new ItemType(itemStack))) {
+						if (new ItemType(itemStack).isSimilar(needle)) {
 							ItemStack newItemStack = ((ItemType) replacement).getRandom();
 							newItemStack.setAmount(itemStack.getAmount());
 
