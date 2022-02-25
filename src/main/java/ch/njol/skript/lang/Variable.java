@@ -397,9 +397,12 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
+	@Nullable
 	public Iterator<T> iterator(Event e) {
-		if (!list)
-			return new SingleItemIterator<>(getSingle(e));
+		if (!list) {
+			T item = getSingle(e);
+			return item != null ? new SingleItemIterator<>(item) : null;
+		}
 		String name = StringUtils.substring(this.name.toString(e), 0, -1);
 		Object val = Variables.getVariable(name + "*", e, local);
 		if (val == null)
