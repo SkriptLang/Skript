@@ -267,10 +267,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	public Class<?>[] acceptChange(ChangeMode mode);
 
 	/**
-	 * Tests all accepted change modes, and if yes what type it expects the <code>delta</code> to be.
+	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
 	 * @return A HashMap contains ChangeMode as the key and accepted types of that mode as the value
 	 */
-	default HashMap<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
+	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
 		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
 		for (ChangeMode cm : ChangeMode.values()) {
 			Class<?>[] ac = acceptChange(cm);

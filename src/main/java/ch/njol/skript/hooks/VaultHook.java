@@ -57,7 +57,7 @@ public class VaultHook extends Hook<Vault> {
 	@SuppressWarnings("null")
 	@Override
 	protected void loadClasses() throws IOException {
-		if (economy != null || (Skript.canGenerateUnsafeDocs()))
+		if (economy != null || Skript.canGenerateUnsafeDocs())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".economy");
 		if (chat != null || (Skript.canGenerateUnsafeDocs()))
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".chat");

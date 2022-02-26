@@ -39,7 +39,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 
 @Name("X Times")
-@Description({"Used in loops to loop X times."})
+@Description({"Integers between 1 and X, used in loops to loop X times."})
 @Examples({"loop 20 times:",
 	"\tbroadcast \"%21 - loop-number% seconds left..\"",
 	"\twait 1 second"})

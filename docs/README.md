@@ -30,6 +30,6 @@ content - In template.html, marks the point where other file is placed
 
 1. You will need to create a directory named `doc-templates` in `plugins/Skript/`, and copy everything from [here](https://github.com/SkriptLang/Skript/tree/master/docs) into that directory.
 2. Execute the command `/sk gen-docs`.
-3. The `docs/` directory will be created _(if not created already)_ in `plugin/Skript` containing the website's files.
+3. The `docs/` directory will be created _(if not created already)_ in `plugins/Skript` containing the website's files.
 4. Open `index.html` and browse the documentation.
 5. _(Optionally)_ Add this system property `-Dskript.forceregisterhooks` in your server startup script (before the -jar property) to force generating hooks docs.
