@@ -461,7 +461,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		 // Mostly used to handle generating hooks docs
 		docsTemplateFound = new File(getDataFolder() + "/doc-templates").exists();
-		generateUnsafeDocs = Objects.equals(System.getProperty("skript.forceregisterhooks"), "true") && new File(getDataFolder() + "/doc-templates").exists();
+		generateUnsafeDocs = "true".equals(System.getProperty("skript.forceregisterhooks")) && docsTemplateFound;
 		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
