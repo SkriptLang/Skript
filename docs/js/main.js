@@ -532,25 +532,34 @@ function getCookie(cname) {
 // All regexes must be sorrouneded with () to be able to use group 1 as the whole match since Js doesn't have group 0
 // Example:     .+     = X
 // Example:     (.+)     = ✓
-const patterns = [ // [REGEX, CLASS]
-  [/((?<!#)#(?!#).*)/gi, "sk-comment"], // Must be first, : must be before ::
-  [/(\:|\:\:)/gi, "sk-var"],
-  [/((?<!href=)\".+?\")/gi, "sk-string"], // before others to not edit non skript code
-  // [/\b(add|give|increase|set|make|remove( all| every|)|subtract|reduce|delete|clear|reset|send|broadcast|wait|halt|create|(dis)?enchant|shoot|rotate|reload|enable|(re)?start|teleport|feed|heal|hide|kick|(IP(-| )|un|)ban|break|launch|leash|force|message|close|show|reveal|cure|poison|spawn)(?=[ <])\b/gi, "sk-eff"], // better to be off since it can't be much improved due to how current codes are made (can't detect \s nor \t)
-  [/\b(on (?=.+\:))/gi, "sk-event"],
-  [/\b((parse )?if|else if|else|(do )?while|loop(?!-)|return|continue( loop|)|at)\b/gi, "sk-cond"],
-  [/\b((|all )player(s|)|victim|attacker|sender|loop-player|shooter|uuid of |'s uuid|(location of |'s location)|console)\b/gi, "sk-expr"],
-  [/\b((loop|event)-\w+)\b/gi, "sk-loop-value"],
-  [/\b(contains?|(has|have|is|was|were|are|does)(n't| not|)|can('t| ?not|))\b/gi, "sk-cond"],
-  [/\b(command \/.+(?=.*?:))/gi, "sk-command"],
-  [/(&lt;.+?&gt;)/gi, "sk-arg-type"],
-  [/\b(true)\b/gi, "sk-true"],
-  [/\b(stop( (the |)|)(trigger|server|loop|)|cancel( event)?|false)\b/gi, "sk-false"],
-  [/({|})/gi, "sk-var"],
-  [/(\w+?(?=\(.*?\)))/gi, "sk-function"],
-  [/((\d+?(\.\d+?)? |a |)(|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)/gi, "sk-timespan"],
-  [/\b(now)\b/gi, "sk-timespan"],
-]
+var patterns = []; // [REGEX, CLASS]
+
+function registerSyntax(regexString, flags, clazz) {
+  try {
+    regex = new RegExp(regexString, flags);
+    patterns.push([regex, clazz]);
+  } catch (error) {
+    console.warn(`Either your browser doesn't support this regex or the regex is incorrect (${regexString}):` + error);
+  }
+}
+
+registerSyntax("((?<!#)#(?!#).*)", "gi", "sk-comment") // Must be first, : must be before ::
+registerSyntax("(\\:|\\:\\:)", "gi", "sk-var")
+registerSyntax("((?<!href=)\\\".+?\\\")", "gi", "sk-string") // before others to not edit non skript code
+// registerSyntax("\\b(add|give|increase|set|make|remove( all| every|)|subtract|reduce|delete|clear|reset|send|broadcast|wait|halt|create|(dis)?enchant|shoot|rotate|reload|enable|(re)?start|teleport|feed|heal|hide|kick|(IP(-| )|un|)ban|break|launch|leash|force|message|close|show|reveal|cure|poison|spawn)(?=[ <])\\b", "gi", "sk-eff") // better to be off since it can't be much improved due to how current codes are made (can't detect \\s nor \\t)
+registerSyntax("\\b(on (?=.+\\:))", "gi", "sk-event")
+registerSyntax("\\b((parse )?if|else if|else|(do )?while|loop(?!-)|return|continue( loop|)|at)\\b", "gi", "sk-cond")
+registerSyntax("\\b((|all )player(s|)|victim|attacker|sender|loop-player|shooter|uuid of |'s uuid|(location of |'s location)|console)\\b", "gi", "sk-expr")
+registerSyntax("\\b((loop|event)-\\w+)\\b", "gi", "sk-loop-value")
+registerSyntax("\\b(contains?|(has|have|is|was|were|are|does)(n't| not|)|can('t| ?not|))\\b", "gi", "sk-cond")
+registerSyntax("\\b(command \\/.+(?=.*?:))", "gi", "sk-command")
+registerSyntax("(&lt;.+?&gt;)", "gi", "sk-arg-type")
+registerSyntax("\\b(true)\\b", "gi", "sk-true")
+registerSyntax("\\b(stop( (the |)|)(trigger|server|loop|)|cancel( event)?|false)\\b", "gi", "sk-false")
+registerSyntax("({|})", "gi", "sk-var")
+registerSyntax("(\\w+?(?=\\(.*?\\)))", "gi", "sk-function")
+registerSyntax("((\\d+?(\\.\\d+?)? |a |)(|minecraft |mc |real |rl |irl )(tick|second|minute|hour|day)s?)", "gi", "sk-timespan")
+registerSyntax("\\b(now)\\b", "gi", "sk-timespan")
 
 function highlightElement(element) {
 
