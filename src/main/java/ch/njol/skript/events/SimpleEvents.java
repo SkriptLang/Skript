@@ -619,7 +619,8 @@ public class SimpleEvents {
 			.since("INSERT VERSION");
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
-				.description("Called when an anvil is damaged/broken from being used to repair/rename items.")
+				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
+					 		 "Note: this does not include anvil damage from falling.")
 				.requiredPlugins("Paper 1.13 or newer")
 				.examples("on anvil damage:",
 					"\t\tcancel the event")
