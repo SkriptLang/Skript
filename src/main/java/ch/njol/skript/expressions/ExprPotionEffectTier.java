@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Potion Effect Tier")
 @Description("Returns the tier of an entities potion effect.")
-@Examples("if the amplifier of haste of player >= 1:")
+@Examples("if the amplifier of haste of player >= 3:")
 @Since("INSERT VERSION")
 public class ExprPotionEffectTier extends SimpleExpression<Number> {
 
@@ -61,8 +61,7 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 		LivingEntity entity = entityExpr.getSingle(event);
 		if (type == null || entity == null) return new Number[0];
 		PotionEffect effect = entity.getPotionEffect(type);
-		if (effect == null) return new Number[]{0};
-		return new Number[]{effect.getAmplifier()};
+		return effect == null ? new Number[0] : new Number[]{effect.getAmplifier() + 1};
 	}
 
 	@Override
