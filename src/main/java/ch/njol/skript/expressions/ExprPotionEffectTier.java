@@ -61,7 +61,7 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 		LivingEntity entity = entityExpr.getSingle(event);
 		if (type == null || entity == null) return new Number[0];
 		PotionEffect effect = entity.getPotionEffect(type);
-		return effect == null ? new Number[0] : new Number[]{effect.getAmplifier() + 1};
+		return new Number[]{effect == null ? 0 : effect.getAmplifier() + 1};
 	}
 
 	@Override
