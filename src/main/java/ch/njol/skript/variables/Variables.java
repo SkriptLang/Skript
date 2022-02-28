@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -215,6 +216,8 @@ public abstract class Variables {
 				return false;
 			}
 		} finally {
+			SkriptLogger.setNode(null);
+
 			// make sure to put the loaded variables into the variables map
 			final int n = onStoragesLoaded();
 			if (n != 0) {
