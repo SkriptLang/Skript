@@ -56,7 +56,7 @@ import java.util.List;
 	"spawn a ghast 5 meters above the player",
 	"spawn a zombie at the player:",
 	"\tset name of the zombie to \"\""})
-@Since("1.0, INSERT VERSION (with section)")
+@Since("1.0, 2.6.1 (with section)")
 public class EffSecSpawn extends EffectSection {
 
 	public static class SpawnEvent extends Event {
