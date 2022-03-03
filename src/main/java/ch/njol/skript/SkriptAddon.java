@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -114,7 +116,8 @@ public final class SkriptAddon {
 			return this;
 		}
 
-		try (final JarFile jar = new JarFile(file)) {
+		try (JarFile jar = new JarFile(file)) {
+			List<String> classNames = new ArrayList<>();
 			boolean hasWithClass = withClass != null;
 			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
 				String name = e.getName();
@@ -126,19 +129,20 @@ public final class SkriptAddon {
 							break;
 						}
 					}
-
-					if (load) {
-						String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
-						try {
-							Class<?> clazz = Class.forName(c, initialize, plugin.getClass().getClassLoader());
-							if (hasWithClass)
-								withClass.accept(clazz);
-						} catch (ClassNotFoundException ex) {
-							Skript.exception(ex, "Cannot load class " + c);
-						} catch (ExceptionInInitializerError err) {
-							Skript.exception(err.getCause(), this + "'s class " + c + " generated an exception while loading");
-						}
-					}
+					if (load)
+						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
+				}
+			}
+			classNames.sort(String::compareToIgnoreCase);
+			for (String c : classNames) {
+				try {
+					Class<?> clazz = Class.forName(c, initialize, plugin.getClass().getClassLoader());
+					if (hasWithClass)
+						withClass.accept(clazz);
+				} catch (ClassNotFoundException ex) {
+					Skript.exception(ex, "Cannot load class " + c);
+				} catch (ExceptionInInitializerError err) {
+					Skript.exception(err.getCause(), this + "'s class " + c + " generated an exception while loading");
 				}
 			}
 		} catch (IOException e) {
