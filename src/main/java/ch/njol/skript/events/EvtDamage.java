@@ -104,7 +104,7 @@ public class EvtDamage extends SkriptEvent {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
 			public void onDamage(final EntityDamageEvent e) {
-				if (e.getEntity() == EffSpawn.lastSpawned) {
+				if (e.getEntity() == EffSecSpawn.lastSpawned) {
 					final Entity en = e.getEntity();
 					Skript.info("");
 					Skript.info("- damage event! time: " + en.getWorld().getTime());
