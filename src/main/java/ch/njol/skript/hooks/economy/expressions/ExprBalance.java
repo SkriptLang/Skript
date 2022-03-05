@@ -40,6 +40,7 @@ import ch.njol.skript.hooks.economy.classes.Money;
 @Since("2.0, 2.5 (offline player support)")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> {
+
 	static {
 		register(ExprBalance.class, Money.class, "(money|balance|[bank] account)", "offlineplayers");
 	}
@@ -62,14 +63,14 @@ public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.DELETE)
+		if (mode == ChangeMode.REMOVE_ALL)
 			return null;
 		return new Class[] {Money.class, Number.class};
 	}
 	
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null) { // RESET
+		if (delta == null) { // RESET/DELETE
 			for (OfflinePlayer p : getExpr().getArray(e))
 				VaultHook.economy.withdrawPlayer(p, VaultHook.economy.getBalance(p));
 			return;
