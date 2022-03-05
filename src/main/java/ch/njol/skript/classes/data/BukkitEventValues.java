@@ -637,7 +637,8 @@ public final class BukkitEventValues {
 		// PlayerDropItemEvent
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, new Getter<Player, PlayerDropItemEvent>() {
 			@Override
-			public @Nullable Player get(PlayerDropItemEvent e) {
+			@Nullable
+			public Player get(PlayerDropItemEvent e) {
 				return e.getPlayer();
 			}
 		}, 0);
@@ -658,7 +659,8 @@ public final class BukkitEventValues {
 		// PlayerPickupItemEvent
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, new Getter<Player, PlayerPickupItemEvent>() {
 			@Override
-			public @Nullable Player get(PlayerPickupItemEvent e) {
+			@Nullable
+			public Player get(PlayerPickupItemEvent e) {
 				return e.getPlayer();
 			}
 		}, 0);
