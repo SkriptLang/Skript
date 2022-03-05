@@ -34,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tif attack cooldown of attacker < 1:",
 	"\t\tset damage to 0",
 	"\t\tsend \"Your hit was too weak! wait until your weapon is fully charged next time.\" to attacker"})
-@Since("INSERT VERSION")
+@Since("2.6.1")
 @RequiredPlugins("Minecraft 1.15+")
 public class ExprAttackCooldown extends SimplePropertyExpression<HumanEntity, Float> {
 
