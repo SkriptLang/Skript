@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Name("Crafting Inventory Slots")
-@Description({"Represents the slots/items in the crafting inventory such as the result item and matrix of the items."})
+@Description("Represents the slots/items in the crafting inventory such as the result item and matrix of the items.")
 @Examples({"on craft:",
 	"\tif crafting result item is paper:",
 	"\t\tset the crafting matrix to air, air, air, paper, diamond, paper, air, air and air",
@@ -97,7 +97,8 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(ItemStack[].class);
 
@@ -112,9 +113,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 			return;
 
 		if (e instanceof PrepareItemCraftEvent && isMatrix) { // Until spigot/paper fixes this
-			Skript.warning("Editing the crafting inventory matrix in player " +
-				"preparing craft event will result in an infinite loop due " +
-				"to how spigot/paper handle this event, therefore it's disabled for now.");
+			Skript.warning("It is not currently possible to edit the crafting inventory matrix in a preparing craft event.");
 			return;
 		}
 
@@ -137,7 +136,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 				if (isMatrix) {
 					ItemStack[] itemStacks = new ItemStack[9];
 					for (int i = 0; i < 9; i++) { // list must be 9 if not we will fill it manually with AIR
-						itemStacks[i] = items.length >= (i+1) ? items[i] : AIR;
+						itemStacks[i] = i < items.length ? items[i] : AIR;
 					}
 					((CraftingInventory) invi).setMatrix(itemStacks);
 				} else {
