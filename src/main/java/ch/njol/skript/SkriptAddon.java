@@ -32,9 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -96,7 +94,7 @@ public final class SkriptAddon {
 	}
 
 	@Nullable
-	private ListIterator<JarEntry> entryCache;
+	private JarEntry @Nullable [] entryCache;
 
 	/**
 	 * This method resets the cache of jar entries used in {@link #loadClasses(Consumer, boolean, String, boolean, String...)}.
@@ -141,9 +139,11 @@ public final class SkriptAddon {
 			List<String> classNames = new ArrayList<>();
 			boolean hasWithClass = withClass != null;
 			if (entryCache == null)
-				entryCache = new ArrayList<>(Arrays.asList(jar.stream().toArray(JarEntry[]::new))).listIterator();
-			while (entryCache.hasNext()) {
-				JarEntry e = entryCache.next();
+				entryCache = jar.stream().toArray(JarEntry[]::new);
+			for (int i = 0; i < entryCache.length; i++) {
+				JarEntry e = entryCache[i];
+				if (e == null) // This entry has already been loaded before
+					continue;
 				String name = e.getName();
 				if (name.startsWith(basePackage) && name.endsWith(".class") && (recursive || StringUtils.count(name, '/') <= depth)) {
 					boolean load = subPackages.length == 0;
@@ -155,12 +155,10 @@ public final class SkriptAddon {
 					}
 					if (load) {
 						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-						entryCache.remove(); // Remove this item from the entry cache as this method will only load it once
+						entryCache[i] = null; // Remove this item from the entry cache as this method will only load it once
 					}
 				}
 			}
-			while (entryCache.hasPrevious()) // Return to the beginning for the next time this method is called
-				entryCache.previous();
 			classNames.sort(String::compareToIgnoreCase);
 			for (String c : classNames) {
 				try {
