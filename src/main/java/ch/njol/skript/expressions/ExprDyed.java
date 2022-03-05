@@ -85,7 +85,6 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				m.setColor(c);
 				item.setItemMeta(m);
 			} else if (MAPS_AND_POTIONS_COLORS) {
-
 				if (meta instanceof MapMeta) {
 					MapMeta m = (MapMeta) meta;
 					m.setColor(c);

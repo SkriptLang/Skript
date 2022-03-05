@@ -98,7 +98,6 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (meta instanceof LeatherArmorMeta) {
 					LeatherArmorMeta m = (LeatherArmorMeta) meta;
 					colors.add(SkriptColor.fromBukkitOrRgbColor(m.getColor()));
-
 				} else if (MAPS_AND_POTIONS_COLORS) {
 					if (meta instanceof MapMeta) {
 						MapMeta m = (MapMeta) meta;
@@ -187,7 +186,6 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 						m.setColor(c);
 						item.setItemMeta(m);
 					} else if (MAPS_AND_POTIONS_COLORS) {
-
 						if (meta instanceof MapMeta) {
 							MapMeta m = (MapMeta) meta;
 							m.setColor(c);
