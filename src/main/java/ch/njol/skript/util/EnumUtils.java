@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
@@ -25,6 +26,7 @@ import ch.njol.util.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 public final class EnumUtils<E extends Enum<E>> {
 	
@@ -34,7 +36,7 @@ public final class EnumUtils<E extends Enum<E>> {
 	private String[] names;
 	private final HashMap<String, E> parseMap = new HashMap<>();
 	
-	public EnumUtils(final Class<E> c, final String languageNode) {
+	public EnumUtils(Class<E> c, String languageNode) {
 		assert c != null && c.isEnum() : c;
 		assert languageNode != null && !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 		
@@ -49,38 +51,48 @@ public final class EnumUtils<E extends Enum<E>> {
 	/**
 	 * Updates the names if the language has changed or the enum was modified (using reflection).
 	 */
-	void validate(final boolean force) {
+	void validate(boolean force) {
 		boolean update = force;
 
-		int newLength = c.getEnumConstants().length;
-		if (newLength != names.length) {
-			names = new String[newLength];
+		E[] constants = c.getEnumConstants();
+
+		if (constants.length != names.length) { // Simple check
+			names = new String[constants.length];
 			update = true;
-		}
-		for (E constant : c.getEnumConstants()) {
-			if (!parseMap.containsValue(constant)) { // A new value was added to the enum
-				update = true;
-				break;
+		} else { // Deeper check
+			for (E constant : constants) {
+				if (!parseMap.containsValue(constant)) { // A new value was added to the enum
+					update = true;
+					break;
+				}
 			}
 		}
 
 		if (update) {
 			parseMap.clear();
-			for (final E e : c.getEnumConstants()) {
+			for (E e : constants) {
 				String key = languageNode + "." + e.name();
 				int ordinal = e.ordinal();
 
-				for (String option : Language.getList(key)) {
-					option = option.toLowerCase();
-					NonNullPair<String, Integer> strippedOption = Noun.stripGender(option, key);
-
-					if (names[ordinal] == null) { // Add to name array if needed
-						names[ordinal] = strippedOption.getFirst();
+				String[] values = Language.getList(key);
+				for (String option : values) {
+					option = option.toLowerCase(Locale.ENGLISH);
+					if (values.length == 1 && option.equals(key.toLowerCase(Locale.ENGLISH))) {
+						Skript.warning("Missing lang enum constant for '" + key + "'");
+						continue;
 					}
 
-					parseMap.put(strippedOption.getFirst(), e);
-					if (strippedOption.getSecond() != -1) { // There is a gender present
-						parseMap.put(Noun.getArticleWithSpace(strippedOption.getSecond(), Language.F_INDEFINITE_ARTICLE) + strippedOption.getFirst(), e);
+					NonNullPair<String, Integer> strippedOption = Noun.stripGender(option, key);
+					String first = strippedOption.getFirst();
+					Integer second = strippedOption.getSecond();
+
+					if (names[ordinal] == null) { // Add to name array if needed
+						names[ordinal] = first;
+					}
+
+					parseMap.put(first, e);
+					if (second != -1) { // There is a gender present
+						parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, e);
 					}
 				}
 			}
@@ -88,12 +100,12 @@ public final class EnumUtils<E extends Enum<E>> {
 	}
 	
 	@Nullable
-	public E parse(final String s) {
+	public E parse(String s) {
 		validate(false);
-		return parseMap.get(s.toLowerCase());
+		return parseMap.get(s.toLowerCase(Locale.ENGLISH));
 	}
 
-	public String toString(final E e, final int flags) {
+	public String toString(E e, int flags) {
 		validate(false);
 		return names[e.ordinal()];
 	}
