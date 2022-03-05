@@ -23,7 +23,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -37,8 +36,10 @@ import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Repair Cost")
-@Description({"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
-			  "The default value of max cost set by vanilla Minecraft is 40."})
+@Description({
+			  "Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
+			  "The default value of max cost set by vanilla Minecraft is 40."
+			  })
 @Examples({
 		"on inventory click:",
 		"\tif {AnvilRepairSaleActive} = true:",
@@ -48,27 +49,22 @@ import org.eclipse.jdt.annotation.Nullable;
 
 		"on inventory click:",
 		"\tplayer have permission \"anvil.repair.max.bypass\"",
-		"\tset max repair cost of event-inventory to 99999"})
+		"\tset max repair cost of event-inventory to 99999"
+		})
 @Since("INSERT VERSION")
-@RequiredPlugins("MC 1.11, MC 1.13+ (max cost)")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
 	static {
-		String maxCostSyntax = Skript.methodExists(AnvilInventory.class, "getMaximumRepairCost") ? " [:max[imum]]" : "";
-
-		if (Skript.methodExists(AnvilInventory.class, "getRepairCost"))
 			Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [anvil] [item]" + maxCostSyntax + " repair cost [of %inventories%]",
-				"%inventories%'[s] [item]" + maxCostSyntax + " repair cost");
+				"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
+				"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
 	boolean isMax = false;
-	Expression<Inventory> invs;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		invs = (Expression<Inventory>) exprs[0];
 		isMax = parseResult.hasTag("max");
 		setExpr((Expression<? extends Inventory>) exprs[0]);
 		return true;
@@ -99,14 +95,13 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		assert delta != null;
 		if (delta == null || delta[0] == null)
 			return;
 
-		for (Inventory inv : invs.getArray(e)) {
+		for (Inventory inv : getExpr().getArray(e)) {
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
-				int value = ((Number) delta[0]).intValue();
+				int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 				int change = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
 				int newValue = Math.max((change + value), 0);
 
