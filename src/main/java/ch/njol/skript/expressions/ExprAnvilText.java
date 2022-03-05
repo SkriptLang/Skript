@@ -18,11 +18,9 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -38,14 +36,13 @@ import org.eclipse.jdt.annotation.Nullable;
 		"on inventory click:",
 		"\ttype of event-inventory is anvil inventory",
 		"\tif anvil input text = \"FREE OP\":",
-		"\t\tban player"})
+		"\t\tban player"
+		})
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.11+")
 public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
 	static {
-		if (Skript.methodExists(AnvilInventory.class, "getRenameText"))
-			register(ExprAnvilText.class, String.class, "anvil [inventory] [rename] input [text]", "inventories");
+		register(ExprAnvilText.class, String.class, "anvil [inventory] (rename|text) input", "inventories");
 	}
 
 	@Override
@@ -69,7 +66,7 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
 	@Override
 	public String getPropertyName() {
-		return "Anvil input text";
+		return "anvil text input";
 	}
 	
 }
