@@ -34,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\ttrigger:",
 		"\t\tteleport player to the center of player's location",
 		"\t\tsend \"You're no longer stuck.\""})
-@Since("INSERT VERSION")
+@Since("2.6.1")
 public class ExprMiddleOfLocation extends SimplePropertyExpression<Location, Location> {
 	
 	static {
