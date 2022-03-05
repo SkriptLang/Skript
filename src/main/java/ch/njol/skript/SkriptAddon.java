@@ -22,7 +22,6 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.iterator.EnumerationIterable;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.registration.Module;
@@ -33,7 +32,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -82,6 +83,9 @@ public final class SkriptAddon {
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
 	 *
+	 * Please note that if you need to load the same class multiple times,
+	 * you should call {@link #resetEntryCache()} each time you call this method.
+	 *
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
 	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
@@ -91,8 +95,25 @@ public final class SkriptAddon {
 		return loadClasses(null, true, basePackage, true, subPackages);
 	}
 
+	@Nullable
+	private ListIterator<JarEntry> entryCache;
+
+	/**
+	 * This method resets the cache of jar entries used in {@link #loadClasses(Consumer, boolean, String, boolean, String...)}.
+	 * This method is meant for internal use, so you <i>probably</i> don't need it!
+	 * However, if you need loadClasses to load the same class multiple times, you <b>should</b> use this method.
+	 *
+	 * Note that this cache will be cleared when Skript stops accepting registrations.
+	 */
+	public void resetEntryCache() {
+		entryCache = null;
+	}
+
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
+	 *
+	 * Please note that if you need to load the same class multiple times,
+	 * you should call {@link #resetEntryCache()} each time you call this method.
 	 *
 	 * @param withClass A consumer that will run with each found class.
 	 * @param initialize Whether classes found in the package search should be initialized.
@@ -119,7 +140,10 @@ public final class SkriptAddon {
 		try (JarFile jar = new JarFile(file)) {
 			List<String> classNames = new ArrayList<>();
 			boolean hasWithClass = withClass != null;
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
+			if (entryCache == null)
+				entryCache = new ArrayList<>(Arrays.asList(jar.stream().toArray(JarEntry[]::new))).listIterator();
+			while (entryCache.hasNext()) {
+				JarEntry e = entryCache.next();
 				String name = e.getName();
 				if (name.startsWith(basePackage) && name.endsWith(".class") && (recursive || StringUtils.count(name, '/') <= depth)) {
 					boolean load = subPackages.length == 0;
@@ -129,10 +153,14 @@ public final class SkriptAddon {
 							break;
 						}
 					}
-					if (load)
+					if (load) {
 						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
+						entryCache.remove(); // Remove this item from the entry cache as this method will only load it once
+					}
 				}
 			}
+			while (entryCache.hasPrevious()) // Return to the beginning for the next time this method is called
+				entryCache.previous();
 			classNames.sort(String::compareToIgnoreCase);
 			for (String c : classNames) {
 				try {
@@ -157,6 +185,7 @@ public final class SkriptAddon {
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions').
 	 *                    If no subpackages are provided, all subpackages will be searched.
 	 *                    Note that the search will go no further than the first layer of subpackages.
+	 * @return This SkriptAddon
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
 	public SkriptAddon loadModules(String basePackage, String... subPackages) {

@@ -509,8 +509,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		final long tick = testing() ? Bukkit.getWorlds().get(0).getFullTime() : 0;
 		Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			@SuppressWarnings("synthetic-access")
 			@Override
+			@SuppressWarnings("synthetic-access")
 			public void run() {
 				assert Bukkit.getWorlds().get(0).getFullTime() == tick;
 
@@ -531,7 +531,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					tainted = true;
 					getAddonInstance().loadClasses("ch.njol.skript", "tests");
 				}
-				
+
 				stopAcceptingRegistrations();
 				
 				
@@ -1190,10 +1190,14 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	private static void stopAcceptingRegistrations() {
 		acceptRegistrations = false;
-		
+
 		Converters.createMissingConverters();
 		
 		Classes.onRegistrationsStop();
+
+		// Clear each cache
+		getAddonInstance().resetEntryCache(); // The SkriptAddon representing Skript is not part of the addons list
+		getAddons().forEach(SkriptAddon::resetEntryCache);
 	}
 	
 	// ================ ADDONS ================
