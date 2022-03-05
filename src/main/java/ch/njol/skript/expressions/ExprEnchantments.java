@@ -84,8 +84,7 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 				enchants = meta.getStoredEnchants().entrySet().stream()
 					.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
 					.toArray(EnchantmentType[]::new);
-			}
-			else {
+			} else {
 				enchants = item.getEnchantmentTypes();
 			}
 
@@ -124,10 +123,11 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 		
 		switch (mode) {
 			case ADD:
-				for (ItemType item : source) {
-					if (isStored)
+				if (isStored) {
+					for (ItemType item : source)
 						item.addStoredEnchantments(enchants);
-					else
+				} else {
+					for (ItemType item : source)
 						item.addEnchantments(enchants);
 				}
 				break;
@@ -140,12 +140,14 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 					for (EnchantmentType enchant : enchants) {
 						Enchantment ench = enchant.getType();
 						assert ench != null;
+						if (enchant.getInternalLevel() == -1)
+							continue;
 						if (isStored && storageMeta != null) {
-							if (enchant.getInternalLevel() == -1 || storageMeta.getStoredEnchantLevel(ench) == enchant.getLevel()) {
+							if (storageMeta.getStoredEnchantLevel(ench) == enchant.getLevel()) {
 								storageMeta.removeStoredEnchant(ench);
 							}
 						}
-						else if (enchant.getInternalLevel() == -1 || meta.getEnchantLevel(ench) == enchant.getLevel()) {
+						else if (meta.getEnchantLevel(ench) == enchant.getLevel()) {
 								// Remove directly from meta since it's more efficient on this case
 								meta.removeEnchant(ench);
 						}

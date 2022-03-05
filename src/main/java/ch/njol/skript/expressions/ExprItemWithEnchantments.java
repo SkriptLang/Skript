@@ -34,7 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("With Enchantments")
-@Description("returns an <a href='classes.html#itemtype'>item type</a> with [stored] enchantments.")
+@Description("Represents an item with enchantments. If the item is an enchanted book, it may also have stored enchantments.")
 @Examples({"give player enchanted book with stored enchantment unbreaking 1 and sharpness 2",
 		"give player 3 diamonds with power 1"})
 @Since("INSERT VERSION")
