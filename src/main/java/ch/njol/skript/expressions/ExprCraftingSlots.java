@@ -44,11 +44,13 @@ import java.util.List;
 
 @Name("Crafting Inventory Slots")
 @Description("Represents the slots/items in the crafting inventory such as the result item and matrix of the items.")
-@Examples({"on craft:",
+@Examples({
+	"on craft:",
 	"\tif crafting result item is paper:",
 	"\t\tset the crafting matrix to air, air, air, paper, diamond, paper, air, air and air",
 	"on preparing crafting:",
-	"\tset crafting result item to wood"})
+	"\tset crafting result item to wood"
+	})
 @Since("INSERT VERSION")
 public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	
@@ -63,8 +65,8 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Inventory> invis;
 	private boolean isMatrix;
-	final ItemStack AIR = new ItemStack(Material.AIR);
-	final ItemStack[] AIR_ITEMSTACK_LIST = new ItemStack[]{AIR, AIR, AIR, AIR, AIR, AIR, AIR, AIR, AIR};
+	private final ItemStack AIR = new ItemStack(Material.AIR);
+	private final ItemStack[] AIR_ITEMSTACK_LIST = new ItemStack[]{AIR, AIR, AIR, AIR, AIR, AIR, AIR, AIR, AIR};
 
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
@@ -103,12 +105,11 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 			return CollectionUtils.array(ItemStack[].class);
 
 		return null;
-		}
+	}
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Inventory[] invis = this.invis.getArray(e);
-		ItemStack[] items = (ItemStack[]) delta;
 		if (invis == null)
 			return;
 
@@ -128,6 +129,7 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 			}
 		} else { // SET
 			assert invis != null;
+			ItemStack[] items = (ItemStack[]) delta;
 			if (items == null)
 				return;
 			for (Inventory invi : invis) {
