@@ -1503,40 +1503,17 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see SkriptLogger#log(Level, String)
 	 */
 	@SuppressWarnings("null")
-	public static void warning(String warning) {
-		warning(warning, true);
-	}
-
-	/**
-	 * @see SkriptLogger#log(Level, String)
-	 */
-	@SuppressWarnings("null")
-	public static void warning(String warning, boolean withNode) {
-		if (withNode)
-			SkriptLogger.log(Level.WARNING, warning);
-		else
-			SkriptLogger.log(new LogEntry(Level.WARNING, warning, null));
+	public static void warning(final String warning) {
+		SkriptLogger.log(Level.WARNING, warning);
 	}
 	
 	/**
 	 * @see SkriptLogger#log(Level, String)
 	 */
 	@SuppressWarnings("null")
-	public static void error(@Nullable String error) {
-		error(error, true);
-	}
-
-	/**
-	 * @see SkriptLogger#log(Level, String)
-	 */
-	@SuppressWarnings("null")
-	public static void error(@Nullable String error, boolean withNode) {
-		if (error != null) {
-			if (withNode)
-				SkriptLogger.log(Level.SEVERE, error);
-			else
-				SkriptLogger.log(new LogEntry(Level.SEVERE, error, null));
-		}
+	public static void error(final @Nullable String error) {
+		if (error != null)
+			SkriptLogger.log(Level.SEVERE, error);
 	}
 	
 	/**
