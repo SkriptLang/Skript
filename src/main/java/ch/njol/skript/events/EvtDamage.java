@@ -63,7 +63,9 @@ public class EvtDamage extends SkriptEvent {
 			EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) evt;
 			if (!checkDamager(event.getDamager()))
 				return false;
-		} else if (byTypes != null) return false;
+		} else if (byTypes != null) {
+			return false;
+		}
 		if (!checkDamaged(e.getEntity()))
 			return false;
 		if (e instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) e).getDamager() instanceof EnderDragon && ((EntityDamageByEntityEvent) e).getEntity() instanceof EnderDragon)
