@@ -37,27 +37,27 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Repair Cost")
 @Description({
-			  "Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
-			  "The default value of max cost set by vanilla Minecraft is 40."
-			  })
+	"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
+	"The default value of max cost set by vanilla Minecraft is 40."
+})
 @Examples({
-		"on inventory click:",
-		"\tif {AnvilRepairSaleActive} = true:",
-		"\t\twait a tick # recommended, to avoid client bugs",
-		"\t\tset anvil repair cost to anvil repair cost * 50%",
-		"\t\tsend \"Anvil repair sale is ON!\" to player",
+	"on inventory click:",
+	"\tif {AnvilRepairSaleActive} = true:",
+	"\t\twait a tick # recommended, to avoid client bugs",
+	"\t\tset anvil repair cost to anvil repair cost * 50%",
+	"\t\tsend \"Anvil repair sale is ON!\" to player",
 
-		"on inventory click:",
-		"\tplayer have permission \"anvil.repair.max.bypass\"",
-		"\tset max repair cost of event-inventory to 99999"
-		})
+	"on inventory click:",
+	"\tplayer have permission \"anvil.repair.max.bypass\"",
+	"\tset max repair cost of event-inventory to 99999"
+})
 @Since("INSERT VERSION")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
 	static {
-			Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
-				"%inventories%'[s] [item] [:max[imum]] repair cost");
+		Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
+			"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
+			"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
 	boolean isMax = false;
