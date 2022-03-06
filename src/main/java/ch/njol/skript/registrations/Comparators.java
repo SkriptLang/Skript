@@ -94,13 +94,18 @@ public class Comparators {
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
-	private static <F, S> Comparator<?, ?> getComparator_i(final Class<F> f, final Class<S> s) {
+	private static <F, S> Comparator<?, ?> getComparator_i(Class<F> f, Class<S> s) {
 		
 		// perfect match
-		for (final ComparatorInfo<?, ?> info : comparators) {
+		for (ComparatorInfo<?, ?> info : comparators) {
 			if (info.c1.isAssignableFrom(f) && info.c2.isAssignableFrom(s)) {
 				return info.c;
-			} else if (info.c1.isAssignableFrom(s) && info.c2.isAssignableFrom(f)) {
+			}
+		}
+
+		// try to match to create an InverseComparator
+		for (ComparatorInfo<?, ?> info : comparators) {
+			if (info.c1.isAssignableFrom(s) && info.c2.isAssignableFrom(f)) {
 				return new InverseComparator<F, S>((Comparator<? super S, ? super F>) info.c);
 			}
 		}
@@ -115,8 +120,8 @@ public class Comparators {
 		Converter<? super S, ?> c2;
 		
 		// single conversion
-		for (final ComparatorInfo<?, ?> info : comparators) {
-			for (final boolean first : trueFalse) {
+		for (ComparatorInfo<?, ?> info : comparators) {
+			for (boolean first : trueFalse) {
 				if (info.getType(first).isAssignableFrom(f)) {
 					c2 = Converters.getConverter(s, info.getType(!first));
 					if (c2 != null) {
@@ -133,8 +138,8 @@ public class Comparators {
 		}
 		
 		// double conversion
-		for (final ComparatorInfo<?, ?> info : comparators) {
-			for (final boolean first : trueFalse) {
+		for (ComparatorInfo<?, ?> info : comparators) {
+			for (boolean first : trueFalse) {
 				c1 = Converters.getConverter(f, info.getType(first));
 				c2 = Converters.getConverter(s, info.getType(!first));
 				if (c1 != null && c2 != null) {

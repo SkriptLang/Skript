@@ -40,7 +40,7 @@ import ch.njol.skript.util.slot.SlotWithIndex;
 public class ExprSlotIndex extends SimplePropertyExpression<Slot, Long> {
 	
 	static {
-		register(ExprSlotIndex.class, Long.class, "(index|indices)", "slots");
+		register(ExprSlotIndex.class, Long.class, "index", "slots");
 	}
 	
 	@Override
