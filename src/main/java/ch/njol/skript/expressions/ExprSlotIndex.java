@@ -37,28 +37,29 @@ import ch.njol.skript.util.slot.SlotWithIndex;
 @Examples({"if index of event-slot is 10:",
 			"\tsend \"You bought a pie!\""})
 @Since("2.2-dev35")
-public class ExprSlotIndex extends SimplePropertyExpression<Slot, Integer> {
+public class ExprSlotIndex extends SimplePropertyExpression<Slot, Long> {
 	
 	static {
-		register(ExprSlotIndex.class, Integer.class, "(index|indices)", "slots");
+		register(ExprSlotIndex.class, Long.class, "index", "slots");
 	}
 	
 	@Override
 	@Nullable
-	public Integer convert(Slot f) {
+	public Long convert(Slot f) {
 		if (f instanceof SlotWithIndex)
-			return ((SlotWithIndex) f).getIndex();
+			return (long) ((SlotWithIndex) f).getIndex();
 		
-		return 0; // Slot does not have index. At all
+		return 0L; // Slot does not have index. At all
+	}
+
+	@Override
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
 		return "slot";
 	}
-	
-	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
-	}
+
 }

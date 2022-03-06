@@ -106,13 +106,11 @@ In addition to that, if you are contributing Java code, check our
 If you use Skript as (soft) dependency for your plugin, and use maven or Gradle,
 this is for you.
 
-First, you need to add the JitPack repository at the **END** of all your repositories. Skript is not available in Maven Central.
+First, you need to add the Maven repository at the **END** of all your repositories. Skript is not available in Maven Central.
 ```gradle
 repositories {
-    jcenter()
-    ...
     maven {
-        url 'https://jitpack.io'
+        url 'https://repo.skriptlang.org/releases'
     }
 }
 ```
@@ -121,8 +119,9 @@ Or, if you use Maven:
 ```maven
 <repositories>
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>skript-releases</id>
+        <name>Skript Repository</name>
+        <url>https://repo.skriptlang.org/releases</url>
     </repository>
 </repositories>
 ```
@@ -152,7 +151,7 @@ dependencies {
 
 An example of the version tag would be ```dev37c```.
 
-> Note: If Gradle isn't able to resolve Skript's dependencies, just [disable the resolution of transitive dependencies](https://docs.gradle.org/current/userguide/managing_transitive_dependencies.html#sub:disabling_resolution_transitive_dependencies) for Skript in your project.
+> Note: If Gradle isn't able to resolve Skript's dependencies, just [disable the resolution of transitive dependencies](https://docs.gradle.org/current/userguide/resolution_rules.html#sec:disabling_resolution_transitive_dependencies) for Skript in your project.
 
 Or, if you use Maven:
 ```

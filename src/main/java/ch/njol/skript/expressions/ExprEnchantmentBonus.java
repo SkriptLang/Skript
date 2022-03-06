@@ -41,10 +41,10 @@ import ch.njol.util.Kleenean;
 			"\tsend \"There are %enchantment bonus% bookshelves surrounding this enchantment table!\" to player"})
 @Events("enchant prepare")
 @Since("2.5")
-public class ExprEnchantmentBonus extends SimpleExpression<Number> {
+public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprEnchantmentBonus.class, Number.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
+		Skript.registerExpression(ExprEnchantmentBonus.class, Long.class, ExpressionType.SIMPLE, "[the] enchantment bonus");
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event e) {
-		return new Number[]{((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
+	protected Long[] get(Event e) {
+		return new Long[]{(long) ((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
 	}
 
 	@Override
@@ -69,8 +69,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Number> {
 
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
