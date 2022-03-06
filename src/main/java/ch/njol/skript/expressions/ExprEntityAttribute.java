@@ -48,47 +48,50 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on damage of player:",
 		"	send \"You are wounded!\"",
 		"	set victim's attack speed attribute to 2"})
-@Since("2.5")
+@Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
 		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"%attributetype% attribute [value] of %entities%",
-				"%entities%'[s] %attributetype% attribute [value]");
+				"[the] %attributetype% [(1¦(total|final|modified))] attribute [value] of %entities%",
+				"%entities%'[s] %attributetype% [(1¦(total|final|modified))] attribute [value]");
 	}
 	
 	private static final boolean DEFAULTVALUE_EXISTS = Skript.isRunningMinecraft(1, 11);
 	
 	@Nullable
 	private Expression<Attribute> attributes;
-	
+	private boolean withModifiers;
+
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		attributes = (Expression<Attribute>) exprs[matchedPattern];
 		setExpr((Expression<? extends Entity>) exprs[matchedPattern ^ 1]);
+		withModifiers = parseResult.mark == 1;
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	protected Number[] get(Event e, Entity[] entities) {
 		Attribute a = attributes.getSingle(e);
 		return Stream.of(entities)
-		    .map(ent -> getAttribute(ent, a).getBaseValue())
+		    .map(ent -> getAttribute(ent, a))
+		    .map(att -> withModifiers ? att.getValue() : att.getBaseValue())
 		    .toArray(Number[]::new);
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || (mode == ChangeMode.RESET && !DEFAULTVALUE_EXISTS))
+		if (mode == ChangeMode.REMOVE_ALL || (mode == ChangeMode.RESET && !DEFAULTVALUE_EXISTS) || withModifiers)
 			return null;
 		return CollectionUtils.array(Number.class);
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Attribute a = attributes.getSingle(e);
 		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
@@ -123,8 +126,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 		return Number.class;
 	}
 
-	@SuppressWarnings("null") 
 	@Override
+	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
 		return "entity " + getExpr().toString(e, debug) + "'s " + (attributes == null ? "" : attributes.toString(e, debug)) + "attribute";
 	}
@@ -136,5 +139,5 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	    }
 	   return null;
 	}
-	
+
 }

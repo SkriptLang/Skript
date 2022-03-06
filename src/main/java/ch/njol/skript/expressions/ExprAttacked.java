@@ -25,6 +25,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEvent;
@@ -45,35 +46,37 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Attacked")
-@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie.")
+@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
+			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
 @Examples({"on damage:",
-		"	victim is a creeper",
-		"	damage the attacked by 1 heart"})
-@Since("1.3")
-@Events({"damage", "death"})
+	"\tvictim is a creeper",
+	"\tdamage the attacked by 1 heart"})
+@Since("1.3, 2.6.1 (projectile hit event)")
+@Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> {
+
+	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");
+
 	static {
 		Skript.registerExpression(ExprAttacked.class, Entity.class, ExpressionType.SIMPLE, "[the] (attacked|damaged|victim) [<(.+)>]");
 	}
-	
-	@SuppressWarnings("null")
+
+	@SuppressWarnings({"null", "NotNullFieldNotInitialized"})
 	private EntityData<?> type;
 
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class)) {
-			Skript.error("The expression 'victim' can only be used in a damage or death event", ErrorQuality.SEMANTIC_ERROR);
+	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		if (!getParser().isCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class)
+			|| !SUPPORT_PROJECTILE_HIT && getParser().isCurrentEvent(ProjectileHitEvent.class)) {
+			Skript.error("The expression 'victim' can only be used in a damage" + (SUPPORT_PROJECTILE_HIT ? ", death, or projectile hit" : " or death") + " event");
 			return false;
 		}
-		final String type = parser.regexes.size() == 0 ? null : parser.regexes.get(0).group();
+		String type = parser.regexes.size() == 0 ? null : parser.regexes.get(0).group();
 		if (type == null) {
 			this.type = EntityData.fromClass(Entity.class);
 		} else {
-			final EntityData<?> t = EntityData.parse(type);
+			EntityData<?> t = EntityData.parse(type);
 			if (t == null) {
 				Skript.error("'" + type + "' is not an entity type", ErrorQuality.NOT_AN_EXPRESSION);
 				return false;
@@ -82,14 +85,17 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
-	protected Entity[] get(final Event e) {
-		final Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
+	protected Entity[] get(Event e) {
+		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
 		Entity entity;
 		if (e instanceof EntityEvent)
-			entity = ((EntityEvent) e).getEntity();
+			if (SUPPORT_PROJECTILE_HIT && e instanceof ProjectileHitEvent)
+				entity = ((ProjectileHitEvent) e).getHitEntity();
+			else
+				entity = ((EntityEvent) e).getEntity();
 		else
 			entity = ((VehicleEvent) e).getVehicle();
 		if (type.isInstance(entity)) {
@@ -98,22 +104,22 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 		}
 		return null;
 	}
-	
-	@Override
-	public Class<? extends Entity> getReturnType() {
-		return type.getType();
-	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (e == null)
-			return "the attacked " + type;
-		return Classes.getDebugMessage(getSingle(e));
-	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Entity> getReturnType() {
+		return type.getType();
+	}
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		if (e == null)
+			return "the attacked " + type;
+		return Classes.getDebugMessage(getSingle(e));
+	}
+
 }
