@@ -401,14 +401,15 @@ public final class Skript extends JavaPlugin implements Listener {
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
 							saveTo = config;
-//					} else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
+					}
+//					else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
 //						File af = new File(getDataFolder(), e.getName());
 //						if (!af.exists())
 //							saveTo = af;
-					} else if (e.getName().startsWith("features.sk")) {
-						if (!features.exists())
-							saveTo = features;
-					}
+//					} else if (e.getName().startsWith("features.sk")) { // Could be useful later
+//						if (!features.exists())
+//							saveTo = features;
+//					}
 					if (saveTo != null) {
 						InputStream in = f.getInputStream(e);
 						try {
