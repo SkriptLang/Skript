@@ -38,6 +38,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
  */
 @SuppressWarnings("unchecked")
 public class EvtDamage extends SkriptEvent {
+
 	static {
 		Skript.registerEvent("Damage", EvtDamage.class, EntityDamageEvent.class, "damag(e|ing) [of %entitydata%] [by %entitydata%]")
 				.description("Called when an entity receives damage, e.g. by an attack from another entity, lava, fire, drowning, fall, suffocation, etc.")
@@ -49,15 +50,15 @@ public class EvtDamage extends SkriptEvent {
 	private Literal<EntityData<?>> ofTypes, byTypes;
 	
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		ofTypes = (Literal<EntityData<?>>) args[0];
 		byTypes = (Literal<EntityData<?>>) args[1];
 		return true;
 	}
 	
 	@Override
-	public boolean check(final Event evt) {
-		final EntityDamageEvent e = (EntityDamageEvent) evt;
+	public boolean check(Event evt) {
+		EntityDamageEvent e = (EntityDamageEvent) evt;
 		if (evt instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) evt;
 			if (!checkDamager(event.getDamager()))
@@ -70,9 +71,9 @@ public class EvtDamage extends SkriptEvent {
 		return checkDamage(e);
 	}
 
-	private boolean checkDamager(final Entity e) {
+	private boolean checkDamager(Entity e) {
 		if (byTypes != null) {
-			for (final EntityData<?> d : byTypes.getAll()) {
+			for (EntityData<?> d : byTypes.getAll()) {
 				if (d.isInstance(e))
 					return true;
 			}
@@ -81,9 +82,9 @@ public class EvtDamage extends SkriptEvent {
 		return true;
 	}
 	
-	private boolean checkDamaged(final Entity e) {
+	private boolean checkDamaged(Entity e) {
 		if (ofTypes != null) {
-			for (final EntityData<?> d : ofTypes.getAll()) {
+			for (EntityData<?> d : ofTypes.getAll()) {
 				if (d.isInstance(e))
 					return true;
 			}
@@ -93,17 +94,17 @@ public class EvtDamage extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "damage" + (ofTypes != null ? " of " + ofTypes.toString(e, debug) : "") +
 			(byTypes != null ? " by " + byTypes.toString(e, debug) : "");
 	}
 	
 //	private final static WeakHashMap<LivingEntity, Integer> lastDamages = new WeakHashMap<LivingEntity, Integer>();
 	
-	private static boolean checkDamage(final EntityDamageEvent e) {
+	private static boolean checkDamage(EntityDamageEvent e) {
 		if (!(e.getEntity() instanceof LivingEntity))
 			return true;
-		final LivingEntity en = (LivingEntity) e.getEntity();
+		LivingEntity en = (LivingEntity) e.getEntity();
 		if (HealthUtils.getHealth(en) <= 0)
 			return false;
 //		if (en.getNoDamageTicks() <= en.getMaximumNoDamageTicks() / 2) {
