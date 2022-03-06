@@ -30,14 +30,14 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Anvil Input Text")
+@Name("Anvil Text Input")
 @Description("Returns the name to be applied to the repaired item.")
 @Examples({
 		"on inventory click:",
 		"\ttype of event-inventory is anvil inventory",
 		"\tif anvil input text = \"FREE OP\":",
 		"\t\tban player"
-		})
+})
 @Since("INSERT VERSION")
 public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
