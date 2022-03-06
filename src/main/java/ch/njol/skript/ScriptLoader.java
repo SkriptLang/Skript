@@ -31,7 +31,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
@@ -42,12 +41,10 @@ import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.CountingLogHandler;
@@ -114,7 +111,6 @@ public class ScriptLoader {
 	 * Clears triggers, commands, functions and variable names
 	 */
 	static void disableScripts() {
-		VariableString.variableNames.clear();
 		SkriptEventHandler.removeAllTriggers();
 		Commands.clearCommands();
 		Functions.clearFunctions();
@@ -217,21 +213,21 @@ public class ScriptLoader {
 	 */
 	private static final FileFilter scriptFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
-			&& !f.getName().startsWith("-");
-	
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& !f.getName().startsWith("-") && !f.isHidden();
+
 	/**
 	 * All disabled script files.
 	 */
 	private static final Set<File> disabledFiles = Collections.synchronizedSet(new HashSet<>());
-	
+
 	/**
 	 * Filter for disabled scripts & folders.
 	 */
 	private static final FileFilter disabledFilter =
 		f -> f != null
-			&& (f.isDirectory() || StringUtils.endsWithIgnoreCase("" + f.getName(), ".sk"))
-			&& f.getName().startsWith("-");
+			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
+			&& f.getName().startsWith("-") && !f.isHidden();
 	
 	/**
 	 * Reevaluates {@link #disabledFiles}.
@@ -240,6 +236,7 @@ public class ScriptLoader {
 	private static void updateDisabledScripts(Path path) {
 		disabledFiles.clear();
 		try {
+			// TODO handle AccessDeniedException
 			Files.walk(path)
 				.map(Path::toFile)
 				.filter(disabledFilter::accept)
@@ -463,15 +460,12 @@ public class ScriptLoader {
 		
 		CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE).start();
 		try {
-			Language.setUseLocal(false);
-			
 			configs = loadStructures(scriptsFolder);
 		} finally {
 			logHandler.stop();
 		}
 		
 		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler))
-			.whenComplete((scriptInfo, throwable) -> Language.setUseLocal(true))
 			.thenAccept(scriptInfo -> {
 				// Success
 				if (logHandler.getCount() == 0)
@@ -517,9 +511,7 @@ public class ScriptLoader {
 	 */
 	public static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
 		AtomicBoolean syncCommands = new AtomicBoolean();
-		
-		boolean wasLocal = Language.setUseLocal(false);
-		
+    
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
@@ -546,10 +538,6 @@ public class ScriptLoader {
 		}
 		
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
-			.whenComplete((unused, throwable) -> {
-				if (wasLocal)
-					Language.setUseLocal(true);
-			})
 			.thenApply(unused -> {
 				SkriptEventHandler.registerBukkitEvents();
 				
@@ -748,15 +736,18 @@ public class ScriptLoader {
 					
 					event = replaceOptions(event);
 					
-					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 					if (parsedEvent == null || !parsedEvent.getSecond().shouldLoadEvent())
 						continue;
 					
 					if (Skript.debug() || node.debug())
 						Skript.debug(event + " (" + parsedEvent.getSecond().toString(null, true) + "):");
-					
+
+					Class<? extends Event>[] eventClasses = parsedEvent.getSecond().getEventClasses();
+					if (eventClasses == null)
+						eventClasses = parsedEvent.getFirst().events;
 					try {
-						getParser().setCurrentEvent("" + parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), parsedEvent.getFirst().events);
+						getParser().setCurrentEvent(parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 						getParser().setCurrentSkriptEvent(parsedEvent.getSecond());
 						events.add(new ParsedEventData(parsedEvent, event, node, loadItems(node)));
 					} finally {
@@ -800,7 +791,10 @@ public class ScriptLoader {
 			}
 			
 			for (ParsedEventData event : events) {
-				getParser().setCurrentEvent("" + event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), event.info.getFirst().events);
+				Class<? extends Event>[] eventClasses = event.info.getSecond().getEventClasses();
+				if (eventClasses == null)
+					eventClasses = event.info.getFirst().events;
+				getParser().setCurrentEvent(event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 				getParser().setCurrentSkriptEvent(event.info.getSecond());
 				
 				Trigger trigger;
@@ -1104,7 +1098,6 @@ public class ScriptLoader {
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
 	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
-		
 		if (Skript.debug())
 			getParser().setIndentation(getParser().getIndentation() + "    ");
 		
@@ -1117,22 +1110,14 @@ public class ScriptLoader {
 				if (!SkriptParser.validateLine(expr))
 					continue;
 
-				EffectSection section = EffectSection.parse(expr, null, null, null); // Try to parse this as an effect section first
-				if (section != null) {
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + section.toString(null, true));
+				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
+				if (stmt == null)
+					continue;
 
-					items.add(section);
-				} else { // Try to parse this as a statement instead
-					Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
-					if (stmt == null)
-						continue;
+				if (Skript.debug() || n.debug())
+					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
 
-					if (Skript.debug() || n.debug())
-						Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
-
-					items.add(stmt);
-				}
+				items.add(stmt);
 			} else if (n instanceof SectionNode) {
 				String expr = replaceOptions("" + n.getKey());
 				if (!SkriptParser.validateLine(expr))
@@ -1181,7 +1166,7 @@ public class ScriptLoader {
 			event = "" + event.substring("on ".length());
 		
 		NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent =
-			SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+			SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 		if (parsedEvent == null) {
 			assert false;
 			return null;

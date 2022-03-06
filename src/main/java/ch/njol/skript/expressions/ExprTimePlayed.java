@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -44,12 +46,12 @@ import ch.njol.util.coll.CollectionUtils;
 	"\tgive player a diamond sword",
 	"set player's time played to 0 seconds"})
 @Since("2.5")
-public class ExprTimePlayed extends SimplePropertyExpression<Player, Timespan> {
-	
-	private final static Statistic TIME_PLAYED;
+public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
+
+	private static final Statistic TIME_PLAYED;
 
 	static {
-		register(ExprTimePlayed.class, Timespan.class, "time played", "players");
+		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
 		if (Skript.isRunningMinecraft(1, 13)) {
 			TIME_PLAYED = Statistic.PLAY_ONE_MINUTE; // Statistic name is misleading, it's actually measured in ticks
 		} else {
@@ -66,14 +68,14 @@ public class ExprTimePlayed extends SimplePropertyExpression<Player, Timespan> {
 	
 	@Nullable
 	@Override
-	public Timespan convert(Player player) {
-		return Timespan.fromTicks_i(player.getStatistic(TIME_PLAYED));
+	public Timespan convert(OfflinePlayer offlinePlayer) {
+		return Timespan.fromTicks_i(offlinePlayer.getStatistic(TIME_PLAYED));
 	}
 	
 	@Nullable
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			return CollectionUtils.array(Timespan.class);
 		} else {
 			return null;
@@ -81,13 +83,10 @@ public class ExprTimePlayed extends SimplePropertyExpression<Player, Timespan> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (delta == null) {
-			return;
-		}
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		long ticks = ((Timespan) delta[0]).getTicks_i();
-		for (Player player : getExpr().getArray(e)) {
-			long playerTicks = player.getStatistic(TIME_PLAYED);
+		for (OfflinePlayer offlinePlayer : getExpr().getArray(e)) {
+			long playerTicks = offlinePlayer.getStatistic(TIME_PLAYED);
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -96,7 +95,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<Player, Timespan> {
 					ticks = playerTicks - ticks;
 					break;
 			}
-			player.setStatistic(TIME_PLAYED, (int) ticks);
+			offlinePlayer.setStatistic(TIME_PLAYED, (int) ticks);
 		}
 	}
 	
