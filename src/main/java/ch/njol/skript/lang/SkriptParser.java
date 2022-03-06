@@ -371,19 +371,15 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (types[0] == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
+			if (allowUnparsedLiteral && types[0] == Object.class) {
 				log.clear();
-				final LogEntry e = log.getError();
+				LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
 			for (final Class<? extends T> c : types) {
 				log.clear();
 				assert c != null;
-				final T t = Classes.parse(expr, c, context);
+				T t = Classes.parse(expr, c, context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false);
@@ -569,19 +565,14 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (vi.classes[0].getC() == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
+			if (allowUnparsedLiteral && vi.classes[0].getC() == Object.class) {
 				log.clear();
-				final LogEntry e = log.getError();
+				LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
-			for (final ClassInfo<?> ci : vi.classes) {
+			for (ClassInfo<?> ci : vi.classes) {
 				log.clear();
-				assert ci.getC() != null;
-				final Object t = Classes.parse(expr, ci.getC(), context);
+				Object t = Classes.parse(expr, ci.getC(), context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false, new UnparsedLiteral(expr));
