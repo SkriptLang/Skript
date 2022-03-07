@@ -47,7 +47,11 @@ public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> 
 	
 	@Override
 	public Money convert(OfflinePlayer p) {
-		return new Money(VaultHook.economy.getBalance(p));
+		try {
+			return new Money(VaultHook.economy.getBalance(p));
+		} catch (Exception e) {
+			return new Money(VaultHook.economy.getBalance(p.getName()));
+		}
 	}
 	
 	@Override
