@@ -31,8 +31,7 @@ import ch.njol.skript.log.SkriptLogger;
 /**
  * An effect which is unconditionally executed when reached, and execution will usually continue with the next item of the trigger after this effect is executed (the stop effect
  * for example stops the trigger, i.e. nothing else will be executed after it)
- * 
- * @author Peter Güttinger
+ *
  * @see Skript#registerEffect(Class, String...)
  */
 public abstract class Effect extends Statement {
@@ -55,26 +54,36 @@ public abstract class Effect extends Statement {
 	@SuppressWarnings({"rawtypes", "unchecked", "null"})
 	@Nullable
 	public static Effect parse(String s, @Nullable String defaultError) {
-		EffectSection section = EffectSection.parse(s, null, null, null);
-		if (section != null)
-			return new EffectSectionEffect(section);
-
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			final EffFunctionCall f = EffFunctionCall.parse(s);
+			EffFunctionCall f = EffFunctionCall.parse(s);
 			if (f != null) {
 				log.printLog();
 				return f;
 			} else if (log.hasError()) {
 				log.printError();
 				return null;
-			} else {
-				log.printError();
 			}
+			log.clear();
+
+			EffectSection section = EffectSection.parse(s, null, null, null);
+			if (section != null) {
+				log.printLog();
+				return new EffectSectionEffect(section);
+			}
+			log.clear();
+
+			Effect effect = (Effect) SkriptParser.parse(s, (Iterator) Skript.getEffects().iterator(), defaultError);
+			if (effect != null) {
+				log.printLog();
+				return effect;
+			}
+
+			log.printError();
+			return null;
 		} finally {
 			log.stop();
 		}
-		return (Effect) SkriptParser.parse(s, (Iterator) Skript.getEffects().iterator(), defaultError);
 	}
 	
 }
