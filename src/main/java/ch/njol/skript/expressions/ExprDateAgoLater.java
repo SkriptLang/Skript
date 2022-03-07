@@ -25,7 +25,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
@@ -35,7 +35,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
-@Examples({"set {_yesterday} to 1 day ago"})
+@Examples({"set {_yesterday} to 1 day ago",
+			"set {_hourAfter} to 1 hour after {someOtherDate}",
+			"set {_hoursBefore} to 5 hours before {someOtherDate}"})
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 
@@ -49,24 +51,27 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     private Expression<Timespan> timespan;
     @Nullable
     private Expression<Date> date;
-
     private boolean ago;
 
-    @SuppressWarnings("null")
-    @Nullable
     @Override
+    @SuppressWarnings({"unchecked", "null"})
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+        timespan = (Expression<Timespan>) exprs[0];
+        date = (Expression<Date>) exprs[1];
+        ago = matchedPattern == 0;
+        return true;
+    }
+
+    @Override
+    @Nullable
+    @SuppressWarnings("null")
     protected Date[] get(Event e) {
         Timespan timespan = this.timespan.getSingle(e);
-        Date date = this.date == null ? new Date() : this.date.getSingle(e);
-        if (timespan == null || date == null) {
-            return null;
-        }
-        if (ago) {
-            date.subtract(timespan);
-        } else {
-            date.add(timespan);
-        }
-        return new Date[]{date};
+		Date date = this.date != null ? this.date.getSingle(e) : new Date();
+		if (timespan == null || date == null)
+			return null;
+
+        return new Date[] { ago ? date.minus(timespan) : date.plus(timespan) };
     }
 
     @Override
@@ -81,15 +86,7 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return timespan.toString(e, debug) + " " + (ago ? "ago" : "later");
-    }
-
-    @SuppressWarnings({"unchecked", "null"})
-    @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        timespan = (Expression<Timespan>) exprs[0];
-        date = (Expression<Date>) exprs[1];
-        ago = matchedPattern == 0;
-        return true;
+        return timespan.toString(e, debug) + " " + (ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
+			: (date != null ? "after " + date.toString(e, debug) : "later"));
     }
 }
