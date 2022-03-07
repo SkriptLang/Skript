@@ -48,7 +48,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on damage of player:",
 		"	send \"You are wounded!\"",
 		"	set victim's attack speed attribute to 2"})
-@Since("2.5, INSERT VERSION (final attribute value)")
+@Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
