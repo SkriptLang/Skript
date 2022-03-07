@@ -736,15 +736,18 @@ public class ScriptLoader {
 					
 					event = replaceOptions(event);
 					
-					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+					NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent = SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 					if (parsedEvent == null || !parsedEvent.getSecond().shouldLoadEvent())
 						continue;
 					
 					if (Skript.debug() || node.debug())
 						Skript.debug(event + " (" + parsedEvent.getSecond().toString(null, true) + "):");
-					
+
+					Class<? extends Event>[] eventClasses = parsedEvent.getSecond().getEventClasses();
+					if (eventClasses == null)
+						eventClasses = parsedEvent.getFirst().events;
 					try {
-						getParser().setCurrentEvent("" + parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), parsedEvent.getFirst().events);
+						getParser().setCurrentEvent(parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 						getParser().setCurrentSkriptEvent(parsedEvent.getSecond());
 						events.add(new ParsedEventData(parsedEvent, event, node, loadItems(node)));
 					} finally {
@@ -788,7 +791,10 @@ public class ScriptLoader {
 			}
 			
 			for (ParsedEventData event : events) {
-				getParser().setCurrentEvent("" + event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), event.info.getFirst().events);
+				Class<? extends Event>[] eventClasses = event.info.getSecond().getEventClasses();
+				if (eventClasses == null)
+					eventClasses = event.info.getFirst().events;
+				getParser().setCurrentEvent(event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 				getParser().setCurrentSkriptEvent(event.info.getSecond());
 				
 				Trigger trigger;
@@ -1160,7 +1166,7 @@ public class ScriptLoader {
 			event = "" + event.substring("on ".length());
 		
 		NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent =
-			SkriptParser.parseEvent(event, "can't understand this event: '" + node.getKey() + "'");
+			SkriptParser.parseEvent(event, "Can't understand this event: '" + node.getKey() + "'");
 		if (parsedEvent == null) {
 			assert false;
 			return null;

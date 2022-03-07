@@ -18,16 +18,19 @@
  */
 package ch.njol.skript.util;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffTeleport;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.LanguageChangeListener;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.*;
+import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
@@ -38,24 +41,15 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.util.Checker;
-import net.md_5.bungee.api.ChatColor;
-
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Callback;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Utility class.
@@ -481,7 +475,9 @@ public abstract class Utils {
 	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.RESET};
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
+	
 	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
+	
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -593,9 +589,10 @@ public abstract class Utils {
 	@SuppressWarnings("null")
 	@Nullable
 	public static ChatColor parseHexColor(String hex) {
-		hex = hex.replace("#", "");
-		if (hex.length() < 6)
+		if (!HEX_SUPPORTED || !hex.matches("(?i)#?[0-9a-z]{6}")) // Proper hex code validation
 			return null;
+		
+		hex = hex.replace("#", "");
 		try {
 			return ChatColor.of('#' + hex.substring(0, 6));
 		} catch (IllegalArgumentException e) {

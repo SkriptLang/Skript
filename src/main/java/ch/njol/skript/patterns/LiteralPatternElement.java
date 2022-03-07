@@ -39,7 +39,7 @@ public class LiteralPatternElement extends PatternElement {
 	@Override
 	@Nullable
 	public MatchResult match(String expr, MatchResult matchResult) {
-		char[] exprChars = expr.toLowerCase().toCharArray();
+		char[] exprChars = expr.toCharArray();
 
 		int exprIndex = matchResult.exprOffset;
 		for (char c : literal) {
@@ -48,7 +48,7 @@ public class LiteralPatternElement extends PatternElement {
 					continue;
 				else if (exprChars[exprIndex] != ' ')
 					return null;
-			} else if (exprIndex == exprChars.length || c != exprChars[exprIndex])
+			} else if (exprIndex == exprChars.length || Character.toLowerCase(c) != Character.toLowerCase(exprChars[exprIndex]))
 				return null;
 			exprIndex++;
 		}
