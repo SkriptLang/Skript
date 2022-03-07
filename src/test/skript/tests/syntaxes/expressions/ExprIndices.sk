@@ -1,0 +1,25 @@
+test "sorted indices":
+	assert indices of {single-var} is set to fail with "Should not be able to acquire indices of anything other than a list"
+	assert indices of wooden hoe is set to fail with "Should not be able to acquire indices of anything other than a list"
+
+	assert indices of {_leader-board::*} is not set with "Must be able to acquire indices of a list"
+
+	set {_leader-board::jhonny} to 25
+	set {_leader-board::esteban} to 30
+	set {_leader-board::marcelo} to 17
+	set {_leader-board::leandro} to 17
+
+	set {_descending-indices::*} to indices of {_leader-board::*} in descending order
+	set {_ascending-indices::*} to {_leader-board::*}'s indices in ascending order
+	set {_ascending-values::*} to sorted {_leader-board::*}
+	set {_descending-values::*} to reversed {_ascending-values::*}
+
+	loop {_ascending-indices::*}:
+		set {_a} to {_leader-board::%loop-value%}
+		set {_b} to {_ascending-values::%loop-index%}
+		assert {_a} is equal to {_b} with "Sorting indices in ascending order is incorrect"
+
+	loop {_descending-indices::*}:
+		set {_a} to {_leader-board::%loop-value%}
+		set {_b} to {_descending-values::%loop-index%}
+		assert {_a} is equal to {_b} with "Sorting indices in descending order is incorrect"
