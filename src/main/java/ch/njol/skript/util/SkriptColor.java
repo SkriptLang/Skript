@@ -63,11 +63,10 @@ public enum SkriptColor implements Color {
 	
 	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE),
 	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE);
-	
+
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
 	private final static String LANGUAGE_NODE = "colors";
-	private final static Pattern COLOR_CHAR_PATTERN = Pattern.compile("§");
 	
 	static {
 		colors.addAll(Arrays.asList(values()));
