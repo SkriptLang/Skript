@@ -230,7 +230,7 @@ public enum SkriptColor implements Color {
 	 * @return String with replaced chat color character
 	 */
 	public static String replaceColorChar(String s) {
-		return COLOR_CHAR_PATTERN.matcher(s).replaceAll("&");
+		return s.replace('\u00A7', '&');
 	}
 
 	@Override
