@@ -12,7 +12,7 @@ Pretty much all PRs should target the master branch.
 
 ## Development branches
 All recent major releases will have a development branch, for example `dev/2.6`.
-These branches will be updated with only bug fixes, here's how to update it:
+These branches will be updated only with bug fixes, here's how to update it:
 - Create a new branch in your fork from the development branch and check it out locally
 - [Cherry-pick](https://git-scm.com/docs/git-cherry-pick) the commits from master to be included (bug fixes)
   - In case there are conflicts, you can manually apply the changes, but make sure to include both the full commit hash and the PR (#1234) in the commit message 
