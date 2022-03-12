@@ -53,14 +53,14 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {
-		register(ExprBed.class, Location.class, "[(safe:(safe|valid)|unsafe:(unsafe|invalid))] bed[s] [location[s]]", "offlineplayers");
+		register(ExprBed.class, Location.class, "[(:(safe|valid)|:(unsafe|invalid))] bed[s] [location[s]]", "offlineplayers");
 	}
 
 	private boolean isSafe = false; // default behavior is unsafe as used to be
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isSafe = parseResult.hasTag("safe");
+		isSafe = parseResult.hasTag("safe") || parseResult.hasTag("valid");
 		System.out.println("TAGS: " + parseResult.tags);
 		setExpr((Expression<? extends OfflinePlayer>) exprs[0]);
 		return true;
