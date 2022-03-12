@@ -175,6 +175,34 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public int getTicks() {
 		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / 50f);
 	}
+
+	public long getSeconds() {
+		return (millis / simpleValues[6].getSecond());
+	}
+
+	public long getMinutes() {
+		return (millis / simpleValues[5].getSecond());
+	}
+
+	public long getHours() {
+		return (millis / simpleValues[4].getSecond());
+	}
+
+	public long getDays() {
+		return (millis / simpleValues[3].getSecond());
+	}
+
+	public long getWeeks() {
+		return (millis / simpleValues[2].getSecond());
+	}
+
+	public long getMonths() {
+		return (millis / simpleValues[1].getSecond());
+	}
+
+	public long getYears() {
+		return (millis / simpleValues[0].getSecond());
+	}
 	
 	@Override
 	public String toString() {
@@ -184,9 +212,12 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public String toString(final int flags) {
 		return toString(millis, flags);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	final static NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
+			new NonNullPair<>(m_year,  1000L * 60 * 60 * 24 * 365),
+			new NonNullPair<>(m_month,  1000L * 60 * 60 * 24 * 30),
+			new NonNullPair<>(m_week,  1000L * 60 * 60 * 24 * 7),
 			new NonNullPair<>(m_day,  1000L * 60 * 60 * 24),
 			new NonNullPair<>(m_hour, 1000L * 60 * 60),
 			new NonNullPair<>(m_minute, 1000L * 60),
