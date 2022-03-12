@@ -19,6 +19,10 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -33,19 +37,31 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 @Name("Bed")
-@Description("The bed location of a player, " +
-	"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed.")
+@Description({
+	"The bed location of a player, " +
+	"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed however, " +
+	"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore.",
+	"Note that when using unsafe/invalid bed location syntax that will not affect the returned value, it only affects when setting it."
+})
 @Examples({
 	"if bed of player exists:",
 		"\tteleport player the the player's bed",
 	"else:",
 		"\tteleport the player to the world's spawn point"
 })
-@Since("2.0, INSERT VERSION (offlineplayers)")
+@Since("2.0, INSERT VERSION (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {
-		register(ExprBed.class, Location.class, "bed[s] [location[s]]", "offlineplayers");
+		register(ExprBed.class, Location.class, "[([in](:valid)|[un](:safe))] bed[s] [location[s]]", "offlineplayers");
+	}
+
+	private boolean isSafe = false; // default behavior is unsafe as used to be
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isSafe = parseResult.hasTag("valid") || parseResult.hasTag("safe");
+		return true;
 	}
 
 	@Override
@@ -62,7 +78,7 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 				Skript.error("Bed location of offline players cannot be set/deleted.");
 				return null;
 			}
-			return new Class[] {Location.class};
+			return CollectionUtils.array(Location.class);
 		}
 		return null;
 	}
@@ -72,7 +88,7 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 		Location loc = delta == null ? null : (Location) delta[0];
 		for (OfflinePlayer p : getExpr().getArray(e)) {
 			if (p.isOnline()) // double check
-				((Player) p).setBedSpawnLocation(loc, true);
+				((Player) p).setBedSpawnLocation(loc, !isSafe);
 		}
 	}
 	
