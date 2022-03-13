@@ -42,34 +42,35 @@ import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Facing")
-@Description("The facing of an entity or block, i.e. exactly north, south, east, west, up or down (unlike <a href='#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east')" +
-	"" +
-	"NOTE: Changing opposite facing of a block has the same result of changing the block's facing.")
-@Examples({"# Makes a bridge",
-		"loop blocks from the block below the player in the horizontal facing of the player:",
-		"",
-		"# Get the block's face you're looking at",
-		"on right click:",
-		"\tsend \"You're looking at %opposite facing of player% side of %type of targeted block%.\""})
+@Description({
+	"The facing or opposite facing of an entity or block, i.e. exactly north, south, east, west, up or down",
+	"unlike <a href='/expressions.html#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east'",
+	"NOTE: Changing the opposite facing has the same result of changing the actual facing."
+})
+@Examples({
+	"# Makes a bridge",
+	"loop blocks from the block below the player in the horizontal facing of the player:",
+	"",
+	"# Get the block's face you're looking at",
+	"on right click:",
+		"\tsend \"You're looking at %opposite facing of player% side of %type of targeted block%.\""
+})
 @Since("1.4, INSERT VERSION (opposite)")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	private static final boolean useBlockData = Skript.isRunningMinecraft(1, 13);
 	
 	static {
-		register(ExprFacing.class, Direction.class, "[(2¦opposite)] (1¦horizontal|) facing", "livingentities/blocks");
+		register(ExprFacing.class, Direction.class, "[:opposite] [:horizontal] facing", "livingentities/blocks");
 	}
 	
 	private boolean horizontal, opposite;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		horizontal = parseResult.mark == 1;
-		opposite = parseResult.mark == 2;
+		horizontal = parseResult.hasTag("horizontal");
+		opposite = parseResult.hasTag("opposite");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 	
