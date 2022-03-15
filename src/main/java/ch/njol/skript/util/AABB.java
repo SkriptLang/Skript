@@ -80,7 +80,7 @@ public class AABB implements Iterable<Block> {
 		world = c.getWorld();
 		int min = WorldUtils.getWorldMinHeight(world);
 		lowerBound = c.getBlock(0, min, 0).getLocation().toVector();
-		upperBound = lowerBound.clone().add(new Vector(15, world.getMaxHeight() - 1, 15));
+		upperBound = c.getBlock(15, world.getMaxHeight() - 1, 15).getLocation().toVector();
 	}
 	
 	public boolean contains(final Location l) {

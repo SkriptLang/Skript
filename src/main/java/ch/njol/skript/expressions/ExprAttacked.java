@@ -52,7 +52,7 @@ import ch.njol.util.Kleenean;
 @Examples({"on damage:",
 	"\tvictim is a creeper",
 	"\tdamage the attacked by 1 heart"})
-@Since("1.3, INSERT VERSION (projectile hit event)")
+@Since("1.3, 2.6.1 (projectile hit event)")
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> {
 
