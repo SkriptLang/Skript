@@ -55,21 +55,13 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 	private SimpleDateFormat format;
 
 	@Override
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Date>) exprs[0]);
-		if (exprs[1] != null) {
-			if (!(exprs[1] instanceof Literal)) {
-				VariableString str = (VariableString) exprs[1];
-				if (!str.isSimple()) {
-					Skript.error("Date format must not contain variables!");
-					return false;
-				}
-			}
+		if (exprs[1] != null)
 			format = new SimpleDateFormat((String) exprs[1].getSingle(null));
-		} else {
+		else
 			format = new SimpleDateFormat(defaultFormat);
-		}
 		
 		return true;
 	}
