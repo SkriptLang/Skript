@@ -20,6 +20,8 @@ package ch.njol.skript.expressions;
 
 import java.text.SimpleDateFormat;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.VariableString;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -31,47 +33,76 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 
 @Name("Formatted Time")
-@Description("Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
-		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>.")
-@Examples("now formatted human-readable")
-@Since("2.2-dev31")
+@Description({
+	"Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
+		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>.",
+	"Note that if an incorrect format was used it will fallback to the default format."
+})
+@Examples({
+	"command /date:",
+		"\ttrigger:",
+			"\t\tsend \"Full date: %now formatted human-readable%\" to sender",
+			"\t\tsend \"Short date: %now formatted as \"\"yyyy-MM-dd\"\"%\" to sender"
+})
+@Since("2.2-dev31, INSERT VERSION (support variables in format)")
 public class ExprFormatTime extends PropertyExpression<Date, String> {
 	
 	private static final String defaultFormat = "yyyy-MM-dd HH:mm:ss z";
 	
 	static {
-		Skript.registerExpression(ExprFormatTime.class, String.class, ExpressionType.PROPERTY, "%dates% formatted [human-readable] [(with|as) %-*string%]");
+		Skript.registerExpression(ExprFormatTime.class, String.class, ExpressionType.PROPERTY, "%dates% formatted [human-readable] [(with|as) %-string%]");
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SimpleDateFormat format;
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<? extends String> customFormat;
 
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Date>) exprs[0]);
-		if (exprs[1] != null)
-			format = new SimpleDateFormat((String) exprs[1].getSingle(null));
-		else
-			format = new SimpleDateFormat(defaultFormat);
-		
+		customFormat = (Expression<? extends String>) exprs[1];
+
+		if (customFormat != null) {
+			if (!(customFormat instanceof Literal) && customFormat instanceof VariableString) {
+				VariableString str = (VariableString) customFormat;
+				if (str.isSimple()) {
+					try {
+						format = new SimpleDateFormat(customFormat.getSingle(null));
+					} catch (Exception e) {
+						Skript.error("Incorrect date format used: " + e.getMessage());
+						return false;
+					}
+				}
+			}
+		}
+
 		return true;
 	}
 
-
 	@Override
-	protected String[] get(Event e, Date[] source) {
+	public String[] get(Event e, Date[] source) {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
+				if (customFormat != null) {
+					try {
+						format = new SimpleDateFormat(customFormat.getSingle(e));
+					} catch (Exception ex) {
+//						Skript.warning("Incorrect date format used: " + ex.getMessage());
+						format = new SimpleDateFormat(defaultFormat);
+					}
+				} else {
+					format = new SimpleDateFormat(defaultFormat);
+				}
 				return format.format(new java.util.Date(date.getTimestamp()));
 			}
 		});
@@ -84,7 +115,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + format.toPattern();
+		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : defaultFormat);
 	}
 
 }
