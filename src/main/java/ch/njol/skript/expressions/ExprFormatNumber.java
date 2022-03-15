@@ -54,34 +54,34 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 	
 	static {
 		Skript.registerExpression(ExprFormatNumber.class, String.class, ExpressionType.PROPERTY,
-			"%numbers% formatted [human-readable] [(with|as) %-*string%]",
-			"[human-readable] formatted %numbers% [(with|as) %-*string%]");
+			"%numbers% formatted [human-readable] [(with|as) %-string%]",
+			"[human-readable] formatted %numbers% [(with|as) %-string%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private DecimalFormat format;
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<? extends String> customFormat;
+
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Number>) exprs[0]);
-		if (exprs[1] != null) {
-			if (!(exprs[1] instanceof Literal)) {
-				VariableString str = (VariableString) exprs[1];
-				if (!str.isSimple()) {
-					Skript.error("Number format must not contain variables!");
-					return false;
+		customFormat = (Expression<? extends String>) exprs[1];
+
+		if (customFormat != null) {
+			if (!(customFormat instanceof Literal) && customFormat instanceof VariableString) {
+				VariableString str = (VariableString) customFormat;
+				if (str.isSimple()) {
+					try {
+						format = new DecimalFormat(customFormat.getSingle(null));
+					} catch (Exception e) {
+						Skript.error("Incorrect number format used: " + e.getMessage());
+						return false;
+					}
 				}
 			}
-			String customFormat = (String) exprs[1].getSingle(null);
-			try {
-				format = new DecimalFormat(customFormat);
-			} catch (Exception e) {
-				Skript.error("Incorrect number format used: " + e.getMessage());
-				return false;
-			}
-		} else {
-			format = new DecimalFormat(defaultFormat);
 		}
 		
 		return true;
@@ -92,6 +92,15 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		return get(source, new Getter<String, Number>() {
 			@Override
 			public String get(Number num) {
+				if (customFormat != null) {
+					try {
+						format = new DecimalFormat(customFormat.getSingle(e));
+					} catch (Exception ex) {
+						format = new DecimalFormat(defaultFormat);
+					}
+				} else {
+					format = new DecimalFormat(defaultFormat);
+				}
 				return format.format(num);
 			}
 		});
@@ -104,7 +113,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + format.toPattern();
+		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : defaultFormat);
 	}
 
 }
