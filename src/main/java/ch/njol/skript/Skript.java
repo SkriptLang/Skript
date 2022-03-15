@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -198,20 +197,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (instance != null)
 			throw new IllegalStateException("Cannot create multiple instances of Skript!");
 		instance = this;
-	}
-
-	private static boolean docsTemplateFound;
-	private static boolean generateUnsafeDocs;
-
-	public static boolean isDocsTemplateFound() {
-		return docsTemplateFound;
-	}
-
-	/**
-	 * Checks if system properties have 'skript.forceregisterhooks' set to true and docs template folder is found
-	 */
-	public static boolean canGenerateUnsafeDocs() {
-		return generateUnsafeDocs;
 	}
 	
 	private static Version minecraftVersion = new Version(666), UNKNOWN_VERSION = new Version(666);
@@ -460,8 +445,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptConfig.load();
 
 		 // Mostly used to handle generating hooks docs
-		docsTemplateFound = new File(getDataFolder() + "/doc-templates").exists();
-		generateUnsafeDocs = "true".equals(System.getProperty("skript.forceregisterhooks")) && docsTemplateFound;
+		Documentation.setDocsTemplateFound(new File(getDataFolder() + "/doc-templates").exists());
+		Documentation.setGenerateUnsafeDocs("true".equals(System.getProperty("skript.forceregisterhooks")) && Documentation.isDocsTemplateFound());
 		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {

@@ -57,6 +57,28 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
 
+	private static boolean docsTemplateFound;
+	private static boolean generateUnsafeDocs;
+
+	public static boolean isDocsTemplateFound() {
+		return docsTemplateFound;
+	}
+
+	public static void setDocsTemplateFound(boolean docsTemplateFound) {
+		Documentation.docsTemplateFound = docsTemplateFound;
+	}
+
+	/**
+	 * Checks if system properties have 'skript.forceregisterhooks' set to true and docs template folder is found
+	 */
+	public static boolean canGenerateUnsafeDocs() {
+		return generateUnsafeDocs;
+	}
+
+	public static void setGenerateUnsafeDocs(boolean generateUnsafeDocs) {
+		Documentation.generateUnsafeDocs = generateUnsafeDocs;
+	}
+
 	public static void generate() {
 		if (!generate)
 			return;

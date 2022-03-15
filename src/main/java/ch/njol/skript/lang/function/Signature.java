@@ -65,7 +65,7 @@ public class Signature<T> {
 	final Collection<FunctionReference<?>> calls;
 
 	/**
-	 * References (function calls) to function with this signature.
+	 * The class path for the origin of this signature.
 	 */
 	final String originClassPath;
 

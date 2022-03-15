@@ -36,9 +36,17 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Name("Conditionals")
-@Description("Conditional sections (parse if, if, else if, else) are only executed if the conditions provided are met or else-if blocks will be executed if the 'if/else-if' blocks before didn't meet their conditions, otherwise 'else' blocks will be executed (if used) if all of the conditions before were not met.")
+@Description({
+	"Conditional sections",
+	"if: executed when its condition is true",
+	"else if: executed if all previous chained conditionals weren't executed, and its condition is true",
+	"else: executed if all previous chained conditionals weren't executed",
+	"",
+	"parse if: a special case of 'if' condition that its code will not be parsed if the condition is not true",
+	"else parse if: another special case of 'else if' condition that its code will not be parsed if all previous chained" +
+		" conditionals weren't executed, and its condition is true",
+})
 @Examples({"if player's health is greater than or equal to 4:",
 		"\tsend \"Your health is okay so far but be careful!\"",
 		"",
@@ -63,7 +71,7 @@ public class SecConditional extends Section {
 	}
 
 	private enum ConditionalType {
-		 ELSE, ELSE_IF, IF
+		ELSE, ELSE_IF, IF
 	}
 
 	private ConditionalType type;

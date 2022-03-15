@@ -274,7 +274,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
 		for (ChangeMode cm : ChangeMode.values()) {
 			Class<?>[] ac = acceptChange(cm);
-			if (ac != null && ac.length > 0)
+			if (ac != null)
 				map.put(cm, ac);
 		}
 		return map;

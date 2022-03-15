@@ -558,7 +558,7 @@ public class JavaClasses {
 						"percent signs: \"...%%...\"")
 				.examples("broadcast \"Hello World!\"",
 						"message \"Hello %player%\"",
-                        "message \"The id of \"\"%type of tool%\"\" is %id of tool%.\"")
+						"message \"The id of \"\"%type of tool%\"\" is %id of tool%.\"")
 				.since("1.0")
 				.parser(new Parser<String>() {
 					@Override

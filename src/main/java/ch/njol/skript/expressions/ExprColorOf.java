@@ -49,7 +49,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Color of")
-@Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
+@Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".")
 @Examples({"on click on wool:",
 		"	message \"This wool block is <%color of block%>%color of block%<reset>!\"",
 		"	set the color of the block to black"})

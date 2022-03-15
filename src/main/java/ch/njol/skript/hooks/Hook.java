@@ -20,6 +20,7 @@ package ch.njol.skript.hooks;
 
 import java.io.IOException;
 
+import ch.njol.skript.doc.Documentation;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -46,7 +47,7 @@ public abstract class Hook<P extends Plugin> {
 		final P p = (P) Bukkit.getPluginManager().getPlugin(getName());
 		plugin = p;
 		if (p == null) {
-			if (Skript.canGenerateUnsafeDocs()) {
+			if (Documentation.canGenerateUnsafeDocs()) {
 				loadClasses();
 				if (Skript.logHigh())
 					Skript.info(m_hooked.toString(getName()));

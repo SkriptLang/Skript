@@ -35,7 +35,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.ExprColoured;
+import ch.njol.skript.expressions.ExprColored;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -48,7 +48,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
-		"in given string or in <a href=expressions.html#ExprColoured>formatted expressions</a> will be parsed.",
+		"in given string or in <a href=expressions.html#ExprColored>formatted expressions</a> will be parsed.",
 		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
 		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
 		"but for this to work, the message needs to be sent from a player."})
@@ -127,7 +127,7 @@ public class EffMessage extends Effect {
 						sendMessage((Player) receiver, sender,
 							BungeeConverter.convert(messageComponents)
 						);
-					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
+					} else if (message instanceof ExprColored && ((ExprColored) message).isUnsafeFormat()) { // Manually marked as trusted
 						for (Object object : messageArray) {
 							sendMessage((Player) receiver, sender, BungeeConverter.convert(ChatMessages.parse((String) object)));
 						}

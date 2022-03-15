@@ -35,20 +35,21 @@ import java.util.List;
 @Name("While Loop")
 @Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
 @Examples({
-		"# Be careful when using while loops with conditions that are almost ",
-		"# always true for a long time without using 'wait %timespan%' inside it, ",
-		"# otherwise it will probably loop forever and crash your server.",
-		"while player is online:",
-		"\tgive player 1 dirt",
-		"\twait 1 second # without using a delay effect the server will crash",
-		"",
-		"while size of all players < 5:",
+	"while size of all players < 5:",
 		"\tsend \"More players are needed to begin the adventure\" to all players",
 		"\twait 5 seconds",
-		"",
-		"set {_counter} to 1",
-		"do while {_counter} > 1: # false but will increase {_counter} by 1 then get out",
-		"\tadd 1 to {_counter}"})
+	"",
+	"set {_counter} to 1",
+	"do while {_counter} > 1: # false but will increase {_counter} by 1 then get out",
+		"\tadd 1 to {_counter}",
+	"",
+	"# Be careful when using while loops with conditions that are almost ",
+	"# always true for a long time without using 'wait %timespan%' inside it, ",
+	"# otherwise it will probably hang and crash your server.",
+	"while player is online:",
+		"\tgive player 1 dirt",
+		"\twait 1 second # without using a delay effect the server will crash",
+})
 @Since("2.0, 2.6 (do while)")
 public class SecWhile extends Section {
 

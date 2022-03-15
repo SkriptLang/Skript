@@ -544,7 +544,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("set tool of player to dirt",
 						"delete helmet of the victim",
-						"set the colour of the player's tool to green",
+						"set the color of the player's tool to green",
 						"enchant the player's chestplate with projectile protection 5")
 				.since("")
 				.defaultExpression(new EventValueExpression<>(Slot.class))
@@ -652,10 +652,10 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
 				.name("Color")
-				.description("Wool, dye and chat colours.")
+				.description("Wool, dye and chat colors.")
 				.usage("black, dark grey/dark gray, grey/light grey/gray/light gray/silver, white, blue/dark blue, cyan/aqua/dark cyan/dark aqua, light blue/light cyan/light aqua, green/dark green, light green/lime/lime green, yellow/light yellow, orange/gold/dark yellow, red/dark red, pink/light red, purple/dark purple, magenta/light purple, brown/indigo")
 				.examples("color of the sheep is red or black",
-						"set the colour of the block to green",
+						"set the color of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
 				.parser(new Parser<Color>() {

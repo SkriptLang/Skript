@@ -18,28 +18,37 @@
  */
 package ch.njol.skript.doc;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.lang.*;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.EffectSection;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.JavaFunction;
+import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.registrations.Classes;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
-import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.registrations.Classes;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Template engine, primarily used for generating Skript documentation
@@ -53,9 +62,9 @@ public class HTMLGenerator {
 	
 	private String skeleton;
 
-	private String skriptVersion = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
-	private final Pattern NEW_TAG_PATTERN = Pattern.compile(skriptVersion + "(?!\\.)");
-	private final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
+	private static String skriptVersion = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
+	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(skriptVersion + "(?!\\.)");
+	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
 	public HTMLGenerator(File templateDir, File outputDir) {
 		this.template = templateDir;
@@ -431,8 +440,8 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
-		DocumentationId DocID = c.getAnnotation(DocumentationId.class);
-		String ID = DocID != null ? (DocID != null ? DocID.value() : null) : info.c.getSimpleName();
+		DocumentationId docId = c.getAnnotation(DocumentationId.class);
+		String ID = docId != null ? (docId != null ? docId.value() : null) : info.c.getSimpleName();
 		// Fix duplicated IDs
 		if (page != null) {
 			if (page.contains("href=\"#" + ID + "\"")) {

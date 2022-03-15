@@ -35,23 +35,23 @@ import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 
-@Name("Coloured / Uncoloured")
-@Description({"Parses &lt;colour&gt;s and, optionally, chat styles in a message or removes",
-		"any colours <i>and</i> chat styles from the message. Parsing all",
+@Name("Colored / Uncolored")
+@Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
+		"any colors <i>and</i> chat styles from the message. Parsing all",
 		"chat styles requires this expression to be used in same line with",
 		"the <a href=effects.html#EffSend>send effect</a>."})
 @Examples({"on chat:",
-		"	set message to coloured message # Safe; only colors get parsed",
+		"	set message to colored message # Safe; only colors get parsed",
 		"command /fade &lt;player&gt;:",
 		"	trigger:",
-		"		set display name of the player-argument to uncoloured display name of the player-argument",
+		"		set display name of the player-argument to uncolored display name of the player-argument",
 		"command /format &lt;text&gt;:",
 		"	trigger:",
 		"		message formatted text-argument # Safe, because we're sending to whoever used this command"})
 @Since("2.0")
-public class ExprColoured extends PropertyExpression<String, String> {
+public class ExprColored extends PropertyExpression<String, String> {
 	static {
-		Skript.registerExpression(ExprColoured.class, String.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprColored.class, String.class, ExpressionType.COMBINED,
 				"(colo[u]r-|colo[u]red )%strings%",
 				"(format-|formatted )%strings%",
 				"(un|non)[-](colo[u]r-|colo[u]red |format-|formatted )%strings%");
@@ -93,7 +93,7 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return (color ? "" : "un") + "coloured " + getExpr().toString(e, debug);
+		return (color ? "" : "un") + "colored " + getExpr().toString(e, debug);
 	}
 	
 	/**
