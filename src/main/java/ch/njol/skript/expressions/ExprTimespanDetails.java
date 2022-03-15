@@ -39,63 +39,59 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 
 	static {
-		register(ExprTimespanDetails.class, Long.class, "(0:second[s]|1:minute[s]|2:hour[s]|3:day[s]|4:week[s]|5:month[s]|6:year[s])", "timespans");
+		register(ExprTimespanDetails.class, Long.class, "(0:tick[s]|1:second[s]|2:minute[s]|3:hour[s]|4:day[s]|5:week[s]|6:month[s]|7:year[s])", "timespans");
 	}
 
-	private final int SECONDS = 0, MINUTES = 1, HOURS = 2, DAYS = 3, WEEKS = 4, MONTHS = 5, YEARS = 6;
+	private final int TICKS = 0, SECONDS = 1, MINUTES = 2, HOURS = 3, DAYS = 4, WEEKS = 5, MONTHS = 6, YEARS = 7;
 	private int type;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Timespan>) exprs[0]);
-		type = Integer.parseInt(parseResult.tags.get(0));
+		type = parseResult.mark;
 		return true;
 	}
 
 	@Override
 	@Nullable
 	public Long convert(Timespan t) {
-		long time;
-
 		if (type == YEARS)
-			time = t.getYears();
-		else if (type == MONTHS)
-			time = t.getMonths();
-		else if (type == WEEKS)
-			time = t.getWeeks();
-		else if (type == DAYS)
-			time = t.getDays();
-		else if (type == HOURS)
-			time = t.getHours();
-		else if (type == MINUTES)
-			time = t.getMinutes();
-		else
-			time = t.getSeconds();
+			return t.getYears();
+		if (type == MONTHS)
+			return t.getMonths();
+		if (type == WEEKS)
+			return t.getWeeks();
+		if (type == DAYS)
+			return t.getDays();
+		if (type == HOURS)
+			return t.getHours();
+		if (type == MINUTES)
+			return t.getMinutes();
+		if (type == SECONDS)
+			return t.getSeconds();
 
-		return time;
+		return t.getTicks_i();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		String r;
-
 		if (type == YEARS)
-			r = "years";
-		else if (type == MONTHS)
-			r = "months";
-		else if (type == WEEKS)
-			r = "weeks";
-		else if (type == DAYS)
-			r = "days";
-		else if (type == HOURS)
-			r = "hours";
-		else if (type == MINUTES)
-			r = "minutes";
-		else
-			r = "seconds";
+			return "years";
+		if (type == MONTHS)
+			return "months";
+		if (type == WEEKS)
+			return "weeks";
+		if (type == DAYS)
+			return "days";
+		if (type == HOURS)
+			return "hours";
+		if (type == MINUTES)
+			return "minutes";
+		if (type == SECONDS)
+			return "seconds";
 
-		return r;
+		return "ticks";
 	}
 
 	@Override
