@@ -89,7 +89,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 	}
 
 	@Override
-	public String[] get(Event e, Date[] source) {
+	protected String[] get(Event e, Date[] source) {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
