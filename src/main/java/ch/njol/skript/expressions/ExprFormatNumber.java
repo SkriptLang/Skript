@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Metrics;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -38,8 +37,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.text.DecimalFormat;
 
 @Name("Formatted Number")
-@Description("Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
-		+ "<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
+@Description(
+	"Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
+		+ "<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>."
+)
 @Examples({
 	"command /formatnumber <number>:",
 		"\taliases: fn",
@@ -57,11 +58,11 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 			"[human-readable] formatted %numbers% [(with|as) %-string%]");
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private DecimalFormat format;
 
 	@Override
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Number>) exprs[0]);
 		if (exprs[1] != null) {
