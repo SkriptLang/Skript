@@ -54,8 +54,8 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 	
 	static {
 		Skript.registerExpression(ExprFormatNumber.class, String.class, ExpressionType.PROPERTY,
-			"%numbers% formatted [human-readable] [(with|as) %-string%]",
-			"[human-readable] formatted %numbers% [(with|as) %-string%]");
+			"%numbers% formatted [human-readable] [(with|as) %-*string%]",
+			"[human-readable] formatted %numbers% [(with|as) %-*string%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
