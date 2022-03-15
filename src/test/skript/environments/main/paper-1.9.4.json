@@ -3,8 +3,11 @@
 	"resources": [
 		{"source": "server.properties.generic", "target": "server.properties"}
 	],
-	"downloads": [
-		{"source": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/773/downloads/paper-1.9.4-773.jar", "target": "paperclip.jar"}
+	"paperDownloads": [
+		{
+			"version": "1.9.4",
+			"target": "paperclip.jar"
+		}
 	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [

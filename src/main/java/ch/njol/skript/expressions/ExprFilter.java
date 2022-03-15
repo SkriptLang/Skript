@@ -18,17 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.collect.Iterators;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -46,6 +35,16 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.Iterators;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Name("Filter")
 @Description("Filters a list based on a condition. " +
@@ -80,6 +79,8 @@ public class ExprFilter extends SimpleExpression<Object> {
 		try {
 			parsing = this;
 			objects = LiteralUtils.defendExpression(exprs[0]);
+			if (objects.isSingle())
+				return false;
 			rawCond = parseResult.regexes.get(0).group();
 			condition = Condition.parse(rawCond, "Can't understand this condition: " + rawCond);
 		} finally {

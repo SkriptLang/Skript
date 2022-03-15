@@ -18,12 +18,12 @@
  */
 package ch.njol.skript.lang.function;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
+import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.classes.ClassInfo;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.WeakHashMap;
 
 /**
  * Function signature: name, parameter types and a return type.
@@ -77,7 +77,7 @@ public class Signature<T> {
 		this.single = single;
 		this.originClassPath = originClassPath;
 
-		calls = new ArrayList<>();
+		calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
 	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
