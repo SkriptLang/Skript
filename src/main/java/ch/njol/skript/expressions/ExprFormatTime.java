@@ -48,7 +48,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 	private static final String defaultFormat = "yyyy-MM-dd HH:mm:ss z";
 	
 	static {
-		Skript.registerExpression(ExprFormatTime.class, String.class, ExpressionType.PROPERTY, "%dates% formatted [human-readable] [(with|as) %-string%]");
+		Skript.registerExpression(ExprFormatTime.class, String.class, ExpressionType.PROPERTY, "%dates% formatted [human-readable] [(with|as) %-*string%]");
 	}
 
 	@SuppressWarnings("null")
