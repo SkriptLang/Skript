@@ -61,7 +61,6 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isSafe = parseResult.hasTag("safe") || parseResult.hasTag("valid");
-		System.out.println("TAGS: " + parseResult.tags);
 		setExpr((Expression<? extends OfflinePlayer>) exprs[0]);
 		return true;
 	}
