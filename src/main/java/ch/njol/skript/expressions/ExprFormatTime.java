@@ -74,7 +74,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 			try {
 				format = new SimpleDateFormat(customFormat.getSingle(null));
 			} catch (Exception e) {
-				Skript.error("Incorrect date format used: " + e.getMessage());
+				Skript.error("Invalid date format: " + exprs[1]);
 				return false;
 			}
 		} else if (customFormat == null) {
@@ -89,7 +89,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
-				if (format == null) {
+				if (customFormat != null) {
 					try {
 						format = new SimpleDateFormat(customFormat.getSingle(e));
 					} catch (Exception ex) {
