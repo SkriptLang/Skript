@@ -41,8 +41,7 @@ import ch.njol.util.Kleenean;
 @Name("Formatted Time")
 @Description({
 	"Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
-		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>.",
-	"Note that if an incorrect format was used it will fallback to the default format."
+		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>."
 })
 @Examples({
 	"command /date:",
@@ -71,18 +70,15 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		setExpr((Expression<? extends Date>) exprs[0]);
 		customFormat = (Expression<? extends String>) exprs[1];
 
-		if (customFormat != null) {
-			if (!(customFormat instanceof Literal) && customFormat instanceof VariableString) {
-				VariableString str = (VariableString) customFormat;
-				if (str.isSimple()) {
-					try {
-						format = new SimpleDateFormat(customFormat.getSingle(null));
-					} catch (Exception e) {
-						Skript.error("Incorrect date format used: " + e.getMessage());
-						return false;
-					}
-				}
+		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
+			try {
+				format = new SimpleDateFormat(customFormat.getSingle(null));
+			} catch (Exception e) {
+				Skript.error("Incorrect date format used: " + e.getMessage());
+				return false;
 			}
+		} else if (customFormat == null) {
+			format = new SimpleDateFormat(defaultFormat);
 		}
 
 		return true;
@@ -93,17 +89,14 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
-				if (customFormat != null) {
-					try {
-						format = new SimpleDateFormat(customFormat.getSingle(e));
-					} catch (Exception ex) {
-//						Skript.warning("Incorrect date format used: " + ex.getMessage());
-						format = new SimpleDateFormat(defaultFormat);
-					}
-				} else {
-					format = new SimpleDateFormat(defaultFormat);
+			if (format == null) {
+				try {
+					format = new SimpleDateFormat(customFormat.getSingle(e));
+				} catch (Exception ex) {
+					return null;
 				}
-				return format.format(new java.util.Date(date.getTimestamp()));
+			}
+			return format.format(new java.util.Date(date.getTimestamp()));
 			}
 		});
 	}
