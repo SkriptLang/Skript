@@ -2,7 +2,7 @@ test "formatted time":
 	set {_default} to "yyyy-MM-dd HH:mm:ss z"
 	set {_now} to now
 
-	set {_date1} to formatted {_now}
+	set {_date1} to {_now} formatted
 	assert {_date1} = {_now} formatted as {_default} with "default date format failed ##1"
 
 	set {_date2} to {_now} formatted human-readable
