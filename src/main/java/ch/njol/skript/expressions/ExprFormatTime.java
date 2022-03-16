@@ -89,14 +89,14 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
-			if (format == null) {
-				try {
-					format = new SimpleDateFormat(customFormat.getSingle(e));
-				} catch (Exception ex) {
-					return null;
+				if (format == null) {
+					try {
+						format = new SimpleDateFormat(customFormat.getSingle(e));
+					} catch (Exception ex) {
+						return null;
+					}
 				}
-			}
-			return format.format(new java.util.Date(date.getTimestamp()));
+				return format.format(new java.util.Date(date.getTimestamp()));
 			}
 		});
 	}
