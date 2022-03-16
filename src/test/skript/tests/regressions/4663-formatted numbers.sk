@@ -12,6 +12,6 @@ test "formatted numbers":
 	set {_num4} to formatted 12345678 as {_cFormat}
 	assert {_num4} = "12,34,56,78" with "custom number format failed ##2"
 
-	set {_cFormat2} to "i"
+	set {_cFormat2} to "##,.##"
 	set {_num4} to formatted 12345678 as {_cFormat2}
 	assert {_num4} is not set with "custom number format failed ##3"
