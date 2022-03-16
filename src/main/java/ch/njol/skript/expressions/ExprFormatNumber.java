@@ -74,7 +74,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 			try {
 				format = new DecimalFormat(customFormat.getSingle(null));
 			} catch (Exception e) {
-				Skript.error("Incorrect number format used: " + e.getMessage());
+				Skript.error("Invalid number format: " + exprs[1]);
 				return false;
 			}
 		} else if (customFormat == null) {
@@ -89,7 +89,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		return get(source, new Getter<String, Number>() {
 			@Override
 			public String get(Number num) {
-				if (format == null) {
+				if (customFormat != null) {
 					try {
 						format = new DecimalFormat(customFormat.getSingle(e));
 					} catch (Exception ex) {
