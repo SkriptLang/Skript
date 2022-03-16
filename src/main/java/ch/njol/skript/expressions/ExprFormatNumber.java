@@ -70,18 +70,15 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		setExpr((Expression<? extends Number>) exprs[0]);
 		customFormat = (Expression<? extends String>) exprs[1];
 
-		if (customFormat != null) {
-			if (!(customFormat instanceof Literal) && customFormat instanceof VariableString) {
-				VariableString str = (VariableString) customFormat;
-				if (str.isSimple()) {
-					try {
-						format = new DecimalFormat(customFormat.getSingle(null));
-					} catch (Exception e) {
-						Skript.error("Incorrect number format used: " + e.getMessage());
-						return false;
-					}
-				}
+		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
+			try {
+				format = new DecimalFormat(customFormat.getSingle(null));
+			} catch (Exception e) {
+				Skript.error("Incorrect number format used: " + e.getMessage());
+				return false;
 			}
+		} else if (customFormat == null) {
+			format = new DecimalFormat(defaultFormat);
 		}
 		
 		return true;
@@ -92,14 +89,12 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		return get(source, new Getter<String, Number>() {
 			@Override
 			public String get(Number num) {
-				if (customFormat != null) {
+				if (format == null) {
 					try {
 						format = new DecimalFormat(customFormat.getSingle(e));
 					} catch (Exception ex) {
-						format = new DecimalFormat(defaultFormat);
+						return null;
 					}
-				} else {
-					format = new DecimalFormat(defaultFormat);
 				}
 				return format.format(num);
 			}
