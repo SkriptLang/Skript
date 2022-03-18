@@ -21,7 +21,6 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
@@ -46,7 +45,6 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ScriptOptions;
-import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
@@ -70,7 +68,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -340,7 +337,7 @@ public class SkriptParser {
 			log.clear();
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				final Expression<?> e;
-				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1 && (types[0] == Object.class || CollectionUtils.contains(types, String.class))) {
+				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 					e = VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 				} else {
 					e = (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
@@ -371,19 +368,15 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (types[0] == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
+			if (allowUnparsedLiteral && types[0] == Object.class) {
 				log.clear();
-				final LogEntry e = log.getError();
+				LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
 			for (final Class<? extends T> c : types) {
 				log.clear();
 				assert c != null;
-				final T t = Classes.parse(expr, c, context);
+				T t = Classes.parse(expr, c, context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false);
@@ -517,7 +510,7 @@ public class SkriptParser {
 			log.clear();
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				final Expression<?> e;
-				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1 && (types[0] == Object.class || CollectionUtils.contains(types, String.class))) {
+				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 					e = VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 				} else {
 					e = (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
@@ -569,19 +562,14 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (vi.classes[0].getC() == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
+			if (allowUnparsedLiteral && vi.classes[0].getC() == Object.class) {
 				log.clear();
-				final LogEntry e = log.getError();
+				LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
-			for (final ClassInfo<?> ci : vi.classes) {
+			for (ClassInfo<?> ci : vi.classes) {
 				log.clear();
-				assert ci.getC() != null;
-				final Object t = Classes.parse(expr, ci.getC(), context);
+				Object t = Classes.parse(expr, ci.getC(), context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false, new UnparsedLiteral(expr));
@@ -624,30 +612,6 @@ public class SkriptParser {
 		final boolean isObject = types.length == 1 && types[0] == Object.class;
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			//Mirre
-			if (isObject){
-				if ((flags & PARSE_LITERALS) != 0) {
-					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-					if (getParser().getCurrentScript() != null) {
-						Config cs = getParser().getCurrentScript();
-						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
-					}
-					if (!p.suppressMissingAndOrWarnings) {
-						p.suppressMissingAndOrWarnings = suppressMissingAndOrWarnings;
-						// If we suppress warnings here, we suppress them in parser what we created too
-					}
-					for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-						final Expression<?> e = p.parseExpression(c);
-						if (e != null) {
-							log.printLog();
-							return (Expression<? extends T>) e;
-						}
-						log.clear();
-					}
-				}
-			}
-			//Mirre
 			final Expression<? extends T> r = parseSingleExpr(false, null, types);
 			if (r != null) {
 				log.printLog();
@@ -731,7 +695,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1)
 				return ts.get(0);
@@ -773,29 +737,6 @@ public class SkriptParser {
 		final boolean isObject = vi.classes.length == 1 && vi.classes[0].getC() == Object.class;
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			//Mirre
-			if (isObject){
-				if ((flags & PARSE_LITERALS) != 0) {
-					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-					p.suppressMissingAndOrWarnings = suppressMissingAndOrWarnings; // If we suppress warnings here, we suppress them in parser what we created too
-					if (getParser().getCurrentScript() != null) {
-						Config cs = getParser().getCurrentScript();
-						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
-					}
-					for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-						@SuppressWarnings("unchecked")
-						final Expression<?> e = p.parseExpression(c);
-						if (e != null) {
-							log.printLog();
-							return e;
-						}
-						log.clear();
-					}
-				}
-			}
-			//Mirre
-			
 			// Attempt to parse a single expression
 			final Expression<?> r = parseSingleExpr(false, null, vi);
 			if (r != null) {
@@ -889,7 +830,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1) {
 				return ts.get(0);
@@ -949,16 +890,10 @@ public class SkriptParser {
 			
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
-			int level = 0;
-			for (char c : args.toCharArray()) {
-				if (c == '(') {
-					level++;
-				} else if (c == ')') {
-					if (level == 0) {
-						log.printLog();
-						return null;
-					}
-					level--;
+			for (int i = 0; i < args.length(); i = next(args, i, context)) {
+				if (i == -1) {
+					log.printLog();
+					return null;
 				}
 			}
 			
@@ -988,7 +923,7 @@ public class SkriptParser {
 			} else {
 				params = new Expression[0];
 			}
-			
+
 //			final List<Expression<?>> params = new ArrayList<Expression<?>>();
 //			if (args.length() != 0) {
 //				final int p = 0;
@@ -1006,7 +941,7 @@ public class SkriptParser {
 //				}
 //			}
 //			@SuppressWarnings("null")
-			
+
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
 					getParser().getCurrentScript() != null ? getParser().getCurrentScript().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
@@ -1049,7 +984,7 @@ public class SkriptParser {
 	public static ParseResult parse(final String text, final String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern, 0, 0);
 	}
-	
+
 	@Nullable
 	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
@@ -1058,7 +993,7 @@ public class SkriptParser {
 			EventPriority priority;
 			if (split.length != 1) {
 				event = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-				
+
 				String priorityString = split[split.length - 1];
 				try {
 					priority = EventPriority.valueOf(priorityString.toUpperCase());
@@ -1069,17 +1004,14 @@ public class SkriptParser {
 			} else {
 				priority = null;
 			}
-			
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent();
+
+			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent(priority);
 			if (e != null) {
-				if (priority != null && e.getSecond() instanceof SelfRegisteringSkriptEvent) {
+				if (priority != null && !e.getSecond().isEventPrioritySupported()) {
 					log.printErrors("This event doesn't support event priority");
 					return null;
 				}
-				
-				//noinspection ConstantConditions
-				e.getSecond().eventPriority = priority;
-				
+
 				log.printLog();
 				return e;
 			}
@@ -1089,24 +1021,24 @@ public class SkriptParser {
 			log.stop();
 		}
 	}
-	
+
 	@Nullable
-	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent() {
+	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(@Nullable EventPriority eventPriority) {
 		assert context == ParseContext.EVENT;
 		assert flags == PARSE_LITERALS;
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			for (final SkriptEventInfo<?> info : Skript.getEvents()) {
+			for (SkriptEventInfo<?> info : Skript.getEvents()) {
 				for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
-						final ParseResult res = parse_i(pattern, 0, 0);
+						ParseResult res = parse_i(pattern, 0, 0);
 						if (res != null) {
-							final SkriptEvent e = info.c.newInstance();
-							final Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
-							assert ls != null;
+							SkriptEvent e = info.c.newInstance();
+							e.eventPriority = eventPriority;
+							Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
 							if (!e.init(ls, i, res)) {
 								log.printError();
 								return null;
@@ -1114,9 +1046,7 @@ public class SkriptParser {
 							log.printLog();
 							return new NonNullPair<>(info, e);
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}

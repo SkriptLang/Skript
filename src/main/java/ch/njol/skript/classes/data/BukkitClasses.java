@@ -110,6 +110,8 @@ public class BukkitClasses {
 
 	public BukkitClasses() {}
 
+	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
+
 	static {
 		final boolean GET_ENTITY_METHOD_EXISTS = Skript.methodExists(Bukkit.class, "getEntity", UUID.class);
 		Classes.registerClass(new ClassInfo<>(Entity.class, "entity")
@@ -730,12 +732,12 @@ public class BukkitClasses {
 				.parser(new Parser<Player>() {
 					@Override
 					@Nullable
-					public Player parse(final String s, final ParseContext context) {
+					public Player parse(String s, ParseContext context) {
 						if (!s.isEmpty()) {
 							if (context == ParseContext.COMMAND) {
-								if (s.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}"))
+								if (UUID_PATTERN.matcher(s).matches())
 									return Bukkit.getPlayer(UUID.fromString(s));
-								final List<Player> ps = Bukkit.matchPlayer(s);
+								List<Player> ps = Bukkit.matchPlayer(s);
 								if (ps.size() == 1)
 									return ps.get(0);
 								if (ps.size() == 0)
@@ -745,6 +747,7 @@ public class BukkitClasses {
 								return null;
 							}
 						}
+						assert false;
 						return null;
 					}
 					
@@ -773,7 +776,7 @@ public class BukkitClasses {
 				})
 				.changer(DefaultChangers.playerChanger)
 				.serializeAs(OfflinePlayer.class));
-		
+
 		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
 				.user("offline ?players?")
 				.name("Offline Player")
@@ -786,19 +789,17 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
-					@SuppressWarnings("deprecation")
 					@Override
 					@Nullable
+					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
 						if (context == ParseContext.COMMAND) {
-							if (s.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}"))
+							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!s.matches("[a-zA-Z0-9_]+") || s.length() > 16)
+							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
 								return null;
 							return Bukkit.getOfflinePlayer(s);
 						}
-						// if (s.matches("\"\\S+\""))
-						// 	return Bukkit.getOfflinePlayer(s.substring(1, s.length() - 1));
 						assert false;
 						return null;
 					}

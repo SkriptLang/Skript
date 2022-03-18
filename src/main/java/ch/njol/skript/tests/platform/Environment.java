@@ -18,96 +18,160 @@
  */
 package ch.njol.skript.tests.platform;
 
+import ch.njol.skript.tests.TestResults;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import com.google.gson.Gson;
-
-import ch.njol.skript.tests.TestResults;
+import java.util.*;
 
 /**
  * Test environment information.
  */
 public class Environment {
-	
+
+	private static final Gson gson = new Gson();
+
 	/**
 	 * Name of this environment. For example, spigot-1.14.
 	 */
 	private final String name;
-	
+
 	/**
 	 * Resource that needs to be downloaded for the environment.
 	 */
 	public static class Resource {
-		
+
 		/**
 		 * Where to get this resource.
 		 */
-		private String source;
-		
+		private final String source;
+
 		/**
 		 * Path under platform root where it should be placed.
 		 * Directories created as needed.
 		 */
-		private String target;
+		private final String target;
 
 		public Resource(String url, String target) {
 			this.source = url;
 			this.target = target;
 		}
-		
+
 		public String getSource() {
 			return source;
 		}
 
-		
 		public String getTarget() {
 			return target;
 		}
-		
+
 	}
-	
+
+	public static class PaperResource extends Resource {
+
+		private final String version;
+		@Nullable
+		private transient String source;
+
+		@SuppressWarnings("ConstantConditions")
+		public PaperResource(String version, String target) {
+			super(null, target);
+			this.version = version;
+		}
+
+		@Override
+		public String getSource() {
+			try {
+				generateSource();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			if (source == null)
+				throw new IllegalStateException();
+			return source;
+		}
+
+		private void generateSource() throws IOException {
+			if (source != null)
+				return;
+
+			String stringUrl = "https://papermc.io/api/v2/projects/paper/versions/" + version;
+			URL url = new URL(stringUrl);
+			JsonObject jsonObject;
+			try (InputStream is = url.openStream()) {
+				InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+				jsonObject = gson.fromJson(reader, JsonObject.class);
+			}
+
+			JsonArray jsonArray = jsonObject.get("builds").getAsJsonArray();
+
+			int latestBuild = -1;
+			for (JsonElement jsonElement : jsonArray) {
+				int build = jsonElement.getAsInt();
+				if (build > latestBuild) {
+					latestBuild = build;
+				}
+			}
+
+			if (latestBuild == -1)
+				throw new IllegalStateException("No builds for this version");
+
+			source = "https://papermc.io/api/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
+				+ "/downloads/paper-" + version + "-" + latestBuild + ".jar";
+		}
+	}
+
 	/**
 	 * Resources that need to be copied.
 	 */
 	private final List<Resource> resources;
-	
+
 	/**
 	 * Resources that need to be downloaded.
 	 */
+	@Nullable
 	private final List<Resource> downloads;
-	
+
+	/**
+	 * Paper resources that need to be downloaded.
+	 */
+	@Nullable
+	private final List<PaperResource> paperDownloads;
+
 	/**
 	 * Where Skript should be placed under platform root.
 	 * Directories created as needed.
 	 */
 	private final String skriptTarget;
-	
+
 	/**
 	 * Added after platform's own JVM flags.
 	 */
 	private final String[] commandLine;
-	
-	public Environment(String name, List<Resource> resources, List<Resource> downloads, String skriptTarget, String... commandLine) {
+
+	public Environment(String name, List<Resource> resources, @Nullable List<Resource> downloads, @Nullable List<PaperResource> paperDownloads, String skriptTarget, String... commandLine) {
 		this.name = name;
 		this.resources = resources;
 		this.downloads = downloads;
+		this.paperDownloads = paperDownloads;
 		this.skriptTarget = skriptTarget;
 		this.commandLine = commandLine;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -115,21 +179,21 @@ public class Environment {
 	public void initialize(Path dataRoot, Path runnerRoot, boolean remake) throws IOException {
 		Path env = runnerRoot.resolve(name);
 		boolean onlyCopySkript = Files.exists(env) && !remake;
-		
+
 		// Copy Skript to platform
 		Path skript = env.resolve(skriptTarget);
 		Files.createDirectories(skript.getParent());
 		try {
 			Files.copy(new File(getClass().getProtectionDomain().getCodeSource().getLocation()
-				    .toURI()).toPath(), skript, StandardCopyOption.REPLACE_EXISTING);
+				.toURI()).toPath(), skript, StandardCopyOption.REPLACE_EXISTING);
 		} catch (URISyntaxException e) {
 			throw new AssertionError(e);
 		}
-		
+
 		if (onlyCopySkript) {
 			return;
 		}
-		
+
 		// Copy resources
 		for (Resource resource : resources) {
 			Path source = dataRoot.resolve(resource.getSource());
@@ -137,11 +201,17 @@ public class Environment {
 			Files.createDirectories(target.getParent());
 			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 		}
-		
+
+		List<Resource> downloads = new ArrayList<>();
+		if (this.downloads != null)
+			downloads.addAll(this.downloads);
+		if (this.paperDownloads != null)
+			downloads.addAll(this.paperDownloads);
 		// Download additional resources
 		for (Resource resource : downloads) {
 			assert resource != null;
-			URL url = new URL(resource.getSource());
+			String source = resource.getSource();
+			URL url = new URL(source);
 			Path target = env.resolve(resource.getTarget());
 			Files.createDirectories(target.getParent());
 			try (InputStream is = url.openStream()) {
@@ -149,7 +219,7 @@ public class Environment {
 			}
 		}
 	}
-	
+
 	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, String... jvmArgs) throws IOException, InterruptedException {
 		Path env = runnerRoot.resolve(name);
 		List<String> args = new ArrayList<>();
@@ -161,25 +231,25 @@ public class Environment {
 		args.add("-Dskript.testing.results=test_results.json");
 		args.addAll(Arrays.asList(jvmArgs));
 		args.addAll(Arrays.asList(commandLine));
-		
+
 		Process process = new ProcessBuilder(args)
-				.directory(env.toFile())
-				.redirectOutput(Redirect.INHERIT)
-				.redirectError(Redirect.INHERIT)
-				.redirectInput(Redirect.INHERIT)
-				.start();
-		
+			.directory(env.toFile())
+			.redirectOutput(Redirect.INHERIT)
+			.redirectError(Redirect.INHERIT)
+			.redirectInput(Redirect.INHERIT)
+			.start();
+
 		// When we exit, try to make them exit too
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
 			if (process.isAlive()) {
 				process.destroy();
 			}
 		}));
-		
+
 		// Catch tests running for abnormally long time
 		if (!devMode) {
 			new Timer("runner watchdog", true).schedule(new TimerTask() {
-				
+
 				@Override
 				public void run() {
 					if (process.isAlive()) {
@@ -189,16 +259,16 @@ public class Environment {
 				}
 			}, 8 * 60_000);
 		}
-		
+
 		int code = process.waitFor();
 		if (code != 0) {
 			throw new IOException("environment returned with code " + code);
 		}
-		
+
 		// Read test results
 		TestResults results = new Gson().fromJson(new String(Files.readAllBytes(env.resolve("test_results.json"))), TestResults.class);
 		assert results != null;
 		return results;
 	}
-	
+
 }

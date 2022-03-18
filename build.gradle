@@ -18,7 +18,6 @@ tasks.withType(JavaCompile).configureEach {
 allprojects {
 	repositories {
 		mavenCentral()
-		maven { url 'https://jitpack.io' }
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://papermc.io/repo/repository/maven-public/' }
@@ -115,6 +114,17 @@ publishing {
 			artifact tasks.jar
 		}
 	}
+
+	repositories {
+		maven {
+			name = "repo"
+			url = "https://repo.skriptlang.org/releases"
+			credentials {
+				username = System.getenv("MAVEN_USERNAME")
+				password = System.getenv("MAVEN_PASSWORD")
+			}
+		}
+	}
 }
 
 license {
@@ -179,7 +189,7 @@ void createTestTask(String name, String environments, boolean devMode) {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.5.json', false)
+createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.18.1.json', false)
 createTestTask('skriptTest', 'src/test/skript/environments/main', false)
 createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null
