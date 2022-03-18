@@ -159,12 +159,7 @@ public class BukkitClasses {
 					public String toVariableNameString(final Entity e) {
 						return "entity:" + e.getUniqueId().toString().toLowerCase(Locale.ENGLISH);
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "entity:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-					}
-					
+
 					@Override
 					public String toString(final Entity e, final int flags) {
 						return EntityData.toString(e, flags);
@@ -225,12 +220,7 @@ public class BukkitClasses {
 					public String toVariableNameString(final Block b) {
 						return b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".+:-?\\d+,-?\\d+,-?\\d+";
-					}
-					
+
 					@Override
 					public String getDebugMessage(final Block b) {
 						return toString(b, 0) + " block (" + b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ() + ")";
@@ -327,11 +317,6 @@ public class BukkitClasses {
 					public String toVariableNameString(BlockData o) {
 						return "blockdata:" + o.getAsString();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "blockdata:.+";
-					}
 				})
 				.serializer(new Serializer<BlockData>() {
 					@Override
@@ -392,19 +377,15 @@ public class BukkitClasses {
 					
 					@Override
 					public String toString(final Location l, final int flags) {
-						return "x: " + Skript.toString(l.getX()) + ", y: " + Skript.toString(l.getY()) + ", z: " + Skript.toString(l.getZ());
+						String worldPart = l.getWorld() == null ? "" : " in '" + l.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by spigot
+						return "x: " + Skript.toString(l.getX()) + ", y: " + Skript.toString(l.getY()) + ", z: " + Skript.toString(l.getZ()) + ", yaw: " + Skript.toString(l.getYaw()) + ", pitch: " + Skript.toString(l.getPitch()) + worldPart;
 					}
 					
 					@Override
 					public String toVariableNameString(final Location l) {
 						return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S:-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?";
-					}
-					
+
 					@Override
 					public String getDebugMessage(final Location l) {
 						return "(" + l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|yaw=" + l.getYaw() + "/pitch=" + l.getPitch() + ")";
@@ -495,12 +476,7 @@ public class BukkitClasses {
 					public String toVariableNameString(final Vector vec) {
 						return "vector:" + vec.getX() + "," + vec.getY() + "," + vec.getZ();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S:-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?";
-					}
-					
+
 					@Override
 					public String getDebugMessage(final Vector vec) {
 						return "(" + vec.getX() + "," + vec.getY() + "," + vec.getZ() + ")";
@@ -572,11 +548,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(final World w) {
 						return "" + w.getName();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				}).serializer(new Serializer<World>() {
 					@Override
@@ -657,11 +628,6 @@ public class BukkitClasses {
 					public String toVariableNameString(final Inventory i) {
 						return "inventory of " + Classes.toString(i.getHolder(), StringMode.VARIABLE_NAME);
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "inventory of .+";
-					}
 				}).changer(DefaultChangers.inventoryChanger));
 		
 		Classes.registerClass(new ClassInfo<>(InventoryAction.class, "inventoryaction")
@@ -688,11 +654,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(InventoryAction o) {
 						return o.name();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				}));
 		
@@ -723,11 +684,6 @@ public class BukkitClasses {
 					public String toVariableNameString(ClickType o) {
 						return o.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				}));
 		
 		final EnumUtils<InventoryType> invTypes = new EnumUtils<>(InventoryType.class, "inventory types");
@@ -755,11 +711,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(InventoryType o) {
 						return o.name();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				}));
 		
@@ -814,15 +765,7 @@ public class BukkitClasses {
 						else
 							return "" + p.getName();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
-							return "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-						else
-							return "\\S+";
-					}
-					
+
 					@Override
 					public String getDebugMessage(final Player p) {
 						return p.getName() + " " + Classes.getDebugMessage(p.getLocation());
@@ -877,15 +820,7 @@ public class BukkitClasses {
 						else
 							return "" + p.getName();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
-							return "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-						else
-							return "\\S+";
-					}
-					
+
 					@Override
 					public String getDebugMessage(OfflinePlayer p) {
 						if (p.isOnline())
@@ -980,11 +915,6 @@ public class BukkitClasses {
 					public String toVariableNameString(final CommandSender s) {
 						return "" + s.getName();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				}));
 		
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
@@ -1011,11 +941,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(InventoryHolder holder) {
 						return toString(holder, 0);
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".+";
 					}
 				}));
 		Classes.registerClass(new ClassInfo<>(GameMode.class, "gamemode")
@@ -1055,11 +980,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(final GameMode o) {
 						return "" + o.toString().toLowerCase(Locale.ENGLISH);
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "[a-z]+";
 					}
 				}).serializer(new EnumSerializer<>(GameMode.class)));
 		
@@ -1110,14 +1030,8 @@ public class BukkitClasses {
 						for (Entry<Enchantment, Integer> entry : i.getEnchantments().entrySet())
 							b.append("#" + EnchantmentUtils.getKey(entry.getKey()))
 									.append(":" + entry.getValue());
-						
-						
-						return "" + b.toString();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "item:.+";
+
+						return b.toString();
 					}
 				})
 				.cloner(ItemStack::clone)
@@ -1152,11 +1066,6 @@ public class BukkitClasses {
 					public String toVariableNameString(final Biome b) {
 						return "" + b.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				})
 				.serializer(new EnumSerializer<>(Biome.class)));
 		
@@ -1182,11 +1091,7 @@ public class BukkitClasses {
 				public String toVariableNameString(PotionEffect o) {
 					return "potion_effect:" + o.getType().getName();
 				}
-				
-				@Override
-				public String getVariableNamePattern() {
-					return "potion_effect:.+";
-				}
+
 			})
 			.serializer(new Serializer<PotionEffect>() {
 				@Override
@@ -1254,11 +1159,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(final PotionEffectType p) {
 						return "" + p.getName();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".+";
 					}
 				})
 				.serializer(new Serializer<PotionEffectType>() {
@@ -1330,11 +1230,6 @@ public class BukkitClasses {
 					public String toVariableNameString(final DamageCause d) {
 						return "" + d.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "[a-z0-9_-]+";
-					}
 				})
 				.serializer(new EnumSerializer<>(DamageCause.class)));
 		
@@ -1365,11 +1260,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(final Chunk c) {
 						return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".+:-?[0-9]+,-?[0-9]+";
 					}
 				})
 				.serializer(new Serializer<Chunk>() {
@@ -1450,11 +1340,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(final Enchantment e) {
 						return "" + EnchantmentUtils.getKey(e);
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".+";
 					}
 				})
 				.serializer(new Serializer<Enchantment>() {
@@ -1564,11 +1449,6 @@ public class BukkitClasses {
 					public String toVariableNameString(TeleportCause teleportCause) {
 						return teleportCause.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				})
 				.serializer(new EnumSerializer<>(TeleportCause.class)));
 		
@@ -1595,11 +1475,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(SpawnReason spawnReason) {
 						return spawnReason.name();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				})
 				.serializer(new EnumSerializer<>(SpawnReason.class)));
@@ -1632,11 +1507,6 @@ public class BukkitClasses {
 						public String toVariableNameString(final CachedServerIcon o) {
 							return "server icon";
 						}
-						
-						@Override
-						public String getVariableNamePattern() {
-							return "server icon";
-						}
 					}));
 		}
 		
@@ -1664,11 +1534,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(FireworkEffect.Type type) {
 						return type.name();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				})
 				.serializer(new EnumSerializer<>(FireworkEffect.Type.class)));
@@ -1705,11 +1570,6 @@ public class BukkitClasses {
 					public String toVariableNameString(FireworkEffect effect) {
 						return "firework effect " + effect.toString();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
 				}));
 		
 		EnumUtils<Difficulty> difficulties = new EnumUtils<>(Difficulty.class, "difficulties");
@@ -1736,11 +1596,7 @@ public class BukkitClasses {
 					public String toVariableNameString(Difficulty difficulty) {
 						return difficulty.name();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
-					}
+
 				})
 				.serializer(new EnumSerializer<>(Difficulty.class)));
 		
@@ -1756,22 +1612,17 @@ public class BukkitClasses {
 					public String toString(Status state, int flags) {
 						return resourcePackStates.toString(state, flags);
 					}
-					
+
 					@Override
 					@Nullable
 					public Status parse(final String s, final ParseContext context) {
 						return resourcePackStates.parse(s);
 					}
-					
+
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(Status state) {
 						return state.name();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				})
 				.serializer(new EnumSerializer<>(Status.class)));
@@ -1803,11 +1654,6 @@ public class BukkitClasses {
 						public String toVariableNameString(SoundCategory category) {
 							return category.name();
 						}
-						
-						@Override
-						public String getVariableNamePattern() {
-							return "\\S+";
-						}
 					})
 					.serializer(new EnumSerializer<>(SoundCategory.class)));
 		}
@@ -1837,11 +1683,6 @@ public class BukkitClasses {
 						public String toVariableNameString(Gene gene) {
 							return gene.name();
 						}
-						
-						@Override
-						public String getVariableNamePattern() {
-							return "\\S+";
-						}
 					})
 					.serializer(new EnumSerializer<>(Gene.class)));
 		}
@@ -1868,11 +1709,6 @@ public class BukkitClasses {
 				@Override
 				public String toVariableNameString(RegainReason o) {
 					return "regainreason:" + o.name();
-				}
-				
-				@Override
-				public String getVariableNamePattern() {
-					return "\\S+";
 				}
 			})
 			.serializer(new EnumSerializer<>(RegainReason.class)));
@@ -1901,11 +1737,6 @@ public class BukkitClasses {
 						public String toVariableNameString(Cat.Type race) {
 							return race.name();
 						}
-						
-						@Override
-						public String getVariableNamePattern() {
-							return "\\S+";
-						}
 					})
 					.serializer(new EnumSerializer<>(Cat.Type.class)));
 		}
@@ -1933,11 +1764,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(GameRule o) {
 						return o.getName();
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "\\S+";
 					}
 				})
 			);
@@ -1986,11 +1812,6 @@ public class BukkitClasses {
 					public String toVariableNameString(EnchantmentOffer eo) {
 						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
-	
-					@Override
-					public String getVariableNamePattern() {
-						return ".+";
-					}
 				}));
 		}
 		EnumUtils<Attribute> attributes = new EnumUtils<>(Attribute.class, "attribute types");
@@ -2017,11 +1838,6 @@ public class BukkitClasses {
 					@Override
 					public String toVariableNameString(Attribute a) {
 						return toString(a, 0);
-					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "[\\sA-Za-z]+";
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
