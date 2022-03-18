@@ -85,7 +85,7 @@ public class EffToggle extends Effect {
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		toggledExpr = (Expression<?>) vars[0];
 		toggle = matchedPattern - 1;
-		if (toggledExpr.getReturnType().isAssignableFrom(Boolean.class) && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET)) {
+		if (toggledExpr.getReturnType() == Boolean.class && !ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Boolean.class)) {
 			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
 			return false;
 		}
