@@ -56,7 +56,11 @@ public class ExprToggled extends SimpleExpression<Boolean> {
 	@Override
 	@Nullable
 	protected Boolean[] get(Event e) {
-		return Arrays.asList(booleanExpr.getArray(e)).stream().map(b -> !b).toArray(Boolean[]::new);
+		boolean[] original = booleanExpr.getArray(e);
+		boolean[] toggled = new boolean[original.length];
+		for (int i = 0; i < original.length; i++)
+			toggled[i] = !original[i];
+		return toggled;
 	}
 
 	@Override
