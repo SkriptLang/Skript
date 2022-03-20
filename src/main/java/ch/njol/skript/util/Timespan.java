@@ -35,16 +35,16 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
 
-	public enum Times {
+	private enum Times {
 
 		TICK(new Noun("time.tick"), 50L),
 		SECOND(new Noun("time.second"), 1000L),
-		MINUTE(new Noun("time.minute"), SECOND.getTime() * 60L),
-		HOUR(new Noun("time.hour"), MINUTE.getTime() * 60L),
-		DAY(new Noun("time.day"), HOUR.getTime() * 24L),
-		WEEK(new Noun("time.week"), DAY.getTime() * 7L),
-		MONTH(new Noun("time.month"), DAY.getTime() * 30L),
-		YEAR(new Noun("time.year"), DAY.getTime() * 365L);
+		MINUTE(new Noun("time.minute"), SECOND.time * 60L),
+		HOUR(new Noun("time.hour"), MINUTE.time * 60L),
+		DAY(new Noun("time.day"), HOUR.time * 24L),
+		WEEK(new Noun("time.week"), DAY.time * 7L),
+		MONTH(new Noun("time.month"), DAY.time * 30L),
+		YEAR(new Noun("time.year"), DAY.time * 365L);
 
 		private final Noun name;
 		private final long time;
@@ -52,14 +52,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		Times(Noun name, long time) {
 			this.name = name;
 			this.time = time;
-		}
-
-		public Noun getName() {
-			return name;
-		}
-
-		public long getTime() {
-			return time;
 		}
 
 	}
@@ -71,13 +63,13 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 	@SuppressWarnings("unchecked")
 	final static NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
-		new NonNullPair<>(Times.YEAR.getName(), Times.YEAR.getTime()),
-		new NonNullPair<>(Times.MONTH.getName(), Times.MONTH.getTime()),
-		new NonNullPair<>(Times.WEEK.getName(), Times.WEEK.getTime()),
-		new NonNullPair<>(Times.DAY.getName(), Times.DAY.getTime()),
-		new NonNullPair<>(Times.HOUR.getName(), Times.HOUR.getTime()),
-		new NonNullPair<>(Times.MINUTE.getName(), Times.MINUTE.getTime()),
-		new NonNullPair<>(Times.SECOND.getName(), Times.SECOND.getTime())
+		new NonNullPair<>(Times.YEAR.name, Times.YEAR.time),
+		new NonNullPair<>(Times.MONTH.name, Times.MONTH.time),
+		new NonNullPair<>(Times.WEEK.name, Times.WEEK.time),
+		new NonNullPair<>(Times.DAY.name, Times.DAY.time),
+		new NonNullPair<>(Times.HOUR.name, Times.HOUR.time),
+		new NonNullPair<>(Times.MINUTE.name, Times.MINUTE.time),
+		new NonNullPair<>(Times.SECOND.name, Times.SECOND.time)
 	};
 
 	static {
@@ -85,8 +77,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			@Override
 			public void onLanguageChange() {
 				for (Times t : Times.values()) {
-					parseValues.put(t.getName().getSingular().toLowerCase(), t.getTime());
-					parseValues.put(t.getName().getPlural().toLowerCase(), t.getTime());
+					parseValues.put(t.name.getSingular().toLowerCase(), t.time);
+					parseValues.put(t.name.getPlural().toLowerCase(), t.time);
 				}
 			}
 		});
@@ -103,7 +95,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 		if (TIMESPAN_PATTERN.matcher(s).matches()) { // MM:SS[.ms] or HH:MM:SS[.ms]
 			final String[] ss = s.split("[:.]");
-			final long[] times = {Times.HOUR.getTime(), Times.MINUTE.getTime(), Times.SECOND.getTime(), 1L}; // h, m, s, ms
+			final long[] times = {Times.HOUR.time, Times.MINUTE.time, Times.SECOND.time, 1L}; // h, m, s, ms
 			
 			final int offset = ss.length == 3 && !s.contains(".") || ss.length == 4 ? 0 : 1;
 			for (int i = 0; i < ss.length; i++) {
@@ -154,7 +146,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 				if (d == null)
 					return null;
 				
-				if (minecraftTime && d != Times.TICK.getTime()) // times[0] == tick
+				if (minecraftTime && d != Times.TICK.time) // times[0] == tick
 					amount /= 72f;
 				
 				t += Math.round(amount * d);
@@ -183,11 +175,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 */
 	@Deprecated
 	public static Timespan fromTicks(final int ticks) {
-		return new Timespan(ticks * Times.TICK.getTime());
+		return new Timespan(ticks * Times.TICK.time);
 	}
 	
 	public static Timespan fromTicks_i(final long ticks) {
-		return new Timespan(ticks * Times.TICK.getTime());
+		return new Timespan(ticks * Times.TICK.time);
 	}
 	
 	public long getMilliSeconds() {
@@ -209,31 +201,31 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 	public long getSeconds() {
-		return millis / Times.SECOND.getTime();
+		return millis / Times.SECOND.time;
 	}
 
 	public long getMinutes() {
-		return millis / Times.MINUTE.getTime();
+		return millis / Times.MINUTE.time;
 	}
 
 	public long getHours() {
-		return millis / Times.HOUR.getTime();
+		return millis / Times.HOUR.time;
 	}
 
 	public long getDays() {
-		return millis / Times.DAY.getTime();
+		return millis / Times.DAY.time;
 	}
 
 	public long getWeeks() {
-		return millis / Times.WEEK.getTime();
+		return millis / Times.WEEK.time;
 	}
 
 	public long getMonths() {
-		return millis / Times.MONTH.getTime();
+		return millis / Times.MONTH.time;
 	}
 
 	public long getYears() {
-		return millis / Times.YEAR.getTime();
+		return millis / Times.YEAR.time;
 	}
 	
 	@Override
