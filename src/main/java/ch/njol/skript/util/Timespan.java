@@ -56,7 +56,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 	}
 
-	public static final Pattern TIMESPAN_PATTERN = Pattern.compile("^\\d+:\\d\\d(:\\d\\d)?(\\.\\d{1,4})?$");
+	public static final Pattern TIMESPAN_PATTERN = Pattern.compile("^\\d+:\\d\\d(:\\d\\d){0,2}(\\.\\d{1,4})?$");
 	public static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final HashMap<String, Long> parseValues = new HashMap<>();
 	private final long millis;
@@ -93,11 +93,18 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
-		if (TIMESPAN_PATTERN.matcher(s).matches()) { // MM:SS[.ms] or HH:MM:SS[.ms]
+		if (TIMESPAN_PATTERN.matcher(s).matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
 			final String[] ss = s.split("[:.]");
-			final long[] times = {Times.HOUR.time, Times.MINUTE.time, Times.SECOND.time, 1L}; // h, m, s, ms
-			
-			final int offset = ss.length == 3 && !s.contains(".") || ss.length == 4 ? 0 : 1;
+			final long[] times = {Times.DAY.time, Times.HOUR.time, Times.MINUTE.time, Times.SECOND.time, 1L}; // d, h, m, s, ms
+
+			boolean hasMs = s.contains(".");
+			int length = ss.length;
+			int offset = 2; // MM:SS[.ms]
+			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
+				offset = 0;
+			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
+				offset = 1;
+
 			for (int i = 0; i < ss.length; i++) {
 				t += times[offset + i] * Utils.parseLong("" + ss[i]);
 			}
@@ -245,9 +252,10 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public static String toString(final long millis, final int flags) {
 		for (int i = 0; i < simpleValues.length - 1; i++) {
 			if (millis >= simpleValues[i].getSecond()) {
-				final double second = 1. * (millis % simpleValues[i].getSecond()) / simpleValues[i + 1].getSecond();
+				final long remainder = millis % simpleValues[i].getSecond();
+				final Double second = 1. * remainder / simpleValues[i + 1].getSecond();
 				if (!"0".equals(Skript.toString(second))) { // bad style but who cares...
-					return toString(Math.floor(1. * millis / simpleValues[i].getSecond()), simpleValues[i], flags) + " " + GeneralWords.and + " " + toString(second, simpleValues[i + 1], flags);
+					return toString(Math.floor(1. * millis / simpleValues[i].getSecond()), simpleValues[i], flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
 				} else {
 					return toString(1. * millis / simpleValues[i].getSecond(), simpleValues[i], flags);
 				}
