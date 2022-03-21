@@ -22,7 +22,7 @@ skript:
 skript command:
 	usage: Usage:
 	help:
-		description: Commande principale de Skript's
+		description: Commande principale de Skript
 		help: Affiche ce message d'aide. Utiliser '/skript reload/enable/disable/update' pour obtenir plus d'informations
 		reload:
 			description: Recharger la configuration, tous les scripts, tout ou un script spécifique
