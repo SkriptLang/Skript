@@ -40,7 +40,7 @@ skript command:
 			all: Désactiver tous les scripts
 			<script>: Désactiver un script spécifique ou un dossier de scripts
 		update:
-			description: Vérifiez les mises à jour, lisez le journal des modifications ou téléchargez la dernière version de Skript
+			description: Vérifier les mises à jour, lire le journal des modifications ou télécharger la dernière version de Skript
 			check: Rechercher une nouvelle version
 			changes: Répertorier toutes les modifications depuis la version actuelle
 			download: Télécharger la dernière version
