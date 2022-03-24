@@ -113,10 +113,10 @@ public class EvtClick extends SkriptEvent {
 		types = args[matchedPattern];
 		if (types != null && !ItemType.class.isAssignableFrom(types.getReturnType())) {
 			if (click == LEFT) {
-				Skript.error("A leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' event.", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("A leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' and 'vehicle damage' events.", ErrorQuality.SEMANTIC_ERROR);
 				return false;
 			} else if (click == ANY) {
-				Skript.warning("A leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' event. Change this event to a rightclick to disable this warning message.");
+				Skript.warning("A leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' and 'vehicle damage' events. Change this event to a rightclick to disable this warning message.");
 			}
 		}
 		tools = (Literal<ItemType>) args[1 - matchedPattern];
