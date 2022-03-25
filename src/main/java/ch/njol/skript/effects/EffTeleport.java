@@ -86,7 +86,7 @@ public class EffTeleport extends Effect {
 		boolean delayed = Delay.isDelayed(e);
 		
 		Location loc = location.getSingle(e);
-		if (loc == null)
+		if (loc == null || loc.getWorld() == null)
 			return next;
 
 		Entity[] entityArray = entities.getArray(e); // We have to fetch this before possible async execution to avoid async local variable access.
