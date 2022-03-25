@@ -41,6 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Since("INSERT VERSION")
 public class ExprAllStatistics extends SimpleExpression<String> {
+
 	static {
 		Skript.registerExpression(ExprAllStatistics.class, String.class, ExpressionType.SIMPLE, "all statistic(s| names)");
 	}
