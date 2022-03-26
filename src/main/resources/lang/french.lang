@@ -10,7 +10,7 @@ none: <none>
 skript:
 	copyright: ~ créé par & © Peter Güttinger aka Njol ~
 	prefix: <gray>[<gold>Skript<gray>]
-	quotes error: Utilisation invalide des guillemets ("). Si vous souhaitez utiliser des guillemets dans "une citation", doubler-les: "".
+	quotes error: Utilisation invalide des guillemets ("). Si vous souhaitez utiliser des guillemets dans "une citation", doublez-les : "".
 	brackets error: Quantité ou placement de parenthèses invalide. Veuillez vous assurer que chaque ouverture de parenthèse a une fermeture de parenthèse.
 	invalid reload: Skript ne peut être rechargé que par la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.
 	no scripts: Aucun script n'a été trouvé, peut-être devriez-vous en écrire ;)
@@ -32,7 +32,7 @@ skript command:
 			scripts: Recharger tous les scripts
 			<script>: Recharger un script spécifique ou un dossier de scripts
 		enable:
-			description: Activer tous les scripts ou un en particulier
+			description: Activation de tous les scripts ou un en particulier
 			all: Activer tous les scripts
 			<script>: Activer un script spécifique ou un dossier de scripts
 		disable:
@@ -45,18 +45,18 @@ skript command:
 			changes: Répertorier toutes les modifications depuis la version actuelle
 			download: Télécharger la dernière version
 		info: Afficher un message avec des liens vers les alias et la documentation de Skript
-		gen-docs: Génèrer de la documentation à l'aide de doc-templates dans le dossier du plugin
+		gen-docs: Générer de la documentation à l'aide de templates de documentation dans le dossier du plugin
 		test: Utilisé pour exécuter des tests Skript
 
 	invalid script: Impossible de trouver le script <grey>'<gold>%s<grey>'<red> dans le dossier scripts !
 	invalid folder: Impossible de trouver le dossier <grey>'<gold>%s<grey>'<red> dans le dossier scripts !
 	reload:
-		warning line info: <gold><bold>Ligne %s:<gray> (%s)\n
-		error line info: <light red><bold>Ligne %s:<gray> (%s)\n
-		reloading: Rechargement <gold>%s<reset>...
-		reloaded: <lime>Rechargé avec succès <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
-		error: <gold>%2$s <light red>erreur¦¦s¦ rencontré¦¦s¦ pendant le rechargement <gold>%1$s<light red> ! <gray>(<gold>%3$sms<gray>)
-		script disabled: <gold>%s<reset> est actuellement désactivé. Utiliser <gray>/<gold>skript <cyan>enable <red>%s<reset> pour l'activer.
+		warning line info: <gold><bold>Ligne %s :<gray> (%s)\n
+		error line info: <light red><bold>Ligne %s :<gray> (%s)\n
+		reloading: Rechargement de <gold>%s<reset>...
+		reloaded: <lime>Rechargement effectué avec succès de <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		error: <gold>%2$s <light red>erreur¦¦s¦ rencontrée¦¦s¦ pendant le rechargement <gold>%1$s<light red> ! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> est actuellement désactivé. Utilisez <gray>/<gold>skript <cyan>enable <red>%s<reset> pour l'activer.
 		warning details: <yellow>    %s\n
 		error details: <light red>    %s\n
 		other details: <white>    %s\n
@@ -73,7 +73,7 @@ skript command:
 	enable:
 		all:
 			enabling: Activer tous les scripts désactivés...
-			enabled: Activation et analyse réussies de tous les scripts précédemment désactivés.
+			enabled: Activation et analyse de tous les scripts précédemment désactivés réussies.
 			error: %s erreur¦¦s¦ rencontré¦¦s¦ lors de l'analyse des scripts désactivés !
 			io error: Impossible de charger les scripts (certains scripts ont peut-être déjà été renommés et seront activés au redémarrage du serveur) : %s
 		single:
@@ -87,7 +87,7 @@ skript command:
 			enabling: Activations de <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>...
 			enabled: Activé et analysé avec succès <gold>%2$s<reset> previously disabled scripts in <gold>%1$s<reset>.
 			error: %2$s erreur¦¦s¦ rencontré¦¦s¦ lors de l'analyse des scripts dans <gold>%1$s <red>!
-			io error: Erreur lors de l'activation des scripts dans <gold>%s<red> (certains scripts peuvent être activés au redémarrage du serveur): %s
+			io error: Erreur lors de l'activation des scripts dans <gold>%s<red> (certains scripts peuvent être activés au redémarrage du serveur) : %s
 	disable:
 		all:
 			disabled: Désactivation réussie de tous les scripts.
@@ -119,7 +119,7 @@ skript command:
 
 # -- Updater --
 updater:
-	not started: Skript n'a pas encore vérifié la dernière version. Utiliser <gold>/skript update check<reset> pour le faire.
+	not started: Skript n'a pas encore vérifié la dernière version. Utilisez <gold>/skript update check<reset> pour le faire.
 	checking: Vérification de la dernière version de Skript...
 	check in progress: La recherche d'une nouvelle version est actuellement en cours.
 	updater disabled: Le programme de mise à jour est désactivé, donc une vérification de la dernière version de Skript n'a pas été effectuée.
@@ -133,7 +133,7 @@ updater:
 	downloaded: La dernière version de Skript a été téléchargée ! Redémarrez le serveur ou utilisez /reload pour appliquer les changements.
 	internal error: Une erreur interne s'est produite lors de la recherche de la dernière version de Skript. Veuillez consulter le journal du serveur pour plus de détails.
 	custom version: Vous utilisez actuellement une version personnalisée de Skript. Aucune mise à jour ne sera installée automatiquement.
-	nightly build: Vous exécutez actuellement une version de développement de Skript. Aucune mise à jour ne sera installée automatiquement.
+	nightly build: Vous utilisez actuellement une version de développement de Skript. Aucune mise à jour ne sera installée automatiquement.
 
 # -- Commands --
 commands:
@@ -141,8 +141,8 @@ commands:
 	cooldown message: Vous utilisez trop souvent cette commande, veuillez réessayer plus tard
 	executable by players: Cette commande ne peut être utilisée que par les joueurs
 	executable by console: Cette commande ne peut être utilisée que par la console
-	correct usage: Usage correct:
-	invalid argument: Argument invalide <gray>'%s<gray>'<reset>. Ceux autorisés sont:
+	correct usage: Usage correct :
+	invalid argument: Argument invalide <gray>'%s<gray>'<reset>. Ceux autorisés sont :
 	too many arguments: Cette commande ne peut accepter qu'un seul %2$s.
 	internal error: Une erreur interne s'est produite lors de la tentative d'exécution de cette commande.
 	no player starts with: Il n'y a aucun joueur en ligne dont le nom commence par '%s'
@@ -150,8 +150,8 @@ commands:
 
 # -- Hooks --
 hooks:
-	hooked: Monté avec succès sur %s
-	error: Impossible de monter sur %1$s. Cela peut arriver si Skript ne prend pas en charge la version installée de %1$s
+	hooked: Lien effectué avec succès avec %s
+	error: Impossible de se lier avec %1$s. Cela peut arriver si Skript ne prend pas en charge la version installée de %1$s
 
 # -- Aliases --
 aliases:
