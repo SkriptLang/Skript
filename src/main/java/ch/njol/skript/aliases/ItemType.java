@@ -980,16 +980,6 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	
 	private String toString(final boolean debug, final int flags, final @Nullable Adjective a) {
 		final StringBuilder b = new StringBuilder();
-//		if (types.size() == 1 && !types.get(0).hasDataRange()) {
-//			if (getAmount() != 1)
-//				b.append(amount + " ");
-//			if (isAll())
-//				b.append(getAmount() == 1 ? "every " : "of every ");
-//		} else {
-//			if (getAmount() != 1)
-//				b.append(amount + " of ");
-//			b.append(isAll() ? "every " : "any ");
-//		}
 		final boolean plural = amount != 1 && amount != -1 || (flags & Language.F_PLURAL) != 0;
 		if (amount != -1 && amount != 1) {
 			b.append(amount + " ");
@@ -1007,36 +997,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			}
 			b.append(types.get(i).toString(debug, plural));
 		}
-//		final Map<Enchantment, Integer> enchs = enchantments;
-//		if (enchs == null)
-//			return "" + b.toString();
-//		b.append(Language.getSpaced("enchantments.of"));
-//		int i = 0;
-//		for (final Entry<Enchantment, Integer> e : enchs.entrySet()) {
-//			if (i != 0) {
-//				if (i != enchs.size() - 1)
-//					b.append(", ");
-//				else
-//					b.append(" " + GeneralWords.and + " ");
-//			}
-//			final Enchantment ench = e.getKey();
-//			if (ench == null)
-//				continue;
-//			b.append(EnchantmentType.toString(ench));
-//			b.append(" ");
-//			b.append(e.getValue());
-//			i++;
-//		}
-//		if (meta != null) {
-//			final ItemMeta m = (ItemMeta) meta;
-//			if (m.hasDisplayName()) {
-//				b.append(" " + m_named.toString() + " ");
-//				b.append("\"" + m.getDisplayName() + "\"");
-//			}
-//			if (debug)
-//				b.append(" meta=[").append(meta).append("]");
-//		}
-		return "" + b.toString();
+		return "" + b;
 	}
 	
 	public static String toString(final ItemStack i) {

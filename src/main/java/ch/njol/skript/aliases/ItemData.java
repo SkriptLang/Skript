@@ -18,18 +18,22 @@
  */
 package ch.njol.skript.aliases;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUnsafe;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.block.BlockCompat;
+import ch.njol.skript.bukkitutil.block.BlockValues;
+import ch.njol.skript.localization.GeneralWords;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.EnumTypeAdapter;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -47,18 +51,18 @@ import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.potion.PotionData;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import ch.njol.util.EnumTypeAdapter;
-import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.BlockValues;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.variables.Variables;
-import ch.njol.yggdrasil.Fields;
-import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
@@ -116,7 +120,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 	
 	private final static Message m_named = new Message("aliases.named");
-	
+	private final static Message m_withLore = new Message("aliases.with lore");
+
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
 	 */
@@ -271,13 +276,53 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 	
 	public String toString(final boolean debug, final boolean plural) {
-		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
+		StringBuilder b = new StringBuilder(Aliases.getMaterialName(this, plural));
 		ItemMeta meta = stack.getItemMeta();
-		if (meta != null && meta.hasDisplayName()) {
-			builder.append(" ").append(m_named).append(" ");
-			builder.append(meta.getDisplayName());
+
+		Map<Enchantment, Integer> enchs = stack.getEnchantments();
+		if (!enchs.isEmpty()) {
+			b.append(Language.getSpaced("enchantments.of"));
+			int i = 0;
+			for (Entry<Enchantment, Integer> e : enchs.entrySet()) {
+				if (i != 0) {
+					if (i != enchs.size() - 1)
+						b.append(", ");
+					else
+						b.append(" " + GeneralWords.and + " ");
+				}
+				Enchantment ench = e.getKey();
+				if (ench == null)
+					continue;
+				b.append(EnchantmentType.toString(ench));
+				b.append(" ");
+				b.append(e.getValue());
+				i++;
+			}
 		}
-		return builder.toString();
+
+		if (meta != null) {
+			if (meta.hasDisplayName()) {
+				b.append(" ").append(m_named).append(" ");
+				b.append("\"").append(SkriptColor.replaceColorChar(meta.getDisplayName())).append("\"");
+			}
+			if (meta.hasLore()) {
+				b.append(" ").append(m_withLore).append(" ");
+				List<String> lore = meta.getLore();
+				int i = 0;
+				for (String l : lore) {
+					if (i != 0) {
+						if (i != lore.size() - 1)
+							b.append(", ");
+						else
+							b.append(" " + GeneralWords.and + " ");
+					}
+					b.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");
+					i++;
+				}
+			}
+		}
+
+		return "" + b;
 	}
 	
 	/**

@@ -44,6 +44,7 @@ aliases:
 	of: of(?: any)?
 
 	named: named
+	with lore: with lore
 
 # -- Enchantments --
 enchantments:
