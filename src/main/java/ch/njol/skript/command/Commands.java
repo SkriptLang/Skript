@@ -33,7 +33,6 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ch.njol.skript.util.SkriptColor;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -278,15 +277,15 @@ public abstract class Commands {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
 					
-					sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
+					sender.sendMessage(ChatColor.GRAY + "executing '" + ChatColor.stripColor(command) + "'");
 					if (SkriptConfig.logPlayerCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
+						Skript.info(sender.getName() + " issued effect command: " + command);
 					TriggerItem.walk(e, new EffectCommandEvent(sender, command));
 				} else {
 					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
-						SkriptLogger.LOGGER.severe("Error in: " + SkriptColor.replaceColorChar(command));
+						SkriptLogger.LOGGER.severe("Error in: " + ChatColor.stripColor(command));
 					else
-						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + SkriptColor.replaceColorChar(command));
+						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + ChatColor.stripColor(command));
 					log.printErrors(sender, "(No specific information is available)");
 				}
 			} finally {
@@ -294,7 +293,7 @@ public abstract class Commands {
 			}
 			return true;
 		} catch (final Exception e) {
-			Skript.exception(e, "Unexpected error while executing effect command '" + SkriptColor.replaceColorChar(command) + "' by '" + sender.getName() + "'");
+			Skript.exception(e, "Unexpected error while executing effect command '" + command + "' by '" + sender.getName() + "'");
 			sender.sendMessage(ChatColor.RED + "An internal error occurred while executing this effect. Please refer to the server log for details.");
 			return true;
 		}
