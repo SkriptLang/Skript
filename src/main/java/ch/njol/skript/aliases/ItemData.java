@@ -120,7 +120,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 	
 	private final static Message m_named = new Message("aliases.named");
-	private final static Message m_withLore = new Message("aliases.with lore");
+	private final static Message m_with_lore = new Message("aliases.with lore");
 
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
@@ -306,7 +306,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				b.append("\"").append(SkriptColor.replaceColorChar(meta.getDisplayName())).append("\"");
 			}
 			if (meta.hasLore()) {
-				b.append(" ").append(m_withLore).append(" ");
+				b.append(" ").append(m_with_lore).append(" ");
 				List<String> lore = meta.getLore();
 				int i = 0;
 				for (String l : lore) {
