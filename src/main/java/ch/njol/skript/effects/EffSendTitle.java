@@ -55,7 +55,6 @@ public class EffSendTitle extends Effect {
 			Skript.registerEffect(EffSendTitle.class,
 					"send title %string% [with subtitle %-string%] [to %players%]",
 					"send subtitle %string% [to %players%]");
-		
 	}
 	
 	@Nullable
@@ -84,19 +83,38 @@ public class EffSendTitle extends Effect {
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(final Event e) {
-		String title = this.title != null ? this.title.getSingle(e) : "",
-		sub = subtitle != null ? subtitle.getSingle(e) : null;
+		String tit = title != null ? title.getSingle(e) : "";
+		String sub = subtitle != null ? subtitle.getSingle(e) : null;
 		
 		if (TIME_SUPPORTED) {
-			int in = fadeIn != null ? (int) fadeIn.getSingle(e).getTicks_i() : -1,
-			stay = this.stay != null ? (int) this.stay.getSingle(e).getTicks_i() : -1,
-			out = fadeOut != null ? (int) fadeOut.getSingle(e).getTicks_i() : -1;
+			int in, st, out;
+
+			if (fadeIn != null) {
+				Timespan t = fadeIn.getSingle(e);
+				in = t != null ? (int) t.getTicks_i() : -1;
+			} else {
+				in = -1;
+			}
+
+			if (stay != null) {
+				Timespan t = stay.getSingle(e);
+				st = t != null ? (int) t.getTicks_i() : -1;
+			} else {
+				st = -1;
+			}
+
+			if (fadeOut != null) {
+				Timespan t = fadeOut.getSingle(e);
+				out = t != null ? (int) t.getTicks_i() : -1;
+			} else {
+				out = -1;
+			}
 			
 			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, sub, in, stay, out);
+				p.sendTitle(tit, sub, in, st, out);
 		} else {
 			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, sub);
+				p.sendTitle(tit, sub);
 		}
 	}
 	
