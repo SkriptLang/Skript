@@ -73,58 +73,50 @@ public class HTMLGenerator {
 		this.skeleton = readFile(new File(template + "/template.html")); // Skeleton which contains every other page
 	}
 	
-	@SuppressWarnings("null")
-	private static <T> Iterator<T> sortedIterator(Iterator<T> it, Comparator<? super T> comparator) {
-		List<T> list = new ArrayList<>();
+	@SuppressWarnings("unchecked")
+	private static <T> Iterator<SyntaxElementInfo<? extends T>> sortedAnnotatedIterator(Iterator<SyntaxElementInfo<? extends T>> it) {
+		List<SyntaxElementInfo<? extends T>> list = new ArrayList<>();
 		while (it.hasNext()) {
-			T item = it.next();
+			SyntaxElementInfo<? extends T> item = it.next();
 			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generating process
-			if (item instanceof SyntaxElementInfo && ((SyntaxElementInfo) item).c.getAnnotation(Name.class) == null && ((SyntaxElementInfo) item).c.getAnnotation(NoDoc.class) == null) {
-				Skript.warning("Skipping class '" + ((SyntaxElementInfo<?>) item).c + "' from docs due to missing Name Annotation");
+			if (item.c.getAnnotation(Name.class) == null && item.c.getAnnotation(NoDoc.class) == null) {
+				Skript.warning("Skipped generating '" + item.c + "' class due to missing Name annotation");
 				continue;
 			}
 			list.add(item);
 		}
 
-		list.sort(comparator);
+		list.sort(annotatedComparator);
 		return list.iterator();
 	}
 	
 	/**
 	 * Sorts annotated documentation entries alphabetically.
 	 */
-	private static class AnnotatedComparator implements Comparator<SyntaxElementInfo<?>> {
-
-		public AnnotatedComparator() {}
-
-		@Override
-		public int compare(@Nullable SyntaxElementInfo<?> o1, @Nullable SyntaxElementInfo<?> o2) {
-			// Nullness check
-			if (o1 == null || o2 == null) {
-				assert false;
-				throw new NullPointerException();
-			}
-
-
-			if (o1.c.getAnnotation(NoDoc.class) != null) {
-				if (o2.c.getAnnotation(NoDoc.class) != null)
-					return 0;
-				return 1;
-			} else if (o2.c.getAnnotation(NoDoc.class) != null)
-				return -1;
-			
-			Name name1 = o1.c.getAnnotation(Name.class);
-			Name name2 = o2.c.getAnnotation(Name.class);
-			if (name1 == null)
-				throw new SkriptAPIException("Name annotation expected: " + o1.c);
-			if (name2 == null)
-				throw new SkriptAPIException("Name annotation expected: " + o2.c);
-			
-			return name1.value().compareTo(name2.value());
+	private static final Comparator<? super SyntaxElementInfo<?>> annotatedComparator = (o1, o2) -> {
+		// Nullness check
+		if (o1 == null || o2 == null) {
+			assert false;
+			throw new NullPointerException();
 		}
-	}
-	
-	private static final AnnotatedComparator annotatedComparator = new AnnotatedComparator();
+
+
+		if (o1.c.getAnnotation(NoDoc.class) != null) {
+			if (o2.c.getAnnotation(NoDoc.class) != null)
+				return 0;
+			return 1;
+		} else if (o2.c.getAnnotation(NoDoc.class) != null)
+			return -1;
+
+		Name name1 = o1.c.getAnnotation(Name.class);
+		Name name2 = o2.c.getAnnotation(Name.class);
+		if (name1 == null)
+			throw new SkriptAPIException("Name annotation expected: " + o1.c);
+		if (name2 == null)
+			throw new SkriptAPIException("Name annotation expected: " + o2.c);
+
+		return name1.value().compareTo(name2.value());
+	};
 	
 	/**
 	 * Sorts events alphabetically.
@@ -277,8 +269,7 @@ public class HTMLGenerator {
 				boolean isDocsPage = genType.equals("docs");
 
 				if (genType.equals("expressions") || isDocsPage) {
-					Iterator<ExpressionInfo<?,?>> it = sortedIterator(Skript.getExpressions(), annotatedComparator);
-					while (it.hasNext()) {
+					for (Iterator<ExpressionInfo<?,?>> it = sortedAnnotatedIterator((Iterator) Skript.getExpressions()); it.hasNext(); ) {
 						ExpressionInfo<?,?> info = it.next();
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
@@ -287,8 +278,7 @@ public class HTMLGenerator {
 						generated.append(desc);
 					}
 				} if (genType.equals("effects") || isDocsPage) {
-					Iterator<SyntaxElementInfo<? extends Effect>> it = sortedIterator(Skript.getEffects().iterator(), annotatedComparator);
-					while (it.hasNext()) {
+					for (Iterator<SyntaxElementInfo<? extends Effect>> it = sortedAnnotatedIterator(Skript.getEffects().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Effect> info = it.next();
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
@@ -296,9 +286,8 @@ public class HTMLGenerator {
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Effect"));
 					}
 
-					Iterator<SyntaxElementInfo<? extends Section>> effectSection = sortedIterator(Skript.getSections().iterator(), annotatedComparator);
-					while (effectSection.hasNext()) {
-						SyntaxElementInfo<? extends Section> info = effectSection.next();
+					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
+						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
 						if (EffectSection.class.isAssignableFrom(info.c)) {
 							if (info.c.getAnnotation(NoDoc.class) != null)
@@ -307,8 +296,7 @@ public class HTMLGenerator {
 						}
 					}
 				} if (genType.equals("conditions") || isDocsPage) {
-					Iterator<SyntaxElementInfo<? extends Condition>> it = sortedIterator(Skript.getConditions().iterator(), annotatedComparator);
-					while (it.hasNext()) {
+					for (Iterator<SyntaxElementInfo<? extends Condition>> it = sortedAnnotatedIterator(Skript.getConditions().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Condition> info = it.next();
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
@@ -316,8 +304,7 @@ public class HTMLGenerator {
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
 				} if (genType.equals("sections") || isDocsPage) {
-					Iterator<SyntaxElementInfo<? extends Section>> it = sortedIterator(Skript.getSections().iterator(), annotatedComparator);
-					while (it.hasNext()) {
+					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
 						if (info.c.getAnnotation(NoDoc.class) != null)
