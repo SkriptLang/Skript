@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -31,10 +32,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
-public class SecWhile extends Section {
+public class SecWhile extends Section implements Loop {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[(:do)] while <.+> [[(to|and)] (fail[s]|exit [loop]) at %number%]");
+		Skript.registerSection(SecWhile.class, "[(:do)] while <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -45,9 +46,7 @@ public class SecWhile extends Section {
 
 	private boolean doWhile;
 	private boolean ranDoWhile = false;
-
-	private int walkCounter = 0;
-	private Expression<Number> failsAt;
+	private int loopCounter = 0;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -62,31 +61,24 @@ public class SecWhile extends Section {
 		condition = Condition.parse(expr, "Can't understand this condition: " + expr);
 		if (condition == null)
 			return false;
-		doWhile = parseResult.hasTag("do");
-		failsAt = (Expression<Number>) exprs[0];
 
+		doWhile = parseResult.hasTag("do");
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
-
 		return true;
 	}
 
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		Number failsAt = 0;
-		if (this.failsAt != null) {
-			if ((failsAt = this.failsAt.getSingle(e)) == null)
-				failsAt = Long.MAX_VALUE;
-		}
-
-		if (((doWhile && !ranDoWhile) || condition.check(e)) && walkCounter < failsAt.longValue()) {
+		if (((doWhile && !ranDoWhile) || condition.check(e))) {
 			ranDoWhile = true;
-			walkCounter++;
+			loopCounter++;
 			return walk(e, true);
 		} else {
 			reset();
 			debug(e, false);
+			loopCounter = 0;
 			return actualNext;
 		}
 	}
@@ -111,7 +103,8 @@ public class SecWhile extends Section {
 		ranDoWhile = false;
 	}
 
-	public int getWalkCounter() {
-		return walkCounter;
+	@Override
+	public long getLoopCounter() {
+		return loopCounter;
 	}
 }

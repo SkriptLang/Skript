@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Loop;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class SecLoop extends Section {
+public class SecLoop extends Section implements Loop {
 
 	static {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
@@ -53,6 +54,7 @@ public class SecLoop extends Section {
 
 	@Nullable
 	private TriggerItem actualNext;
+	private long loopCounter = 0;
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -101,8 +103,10 @@ public class SecLoop extends Section {
 		if (iter == null || !iter.hasNext()) {
 			exit(e);
 			debug(e, false);
+			loopCounter = 0;
 			return actualNext;
 		} else {
+			loopCounter++;
 			current.put(e, iter.next());
 			return walk(e, true);
 		}
@@ -136,5 +140,10 @@ public class SecLoop extends Section {
 	public void exit(Event event) {
 		current.remove(event);
 		currentIter.remove(event);
+	}
+
+	@Override
+	public long getLoopCounter() {
+		return loopCounter;
 	}
 }
