@@ -94,6 +94,10 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			s = "" + m.group(1);
 			i = Utils.parseInt("" + m.group(2));
 		}
+
+		if ("counter".equals(s) || "iteration".equals(s)) // ExprLoopIteration - in case of classinfo conflicts
+			return false;
+
 		Class<?> c = Classes.getClassFromUserInput(s);
 		int j = 1;
 		SecLoop loop = null;
