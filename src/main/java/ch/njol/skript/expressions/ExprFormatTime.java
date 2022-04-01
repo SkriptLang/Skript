@@ -73,7 +73,7 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
 			try {
 				format = new SimpleDateFormat(customFormat.getSingle(null));
-			} catch (Exception e) {
+			} catch (IllegalArgumentException e) {
 				Skript.error("Invalid date format: " + exprs[1]);
 				return false;
 			}
@@ -86,16 +86,19 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 
 	@Override
 	protected String[] get(Event e, Date[] source) {
+		SimpleDateFormat format = this.format;
+		String formatString = customFormat.getSingle(e);
+		if (format == null) {
+			try {
+				format = new SimpleDateFormat(formatString);
+			} catch (IllegalArgumentException ex) {
+				return null;
+			}
+		}
+		
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
-				if (customFormat != null) {
-					try {
-						format = new SimpleDateFormat(customFormat.getSingle(e));
-					} catch (Exception ex) {
-						return null;
-					}
-				}
 				return format.format(new java.util.Date(date.getTimestamp()));
 			}
 		});
