@@ -18,10 +18,10 @@
  */
 package ch.njol.skript.util;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.block.BlockCompat;
+import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
+import com.destroystokyo.paper.block.BlockSoundGroup;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
@@ -44,34 +44,31 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.bukkit.util.VoxelShape;
 import org.eclipse.jdt.annotation.Nullable;
-
-import com.destroystokyo.paper.block.BlockSoundGroup;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * A block that gets all data from a BlockState, and either reflects changes on the BlockState or delays them to the real block by 1 tick depending on which constructor is used.
- * 
- * @author Peter Güttinger
+ * A block that gets all data from a BlockState, and either reflects changes on the BlockState
+ * or delays them to the real block by 1 tick depending on which constructor is used.
  */
 @SuppressWarnings("deprecation")
 public class BlockStateBlock implements Block {
-	
+
 	private static final boolean IS_RUNNING_1_13 = Skript.isRunningMinecraft(1, 13);
 	private static final boolean ISPASSABLE_METHOD_EXISTS = Skript.methodExists(Block.class, "isPassable");
-	
+
 	final BlockState state;
 	private final boolean delayChanges;
 	private final boolean isPassable;
-	
-	public BlockStateBlock(final BlockState state) {
+
+	public BlockStateBlock(BlockState state) {
 		this(state, false);
 	}
-	
-	public BlockStateBlock(final BlockState state, final boolean delayChanges) {
+
+	public BlockStateBlock(BlockState state, boolean delayChanges) {
 		assert state != null;
 		this.state = state;
 		if (ISPASSABLE_METHOD_EXISTS)
@@ -80,86 +77,86 @@ public class BlockStateBlock implements Block {
 			this.isPassable = false;
 		this.delayChanges = delayChanges;
 	}
-	
+
 	@Override
-	public void setMetadata(final String metadataKey, final MetadataValue newMetadataValue) {
+	public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
 		state.setMetadata(metadataKey, newMetadataValue);
 	}
-	
+
 	@Override
-	public List<MetadataValue> getMetadata(final String metadataKey) {
+	public List<MetadataValue> getMetadata(String metadataKey) {
 		return state.getMetadata(metadataKey);
 	}
-	
+
 	@Override
-	public boolean hasMetadata(final String metadataKey) {
+	public boolean hasMetadata(String metadataKey) {
 		return state.hasMetadata(metadataKey);
 	}
-	
+
 	@Override
-	public void removeMetadata(final String metadataKey, final Plugin owningPlugin) {
+	public void removeMetadata(String metadataKey, Plugin owningPlugin) {
 		state.removeMetadata(metadataKey, owningPlugin);
 	}
-	
+
 	@Override
 	public byte getData() {
 		return state.getRawData();
 	}
-	
+
 	public void setData(byte data) throws Throwable {
 		MagicBlockCompat.setRawDataMethod.invokeExact(state, data);
 	}
-	
+
 	@Override
-	public Block getRelative(final int modX, final int modY, final int modZ) {
+	public Block getRelative(int modX, int modY, int modZ) {
 		return state.getBlock().getRelative(modX, modY, modZ);
 	}
-	
+
 	@Override
-	public Block getRelative(final BlockFace face) {
+	public Block getRelative(BlockFace face) {
 		return state.getBlock().getRelative(face);
 	}
-	
+
 	@Override
-	public Block getRelative(final BlockFace face, final int distance) {
+	public Block getRelative(BlockFace face, int distance) {
 		return state.getBlock().getRelative(face, distance);
 	}
-	
+
 	@Override
 	public Material getType() {
 		return state.getType();
 	}
-	
+
 	@Override
 	public byte getLightLevel() {
 		return state.getLightLevel();
 	}
-	
+
 	@Override
 	public byte getLightFromSky() {
 		return state.getBlock().getLightFromSky();
 	}
-	
+
 	@Override
 	public byte getLightFromBlocks() {
 		return state.getBlock().getLightFromBlocks();
 	}
-	
+
 	@Override
 	public World getWorld() {
 		return state.getWorld();
 	}
-	
+
 	@Override
 	public int getX() {
 		return state.getX();
 	}
-	
+
 	@Override
 	public int getY() {
 		return state.getY();
 	}
-	
+
 	@Override
 	public int getZ() {
 		return state.getZ();
@@ -169,12 +166,12 @@ public class BlockStateBlock implements Block {
 	public Location getLocation() {
 		return state.getLocation();
 	}
-	
+
 	@Override
 	public Chunk getChunk() {
 		return state.getChunk();
 	}
-	
+
 	@Override
 	public void setType(Material type) {
 		if (delayChanges) {
@@ -188,13 +185,13 @@ public class BlockStateBlock implements Block {
 			state.setType(type);
 		}
 	}
-	
+
 	@Nullable
 	@Override
 	public BlockFace getFace(Block block) {
 		return state.getBlock().getFace(block);
 	}
-	
+
 	@Override
 	public BlockState getState() {
 		return state;
@@ -209,71 +206,71 @@ public class BlockStateBlock implements Block {
 	public Biome getBiome() {
 		return state.getBlock().getBiome();
 	}
-	
+
 	@Override
-	public void setBiome(final Biome bio) {
+	public void setBiome(Biome bio) {
 		state.getBlock().setBiome(bio);
 	}
-	
+
 	@Override
 	public boolean isBlockPowered() {
 		return state.getBlock().isBlockPowered();
 	}
-	
+
 	@Override
 	public boolean isBlockIndirectlyPowered() {
 		return state.getBlock().isBlockIndirectlyPowered();
 	}
-	
+
 	@Override
-	public boolean isBlockFacePowered(final BlockFace face) {
+	public boolean isBlockFacePowered(BlockFace face) {
 		return state.getBlock().isBlockFacePowered(face);
 	}
-	
+
 	@Override
-	public boolean isBlockFaceIndirectlyPowered(final BlockFace face) {
+	public boolean isBlockFaceIndirectlyPowered(BlockFace face) {
 		return state.getBlock().isBlockFaceIndirectlyPowered(face);
 	}
-	
+
 	@Override
-	public int getBlockPower(final BlockFace face) {
+	public int getBlockPower(BlockFace face) {
 		return state.getBlock().getBlockPower(face);
 	}
-	
+
 	@Override
 	public int getBlockPower() {
 		return state.getBlock().getBlockPower();
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
 		Material type = getType();
 		assert type != null;
 		return BlockCompat.INSTANCE.isEmpty(type);
 	}
-	
+
 	@Override
 	public boolean isLiquid() {
 		Material type = getType();
 		assert type != null;
 		return BlockCompat.INSTANCE.isLiquid(type);
 	}
-	
+
 	@Override
 	public boolean isBuildable() {
 		return state.getBlock().isBuildable();
 	}
-	
+
 	@Override
 	public boolean isBurnable() {
 		return state.getBlock().isBurnable();
 	}
-	
+
 	@Override
 	public boolean isReplaceable() {
 		return state.getBlock().isReplaceable();
 	}
-	
+
 	@Override
 	public boolean isSolid() {
 		return state.getBlock().isSolid();
@@ -288,17 +285,17 @@ public class BlockStateBlock implements Block {
 	public double getTemperature() {
 		return state.getBlock().getTemperature();
 	}
-	
+
 	@Override
 	public double getHumidity() {
 		return state.getBlock().getHumidity();
 	}
-	
+
 	@Override
 	public PistonMoveReaction getPistonMoveReaction() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean breakNaturally() {
 		if (delayChanges) {
@@ -313,7 +310,7 @@ public class BlockStateBlock implements Block {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean breakNaturally(@Nullable ItemStack tool) {
 		if (delayChanges) {
@@ -358,24 +355,24 @@ public class BlockStateBlock implements Block {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return state.getBlock().applyBoneMeal(blockFace);
 	}
-	
+
 	@Override
 	public Collection<ItemStack> getDrops() {
 		assert false;
 		return Collections.emptySet();
 	}
-	
+
 	@Override
 	public Collection<ItemStack> getDrops(@Nullable ItemStack tool) {
 		assert false;
 		return Collections.emptySet();
 	}
-	
+
 	@Override
 	public Collection<ItemStack> getDrops(ItemStack tool, @Nullable Entity entity) {
 		assert false;
@@ -384,7 +381,7 @@ public class BlockStateBlock implements Block {
 
 	@Nullable
 	@Override
-	public Location getLocation(final @Nullable Location loc) {
+	public Location getLocation(@Nullable Location loc) {
 		if (loc != null) {
 			loc.setWorld(getWorld());
 			loc.setX(getX());
@@ -398,13 +395,13 @@ public class BlockStateBlock implements Block {
 
 	// 1.13 additions
 	// Note that overridden methods may not exist on Minecraft<1.13
-	
+
 	@Override
 	public void setType(Material type, boolean applyPhysics) {
 		if (!IS_RUNNING_1_13) {
 			throw new IllegalStateException("not on 1.13");
 		}
-		
+
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -422,7 +419,7 @@ public class BlockStateBlock implements Block {
 		if (!IS_RUNNING_1_13) {
 			throw new IllegalStateException("not on 1.13");
 		}
-		
+
 		return state.getBlockData();
 	}
 
@@ -431,7 +428,7 @@ public class BlockStateBlock implements Block {
 		if (!IS_RUNNING_1_13) {
 			throw new IllegalStateException("not on 1.13");
 		}
-		
+
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -449,7 +446,7 @@ public class BlockStateBlock implements Block {
 		if (!IS_RUNNING_1_13) {
 			throw new IllegalStateException("not on 1.13");
 		}
-		
+
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -461,13 +458,13 @@ public class BlockStateBlock implements Block {
 			state.setBlockData(data);
 		}
 	}
-	
+
 	@Nullable
 	@Override
 	public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
 		return state.getBlock().rayTrace(start, direction, maxDistance, fluidCollisionMode);
 	}
-	
+
 	@Override
 	public boolean isPassable() {
 		return isPassable;
@@ -482,12 +479,12 @@ public class BlockStateBlock implements Block {
 	public BlockSoundGroup getSoundGroup() {
 		return state.getBlock().getSoundGroup();
 	}
-	
+
 	@Override
 	public String getTranslationKey() {
 		return state.getBlock().getTranslationKey();
 	}
-	
+
 	@Override
 	public float getDestroySpeed(ItemStack itemStack) {
 		return state.getBlock().getDestroySpeed(itemStack);
