@@ -400,14 +400,14 @@ public final class BukkitEventValues {
 			public Entity get(final EntityEvent e) {
 				return e.getEntity();
 			}
-		}, 0, "Use 'attacker' and/or 'victim' in damage events", EntityDamageEvent.class);
+		}, 0, "Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, CommandSender.class, new Getter<CommandSender, EntityEvent>() {
 			@Override
 			@Nullable
 			public CommandSender get(final EntityEvent e) {
 				return e.getEntity();
 			}
-		}, 0, "Use 'attacker' and/or 'victim' in damage events", EntityDamageEvent.class);
+		}, 0, "Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, new Getter<World, EntityEvent>() {
 			@Override
 			@Nullable
