@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+    - name: Skript Documentation
+      url: https://docs.skriptlang.org
+      about: Need help getting started? Check out the docs!
     - name: SkUnity Discord
       url: https://discord.gg/0l3WlzBPKX7WNjkf
       about: Need help with your scripts? Come ask on Discord!
