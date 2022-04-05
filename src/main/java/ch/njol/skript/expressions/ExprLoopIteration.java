@@ -25,19 +25,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Loop;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Name("Loop Iteration")
 @Description("Returns the loop's current iteration count (for both normal and while loop).")
@@ -53,54 +48,48 @@ import java.util.regex.Pattern;
 		"\t\tbroadcast \"##%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("INSERT VERSION")
-public class ExprLoopIteration extends SimpleExpression<Number> {
-	
+public class ExprLoopIteration extends SimpleExpression<Long> {
+
 	static {
-		Skript.registerExpression(ExprLoopIteration.class, Number.class, ExpressionType.SIMPLE, "[the] loop-<.+>");
+		Skript.registerExpression(ExprLoopIteration.class, Long.class, ExpressionType.SIMPLE, "[the] loop(-| )(counter|iteration)[-%-*number%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	Loop loop;
+	private LoopSection loop;
 
-	private Pattern LOOP_PATTERN = Pattern.compile("^(.+)-(\\d+)$");
+	private int loopNumber;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		String s = "" + parseResult.regexes.get(0).group();
-		int i = -1;
-		Matcher m = LOOP_PATTERN.matcher(s);
-		if (m.matches()) {
-			s = m.group(1);
-			i = Utils.parseInt("" + m.group(2));
+		loopNumber = -1;
+		if (exprs[0] != null) {
+			loopNumber = ((Literal<Number>) exprs[0]).getSingle().intValue();
 		}
 
-		if (!("iteration".equals(s) || "counter".equals(s))) {
-			return false;
-		}
-
-		int j = 1;
-		Loop loop = null;
+		int i = 1;
+		LoopSection loop = null;
 
 		for (TriggerSection l : getParser().getCurrentSections()) {
-			if (!(l instanceof SecWhile) && !(l instanceof SecLoop))
+			if (!(l instanceof LoopSection))
 				continue;
 
-			if (j < i) {
-				j++;
+			if (i < loopNumber) {
+				i++;
 				continue;
 			}
+
 			if (loop != null) {
-				Skript.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify which loop's " + s + " you want.");
+				Skript.error("There are multiple loops. Use loop-iteration-1/2/3/etc. to specify which loop-iteration you want.");
 				return false;
 			}
-			loop = (Loop) l;
+			loop = (LoopSection) l;
 
-			if (j == i)
+			if (i == loopNumber)
 				break;
 		}
 
 		if (loop == null) {
-			Skript.error("There's no loop that matches 'loop-" + s + "-" + i + "'");
+			Skript.error("The loop iteration expression must be used in a loop");
 			return false;
 		}
 
@@ -109,13 +98,13 @@ public class ExprLoopIteration extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected Number[] get(Event e) {
-		return new Number[] { loop.getLoopCounter() };
+	protected Long[] get(Event e) {
+		return new Long[] { loop.getLoopCounter(e) };
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
@@ -125,7 +114,7 @@ public class ExprLoopIteration extends SimpleExpression<Number> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "loop counter of " + loop.toString(e, debug);
+		return "loop-iteration" + (loopNumber != -1 ? ("-" + loopNumber) : "");
 	}
 
 }

@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
@@ -34,8 +35,6 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.ScriptFunction;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -116,11 +115,9 @@ public class EffReturn extends Effect {
 
 		TriggerSection parent = getParent();
 		while (parent != null) {
-			if (parent instanceof SecLoop) {
-				((SecLoop) parent).exit(e);
-			} else if (parent instanceof SecWhile) {
-				((SecWhile) parent).reset();
-			}
+			if (parent instanceof LoopSection)
+				((LoopSection) parent).exit(e);
+
 			parent = parent.getParent();
 		}
 

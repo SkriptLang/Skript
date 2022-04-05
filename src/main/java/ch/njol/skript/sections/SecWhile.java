@@ -22,8 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
@@ -31,8 +30,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-public class SecWhile extends Section implements Loop {
+public class SecWhile extends LoopSection {
 
 	static {
 		Skript.registerSection(SecWhile.class, "[(:do)] while <.+>");
@@ -46,7 +47,7 @@ public class SecWhile extends Section implements Loop {
 
 	private boolean doWhile;
 	private boolean ranDoWhile = false;
-	private int loopCounter = 0;
+	private final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -71,14 +72,13 @@ public class SecWhile extends Section implements Loop {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		if (((doWhile && !ranDoWhile) || condition.check(e))) {
+		if ((doWhile && !ranDoWhile) || condition.check(e)) {
 			ranDoWhile = true;
-			loopCounter++;
+			currentLoopCounter.put(e, (currentLoopCounter.getOrDefault(e, 0L)) + 1);
 			return walk(e, true);
 		} else {
-			reset();
+			exit(e);
 			debug(e, false);
-			loopCounter = 0;
 			return actualNext;
 		}
 	}
@@ -99,12 +99,15 @@ public class SecWhile extends Section implements Loop {
 		return (doWhile ? "do " : "") + "while " + condition.toString(e, debug);
 	}
 
-	public void reset() {
+	@Override
+	public void exit(Event e) {
 		ranDoWhile = false;
+		currentLoopCounter.remove(e);
 	}
 
 	@Override
-	public long getLoopCounter() {
-		return loopCounter;
+	public long getLoopCounter(Event e) {
+		return currentLoopCounter.getOrDefault(e, 1L);
 	}
+
 }

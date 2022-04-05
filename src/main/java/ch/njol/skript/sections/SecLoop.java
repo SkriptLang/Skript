@@ -22,8 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Loop;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Variable;
@@ -40,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class SecLoop extends Section implements Loop {
+public class SecLoop extends LoopSection {
 
 	static {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
@@ -51,12 +50,13 @@ public class SecLoop extends Section implements Loop {
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	private final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
 	@Nullable
 	private TriggerItem actualNext;
-	private long loopCounter = 0;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,
@@ -103,11 +103,10 @@ public class SecLoop extends Section implements Loop {
 		if (iter == null || !iter.hasNext()) {
 			exit(e);
 			debug(e, false);
-			loopCounter = 0;
 			return actualNext;
 		} else {
-			loopCounter++;
 			current.put(e, iter.next());
+			currentLoopCounter.put(e, (currentLoopCounter.getOrDefault(e, 0L)) + 1);
 			return walk(e, true);
 		}
 	}
@@ -133,17 +132,21 @@ public class SecLoop extends Section implements Loop {
 	}
 
 	@Nullable
+	@Override
 	public TriggerItem getActualNext() {
 		return actualNext;
 	}
 
-	public void exit(Event event) {
-		current.remove(event);
-		currentIter.remove(event);
+	@Override
+	public void exit(Event e) {
+		current.remove(e);
+		currentIter.remove(e);
+		currentLoopCounter.remove(e);
 	}
 
 	@Override
-	public long getLoopCounter() {
-		return loopCounter;
+	public long getLoopCounter(Event e) {
+		return currentLoopCounter.getOrDefault(e, 1L);
 	}
+
 }
