@@ -120,16 +120,14 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot o1, Number o2) {
 				if (o1 instanceof SlotWithIndex) {
-					boolean same = ((SlotWithIndex) o1).getIndex() == o2.intValue();
-					if (same) // Slot has index and the index is same with number
-						return Relation.EQUAL;
+					return Relation.get(((SlotWithIndex) o1).getIndex() - o2.intValue());
 				}
 				return Relation.NOT_EQUAL;
 			}
 
 			@Override
 			public boolean supportsOrdering() {
-				return false;
+				return true;
 			}
 
 		});
