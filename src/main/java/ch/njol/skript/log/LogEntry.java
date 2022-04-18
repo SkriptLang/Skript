@@ -171,7 +171,7 @@ public class LogEntry {
 		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
 
 		return
-			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is needed to replace as a string
+			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is to convert the line number (int) to a String
 			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
 			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
 	}
