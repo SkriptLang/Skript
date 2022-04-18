@@ -127,7 +127,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 					yaw += n;
 				else
 					pitch -= n; // Negative because of Minecraft's / Skript's upside down pitch
-				vector = VectorMath.fromYawAndPitch(yaw, pitch);
+				vector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
 				getExpr().change(e, new org.bukkit.util.Vector[]{vector}, ChangeMode.SET);
 				break;
 			case SET:
@@ -135,7 +135,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 					yaw = VectorMath.fromSkriptYaw(n);
 				else
 					pitch = VectorMath.fromSkriptPitch(n);
-				vector = VectorMath.fromYawAndPitch(yaw, pitch);
+				vector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
 				getExpr().change(e, new org.bukkit.util.Vector[]{vector}, ChangeMode.SET);
 		}
 	}

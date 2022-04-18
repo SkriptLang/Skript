@@ -45,6 +45,7 @@ import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
+import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -396,9 +397,12 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
+	@Nullable
 	public Iterator<T> iterator(Event e) {
-		//if (!list)
-		//	throw new SkriptAPIException("");
+		if (!list) {
+			T item = getSingle(e);
+			return item != null ? new SingleItemIterator<>(item) : null;
+		}
 		String name = StringUtils.substring(this.name.toString(e), 0, -1);
 		Object val = Variables.getVariable(name + "*", e, local);
 		if (val == null)
