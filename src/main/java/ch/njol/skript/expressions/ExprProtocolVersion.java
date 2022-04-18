@@ -59,7 +59,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprProtocolVersion extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [(sent|required|fake)] protocol version [number]");
+		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [server] [(sent|required|fake)] protocol version [number]");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
