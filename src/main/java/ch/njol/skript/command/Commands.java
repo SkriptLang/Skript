@@ -75,6 +75,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Callback;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -268,19 +269,27 @@ public abstract class Commands {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				// Call the event on the Bukkit API for addon developers.
+				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command);
+				Bukkit.getPluginManager().callEvent(effectCommand);
+				command = effectCommand.getCommand();
 				ParserInstance parserInstance = ParserInstance.get();
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
-				Effect e = Effect.parse(command, null);
+				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
 				
-				if (e != null) {
+				if (effect != null) {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
-					
-					sender.sendMessage(ChatColor.GRAY + "executing '" + ChatColor.stripColor(command) + "'");
-					if (SkriptConfig.logPlayerCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(sender.getName() + " issued effect command: " + command);
-					TriggerItem.walk(e, new EffectCommandEvent(sender, command));
+					if (!effectCommand.isCancelled()) {
+						sender.sendMessage(ChatColor.GRAY + "executing '" + ChatColor.stripColor(command) + "'");
+						if (SkriptConfig.logPlayerCommands.value() && !(sender instanceof ConsoleCommandSender))
+							Skript.info(sender.getName() + " issued effect command: " + command);
+						TriggerItem.walk(effect, effectCommand);
+						Variables.removeLocals(effectCommand);
+					} else {
+						sender.sendMessage(ChatColor.RED + "your effect command '" + ChatColor.stripColor(command) + "' was cancelled.");
+					}
 				} else {
 					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
 						SkriptLogger.LOGGER.severe("Error in: " + ChatColor.stripColor(command));
