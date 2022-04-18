@@ -42,7 +42,6 @@ public class LogEntry {
 	@Nullable
 	public final Node node;
 	
-	@Nullable
 	private final String from;
 	private final boolean tracked;
 
@@ -162,7 +161,7 @@ public class LogEntry {
 		}
 
 		String from = this.from;
-		if (!Objects.equals(from, ""))
+		if (!from.isEmpty())
 			from = "§7   " + from + "\n";
 
 		// Replace configured messages chat styles without user variables
