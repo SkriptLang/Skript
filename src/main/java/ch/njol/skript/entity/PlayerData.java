@@ -20,6 +20,7 @@ package ch.njol.skript.entity;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.lang.Literal;
@@ -63,13 +64,13 @@ public class PlayerData extends EntityData<Player> {
 	public Class<? extends Player> getType() {
 		return Player.class;
 	}
-	
+
 	@Override
 	@Nullable
-	public Player spawn(final Location loc) {
+	public Player spawn(Location loc, @Nullable Consumer<Player> consumer) {
 		return null;
 	}
-	
+
 	@Override
 	protected int hashCode_i() {
 		return op;
