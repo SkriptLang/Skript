@@ -347,6 +347,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
 				return MatchQuality.SAME_MATERIAL;
 			}
+		} else if (itemFlags != 0 && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
+			return MatchQuality.DIFFERENT; // On 1.12 and below, items may share a material but have a different data value (ex: white wool vs red wool)
 		}
 		
 		/*
