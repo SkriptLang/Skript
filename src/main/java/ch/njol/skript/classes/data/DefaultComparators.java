@@ -509,13 +509,13 @@ public class DefaultComparators {
 			public Relation compare(DamageCause dc, EntityData e) {
 				switch (dc) {
 					case ENTITY_ATTACK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Entity.class)));
+						return Relation.get(EntityData.fromClass(Entity.class).isSupertypeOf(e));
 					case PROJECTILE:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Projectile.class)));
+						return Relation.get(EntityData.fromClass(Projectile.class).isSupertypeOf(e));
 					case WITHER:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Wither.class)));
+						return Relation.get(EntityData.fromClass(Wither.class).isSupertypeOf(e));
 					case FALLING_BLOCK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(FallingBlock.class)));
+						return Relation.get(EntityData.fromClass(FallingBlock.class).isSupertypeOf(e));
 						//$CASES-OMITTED$
 					default:
 						return Relation.NOT_EQUAL;
