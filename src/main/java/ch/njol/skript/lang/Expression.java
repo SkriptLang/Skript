@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.Iterator;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.nullness.qual.PolyNull;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -40,6 +30,14 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Iterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents an expression. Expressions are used within conditions, effects and other expressions.
