@@ -25,6 +25,7 @@ import java.util.stream.StreamSupport;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -63,7 +64,23 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
 	@Nullable
-	public T getSingle(final Event e);
+	T getSingle(Event e);
+
+	/**
+	 * Returns the single value of this expression, or a given default value if the single value is null.
+	 * <p>
+	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 *
+	 * @param e the event
+	 * @param defaultValue the default value
+	 * @return the {@link #getSingle(Event) single value} of this expression, unless it is null,
+	 * in which case {@code defaultValue} is returned.
+	 * @see #getSingle(Event)
+	 */
+	default T getSingleOrDefault(Event e, T defaultValue) {
+		T value = getSingle(e);
+		return value == null ? defaultValue : value;
+	}
 	
 	/**
 	 * Get all the values of this expression. The returned array is empty if this expression doesn't have any values for the given event.
