@@ -69,7 +69,7 @@ skript command:
 		script: <gold>%s<reset>
 		scripts in folder: all scripts in <gold>%s<reset>
 		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>
-		empty folder: <gold>%s<reset>r does not contain any enabled scripts.
+		empty folder: <gold>%s<reset> does not contain any enabled scripts.
 	enable:
 		all:
 			enabling: Enabling all disabled scripts...
