@@ -18,9 +18,11 @@
  */
 package ch.njol.skript.classes.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.BlockCommandSender;
@@ -60,7 +62,9 @@ public class DefaultConverters {
 	public DefaultConverters() {}
 	
 	static {
-		
+		// Integer - Long
+		Converters.registerConverter(Integer.class, Long.class, Integer::longValue);
+
 		// OfflinePlayer - PlayerInventory
 		Converters.registerConverter(OfflinePlayer.class, PlayerInventory.class, new Converter<OfflinePlayer, PlayerInventory>() {
 			@Override
@@ -353,5 +357,7 @@ public class DefaultConverters {
 				}
 			});
 		}
+
+		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 	}
 }

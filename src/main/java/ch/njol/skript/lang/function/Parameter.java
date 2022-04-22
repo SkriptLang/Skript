@@ -18,19 +18,17 @@
  */
 package ch.njol.skript.lang.function;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
+import org.eclipse.jdt.annotation.Nullable;
 
 public final class Parameter<T> {
 	
@@ -78,60 +76,25 @@ public final class Parameter<T> {
 	@Nullable
 	public static <T> Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
-			Skript.error("An argument's name must be a valid variable name.");
+			Skript.error("A parameter's name must be a valid variable name.");
 			// ... because it will be made available as local variable
 			return null;
 		}
 		Expression<? extends T> d = null;
 		if (def != null) {
-//			if (def.startsWith("%") && def.endsWith("%")) {
-//				RetainingLogHandler log = SkriptLogger.startRetainingLog();
-//				try {
-//					d = new SkriptParser("" + def.substring(1, def.length() - 1), SkriptParser.PARSE_EXPRESSIONS, ParseContext.FUNCTION_DEFAULT).parseExpression(type.getC());
-//					if (d == null) {
-//						log.printErrors("Can't understand this expression: " + def + "");
-//						return null;
-//					}
-//					log.printLog();
-//				} finally {
-//					log.stop();
-//				}
-//			} else {
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			
-			// Parse the default value literal
+			// Parse the default value expression
 			try {
-				if (def.startsWith("\"") && def.endsWith("\"")) { // Quoted string; always parse as string
-					// Don't ever parse strings as objects, it creates UnparsedLiterals (see #2353)
-					d = (Expression<? extends T>) VariableString.newInstance("" + def.substring(1, def.length() - 1));
-				} else if (type.getC().equals(String.class)) { // String return type requested
-					/*
-					 * For historical reasons, default values of string
-					 * parameters needs not to be quoted. This is true even for
-					 * strings with spaces, which is very confusing. We issue a
-					 * warning for it now, and the behavior may be removed in a
-					 * future release.
-					 */
-					if (def.startsWith("\"") && def.endsWith("\"")) {
-						d = (Expression<? extends T>) VariableString.newInstance("" + def.substring(1, def.length() - 1));
-					} else {
-						// Usage of SimpleLiteral is also deprecated; not worth the risk to change it
-						if (def.contains(" ")) // Warn about whitespace in unquoted string
-							Skript.warning("'" + def + "' contains spaces and is unquoted, which is discouraged");
-						d = (Expression<? extends T>) new SimpleLiteral<>(def, false);
-					}
-				} else {
-					d = new SkriptParser(def, SkriptParser.PARSE_LITERALS, ParseContext.DEFAULT).parseExpression(type.getC());
-				}
-				if (d == null) {
-					log.printErrors("'" + def + "' is not " + type.getName().withIndefiniteArticle());
+				d = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(type.getC());
+				if (d == null || LiteralUtils.hasUnparsedLiteral(d)) {
+					log.printErrors("Can't understand this expression: " + def);
 					return null;
 				}
 				log.printLog();
 			} finally {
 				log.stop();
 			}
-//			}
 		}
 		return new Parameter<>(name, type, single, d);
 	}

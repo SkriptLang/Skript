@@ -23,10 +23,12 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Locale;
 
+import ch.njol.skript.Skript;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.material.Directional;
@@ -61,7 +63,9 @@ public class Direction implements YggdrasilRobustSerializable {
 	public final static Direction IDENTITY = new Direction(0, 0, 1);
 	
 	public final static BlockFace BF_X = findFace(1, 0, 0), BF_Y = findFace(0, 1, 0), BF_Z = findFace(0, 0, 1);
-	
+
+	private static final boolean IS_LEGACY_EXISTS = Skript.methodExists(Material.class, "isLegacy");
+
 	private static BlockFace findFace(final int x, final int y, final int z) {
 		for (final BlockFace f : BlockFace.values()) {
 			if (f.getModX() == x && f.getModY() == y && f.getModZ() == z)
@@ -137,15 +141,11 @@ public class Direction implements YggdrasilRobustSerializable {
 		return getDirection(e.getLocation());
 	}
 	
-	@SuppressWarnings("deprecation")
-	public Vector getDirection(final Block b) {
+	public Vector getDirection(Block b) {
 		if (!relative)
 			return new Vector(pitchOrX, yawOrY, lengthOrZ);
-		final Material m = b.getType();
-		if (!Directional.class.isAssignableFrom(m.getData()))
-			return new Vector();
-		final BlockFace f = ((Directional) m.getNewData(b.getData())).getFacing();
-		return getDirection(pitchOrX == IGNORE_PITCH ? 0 : f.getModZ() * Math.PI / 2 /* only up and down have a z mod */, Math.atan2(f.getModZ(), f.getModX()));
+		BlockFace blockFace = getFacing(b);
+		return getDirection(pitchOrX == IGNORE_PITCH ? 0 : blockFace.getModZ() * Math.PI / 2 /* only up and down have a z mod */, Math.atan2(blockFace.getModZ(), blockFace.getModX()));
 	}
 	
 	private Vector getDirection(final double p, final double y) {
@@ -216,11 +216,18 @@ public class Direction implements YggdrasilRobustSerializable {
 	 * @return The facing of the block or {@link BlockFace#SELF} if the block doesn't have a facing.
 	 */
 	@SuppressWarnings("deprecation")
-	public static BlockFace getFacing(final Block b) {
-		final Material m = b.getType();
-		if (!Directional.class.isAssignableFrom(m.getData()))
-			return BlockFace.SELF;
-		return ((Directional) m.getNewData(b.getData())).getFacing();
+	public static BlockFace getFacing(Block b) {
+		if (IS_LEGACY_EXISTS) {
+			BlockData blockData = b.getBlockData();
+			if (!(blockData instanceof org.bukkit.block.data.Directional))
+				return BlockFace.SELF;
+			return ((org.bukkit.block.data.Directional) blockData).getFacing();
+		} else {
+			Material m = b.getType();
+			if (!Directional.class.isAssignableFrom(m.getData()))
+				return BlockFace.SELF;
+			return ((Directional) m.getNewData(b.getData())).getFacing();
+		}
 	}
 	
 	public static BlockFace getFacing(final double yaw, final double pitch) {

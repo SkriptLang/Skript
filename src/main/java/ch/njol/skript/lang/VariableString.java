@@ -18,34 +18,16 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
-import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
@@ -55,6 +37,14 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import org.bukkit.ChatColor;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
@@ -82,8 +72,6 @@ public class VariableString implements Expression<String> {
 	 */
 	private final MessageComponent[] components;
 
-	public static boolean disableVariableStartingWithExpressionWarnings = false;
-	
 	/**
 	 * Creates a new VariableString which does not contain variables.
 	 * @param s Content for string.
@@ -142,9 +130,7 @@ public class VariableString implements Expression<String> {
 	public static VariableString newInstance(String s) {
 		return newInstance(s, StringMode.MESSAGE);
 	}
-	
-	public final static Map<String, Pattern> variableNames = new HashMap<>();
-	
+
 	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
@@ -296,8 +282,6 @@ public class VariableString implements Expression<String> {
 			string.add(s);
 		}
 		
-		checkVariableConflicts(s, mode, string);
-		
 		// Check if this isn't actually variable string, and return
 		if (string.size() == 1 && string.get(0) instanceof String)
 			return new VariableString(s);
@@ -312,69 +296,9 @@ public class VariableString implements Expression<String> {
 		}
 		return new VariableString(orig, sa, mode);
 	}
-	
-	private static void checkVariableConflicts(final String name, final StringMode mode, final @Nullable Iterable<Object> string) {
-		ParserInstance parserInstance = ParserInstance.get();
-		
-		if (mode != StringMode.VARIABLE_NAME || variableNames.containsKey(name))
-			return;
-		if (name.startsWith("%")) {// inside the if to only print this message once per variable
-			final Config script = parserInstance.getCurrentScript();
-			if (script != null) {
-				if (disableVariableStartingWithExpressionWarnings && !ScriptOptions.getInstance().suppressesWarning(script.getFile(), "start expression")) {
-					Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). You could prefix it with the script's name: {" + StringUtils.substring(script.getFileName(), 0, -3) + "." + name + "}");
-				}
-			}
-		}
-		
-		Pattern pattern;
-		if (string != null) {
-			StringBuilder p = new StringBuilder();
-			stringLoop: for (Object o : string) {
-				if (o instanceof Expression) {
-					for (ClassInfo<?> ci : Classes.getClassInfos()) {
-						Parser<?> parser = ci.getParser();
-						if (parser != null && ci.getC().isAssignableFrom(((Expression<?>) o).getReturnType())) {
-							p.append("(?!%)")
-								.append(parser.getVariableNamePattern())
-								.append("(?<!%)");
-							continue stringLoop;
-						}
-					}
-					p.append("[^%*](.*[^%*])?"); // [^*] to not report {var::%index%}/{var::*} as conflict
-				} else {
-					p.append(Pattern.quote(o.toString()));
-				}
-			}
-			pattern = Pattern.compile(p.toString());
-		} else {
-			pattern = Pattern.compile(Pattern.quote(name));
-		}
-		if (!SkriptConfig.disableVariableConflictWarnings.value()) {
-			Config cs = parserInstance.getCurrentScript(); //Eclipse's nullness forced me to do this
-			if (cs != null) {
-				if (!ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conflict")) {
-					for (Entry<String, Pattern> e : variableNames.entrySet()) {
-						if (e.getValue().matcher(name).matches() || pattern.matcher(e.getKey()).matches()) {
-							Skript.warning("Possible name conflict of variables {" + name + "} and {" + e.getKey() + "} (there might be more conflicts).");
-							break;
-						}
-					}
-				}
-			} else {
-				for (Entry<String, Pattern> e : variableNames.entrySet()) {
-					if (e.getValue().matcher(name).matches() || pattern.matcher(e.getKey()).matches()) {
-						Skript.warning("Possible name conflict of variables {" + name + "} and {" + e.getKey() + "} (there might be more conflicts).");
-						break;
-					}
-				}
-			}
-		}
-		variableNames.put(name, pattern);
-	}
-	
+
 	/**
-	 * Copied from {@link SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
+	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
 	 * 
 	 * @param s
 	 * @param start Index after the opening bracket
@@ -516,26 +440,27 @@ public class VariableString implements Expression<String> {
 					continue;
 				} else if (o instanceof Expression<?>) {
 					text = Classes.toString(((Expression<?>) o).getArray(e), true, mode);
-				} else {
-					assert false;
 				}
 				
 				assert text != null;
-				MessageComponent plain = ChatMessages.plainText(text);
+				List<MessageComponent> components = ChatMessages.fromParsedString(text);
 				if (!message.isEmpty()) { // Copy styles from previous component
-					ChatMessages.copyStyles(message.get(message.size() - 1), plain);
-				} else if (Utils.HEX_SUPPORTED && text.contains("§x")) { // Try to parse hex colors
-					int start = text.lastIndexOf("§x");
-					if (start + 14 < text.length()) {
-						String replace = text.substring(start + 2, start + 14);
-						plain.color = Utils.parseHexColor(replace.replace("&", "").replace("§", ""));
-						plain.text = text.replace("§x" + replace, "");
+					int startSize = message.size();
+					for (int i = 0; i < components.size(); i++) {
+						MessageComponent plain = components.get(i);
+						ChatMessages.copyStyles(message.get(startSize + i - 1), plain);
+						message.add(plain);
 					}
+				} else {
+					message.addAll(components);
 				}
-				message.add(plain);
 			} else {
-				message.add(component);
-				previous = component;
+				MessageComponent componentCopy = component.copy();
+				if (!message.isEmpty()) { // Copy styles from previous component
+					ChatMessages.copyStyles(message.get(message.size() - 1), componentCopy);
+				}
+				message.add(componentCopy);
+				previous = componentCopy;
 			}
 		}
 		
@@ -685,16 +610,16 @@ public class VariableString implements Expression<String> {
 	public boolean check(Event e, Checker<? super String> c) {
 		return SimpleExpression.check(getAll(e), c, false, false);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Expression<? extends R>) this;
-		return null;
+		return ConvertedExpression.newInstance(this, to);
 	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
@@ -765,25 +690,5 @@ public class VariableString implements Expression<String> {
 	public Expression<String> simplify() {
 		return this;
 	}
-	
-	/* REMIND allow special characters?
-	private static String allowedChars = null;
-	private static Field allowedCharacters = null;
-	
-	static {
-		if (Skript.isRunningCraftBukkit()) {
-			try {
-				allowedCharacters = SharedConstants.class.getDeclaredField("allowedCharacters");
-				allowedCharacters.setAccessible(true);
-				Field modifiersField = Field.class.getDeclaredField("modifiers");
-				modifiersField.setAccessible(true);
-				modifiersField.setInt(allowedCharacters, allowedCharacters.getModifiers() & ~Modifier.FINAL);
-				allowedChars = (String) allowedCharacters.get(null);
-			} catch (Throwable e) {
-				allowedChars = null;
-				allowedCharacters = null;
-			}
-		}
-	}
-	 */
+
 }

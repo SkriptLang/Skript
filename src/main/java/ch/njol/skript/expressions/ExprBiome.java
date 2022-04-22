@@ -25,7 +25,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -41,62 +40,68 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Biome")
-@Description("The biome at a certain location. Please note that biomes are only defined for x/z-columns, i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter. ")
+@Description({"The biome at a certain location. Please note that biomes are only defined for x/z-columns",
+	"(i.e. the <a href='#ExprAltitude'>altitude</a> (y-coordinate) doesn't matter), up until Minecraft 1.15.x.",
+	"As of Minecraft 1.16, biomes are now 3D (per block vs column)."})
 @Examples({"# damage player in deserts constantly",
 		"every real minute:",
 		"	loop all players:",
 		"		biome at loop-player is desert",
 		"		damage the loop-player by 1"})
-@Since("1.4.4")
+@Since("1.4.4, 2.6.1 (3D biomes)")
 public class ExprBiome extends PropertyExpression<Location, Biome> {
+
 	static {
-		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome (of|%direction%) %location%", "%location%'[s] biome");
+		Skript.registerExpression(ExprBiome.class, Biome.class, ExpressionType.PROPERTY, "[the] biome [(of|%direction%) %locations%]", "%locations%'[s] biome");
 	}
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(matchedPattern == 1 ? (Expression<? extends Location>) exprs[0] : Direction.combine((Expression<? extends Direction>) exprs[0], (Expression<? extends Location>) exprs[1]));
 		return true;
 	}
-	
+
 	@Override
-	protected Biome[] get(final Event e, final Location[] source) {
-		return get(source, new Converter<Location, Biome>() {
-			@Override
-			public Biome convert(final Location l) {
-				return l.getWorld().getBiome(l.getBlockX(), l.getBlockZ());
-			}
-		});
+	protected Biome[] get(Event event, Location[] source) {
+		return get(source, location -> location.getBlock().getBiome());
 	}
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return new Class[] {Biome.class};
 		return super.acceptChange(mode);
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		if (mode == ChangeMode.SET) {
-			assert delta != null;
-			for (final Location l : getExpr().getArray(e))
-				l.getWorld().setBiome(l.getBlockX(), l.getBlockZ(), (Biome) delta[0]);
-		} else {
-			super.change(e, delta, mode);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (mode != ChangeMode.SET) {
+			super.change(event, delta, mode);
+			return;
 		}
+		assert delta != null;
+		Biome biome = (Biome) delta[0];
+		for (Location location : getExpr().getArray(event))
+			location.getBlock().setBiome(biome);
 	}
-	
+
 	@Override
 	public Class<? extends Biome> getReturnType() {
 		return Biome.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the biome at " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the biome at " + getExpr().toString(event, debug);
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean setTime(int time) {
+		super.setTime(time, getExpr());
+		return true;
+	}
+
 }

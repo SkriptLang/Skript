@@ -141,11 +141,6 @@ case sensitive: false
 # This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
 
-disable variable conflict warnings: false
-# Disables warnings of potential variable name conflicts if set to true.
-# I recommend to not touch this option, but if you do so you should at least set it back to false
-# whenever you create new scripts with new variables.
-
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
 # By Mirre.
@@ -204,6 +199,10 @@ disable hooks:
 # Controls whether Skript should attempt to hook into the plugins listed above.
 # If you change a setting here while the server is running, a restart is required for that change to take effect.
 # Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
+
+player name regex pattern: [a-zA-Z0-9_]{1,16}
+# A regex pattern that is used to match player names.
+# This can be used if you are using Geyser, where some usernames are prefixed by a certain character.
 
 # ==== Variables ====
 

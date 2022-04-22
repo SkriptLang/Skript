@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
 
+import ch.njol.skript.classes.Comparator.Relation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -651,42 +652,38 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 	
 	public boolean isContainedIn(Iterable<ItemStack> items) {
-		int amount = getAmount();
-		for (final ItemData d : types) {
-			int found = 0;
-			for (final ItemStack i : items) {
-				if (d.isOfType(i)) {
-					found += i == null ? 1 : i.getAmount();
-					if (found >= amount) {
-						if (!all)
-							return true;
-						break;
-					}
+		int needed = getAmount();
+		int found = 0;
+		for (ItemStack item : items) {
+			if (item != null && new ItemType(item).isSimilar(this)) {
+				found += item.getAmount();
+				if (found >= needed) {
+					if (!all)
+						return true;
+					break;
 				}
 			}
-			if (all && found < amount)
-				return false;
 		}
+		if (all && found < amount)
+			return false;
 		return all;
 	}
-	
-	public boolean isContainedIn(ItemStack[] list) {
-		int amount = getAmount();
-		for (final ItemData d : types) {
-			int found = 0;
-			for (final ItemStack i : list) {
-				if (d.isOfType(i)) {
-					found += i == null ? 1 : i.getAmount();
-					if (found >= amount) {
-						if (!all)
-							return true;
-						break;
-					}
+
+	public boolean isContainedIn(ItemStack[] items) {
+		int needed = getAmount();
+		int found = 0;
+		for (ItemStack item : items) {
+			if (item != null && new ItemType(item).isSimilar(this)) {
+				found += item.getAmount();
+				if (found >= needed) {
+					if (!all)
+						return true;
+					break;
 				}
 			}
-			if (all && found < amount)
-				return false;
 		}
+		if (all && found < amount)
+			return false;
 		return all;
 	}
 	
@@ -917,6 +914,45 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			return false;
 		return true;
 	}
+
+	/**
+	 * Compares two ItemTypes, ignoring stack size.
+	 * Please note that ItemTypes do not need to be EXACTLY the same outside of stack size for this method to return true.
+	 * Several factors influence the {@link MatchQuality} required for this method to return true.
+	 * For example, if the other ItemType is an alias and this one is not, the ItemTypes must only share a material.
+	 * In general though, this ItemType must have all of the qualities of the other ItemType. It may have
+	 * additional qualities that the other ItemType does not have though.
+	 * @param other The ItemType to compare with.
+	 * @return Whether this ItemType is similar to the other ItemType.
+	 */
+	public boolean isSimilar(ItemType other) {
+		if (isAll() != other.isAll())
+			return false;
+		for (ItemData myType : getTypes()) {
+			for (ItemData otherType : other.getTypes()) {
+				if (myType.matchPlain(otherType)) {
+					return true;
+				}
+
+				MatchQuality minimumQuality;
+				if (myType.isPlain() != otherType.isPlain()) {
+					minimumQuality = MatchQuality.EXACT;
+				} else if ((otherType.isAlias() && !myType.isAlias())
+						|| (!ItemData.itemDataValues && myType.itemForm && otherType.blockValues != null && !otherType.blockValues.isDefault())) {
+					// First Check: Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
+					// Second Check: Items (held in inventories) don't have block values, but the other item does (may be an item-block comparison)
+					minimumQuality = MatchQuality.SAME_MATERIAL;
+				} else {
+					minimumQuality = MatchQuality.SAME_ITEM;
+				}
+
+				if (myType.matchAlias(otherType).isAtLeast(minimumQuality)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 	@Override
 	public int hashCode() {
@@ -1108,6 +1144,23 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return enchants.stream()
 			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
 			.toArray(EnchantmentType[]::new);
+	}
+
+	/**
+	 * Gets the {@link EnchantmentType} with the given {@link Enchantment} of this item type.
+	 *
+	 * @param enchantment the enchantment
+	 * @return the enchantment type, or null if the item is not enchanted with the given enchantment
+	 */
+	@Nullable
+	public EnchantmentType getEnchantmentType(Enchantment enchantment) {
+		Set<Entry<Enchantment, Integer>> enchants = getItemMeta().getEnchants().entrySet();
+
+		return enchants.stream()
+			.filter(entry -> entry.getKey().equals(enchantment))
+			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+			.findFirst()
+			.orElse(null);
 	}
 	
 	/**

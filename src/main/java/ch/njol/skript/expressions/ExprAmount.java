@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Map;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -33,14 +28,15 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Map;
 
 /**
- * TODO should 'amount of [item]' return the size of the stack?
  * 
  * @author Peter Güttinger
  */
@@ -49,23 +45,27 @@ import ch.njol.util.Kleenean;
 		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",
 		"",
 		"Also, you can get the recursive size of a list, which will return the recursive size of the list with sublists included, e.g.",
-		"{list::*} Structure",
-		"    ├──── {list::1}: 1",
-		"    ├──── {list::2}: 2",
-		"    │         ├──── {list::2::1}: 3",
-		"    │         │           └──── {list::2::1::1}: 4",
-		"    │         └──── {list::2::2}: 5",
-		"    └──── {list::3}: 6",
+		"",
+		"<pre>",
+		"{list::*} Structure<br>",
+		"  ├──── {list::1}: 1<br>",
+		"  ├──── {list::2}: 2<br>",
+		"  │     ├──── {list::2::1}: 3<br>",
+		"  │     │    └──── {list::2::1::1}: 4<br>",
+		"  │     └──── {list::2::2}: 5<br>",
+		"  └──── {list::3}: 6",
+		"</pre>",
+		"",
 		"Where using %size of {list::*}% will only return 3 (the first layer of indices only), while %recursive size of {list::*}% will return 6 (the entire list)",
 		"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
 @Examples({"message \"There are %number of all players% players online!\""})
 @Since("1.0")
-public class ExprAmount extends SimpleExpression<Number> {
+public class ExprAmount extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
-				"(amount|number|size) of %objects%",
-				"recursive (amount|number|size) of %objects%");
+		Skript.registerExpression(ExprAmount.class, Long.class, ExpressionType.PROPERTY,
+				"[the] (amount|number|size) of %objects%",
+				"[the] recursive (amount|number|size) of %objects%");
 	}
 
 	@SuppressWarnings("null")
@@ -74,8 +74,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	private boolean recursive;
 
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.exprs = exprs[0] instanceof ExpressionList ? (ExpressionList<?>) exprs[0] : new ExpressionList<>(new Expression<?>[]{exprs[0]}, Object.class, false);
 		this.recursive = matchedPattern == 1;
 		for (Expression<?> expr : this.exprs.getExpressions()) {
@@ -96,7 +95,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Number[] get(final Event e) {
+	protected Long[] get(Event e) {
 		if (recursive) {
 			int currentSize = 0;
 			for (Expression<?> expr : exprs.getExpressions()) {
@@ -105,9 +104,9 @@ public class ExprAmount extends SimpleExpression<Number> {
 					currentSize += getRecursiveSize((Map<String, ?>) var);
 				}
 			}
-			return new Number[]{currentSize};
+			return new Long[]{(long) currentSize};
 		}
-		return new Number[]{exprs.getArray(e).length};
+		return new Long[]{(long) exprs.getArray(e).length};
 	}
 
 	@SuppressWarnings("unchecked")
@@ -129,13 +128,13 @@ public class ExprAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (recursive ? "recursize size of " : "amount of ") + exprs.toString(e, debug);
+	public String toString(@Nullable Event e, boolean debug) {
+		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(e, debug);
 	}
 
 }
