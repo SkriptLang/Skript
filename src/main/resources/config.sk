@@ -200,6 +200,10 @@ disable hooks:
 # If you change a setting here while the server is running, a restart is required for that change to take effect.
 # Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
 
+player name regex pattern: [a-zA-Z0-9_]{1,16}
+# A regex pattern that is used to match player names.
+# This can be used if you are using Geyser, where some usernames are prefixed by a certain character.
+
 # ==== Variables ====
 
 databases:

@@ -37,7 +37,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.Map;
 
 /**
- * TODO should 'amount of [item]' return the size of the stack?
  * 
  * @author Peter Güttinger
  */
@@ -65,8 +64,8 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprAmount.class, Long.class, ExpressionType.PROPERTY,
-				"(amount|number|size) of %objects%",
-				"recursive (amount|number|size) of %objects%");
+				"[the] (amount|number|size) of %objects%",
+				"[the] recursive (amount|number|size) of %objects%");
 	}
 
 	@SuppressWarnings("null")
@@ -135,7 +134,7 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return (recursive ? "recursize size of " : "amount of ") + exprs.toString(e, debug);
+		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(e, debug);
 	}
 
 }
