@@ -31,6 +31,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -47,8 +48,8 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 			"[a [new]] chest inventory with %number% row[s] [(named|with name) %-string%]");
 	}
 
-	private static final String DEFAULT_CHEST_TITLE = "Chest";
-	private static final int DEFAULT_CHEST_ROWS = 3;
+	private static final String DEFAULT_CHEST_TITLE = InventoryType.CHEST.getDefaultTitle();
+	private static final int DEFAULT_CHEST_ROWS = InventoryType.CHEST.getDefaultSize() / 9;
 
 	@Nullable
 	private Expression<Number> rows;
@@ -79,8 +80,8 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 		// Sanitize inventory size
 		if (size < 0)
 			size = 0;
-		if (size > 6 * 9) // Too big values cause visual weirdness, or exceptions on newer server versions
-			size = 6 * 9;
+		if (size > 54) // Too big values cause visual weirdness, or exceptions on newer server versions
+			size = 54;
 
 		return CollectionUtils.array(Bukkit.createInventory(null, size, name));
 	}
@@ -97,8 +98,10 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "chest inventory" + " named " + (name != null ? name.toString(e, debug) : "\"Chest\"") +
-			" with " + (rows != null ? rows.toString(e, debug) : "3" + " rows");
+		return "chest inventory named "
+			+ (name != null ? name.toString(e, debug) : "\"" + DEFAULT_CHEST_TITLE + "\"") +
+			" with "
+			+ (rows != null ? rows.toString(e, debug) : "" + DEFAULT_CHEST_ROWS + " rows");
 	}
 
 }
