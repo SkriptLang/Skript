@@ -580,7 +580,9 @@ public abstract class Utils {
 		m = ChatColor.translateAlternateColorCodes('&', "" + m);
 		return "" + m;
 	}
-	
+
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#?[0-9a-f]{6}");
+
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
 	 * @param hex The hex code to parse.
@@ -589,7 +591,7 @@ public abstract class Utils {
 	@SuppressWarnings("null")
 	@Nullable
 	public static ChatColor parseHexColor(String hex) {
-		if (!HEX_SUPPORTED || !hex.matches("(?i)#?[0-9a-z]{6}")) // Proper hex code validation
+		if (!HEX_SUPPORTED || !HEX_PATTERN.matcher(hex).matches()) // Proper hex code validation
 			return null;
 		
 		hex = hex.replace("#", "");
