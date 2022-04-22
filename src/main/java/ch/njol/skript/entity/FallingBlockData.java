@@ -25,6 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -110,21 +111,21 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	@Nullable
-	public FallingBlock spawn(final Location loc) {
-		final ItemType t = CollectionUtils.getRandom(types);
+	public FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
+		ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
-		final ItemStack i = t.getRandom();
+		ItemStack i = t.getRandom();
 		if (i == null || i.getType() == Material.AIR || !i.getType().isBlock()) {
 			assert false : i;
 			return null;
 		}
 		return loc.getWorld().spawnFallingBlock(loc, i.getType(), (byte) i.getDurability());
 	}
-	
+
 	@Override
 	public void set(final FallingBlock entity) {
 		assert false;
