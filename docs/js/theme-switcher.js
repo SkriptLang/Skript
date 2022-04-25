@@ -3,6 +3,33 @@
 // 
 
 // A quick fix to not use modules due to CORS on localhost
+function setStorageItem(item, value, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  localStorage.setItem(item, value + "; " + d.toUTCString());
+}
+
+function removeStorageItem(item) {
+  localStorage.removeItem(item)
+}
+
+function getStorageItem(item, noExpireationCheck = false) {
+  let result = localStorage.getItem(item);
+  if (!noExpireationCheck) {
+    let expires;
+    expires, result = result.split("; ")[1], result.split("; ")[0];
+    if (expires) { // item with no expiration date
+      if (new Date(expires) < new Date()) {
+        removeStorageItem(item);
+        return null;
+      }
+    }
+  }
+  return result;
+}
+
+
+// <> Cookies
 function setCookie(cname, cvalue, exdays) {
   const d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -24,6 +51,7 @@ function getCookie(cname) {
   }
   return "";
 }
+// Cookies </>
 
 // Auto load DarkMode from cookies
 if (getCookie("darkMode") == "false") {

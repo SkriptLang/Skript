@@ -1,4 +1,5 @@
 const siteVersion = "2.2.0"; // site version is different from skript version
+const ghAPI = "https://api.github.com/repos/SkriptLang/Skript";
 
 // ID Scroll
 const links = document.querySelectorAll("div.item-wrapper");
@@ -210,43 +211,35 @@ if (content) {
     content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
     options = document.getElementById("search-version");
     
-    let savedTags = getCookie("skVersions").split(",");
-    for (let i = 0; i < savedTags.length; i++) { // Append saved versions then check
-      if (savedTags[i] != "") {
-        let option = document.createElement('option')
-        option.value = savedTags[i]
-        option.textContent = "Since v" + savedTags[i]
-        options.appendChild(option)
-      }
-    }
-    if (savedTags && !linkParams.get("search") && !window.location.href.match(/.*?#.+/)) // Don't search for versions if the url has a search filter nor hash link
-      searchNow(`v:${savedTags[0]}+`) // Auto search on load
-    
-    setTimeout(() => {
-      $.getJSON("https://api.github.com/repos/SkriptLang/Skript/tags?per_page=83&page=2", (data) => { // 83 and page 2 matters to filter dev branches (temporary)
-        let isThereNew = false;
-        for (let i = 0; i < data.length; i++) {
-          let tag = data[i]["name"]
-          // if (!(/.*(dev|beta|alpha).*/gi).test(tag))
+    getApiValue(null, "skript-versions", "tags?per_page=83&page=2", (data, isCached) => { // 83 and page 2 matters to filter dev branches (temporary solution)
+      if (isCached)
+        data = data.split(",");
+
+      for (let i = 0; i < data.length; i++) {
+        let tag;
+          if (isCached) {
+            tag = data[i];
+          } else {
+            tag = data[i]["name"];
+          }
           tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
         }
-        tags = [...new Set(tags)] // remove duplicates
-        setCookie("skVersions", tags, 5);
-        for (let i = 0; i < tags.length; i++) {
-          if (savedTags.includes(tags[i])) // Only add unsaved versions
-            continue
 
-          isThereNew = true; // Marks that a new version was added to update the search bar
+      tags = [...new Set(tags)] // remove duplicates
 
-          let option = document.createElement('option')
-          option.value = tags[i]
-          option.textContent = "Since v" + tags[i]
-          options.appendChild(option)
-        }
-        if (isThereNew && !linkParams.get("search"))
-          searchNow(`v:${tags[0]}+`)
-      })
-    }, 1);
+      for (let i = 0; i < tags.length; i++) {
+        let option = document.createElement('option')
+        option.value = tags[i]
+        option.textContent = "Since v" + tags[i]
+        options.appendChild(option)
+      }
+
+      if (!linkParams.get("search") && !window.location.href.match(/.*?#.+/))
+        searchNow(`v:${tags[0]}+`)
+
+      return tags;
+    }, true)
+      
   }
 } else {
   content = document.getElementById("content-no-docs")
@@ -415,54 +408,53 @@ if (searchBar) {
 // Search Bar </>
 
 // <> Placeholders
-const ghAPI = "https://api.github.com/repos/SkriptLang/Skript"
 
 function replacePlaceholders(element) {
   let innerHTML = element.innerHTML;
   if (innerHTML.includes("${latest-version}")) {
-    getApiValue(element, "latest-version", "releases", (data) => {
+    getApiValue(element, "ghapi-latest-version", "releases", (data) => {
       return data[0]["tag_name"];
     });
   }
 
   if (innerHTML.includes("${latest-version-changelog}")) {
-    getApiValue(element, "latest-version-changelog", "releases", (data) => {
+    getApiValue(element, "ghapi-latest-version-changelog", "releases", (data) => {
       return data["body"].replaceAll("\\r\\n", "<br>");
     });
   }
 
   if (innerHTML.includes("${stable-version}")) {
-    getApiValue(element, "stable-version", "releases/latest", (data) => {
+    getApiValue(element, "ghapi-stable-version", "releases/latest", (data) => {
       return data["tag_name"];
     });
   }
 
   if (innerHTML.includes("${stable-version-changelog}")) {
-    getApiValue(element, "stable-version-changelog", "releases/latest", (data) => {
+    getApiValue(element, "ghapi-stable-version-changelog", "releases/latest", (data) => {
       return data["body"].replaceAll("\\r\\n", "<br>");
     });
   }
 
   if (innerHTML.includes("${latest-issue-")) {
-    getApiValue(element, "latest-issue-user", "issues?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-issue-user", "issues?per_page=1", (data) => {
       return data[0]["user"]["login"];
     });
-    getApiValue(element, "latest-issue-title", "issues?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-issue-title", "issues?per_page=1", (data) => {
       return data[0]["title"];
     });
-    getApiValue(element, "latest-issue-date", "issues?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-issue-date", "issues?per_page=1", (data) => {
       return data[0]["created_at"];
     });
   }
 
   if (innerHTML.includes("${latest-pull-")) {
-    getApiValue(element, "latest-pull-user", "pulls?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-pull-user", "pulls?per_page=1", (data) => {
       return data[0]["user"]["login"];
     });
-    getApiValue(element, "latest-pull-title", "pulls?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-pull-title", "pulls?per_page=1", (data) => {
       return data[0]["title"];
     });
-    getApiValue(element, "latest-pull-date", "pulls?per_page=1", (data) => {
+    getApiValue(element, "ghapi-latest-pull-date", "pulls?per_page=1", (data) => {
       return data[0]["created_at"];
     });
   }
@@ -472,23 +464,36 @@ function replacePlaceholders(element) {
   }
 
   if (innerHTML.includes("${contributors-size}")) {
-    getApiValue(element, "contributors-size", "contributors?per_page=500", (data) => {
+    getApiValue(element, "ghapi-contributors-size", "contributors?per_page=500", (data) => {
       return data.length;
     });
   }
 }
 
-function getApiValue(element, placeholder, apiPathName, callback) {
-  let innerHTML = element.innerHTML;
-  if (innerHTML.includes(`\${${placeholder}}`)) {
-    let cv = getCookie(`ghapi-${placeholder}`); // cached value
+function getApiValue(element, placeholder, apiPathName, callback, noReplace = false) {
+  let placeholderName = placeholder.replace("ghapi-", "");
+  let cv = getStorageItem(placeholder); // cached value
+  if (noReplace) {
     if (cv) {
-      element.innerHTML = element.innerHTML.replaceAll(`\${${placeholder}}`, cv);
+      callback(cv, true);
     } else {
       $.getJSON(ghAPI + `/${apiPathName}`, (data) => {
-        let value = callback(data);
-        element.innerHTML = element.innerHTML.replaceAll(`\${${placeholder}}`, value);
-        setCookie(`ghapi-${placeholder}`, value, 0.2);
+        let value = callback(data, false);
+        setStorageItem(placeholder, value, 0.2);
+      })
+    }
+    return;
+  }
+
+  let innerHTML = element.innerHTML;
+  if (innerHTML.includes(`\${${placeholderName}}`)) {
+    if (cv) {
+      element.innerHTML = element.innerHTML.replaceAll(`\${${placeholderName}}`, cv);
+    } else {
+      $.getJSON(ghAPI + `/${apiPathName}`, (data) => {
+        let value = callback(data, false);
+        element.innerHTML = element.innerHTML.replaceAll(`\${${placeholderName}}`, value);
+        setStorageItem(placeholder, value, 0.2);
       })
     }
   }
@@ -525,6 +530,88 @@ function getCookie(cname) {
 }
 
 // Cookies </>
+
+// <> localStorage
+
+/**
+ * Set the value of local storage item 
+ * @param {string} item id
+ * @param {object} value 
+ * @param {double} exdays time in days
+ */
+function setStorageItem(item, value, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  localStorage.setItem(item, value + "; " + d.toUTCString());
+}
+
+/**
+ * Remove a local storage item
+ * @param {string} item the id of the item 
+ */
+function removeStorageItem(item) {
+  localStorage.removeItem(item)
+}
+
+/**
+ * Get local storage item (value & time if has one)
+ * @param {string} item the item id 
+ * @param {boolean} noExpireationCheck whether to check for expiration time and remove the item 
+ * @returns the item object
+ */
+function getStorageItem(item, noExpireationCheck = false) {
+  let result = localStorage.getItem(item);
+  if (!result)
+    return null;
+    
+  if (!noExpireationCheck) {
+    result = result.split("; ")[0];
+    if (isStorageItemExpired(item)) {
+      removeStorageItem(item);
+      return null;
+    }
+  }
+  return result;
+}
+
+/**
+ * Get local storage item value after split at ';'
+ * @param {string} item the id of th item
+ * @returns the item value
+ */
+function getStorageItemValue(item) {
+  let result = localStorage.getItem(item);
+  if (!result)
+    return null;
+  return result.split("; ")[0];
+}
+
+/**
+ * @param {string} string the value of the item not the item id (the value without splitting)
+ * @returns the expiration date
+ */
+function getStorageItemExpiration(value) {
+  let expires = localStorage.getItem(value).split("; ")[1];
+  if (!expires) { // item with no expiration date
+    return null;
+  }
+  return new Date(expires);
+}
+
+/**
+ * 
+ * @param string the value of the item not the item id (the value without splitting)
+ * @returns whether expired or not
+ */
+function isStorageItemExpired(value) {
+  let expires = value.split("; ")[1];
+  if (!expires) { // item with no expiration date
+    return null;
+  }
+  return new Date(expires) < new Date();
+}
+
+// localStorage </>
 
 // <> Syntax Highlighting
 
