@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -65,19 +66,16 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	T getSingle(Event e);
 
 	/**
-	 * Returns the single value of this expression, or a given default value if the single value is null.
+	 * Get an optional of the single value of this expression.
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
 	 *
 	 * @param e the event
-	 * @param defaultValue the default value
-	 * @return the {@link #getSingle(Event) single value} of this expression, unless it is null,
-	 * in which case {@code defaultValue} is returned.
+	 * @return an {@link Optional} containing the {@link #getSingle(Event) single value} of this expression for this event.
 	 * @see #getSingle(Event)
 	 */
-	default T getSingleOrDefault(Event e, T defaultValue) {
-		T value = getSingle(e);
-		return value == null ? defaultValue : value;
+	default Optional<T> getOptionalSingle(Event e) {
+		return Optional.ofNullable(getSingle(e));
 	}
 	
 	/**
