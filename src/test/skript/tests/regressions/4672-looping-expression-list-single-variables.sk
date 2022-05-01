@@ -1,0 +1,11 @@
+test "looping list of single variables":
+	set {_x} to 1
+	set {_y} to 2
+	set {_z} to 3
+
+	set {_i} to 0
+	loop {_x}, {_y} and {_z}:
+		add 1 to {_i}
+
+		assert loop-value is {_i} with "Iteration %{_i}% was of unexpected variable with value %loop-value%"
+	assert {_i} is 3 with "Incorrect amount of iterations"
