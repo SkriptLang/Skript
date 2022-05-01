@@ -654,32 +654,52 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Enable metrics and register custom charts
 				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID
 				metrics.addCustomChart(new SimplePie("pluginLanguage", Language::getName));
-				metrics.addCustomChart(new SimplePie("effectCommands", SkriptConfig.enableEffectCommands.value()::toString));
-				metrics.addCustomChart(new SimplePie("uuidsWithPlayers", SkriptConfig.usePlayerUUIDsInVariableNames.value()::toString));
-				metrics.addCustomChart(new SimplePie("playerVariableFix", SkriptConfig.enablePlayerVariableFix.value()::toString));
+				metrics.addCustomChart(new SimplePie("effectCommands", () ->
+					SkriptConfig.enableEffectCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("uuidsWithPlayers", () ->
+					SkriptConfig.usePlayerUUIDsInVariableNames.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("playerVariableFix", () ->
+					SkriptConfig.enablePlayerVariableFix.value().toString()
+				));
 				metrics.addCustomChart(new SimplePie("logVerbosity", () ->
 					SkriptConfig.verbosity.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
 				));
 				metrics.addCustomChart(new SimplePie("pluginPriority", () ->
 					SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
 				));
-				metrics.addCustomChart(new SimplePie("logPlayerCommands", SkriptConfig.logPlayerCommands.value()::toString));
-				metrics.addCustomChart(new SimplePie("maxTargetDistance", SkriptConfig.maxTargetBlockDistance.value()::toString));
-				metrics.addCustomChart(new SimplePie("softApiExceptions", SkriptConfig.apiSoftExceptions.value()::toString));
+				metrics.addCustomChart(new SimplePie("logPlayerCommands", () ->
+					SkriptConfig.logPlayerCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("maxTargetDistance", () ->
+					SkriptConfig.maxTargetBlockDistance.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("softApiExceptions", () ->
+					SkriptConfig.apiSoftExceptions.value().toString()
+				));
 				metrics.addCustomChart(new SimplePie("timingsStatus", () -> {
 					if (!Skript.classExists("co.aikar.timings.Timings"))
 						return "unsupported";
 					return SkriptConfig.enableTimings.value().toString();
 				}));
-				metrics.addCustomChart(new SimplePie("parseLinks", () -> ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH)));
-				metrics.addCustomChart(new SimplePie("colorResetCodes", SkriptConfig.colorResetCodes.value()::toString));
-				metrics.addCustomChart(new SimplePie("functionsWithNulls", SkriptConfig.executeFunctionsWithMissingParams.value()::toString));
+				metrics.addCustomChart(new SimplePie("parseLinks", () ->
+					ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH)
+				));
+				metrics.addCustomChart(new SimplePie("colorResetCodes", () ->
+					SkriptConfig.colorResetCodes.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("functionsWithNulls", () ->
+					SkriptConfig.executeFunctionsWithMissingParams.value().toString()
+				));
 				metrics.addCustomChart(new SimplePie("buildFlavor", () -> {
 					if (updater != null)
 						return updater.getCurrentRelease().flavor;
 					return "unknown";
 				}));
-				metrics.addCustomChart(new SimplePie("updateCheckerEnabled", SkriptConfig.checkForNewVersion.value()::toString));
+				metrics.addCustomChart(new SimplePie("updateCheckerEnabled", () ->
+					SkriptConfig.checkForNewVersion.value().toString()
+				));
 				metrics.addCustomChart(new SimplePie("releaseChannel", SkriptConfig.releaseChannel::value));
 				Skript.metrics = metrics;
 				
