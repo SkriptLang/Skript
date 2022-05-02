@@ -45,7 +45,7 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 	private static final boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
 	
 	static {
-		register(ExprProjectileCriticalState.class, Boolean.class, "[the] (projectile|arrow) critical (state|ability|mode)", "projectiles");
+		register(ExprProjectileCriticalState.class, Boolean.class, "(projectile|arrow) critical (state|ability|mode)", "projectiles");
 	}
 	
 	@Nullable
