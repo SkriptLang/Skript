@@ -18,9 +18,12 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.Locale;
-import java.util.regex.Pattern;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -29,16 +32,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Name("Play Sound")
 @Description({"Plays a sound at given location for everyone or just for given players, or plays a sound to specified players. " +
@@ -54,23 +49,12 @@ import ch.njol.util.Kleenean;
 @RequiredPlugins("Minecraft 1.11+ (sound categories)")
 public class EffPlaySound extends Effect {
 
-	private static final boolean SOUND_CATEGORIES_EXIST = Skript.classExists("org.bukkit.SoundCategory");
 	private static final Pattern SOUND_VALID_PATTERN = Pattern.compile("[a-z0-9\\/:._-]+"); // Minecraft only accepts these characters
 	
 	static {
-		if (SOUND_CATEGORIES_EXIST) {
-			Skript.registerEffect(EffPlaySound.class,
-					"play sound[s] %strings% [(in|from) %-soundcategory%] " +
-							"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] at %locations% [for %-players%]",
-					"play sound[s] %strings% [(in|from) %-soundcategory%] " +
-							"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]");
-		} else {
-			Skript.registerEffect(EffPlaySound.class,
-					"play sound[s] %strings% [(at|with) volume %-number%] " +
-							"[(and|at|with) pitch %-number%] at %locations% [for %-players%]",
-					"play sound[s] %strings% [(at|with) volume %-number%] " +
-							"[(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]");
-		}
+		Skript.registerEffect(EffPlaySound.class,
+			"play sound[s] %strings% [(in|from) %-soundcategory%] [(at|with) volume %-number%] [(and|at|with) pitch %-number%] at %locations% [for %-players%]",
+			"play sound[s] %strings% [(in|from) %-soundcategory%] [(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]");
 	}
 
 	@SuppressWarnings("null")
@@ -88,43 +72,32 @@ public class EffPlaySound extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		sounds = (Expression<String>) exprs[0];
-		if (SOUND_CATEGORIES_EXIST) {
-			category = (Expression<SoundCategory>) exprs[1];
-			volume = (Expression<Number>) exprs[2];
-			pitch = (Expression<Number>) exprs[3];
-			if (matchedPattern == 0) {
-				locations = (Expression<Location>) exprs[4];
-				players = (Expression<Player>) exprs[5];
-			} else {
-				players = (Expression<Player>) exprs[4];
-				locations = (Expression<Location>) exprs[5];
-			}
+		category = (Expression<SoundCategory>) exprs[1];
+		volume = (Expression<Number>) exprs[2];
+		pitch = (Expression<Number>) exprs[3];
+
+		if (matchedPattern == 0) {
+			locations = (Expression<Location>) exprs[4];
+			players = (Expression<Player>) exprs[5];
 		} else {
-			volume = (Expression<Number>) exprs[1];
-			pitch = (Expression<Number>) exprs[2];
-			if (matchedPattern == 0) {
-				locations = (Expression<Location>) exprs[3];
-				players = (Expression<Player>) exprs[4];
-			} else {
-				players = (Expression<Player>) exprs[3];
-				locations = (Expression<Location>) exprs[4];
-			}
+			players = (Expression<Player>) exprs[4];
+			locations = (Expression<Location>) exprs[5];
 		}
+
 		return true;
 	}
 
 	@Override
 	@SuppressWarnings("null")
 	protected void execute(Event e) {
-		Object category = null;
-		if (SOUND_CATEGORIES_EXIST) {
-			category = SoundCategory.MASTER;
-			if (this.category != null) {
-				category = this.category.getSingle(e);
-				if (category == null)
-					return;
-			}
+		SoundCategory category = SoundCategory.MASTER;
+
+		if (this.category != null) {
+			category = this.category.getSingle(e);
+			if (category == null)
+				return;
 		}
+
 		float volume = 1, pitch = 1;
 		if (this.volume != null) {
 			Number volumeNumber = this.volume.getSingle(e);
@@ -141,17 +114,17 @@ public class EffPlaySound extends Effect {
 		if (players != null) {
 			if (locations == null) {
 				for (Player p : players.getArray(e))
-					playSound(p, p.getLocation(), sounds.getArray(e), (SoundCategory) category,  volume, pitch);
+					playSound(p, p.getLocation(), sounds.getArray(e), category,  volume, pitch);
 			} else {
 				for (Player p : players.getArray(e)) {
 					for (Location location : locations.getArray(e))
-						playSound(p, location, sounds.getArray(e), (SoundCategory) category, volume, pitch);
+						playSound(p, location, sounds.getArray(e), category, volume, pitch);
 				}
 			}
 		} else {
 			if (locations != null) {
 				for (Location location : locations.getArray(e))
-					playSound(location, sounds.getArray(e), (SoundCategory) category, volume, pitch);
+					playSound(location, sounds.getArray(e), category, volume, pitch);
 			}
 		}
 	}
@@ -162,24 +135,14 @@ public class EffPlaySound extends Effect {
 			try {
 				soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
 			} catch (IllegalArgumentException ignored) {}
-			if (SOUND_CATEGORIES_EXIST) {
-				if (soundEnum == null) {
-					sound = sound.toLowerCase(Locale.ENGLISH);
-					if (!SOUND_VALID_PATTERN.matcher(sound).matches())
-						continue;
-					p.playSound(location, sound, category, volume, pitch);
-				} else {
-					p.playSound(location, soundEnum, category, volume, pitch);
-				}
+
+			if (soundEnum == null) {
+				sound = sound.toLowerCase(Locale.ENGLISH);
+				if (!SOUND_VALID_PATTERN.matcher(sound).matches())
+					continue;
+				p.playSound(location, sound, category, volume, pitch);
 			} else {
-				if (soundEnum == null) {
-					sound = sound.toLowerCase(Locale.ENGLISH);
-					if (!SOUND_VALID_PATTERN.matcher(sound).matches())
-						continue;
-					p.playSound(location, sound, volume, pitch);
-				} else {
-					p.playSound(location, soundEnum, volume, pitch);
-				}
+				p.playSound(location, soundEnum, category, volume, pitch);
 			}
 		}
 	}
@@ -191,24 +154,13 @@ public class EffPlaySound extends Effect {
 			try {
 				soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
 			} catch (IllegalArgumentException ignored) {}
-			if (SOUND_CATEGORIES_EXIST) {
-				if (soundEnum == null) {
-					sound = sound.toLowerCase(Locale.ENGLISH);
-					if (!SOUND_VALID_PATTERN.matcher(sound).matches())
-						continue;
-					w.playSound(location, sound, category, volume, pitch);
-				} else {
-					w.playSound(location, soundEnum, category, volume, pitch);
-				}
+			if (soundEnum == null) {
+				sound = sound.toLowerCase(Locale.ENGLISH);
+				if (!SOUND_VALID_PATTERN.matcher(sound).matches())
+					continue;
+				w.playSound(location, sound, category, volume, pitch);
 			} else {
-				if (soundEnum == null) {
-					sound = sound.toLowerCase(Locale.ENGLISH);
-					if (!SOUND_VALID_PATTERN.matcher(sound).matches())
-						continue;
-					w.playSound(location, sound, volume, pitch);
-				} else {
-					w.playSound(location, soundEnum, volume, pitch);
-				}
+				w.playSound(location, soundEnum, category, volume, pitch);
 			}
 		}
 	}

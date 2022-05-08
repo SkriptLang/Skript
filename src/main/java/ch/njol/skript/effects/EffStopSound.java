@@ -18,24 +18,19 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.Locale;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import java.util.Locale;
 
 @Name("Stop Sound")
 @Description({"Stops a sound from playing to the specified players. Both Minecraft sound names and " +
@@ -47,26 +42,24 @@ import ch.njol.util.Kleenean;
 @Examples({"stop sound \"block.chest.open\" for the player",
 		"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player"})
 @Since("2.4")
-@RequiredPlugins("Minecraft 1.10.2+, Minecraft 1.11+ (sound categories)")
+@RequiredPlugins("Minecraft Minecraft 1.11+ (sound categories), Minecraft 1.17+ (all sounds)")
 public class EffStopSound extends Effect {
 
-	private static final boolean SOUND_CATEGORIES_EXIST = Skript.classExists("org.bukkit.SoundCategory");
-
 	static {
-		if (Skript.methodExists(Player.class, "stopSound", String.class)) {
-			if (SOUND_CATEGORIES_EXIST) {
-				Skript.registerEffect(EffStopSound.class,
-						"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-						"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
-			} else {
-				Skript.registerEffect(EffStopSound.class,
-						"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-						"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
-			}
+		if (Skript.methodExists(Player.class, "stopAllSounds")) {
+			Skript.registerEffect(EffStopSound.class,
+				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
+				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]",
+				"stop all sound[s] [(from playing to|for) %players%]",
+				"stop playing all sound[s] [(to|for) %players%]");
+		} else {
+			Skript.registerEffect(EffStopSound.class,
+				"stop sound[s] %strings% [(in|from) %soundcategory%] [(from playing to|for) %players%]",
+				"stop playing sound[s] %strings% [(in|from) %soundcategory%] [(to|for) %players%]");
 		}
 	}
 
-	@SuppressWarnings("null")
+	@Nullable
 	private Expression<String> sounds;
 	@Nullable
 	private Expression<SoundCategory> category;
@@ -76,47 +69,40 @@ public class EffStopSound extends Effect {
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		sounds = (Expression<String>) exprs[0];
-		if (SOUND_CATEGORIES_EXIST) {
+		if (matchedPattern < 2) {
+			sounds = (Expression<String>) exprs[0];
 			category = (Expression<SoundCategory>) exprs[1];
 			players = (Expression<Player>) exprs[2];
 		} else {
-			players = (Expression<Player>) exprs[1];
+			players = (Expression<Player>) exprs[0];
 		}
+
 		return true;
 	}
 
 	@Override
 	protected void execute(Event e) {
-		Object category = null;
-		if (SOUND_CATEGORIES_EXIST) {
-			category = SoundCategory.MASTER;
-			if (this.category != null) {
+		if (sounds == null) {
+			for (Player p : players.getArray(e))
+				p.stopAllSounds();
+		} else {
+			SoundCategory category = null;
+
+			if (this.category != null)
 				category = this.category.getSingle(e);
-				if (category == null)
-					return;
-			}
-		}
-		for (String sound : sounds.getArray(e)) {
-			Sound soundEnum = null;
-			try {
-				soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
-			} catch (IllegalArgumentException ignored) {}
-			if (soundEnum == null) {
-				if (SOUND_CATEGORIES_EXIST) {
+
+			for (String sound : sounds.getArray(e)) {
+				Sound soundEnum = null;
+				try {
+					soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
+				} catch (IllegalArgumentException ignored) {}
+
+				if (soundEnum == null) {
 					for (Player p : players.getArray(e))
-						p.stopSound(sound, (SoundCategory) category);
+						p.stopSound(sound, category);
 				} else {
 					for (Player p : players.getArray(e))
-						p.stopSound(sound);
-				}
-			} else {
-				if (SOUND_CATEGORIES_EXIST) {
-					for (Player p : players.getArray(e))
-						p.stopSound(soundEnum, (SoundCategory) category);
-				} else {
-					for (Player p : players.getArray(e))
-						p.stopSound(soundEnum);
+						p.stopSound(soundEnum, category);
 				}
 			}
 		}
@@ -124,6 +110,10 @@ public class EffStopSound extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
+		if (sounds == null) {
+			return "stop all sounds from playing to " + players.toString(e, debug);
+		}
+
 		return "stop sound " + sounds.toString(e, debug) +
 				(category != null ? " in " + category.toString(e, debug) : "") +
 				" from playing to " + players.toString(e, debug);
