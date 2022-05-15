@@ -1,5 +1,5 @@
 {
-  "skriptVersion" : "2.6.1",
+  "skriptVersion" : "2.6.2",
 
   "classes" : [
     {
@@ -2519,9 +2519,8 @@ Note: if a player was hidden and relogs, this player will be visible again.",
 
     "pattern_end"
   ],
-  "since" : "2.0, 2.2-dev24 (replace in muliple strings and replace items in inventory), 2.5 (replace first, case sensitivity)",
-  "description" : "Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.
-Starting with 2.2-dev24, you can replace items in a inventory too.",
+  "since" : "2.0, 2.2-dev24 (replace in multiple strings and replace items in inventory), 2.5 (replace first, case sensitivity)",
+  "description" : "Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.",
   "examples" : "replace \"<item>\" in {textvar} with \"%item%\"\\nreplace every \"&\" with \"§\" in line 1\\n# The following acts as a simple chat censor, but it will e.g. censor mass, hassle, assassin, etc. as well:\\non chat:\\n    replace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message\\n \\nreplace all stone and dirt in player's inventory and player's top inventory with diamond"
 },
 {
@@ -3190,7 +3189,7 @@ This may require that there is enough space above the given location and that th
   ],
   "since" : "2.5",
   "description" : "Called when a player successfully enchants an item.\\n To get the enchanted item, see the <a href='expressions.html#ExprEnchantEventsEnchantItem'>enchant item expression</a>",
-  "examples" : "on enchant:\\n    if the clicked button is enchantment option 1:\\n        set the applied enchantments to sharpness 10 and unbreaking 10"
+  "examples" : "on enchant:\\n    if the clicked button is 1: # offer 1\\n        set the applied enchantments to sharpness 10 and unbreaking 10"
 },
 {
   "id" : "enchant_prepare",
@@ -4495,8 +4494,8 @@ This may require that there is enough space above the given location and that th
   "id" : "ExprAmount",
   "name" : "Amount",
   "patterns" : [
-    "(amount|number|size) of %<a href='./classes.html#object'>objects</a>%",
-"recursive (amount|number|size) of %<a href='./classes.html#object'>objects</a>%",
+    "[the] (amount|number|size) of %<a href='./classes.html#object'>objects</a>%",
+"[the] recursive (amount|number|size) of %<a href='./classes.html#object'>objects</a>%",
 
     "pattern_end"
   ],
@@ -4688,7 +4687,7 @@ Please note that the attacker can also be a block, e.g. a cactus or lava, but th
   "id" : "ExprBiome",
   "name" : "Biome",
   "patterns" : [
-    "[the] biome (of|%<a href='./classes.html#direction'>direction</a>%) %<a href='./classes.html#location'>locations</a>%",
+    "[the] biome [(of|%<a href='./classes.html#direction'>direction</a>%) %<a href='./classes.html#location'>locations</a>%]",
 "%<a href='./classes.html#location'>locations</a>%'[s] biome",
 
     "pattern_end"
@@ -4916,7 +4915,7 @@ Can also be used to change the burn/cook time of a placed furnace.",
   "id" : "ExprClicked",
   "name" : "Clicked Block/Entity/Inventory/Slot",
   "patterns" : [
-    "[the] (clicked (block|%*<a href='./classes.html#itemtype'>item type</a>/<a href='./classes.html#entitydata'>entity type</a>%)|clicked slot|clicked inventory|click (type|action)|inventory action|clicked [enchant[ment]] button)",
+    "[the] (clicked [enchant[ment]] (button|option)|clicked (block|%*<a href='./classes.html#itemtype'>item type</a>/<a href='./classes.html#entitydata'>entity type</a>%)|clicked slot|clicked inventory|click (type|action)|inventory action)",
 
     "pattern_end"
   ],
@@ -5533,8 +5532,8 @@ Read <a href='https://minecraft.gamepedia.com/Explosion'>this wiki page</a> for 
   "id" : "ExprFallDistance",
   "name" : "Fall Distance",
   "patterns" : [
-    "[the] [the] fall[en] (distance|height) of %<a href='./classes.html#entity'>entities</a>%",
-"%<a href='./classes.html#entity'>entities</a>%'[s] [the] fall[en] (distance|height)",
+    "[the] fall[en] (distance|height) of %<a href='./classes.html#entity'>entities</a>%",
+"%<a href='./classes.html#entity'>entities</a>%'[s] fall[en] (distance|height)",
 
     "pattern_end"
   ],
@@ -5752,6 +5751,18 @@ Remember to use '<a href='#ExprBlock'>block</a>' and not 'furnace', as 'furnace'
   "examples" : "on join:\\n    broadcast \"%group of player%\" # this is the player's primary group\\n    broadcast \"%groups of player%\" # this is all of the player's groups"
 },
 {
+  "id" : "ExprHanging",
+  "name" : "Hanging Entity/Remover",
+  "patterns" : [
+    "[the] hanging (entity|:remover)",
+
+    "pattern_end"
+  ],
+  "since" : "2.6.2",
+  "description" : "Returns the hanging entity or remover in hanging <a href='/events.html#break_mine'>break</a> and <a href='/events.html#place'>place</a> events.",
+  "examples" : "on break of item frame:\\n    if item of hanging entity is diamond pickaxe:\\n        cancel event\\n        if hanging remover is a player:\\n            send \"You can't break that item frame!\" to hanging remover"
+},
+{
   "id" : "ExprHash",
   "name" : "Hash",
   "patterns" : [
@@ -5952,8 +5963,8 @@ And note that, for example if there are 5 online players (includes <a href='#Exp
   "id" : "ExprIndices",
   "name" : "Indices of List",
   "patterns" : [
-    "[the] (indexes|indices) of %~<a href='./classes.html#object'>objects</a>%",
-"[the] %~<a href='./classes.html#object'>objects</a>%'[s] (indexes|indices)",
+    "[(the|all [[of] the])] (indexes|indices) of %~<a href='./classes.html#object'>objects</a>%",
+"%~<a href='./classes.html#object'>objects</a>%'[s] (indexes|indices)",
 "[sorted] (indices|indexes) of %~<a href='./classes.html#object'>objects</a>% in (ascending|descending) order",
 "[sorted] %~<a href='./classes.html#object'>objects</a>%'[s] (indices|indexes) in (ascending|descending) order",
 
@@ -6874,6 +6885,19 @@ See also: <a href='#ExprVehicle'>vehicle</a>",
   "examples" : "set all players' tab list header to \"Welcome to the Server!\"\\nsend \"%the player's tab list header%\" to player\\nreset all players' tab list header"
 },
 {
+  "id" : "ExprPlayerProtocolVersion",
+  "name" : "Player Protocol Version",
+  "patterns" : [
+    "[the] protocol version of %<a href='./classes.html#player'>players</a>%",
+"%<a href='./classes.html#player'>players</a>%'[s] protocol version",
+
+    "pattern_end"
+  ],
+  "since" : "2.6.2",
+  "description" : "Player's protocol version. For more information and list of protocol versions <a href='https://wiki.vg/Protocol_version_numbers'>visit wiki.vg</a>.",
+  "examples" : "command /protocolversion &ltplayer&gt:\\n    trigger:\\n        send \"Protocol version of %arg-1%: %protocol version of arg-1%\""
+},
+{
   "id" : "ExprSkull",
   "name" : "Player Skull",
   "patterns" : [
@@ -6959,8 +6983,8 @@ When adding a potion effect type (rather than a potion effect), it will default 
   "id" : "ExprProjectileBounceState",
   "name" : "Projectile Bounce State",
   "patterns" : [
-    "[the] [the] projectile bounce (state|ability|mode) of %<a href='./classes.html#projectile'>projectiles</a>%",
-"%<a href='./classes.html#projectile'>projectiles</a>%'[s] [the] projectile bounce (state|ability|mode)",
+    "[the] projectile bounce (state|ability|mode) of %<a href='./classes.html#projectile'>projectiles</a>%",
+"%<a href='./classes.html#projectile'>projectiles</a>%'[s] projectile bounce (state|ability|mode)",
 
     "pattern_end"
   ],
@@ -6972,8 +6996,8 @@ When adding a potion effect type (rather than a potion effect), it will default 
   "id" : "ExprProjectileCriticalState",
   "name" : "Projectile Critical State",
   "patterns" : [
-    "[the] [the] (projectile|arrow) critical (state|ability|mode) of %<a href='./classes.html#projectile'>projectiles</a>%",
-"%<a href='./classes.html#projectile'>projectiles</a>%'[s] [the] (projectile|arrow) critical (state|ability|mode)",
+    "[the] (projectile|arrow) critical (state|ability|mode) of %<a href='./classes.html#projectile'>projectiles</a>%",
+"%<a href='./classes.html#projectile'>projectiles</a>%'[s] (projectile|arrow) critical (state|ability|mode)",
 
     "pattern_end"
   ],
@@ -6985,7 +7009,7 @@ When adding a potion effect type (rather than a potion effect), it will default 
   "id" : "ExprProtocolVersion",
   "name" : "Protocol Version",
   "patterns" : [
-    "[the] [(sent|required|fake)] protocol version [number]",
+    "[the] [server] [(sent|required|fake)] protocol version [number]",
 
     "pattern_end"
   ],
@@ -7159,12 +7183,12 @@ This expression requires a supported regions plugin to be installed.",
   "id" : "ExprSaturation",
   "name" : "Saturation",
   "patterns" : [
-    "[the] saturation [of %<a href='./classes.html#player'>players</a>%]",
+    "[the] saturation of %<a href='./classes.html#player'>players</a>%",
 "%<a href='./classes.html#player'>players</a>%'[s] saturation",
 
     "pattern_end"
   ],
-  "since" : "2.2-Fixes-v10, 2.2-dev35 (fully modifiable)",
+  "since" : "2.2-Fixes-v10, 2.2-dev35 (fully modifiable), 2.6.2 (syntax pattern changed)",
   "description" : "The saturation of a player. If used in a player event, it can be omitted and will default to event-player.",
   "examples" : "set saturation of player to 20"
 },
