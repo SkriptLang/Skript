@@ -702,7 +702,7 @@ public final class BukkitEventValues {
 			}, 0);
 		}
 		// PlayerItemConsumeEvent
-		if (Skript.supports("org.bukkit.event.player.PlayerItemConsumeEvent")) {
+		if (Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent")) {
 			EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemType.class, new Getter<ItemType, PlayerItemConsumeEvent>() {
 				@Override
 				@Nullable
@@ -712,7 +712,7 @@ public final class BukkitEventValues {
 			}, 0);
 		}
 		// PlayerItemBreakEvent
-		if (Skript.supports("org.bukkit.event.player.PlayerItemBreakEvent")) {
+		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			EventValues.registerEventValue(PlayerItemBreakEvent.class, ItemType.class, new Getter<ItemType, PlayerItemBreakEvent>() {
 				@Override
 				@Nullable
