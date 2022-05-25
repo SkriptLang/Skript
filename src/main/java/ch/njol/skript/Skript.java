@@ -319,6 +319,14 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
+	 * @return whether hooks have been loaded,
+	 * and if {@link #disableHookRegistration(Class[])} won't error because of this.
+	 */
+	public static boolean isFinishedLoadingHooks() {
+		return finishedLoadingHooks;
+	}
+
+	/**
 	 * Disables the registration for the given hook classes. If Skript has been enabled, this method
 	 * will throw an API exception. It should be used in something like {@link JavaPlugin#onLoad()}.
 	 * @param hooks The hooks to disable the registration of.
