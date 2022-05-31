@@ -181,6 +181,15 @@ public enum SkriptColor implements Color {
 		assert false;
 		return null;
 	}
+
+	public static SkriptColor fromChatColor(ChatColor chatColor){
+		for(SkriptColor color : values()){
+			if(color.chat == chatColor)
+				return color;
+		}
+		assert false;
+		return null;
+	}
 	
 	/**
 	 * @deprecated Magic numbers
