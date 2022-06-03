@@ -167,8 +167,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			new ConsumingIterator<>(Skript.getStructures().iterator(),
 				elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
-		ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
 			Structure structure = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);
 			if (structure != null) {
 				parseLogHandler.printLog();
@@ -176,8 +175,6 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			}
 			parseLogHandler.printError();
 			return null;
-		} finally {
-			parseLogHandler.stop();
 		}
 	}
 

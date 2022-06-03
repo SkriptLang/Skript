@@ -19,7 +19,9 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.config.Config;
+import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +79,38 @@ public class Script {
 		VARIABLE_SAVE, // Variable cannot be saved (the ClassInfo is not serializable)
 		MISSING_CONJUNCTION, // Missing "and" or "or"
 		VARIABLE_STARTS_WITH_EXPRESSION // Variable starts with an Expression
+	}
+
+	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>();
+
+	public Set<ScriptEventHandler> getEventHandlers() {
+		return Collections.unmodifiableSet(eventHandlers);
+	}
+
+	public void addEventHandler(ScriptEventHandler eventHandler) {
+		eventHandlers.add(eventHandler);
+	}
+
+	public void removeEventHandler(ScriptEventHandler eventHandler) {
+		eventHandlers.remove(eventHandler);
+	}
+
+	public static abstract class ScriptEventHandler {
+
+		/**
+		 * Called when this Script is loaded.
+		 * @param oldScript The Script that was just unloaded.
+		 *                  Null if there wasn't a Script unloaded.
+		 */
+		public void onLoad(@Nullable Script oldScript) { }
+
+		/**
+		 * Called when this Script is unloaded.
+		 * @param newScript The Script that will be loaded after this one is unloaded.
+		 *                  Null if there won't be a Script loaded.
+		 */
+		public void onUnload(@Nullable Script newScript) { }
+
 	}
 
 }

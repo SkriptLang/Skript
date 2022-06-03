@@ -19,15 +19,14 @@
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.ScriptLoader.ScriptInfo;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Script;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.lang.structure.Structure;
+import ch.njol.skript.log.HandlerList;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -217,6 +216,12 @@ public class ParserInstance {
 		Script previous = this.currentScript;
 		this.currentScript = currentScript;
 		getDataInstances().forEach(data -> data.onCurrentScriptChange(previous, currentScript));
+
+		// "Script" events
+		if (previous != null)
+			previous.getEventHandlers().forEach(eventHandler -> eventHandler.onUnload(currentScript));
+		if (currentScript != null)
+			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.onLoad(previous));
 	}
 
 	public void setScriptInfo(ScriptInfo scriptInfo) {

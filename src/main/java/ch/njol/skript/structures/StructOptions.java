@@ -19,14 +19,13 @@
 package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.Script.ScriptEventHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
@@ -41,7 +40,6 @@ public class StructOptions extends Structure {
 
 	static {
 		Skript.registerStructure(StructOptions.class, "options");
-		ParserInstance.registerData(OptionsData.class, OptionsData::new);
 	}
 
 	private final Map<String, String> options = new HashMap<>();
@@ -51,9 +49,28 @@ public class StructOptions extends Structure {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
 		loadOptions(node, "");
-		registerOptions();
+
+		Script currentScript = getParser().getCurrentScript();
+		assert currentScript != null;
+		currentScript.addEventHandler(new ScriptEventHandler() {
+			@Override
+			public void onLoad(@Nullable Script oldScript) {
+				HashMap<String, String> currentOptions = getParser().getCurrentOptions();
+				currentOptions.clear(); // Clear it just to be safe
+				currentOptions.putAll(options);
+			}
+
+			@Override
+			public void onUnload(@Nullable Script newScript) {
+				getParser().getCurrentOptions().clear();
+			}
+		});
+
 		return true;
 	}
+
+	@Override
+	public void load() { }
 
 	private void loadOptions(SectionNode sectionNode, String prefix) {
 		for (Node n : sectionNode) {
@@ -68,31 +85,6 @@ public class StructOptions extends Structure {
 	}
 
 	@Override
-	public void preLoad() {
-		registerOptions();
-	}
-
-	@Override
-	public void load() {
-		registerOptions();
-	}
-
-	@Override
-	public void postLoad() {
-		registerOptions();
-	}
-
-	@Override
-	public void unload() {
-		getParser().getCurrentOptions().clear();
-	}
-
-	private void registerOptions() {
-		unload();
-		getParser().getCurrentOptions().putAll(options);
-	}
-
-	@Override
 	public Priority getPriority() {
 		return PRIORITY;
 	}
@@ -100,17 +92,6 @@ public class StructOptions extends Structure {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "options";
-	}
-
-	public static class OptionsData extends ParserInstance.Data {
-		public OptionsData(ParserInstance parserInstance) {
-			super(parserInstance);
-		}
-
-		@Override
-		public void onCurrentScriptChange(@Nullable Script oldScript, @Nullable Script newScript) {
-			getParser().getCurrentOptions().clear();
-		}
 	}
 
 }
