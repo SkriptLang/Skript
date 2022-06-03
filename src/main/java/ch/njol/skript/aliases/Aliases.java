@@ -18,6 +18,30 @@
  */
 package ch.njol.skript.aliases;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.Script.ScriptData;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
+import ch.njol.skript.localization.RegexMessage;
+import ch.njol.skript.log.BlockingLogHandler;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -32,44 +56,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.config.Config;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.Noun;
-import ch.njol.skript.localization.RegexMessage;
-import ch.njol.skript.log.BlockingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-
 public abstract class Aliases {
 
 	private static final AliasesProvider provider = createProvider(10000, null);
 	private static final AliasesParser parser = createParser(provider);
 	
-	/**
-	 * Current script aliases.
-	 */
-	@Nullable
-	private static ScriptAliases scriptAliases;
-	
 	@Nullable
 	private static ItemType getAlias_i(final String s) {
 		// Check script aliases first
-		ScriptAliases aliases = scriptAliases;
+		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
 		if (aliases != null) {
 			return aliases.provider.getAlias(s); // Delegates to global provider if needed
 		}
@@ -177,7 +172,7 @@ public abstract class Aliases {
 	@Nullable
 	private static MaterialName getMaterialNameData(ItemData type) {
 		// Check script aliases first
-		ScriptAliases aliases = scriptAliases;
+		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
 		if (aliases != null) {
 			return aliases.provider.getMaterialName(type);
 		}
@@ -517,7 +512,7 @@ public abstract class Aliases {
 	 */
 	@Nullable
 	public static String getMinecraftId(ItemData data) {
-		ScriptAliases aliases = scriptAliases;
+		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
 		if (aliases != null) {
 			return aliases.provider.getMinecraftId(data);
 		}
@@ -532,7 +527,7 @@ public abstract class Aliases {
 	 */
 	@Nullable
 	public static EntityData<?> getRelatedEntity(ItemData data) {
-		ScriptAliases aliases = scriptAliases;
+		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
 		if (aliases != null) {
 			return aliases.provider.getRelatedEntity(data);
 		}
@@ -591,20 +586,49 @@ public abstract class Aliases {
 	}
 	
 	/**
-	 * Creates script aliases.
-	 * @return Script aliases, ready to be added to.
+	 * Creates script aliases for the provided Script.
+	 * @return Script aliases that are ready to be added to.
 	 */
-	public static ScriptAliases createScriptAliases() {
+	public static ScriptAliases createScriptAliases(Script script) {
 		AliasesProvider localProvider = createProvider(10, provider);
-		return new ScriptAliases(localProvider, createParser(localProvider));
+		script.removeData(AliasesData.class);
+		ScriptAliases aliases = new ScriptAliases(localProvider, createParser(localProvider));
+		script.addData(new AliasesData(aliases));
+		return aliases;
 	}
-	
+
 	/**
-	 * Sets script aliases to be used for lookups. Remember to set them to
-	 * null when the script changes.
-	 * @param aliases Script aliases.
+	 * Clears any stored custom aliases for the provided Script.
+	 * @param script The script to clear aliases for.
 	 */
-	public static void setScriptAliases(@Nullable ScriptAliases aliases) {
-		scriptAliases = aliases;
+	public static void clearScriptAliases(Script script) {
+		script.removeData(AliasesData.class);
 	}
+
+	/**
+	 * Internal method for easy obtaining of per-script aliases.
+	 * @param script The script to obtain aliases from.
+	 * @return The obtained aliases, or null if the script has no custom aliases.
+	 */
+	@Nullable
+	private static ScriptAliases getScriptAliases(@Nullable Script script) {
+		if (script == null) // It's easier to handle this here in the event that ParserInstance#getCurrentScript is null
+			return null;
+		AliasesData aliasesData = script.getData(AliasesData.class);
+		return aliasesData != null ? aliasesData.aliases : null;
+	}
+
+	/**
+	 * The ScriptData class containing data for per-script aliases.
+	 */
+	private static final class AliasesData extends ScriptData {
+
+		public ScriptAliases aliases;
+
+		public AliasesData(ScriptAliases aliases) {
+			this.aliases = aliases;
+		}
+
+	}
+
 }

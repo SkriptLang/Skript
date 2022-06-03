@@ -34,7 +34,7 @@ public class ScriptAliases {
 	 */
 	public final AliasesParser parser;
 	
-	public ScriptAliases(AliasesProvider provider, AliasesParser parser) {
+	ScriptAliases(AliasesProvider provider, AliasesParser parser) {
 		this.provider = provider;
 		this.parser = parser;
 	}

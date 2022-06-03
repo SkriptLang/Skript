@@ -24,7 +24,6 @@ import ch.njol.skript.aliases.ScriptAliases;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.Script.ScriptEventHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
@@ -39,37 +38,29 @@ public class StructAliases extends Structure {
 		Skript.registerStructure(StructAliases.class, "aliases");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private ScriptAliases aliases;
-
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(0, "=");
 
 		// Initialize and load script aliases
-		aliases = Aliases.createScriptAliases();
-
 		Script currentScript = getParser().getCurrentScript();
 		assert currentScript != null;
-		currentScript.addEventHandler(new ScriptEventHandler() {
-			@Override
-			public void onLoad(@Nullable Script oldScript) {
-				Aliases.setScriptAliases(aliases);
-			}
+		Aliases.createScriptAliases(currentScript).parser.load(node);
 
-			@Override
-			public void onUnload(@Nullable Script newScript) {
-				Aliases.setScriptAliases(null);
-			}
-		});
-
-		aliases.parser.load(node);
 		return true;
 	}
 
 	@Override
 	public void load() { }
+
+	@Override
+	public void unload() {
+		// Unload aliases when this Script is unloaded
+		Script currentScript = getParser().getCurrentScript();
+		assert currentScript != null;
+		Aliases.clearScriptAliases(currentScript);
+	}
 
 	@Override
 	public Priority getPriority() {
