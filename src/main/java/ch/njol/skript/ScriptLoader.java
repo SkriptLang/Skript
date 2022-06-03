@@ -38,6 +38,7 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -871,19 +872,14 @@ public class ScriptLoader {
 
 	/**
 	 * Replaces options in a string.
-	 * Options are gotten from {@link ParserInstance#getCurrentOptions()}.
+	 * Options are gotten from {@link ch.njol.skript.structures.StructOptions#getOptions(Script)}.
 	 */
+	// TODO this system should eventually be replaced with a more generalized "node processing" system
 	public static String replaceOptions(String s) {
-		String r = StringUtils.replaceAll(s, "\\{@(.+?)\\}", m -> {
-			String option = getParser().getCurrentOptions().get(m.group(1));
-			if (option == null) {
-				Skript.error("undefined option " + m.group());
-				return m.group();
-			}
-			return Matcher.quoteReplacement(option);
-		});
-		assert r != null;
-		return r;
+		Script script = getParser().getCurrentScript();
+		if (script == null)
+			return s;
+		return StructOptions.replaceOptions(script, s);
 	}
 	
 	/**

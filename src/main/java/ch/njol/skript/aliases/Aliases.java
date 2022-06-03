@@ -618,12 +618,9 @@ public abstract class Aliases {
 		return aliasesData != null ? aliasesData.aliases : null;
 	}
 
-	/**
-	 * The ScriptData class containing data for per-script aliases.
-	 */
 	private static final class AliasesData extends ScriptData {
 
-		public ScriptAliases aliases;
+		public final ScriptAliases aliases;
 
 		public AliasesData(ScriptAliases aliases) {
 			this.aliases = aliases;

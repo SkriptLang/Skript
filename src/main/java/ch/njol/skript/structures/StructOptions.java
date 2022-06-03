@@ -24,15 +24,17 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.Script.ScriptEventHandler;
+import ch.njol.skript.lang.Script.ScriptData;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class StructOptions extends Structure {
 
@@ -42,46 +44,40 @@ public class StructOptions extends Structure {
 		Skript.registerStructure(StructOptions.class, "options");
 	}
 
-	private final Map<String, String> options = new HashMap<>();
-
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
-		loadOptions(node, "");
 
 		Script currentScript = getParser().getCurrentScript();
 		assert currentScript != null;
-		currentScript.addEventHandler(new ScriptEventHandler() {
-			@Override
-			public void onLoad(@Nullable Script oldScript) {
-				HashMap<String, String> currentOptions = getParser().getCurrentOptions();
-				currentOptions.clear(); // Clear it just to be safe
-				currentOptions.putAll(options);
-			}
-
-			@Override
-			public void onUnload(@Nullable Script newScript) {
-				getParser().getCurrentOptions().clear();
-			}
-		});
+		OptionsData optionsData = new OptionsData();
+		loadOptions(node, "", optionsData.options);
+		currentScript.addData(optionsData);
 
 		return true;
+	}
+
+	private void loadOptions(SectionNode sectionNode, String prefix, Map<String, String> options) {
+		for (Node n : sectionNode) {
+			if (n instanceof EntryNode) {
+				options.put(prefix + n.getKey(), ((EntryNode) n).getValue());
+			} else if (n instanceof SectionNode) {
+				loadOptions((SectionNode) n, prefix + n.getKey() + ".", options);
+			} else {
+				Skript.error("Invalid line in options");
+			}
+		}
 	}
 
 	@Override
 	public void load() { }
 
-	private void loadOptions(SectionNode sectionNode, String prefix) {
-		for (Node n : sectionNode) {
-			if (n instanceof EntryNode) {
-				options.put(prefix + n.getKey(), ((EntryNode) n).getValue());
-			} else if (n instanceof SectionNode) {
-				loadOptions((SectionNode) n, prefix + n.getKey() + ".");
-			} else {
-				Skript.error("Invalid line in options");
-			}
-		}
+	@Override
+	public void unload() {
+		Script currentScript = getParser().getCurrentScript();
+		assert currentScript != null;
+		currentScript.removeData(OptionsData.class);
 	}
 
 	@Override
@@ -92,6 +88,47 @@ public class StructOptions extends Structure {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "options";
+	}
+
+	/**
+	 * A method to obtain all options registered within a Script.
+	 * @param script The Script to obtain options from.
+	 * @return The options of this Script, or null if there are none.
+	 */
+	@Nullable
+	public static HashMap<String, String> getOptions(Script script) {
+		OptionsData optionsData = script.getData(OptionsData.class);
+		return optionsData != null ? optionsData.options : null;
+	}
+
+	/**
+	 * Replaces all options in the provided String using the options of the provided Script.
+	 * @param script The Script to obtain options from.
+	 * @param string The String to replace options in.
+	 * @return A String with all options replaced, or the original String if the provided Script has no options.
+	 */
+	public static String replaceOptions(Script script, String string) {
+		Map<String, String> options = getOptions(script);
+		if (options == null)
+			return string;
+
+		String replaced = StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
+			String option = options.get(m.group(1));
+			if (option == null) {
+				Skript.error("undefined option " + m.group());
+				return m.group();
+			}
+			return Matcher.quoteReplacement(option);
+		});
+
+		assert replaced != null;
+		return replaced;
+	}
+
+	private static final class OptionsData extends ScriptData {
+
+		public final HashMap<String, String> options = new HashMap<>(15);
+
 	}
 
 }

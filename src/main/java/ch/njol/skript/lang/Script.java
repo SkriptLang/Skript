@@ -22,14 +22,15 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A Script is a container for the raw structure of a user's script along with
- *  various data such as suppressed warnings.
+ * A Script is a container for the raw structure of a user's script.
+ * It contains information for the script, such as custom data,
+ *  suppressed warnings, and specific event handlers.
  */
 public class Script {
 
@@ -53,7 +54,7 @@ public class Script {
 
 	// Warning Suppressions
 
-	private final Set<ScriptWarning> suppressedWarnings = new HashSet<>();
+	private final Set<ScriptWarning> suppressedWarnings = new HashSet<>(ScriptWarning.values().length);
 
 	/**
 	 * @param warning The warning to check.
@@ -85,40 +86,71 @@ public class Script {
 
 	// Script Data
 
-	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new HashMap<>();
+	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new ConcurrentHashMap<>(5);
 
+	/**
+	 * A method to obtain ScriptData matching the specified data type.
+	 * @param dataType The class representing the ScriptData to obtain.
+	 * @return ScriptData found matching the provided class, or null if no data is present.
+	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <T extends ScriptData> T getData(Class<T> dataType) {
 		return (T) scriptData.get(dataType);
 	}
 
+	/**
+	 * Adds new ScriptData to this Script's data map.
+	 * @param data The data to add.
+	 */
 	public void addData(ScriptData data) {
 		scriptData.put(data.getClass(), data);
 	}
 
+	/**
+	 * Removes the ScriptData matching the specified data type.
+	 * @param dataType The type of the data to remove.
+	 */
 	public void removeData(Class<? extends ScriptData> dataType) {
 		scriptData.remove(dataType);
 	}
 
+	/**
+	 * ScriptData is used for storing data on a per-script basis.
+	 * One example is {@link ch.njol.skript.aliases.ScriptAliases}.
+	 */
 	public static abstract class ScriptData { }
 
 	// Script Events
 
-	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>();
+	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>(5);
 
+	/**
+	 * @return An unmodifiable set of all event handlers.
+	 */
 	public Set<ScriptEventHandler> getEventHandlers() {
 		return Collections.unmodifiableSet(eventHandlers);
 	}
 
+	/**
+	 * Adds the provided event handler to this Script.
+	 * @param eventHandler The event handler to add.
+	 */
 	public void addEventHandler(ScriptEventHandler eventHandler) {
 		eventHandlers.add(eventHandler);
 	}
 
+	/**
+	 * Removes the provided event handler from this Script.
+	 * @param eventHandler The event handler to remove.
+	 */
 	public void removeEventHandler(ScriptEventHandler eventHandler) {
 		eventHandlers.remove(eventHandler);
 	}
 
+	/**
+	 * A ScriptEventHandler is used for listening to and performing actions for different Script events.
+	 */
 	public static abstract class ScriptEventHandler {
 
 		/**

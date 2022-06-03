@@ -22,11 +22,13 @@ import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.Script.ScriptData;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.log.HandlerList;
+import ch.njol.skript.structures.StructOptions;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -60,7 +62,6 @@ public class ParserInstance {
 	// Script
 	@Nullable
 	private Script currentScript;
-	private final HashMap<String, String> currentOptions = new HashMap<>();
 	private ScriptInfo scriptInfo;
 	private final List<Structure> loadedStructures = new ArrayList<>();
 
@@ -96,9 +97,28 @@ public class ParserInstance {
 	public Script getCurrentScript() {
 		return currentScript;
 	}
-	
+
+	// Just for the deprecated method so that we don't bother creating empty maps
+	private static final HashMap<String, String> DUMMY_MAP = new HashMap<>(0);
+
+	/**
+	 * Deprecated. Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
+	 */
+	@Deprecated
 	public HashMap<String, String> getCurrentOptions() {
-		return currentOptions;
+		Script script = getCurrentScript();
+		if (script == null)
+			return DUMMY_MAP;
+		HashMap<String, String> options = StructOptions.getOptions(script);
+		if (options == null)
+			return DUMMY_MAP;
+		return options;
+	}
+
+	private static final class OptionsData extends ScriptData {
+
+		private final HashMap<String, String> currentOptions = new HashMap<>();
+
 	}
 
 	public ScriptInfo getScriptInfo() {
