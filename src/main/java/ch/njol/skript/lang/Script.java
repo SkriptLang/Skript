@@ -22,7 +22,9 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -80,6 +82,28 @@ public class Script {
 		MISSING_CONJUNCTION, // Missing "and" or "or"
 		VARIABLE_STARTS_WITH_EXPRESSION // Variable starts with an Expression
 	}
+
+	// Script Data
+
+	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new HashMap<>();
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T extends ScriptData> T getData(Class<T> dataType) {
+		return (T) scriptData.get(dataType);
+	}
+
+	public void addData(ScriptData data) {
+		scriptData.put(data.getClass(), data);
+	}
+
+	public void removeData(Class<? extends ScriptData> dataType) {
+		scriptData.remove(dataType);
+	}
+
+	public static abstract class ScriptData { }
+
+	// Script Events
 
 	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>();
 
