@@ -1145,6 +1145,23 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
 			.toArray(EnchantmentType[]::new);
 	}
+
+	/**
+	 * Gets the {@link EnchantmentType} with the given {@link Enchantment} of this item type.
+	 *
+	 * @param enchantment the enchantment
+	 * @return the enchantment type, or null if the item is not enchanted with the given enchantment
+	 */
+	@Nullable
+	public EnchantmentType getEnchantmentType(Enchantment enchantment) {
+		Set<Entry<Enchantment, Integer>> enchants = getItemMeta().getEnchants().entrySet();
+
+		return enchants.stream()
+			.filter(entry -> entry.getKey().equals(enchantment))
+			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+			.findFirst()
+			.orElse(null);
+	}
 	
 	/**
 	 * Checks whether this item type has enchantments.
