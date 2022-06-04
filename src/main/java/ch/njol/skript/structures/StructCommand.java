@@ -28,6 +28,10 @@ import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.Script;
@@ -56,6 +60,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Name("Command")
+@Description("Used for registering custom commands.")
+@Examples({
+	"command /broadcast <string>:",
+	"\tusage: A command for broadcasting a message to all players.",
+	"\tpermission: skript.command.broadcast",
+	"\tpermission message: You don't have permission to broadcast messages",
+	"\taliases: /bc",
+	"\texecutable by: players and console",
+	"\tcooldown: 15 seconds",
+	"\tcooldown message: You last broadcast a message %elapsed time% ago. You can broadcast another message in %remaining time%.",
+	"\tcooldown bypass: skript.command.broadcast.admin",
+	"\tcooldown storage: {cooldown::%player%}",
+	"\ttrigger:",
+	"\t\tbroadcast the argument"
+})
+@Since("1.0")
 public class StructCommand extends Structure {
 
 	public static final Priority PRIORITY = new Priority(500);

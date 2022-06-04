@@ -20,6 +20,10 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -33,6 +37,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Name("Function")
+@Description({
+	"Functions are structures that can be executed with arguments/parameters to run code.",
+	"They can also return a value to the trigger that is executing the function."
+})
+@Examples({
+	"function sayMessage(message: text):",
+	"\tbroadcast {_message} # our message argument is available in '{_message}'",
+	"function giveApple(amount: number) :: item:",
+	"\treturn {_amount} of apple"
+})
+@Since("2.2")
 public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);

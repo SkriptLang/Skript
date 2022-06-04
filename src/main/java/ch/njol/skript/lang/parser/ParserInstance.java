@@ -22,7 +22,6 @@ import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.Script.ScriptData;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;

@@ -23,6 +23,10 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -42,6 +46,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@Name("Variables")
+@Description({
+	"Used for defining variables present within a script.",
+	"This section is not required, but it ensures that a variable has a value if it doesn't exist when the script is loaded."
+})
+@Examples({
+	"variables:",
+	"\t{joins} = 0",
+	"on join:",
+	"\tadd 1 to {joins}"
+})
+@Since("1.0")
 public class StructVariables extends Structure {
 
 	public static final Priority PRIORITY = new Priority(300);

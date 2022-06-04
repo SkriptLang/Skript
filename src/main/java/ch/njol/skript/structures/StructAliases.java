@@ -22,6 +22,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ScriptAliases;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -30,6 +34,14 @@ import ch.njol.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+@Name("Aliases")
+@Description("Used for registering custom aliases for a script.")
+@Examples({
+	"aliases:",
+	"\tblacklisted items = TNT, bedrock, obsidian, mob spawner, lava, lava bucket",
+	"\tshiny swords = gold sword, iron sword, diamond sword"
+})
+@Since("1.0")
 public class StructAliases extends Structure {
 
 	public static final Priority PRIORITY = new Priority(200);
