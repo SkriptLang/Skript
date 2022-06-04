@@ -26,7 +26,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.Script.ScriptData;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -591,9 +590,8 @@ public abstract class Aliases {
 	 */
 	public static ScriptAliases createScriptAliases(Script script) {
 		AliasesProvider localProvider = createProvider(10, provider);
-		script.removeData(AliasesData.class);
 		ScriptAliases aliases = new ScriptAliases(localProvider, createParser(localProvider));
-		script.addData(new AliasesData(aliases));
+		script.addData(aliases);
 		return aliases;
 	}
 
@@ -602,7 +600,7 @@ public abstract class Aliases {
 	 * @param script The script to clear aliases for.
 	 */
 	public static void clearScriptAliases(Script script) {
-		script.removeData(AliasesData.class);
+		script.removeData(ScriptAliases.class);
 	}
 
 	/**
@@ -614,18 +612,7 @@ public abstract class Aliases {
 	private static ScriptAliases getScriptAliases(@Nullable Script script) {
 		if (script == null) // It's easier to handle this here in the event that ParserInstance#getCurrentScript is null
 			return null;
-		AliasesData aliasesData = script.getData(AliasesData.class);
-		return aliasesData != null ? aliasesData.aliases : null;
-	}
-
-	private static final class AliasesData extends ScriptData {
-
-		public final ScriptAliases aliases;
-
-		public AliasesData(ScriptAliases aliases) {
-			this.aliases = aliases;
-		}
-
+		return script.getData(ScriptAliases.class);
 	}
 
 }

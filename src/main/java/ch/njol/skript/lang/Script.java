@@ -86,7 +86,7 @@ public class Script {
 
 	// Script Data
 
-	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new ConcurrentHashMap<>(5);
+	private final Map<Class<?>, Object> scriptData = new ConcurrentHashMap<>(5);
 
 	/**
 	 * A method to obtain ScriptData matching the specified data type.
@@ -95,7 +95,7 @@ public class Script {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T extends ScriptData> T getData(Class<T> dataType) {
+	public <T> T getData(Class<T> dataType) {
 		return (T) scriptData.get(dataType);
 	}
 
@@ -103,7 +103,7 @@ public class Script {
 	 * Adds new ScriptData to this Script's data map.
 	 * @param data The data to add.
 	 */
-	public void addData(ScriptData data) {
+	public void addData(Object data) {
 		scriptData.put(data.getClass(), data);
 	}
 
@@ -111,15 +111,9 @@ public class Script {
 	 * Removes the ScriptData matching the specified data type.
 	 * @param dataType The type of the data to remove.
 	 */
-	public void removeData(Class<? extends ScriptData> dataType) {
+	public void removeData(Class<?> dataType) {
 		scriptData.remove(dataType);
 	}
-
-	/**
-	 * ScriptData is used for storing data on a per-script basis.
-	 * One example is {@link ch.njol.skript.aliases.ScriptAliases}.
-	 */
-	public static abstract class ScriptData { }
 
 	// Script Events
 

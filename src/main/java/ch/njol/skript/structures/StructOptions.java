@@ -24,7 +24,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.Script.ScriptData;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
@@ -125,7 +124,7 @@ public class StructOptions extends Structure {
 		return replaced;
 	}
 
-	private static final class OptionsData extends ScriptData {
+	private static final class OptionsData {
 
 		public final HashMap<String, String> options = new HashMap<>(15);
 
