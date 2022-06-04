@@ -64,37 +64,31 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		for (Entity entity : getExpr().getArray(e)) {
+			int newTime = 0;
 			switch (mode) {
 				case ADD:
-					int newTime = entity.getFreezeTicks() + time;
-					if (newTime < 0)
-						newTime = 0;
-					if (entity.getMaxFreezeTicks() < newTime)
-						newTime = entity.getMaxFreezeTicks();
-					entity.setFreezeTicks(newTime);
+					newTime = entity.getFreezeTicks() + time;
 					break;
 				case REMOVE:
 					newTime = entity.getFreezeTicks() - time;
-					if (newTime < 0)
-						newTime = 0;
-					if (entity.getMaxFreezeTicks() < newTime)
-						newTime = entity.getMaxFreezeTicks();
-					entity.setFreezeTicks(newTime);
+					break;
+				case SET:
+					newTime = time;
 					break;
 				case DELETE:
 				case RESET:
-					entity.setFreezeTicks(0);
-					break;
-				case SET:
-					if (time < 0)
-						time = 0;
-					if (entity.getMaxFreezeTicks() < time)
-						time = entity.getMaxFreezeTicks();
-					entity.setFreezeTicks(time);
+					newTime = 0; // redundant, but for the sake of clarity
 					break;
 				default:
 					assert false;
 			}
+			// limit time to between 0 and max
+			if (newTime < 0)
+				newTime = 0;
+			if (entity.getMaxFreezeTicks() < newTime)
+				newTime = entity.getMaxFreezeTicks();
+			// set new time
+			entity.setFreezeTicks(newTime);
 		}
 	}
 
