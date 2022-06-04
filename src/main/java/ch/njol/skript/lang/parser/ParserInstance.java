@@ -115,12 +115,6 @@ public class ParserInstance {
 		return options;
 	}
 
-	private static final class OptionsData extends ScriptData {
-
-		private final HashMap<String, String> currentOptions = new HashMap<>();
-
-	}
-
 	public ScriptInfo getScriptInfo() {
 		return scriptInfo;
 	}
