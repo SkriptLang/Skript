@@ -31,7 +31,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Freeze Ticks")
+@Name("Freeze Time")
 @Description("How much time an entity has been in powdered snow for.")
 @Examples({
 	"player's freeze time is less than 3 seconds:",
@@ -42,12 +42,12 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	static {
 		if (Skript.methodExists(Entity.class, "getFreezeTicks"))
-			register(ExprFreezeTicks.class, Timespan.class, "freeze (ticks|time)", "entities");
+			register(ExprFreezeTicks.class, Timespan.class, "freeze time", "entities");
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "freeze ticks";
+		return "freeze time";
 	}
 
 	@Override

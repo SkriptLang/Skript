@@ -1,17 +1,17 @@
-test "freeze ticks" when running minecraft "1.18":
+test "freeze time" when running minecraft "1.18":
 	spawn cow at location(0, 64, 0, world "world")
 	set {_m} to last spawned cow
-	assert freeze ticks of {_m} is set with "freeze ticks get failed"
-	set freeze ticks of {_m} to 3 seconds
-	assert freeze ticks of {_m} is 3 seconds with "freeze ticks set failed"
-	add 2 seconds to freeze ticks of {_m}
-	assert freeze ticks of {_m} is 5 seconds with "freeze ticks add ##1 failed"
-	add 10 seconds to freeze ticks of {_m}
-	assert freeze ticks of {_m} is 7 seconds with "freeze ticks add ##2 failed" # freeze ticks should be capped at {_m}'s max freeze ticks (7 seconds for a cow)
+	assert freeze time of {_m} is set with "freeze time get failed"
+	set freeze time of {_m} to 3 seconds
+	assert freeze time of {_m} is 3 seconds with "freeze time set failed"
+	add 2 seconds to freeze time of {_m}
+	assert freeze time of {_m} is 5 seconds with "freeze time add ##1 failed"
+	add 10 seconds to freeze time of {_m}
+	assert freeze time of {_m} is 7 seconds with "freeze time add ##2 failed" # freeze time should be capped at {_m}'s max freeze time (7 seconds for a cow)
 
-	remove 4 seconds from freeze ticks of {_m}
-	assert freeze ticks of {_m} is 3 seconds with "freeze ticks remove ##1 failed"
-	remove 10 seconds from freeze ticks of {_m}
-	assert freeze ticks of {_m} is 0 seconds with "freeze ticks remove ##2 failed" # freeze ticks should not be negative
-	delete freeze ticks of {_m}
-	assert freeze ticks of {_m} is 0 seconds with "freeze ticks delete failed"
+	remove 4 seconds from freeze time of {_m}
+	assert freeze time of {_m} is 3 seconds with "freeze time remove ##1 failed"
+	remove 10 seconds from freeze time of {_m}
+	assert freeze time of {_m} is 0 seconds with "freeze time remove ##2 failed" # freeze time should not be negative
+	delete freeze time of {_m}
+	assert freeze time of {_m} is 0 seconds with "freeze time delete failed"

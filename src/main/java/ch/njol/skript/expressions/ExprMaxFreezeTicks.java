@@ -31,7 +31,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Maximum Freeze Ticks")
+@Name("Maximum Freeze Time")
 @Description("The maximum amount of time an entity can spend in powdered snow before taking damage.")
 @Examples({
 	"difference between player's freeze time and player's max freeze time is less than 1 second:",
@@ -42,12 +42,12 @@ public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespa
 
 	static {
 		if (Skript.methodExists(Entity.class, "getMaxFreezeTicks"))
-			register(ExprMaxFreezeTicks.class, Timespan.class, "max[imum] freeze (ticks|time)", "entities");
+			register(ExprMaxFreezeTicks.class, Timespan.class, "max[imum] freeze time", "entities");
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "maximum freeze ticks";
+		return "maximum freeze time";
 	}
 
 	@Override
