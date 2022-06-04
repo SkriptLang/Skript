@@ -193,15 +193,13 @@ public abstract class SkriptEventHandler {
 	}
 
 	/**
-	 * Adds a {@link Structure} to the loaded structures.
+	 * Adds a {@link Structure} to the loaded structures of the provided script.
 	 *
-	 * @param structure the structure to add
+	 * @param script The Script the Structure belongs to.
+	 * @param structure The Structure to add.
 	 * @throws IllegalStateException when {@link ParserInstance#getCurrentScript()} is null
 	 */
-	public static void addStructure(Structure structure) throws IllegalStateException {
-		Script script = ParserInstance.get().getCurrentScript();
-		if (script == null)
-			throw new IllegalStateException("Current script is null");
+	public static void addStructure(Script script, Structure structure) throws IllegalStateException {
 		getStructures(script).add(structure);
 	}
 	
@@ -212,14 +210,14 @@ public abstract class SkriptEventHandler {
 		int previousSize = triggers.size();
 		triggers.removeIf(pair -> script.equals(pair.getSecond().getScript()));
 		info.triggers += previousSize - triggers.size();
-		
-		for (int i = 0; i < selfRegisteredTriggers.size(); i++) {
-			Trigger t = selfRegisteredTriggers.get(i);
-			if (script.equals(t.getScript())) {
+
+		Iterator<Trigger> selfRegisteredTriggersIterator = selfRegisteredTriggers.iterator();
+		while (selfRegisteredTriggersIterator.hasNext()) {
+			Trigger trigger = selfRegisteredTriggersIterator.next();
+			if (script.equals(trigger.getScript())) {
 				info.triggers++;
-				((SelfRegisteringSkriptEvent) t.getEvent()).unregister(t);
-				selfRegisteredTriggers.remove(i);
-				i--;
+				((SelfRegisteringSkriptEvent) trigger.getEvent()).unregister(trigger);
+				selfRegisteredTriggersIterator.remove();
 			}
 		}
 
@@ -236,9 +234,10 @@ public abstract class SkriptEventHandler {
 		for (Trigger t : selfRegisteredTriggers)
 			((SelfRegisteringSkriptEvent) t.getEvent()).unregisterAll();
 		selfRegisteredTriggers.clear();
-		for (List<Structure> list : structures.values())
+		for (List<Structure> list : structures.values()) {
 			for (Structure structure : list)
 				structure.unload();
+		}
 		structures.clear();
 	}
 

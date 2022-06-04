@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,7 +78,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -95,6 +95,13 @@ public class ScriptLoader {
 	 */
 	static void disableScripts() {
 		SkriptEventHandler.removeAllTriggers();
+		Iterator<Script> loadedScriptsIterator = loadedScripts.iterator();
+		while (loadedScriptsIterator.hasNext()) {
+			File scriptFile = loadedScriptsIterator.next().getConfig().getFile();
+			loadedScriptsIterator.remove();
+			assert scriptFile != null;
+			disabledScripts.add(new File(scriptFile.getParentFile(), "-" + scriptFile.getName()));
+		}
 	}
 	
 	/**
@@ -597,7 +604,7 @@ public class ScriptLoader {
 					if (structure == null)
 						continue;
 
-					SkriptEventHandler.addStructure(structure);
+					SkriptEventHandler.addStructure(script, structure);
 					structures.add(structure);
 
 					scriptInfo.triggers++;
@@ -815,7 +822,7 @@ public class ScriptLoader {
 
 		//noinspection ConstantConditions - getPath should never return null
 		String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
-			.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath()).toAbsolutePath().toString();
+			.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath().toAbsolutePath()).toString();
 		assert name != null;
 
 		return info; // Return how much we unloaded

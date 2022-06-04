@@ -69,9 +69,8 @@ public class StructAliases extends Structure {
 	@Override
 	public void unload() {
 		// Unload aliases when this Script is unloaded
-		Script currentScript = getParser().getCurrentScript();
-		assert currentScript != null;
-		Aliases.clearScriptAliases(currentScript);
+		//noinspection ConstantConditions - current script won't be null
+		Aliases.clearScriptAliases(getParser().getCurrentScript());
 	}
 
 	@Override

@@ -82,6 +82,7 @@ public class StructFunction extends Structure {
 	public void load() {
 		getParser().setCurrentEvent("function", FunctionEvent.class);
 
+		//noinspection ConstantConditions - current script won't be null
 		Functions.loadFunction(getParser().getCurrentScript(), node);
 
 		getParser().deleteCurrentEvent();

@@ -99,9 +99,8 @@ public class StructOptions extends Structure {
 
 	@Override
 	public void unload() {
-		Script currentScript = getParser().getCurrentScript();
-		assert currentScript != null;
-		currentScript.removeData(OptionsData.class);
+		//noinspection ConstantConditions - current script won't be null
+		getParser().getCurrentScript().removeData(OptionsData.class);
 	}
 
 	@Override
