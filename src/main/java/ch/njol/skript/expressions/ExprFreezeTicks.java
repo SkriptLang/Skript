@@ -19,21 +19,17 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
 
 @Name("Freeze Ticks")
 @Description("How much time an entity has been in powdered snow for.")
@@ -60,37 +56,40 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		return (mode != Changer.ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		for (Entity entity : getExpr().getArray(e)) {
 			switch (mode) {
 				case ADD:
 					int newTime = entity.getFreezeTicks() + time;
-					if (newTime < 0) newTime = 0;
-					if (entity.getMaxFreezeTicks() < newTime) newTime = entity.getMaxFreezeTicks();
+					if (newTime < 0)
+						newTime = 0;
+					if (entity.getMaxFreezeTicks() < newTime)
+						newTime = entity.getMaxFreezeTicks();
 					entity.setFreezeTicks(newTime);
-					break;
-				case DELETE:
-					entity.setFreezeTicks(0); //just before sunset
 					break;
 				case REMOVE:
 					newTime = entity.getFreezeTicks() - time;
-					if (newTime < 0) newTime = 0;
-					if (entity.getMaxFreezeTicks() < newTime) newTime = entity.getMaxFreezeTicks();
+					if (newTime < 0)
+						newTime = 0;
+					if (entity.getMaxFreezeTicks() < newTime)
+						newTime = entity.getMaxFreezeTicks();
 					entity.setFreezeTicks(newTime);
 					break;
-				case REMOVE_ALL:
+				case DELETE:
 				case RESET:
 					entity.setFreezeTicks(0);
 					break;
 				case SET:
-					if (time < 0) time = 0;
-					if (entity.getMaxFreezeTicks() < time) time = entity.getMaxFreezeTicks();
+					if (time < 0)
+						time = 0;
+					if (entity.getMaxFreezeTicks() < time)
+						time = entity.getMaxFreezeTicks();
 					entity.setFreezeTicks(time);
 					break;
 				default:
@@ -103,4 +102,5 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
+
 }

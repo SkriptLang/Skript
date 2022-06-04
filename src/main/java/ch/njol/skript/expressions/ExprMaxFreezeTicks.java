@@ -59,4 +59,5 @@ public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespa
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
+
 }

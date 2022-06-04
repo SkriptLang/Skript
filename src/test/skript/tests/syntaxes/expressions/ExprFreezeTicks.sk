@@ -1,4 +1,4 @@
-test "freeze ticks 1" when running minecraft "1.18":
+test "freeze ticks" when running minecraft "1.18":
 	spawn cow at location(0, 64, 0, world "world")
 	set {_m} to last spawned cow
 	assert freeze ticks of {_m} is set with "freeze ticks get failed"

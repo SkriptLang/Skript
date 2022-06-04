@@ -26,7 +26,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 
-
 @Name("Is Frozen")
 @Description("Checks whether an entity is frozen.")
 @Examples({
@@ -35,6 +34,7 @@ import org.bukkit.entity.Entity;
 })
 @Since("INSERT VERSION")
 public class CondIsFrozen extends PropertyCondition<Entity> {
+
 	static {
 		if (Skript.methodExists(Entity.class, "isFrozen"))
 			register(CondIsFrozen.class, "frozen", "entities");
@@ -49,4 +49,5 @@ public class CondIsFrozen extends PropertyCondition<Entity> {
 	protected String getPropertyName() {
 		return "frozen";
 	}
+
 }
