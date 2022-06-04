@@ -62,7 +62,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	/**
 	 * The default {@link Priority} of every registered Structure.
 	 */
-	public static final Priority DEFAULT_PRIORITY = new Priority(100);
+	public static final Priority DEFAULT_PRIORITY = new Priority(1000);
 
 	/**
 	 * Priorities are used to determine the order in which Structures should be loaded.

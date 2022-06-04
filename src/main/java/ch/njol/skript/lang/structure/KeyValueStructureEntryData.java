@@ -72,8 +72,6 @@ public abstract class KeyValueStructureEntryData<T> extends StructureEntryData<T
 	@Nullable
 	protected abstract T getValue(String value);
 
-	// TODO by default this should probably use the entry separator specified in builder
-
 	/**
 	 * @return The String acting as a separator between the key and the value.
 	 */

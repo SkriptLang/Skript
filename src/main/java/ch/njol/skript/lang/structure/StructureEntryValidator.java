@@ -253,6 +253,8 @@ public class StructureEntryValidator {
 		/**
 		 * A method to add custom {@link StructureEntryData} to a validator.
 		 * Custom entry data should be preferred when the default methods included in this builder are not expansive enough.
+		 * Please note that for custom {@link KeyValueStructureEntryData} implementations, the default entry separator
+		 *  value of this builder will not be used. Instead, {@link #DEFAULT_ENTRY_SEPARATOR} will be used.
 		 * @param entryData The custom entry data to include in this validator.
 		 * @return The builder instance.
 		 */
