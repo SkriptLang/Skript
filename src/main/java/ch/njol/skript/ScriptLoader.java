@@ -1111,9 +1111,16 @@ public class ScriptLoader {
 				if (!SkriptParser.validateLine(expr))
 					continue;
 
+				long start = System.currentTimeMillis();
 				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
 				if (stmt == null)
 					continue;
+				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
+				if (requiredTime > 0 && System.currentTimeMillis() - start > requiredTime)
+					Skript.warning(
+						"The line '" + expr + "' took took a long time to parse."
+							+ " Please avoid using long lines and/or use parentheses to create clearer instructions."
+					);
 
 				if (Skript.debug() || n.debug())
 					Skript.debug(SkriptColor.replaceColorChar(getParser().getIndentation() + stmt.toString(null, true)));

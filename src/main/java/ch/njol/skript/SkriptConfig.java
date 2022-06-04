@@ -18,7 +18,6 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
@@ -323,6 +322,8 @@ public class SkriptConfig {
 			return null;
 		}
 	}).optional(true);
+
+	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
 
 	/**
 	 * This should only be used in special cases
