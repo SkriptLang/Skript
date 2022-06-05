@@ -46,17 +46,14 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "freeze time";
-	}
-
-	@Override
-	public @Nullable Timespan convert(Entity entity) {
+	@Nullable
+	public Timespan convert(Entity entity) {
 		return Timespan.fromTicks_i(entity.getFreezeTicks());
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
 	}
 
@@ -77,17 +74,17 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 					break;
 				case DELETE:
 				case RESET:
-					newTime = 0; // redundant, but for the sake of clarity
+					newTime = 0; // Redundant, but for the sake of clarity
 					break;
 				default:
 					assert false;
 			}
-			// limit time to between 0 and max
+			//Limit time to between 0 and max
 			if (newTime < 0)
 				newTime = 0;
 			if (entity.getMaxFreezeTicks() < newTime)
 				newTime = entity.getMaxFreezeTicks();
-			// set new time
+			// Set new time
 			entity.setFreezeTicks(newTime);
 		}
 	}
@@ -95,6 +92,11 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "freeze time";
 	}
 
 }

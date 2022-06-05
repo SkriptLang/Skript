@@ -46,18 +46,19 @@ public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespa
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "maximum freeze time";
-	}
-
-	@Override
-	public @Nullable Timespan convert(Entity entity) {
+	@Nullable
+	public Timespan convert(Entity entity) {
 		return Timespan.fromTicks_i(entity.getMaxFreezeTicks());
 	}
 
 	@Override
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "maximum freeze time";
 	}
 
 }
