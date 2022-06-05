@@ -273,11 +273,11 @@ public class EventValues {
 		}
 		// Fourth check will attempt to convert the event value to the type.
 		for (EventValueInfo<?, ?> ev : eventValues) {
-			boolean b = !ev.event.isAssignableFrom(e);
-			if (b && !e.isAssignableFrom(ev.event))
+			boolean checkInstanceOf = !ev.event.isAssignableFrom(e);
+			if (checkInstanceOf && !e.isAssignableFrom(ev.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, checkInstanceOf);
 			if (getter == null)
 				continue;
 			

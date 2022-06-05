@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import java.io.File;
 
+import ch.njol.skript.util.SkriptColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -124,7 +125,7 @@ public abstract class TriggerItem implements Debuggable {
 	protected final void debug(final Event e, final boolean run) {
 		if (!Skript.debug())
 			return;
-		Skript.debug(getIndentation() + (run ? "" : "-") + toString(e, true));
+		Skript.debug(SkriptColor.replaceColorChar(getIndentation() + (run ? "" : "-") + toString(e, true)));
 	}
 	
 	@Override
