@@ -491,7 +491,7 @@ public class ScriptLoader {
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
 
-		Map<Script, List<Structure>> structures = new HashMap<>();
+		List<Script> scripts = new ArrayList<>();
 
 		List<CompletableFuture<Void>> scriptInfoFutures = new ArrayList<>();
 		for (Config config : configs) {
@@ -501,12 +501,7 @@ public class ScriptLoader {
 			CompletableFuture<Void> future = makeFuture(() -> {
 				Script script = new Script(config);
 				ScriptInfo info = loadScript(script);
-
-				structures.put(script, getParser().getLoadedStructures().stream()
-					.sorted(Comparator.comparing(Structure::getPriority))
-					.collect(Collectors.toList())
-				);
-
+				scripts.add(script);
 				scriptInfo.add(info);
 				return null;
 			}, openCloseable);
@@ -519,10 +514,9 @@ public class ScriptLoader {
 				try {
 					openCloseable.open();
 
-					structures.entrySet().stream()
-						.flatMap(entry -> { // Flatten each entry down to a stream of Config-Structure pairs
-							Script script = entry.getKey();
-							return entry.getValue().stream()
+					scripts.stream()
+						.flatMap(script -> { // Flatten each entry down to a stream of Config-Structure pairs
+							return script.getStructures().stream()
 								.map(structure -> new NonNullPair<>(script, structure));
 						})
 						.sorted(Comparator.comparing(pair -> pair.getSecond().getPriority()))
@@ -533,15 +527,15 @@ public class ScriptLoader {
 							pair.getSecond().preLoad();
 						});
 
-					for (Entry<Script, List<Structure>> entry : structures.entrySet()) {
-						getParser().setCurrentScript(entry.getKey());
-						for (Structure structure : entry.getValue())
+					for (Script script : scripts) {
+						getParser().setCurrentScript(script);
+						for (Structure structure : script.getStructures())
 							structure.load();
 					}
 
-					for (Entry<Script, List<Structure>> entry : structures.entrySet()) {
-						getParser().setCurrentScript(entry.getKey());
-						for (Structure structure : entry.getValue())
+					for (Script script : scripts) {
+						getParser().setCurrentScript(script);
+						for (Structure structure : script.getStructures())
 							structure.postLoad();
 					}
 
