@@ -18,11 +18,15 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.lang.structure.Structure;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Script {
 
 	private final Config config;
+
+	private final List<Structure> structures = new ArrayList<>();
 
 	/**
 	 * Creates a new Script to be used across the API.
@@ -50,6 +56,39 @@ public class Script {
 	 */
 	public Config getConfig() {
 		return config;
+	}
+
+	/**
+	 * @return A list of all Structures within this Script.
+	 */
+	public List<Structure> getStructures() {
+		return Collections.unmodifiableList(structures);
+	}
+
+	/**
+	 * Adds the provided Structure to the list of this Script's Structures.
+	 * @param structure The Structure to add.
+	 */
+	public void addStructure(Structure structure) {
+		structures.add(structure);
+	}
+
+	/**
+	 * Unloads all Structures within this Script and removes them from the tracked list.
+	 * If you are looking to completely unload a Script, see
+	 * 	{@link ch.njol.skript.ScriptLoader#unloadScript(Script)}.
+	 * @return ScriptInfo about the number of Structures unloaded.
+	 */
+	public ScriptInfo unloadStructures() {
+		ScriptInfo info = new ScriptInfo();
+		info.files = 1;
+		info.structures = structures.size();
+
+		for (Structure structure : structures)
+			structure.unload();
+		structures.clear();
+
+		return info;
 	}
 
 	// Warning Suppressions

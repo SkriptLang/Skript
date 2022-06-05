@@ -18,12 +18,7 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
-import ch.njol.skript.lang.Script;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.util.NonNullPair;
 import org.bukkit.Bukkit;
@@ -42,13 +37,14 @@ import org.bukkit.plugin.EventExecutor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public abstract class SkriptEventHandler {
+public final class SkriptEventHandler {
+
+	private SkriptEventHandler() { }
 
 	/**
 	 * An event listener for one priority.
@@ -89,9 +85,6 @@ public abstract class SkriptEventHandler {
 	}
 	
 	private static final List<NonNullPair<Class<? extends Event>, Trigger>> triggers = new ArrayList<>();
-	
-	private static final List<Trigger> selfRegisteredTriggers = new ArrayList<>();
-	private static final HashMap<Script, List<Structure>> structures = new HashMap<>();
 	
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
 		return new ArrayList<>(triggers).stream()
@@ -177,69 +170,13 @@ public abstract class SkriptEventHandler {
 			return;
 		Skript.info("# " + t.getName() + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
 	}
-	
-	/**
-	 * Stores a self registered trigger to allow for it to be unloaded later on.
-	 * 
-	 * @param t Trigger that has already been registered to its event
-	 */
-	public static void addSelfRegisteringTrigger(Trigger t) {
-		assert t.getEvent() instanceof SelfRegisteringSkriptEvent;
-		selfRegisteredTriggers.add(t);
-	}
-
-	private static List<Structure> getStructures(Script script) {
-		return structures.computeIfAbsent(script, file -> new ArrayList<>());
-	}
 
 	/**
-	 * Adds a {@link Structure} to the loaded structures of the provided script.
-	 *
-	 * @param script The Script the Structure belongs to.
-	 * @param structure The Structure to add.
-	 * @throws IllegalStateException when {@link ParserInstance#getCurrentScript()} is null
+	 * @deprecated This method no longer does anything as self registered triggers
+	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded.
 	 */
-	public static void addStructure(Script script, Structure structure) throws IllegalStateException {
-		getStructures(script).add(structure);
-	}
-	
-	static ScriptInfo removeTriggers(Script script) {
-		ScriptInfo info = new ScriptInfo();
-		info.files = 1;
-		
-		int previousSize = triggers.size();
-		triggers.removeIf(pair -> script.equals(pair.getSecond().getScript()));
-		info.triggers += previousSize - triggers.size();
-
-		Iterator<Trigger> selfRegisteredTriggersIterator = selfRegisteredTriggers.iterator();
-		while (selfRegisteredTriggersIterator.hasNext()) {
-			Trigger trigger = selfRegisteredTriggersIterator.next();
-			if (script.equals(trigger.getScript())) {
-				info.triggers++;
-				((SelfRegisteringSkriptEvent) trigger.getEvent()).unregister(trigger);
-				selfRegisteredTriggersIterator.remove();
-			}
-		}
-
-		for (Structure structure : getStructures(script)) {
-			structure.unload();
-		}
-		structures.remove(script);
-		
-		return info;
-	}
-	
-	static void removeAllTriggers() {
-		triggers.clear();
-		for (Trigger t : selfRegisteredTriggers)
-			((SelfRegisteringSkriptEvent) t.getEvent()).unregisterAll();
-		selfRegisteredTriggers.clear();
-		for (List<Structure> list : structures.values()) {
-			for (Structure structure : list)
-				structure.unload();
-		}
-		structures.clear();
-	}
+	@Deprecated
+	public static void addSelfRegisteringTrigger(Trigger t) { }
 
 	public static void registerBukkitEvents(Trigger trigger, Class<? extends Event>[] events) {
 		for (Class<? extends Event> event : events)
@@ -281,6 +218,14 @@ public abstract class SkriptEventHandler {
 
 		Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
 		registeredEvents.add(event);
+	}
+
+	/**
+	 * Unregisters all events tied to the provided Trigger.
+	 * @param trigger The Trigger to unregister events for.
+	 */
+	public static void unregisterBukkitEvents(Trigger trigger) {
+		triggers.removeIf(pair -> pair.getSecond() == trigger);
 	}
 
 	/**

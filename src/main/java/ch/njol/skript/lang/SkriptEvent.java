@@ -32,7 +32,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +58,8 @@ public abstract class SkriptEvent extends Structure {
 	private SkriptEventInfo<?> skriptEventInfo;
 	@Nullable
 	private List<TriggerItem> items;
+	@Nullable
+	private Trigger trigger;
 
 	@Override
 	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer container) {
@@ -98,10 +99,14 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
-	 * called just after the constructor
+	 * Called just after the constructor
 	 */
 	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
 
+	/**
+	 * This method handles the loading of the Structure's syntax elements.
+	 * Only override this method if you know what you are doing!
+	 */
 	@Override
 	public void load() {
 		if (!shouldLoadEvent())
@@ -123,6 +128,10 @@ public abstract class SkriptEvent extends Structure {
 		}
 	}
 
+	/**
+	 * This method handles the registration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
 	@Override
 	public void postLoad() {
 		if (items == null) // shouldLoadEvent returned false
@@ -133,7 +142,6 @@ public abstract class SkriptEvent extends Structure {
 
 		Script script = getParser().getCurrentScript();
 
-		Trigger trigger;
 		try {
 			trigger = new Trigger(script, expr, this, items);
 			trigger.setLineNumber(node.getLine()); // Set line number for debugging
@@ -144,13 +152,28 @@ public abstract class SkriptEvent extends Structure {
 
 		if (this instanceof SelfRegisteringSkriptEvent) {
 			((SelfRegisteringSkriptEvent) this).register(trigger);
-			SkriptEventHandler.addSelfRegisteringTrigger(trigger);
 		} else {
 			SkriptEventHandler.registerBukkitEvents(trigger, getEventClasses());
 		}
 
 		getParser().deleteCurrentEvent();
 		getParser().deleteCurrentSkriptEvent();
+	}
+
+	/**
+	 * This method handles the unregistration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public void unload() {
+		if (trigger == null)
+			return;
+
+		if (this instanceof SelfRegisteringSkriptEvent) {
+			((SelfRegisteringSkriptEvent) this).unregister(trigger);
+		} else {
+			SkriptEventHandler.unregisterBukkitEvents(trigger);
+		}
 	}
 
 	@Override

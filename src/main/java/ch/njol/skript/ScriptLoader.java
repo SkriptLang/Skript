@@ -94,11 +94,15 @@ public class ScriptLoader {
 	 * Disables all scripts by unloading all structures.
 	 */
 	static void disableScripts() {
-		SkriptEventHandler.removeAllTriggers();
 		Iterator<Script> loadedScriptsIterator = loadedScripts.iterator();
 		while (loadedScriptsIterator.hasNext()) {
-			File scriptFile = loadedScriptsIterator.next().getConfig().getFile();
+			Script script = loadedScriptsIterator.next();
+			// Unloading process
+			script.unloadStructures();
+			// Remove from loaded scripts
 			loadedScriptsIterator.remove();
+			// Add to disabled scripts
+			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;
 			disabledScripts.add(new File(scriptFile.getParentFile(), "-" + scriptFile.getName()));
 		}
@@ -108,19 +112,19 @@ public class ScriptLoader {
 	 * A class for keeping track of the general content of a script:
 	 * <ul>
 	 *     <li>The amount of files</li>
-	 *     <li>The amount of triggers</li>
+	 *     <li>The amount of structures</li>
 	 * </ul>
 	 */
 	public static class ScriptInfo {
-		public int files, triggers;
+		public int files, structures;
 
 		public ScriptInfo() {
 
 		}
 		
-		public ScriptInfo(int numFiles, int numTriggers) {
+		public ScriptInfo(int numFiles, int numStructures) {
 			files = numFiles;
-			triggers = numTriggers;
+			structures = numStructures;
 		}
 		
 		/**
@@ -129,22 +133,22 @@ public class ScriptLoader {
 		 */
 		public ScriptInfo(ScriptInfo other) {
 			files = other.files;
-			triggers = other.triggers;
+			structures = other.structures;
 		}
 		
 		public void add(ScriptInfo other) {
 			files += other.files;
-			triggers += other.triggers;
+			structures += other.structures;
 		}
 		
 		public void subtract(ScriptInfo other) {
 			files -= other.files;
-			triggers -= other.triggers;
+			structures -= other.structures;
 		}
 		
 		@Override
 		public String toString() {
-			return "ScriptInfo{files=" + files + ",triggers=" + triggers + "}";
+			return "ScriptInfo{files=" + files + ",structures=" + structures + "}";
 		}
 	}
 
@@ -468,7 +472,7 @@ public class ScriptLoader {
 				if (Skript.logNormal() && scriptInfo.files > 0)
 					Skript.info(m_scripts_loaded.toString(
 						scriptInfo.files,
-						scriptInfo.triggers,
+						scriptInfo.structures,
 						start.difference(new Date())
 					));
 			});
@@ -604,14 +608,14 @@ public class ScriptLoader {
 					if (structure == null)
 						continue;
 
-					SkriptEventHandler.addStructure(script, structure);
+					script.addStructure(structure);
 					structures.add(structure);
 
-					scriptInfo.triggers++;
+					scriptInfo.structures++;
 				}
 				
 				if (Skript.logHigh())
-					Skript.info("loaded " + scriptInfo.triggers + " trigger" + (scriptInfo.triggers == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
+					Skript.info("loaded " + scriptInfo.structures + " structure" + (scriptInfo.structures == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
 				
 				getParser().setCurrentScript(null);
 			}
@@ -807,7 +811,7 @@ public class ScriptLoader {
 			return new ScriptInfo(); // Return that we unloaded literally nothing
 		}
 
-		ScriptInfo info = SkriptEventHandler.removeTriggers(script); // Remove triggers
+		ScriptInfo info = script.unloadStructures();
 		synchronized (loadedScriptInfo) { // Update global script info
 			loadedScriptInfo.subtract(info);
 		}
@@ -961,10 +965,20 @@ public class ScriptLoader {
 			return loadedScriptInfo.files;
 		}
 	}
-	
+
+	public static int loadedStructures() {
+		synchronized (loadedScriptInfo) {
+			return loadedScriptInfo.structures;
+		}
+	}
+
+	/**
+	 * @deprecated Use {@link #loadedStructures()}.
+	 */
+	@Deprecated
 	public static int loadedTriggers() {
 		synchronized (loadedScriptInfo) {
-			return loadedScriptInfo.triggers;
+			return loadedScriptInfo.structures;
 		}
 	}
 
