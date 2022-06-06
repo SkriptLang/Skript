@@ -24,9 +24,22 @@ import java.io.IOException;
 
 /**
  * A module is a part of a {@link SkriptAddon} containing related syntax, classinfos, converters, etc.
+ * They are intended for providing organization and structure.
  * Modules can be loaded using {@link SkriptAddon#loadModules(String, String...)}.
  * Note that when loading 'org.skriptlang.skript.X', the module class should be placed at 'org.skriptlang.skript.X.ModuleClassHere'
  * 	as the mentioned method will not search deeper than the provided subpackages.
+ * The example below is the structure that a project using Modules should use.
+ * <pre>
+ * <b>potions</b>
+ * |- elements
+ *    |- PotionsExpr.java
+ * |- PotionsModule.java
+ * <b>math</b>
+ * |- elements
+ *    |- MathExpr.java
+ * |- MathModule.java
+ * <b>MyPlugin.java</b>
+ * </pre>
  */
 public abstract class Module {
 
@@ -37,17 +50,11 @@ public abstract class Module {
 	public abstract void register(SkriptAddon addon) throws IOException;
 
 	/**
-	 * Loads syntax elements for this module assuming "elements" to be the location of syntax elements.
-	 * @param loader The SkriptAddon to load syntax with.
-	 */
-	public final void loadSyntax(SkriptAddon loader) {
-		loadSyntax(loader, "elements");
-	}
-
-	/**
 	 * Loads syntax elements for this module.
 	 * @param loader The SkriptAddon to load syntax with.
 	 * @param packageName The location of syntax elements (ex: "elements")
+	 *                    Elements should **not** be contained within the main module package.
+	 *                    They should be within a subpackage of the package containing the Module class.
 	 */
 	public final void loadSyntax(SkriptAddon loader, String packageName) {
 		loader.loadClasses(getClass().getPackage().getName() + "." + packageName);

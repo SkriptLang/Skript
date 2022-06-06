@@ -87,7 +87,7 @@ public final class SkriptAddon {
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
 	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
-	 * @return This SkriptAddon
+	 * @return This SkriptAddon.
 	 */
 	public SkriptAddon loadClasses(String basePackage, String... subPackages) {
 		return loadClasses(null, true, basePackage, true, subPackages);
@@ -183,7 +183,9 @@ public final class SkriptAddon {
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions').
 	 *                    If no subpackages are provided, all subpackages will be searched.
 	 *                    Note that the search will go no further than the first layer of subpackages.
-	 * @return This SkriptAddon
+	 *                    Note that this method will also clear the entry cache of ALL checked classes,
+	 *                    	even those that are not actually a Module.
+	 * @return This SkriptAddon.
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
 	public SkriptAddon loadModules(String basePackage, String... subPackages) {
@@ -206,8 +208,8 @@ public final class SkriptAddon {
 	 * Localized files will be read from the plugin's jar and the plugin's data file,
 	 * but the <b>default.lang</b> file is only taken from the jar and <b>must</b> exist!
 	 * 
-	 * @param directory Directory name
-	 * @return This SkriptAddon
+	 * @param directory The directory containing language files.
+	 * @return This SkriptAddon.
 	 */
 	public SkriptAddon setLanguageFileDirectory(String directory) {
 		if (languageFileDirectory != null)
