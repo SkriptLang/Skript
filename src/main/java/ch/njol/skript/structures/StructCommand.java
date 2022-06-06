@@ -255,7 +255,6 @@ public class StructCommand extends Structure {
 		for (int i = 0; i < optionals; i++)
 			pattern.append(']');
 
-		// TODO this is only needed sometimes for non-specified usage message OR if Skript is running with high verbosity/debug - consider only doing this if needed
 		String desc = "/" + command + " ";
 		desc += StringUtils.replaceAll(pattern, DESCRIPTION_PATTERN, m1 -> {
 			assert m1 != null;
@@ -321,6 +320,23 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void postLoad() {
+		attemptCommandSync();
+	}
+
+	@Override
+	public void unload() {
+		if (scriptCommand != null) {
+			Commands.unregisterCommand(scriptCommand);
+			syncCommands.set(true);
+		}
+	}
+
+	@Override
+	public void postUnload() {
+		attemptCommandSync();
+	}
+
+	private void attemptCommandSync() {
 		if (syncCommands.get()) {
 			syncCommands.set(false);
 			if (CommandReloader.syncCommands(Bukkit.getServer())) {
@@ -328,14 +344,6 @@ public class StructCommand extends Structure {
 			} else {
 				Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
 			}
-		}
-	}
-
-	@Override
-	public void unload() {
-		if (scriptCommand != null) {
-			syncCommands.set(true);
-			Commands.unregisterCommand(scriptCommand);
 		}
 	}
 

@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.lang;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.lang.structure.Structure;
 import org.eclipse.jdt.annotation.Nullable;
@@ -36,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * It contains information for the script, such as custom data,
  *  suppressed warnings, and specific event handlers.
  */
-public class Script {
+public final class Script {
 
 	private final Config config;
 
@@ -62,33 +61,7 @@ public class Script {
 	 * @return A list of all Structures within this Script.
 	 */
 	public List<Structure> getStructures() {
-		return Collections.unmodifiableList(structures);
-	}
-
-	/**
-	 * Adds the provided Structure to the list of this Script's Structures.
-	 * @param structure The Structure to add.
-	 */
-	public void addStructure(Structure structure) {
-		structures.add(structure);
-	}
-
-	/**
-	 * Unloads all Structures within this Script and removes them from the tracked list.
-	 * If you are looking to completely unload a Script, see
-	 * 	{@link ch.njol.skript.ScriptLoader#unloadScript(Script)}.
-	 * @return ScriptInfo about the number of Structures unloaded.
-	 */
-	public ScriptInfo unloadStructures() {
-		ScriptInfo info = new ScriptInfo();
-		info.files = 1;
-		info.structures = structures.size();
-
-		for (Structure structure : structures)
-			structure.unload();
-		structures.clear();
-
-		return info;
+		return structures;
 	}
 
 	// Warning Suppressions

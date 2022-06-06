@@ -64,12 +64,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -78,34 +74,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * The main class for loading, unloading and reloading scripts.
  */
 public class ScriptLoader {
 	
-	private static final Message m_no_errors = new Message("skript.no errors"),
+	private static final Message
+		m_no_errors = new Message("skript.no errors"),
 		m_no_scripts = new Message("skript.no scripts");
-	private static final PluralizingArgsMessage m_scripts_loaded =
-		new PluralizingArgsMessage("skript.scripts loaded");
+	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
 	
 	/**
 	 * Disables all scripts by unloading all structures.
 	 */
 	static void disableScripts() {
-		Iterator<Script> loadedScriptsIterator = loadedScripts.iterator();
-		while (loadedScriptsIterator.hasNext()) {
-			Script script = loadedScriptsIterator.next();
-			// Unloading process
-			script.unloadStructures();
-			// Remove from loaded scripts
-			loadedScriptsIterator.remove();
-			// Add to disabled scripts
-			File scriptFile = script.getConfig().getFile();
-			assert scriptFile != null;
-			disabledScripts.add(new File(scriptFile.getParentFile(), "-" + scriptFile.getName()));
-		}
+		unloadScripts(new HashSet<>(loadedScripts));
 	}
 	
 	/**
@@ -151,11 +135,6 @@ public class ScriptLoader {
 			return "ScriptInfo{files=" + files + ",structures=" + structures + "}";
 		}
 	}
-
-	/**
-	 * Must be synchronized
-	 */
-	private static final ScriptInfo loadedScriptInfo = new ScriptInfo();
 	
 	/**
 	 * @see ParserInstance#get()
@@ -184,16 +163,38 @@ public class ScriptLoader {
 
 	/**
 	 * Searches through the loaded scripts to find the script loaded from the provided file.
-	 * @param file The file containing the script to find.
+	 * @param file The file containing the script to find. Must not be a directory.
 	 * @return The script loaded from the provided file, or null if no script was found.
 	 */
 	@Nullable
 	public static Script getScript(File file) {
+		if (file.isDirectory())
+			throw new IllegalArgumentException("A directory was provided.");
 		for (Script script : loadedScripts) {
 			if (file.equals(script.getConfig().getFile()))
 				return script;
 		}
 		return null;
+	}
+
+	/**
+	 * Searches through the loaded scripts to find all scripts loaded from the files contained within the provided directory.
+	 * @param directory The directory containing scripts to find.
+	 * @return The scripts loaded from the files of the provided directory.
+	 * 	Empty if no scripts were found.
+	 */
+	public static List<Script> getScripts(File directory) {
+		List<Script> scripts = new ArrayList<>();
+		for (File file : directory.listFiles(loadedScriptFilter)) {
+			if (file.isDirectory()) {
+				scripts.addAll(getScripts(file));
+			} else {
+				Script script = getScript(file);
+				if (script != null)
+					scripts.add(script);
+			}
+		}
+		return scripts;
 	}
 
 	/**
@@ -420,6 +421,7 @@ public class ScriptLoader {
 	/*
 	 * Script loading methods
 	 */
+
 	/**
 	 * Loads all scripts in the scripts folder using {@link #loadScripts(List, OpenCloseable)},
 	 * sending info/error messages when done.
@@ -602,7 +604,7 @@ public class ScriptLoader {
 					if (structure == null)
 						continue;
 
-					script.addStructure(structure);
+					script.getStructures().add(structure);
 					structures.add(structure);
 
 					scriptInfo.structures++;
@@ -769,17 +771,56 @@ public class ScriptLoader {
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
-	private static ScriptInfo unloadScripts_(File folder) {
+	private static ScriptInfo unloadScripts(File folder) {
+		return unloadScripts(getScripts(folder));
+	}
+
+	/**
+	 * Unloads all scripts present in the provided collection.
+	 * @param scripts The scripts to unload.
+	 * @return Combined statistics for the unloaded scripts.
+	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
+	 */
+	public static ScriptInfo unloadScripts(Collection<Script> scripts) {
+		ParserInstance parser = getParser();
 		ScriptInfo info = new ScriptInfo();
-		for (File file : folder.listFiles(loadedScriptFilter)) {
-			if (file.isDirectory()) {
-				info.add(unloadScripts_(file));
-			} else {
-				Script script = getScript(file);
-				if (script != null)
-					info.add(unloadScript(script));
-			}
+
+		scripts = new ArrayList<>(scripts); // Don't modify the list we were provided with
+		scripts.removeIf(script -> !loadedScripts.contains(script));
+
+		for (Script script : scripts) {
+			parser.setCurrentScript(script);
+			for (Structure structure : script.getStructures())
+				structure.unload();
+			parser.setCurrentScript(null);
 		}
+
+		for (Script script : scripts) {
+			List<Structure> structures = script.getStructures();
+
+			info.files++;
+			info.structures += structures.size();
+
+			parser.setCurrentScript(script);
+			for (Structure structure : script.getStructures())
+				structure.postUnload();
+			structures.clear();
+			parser.setCurrentScript(null);
+
+			loadedScripts.remove(script); // We just unloaded it, so...
+			File scriptFile = script.getConfig().getFile();
+			assert scriptFile != null;
+			disabledScripts.add(new File(scriptFile.getParentFile(), "-" + scriptFile.getName()));
+
+			// If unloading, our caller will do this immediately after we return
+			// However, if reloading, new version of this script is first loaded
+
+			//noinspection ConstantConditions - getPath should never return null
+			String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
+				.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath().toAbsolutePath()).toString();
+			assert name != null;
+		}
+
 		return info;
 	}
 
@@ -801,29 +842,7 @@ public class ScriptLoader {
 	 * @return Statistics for the unloaded script.
 	 */
 	public static ScriptInfo unloadScript(Script script) {
-		if (!loadedScripts.contains(script)) {
-			return new ScriptInfo(); // Return that we unloaded literally nothing
-		}
-
-		ScriptInfo info = script.unloadStructures();
-		synchronized (loadedScriptInfo) { // Update global script info
-			loadedScriptInfo.subtract(info);
-		}
-
-		loadedScripts.remove(script); // We just unloaded it, so...
-		File scriptFile = script.getConfig().getFile();
-		assert scriptFile != null;
-		disabledScripts.add(new File(scriptFile.getParentFile(), "-" + scriptFile.getName()));
-
-		// If unloading, our caller will do this immediately after we return
-		// However, if reloading, new version of this script is first loaded
-
-		//noinspection ConstantConditions - getPath should never return null
-		String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
-			.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath().toAbsolutePath()).toString();
-		assert name != null;
-
-		return info; // Return how much we unloaded
+		return unloadScripts(Collections.singletonList(script));
 	}
 	
 	/*
@@ -848,9 +867,8 @@ public class ScriptLoader {
 	 * @return Future of statistics of the newly loaded script.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScript(Script script, OpenCloseable openCloseable) {
-		if (!isAsync()) {
+		if (!isAsync())
 			unloadScript(script);
-		}
 		//noinspection ConstantConditions - getFile should never return null
 		Config config = loadStructure(script.getConfig().getFile());
 		if (config == null)
@@ -864,9 +882,8 @@ public class ScriptLoader {
 	 * @return Future of statistics of newly loaded scripts.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
-		if (!isAsync()) {
-			unloadScripts_(folder);
-		}
+		if (!isAsync())
+			unloadScripts(folder);
 		List<Config> configs = loadStructures(folder);
 		return loadScripts(configs, openCloseable);
 	}
@@ -953,28 +970,6 @@ public class ScriptLoader {
 	public static Collection<File> getDisabledScripts() {
 		return Collections.unmodifiableCollection(disabledScripts);
 	}
-	
-	public static int loadedScripts() {
-		synchronized (loadedScriptInfo) {
-			return loadedScriptInfo.files;
-		}
-	}
-
-	public static int loadedStructures() {
-		synchronized (loadedScriptInfo) {
-			return loadedScriptInfo.structures;
-		}
-	}
-
-	/**
-	 * @deprecated Use {@link #loadedStructures()}.
-	 */
-	@Deprecated
-	public static int loadedTriggers() {
-		synchronized (loadedScriptInfo) {
-			return loadedScriptInfo.structures;
-		}
-	}
 
 
 	/*
@@ -986,6 +981,22 @@ public class ScriptLoader {
 	 * Some methods have been replaced by ParserInstance, some
 	 * by new methods in this class.
 	 */
+
+	/**
+	 * @deprecated No longer supported.
+	 */
+	@Deprecated
+	public static int loadedScripts() {
+		return 0;
+	}
+
+	/**
+	 * @deprecated No longer supported.
+	 */
+	@Deprecated
+	public static int loadedTriggers() {
+		return 0;
+	}
 
 	/**
 	 * @see #loadScripts(OpenCloseable)

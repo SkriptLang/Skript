@@ -146,6 +146,13 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	public void unload() { }
 
 	/**
+	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * This method is primarily designed for Structures that wish to execute actions after
+	 * 	most other Structures have finished unloading.
+	 */
+	public void postUnload() { }
+
+	/**
 	 * The priority of a Structure determines the order in which it should be loaded.
 	 * For more information, see the javadoc of {@link Priority}.
 	 * @return The priority of this Structure. By default, this is {@link Structure#DEFAULT_PRIORITY}.
