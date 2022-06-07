@@ -15,7 +15,7 @@ skript:
 	invalid reload: Skript darf nur mittles Bukkits '/reload' oder Skripts '/skript reload' neu geladen werden.
 	no scripts: Keine Skripte wurden gefunden, vielleicht solltest du einige schreiben ;)
 	no errors: Alle Skripte wurden fehlerfrei geladen.
-	scripts loaded: Es wurden %scripts% Scripte geladen, von denen %structures% Strukturen sind innerhalb von %time%
+	scripts loaded: Es wurden %s Scripte geladen, von denen %s Strukturen sind innerhalb von %s
 	finished loading: Laden abgeschlossen.
 
 # -- Skript command --

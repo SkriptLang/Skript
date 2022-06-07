@@ -449,34 +449,38 @@ public class ScriptLoader {
 		
 		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler))
 			.thenAccept(scriptInfo -> {
-				// Success
-				if (logHandler.getCount() == 0)
-					Skript.info(m_no_errors.toString());
-				
-				// Now, make sure that old files that are no longer there are unloaded
-				// Only if this is done using async loading, though!
-				if (isAsync()) {
-					oldLoadedScripts.removeAll(loadedScripts);
-					for (Script script : oldLoadedScripts) {
-						if (script == null)
-							throw new NullPointerException();
+				try {
+					// Success
+					if (logHandler.getCount() == 0)
+						Skript.info(m_no_errors.toString());
 
-						unloadScript(script);
-						//noinspection ConstantConditions - getPath should never return null
-						String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
-							.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath()).toString();
-						assert name != null;
+					// Now, make sure that old files that are no longer there are unloaded
+					// Only if this is done using async loading, though!
+					if (isAsync()) {
+						oldLoadedScripts.removeAll(loadedScripts);
+						for (Script script : oldLoadedScripts) {
+							if (script == null)
+								throw new NullPointerException();
+
+							unloadScript(script);
+							//noinspection ConstantConditions - getPath should never return null
+							String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
+								.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath()).toString();
+							assert name != null;
+						}
 					}
+
+					if (scriptInfo.files == 0)
+						Skript.warning(m_no_scripts.toString());
+					if (Skript.logNormal() && scriptInfo.files > 0)
+						Skript.info(m_scripts_loaded.toString(
+							scriptInfo.files,
+							scriptInfo.structures,
+							start.difference(new Date())
+						));
+				} catch (Exception e) {
+					throw Skript.exception(e);
 				}
-				
-				if (scriptInfo.files == 0)
-					Skript.warning(m_no_scripts.toString());
-				if (Skript.logNormal() && scriptInfo.files > 0)
-					Skript.info(m_scripts_loaded.toString(
-						scriptInfo.files,
-						scriptInfo.structures,
-						start.difference(new Date())
-					));
 			});
 	}
 	
