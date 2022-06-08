@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.sections.EffSecShoot;
 import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -32,7 +33,6 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffDrop;
-import ch.njol.skript.effects.EffShoot;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -78,7 +78,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	protected Entity[] get(final Event e) {
-		final Entity en = from == 0 ? EffSecSpawn.lastSpawned :  from == 1 ? EffShoot.lastSpawned : EffDrop.lastSpawned;
+		final Entity en = from == 0 ? EffSecSpawn.lastSpawned :  from == 1 ? EffSecShoot.lastSpawned : EffDrop.lastSpawned;
 		if (en == null)
 			return null;
 		if (!type.isInstance(en))
