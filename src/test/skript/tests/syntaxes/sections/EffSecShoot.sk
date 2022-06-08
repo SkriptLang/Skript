@@ -1,4 +1,4 @@
-test "shoot section":
+test "shoot section" when minecraft version is not "1.9.4":
 	set {_foo} to true
 	shoot a arrow from spawn of "world":
 		assert {_foo} is true with "varibles from previous section wasn't carried over"
