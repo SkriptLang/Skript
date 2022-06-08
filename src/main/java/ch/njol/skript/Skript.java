@@ -75,6 +75,7 @@ import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.ReflectConst;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
@@ -1089,9 +1090,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 
 			try {
-				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
-				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
-				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
+				IS_RUNNING = MC_SERVER.getClass().getMethod(ReflectConst.MINECRAFT_SERVER_IS_RUNNING);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
