@@ -18,13 +18,12 @@
  */
 package ch.njol.skript;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import ch.njol.skript.ScriptLoader.ScriptInfo;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.util.NonNullPair;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -40,12 +39,8 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.util.NonNullPair;
+import java.io.File;
+import java.util.*;
 
 /**
  * @author Peter Güttinger
@@ -255,22 +250,11 @@ public abstract class SkriptEventHandler {
 			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class)) {
 				continue; // Ignore, registered above
 			}
-			
-			if (!containsSuperclass((Set) registeredEvents, e)) { // I just love Java's generics
+			if (!registeredEvents.contains(e)) { // Check if event is registered
 				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
 				registeredEvents.add(e);
 			}
 		}
-	}
-	
-	public static boolean containsSuperclass(Set<Class<?>> classes, Class<?> c) {
-		if (classes.contains(c))
-			return true;
-		for (Class<?> cl : classes) {
-			if (cl.isAssignableFrom(c))
-				return true;
-		}
-		return false;
 	}
 
 	/**
