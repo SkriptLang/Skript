@@ -101,7 +101,7 @@ public class EffDrop extends Effect {
 		}
 	}
 
-	private boolean isAir(ItemStack is){
+	private boolean isAir(ItemStack is) {
 		//All versions prior to 1.14 only have 1 air type
 		if(Skript.isRunningMinecraft(1,14)){
 			//All versions prior to 1.15 only have Material#isAir method
