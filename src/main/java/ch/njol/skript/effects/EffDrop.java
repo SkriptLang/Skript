@@ -85,7 +85,7 @@ public class EffDrop extends Effect {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (!is.getType().isAir() && is.getAmount() > 0) {
+						if (!isAir(is) && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {
@@ -98,6 +98,20 @@ public class EffDrop extends Effect {
 					}
 				}
 			}
+		}
+	}
+
+	private boolean isAir(ItemStack is){
+		//All versions prior to 1.14 only have 1 air type
+		if(Skript.isRunningMinecraft(1,14)){
+			//All versions prior to 1.15 only have Material#isAir method
+			if(Skript.methodExists(Material.class, "isAir")){
+				return is.getType().isAir();
+			}else{
+				return is.getType() == Material.AIR || is.getType() == Material.CAVE_AIR || is.getType() == Material.VOID_AIR;
+			}
+		}else{
+			return is.getType() == Material.AIR;
 		}
 	}
 
