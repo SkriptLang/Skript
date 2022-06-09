@@ -85,7 +85,7 @@ public class EffDrop extends Effect {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (is.getType() != Material.AIR && is.getAmount() > 0) {
+						if (!is.getType().isAir() && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {
