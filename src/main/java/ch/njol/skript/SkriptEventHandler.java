@@ -55,7 +55,7 @@ public final class SkriptEventHandler {
 		
 		public final EventPriority priority;
 		public final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
-		
+
 		@Nullable
 		private Event lastEvent;
 		public final EventExecutor executor = (listener, event) -> {
@@ -72,7 +72,7 @@ public final class SkriptEventHandler {
 	}
 	
 	/**
-	 * Stores one {@link PriorityListener} per {@link EventPriority}
+	 * Stores one {@link PriorityListener} per {@link EventPriority}.
 	 */
 	private static final PriorityListener[] listeners;
 	
@@ -83,16 +83,31 @@ public final class SkriptEventHandler {
 			listeners[i] = new PriorityListener(priorities[i]);
 		}
 	}
-	
+
+	/**
+	 * A list tracking what Triggers are paired with what Events.
+	 */
 	private static final List<NonNullPair<Class<? extends Event>, Trigger>> triggers = new ArrayList<>();
-	
+
+	/**
+	 * A utility method to get all Triggers paired with the provided Event class.
+	 * @param event The event to find pairs from.
+	 * @return An iterator containing all Triggers paired wit the provided Event class.
+	 */
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
 		return new ArrayList<>(triggers).stream()
 			.filter(pair -> pair.getFirst().isAssignableFrom(event))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}
-	
+
+	/**
+	 * This method is used for validating that the provided Event may be handled by Skript.
+	 * If validation is successful, all Triggers associated with the provided Event are executed.
+	 * A Trigger will only be executed if its priority matches the provided EventPriority.
+	 * @param e The Event to check.
+	 * @param priority The priority of the Event.
+	 */
 	private static void check(Event e, EventPriority priority) {
 		Iterator<Trigger> ts = getTriggers(e.getClass());
 		if (!ts.hasNext())
@@ -141,15 +156,25 @@ public final class SkriptEventHandler {
 	}
 	
 	private static long startEvent;
-	
-	public static void logEventStart(Event e) {
+
+	/**
+	 * Logs that the provided Event has started.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 * @param event The Event that started.
+	 */
+	public static void logEventStart(Event event) {
 		startEvent = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("");
-		Skript.info("== " + e.getClass().getName() + " ==");
+		Skript.info("== " + event.getClass().getName() + " ==");
 	}
-	
+
+	/**
+	 * Logs that the last logged Event start has ended.
+	 * Includes the number of milliseconds execution took.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 */
 	public static void logEventEnd() {
 		if (!Skript.logVeryHigh())
 			return;
@@ -157,14 +182,24 @@ public final class SkriptEventHandler {
 	}
 	
 	private static long startTrigger;
-	
-	public static void logTriggerStart(Trigger t) {
+
+	/**
+	 * Logs that the provided Trigger has begun execution.
+	 * Requires {@link Skript#logVeryHigh()} to be true.
+	 * @param trigger The Trigger that execution has begun for.
+	 */
+	public static void logTriggerStart(Trigger trigger) {
 		startTrigger = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
-		Skript.info("# " + t.getName());
+		Skript.info("# " + trigger.getName());
 	}
-	
+
+	/**
+	 * Logs that the last logged Trigger execution has ended.
+	 * Includes the number of milliseconds execution took.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 */
 	public static void logTriggerEnd(Trigger t) {
 		if (!Skript.logVeryHigh())
 			return;
@@ -172,17 +207,33 @@ public final class SkriptEventHandler {
 	}
 
 	/**
-	 * @deprecated This method no longer does anything as self registered triggers
-	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded.
+	 * @deprecated This method no longer does anything as self registered Triggers
+	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them).
 	 */
 	@Deprecated
 	public static void addSelfRegisteringTrigger(Trigger t) { }
 
+	/**
+	 * A utility method that calls {@link #registerBukkitEvent(Trigger, Class)} for each Event class provided.
+	 * For specific details of the process, see the javadoc of that method.
+	 * @param trigger The Trigger to run when the Event occurs.
+	 * @param events The Event to listen for.
+	 * @see #registerBukkitEvent(Trigger, Class)
+	 * @see #unregisterBukkitEvents(Trigger)
+	 */
 	public static void registerBukkitEvents(Trigger trigger, Class<? extends Event>[] events) {
 		for (Class<? extends Event> event : events)
 			registerBukkitEvent(trigger, event);
 	}
 
+	/**
+	 * Registers a {@link PriorityListener} with Bukkit for the provided Event.
+	 * Marks that the provided Trigger should be executed when the provided Event occurs.
+	 * @param trigger The Trigger to run when the Event occurs.
+	 * @param event The Event to listen for.
+	 * @see #registerBukkitEvents(Trigger, Class[])
+	 * @see #unregisterBukkitEvents(Trigger)
+	 */
 	public static void registerBukkitEvent(Trigger trigger, Class<? extends Event> event) {
 		triggers.add(new NonNullPair<>(event, trigger));
 

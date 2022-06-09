@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.command;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.validate.SectionValidator;
@@ -323,23 +324,11 @@ public abstract class Commands {
 		command.registerHelp();
 	}
 
-	public static void clearCommands() {
-		if (commandMap != null) {
-			assert cmKnownCommands != null && cmAliases != null;
-			for (ScriptCommand c : commands.values())
-				c.unregister(commandMap, cmKnownCommands, cmAliases);
-		}
-		for (ScriptCommand c : commands.values()) {
-			c.unregisterHelp();
-		}
-		commands.clear();
-	}
-
 	@Deprecated
 	public static int unregisterCommands(File script) {
 		int numCommands = 0;
 		for (ScriptCommand c : new ArrayList<>(commands.values())) {
-			if (script.equals(c.getScript())) {
+			if (c.getScript() != null && c.getScript().equals(ScriptLoader.getScript(script))) {
 				numCommands++;
 				unregisterCommand(c);
 			}

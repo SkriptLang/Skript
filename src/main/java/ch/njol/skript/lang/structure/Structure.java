@@ -54,8 +54,7 @@ import java.util.Map;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link StructureEntryData}.
  */
-// TODO STRUCTURE make sure options work everywhere (maybe have some structure validation in preload instead of init)
-// TODO STRUCTURE javadocs (everywhere)
+// TODO STRUCTURE make sure options work everywhere
 // TODO STRUCTURE add Structures to docs
 public abstract class Structure implements SyntaxElement, Debuggable {
 
