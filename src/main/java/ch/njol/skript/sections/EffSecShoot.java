@@ -98,9 +98,9 @@ public class EffSecShoot extends EffectSection {
 
 	private final static Double DEFAULT_SPEED = 5.;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<EntityData<?>> types;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> shooters;
 	@Nullable
 	private Expression<Number> velocity;
