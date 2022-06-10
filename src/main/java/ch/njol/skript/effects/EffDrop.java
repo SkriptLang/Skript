@@ -101,13 +101,18 @@ public class EffDrop extends Effect {
 		}
 	}
 
-	private static boolean isAir(ItemStack is) {
-		if(Skript.isRunningMinecraft(1,14) && Skript.methodExists(Material.class, "isAir")) { // Only 1.15 and versions after have Material#isAir method
-			return is.getType().isAir();
-		else if(Skript.isRunningMinecraft(1,14)) { // Version 1.14 have multiple air types but no Material#isAir method
-			return is.getType() == Material.AIR || is.getType() == Material.CAVE_AIR || is.getType() == Material.VOID_AIR;
+	// Only 1.15 and versions after have Material#isAir method
+	private static final boolean isAirExists = Skript.methodExists(Material.class, "isAir");
+	// Version 1.14 have multiple air types but no Material#isAir method
+	private static final boolean otherAirExists = Skript.isRunningMinecraft(1, 14);
+
+	private static boolean isAir(Material type) {
+		if (isAirExists) {
+			return type.isAir();
+		} else if (otherAirExists) { 
+			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
 		} else { // All versions prior to 1.14 only have 1 air type
-			return is.getType() == Material.AIR;
+			return type == Material.AIR;
 		}
 	}
 
