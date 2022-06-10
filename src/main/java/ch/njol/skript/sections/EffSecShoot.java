@@ -86,9 +86,9 @@ public class EffSecShoot extends EffectSection {
 		Skript.registerSection(EffSecShoot.class,
 			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
 			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]");
-		EventValues.registerEventValue(EffSecShoot.ShootEvent.class, Entity.class, new Getter<Entity, EffSecShoot.ShootEvent>() {
+		EventValues.registerEventValue(ShootEvent.class, Entity.class, new Getter<Entity, ShootEvent>() {
 			@Override
-			public Entity get(EffSecShoot.ShootEvent shootEvent) {
+			public Entity get(ShootEvent shootEvent) {
 				return shootEvent.getEntity();
 			}
 		}, 0);
@@ -132,7 +132,7 @@ public class EffSecShoot extends EffectSection {
 				return false;
 			}
 
-			trigger = loadCode(sectionNode, "shoot", EffSecShoot.ShootEvent.class);
+			trigger = loadCode(sectionNode, "shoot", ShootEvent.class);
 		}
 
 		return true;
@@ -150,7 +150,7 @@ public class EffSecShoot extends EffectSection {
 		if (trigger != null) {
 			consumer = o -> {
 				lastSpawned = o;
-				EffSecShoot.ShootEvent shootEvent = new EffSecShoot.ShootEvent(o);
+				ShootEvent shootEvent = new ShootEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(shootEvent, localVars);
 				trigger.execute(shootEvent);
@@ -159,17 +159,17 @@ public class EffSecShoot extends EffectSection {
 			consumer = null;
 		}
 
-		final Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
+		Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
 		if (v != null){
-			final Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
+			Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
 			if (dir != null){
-				for (final Object shooter : shooters.getArray(e)) {
-					for (final EntityData<?> d : types.getArray(e)) {
+				for (Object shooter : shooters.getArray(e)) {
+					for (EntityData<?> d : types.getArray(e)) {
 						if (shooter instanceof LivingEntity) {
-							final Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
-							final Class<? extends Entity> type = d.getType();
+							Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
+							Class<? extends Entity> type = d.getType();
 							if (Fireball.class.isAssignableFrom(type)) {// fireballs explode in the shooter's face by default
-								final Fireball projectile = (Fireball) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), type, (Consumer) consumer);
+								Fireball projectile = (Fireball) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), type, (Consumer) consumer);
 								projectile.setShooter((ProjectileSource) shooter);
 								projectile.setVelocity(vel);
 								lastSpawned = projectile;
@@ -181,16 +181,16 @@ public class EffSecShoot extends EffectSection {
 								projectile.setVelocity(vel);
 								lastSpawned = projectile;
 							} else {
-								final Location loc = ((LivingEntity) shooter).getLocation();
+								Location loc = ((LivingEntity) shooter).getLocation();
 								loc.setY(loc.getY() + ((LivingEntity) shooter).getEyeHeight() / 2);
-								final Entity projectile = d.spawn(loc, (Consumer) consumer);
+								Entity projectile = d.spawn(loc, (Consumer) consumer);
 								if (projectile != null)
 									projectile.setVelocity(vel);
 								lastSpawned = projectile;
 							}
 						} else {
-							final Vector vel = dir.getDirection((Location) shooter).multiply(v.doubleValue());
-							final Entity projectile = d.spawn((Location) shooter, (Consumer) consumer);
+							Vector vel = dir.getDirection((Location) shooter).multiply(v.doubleValue());
+							Entity projectile = d.spawn((Location) shooter, (Consumer) consumer);
 							if (projectile != null)
 								projectile.setVelocity(vel);
 							lastSpawned = projectile;
