@@ -212,4 +212,5 @@ public class EffSecShoot extends EffectSection {
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " + velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
 	}
+
 }
