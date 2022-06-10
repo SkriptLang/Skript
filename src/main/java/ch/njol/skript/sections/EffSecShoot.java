@@ -94,8 +94,6 @@ public class EffSecShoot extends EffectSection {
 		}, 0);
 	}
 
-	private static final boolean BUKKIT_CONSUMER_EXISTS = Skript.classExists("org.bukkit.util.Consumer");
-
 	private final static Double DEFAULT_SPEED = 5.;
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -127,11 +125,6 @@ public class EffSecShoot extends EffectSection {
 		direction = (Expression<Direction>) exprs[3];
 
 		if (sectionNode != null) {
-			if (!BUKKIT_CONSUMER_EXISTS) {
-				Skript.error("The shoot section isn't available on your Minecraft version, use a shoot effect instead");
-				return false;
-			}
-
 			trigger = loadCode(sectionNode, "shoot", ShootEvent.class);
 		}
 
@@ -169,13 +162,13 @@ public class EffSecShoot extends EffectSection {
 							Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
 							Class<? extends Entity> type = d.getType();
 							if (Fireball.class.isAssignableFrom(type)) {// fireballs explode in the shooter's face by default
-								Fireball projectile = (Fireball) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), type, (Consumer) consumer);
+								Fireball projectile = (Fireball) d.spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), (Consumer) consumer);
 								projectile.setShooter((ProjectileSource) shooter);
 								projectile.setVelocity(vel);
 								lastSpawned = projectile;
 							} else if (Projectile.class.isAssignableFrom(type)) {
 								@SuppressWarnings("unchecked")
-								final Projectile projectile = (Projectile) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation(), type, (Consumer) consumer);
+								final Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
 								set(projectile, d);
 								projectile.setShooter((ProjectileSource) shooter);
 								projectile.setVelocity(vel);
