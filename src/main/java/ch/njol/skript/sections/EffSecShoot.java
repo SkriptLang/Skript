@@ -25,7 +25,11 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.EffectSection;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Getter;
@@ -168,7 +172,7 @@ public class EffSecShoot extends EffectSection {
 								lastSpawned = projectile;
 							} else if (Projectile.class.isAssignableFrom(type)) {
 								@SuppressWarnings("unchecked")
-								final Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
+								Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
 								set(projectile, d);
 								projectile.setShooter((ProjectileSource) shooter);
 								projectile.setVelocity(vel);
@@ -197,13 +201,14 @@ public class EffSecShoot extends EffectSection {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <E extends Entity> void set(final Entity e, final EntityData<E> d) {
+	private static <E extends Entity> void set(Entity e, EntityData<E> d) {
 		d.set((E) e);
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " + velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
+	public String toString(@Nullable Event e, boolean debug) {
+		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " +
+				velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
 	}
 
 }
