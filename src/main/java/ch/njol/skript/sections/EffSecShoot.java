@@ -56,11 +56,11 @@ import java.util.List;
 	"make the player shoot a creeper at speed 10",
 	"shoot a pig from the creeper",
 	"",
-	"#Shoot section example",
+	"# Shoot section example",
 	"command /firearrow:",
-	"	trigger:",
-	"		shoot an arrow:",
-	"			ignite event-projectile"})
+	"\ttrigger:",
+	"\t\tshoot an arrow:",
+	"\t\t\tignite event-projectile"})
 @Since("1.4, INSERT VERSION (with section)")
 public class EffSecShoot extends EffectSection {
 
