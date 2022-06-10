@@ -107,13 +107,13 @@ public class EffDrop extends Effect {
 	private static final boolean OTHER_AIR_EXISTS = Skript.isRunningMinecraft(1, 14);
 
 	private static boolean isAir(Material type) {
-		if (isAirExists) {
+		if (IS_AIR_EXISTS) {
 			return type.isAir();
-		} else if (otherAirExists) { 
+		} else if (OTHER_AIR_EXISTS) { 
 			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
-		} else { // All versions prior to 1.14 only have 1 air type
-			return type == Material.AIR;
-		}
+		} 
+		// All versions prior to 1.14 only have 1 air type
+		return type == Material.AIR;
 	}
 
 	@Override
