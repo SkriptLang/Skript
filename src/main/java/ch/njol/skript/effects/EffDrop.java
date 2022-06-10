@@ -102,7 +102,7 @@ public class EffDrop extends Effect {
 	}
 
 	// Only 1.15 and versions after have Material#isAir method
-	private static final boolean isAirExists = Skript.methodExists(Material.class, "isAir");
+	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
 	// Version 1.14 have multiple air types but no Material#isAir method
 	private static final boolean otherAirExists = Skript.isRunningMinecraft(1, 14);
 
