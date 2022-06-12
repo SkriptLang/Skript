@@ -133,18 +133,16 @@ public class SkriptCommand implements CommandExecutor {
 					SkriptConfig.load();
 					Aliases.clear();
 					Aliases.load();
-					
-					if (!ScriptLoader.isAsync())
-						ScriptLoader.disableScripts();
+
+					ScriptLoader.disableScripts();
 					
 					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
 							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts"));
 				} else if (args[1].equalsIgnoreCase("scripts")) {
 					reloading(sender, "scripts");
-					
-					if (!ScriptLoader.isAsync())
-						ScriptLoader.disableScripts();
+
+					ScriptLoader.disableScripts();
 					
 					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
