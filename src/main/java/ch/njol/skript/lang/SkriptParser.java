@@ -63,6 +63,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1156,7 +1157,7 @@ public class SkriptParser {
 		return i + 1;
 	}
 
-	private static final Map<String, SkriptPattern> patterns = new HashMap<>();
+	private static final Map<String, SkriptPattern> patterns = new ConcurrentHashMap<>();
 
 	@Nullable
 	private ParseResult parse_i(String pattern, int i, int j) {
