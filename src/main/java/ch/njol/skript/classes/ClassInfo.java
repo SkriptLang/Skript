@@ -394,7 +394,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @return Documentation id override, or null.
 	 */
 	@Nullable
-	public String getDocumentationID() {
+	public String getDocumentationId() {
 		return documentationId;
 	}
 	
