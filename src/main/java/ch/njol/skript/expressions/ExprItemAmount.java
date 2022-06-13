@@ -28,6 +28,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -35,16 +36,25 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The amount of an <a href='classes.html#itemstack'>item stack</a>.")
 @Examples("send \"You have got %item amount of player's tool% %player's tool% in your hand!\" to player")
 @Since("2.2-dev24")
-public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
+public class ExprItemAmount extends SimplePropertyExpression<Object, Number>{
 	
     static {
-        register(ExprItemAmount.class, Long.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes");
+        register(ExprItemAmount.class, Number.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes");
     }
-
+    
+    @Override
+	public Class<Number> getReturnType() {
+		return Number.class;
+	}
 	
 	@Override
-	public Long convert(final Object item) {
-    	return (long) (item instanceof ItemType ? ((ItemType) item).getAmount() : ((Slot) item).getAmount());
+	protected String getPropertyName() {
+		return "item[[ ]stack] (amount|size|number)";
+	}
+	
+	@Override
+	public Number convert(final Object item) {
+    	return item instanceof ItemType ? ((ItemType) item).getAmount() : ((Slot) item).getAmount();
 	}
 	
 	@Override
@@ -94,15 +104,5 @@ public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 				break;
         }
     }
-
-	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return "item[[ ]stack] (amount|size|number)";
-	}
 
 }
