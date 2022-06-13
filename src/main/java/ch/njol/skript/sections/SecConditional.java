@@ -164,6 +164,8 @@ public class SecConditional extends Section {
 			return getNormalNext();
 		} else if (type == ConditionalType.ELSE || parseIf || condition.check(e)) {
 			TriggerItem skippedNext = getSkippedNext();
+			setNext(skippedNext);
+
 			if (last != null)
 				last.setNext(skippedNext);
 			return first != null ? first : skippedNext;
