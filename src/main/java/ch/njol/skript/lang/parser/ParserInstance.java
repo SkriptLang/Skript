@@ -127,15 +127,6 @@ public class ParserInstance {
 		return false;
 	}
 
-	@SafeVarargs
-	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
-		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
-			if (isCurrentSection(sectionClass))
-				return true;
-		}
-		return false;
-	}
-
 	/**
 	 * @return the outermost section which is an instance of the given class.
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.

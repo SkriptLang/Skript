@@ -31,20 +31,20 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The length of a text, in number of characters.")
 @Examples("set {_l} to length of the string argument")
 @Since("2.1")
-public class ExprLength extends SimplePropertyExpression<String, Long> {
+public class ExprLength extends SimplePropertyExpression<String, Integer> {
 	static {
-		register(ExprLength.class, Long.class, "length", "strings");
+		register(ExprLength.class, Integer.class, "length", "strings");
 	}
 	
 	@SuppressWarnings("null")
 	@Override
-	public Long convert(final String s) {
-		return (long) s.length();
+	public Integer convert(final String s) {
+		return Integer.valueOf(s.length());
 	}
 	
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 	
 	@Override

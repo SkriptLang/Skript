@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.Map;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -28,13 +33,11 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.Map;
 
 /**
  * TODO should 'amount of [item]' return the size of the stack?
@@ -57,10 +60,10 @@ import java.util.Map;
 		"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
 @Examples({"message \"There are %number of all players% players online!\""})
 @Since("1.0")
-public class ExprAmount extends SimpleExpression<Long> {
+public class ExprAmount extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprAmount.class, Long.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
 				"(amount|number|size) of %objects%",
 				"recursive (amount|number|size) of %objects%");
 	}
@@ -71,7 +74,8 @@ public class ExprAmount extends SimpleExpression<Long> {
 	private boolean recursive;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	@SuppressWarnings({"null", "unchecked"})
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		this.exprs = exprs[0] instanceof ExpressionList ? (ExpressionList<?>) exprs[0] : new ExpressionList<>(new Expression<?>[]{exprs[0]}, Object.class, false);
 		this.recursive = matchedPattern == 1;
 		for (Expression<?> expr : this.exprs.getExpressions()) {
@@ -92,7 +96,7 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Long[] get(Event e) {
+	protected Number[] get(final Event e) {
 		if (recursive) {
 			int currentSize = 0;
 			for (Expression<?> expr : exprs.getExpressions()) {
@@ -101,9 +105,9 @@ public class ExprAmount extends SimpleExpression<Long> {
 					currentSize += getRecursiveSize((Map<String, ?>) var);
 				}
 			}
-			return new Long[]{(long) currentSize};
+			return new Number[]{currentSize};
 		}
-		return new Long[]{(long) exprs.getArray(e).length};
+		return new Number[]{exprs.getArray(e).length};
 	}
 
 	@SuppressWarnings("unchecked")
@@ -125,12 +129,12 @@ public class ExprAmount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(final @Nullable Event e, final boolean debug) {
 		return (recursive ? "recursize size of " : "amount of ") + exprs.toString(e, debug);
 	}
 

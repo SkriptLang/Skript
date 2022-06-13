@@ -40,10 +40,10 @@ import ch.njol.util.Kleenean;
 			"\t\tcancel event",
 			"\t\tsend \"<red>Your message has to many caps!\" to player"})
 @Since("2.5")
-public class ExprNumberOfCharacters extends SimpleExpression<Long> {
+public class ExprNumberOfCharacters extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprNumberOfCharacters.class, Long.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprNumberOfCharacters.class, Number.class, ExpressionType.SIMPLE,
 				"number of upper[ ]case char(acters|s) in %string%",
 				"number of lower[ ]case char(acters|s) in %string%",
 				"number of digit char(acters|s) in %string%");
@@ -65,11 +65,9 @@ public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 	@Override
 	@SuppressWarnings("null")
 	@Nullable
-	protected Long[] get(Event e) {
+	protected Number[] get(Event e) {
 		String str = expr.getSingle(e);
-		if (str == null)
-			return null;
-		long size = 0;
+		int size = 0;
 		if (pattern == 0) {
 			for (int c : (Iterable<Integer>) str.codePoints()::iterator) {
 				if (Character.isUpperCase(c)) size++;
@@ -83,17 +81,17 @@ public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 				if (Character.isDigit(c)) size++;
 			}
 		}
-		return new Long[]{size};
+		return new Number[]{size};
 	}
-
+	
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
 	}
 
 	@Override
@@ -105,5 +103,4 @@ public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 		}
 		return "number of digits";
 	}
-
 }

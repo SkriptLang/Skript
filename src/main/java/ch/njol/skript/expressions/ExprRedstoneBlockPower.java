@@ -30,20 +30,20 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Examples({"if redstone power of targeted block is 15:",
 	"\tsend \"This block is very powerful!\""})
 @Since("2.5")
-public class ExprRedstoneBlockPower extends SimplePropertyExpression<Block, Long> {
+public class ExprRedstoneBlockPower extends SimplePropertyExpression<Block, Number> {
 	
 	static {
-		register(ExprRedstoneBlockPower.class, Long.class, "redstone power", "blocks");
+		register(ExprRedstoneBlockPower.class, Number.class, "redstone power", "blocks");
 	}
 	
 	@Override
-	public Long convert(Block b) {
-		return (long) b.getBlockPower();
+	public Number convert(Block b) {
+		return b.getBlockPower();
 	}
 	
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
 	}
 	
 	@Override

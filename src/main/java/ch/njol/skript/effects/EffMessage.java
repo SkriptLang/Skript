@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.effects;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,6 +46,7 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
@@ -133,8 +135,7 @@ public class EffMessage extends Effect {
 						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
 						for (Object object : messageArray) {
-							List<MessageComponent> components = ChatMessages.fromParsedString(toString(object));
-							sendMessage((Player) receiver, sender, BungeeConverter.convert(components));
+							sendMessage((Player) receiver, sender, new TextComponent(toString(object)));
 						}
 					}
 				} else { // Not a player, send plain text with legacy formatting

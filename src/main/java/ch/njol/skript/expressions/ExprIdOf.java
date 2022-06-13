@@ -54,10 +54,10 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 @Description("The id of a specific item. You usually don't need this expression as you can likely do everything with aliases.")
 @Examples({"message \"the ID of %type of the clicked block% is %id of the clicked block%.\""})
 @Since("1.0")
-public class ExprIdOf extends PropertyExpression<ItemType, Long> {
+public class ExprIdOf extends PropertyExpression<ItemType, Integer> {
 	
 	static {
-		Skript.registerExpression(ExprIdOf.class, Long.class, ExpressionType.PROPERTY, "[the] id(1¦s|) of %itemtype%", "%itemtype%'[s] id(1¦s|)");
+		Skript.registerExpression(ExprIdOf.class, Integer.class, ExpressionType.PROPERTY, "[the] id(1¦s|) of %itemtype%", "%itemtype%'[s] id(1¦s|)");
 	}
 	
 	@Nullable
@@ -98,20 +98,20 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Long[] get(final Event e, final ItemType[] source) {
+	protected Integer[] get(final Event e, final ItemType[] source) {
 		if (single) {
 			final ItemType t = getExpr().getSingle(e);
 			if (t == null)
-				return new Long[0];
-			return new Long[] {(long) t.getTypes().get(0).getType().getId()};
+				return new Integer[0];
+			return new Integer[] {t.getTypes().get(0).getType().getId()};
 		}
-		final ArrayList<Long> r = new ArrayList<>();
+		final ArrayList<Integer> r = new ArrayList<>();
 		for (final ItemType t : source) {
 			for (final ItemData d : t) {
-				r.add(Long.valueOf(d.getType().getId()));
+				r.add(Integer.valueOf(d.getType().getId()));
 			}
 		}
-		return r.toArray(new Long[r.size()]);
+		return r.toArray(new Integer[r.size()]);
 	}
 	
 	@Override
@@ -189,19 +189,19 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	
 	@Override
 	@Nullable
-	public Iterator<Long> iterator(final Event e) {
+	public Iterator<Integer> iterator(final Event e) {
 		if (single) {
 			final ItemType t = getExpr().getSingle(e);
 			if (t == null)
 				return null;
 			if (t.numTypes() == 0)
 				return null;
-			return new SingleItemIterator<>((long) t.getTypes().get(0).getType().getId());
+			return new SingleItemIterator<>(t.getTypes().get(0).getType().getId());
 		}
 		final Iterator<? extends ItemType> iter = getExpr().iterator(e);
 		if (iter == null || !iter.hasNext())
 			return null;
-		return new Iterator<Long>() {
+		return new Iterator<Integer>() {
 			private Iterator<ItemData> current = iter.next().iterator();
 			
 			@Override
@@ -213,10 +213,10 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 			}
 			
 			@Override
-			public Long next() {
+			public Integer next() {
 				if (!hasNext())
 					throw new NoSuchElementException();
-				return (long) current.next().getType().getId();
+				return current.next().getType().getId();
 			}
 			
 			@Override
@@ -227,8 +227,8 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	}
 	
 	@Override
-	public Class<Long> getReturnType() {
-		return Long.class;
+	public Class<Integer> getReturnType() {
+		return Integer.class;
 	}
 	
 	@Override

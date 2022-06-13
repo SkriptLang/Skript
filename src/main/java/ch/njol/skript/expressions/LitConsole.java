@@ -43,25 +43,24 @@ import ch.njol.util.Kleenean;
 		"send \"message to console\" to the console"})
 @Since("1.3.1")
 public class LitConsole extends SimpleLiteral<ConsoleCommandSender> {
-
 	static {
 		Skript.registerExpression(LitConsole.class, ConsoleCommandSender.class, ExpressionType.SIMPLE, "[the] (console|server)");
 	}
-
-	private static final ConsoleCommandSender console = Bukkit.getConsoleSender();
-
+	
+	private final static ConsoleCommandSender console = Bukkit.getConsoleSender();
+	
 	public LitConsole() {
-		super(new ConsoleCommandSender[]{console}, ConsoleCommandSender.class, true);
+		super(console, false);
 	}
-
+	
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		return true;
 	}
-
+	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(final @Nullable Event e, final boolean debug) {
 		return "the console";
 	}
-
+	
 }

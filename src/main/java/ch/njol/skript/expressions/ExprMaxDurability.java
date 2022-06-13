@@ -33,26 +33,26 @@ import ch.njol.skript.util.slot.Slot;
 @Examples({"maximum durability of diamond sword",
 		   "if max durability of player's tool is not 0: # Item is damageable"})
 @Since("2.5")
-public class ExprMaxDurability extends SimplePropertyExpression<Object, Long> {
+public class ExprMaxDurability extends SimplePropertyExpression<Object, Number> {
 
 	static {
-		register(ExprMaxDurability.class, Long.class, "max[imum] durabilit(y|ies)", "itemstacks/slots");
+		register(ExprMaxDurability.class, Number.class, "max[imum] durabilit(y|ies)", "itemstacks/slots");
 	}
 	
 	@Override
 	@Nullable
-	public Long convert(Object o) {
+	public Number convert(Object o) {
 		if (o instanceof Slot) {
 			final ItemStack i = ((Slot) o).getItem();
-			return i == null ? null : (long) i.getType().getMaxDurability();
+			return i == null ? null : i.getType().getMaxDurability();
 		} else {
-			return (long) ((ItemStack) o).getType().getMaxDurability();
+			return ((ItemStack) o).getType().getMaxDurability();
 		}
 	}
 	
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
 	}
 
 	@Override

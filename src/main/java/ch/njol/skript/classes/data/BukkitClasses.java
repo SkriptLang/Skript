@@ -862,18 +862,18 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public boolean canParse(ParseContext context) {
+					public boolean canParse(final ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
 					
 					@Override
-					public String toString(OfflinePlayer p, int flags) {
-						return p.getName() == null ? p.getUniqueId().toString() : p.getName();
+					public String toString(final OfflinePlayer p, final int flags) {
+						return "" + p.getName();
 					}
 					
 					@Override
-					public String toVariableNameString(OfflinePlayer p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
+					public String toVariableNameString(final OfflinePlayer p) {
+						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
 							return "" + p.getUniqueId();
 						else
 							return "" + p.getName();
@@ -888,10 +888,10 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public String getDebugMessage(OfflinePlayer p) {
+					public String getDebugMessage(final OfflinePlayer p) {
 						if (p.isOnline())
 							return Classes.getDebugMessage(p.getPlayer());
-						return toString(p, 0);
+						return "" + p.getName();
 					}
 				}).serializer(new Serializer<OfflinePlayer>() {
 					@Override
