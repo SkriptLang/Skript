@@ -136,7 +136,7 @@ public class SkriptCommand implements CommandExecutor {
 
 					ScriptLoader.disableScripts();
 					
-					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
+					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
 							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts"));
 				} else if (args[1].equalsIgnoreCase("scripts")) {
@@ -144,7 +144,7 @@ public class SkriptCommand implements CommandExecutor {
 
 					ScriptLoader.disableScripts();
 					
-					ScriptLoader.loadScripts(OpenCloseable.combine(logHandler, timingLogHandler))
+					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(unused ->
 							reloaded(sender, logHandler, timingLogHandler, "scripts"));
 				} else if (args[1].equalsIgnoreCase("config")) {

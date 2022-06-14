@@ -343,6 +343,23 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		Collections.addAll(disabledHookRegistrations, hooks);
 	}
+
+	/**
+	 * The folder containing all Scripts.
+	 * Never reference this field directly. Use {@link #getScriptsFolder()}.
+	 */
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private File scriptsFolder;
+
+	/**
+	 * @return The folder containing all Scripts.
+	 */
+	public File getScriptsFolder() {
+		if (!scriptsFolder.isDirectory())
+			//noinspection ResultOfMethodCallIgnored
+			scriptsFolder.mkdirs();
+		return scriptsFolder;
+	}
 	
 	@Override
 	public void onEnable() {
@@ -371,18 +388,18 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
-		
-		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+
+		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER + File.separator);
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
-				if (!scripts.isDirectory()) {
-					if (!scripts.mkdirs())
-						throw new IOException("Could not create the directory " + scripts);
+				if (!scriptsFolder.isDirectory()) {
+					if (!scriptsFolder.mkdirs())
+						throw new IOException("Could not create the directory " + scriptsFolder);
 					populateExamples = true;
 				}
 
@@ -400,7 +417,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					File saveTo = null;
 					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
-						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
+						saveTo = new File(scriptsFolder, (fileName.startsWith("-") ? "" : "-") + fileName);
 					} else if (populateLanguageFiles
 							&& e.getName().startsWith("lang/")
 							&& e.getName().endsWith(".lang")
@@ -788,7 +805,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				/*
 				 * Start loading scripts
 				 */
-				ScriptLoader.loadScripts(OpenCloseable.EMPTY)
+				ScriptLoader.loadScripts(getScriptsFolder(), OpenCloseable.EMPTY)
 					.thenAccept(unused -> {
 						Skript.info(m_finished_loading.toString());
 						

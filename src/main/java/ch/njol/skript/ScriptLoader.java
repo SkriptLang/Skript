@@ -54,7 +54,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -419,32 +418,30 @@ public class ScriptLoader {
 	
 	
 	/*
-	 * Script loading methods
+	 * Script Loading Methods
 	 */
 
 	/**
-	 * Loads all scripts in the scripts folder using {@link #loadScripts(List, OpenCloseable)},
-	 * sending info/error messages when done.
+	 * Loads the Script present at the file using {@link #loadScripts(List, OpenCloseable)},
+	 * 	sending info/error messages when done.
+	 * @param file The Script to load. If this is a directory, all scripts within the directory and any subdirectories will be loaded.
+	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
+	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 */
-	static CompletableFuture<Void> loadScripts(OpenCloseable openCloseable) {
-		File scriptsFolder = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER + File.separator);
-		if (!scriptsFolder.isDirectory())
-			//noinspection ResultOfMethodCallIgnored
-			scriptsFolder.mkdirs();
-		
+	public static CompletableFuture<Void> loadScripts(File file, OpenCloseable openCloseable) {
 		Date start = new Date();
-		
-		updateDisabledScripts(scriptsFolder.toPath());
+
+		updateDisabledScripts(file.toPath());
 
 		List<Config> configs;
-		
+
 		CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE).start();
 		try {
-			configs = loadStructures(scriptsFolder);
+			configs = loadStructures(file);
 		} finally {
 			logHandler.stop();
 		}
-		
+
 		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler))
 			.thenAccept(scriptInfo -> {
 				try {
@@ -463,6 +460,7 @@ public class ScriptLoader {
 					throw Skript.exception(e);
 				}
 			});
+
 	}
 	
 	/**
@@ -636,7 +634,7 @@ public class ScriptLoader {
 	}
 
 	/*
-	 * Structure loading methods
+	 * Script Structure Loading Methods
 	 */
 
 	/**
@@ -673,6 +671,7 @@ public class ScriptLoader {
 		}
 		
 		File[] files = directory.listFiles(loadedScriptFilter);
+		assert files != null;
 		Arrays.sort(files);
 		
 		List<Config> loadedFiles = new ArrayList<>(files.length);
@@ -695,7 +694,6 @@ public class ScriptLoader {
 	 * @return The loaded structure or null if an error occurred.
 	 */
 	@Nullable
-	@SuppressWarnings("resource") // Stream is closed in Config constructor called in loadStructure
 	public static Config loadStructure(File file) {
 		if (!file.exists()) { // If file does not exist...
 			Script script = getScript(file);
@@ -707,8 +705,7 @@ public class ScriptLoader {
 		try {
 			String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
 					.resolve(Skript.SCRIPTSFOLDER).relativize(file.toPath().toAbsolutePath()).toString();
-			assert name != null;
-			return loadStructure(new FileInputStream(file), name);
+			return loadStructure(Files.newInputStream(file.toPath()), name);
 		} catch (IOException e) {
 			Skript.error("Could not load " + file.getName() + ": " + ExceptionUtils.toString(e));
 		}
@@ -742,7 +739,7 @@ public class ScriptLoader {
 	}
 
 	/*
-	 * Script unloading methods
+	 * Script Unloading Methods
 	 */
 
 	/**
@@ -750,7 +747,9 @@ public class ScriptLoader {
 	 * @param folder The folder containing scripts to unload.
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
+	 * @deprecated Use {@link #unloadScripts(Collection)}.
 	 */
+	@Deprecated
 	private static ScriptInfo unloadScripts(File folder) {
 		return unloadScripts(getScripts(folder));
 	}
@@ -808,6 +807,7 @@ public class ScriptLoader {
 	 * Unloads the provided script.
 	 * @param scriptFile The file representing the script to unload.
 	 * @return Statistics for the unloaded script.
+	 * @deprecated Use {@link #unloadScript(Script)}.
 	 */
 	public static ScriptInfo unloadScript(File scriptFile) {
 		Script script = getScript(scriptFile);
@@ -826,14 +826,16 @@ public class ScriptLoader {
 	}
 	
 	/*
-	 * Script reloading methods
+	 * Script Reloading Methods
 	 */
 
 	/**
 	 * Reloads a single script.
 	 * @param scriptFile The file representing the script to reload.
 	 * @return Future of statistics of the newly loaded script.
+	 * @deprecated Use {@link #reloadScript(Script, OpenCloseable)}.
 	 */
+	@Deprecated
 	public static CompletableFuture<ScriptInfo> reloadScript(File scriptFile, OpenCloseable openCloseable) {
 		Script script = getScript(scriptFile);
 		if (script == null)
@@ -842,32 +844,51 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * Reloads a single script.
-	 * @param script The script to reload.
-	 * @return Future of statistics of the newly loaded script.
+	 * Reloads a single Script.
+	 * @param script The Script to reload.
+	 * @return Info on the loaded Script.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScript(Script script, OpenCloseable openCloseable) {
-		unloadScript(script);
-		//noinspection ConstantConditions - getFile should never return null
-		Config config = loadStructure(script.getConfig().getFile());
-		if (config == null)
-			return CompletableFuture.completedFuture(new ScriptInfo());
-		return loadScripts(Collections.singletonList(config), openCloseable);
+		return reloadScripts(Collections.singletonList(script), openCloseable);
 	}
 	
 	/**
 	 * Reloads all scripts in the given folder and its subfolders.
 	 * @param folder A folder.
 	 * @return Future of statistics of newly loaded scripts.
+	 * @deprecated Use {@link #reloadScripts}
 	 */
+	@Deprecated
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
 		unloadScripts(folder);
 		List<Config> configs = loadStructures(folder);
 		return loadScripts(configs, openCloseable);
 	}
+
+	/**
+	 * Reloads all provided Scripts.
+	 * @param scripts The Scripts to reload.
+	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
+	 *                         each individual Script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
+	 * @return Info on the loaded Scripts.
+	 */
+	public static CompletableFuture<ScriptInfo> reloadScripts(Collection<Script> scripts, OpenCloseable openCloseable) {
+		unloadScripts(scripts);
+
+		List<Config> configs = new ArrayList<>();
+		for (Script script : scripts) {
+			//noinspection ConstantConditions - getFile should never return null
+			Config config = loadStructure(script.getConfig().getFile());
+			if (config == null)
+				return CompletableFuture.completedFuture(new ScriptInfo());
+			configs.add(config);
+		}
+
+		return loadScripts(configs, openCloseable);
+	}
 	
 	/*
-	 * Code loading methods
+	 * Code Loading Methods
 	 */
 
 	/**
@@ -938,7 +959,7 @@ public class ScriptLoader {
 	}
 	
 	/*
-	 * Loaded script statistics
+	 * Other Utility Methods
 	 */
 
 	public static Collection<Script> getLoadedScripts() {
@@ -977,12 +998,12 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #loadScripts(OpenCloseable)
+	 * @see #loadScripts(File, OpenCloseable)
 	 */
 	@Deprecated
 	static void loadScripts() {
 		disableScripts();
-		loadScripts(OpenCloseable.EMPTY).join();
+		loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.EMPTY).join();
 	}
 
 	/**
