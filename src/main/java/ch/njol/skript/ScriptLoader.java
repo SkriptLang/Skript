@@ -845,6 +845,9 @@ public class ScriptLoader {
 	 * @return Info on the loaded Scripts.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScripts(Set<Script> scripts, OpenCloseable openCloseable) {
+		if (scripts.size() == loadedScripts.size()) // If we are reloading all scripts, we need to make a copy of the list just in case!
+			scripts = new HashSet<>(scripts);
+
 		unloadScripts(scripts);
 
 		List<Config> configs = new ArrayList<>();

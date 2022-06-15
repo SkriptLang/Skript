@@ -427,6 +427,10 @@ public class SkriptCommand implements CommandExecutor {
 					);
 			}
 
+			else if (args[0].equalsIgnoreCase("help")) {
+				SKRIPT_COMMAND_HELP.showHelp(sender);
+			}
+
 		} catch (Exception e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Exception occurred in Skript's main command", "Used command: /" + label + " " + StringUtils.join(args, " "));
