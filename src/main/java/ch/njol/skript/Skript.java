@@ -813,7 +813,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				 */
 				Date start = new Date();
 				CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE);
-				
+
 				File scriptsFolder = getScriptsFolder();
 				ScriptLoader.updateDisabledScripts(scriptsFolder.toPath());
 				ScriptLoader.loadScripts(scriptsFolder, OpenCloseable.EMPTY)

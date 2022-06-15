@@ -169,8 +169,8 @@ public class ScriptLoader {
 	 * @return The scripts loaded from the files of the provided directory.
 	 * 	Empty if no scripts were found.
 	 */
-	public static List<Script> getScripts(File directory) {
-		List<Script> scripts = new ArrayList<>();
+	public static Set<Script> getScripts(File directory) {
+		Set<Script> scripts = new HashSet<>();
 		for (File file : directory.listFiles(loadedScriptFilter)) {
 			if (file.isDirectory()) {
 				scripts.addAll(getScripts(file));
@@ -720,7 +720,7 @@ public class ScriptLoader {
 	 * @param folder The folder containing scripts to unload.
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
-	 * @deprecated Use {@link #unloadScripts(Collection)}.
+	 * @deprecated Use {@link #unloadScripts(Set)}.
 	 */
 	@Deprecated
 	private static ScriptInfo unloadScripts(File folder) {
@@ -733,12 +733,11 @@ public class ScriptLoader {
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
-	public static ScriptInfo unloadScripts(Collection<Script> scripts) {
+	public static ScriptInfo unloadScripts(Set<Script> scripts) {
 		ParserInstance parser = getParser();
 		ScriptInfo info = new ScriptInfo();
 
-		scripts = new ArrayList<>(scripts); // Don't modify the list we were provided with
-		scripts.removeIf(script -> !loadedScripts.contains(script));
+		scripts = new HashSet<>(scripts); // Don't modify the list we were provided with
 
 		for (Script script : scripts) {
 			parser.setCurrentScript(script);
@@ -795,7 +794,7 @@ public class ScriptLoader {
 	 * @return Statistics for the unloaded script.
 	 */
 	public static ScriptInfo unloadScript(Script script) {
-		return unloadScripts(Collections.singletonList(script));
+		return unloadScripts(Collections.singleton(script));
 	}
 	
 	/*
@@ -822,7 +821,7 @@ public class ScriptLoader {
 	 * @return Info on the loaded Script.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScript(Script script, OpenCloseable openCloseable) {
-		return reloadScripts(Collections.singletonList(script), openCloseable);
+		return reloadScripts(Collections.singleton(script), openCloseable);
 	}
 	
 	/**
@@ -845,7 +844,7 @@ public class ScriptLoader {
 	 *                         each individual Script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 * @return Info on the loaded Scripts.
 	 */
-	public static CompletableFuture<ScriptInfo> reloadScripts(Collection<Script> scripts, OpenCloseable openCloseable) {
+	public static CompletableFuture<ScriptInfo> reloadScripts(Set<Script> scripts, OpenCloseable openCloseable) {
 		unloadScripts(scripts);
 
 		List<Config> configs = new ArrayList<>();
@@ -935,12 +934,12 @@ public class ScriptLoader {
 	 * Other Utility Methods
 	 */
 
-	public static Collection<Script> getLoadedScripts() {
-		return Collections.unmodifiableCollection(loadedScripts);
+	public static Set<Script> getLoadedScripts() {
+		return Collections.unmodifiableSet(loadedScripts);
 	}
 
-	public static Collection<File> getDisabledScripts() {
-		return Collections.unmodifiableCollection(disabledScripts);
+	public static Set<File> getDisabledScripts() {
+		return Collections.unmodifiableSet(disabledScripts);
 	}
 
 	public static FileFilter getLoadedScriptsFilter() {
