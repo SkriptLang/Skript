@@ -31,15 +31,12 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.structure.Structure;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.structures.StructOptions;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
@@ -78,18 +75,6 @@ import java.util.logging.Level;
  * The main class for loading, unloading and reloading scripts.
  */
 public class ScriptLoader {
-	
-	private static final Message
-		m_no_errors = new Message("skript.no errors"),
-		m_no_scripts = new Message("skript.no scripts");
-	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
-	
-	/**
-	 * Disables all scripts by unloading all structures.
-	 */
-	static void disableScripts() {
-		unloadScripts(new HashSet<>(loadedScripts));
-	}
 	
 	/**
 	 * A class for keeping track of the general content of a script:
@@ -428,9 +413,7 @@ public class ScriptLoader {
 	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
 	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 */
-	public static CompletableFuture<Void> loadScripts(File file, OpenCloseable openCloseable) {
-		Date start = new Date();
-
+	public static CompletableFuture<ScriptInfo> loadScripts(File file, OpenCloseable openCloseable) {
 		updateDisabledScripts(file.toPath());
 
 		List<Config> configs;
@@ -442,25 +425,7 @@ public class ScriptLoader {
 			logHandler.stop();
 		}
 
-		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler))
-			.thenAccept(scriptInfo -> {
-				try {
-					if (logHandler.getCount() == 0)
-						Skript.info(m_no_errors.toString());
-					if (scriptInfo.files == 0)
-						Skript.warning(m_no_scripts.toString());
-					if (Skript.logNormal() && scriptInfo.files > 0)
-						Skript.info(m_scripts_loaded.toString(
-							scriptInfo.files,
-							scriptInfo.structures,
-							start.difference(new Date())
-						));
-				} catch (Exception e) {
-					// Something went wrong, we need to make sure the exception is printed
-					throw Skript.exception(e);
-				}
-			});
-
+		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler));
 	}
 	
 	/**
@@ -1002,7 +967,7 @@ public class ScriptLoader {
 	 */
 	@Deprecated
 	static void loadScripts() {
-		disableScripts();
+		unloadScripts(loadedScripts);
 		loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.EMPTY).join();
 	}
 

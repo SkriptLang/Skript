@@ -56,6 +56,7 @@ import ch.njol.skript.lang.structure.StructureInfo;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.BukkitLoggerFilter;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorDescLogHandler;
@@ -75,6 +76,7 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
@@ -230,8 +232,12 @@ public final class Skript extends JavaPlugin implements Listener {
 		return v;
 	}
 	
-	public final static Message m_invalid_reload = new Message("skript.invalid reload"),
-			m_finished_loading = new Message("skript.finished loading");
+	public final static Message
+		m_invalid_reload = new Message("skript.invalid reload"),
+		m_finished_loading = new Message("skript.finished loading"),
+		m_no_errors = new Message("skript.no errors"),
+		m_no_scripts = new Message("skript.no scripts");
+	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
 	
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
@@ -805,30 +811,49 @@ public final class Skript extends JavaPlugin implements Listener {
 				/*
 				 * Start loading scripts
 				 */
-				ScriptLoader.loadScripts(getScriptsFolder(), OpenCloseable.EMPTY)
-					.thenAccept(unused -> {
-						Skript.info(m_finished_loading.toString());
-						
-						// EvtSkript.onSkriptStart should be called on main server thread
-						if (!ScriptLoader.isAsync()) {
-							EvtSkript.onSkriptStart();
-							
-							// Suppresses the "can't keep up" warning after loading all scripts
-							// Only for non-asynchronous loading
-							Filter filter = record -> {
-								if (record == null)
-									return false;
-								return record.getMessage() == null
-									|| !record.getMessage().toLowerCase(Locale.ENGLISH).startsWith("can't keep up!");
-							};
-							BukkitLoggerFilter.addFilter(filter);
-							Bukkit.getScheduler().scheduleSyncDelayedTask(
-								Skript.this,
-								() -> BukkitLoggerFilter.removeFilter(filter),
-								1);
-						} else {
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this,
-								EvtSkript::onSkriptStart);
+				Date start = new Date();
+
+				CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE);
+				ScriptLoader.loadScripts(getScriptsFolder(), logHandler)
+					.thenAccept(scriptInfo -> {
+						try {
+							if (logHandler.getCount() == 0)
+								Skript.info(m_no_errors.toString());
+							if (scriptInfo.files == 0)
+								Skript.warning(m_no_scripts.toString());
+							if (Skript.logNormal() && scriptInfo.files > 0)
+								Skript.info(m_scripts_loaded.toString(
+									scriptInfo.files,
+									scriptInfo.structures,
+									start.difference(new Date())
+								));
+
+							Skript.info(m_finished_loading.toString());
+
+							// EvtSkript.onSkriptStart should be called on main server thread
+							if (!ScriptLoader.isAsync()) {
+								EvtSkript.onSkriptStart();
+
+								// Suppresses the "can't keep up" warning after loading all scripts
+								// Only for non-asynchronous loading
+								Filter filter = record -> {
+									if (record == null)
+										return false;
+									return record.getMessage() == null
+										|| !record.getMessage().toLowerCase(Locale.ENGLISH).startsWith("can't keep up!");
+								};
+								BukkitLoggerFilter.addFilter(filter);
+								Bukkit.getScheduler().scheduleSyncDelayedTask(
+									Skript.this,
+									() -> BukkitLoggerFilter.removeFilter(filter),
+									1);
+							} else {
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this,
+									EvtSkript::onSkriptStart);
+							}
+						} catch (Exception e) {
+							// Something went wrong, we need to make sure the exception is printed
+							throw Skript.exception(e);
 						}
 					});
 				
@@ -1136,7 +1161,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		partDisabled = true;
 		EvtSkript.onSkriptStop(); // TODO [code style] warn user about delays in Skript stop events
 
-		ScriptLoader.disableScripts();
+		ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 	}
 
 	@Override
