@@ -812,9 +812,11 @@ public final class Skript extends JavaPlugin implements Listener {
 				 * Start loading scripts
 				 */
 				Date start = new Date();
-
 				CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE);
-				ScriptLoader.loadScripts(getScriptsFolder(), logHandler)
+				
+				File scriptsFolder = getScriptsFolder();
+				ScriptLoader.updateDisabledScripts(scriptsFolder.toPath());
+				ScriptLoader.loadScripts(scriptsFolder, OpenCloseable.EMPTY)
 					.thenAccept(scriptInfo -> {
 						try {
 							if (logHandler.getCount() == 0)

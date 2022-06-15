@@ -69,12 +69,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * The main class for loading, unloading and reloading scripts.
  */
 public class ScriptLoader {
+
+	public static final String DISABLED_SCRIPT_PREFIX = "-";
 	
 	/**
 	 * A class for keeping track of the general content of a script:
@@ -198,7 +200,7 @@ public class ScriptLoader {
 	 * Reevaluates {@link #disabledScripts}.
 	 * @param path the scripts folder to use for the reevaluation.
 	 */
-	private static void updateDisabledScripts(Path path) {
+	static void updateDisabledScripts(Path path) {
 		disabledScripts.clear();
 		try {
 			// TODO handle AccessDeniedException
@@ -409,23 +411,26 @@ public class ScriptLoader {
 	/**
 	 * Loads the Script present at the file using {@link #loadScripts(List, OpenCloseable)},
 	 * 	sending info/error messages when done.
-	 * @param file The Script to load. If this is a directory, all scripts within the directory and any subdirectories will be loaded.
+	 * @param file The file to load. If this is a directory, all scripts within the directory and any subdirectories will be loaded.
 	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
 	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 */
 	public static CompletableFuture<ScriptInfo> loadScripts(File file, OpenCloseable openCloseable) {
-		updateDisabledScripts(file.toPath());
+		return loadScripts(loadStructures(file), openCloseable);
+	}
 
-		List<Config> configs;
-
-		CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE).start();
-		try {
-			configs = loadStructures(file);
-		} finally {
-			logHandler.stop();
-		}
-
-		return loadScripts(configs, OpenCloseable.combine(openCloseable, logHandler));
+	/**
+	 * Loads the Scripts present at the files using {@link #loadScripts(List, OpenCloseable)},
+	 * 	sending info/error messages when done.
+	 * @param files The files to load. If any file is a directory, all scripts within the directory and any subdirectories will be loaded.
+	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
+	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
+	 */
+	public static CompletableFuture<ScriptInfo> loadScripts(Collection<File> files, OpenCloseable openCloseable) {
+		return loadScripts(files.stream()
+			.sorted()
+			.map(ScriptLoader::loadStructure)
+			.collect(Collectors.toList()), openCloseable);
 	}
 	
 	/**
@@ -437,6 +442,9 @@ public class ScriptLoader {
 	 * @return Info on the loaded scripts.
 	 */
 	public static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
+		if (configs.isEmpty()) // Nothing to load
+			return CompletableFuture.completedFuture(new ScriptInfo());
+
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
@@ -821,7 +829,7 @@ public class ScriptLoader {
 	 * Reloads all scripts in the given folder and its subfolders.
 	 * @param folder A folder.
 	 * @return Future of statistics of newly loaded scripts.
-	 * @deprecated Use {@link #reloadScripts}
+	 * @deprecated Use {@link #reloadScripts}.
 	 */
 	@Deprecated
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
@@ -935,6 +943,13 @@ public class ScriptLoader {
 		return Collections.unmodifiableCollection(disabledScripts);
 	}
 
+	public static FileFilter getLoadedScriptsFilter() {
+		return loadedScriptFilter;
+	}
+
+	public static FileFilter getDisabledScriptsFilter() {
+		return disabledScriptFilter;
+	}
 
 	/*
 	 * Deprecated stuff
