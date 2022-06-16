@@ -75,7 +75,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
+import org.bukkit.event.player.PlayerPickupEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -267,7 +267,7 @@ public class SimpleEvents {
 				.description("Called when a player fishes something. This is not of much use yet.")
 				.examples("on fish:")
 				.since("1.0");
-		Skript.registerEvent("Arrow Pickup", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup [an] arrow")
+		Skript.registerEvent("Arrow Pickup", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup [an] arrow", "[player] arrow pickup")
 			.description("Called when a player picks up an arrow.")
 			.examples("on pickup an arrow:")
 			.since("INSERT VERSION");
