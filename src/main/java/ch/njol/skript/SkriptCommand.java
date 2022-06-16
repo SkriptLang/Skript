@@ -474,7 +474,11 @@ public class SkriptCommand implements CommandExecutor {
 				return null;
 			}
 		}
-		return scriptFile;
+		try {
+			return scriptFile.getCanonicalFile();
+		} catch (IOException e) {
+			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
+		}
 	}
 
 	private static File toggleFile(File file, boolean enable) throws IOException {

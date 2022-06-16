@@ -627,6 +627,13 @@ public class ScriptLoader {
 		List<Config> loadedFiles = new ArrayList<>(files.length);
 		for (File file : files) {
 			assert file != null : Arrays.toString(files);
+			try {
+				file = file.getCanonicalFile();
+			} catch (IOException e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "An exception occurred while trying to get the canonical file of: " + file);
+				continue;
+			}
 			Config config = loadStructure(file);
 			if (config != null)
 				loadedFiles.add(config);
@@ -643,6 +650,14 @@ public class ScriptLoader {
 	 * @return A list of all successfully loaded structures.
 	 */
 	public static List<Config> loadStructures(File directory) {
+		try {
+			directory = directory.getCanonicalFile();
+		} catch (IOException e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "An exception occurred while trying to get the canonical file of: " + directory);
+			return new ArrayList<>();
+		}
+
 		if (!directory.isDirectory()) {
 			Config config = loadStructure(directory);
 			return config != null ? Collections.singletonList(config) : Collections.emptyList();
@@ -673,6 +688,14 @@ public class ScriptLoader {
 	 */
 	@Nullable
 	public static Config loadStructure(File file) {
+		try {
+			file = file.getCanonicalFile();
+		} catch (IOException e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "An exception occurred while trying to get the canonical file of: " + file);
+			return null;
+		}
+
 		if (!file.exists()) { // If file does not exist...
 			Script script = getScript(file);
 			if (script != null)
@@ -704,7 +727,7 @@ public class ScriptLoader {
 			return new Config(
 				source,
 				name,
-				Skript.getInstance().getDataFolder().toPath().resolve(Skript.SCRIPTSFOLDER).resolve(name).toFile(),
+				Skript.getInstance().getDataFolder().toPath().resolve(Skript.SCRIPTSFOLDER).resolve(name).toFile().getCanonicalFile(),
 				true,
 				false,
 				":"
