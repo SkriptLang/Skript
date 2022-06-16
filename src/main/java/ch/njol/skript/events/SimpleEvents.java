@@ -267,12 +267,12 @@ public class SimpleEvents {
 				.description("Called when a player fishes something. This is not of much use yet.")
 				.examples("on fish:")
 				.since("1.0");
-		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerFishEvent.class, "[player] pickup up [an] arrow")
+		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup up [an] arrow")
 			.description("Called when a player picks up an arrow.")
 			.examples("on pickup an arrow:")
 			.since("2.6.2");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
-			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
+			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
 					.description("Called when a player breaks their tool because its damage reached the maximum value.",
 							"This event cannot be cancelled.")
 					.examples("on tool break:")
