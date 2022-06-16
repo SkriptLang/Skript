@@ -17,57 +17,34 @@
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-import java.util.ArrayList;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
  
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
-public class ExprGetAllArmor extends SimpleExpression<ItemStack> {
+
+public class ExprGetAllArmor extends SimplePropertyExpression<LivingEntity, ItemStack[]> {
  
    static {
-       Skript.registerExpression(ExprGetAllArmor.class, ItemStack.class, ExpressionType.COMBINED, "%player%'s armor");
+       Skript.registerExpression(ExprGetAllArmor.class, ItemStack[].class, ExpressionType.COMBINED, "%livingentities%'s armor");
    }
  
-   private Expression<Player> player;
- 
-   @Override
-   public Class<? extends ItemStack> getReturnType() {
-       return ItemStack.class;
-   }
- 
-   @Override
-   public boolean isSingle() {
-       return true;
-   }
- 
-   @SuppressWarnings("unchecked")
-   @Override
-   public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-       player = (Expression<Player>) exprs[0];
-       return true;
-   }
+    @Override
+    protected String getPropertyName() {
+        return "get all armor";
+    }
 
-   @Override
-   public String toString(@Nullable Event event, boolean debug) {
-       return "Player: " + player.toString(event, debug);
-   }
- 
-   @Override
-   protected @Nullable ItemStack[] get(Event event) {
-       Player p = player.getSingle(event);
-       if (p != null) {
-            org.bukkit.inventory.PlayerInventory inv = p.getInventory();
-            ItemStack[] armor={inv.getHelmet(),inv.getChestplate(),inv.getLeggings(),inv.getBoots()};
-            return armor;
-       }
-       return null;
-   }
+    @Override
+    public Class<? extends ItemStack[]> getReturnType() {
+        return ItemStack[].class;
+    }
+
+    @Override
+    public @Nullable ItemStack[] convert(final LivingEntity f) {
+        ItemStack[] armor=f.getEquipment().getArmorContents();
+        return armor;
+    }
 }
