@@ -34,7 +34,7 @@ public class ExprArmor extends SimplePropertyExpression<LivingEntity, ItemStack>
  
     @Override
     protected String getPropertyName() {
-        return "get all armor";
+        return "armor";
     }
 
     @Override
