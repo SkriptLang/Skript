@@ -57,7 +57,7 @@ public class ExprGetAllArmor extends SimpleExpression<ItemStack> {
  
    @Override
    public String toString(@Nullable Event event, boolean debug) {
-       return "Example expression with expression player: " + player.toString(event, debug);
+       return "Player: " + player.toString(event, debug);
    }
  
    @Override
