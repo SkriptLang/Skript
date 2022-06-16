@@ -61,6 +61,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -266,6 +267,10 @@ public class SimpleEvents {
 				.description("Called when a player fishes something. This is not of much use yet.")
 				.examples("on fish:")
 				.since("1.0");
+		Skript.registerEvent("Arrow Pickup", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup [an] arrow", "[player] arrow pickup")
+			.description("Called when a player picks up an arrow.")
+			.examples("on pickup an arrow:")
+			.since("INSERT VERSION");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
 					.description("Called when a player breaks their tool because its damage reached the maximum value.",
