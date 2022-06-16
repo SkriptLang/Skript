@@ -269,7 +269,7 @@ public class SimpleEvents {
 				.since("1.0");
 		Skript.registerEvent("Arrow Pickup", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup [an] arrow", "[player] arrow pickup")
 			.description("Called when a player picks up an arrow.")
-			.examples("on pickup an arrow:")
+			.examples("on player arrow pickup:")
 			.since("INSERT VERSION");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
