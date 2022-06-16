@@ -77,6 +77,7 @@ import java.util.stream.Collectors;
 public class ScriptLoader {
 
 	public static final String DISABLED_SCRIPT_PREFIX = "-";
+	public static final int DISABLED_SCRIPT_PREFIX_LENGTH = DISABLED_SCRIPT_PREFIX.length();
 	
 	/**
 	 * A class for keeping track of the general content of a script:
@@ -485,6 +486,10 @@ public class ScriptLoader {
 							pair.getSecond().preLoad();
 						});
 
+					// TODO in the future, Structure#load should be split across multiple threads if parallel loading is enabled.
+					// However, this is not possible right now as reworks in multiple areas will be needed.
+					// For example, the "Commands" class still uses a static list for currentArguments that is cleared between loads.
+					// Until these reworks happen, limiting main loading to asynchronous (not parallel) is the only choice we have.
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						for (Structure structure : script.getStructures())

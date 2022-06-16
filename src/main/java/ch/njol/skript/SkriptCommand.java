@@ -169,7 +169,7 @@ public class SkriptCommand implements CommandExecutor {
 
 					if (!scriptFile.isDirectory()) {
 						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
-							info(sender, "reload.script disabled", scriptFile.getName().substring(1), StringUtils.join(args, " ", 1, args.length));
+							info(sender, "reload.script disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), StringUtils.join(args, " ", 1, args.length));
 							return true;
 						}
 
@@ -231,7 +231,7 @@ public class SkriptCommand implements CommandExecutor {
 						try {
 							scriptFile = toggleFile(scriptFile, true);
 						} catch (IOException e) {
-							error(sender, "enable.single.io error", scriptFile.getName().substring(1), ExceptionUtils.toString(e));
+							error(sender, "enable.single.io error", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), ExceptionUtils.toString(e));
 							return true;
 						}
 
@@ -293,7 +293,7 @@ public class SkriptCommand implements CommandExecutor {
 
 					if (!scriptFile.isDirectory()) {
 						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
-							info(sender, "disable.single.already disabled", scriptFile.getName().substring(1));
+							info(sender, "disable.single.already disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
 							return true;
 						}
 
@@ -465,7 +465,7 @@ public class SkriptCommand implements CommandExecutor {
 		}
 
 		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-			script = script.substring(1);
+			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
 		File scriptFile = new File(Skript.getInstance().getScriptsFolder(), script);
 		if (!scriptFile.exists()) {
@@ -479,8 +479,16 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static File toggleFile(File file, boolean enable) throws IOException {
 		if (enable)
-			return FileUtils.move(file, new File(file.getParentFile(), file.getName().substring(1)), false);
-		return FileUtils.move(file, new File(file.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + file.getName()), false);
+			return FileUtils.move(
+				file,
+				new File(file.getParentFile(), file.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
+				false
+			);
+		return FileUtils.move(
+			file,
+			new File(file.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + file.getName()),
+			false
+		);
 	}
 	
 	private static Collection<File> toggleFiles(File folder, boolean enable) throws IOException {
@@ -495,7 +503,7 @@ public class SkriptCommand implements CommandExecutor {
 					String fileName = file.getName();
 					changed.add(FileUtils.move(
 						file,
-						new File(file.getParentFile(), enable ? fileName.substring(1) : ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName),
+						new File(file.getParentFile(), enable ? fileName.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH) : ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName),
 						false
 					));
 				}
