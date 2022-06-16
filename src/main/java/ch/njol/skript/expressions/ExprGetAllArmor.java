@@ -38,8 +38,8 @@ public class ExprArmor extends SimplePropertyExpression<LivingEntity, ItemStack>
     }
 
     @Override
-    public Class<? extends ItemStack[]> getReturnType() {
-        return ItemStack[].class;
+    public Class<? extends ItemStack> getReturnType() {
+        return ItemStack.class;
     }
 
     @Override
