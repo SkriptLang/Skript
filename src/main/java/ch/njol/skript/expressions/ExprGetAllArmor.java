@@ -43,7 +43,8 @@ public class ExprArmor extends SimplePropertyExpression<LivingEntity, ItemStack>
     }
 
     @Override
-    public @Nullable ItemStack[] convert(final LivingEntity f) {
+    @Nullable 
+    public ItemStack convert(LivingEntity entity) {
         ItemStack[] armor=f.getEquipment().getArmorContents();
         return armor;
     }
