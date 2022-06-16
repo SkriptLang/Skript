@@ -266,6 +266,10 @@ public class SimpleEvents {
 				.description("Called when a player fishes something. This is not of much use yet.")
 				.examples("on fish:")
 				.since("1.0");
+		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerFishEvent.class, "[player] picking up [an] arrow")
+			.description("Called when a player picks up an arrow.")
+			.examples("on fish:")
+			.since("1.0");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
 					.description("Called when a player breaks their tool because its damage reached the maximum value.",
