@@ -26,7 +26,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
 
-public class ExprGetAllArmor extends SimplePropertyExpression<LivingEntity, ItemStack[]> {
+public class ExprArmor extends SimplePropertyExpression<LivingEntity, ItemStack> {
  
    static {
        Skript.registerExpression(ExprGetAllArmor.class, ItemStack[].class, ExpressionType.COMBINED, "%livingentities%'s armor");
