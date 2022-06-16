@@ -267,7 +267,7 @@ public class SimpleEvents {
 				.description("Called when a player fishes something. This is not of much use yet.")
 				.examples("on fish:")
 				.since("1.0");
-		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup up [an] arrow")
+		Skript.registerEvent("Arrow Pickup", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] pickup up [an] arrow")
 			.description("Called when a player picks up an arrow.")
 			.examples("on pickup an arrow:")
 			.since("2.6.2");
