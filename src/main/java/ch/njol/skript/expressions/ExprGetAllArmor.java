@@ -27,7 +27,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
 
 @Name("Entities's Armor")
-@Description("Returns a list of all the entities armor.")
+@Description("Returns a list of entities armor.")
 @Examples("player's armor")
 @Since("INSERT VERSION")
 public class ExprArmor extends SimplePropertyExpression<LivingEntity, ItemStack> {
