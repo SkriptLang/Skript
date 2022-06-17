@@ -47,7 +47,7 @@ public class ExprFormat extends SimpleExpression<String> {
             String replacement = (String) objs.get(i).toString();
             if (replacement == "^s") {replacement="%^s_%";}
             str = StringUtils.replaceOnce(str, "^s", replacement);
-        } str=str.replaceAll("%^s_%","_^s"); return str;
+        } str=str.replaceAll("%^s_%","^s"); return str;
     }
     @Override
     protected @Nullable String[] get(Event event) {
