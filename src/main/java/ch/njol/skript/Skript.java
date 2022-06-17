@@ -33,7 +33,6 @@ import ch.njol.skript.classes.data.DefaultFunctions;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
@@ -47,10 +46,10 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.lang.structure.StructureEntryValidator;
 import ch.njol.skript.lang.structure.StructureInfo;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -423,7 +422,9 @@ public final class Skript extends JavaPlugin implements Listener {
 					File saveTo = null;
 					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
-						saveTo = new File(scriptsFolder, (fileName.startsWith("-") ? "" : "-") + fileName);
+						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
+						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
 							&& e.getName().startsWith("lang/")
 							&& e.getName().endsWith(".lang")
@@ -650,8 +651,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								errorCounter.start();
 								File testDir = TestMode.TEST_DIR.toFile();
 								assert testDir != null;
-								List<Config> configs = ScriptLoader.loadStructures(testDir);
-								ScriptLoader.loadScripts(configs, errorCounter).join();
+								ScriptLoader.loadScripts(testDir, errorCounter);
 							} finally {
 								errorCounter.stop();
 							}

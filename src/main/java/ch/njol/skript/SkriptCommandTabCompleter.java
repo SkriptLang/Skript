@@ -33,61 +33,79 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SkriptCommandTabCompleter implements TabCompleter {
-		
+
 	@Override
 	@Nullable
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		ArrayList<String> options = new ArrayList<>();
 		
-		if (!command.getName().equalsIgnoreCase("skript")) {
+		if (!command.getName().equalsIgnoreCase("skript"))
 			return null;
-		}
 		
 		if (args[0].equalsIgnoreCase("update") && args.length == 2) {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
-		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length == 2) {
-			File scripts = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER);
-			String scriptArg = StringUtils.join(args, " ", 1, args.length); 
+		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
+			File scripts = Skript.getInstance().getScriptsFolder();
+			String scriptsPathString = scripts.toPath().toString();
+			int scriptsPathLength = scriptsPathString.length();
+
+			String scriptArg = StringUtils.join(args, " ", 1, args.length);
 			String fs = File.separator;
+
+			boolean enable = args[0].equalsIgnoreCase("enable");
 			
 			try {
 				// Live update, this will get all old and new (even not loaded) scripts
+				// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
 				Files.walk(scripts.toPath())
 					.map(Path::toFile)
-					.filter(f -> (!f.isDirectory() && f.getName().toLowerCase().endsWith(".sk")) ||
-						f.isDirectory()) // filter folders and skript files only
-					.filter(f -> { // Filtration for enable, disable and reload
-						if (args[0].equalsIgnoreCase("enable"))
-							return f.getName().startsWith("-");
-						else // reload & disable both accepts only non-hyphened files and not hidden folders
-							return !f.getAbsolutePath().matches(".*?(\\\\-|/-|^-).*") && (f.isDirectory() &&
-								!f.getAbsolutePath().matches(".*?(\\\\\\.|/\\.|^\\.).*") || !f.isDirectory());
-					})
-					.filter(f -> { // Autocomplete incomplete script name arg
-						return scriptArg.length() > 0 ? f.getName().startsWith(scriptArg) : true;
-					})
 					.forEach(f -> {
-						if (!f.toString().equals(scripts.toString()))
-							options.add(f.toString()
-								.replace(scripts.toPath() + (!f.isDirectory() && f.getParentFile().toPath().toString()
-									.equals(scripts.toPath().toString()) ? fs : ""), "") // Extract file short path, and remove '/' from the beginning of files in root only
-								+ (f.isDirectory() && f.toString().length() > 0 ? fs : "")); // add File.separator at the end of directories
-					}); 
-				
+						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(f))
+							return;
+
+						String fileString = f.toString().substring(scriptsPathLength);
+						if (fileString.isEmpty())
+							return;
+
+						if (f.isDirectory()) {
+							fileString = fileString + fs; // Add file separator at the end of directories
+						} else if (f.getParentFile().toPath().toString().equals(scriptsPathString)) {
+							fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
+							if (fileString.isEmpty())
+								return;
+						}
+
+						// Make sure the user's argument matches with the file's name or beginning of file path
+						if (scriptArg.length() > 0 && !f.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
+							return;
+
+						// Trim off previous arguments if needed
+						if (args.length > 2 && fileString.length() >= scriptArg.length())
+							fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
+
+						// Just in case
+						if (fileString.isEmpty())
+							return;
+
+						options.add(fileString);
+					});
 			// TODO handle file permissions
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
 			// These will be added even if there are incomplete script arg
-			options.add("all");
-			if (args[0].equalsIgnoreCase("reload")) {
-				options.add("config");
-				options.add("aliases");
-				options.add("scripts");
+			if (args.length == 2) {
+				options.add("all");
+				if (args[0].equalsIgnoreCase("reload")) {
+					options.add("config");
+					options.add("aliases");
+					options.add("scripts");
+				}
 			}
+
 		} else if (args.length == 1) {
 			options.add("help");
 			options.add("reload");
@@ -95,15 +113,13 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("disable");
 			options.add("update");
 			options.add("info");
-			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists()) {
+			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
 				options.add("gen-docs");
-			}
-			if (TestMode.DEV_MODE) {
+			if (TestMode.DEV_MODE)
 				options.add("test");
-			}
 		}
 		
 		return options;
 	}
-	
+
 }
