@@ -35,7 +35,7 @@ import ch.njol.util.Kleenean;
 
 public class ExprFormat extends SimpleExpression<String> {
     static {
-            Skript.registerExpression(ExprFormat.class, String.class, ExpressionType.COMBINED, "%string% formatting as %objects%");
+            Skript.registerExpression(ExprFormat.class, String.class, ExpressionType.COMBINED, "%string% [then] formatt(ing|ed) [as] %objects%");
     }
 
     public Expression<String> msg;
@@ -43,18 +43,17 @@ public class ExprFormat extends SimpleExpression<String> {
  
 
     public String formatString(String str, ArrayList<Object> objs) {
-        if (str.split("_*s", -1).length - 1 != objs.size()) {Skript.error("You need to fill all _*s with data."); return "Format error, please check logs";}
         for (int i=0; i<objs.size();i++) {
             String replacement = (String) objs.get(i).toString();
-            if (replacement == "_*s") {replacement="%__ss__%";}
-            str = StringUtils.replaceOnce(str, "_*s", replacement);
-        } str=str.replaceAll("%__ss__%","_*s"); return str;
+            if (replacement == "^s") {replacement="%^s_%";}
+            str = StringUtils.replaceOnce(str, "^s", replacement);
+        } str=str.replaceAll("%^s_%","_*s"); return str;
     }
     @Override
     protected @Nullable String[] get(Event event) {
         String str = msg.getSingle(event);
         Object[] format = formats.getArray(event);
-        if (!str.contains("_*s")) {Skript.error("Your formatted text needs to contain a _*s"); return new String[]{str};}
+        if (!str.contains("^s")) {Skript.error("Your formatted text needs to contain a ^s"); return new String[]{str};}
         return new String[]{formatString(str,new ArrayList<Object>(Arrays.asList(format)))};
     }
     @Override
