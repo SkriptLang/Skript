@@ -81,7 +81,7 @@ public class Signature<T> {
 	}
 
 	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
-		this(script, name ,parameters, returnType, single, "");
+		this(script, name, parameters, returnType, single, "");
 	}
 	
 	public String getName() {
