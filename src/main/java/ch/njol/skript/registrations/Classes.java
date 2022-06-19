@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -334,7 +335,7 @@ public abstract class Classes {
 	@Nullable
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
-		name = "" + name.toLowerCase();
+		name = "" + name.toLowerCase(Locale.ENGLISH);
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			final Pattern[] uip = ci.getUserInputPatterns();
 			if (uip == null)

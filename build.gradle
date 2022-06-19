@@ -142,7 +142,7 @@ tasks.create('testNaming') {
 		// Regression tests
 		for (def file : project.file('src/test/skript/tests/regressions').listFiles()) {
 			def name = file.getName()
-			if (name.toLowerCase() != name) {
+			if (name.toLowerCase(Locale.ENGLISH) != name) {
 				throw new InvalidUserDataException('invalid test name: ' + name)
 			}
 		}
