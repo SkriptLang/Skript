@@ -54,7 +54,7 @@ public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	@Override
 	public boolean check(OfflinePlayer op) {
-		if (Bukkit.getPlayerExact(op.getName()) != null) {return true;}
+		return Bukkit.getPlayerExact(op.getName()) != null;
 	}
 	
 	@Override
