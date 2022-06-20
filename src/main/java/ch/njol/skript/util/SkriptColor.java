@@ -23,6 +23,7 @@ import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -76,7 +77,7 @@ public enum SkriptColor implements Color {
 				String node = LANGUAGE_NODE + "." + color.name();
 				color.setAdjective(new Adjective(node + ".adjective"));
 				for (String name : Language.getList(node + ".names"))
-					names.put(name.toLowerCase(), color);
+					names.put(name.toLowerCase(Locale.ENGLISH), color);
 			}
 		});
 	}
