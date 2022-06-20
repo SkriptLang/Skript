@@ -267,7 +267,6 @@ public class StructCommand extends Structure {
 			assert m1 != null;
 			NonNullPair<String, Boolean> p = Utils.getEnglishPlural("" + m1.group(1));
 			String s1 = p.getFirst();
-			getParser().deleteCurrentEvent();
 			return "<" + Classes.getClassInfo(s1).getName().toString(p.getSecond()) + ">";
 		});
 		desc = Commands.unescape(desc).trim();
