@@ -68,7 +68,8 @@ public class SectionStructureEntryData extends StructureEntryData<SectionNode> {
 		String key = node.getKey();
 		if (key == null)
 			return false;
-		return key.equalsIgnoreCase(ScriptLoader.replaceOptions(key));
+		key = ScriptLoader.replaceOptions(key);
+		return getKey().equalsIgnoreCase(key);
 	}
 
 }

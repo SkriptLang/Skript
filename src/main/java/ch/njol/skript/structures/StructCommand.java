@@ -184,6 +184,7 @@ public class StructCommand extends Structure {
 			} else if (fullCommand.charAt(i) == ']') {
 				if (level == 0) {
 					Skript.error("Invalid placement of [optional brackets]");
+					getParser().deleteCurrentEvent();
 					return;
 				}
 				level--;
@@ -191,6 +192,7 @@ public class StructCommand extends Structure {
 		}
 		if (level > 0) {
 			Skript.error("Invalid amount of [optional brackets]");
+			getParser().deleteCurrentEvent();
 			return;
 		}
 
@@ -205,6 +207,7 @@ public class StructCommand extends Structure {
 			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined"
 				+ (script != null ? (" in " + script.getConfig().getFileName()) : "")
 			);
+			getParser().deleteCurrentEvent();
 			return;
 		}
 
@@ -229,17 +232,21 @@ public class StructCommand extends Structure {
 				c = Classes.getClassInfoFromUserInput(p.getFirst());
 			if (c == null) {
 				Skript.error("Unknown type '" + matcher.group(2) + "'");
+				getParser().deleteCurrentEvent();
 				return;
 			}
 			Parser<?> parser = c.getParser();
 			if (parser == null || !parser.canParse(ParseContext.COMMAND)) {
 				Skript.error("Can't use " + c + " as argument of a command");
+				getParser().deleteCurrentEvent();
 				return;
 			}
 
 			Argument<?> arg = Argument.newInstance(matcher.group(1), c, matcher.group(3), i, !p.getSecond(), optionals > 0);
-			if (arg == null)
+			if (arg == null) {
+				getParser().deleteCurrentEvent();
 				return;
+			}
 			currentArguments.add(arg);
 
 			if (arg.isOptional() && optionals == 0) {
@@ -260,6 +267,7 @@ public class StructCommand extends Structure {
 			assert m1 != null;
 			NonNullPair<String, Boolean> p = Utils.getEnglishPlural("" + m1.group(1));
 			String s1 = p.getFirst();
+			getParser().deleteCurrentEvent();
 			return "<" + Classes.getClassInfo(s1).getName().toString(p.getSecond()) + ">";
 		});
 		desc = Commands.unescape(desc).trim();
