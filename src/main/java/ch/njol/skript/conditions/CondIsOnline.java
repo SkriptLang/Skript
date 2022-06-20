@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -53,7 +54,7 @@ public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	@Override
 	public boolean check(OfflinePlayer op) {
-		return op.isOnline();
+		if (Bukkit.getPlayerExact(op.getName()) == null) {return false;} return true;
 	}
 	
 	@Override
