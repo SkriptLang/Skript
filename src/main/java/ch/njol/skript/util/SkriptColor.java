@@ -182,9 +182,9 @@ public enum SkriptColor implements Color {
 		return null;
 	}
 
-	public static SkriptColor fromChatColor(ChatColor chatColor){
-		for(SkriptColor color : values()){
-			if(color.chat == chatColor)
+	public static SkriptColor fromChatColor(ChatColor chatColor) {
+		for (SkriptColor color : colors) {
+			if (color.chat == chatColor)
 				return color;
 		}
 		assert false;
