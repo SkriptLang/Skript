@@ -43,6 +43,7 @@ import ch.njol.skript.lang.structure.KeyValueStructureEntryData;
 import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.lang.structure.StructureEntryValidator;
 import ch.njol.skript.lang.structure.util.LiteralStructureEntryData;
+import ch.njol.skript.lang.structure.util.VariableStringStructureEntryData;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
@@ -95,13 +96,7 @@ public class StructCommand extends Structure {
 				.addEntry("usage", true)
 				.addEntry("description", "")
 				.addEntry("permission", "")
-				.addEntryData(new KeyValueStructureEntryData<VariableString>("permission message", true) {
-					@Override
-					@Nullable
-					protected VariableString getValue(String value) {
-						return VariableString.newInstance(value.replace("\"", "\"\""));
-					}
-				})
+				.addEntryData(new VariableStringStructureEntryData("permission message", true, CommandEvent.class))
 				.addEntryData(new KeyValueStructureEntryData<List<String>>("aliases", new ArrayList<>()) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
 
@@ -136,21 +131,9 @@ public class StructCommand extends Structure {
 					}
 				})
 				.addEntryData(new LiteralStructureEntryData<>("cooldown", true, Timespan.class))
-				.addEntryData(new KeyValueStructureEntryData<VariableString>("cooldown message", true) {
-					@Override
-					@Nullable
-					protected VariableString getValue(String value) {
-						return VariableString.newInstance(value.replace("\"", "\"\""));
-					}
-				})
+				.addEntryData(new VariableStringStructureEntryData("cooldown message", true, CommandEvent.class))
 				.addEntry("cooldown bypass", true)
-				.addEntryData(new KeyValueStructureEntryData<VariableString>("cooldown storage", true) {
-					@Override
-					@Nullable
-					protected VariableString getValue(String value) {
-						return VariableString.newInstance(value, StringMode.VARIABLE_NAME);
-					}
-				})
+				.addEntryData(new VariableStringStructureEntryData("cooldown storage", true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
 				.build(),
 			"command <.+>"

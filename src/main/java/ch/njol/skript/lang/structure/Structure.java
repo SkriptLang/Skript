@@ -95,7 +95,8 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
-		if (structureInfo.skipEntryParsing) { // No validation necessary, the structure itself will handle it
+		StructureEntryValidator entryValidator = structureInfo.entryValidator;
+		if (entryValidator == null) { // No validation necessary, the structure itself will handle it
 			List<Node> unhandledNodes = new ArrayList<>();
 			for (Node node : structureData.sectionNode) // All nodes are unhandled
 				unhandledNodes.add(node);
@@ -105,8 +106,6 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			);
 		}
 
-		StructureEntryValidator entryValidator = structureInfo.entryValidator;
-		assert entryValidator != null;
 		NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
 		if (validated == null)
 			return false;

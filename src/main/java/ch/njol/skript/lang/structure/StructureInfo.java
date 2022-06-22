@@ -26,19 +26,16 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 
-	public final boolean skipEntryParsing;
 	@Nullable
 	public final StructureEntryValidator entryValidator;
 
 	public StructureInfo(String[] patterns, Class<E> c, String originClassPath) throws IllegalArgumentException {
 		super(patterns, c, originClassPath);
-		skipEntryParsing = true;
 		entryValidator = null;
 	}
 
 	public StructureInfo(String[] patterns, Class<E> c, String originClassPath, StructureEntryValidator entryValidator) throws IllegalArgumentException {
 		super(patterns, c, originClassPath);
-		skipEntryParsing = false;
 		this.entryValidator = entryValidator;
 	}
 

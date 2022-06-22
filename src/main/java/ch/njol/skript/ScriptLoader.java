@@ -537,7 +537,7 @@ public class ScriptLoader {
 		getParser().setScriptInfo(scriptInfo);
 		scriptInfo.files = 1; // Loading one script
 
-		List<Structure> structures = getParser().getLoadedStructures();
+		List<Structure> structures = getParser().getCurrentStructures();
 		structures.clear();
 
 		Config config = script.getConfig();

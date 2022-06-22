@@ -62,7 +62,7 @@ public class ParserInstance {
 	@Nullable
 	private Script currentScript;
 	private ScriptInfo scriptInfo;
-	private final List<Structure> loadedStructures = new ArrayList<>();
+	private final List<Structure> currentStructures = new ArrayList<>();
 
 	// Event
 	@Nullable
@@ -118,19 +118,47 @@ public class ParserInstance {
 		return scriptInfo;
 	}
 
-	public List<Structure> getLoadedStructures() {
-		return loadedStructures;
+	/**
+	 * @return All currently loaded structures.
+	 */
+	public List<Structure> getCurrentStructures() {
+		return currentStructures;
 	}
 
 	/**
-	 * @return the {@link #getLoadedStructures()} that are an instance of the given Structure class
+	 * @return The {@link #getCurrentStructures()} that are an instance of the given Structure class
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Structure> List<E> getLoadedStructures(Class<? extends E> structureClass) {
-		return loadedStructures.stream()
-			.filter(structureClass::isInstance)
-			.map(structure -> (E) structure)
-			.collect(Collectors.toList());
+	public <T extends Structure> List<T> getCurrentStructures(Class<? extends T> structureClass) {
+		List<T> list = new ArrayList<>();
+		for (Structure structure : currentStructures) {
+			if (structureClass.isInstance(structure))
+				list.add((T) structure);
+		}
+		return list;
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentStructures()} contains an instance of the given Structure class.
+	 */
+	public final boolean isCurrentStructure(Class<? extends Structure> structureClass) {
+		for (Structure structure : currentStructures) {
+			if (structureClass.isInstance(structure))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentStructures()} contains an instance of one of the given Structure classes.
+	 */
+	@SafeVarargs
+	public final boolean isCurrentStructure(Class<? extends Structure>... structureClasses) {
+		for (Class<? extends Structure> structureClass : structureClasses) {
+			if (isCurrentStructure(structureClass))
+				return true;
+		}
+		return false;
 	}
 
 	@Nullable
@@ -153,10 +181,10 @@ public class ParserInstance {
 	}
 
 	/**
-	 * @return whether {@link #getCurrentSections()} contains
-	 * an section instance of the given class (or subclass).
+	 * @return Whether {@link #getCurrentSections()} contains
+	 * a section instance of the given class (or subclass).
 	 */
-	public boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
+	public final boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
 		for (TriggerSection triggerSection : currentSections) {
 			if (sectionClass.isInstance(triggerSection))
 				return true;
@@ -164,6 +192,10 @@ public class ParserInstance {
 		return false;
 	}
 
+	/**
+	 * @return Whether {@link #getCurrentSections()} contains
+	 * a section instance of one of the given classes (or subclasses).
+	 */
 	@SafeVarargs
 	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
 		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
@@ -174,7 +206,7 @@ public class ParserInstance {
 	}
 
 	/**
-	 * @return the outermost section which is an instance of the given class.
+	 * @return The outermost section which is an instance of the given class.
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
 	 * @see #getCurrentSections()
 	 */

@@ -34,16 +34,25 @@ public class LiteralStructureEntryData<T> extends KeyValueStructureEntryData<T> 
 
 	private final Class<T> type;
 
+	/**
+	 * @param type The type to parse the value into.
+	 */
 	public LiteralStructureEntryData(String key, Class<T> type) {
 		super(key);
 		this.type = type;
 	}
 
+	/**
+	 * @param type The type to parse the value into.
+	 */
 	public LiteralStructureEntryData(String key, T defaultValue, Class<T> type) {
 		super(key, defaultValue);
 		this.type = type;
 	}
 
+	/**
+	 * @param type The type to parse the value into.
+	 */
 	public LiteralStructureEntryData(String key, boolean optional, Class<T> type) {
 		super(key, optional);
 		this.type = type;
