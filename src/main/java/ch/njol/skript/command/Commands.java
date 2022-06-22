@@ -224,7 +224,7 @@ public abstract class Commands {
 	 */
 	static boolean handleCommand(final CommandSender sender, final String command) {
 		final String[] cmd = command.split("\\s+", 2);
-		cmd[0] = cmd[0].toLowerCase();
+		cmd[0] = cmd[0].toLowerCase(Locale.ENGLISH);
 		if (cmd[0].endsWith("?")) {
 			final ScriptCommand c = commands.get(cmd[0].substring(0, cmd[0].length() - 1));
 			if (c != null) {
@@ -319,7 +319,7 @@ public abstract class Commands {
 		}
 		commands.put(command.getLabel(), command);
 		for (final String alias : command.getActiveAliases()) {
-			commands.put(alias.toLowerCase(), command);
+			commands.put(alias.toLowerCase(Locale.ENGLISH), command);
 		}
 		command.registerHelp();
 	}

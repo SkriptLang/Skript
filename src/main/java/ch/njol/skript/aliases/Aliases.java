@@ -263,7 +263,7 @@ public abstract class Aliases {
 				t.setAmount(1);
 		}
 		
-		String lc = s.toLowerCase();
+		String lc = s.toLowerCase(Locale.ENGLISH);
 		String of = Language.getSpaced("enchantments.of").toLowerCase();
 		int c = -1;
 		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
@@ -329,7 +329,7 @@ public abstract class Aliases {
 	@Nullable
 	private static ItemType getAlias(final String s) {
 		ItemType i;
-		String lc = "" + s.toLowerCase();
+		String lc = "" + s.toLowerCase(Locale.ENGLISH);
 		final Matcher m = p_any.matcher(lc);
 		if (m.matches()) {
 			lc = "" + m.group(m.groupCount());

@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import ch.njol.skript.lang.Script;
@@ -91,7 +92,7 @@ public class EffLog extends Effect {
 		for (final String message : messages.getArray(e)) {
 			if (files != null) {
 				for (String s : files.getArray(e)) {
-					s = s.toLowerCase();
+					s = s.toLowerCase(Locale.ENGLISH);
 					if (!s.endsWith(".log"))
 						s += ".log";
 					if (s.equals("server.log")) {
