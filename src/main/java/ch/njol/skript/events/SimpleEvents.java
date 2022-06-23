@@ -574,7 +574,7 @@ public class SimpleEvents {
 		.description("Called when a player successfully enchants an item.",
 			" To get the enchanted item, see the <a href='expressions.html#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
 		.examples("on enchant:",
-			"\tif the clicked button is enchantment option 1:",
+			"\tif the clicked button is 1: # offer 1",
 			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
 		.since("2.5");
 		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")

@@ -27,41 +27,42 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Peter Güttinger
  */
 public class CommandEvent extends Event {
-	
+
 	private final CommandSender sender;
-	private final String command;
+	String command;
+
 	@Nullable
 	private final String[] args;
-	
-	public CommandEvent(final CommandSender sender, final String command, final @Nullable String[] args) {
+
+	public CommandEvent(CommandSender sender, String command, @Nullable String[] args) {
 		this.sender = sender;
 		this.command = command;
 		this.args = args;
 	}
-	
+
 	public CommandSender getSender() {
 		return sender;
 	}
-	
+
 	public String getCommand() {
 		return command;
 	}
-	
+
 	@Nullable
 	public String[] getArgs() {
 		return args;
 	}
-	
+
 	// Bukkit stuff
 	private final static HandlerList handlers = new HandlerList();
-	
+
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-	
+
 }
