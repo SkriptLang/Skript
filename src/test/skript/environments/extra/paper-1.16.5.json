@@ -1,14 +1,17 @@
 {
-	"name": "paper-1.10.2",
+	"name": "paper-1.16.5",
 	"resources": [
 		{"source": "server.properties.generic", "target": "server.properties"}
 	],
-	"downloads": [
-		{"source": "https://papermc.io/api/v1/paper/1.10.2/latest/download", "target": "paperclip.jar"}
+	"paperDownloads": [
+		{
+			"version": "1.16.5",
+			"target": "paperclip.jar"
+		}
 	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
 		"-Dcom.mojang.eula.agree=true",
-		"-jar", "paperclip.jar"
+		"-jar", "paperclip.jar", "--nogui"
 	]
 }

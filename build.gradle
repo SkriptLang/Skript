@@ -18,21 +18,19 @@ tasks.withType(JavaCompile).configureEach {
 allprojects {
 	repositories {
 		mavenCentral()
-		maven { url 'https://jitpack.io' }
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		maven { url 'https://papermc.io/repo/repository/maven-public/' }
+		maven { url 'https://repo.papermc.io/repository/maven-public/' }
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
 	}
 }
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17.1-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
-	implementation group: 'com.github.marcelo-mason', name: 'PreciousStones', version: '24e3d4bf67'
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.1', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
@@ -116,6 +114,17 @@ publishing {
 			artifact tasks.jar
 		}
 	}
+
+	repositories {
+		maven {
+			name = "repo"
+			url = "https://repo.skriptlang.org/releases"
+			credentials {
+				username = System.getenv("MAVEN_USERNAME")
+				password = System.getenv("MAVEN_PASSWORD")
+			}
+		}
+	}
 }
 
 license {
@@ -133,7 +142,7 @@ tasks.create('testNaming') {
 		// Regression tests
 		for (def file : project.file('src/test/skript/tests/regressions').listFiles()) {
 			def name = file.getName()
-			if (name.toLowerCase() != name) {
+			if (name.toLowerCase(Locale.ENGLISH) != name) {
 				throw new InvalidUserDataException('invalid test name: ' + name)
 			}
 		}
@@ -180,7 +189,7 @@ void createTestTask(String name, String environments, boolean devMode) {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.5.json', false)
+createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.18.2.json', false)
 createTestTask('skriptTest', 'src/test/skript/environments/main', false)
 createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null

@@ -87,7 +87,9 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 						return new InventorySlot(i, getTime() >= 0 ? ((PlayerItemHeldEvent) e).getNewSlot() : ((PlayerItemHeldEvent) e).getPreviousSlot());
 					} else if (e instanceof PlayerBucketEvent && ((PlayerBucketEvent) e).getPlayer() == ent) {
 						final PlayerInventory i = ((PlayerBucketEvent) e).getPlayer().getInventory();
-						return new InventorySlot(i, offHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber : ((PlayerBucketEvent) e).getPlayer().getInventory().getHeldItemSlot()) {
+						boolean isOffHand = ((PlayerBucketEvent) e).getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND || offHand;
+						return new InventorySlot(i, isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber
+							: ((PlayerBucketEvent) e).getPlayer().getInventory().getHeldItemSlot()) {
 							@Override
 							@Nullable
 							public ItemStack getItem() {

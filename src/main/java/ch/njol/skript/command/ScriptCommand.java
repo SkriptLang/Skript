@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -131,7 +132,7 @@ public class ScriptCommand implements TabExecutor {
 						 @Nullable VariableString cooldownStorage, final int executableBy, final List<TriggerItem> items) {
 		Validate.notNull(name, pattern, arguments, description, usage, aliases, items);
 		this.name = name;
-		label = "" + name.toLowerCase();
+		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
 		if (permissionMessage == null) {
 			VariableString defaultMsg = VariableString.newInstance(Language.get("commands.no permission message"));
@@ -246,20 +247,16 @@ public class ScriptCommand implements TabExecutor {
 			}
 		}
 
-		if (Bukkit.isPrimaryThread()) {
+		Runnable runnable = () -> {
 			execute2(event, sender, commandLabel, rest);
 			if (sender instanceof Player && !event.isCooldownCancelled())
 				setLastUsage(((Player) sender).getUniqueId(), event, new Date());
+		};
+		if (Bukkit.isPrimaryThread()) {
+			runnable.run();
 		} else {
 			// must not wait for the command to complete as some plugins call commands in such a way that the server will deadlock
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					execute2(event, sender, commandLabel, rest);
-					if (sender instanceof Player && !event.isCooldownCancelled())
-						setLastUsage(((Player) sender).getUniqueId(), event, new Date());
-				}
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), runnable);
 		}
 
 		return true; // Skript prints its own error message anyway
@@ -272,7 +269,7 @@ public class ScriptCommand implements TabExecutor {
 			if (!ok) {
 				final LogEntry e = log.getError();
 				if (e != null)
-					sender.sendMessage(ChatColor.DARK_RED + e.getMessage());
+					sender.sendMessage(ChatColor.DARK_RED + e.toString());
 				sender.sendMessage(usage);
 				log.clear();
 				return false;
@@ -325,7 +322,7 @@ public class ScriptCommand implements TabExecutor {
 				aliases.remove(label);
 			final Iterator<String> as = activeAliases.iterator();
 			while (as.hasNext()) {
-				final String lowerAlias = as.next().toLowerCase();
+				final String lowerAlias = as.next().toLowerCase(Locale.ENGLISH);
 				if (knownCommands.containsKey(lowerAlias) && (aliases == null || !aliases.contains(lowerAlias))) {
 					as.remove();
 					continue;

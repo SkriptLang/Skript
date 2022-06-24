@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.regex.Matcher;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
@@ -38,9 +32,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Map;
+import java.util.regex.Matcher;
 
 @Name("Replace")
-@Description("Replaces all occurrences of a given text/regex with another text.")
+@Description("Replaces all occurrences of a given text/regex with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.")
 @Examples({"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
 		"replace every \"&\" with \"§\" in line 1 of targeted block",
 		"",
@@ -52,6 +53,7 @@ import ch.njol.util.StringUtils;
 		"replace all stone and dirt in player's inventory and player's top inventory with diamond"})
 @Since("2.0, 2.2-dev24 (replace in multiple strings, replace items in inventory), 2.5 (replace first, case sensitivity), INSERT VERSION (regex)")
 public class EffReplace extends Effect {
+
 	static {
 		Skript.registerEffect(EffReplace.class,
 				"replace (all|every|) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
@@ -125,9 +127,17 @@ public class EffReplace extends Effect {
 			this.haystack.change(e, haystack, ChangeMode.SET);
 		} else if (replaceItems) {
 			for (Inventory inv : (Inventory[]) haystack)
-				for (ItemType item : (ItemType[]) needles)
-					for (Integer slot : inv.all(item.getRandom()).keySet()) {
-						inv.setItem(slot.intValue(), ((ItemType) replacement).getRandom());
+				for (ItemType needle : (ItemType[]) needles)
+					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
+						int slot = entry.getKey();
+						ItemStack itemStack = entry.getValue();
+
+						if (new ItemType(itemStack).isSimilar(needle)) {
+							ItemStack newItemStack = ((ItemType) replacement).getRandom();
+							newItemStack.setAmount(itemStack.getAmount());
+
+							inv.setItem(slot, newItemStack);
+						}
 					}
 		}
 	}
