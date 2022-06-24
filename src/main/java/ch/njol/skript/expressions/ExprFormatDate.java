@@ -38,7 +38,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 
-@Name("Formatted Time")
+@Name("Formatted Date")
 @Description({
 	"Converts date to human-readable text format. By default, 'yyyy-MM-dd HH:mm:ss z' (e.g. '2018-03-30 16:03:12 +01') will be used. For reference, see this "
 		+ "<a href=\"https://en.wikipedia.org/wiki/ISO_8601\">Wikipedia article</a>."
@@ -50,12 +50,14 @@ import ch.njol.util.Kleenean;
 			"\t\tsend \"Short date: %now formatted as \"\"yyyy-MM-dd\"\"%\" to sender"
 })
 @Since("2.2-dev31, INSERT VERSION (support variables in format)")
-public class ExprFormatTime extends PropertyExpression<Date, String> {
+public class ExprFormatDate extends PropertyExpression<Date, String> {
 	
 	private static final String defaultFormat = "yyyy-MM-dd HH:mm:ss z";
 	
 	static {
-		Skript.registerExpression(ExprFormatTime.class, String.class, ExpressionType.PROPERTY, "%dates% formatted [human-readable] [(with|as) %-string%]");
+		Skript.registerExpression(ExprFormatDate.class, String.class, ExpressionType.PROPERTY,
+			"%dates% formatted [human-readable] [(with|as) %-string%]",
+			"[human-readable] formatted %dates% [(with|as) %-string%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -71,11 +73,14 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 		customFormat = (Expression<? extends String>) exprs[1];
 
 		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
-			try {
-				format = new SimpleDateFormat(customFormat.getSingle(null));
-			} catch (IllegalArgumentException e) {
-				Skript.error("Invalid date format: " + exprs[1]);
-				return false;
+			String customFormatValue = customFormat.getSingle(null);
+			if (customFormatValue != null) {
+				try {
+					format = new SimpleDateFormat(customFormatValue);
+				} catch (IllegalArgumentException e) {
+					Skript.error("Invalid date format: " + customFormatValue);
+					return false;
+				}
 			}
 		} else if (customFormat == null) {
 			format = new SimpleDateFormat(defaultFormat);
@@ -86,16 +91,23 @@ public class ExprFormatTime extends PropertyExpression<Date, String> {
 
 	@Override
 	protected String[] get(Event e, Date[] source) {
-		SimpleDateFormat format = this.format;
-		String formatString = customFormat.getSingle(e);
-		if (format == null) {
+		SimpleDateFormat format;
+		String formatString;
+
+		if (customFormat != null && this.format == null) { // customFormat is not Literal or VariableString
+			formatString = customFormat.getSingle(e);
+			if (formatString == null)
+				return null;
+
 			try {
 				format = new SimpleDateFormat(formatString);
 			} catch (IllegalArgumentException ex) {
 				return null;
 			}
+		} else {
+			format = this.format;
 		}
-		
+
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
