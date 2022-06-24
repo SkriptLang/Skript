@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\t\tcancel event",
 		"\t\tif hanging remover is a player:",
 		"\t\t\tsend \"You can't break that item frame!\" to hanging remover"})
-@Since("INSERT VERSION")
+@Since("2.6.2")
 public class ExprHanging extends SimpleExpression<Entity> {
 	
 	static {

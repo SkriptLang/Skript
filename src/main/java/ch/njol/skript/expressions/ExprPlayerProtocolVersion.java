@@ -29,7 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({"command /protocolversion &ltplayer&gt:",
 	"\ttrigger:",
 	"\t\tsend \"Protocol version of %arg-1%: %protocol version of arg-1%\""})
-@Since("INSERT VERSION")
+@Since("2.6.2")
 @RequiredPlugins("Paper 1.12.2 or newer")
 public class ExprPlayerProtocolVersion extends SimplePropertyExpression<Player, Integer> {
 
