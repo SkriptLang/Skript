@@ -59,8 +59,8 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprIndices.class, String.class, ExpressionType.COMBINED,
-				"[the] (indexes|indices) of %~objects%",
-				"[the] %~objects%'[s] (indexes|indices)",
+				"[(the|all [[of] the])] (indexes|indices) of %~objects%",
+				"%~objects%'[s] (indexes|indices)",
 				"[sorted] (indices|indexes) of %~objects% in (ascending|1¦descending) order",
 				"[sorted] %~objects%'[s] (indices|indexes) in (ascending|1¦descending) order"
 		);
