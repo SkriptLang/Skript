@@ -20,7 +20,7 @@ allprojects {
 		mavenCentral()
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		maven { url 'https://papermc.io/repo/repository/maven-public/' }
+		maven { url 'https://repo.papermc.io/repository/maven-public/' }
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
 	}
 }
@@ -142,7 +142,7 @@ tasks.create('testNaming') {
 		// Regression tests
 		for (def file : project.file('src/test/skript/tests/regressions').listFiles()) {
 			def name = file.getName()
-			if (name.toLowerCase() != name) {
+			if (name.toLowerCase(Locale.ENGLISH) != name) {
 				throw new InvalidUserDataException('invalid test name: ' + name)
 			}
 		}
@@ -189,7 +189,7 @@ void createTestTask(String name, String environments, boolean devMode) {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.5.json', false)
+createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.18.2.json', false)
 createTestTask('skriptTest', 'src/test/skript/environments/main', false)
 createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null

@@ -138,3 +138,16 @@ test "item comparisons":
 
 	assert {_three} is {_four} with "a sand block of unbreaking 3 with lore ""Sandy Block"" should be a sand block of unbreaking 3"
 	assert {_four} is not {_three} with "a sand block of unbreaking 3 should NOT be a sand block of unbreaking 3 with lore ""Sandy Block"""
+
+	# Same material but different data values (1.12 and below) (see https://github.com/SkriptLang/Skript/issues/4643)
+
+
+	set block at spawn of world "world" to a chest
+	set {_inventory} to inventory of block at spawn of world "world"
+	add 64 white wool and 64 red wool to {_inventory}
+
+	assert amount of white wool in {_inventory} is 64 with "Inventory doesn't have 64 white wool, but it should (amount found: %amount of white wool in {_inventory}%)"
+	assert amount of red wool in {_inventory} is 64 with "Inventory doesn't have 64 red wool, but it should (amount found: %amount of red wool in {_inventory}%)"
+
+	remove all items from {_inventory}
+	set block at spawn of world "world" to air
