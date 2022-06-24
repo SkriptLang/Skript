@@ -41,27 +41,29 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 @Name("Replace")
-@Description("Replaces all occurrences of a given text/regex with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.")
-@Examples({"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
-		"replace every \"&\" with \"§\" in line 1 of targeted block",
-		"",
-		"# Very simple chat censor",
-		"on chat:",
-		"	replace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
-		"	replace using regex \"\\b(kys|idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
-		"",
-		"replace all stone and dirt in player's inventory and player's top inventory with diamond"})
-@Since("2.0, 2.2-dev24 (replace in multiple strings, replace items in inventory), 2.5 (replace first, case sensitivity), INSERT VERSION (regex)")
+@Description("Replaces all occurrences of a given text/regex with another text. Please note that you can only change " +
+	"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign.")
+@Examples({
+	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
+	"replace every \"&\" with \"§\" in line 1 of targeted block",
+	"",
+	"# Very simple chat censor",
+	"on chat:",
+	"\treplace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
+	"\treplace using regex \"\\b(kys|idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
+	"",
+	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
+})
+@Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity)," +
+	"INSERT VERSION (regex)")
 public class EffReplace extends Effect {
 
 	static {
 		Skript.registerEffect(EffReplace.class,
-				"replace (all|every|) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-				"replace (all|every|) %strings% with %string% in %strings% [(1¦with case sensitivity)]",
-				"replace first %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-				"replace first %strings% with %string% in %strings% [(1¦with case sensitivity)]",
-				"(replace [using] regex|regex replace) %strings% in %strings% with %string%",
-				"(replace [using] regex|regex replace) %strings% with %string% in %strings%",
+				"replace (all:(all|every)|:first|) %strings% in %strings% with %string% [(case:with case sensitivity)]",
+				"replace (all:(all|every)|:first|) %strings% with %string% in %strings% [(case:with case sensitivity)]",
+				"(regex:(replace [using] regex|regex replace)) %strings% in %strings% with %string%",
+				"(regex:(replace [using] regex|regex replace)) %strings% with %string% in %strings%",
 				"replace (all|every|) %itemtypes% in %inventories% with %itemtype%",
 				"replace (all|every|) %itemtypes% with %itemtype% in %inventories%");
 	}
@@ -78,15 +80,15 @@ public class EffReplace extends Effect {
 	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		haystack =  exprs[1 + matchedPattern % 2];
-		replaceString = matchedPattern < 4;
-		replaceFirst = matchedPattern == 2 || matchedPattern == 3;
-		replaceRegex = matchedPattern == 4 || matchedPattern == 5;
-		replaceItems = matchedPattern == 6 || matchedPattern == 7;
+		replaceString = matchedPattern < 2;
+		replaceFirst = parseResult.hasTag("first");
+		replaceRegex = parseResult.hasTag("regex");
+		replaceItems = matchedPattern == 4 || matchedPattern == 5;
 		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
 			Skript.error(haystack + " cannot be changed and can thus not have parts replaced.");
 			return false;
 		}
-		if (SkriptConfig.caseSensitive.value() || parseResult.mark == 1) {
+		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {
 			caseSensitive = true;
 		}
 		needles = exprs[0];
@@ -104,30 +106,33 @@ public class EffReplace extends Effect {
 			return;
 		if (replaceString || replaceRegex) {
 			if (replaceFirst) {
-				for (int x = 0; x < haystack.length; x++)
+				for (int x = 0; x < haystack.length; x++) {
 					for (Object n : needles) {
 						assert n != null;
 						haystack[x] = StringUtils.replaceFirst((String) haystack[x], (String) n, Matcher.quoteReplacement((String) replacement), caseSensitive);
 					}
+				}
 			} else if (replaceRegex) {
-				for (int x = 0; x < haystack.length; x++)
+				for (int x = 0; x < haystack.length; x++) {
 					for (Object n : needles) {
 						assert n != null;
 						try {
 							haystack[x] = ((String) haystack[x]).replaceAll((String) n, (String) replacement);
 						} catch (Exception ignored) {}
 					}
+				}
 			} else {
-				for (int x = 0; x < haystack.length; x++)
+				for (int x = 0; x < haystack.length; x++) {
 					for (Object n : needles) {
 						assert n != null;
 						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
 					}
+				}
 			}
 			this.haystack.change(e, haystack, ChangeMode.SET);
 		} else if (replaceItems) {
-			for (Inventory inv : (Inventory[]) haystack)
-				for (ItemType needle : (ItemType[]) needles)
+			for (Inventory inv : (Inventory[]) haystack) {
+				for (ItemType needle : (ItemType[]) needles) {
 					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
 						int slot = entry.getKey();
 						ItemStack itemStack = entry.getValue();
@@ -135,17 +140,19 @@ public class EffReplace extends Effect {
 						if (new ItemType(itemStack).isSimilar(needle)) {
 							ItemStack newItemStack = ((ItemType) replacement).getRandom();
 							newItemStack.setAmount(itemStack.getAmount());
-
 							inv.setItem(slot, newItemStack);
 						}
 					}
+				}
+			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(e, debug) + " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
-				+ "(case sensitive: " + caseSensitive + ")";
+		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(e, debug)
+			+ " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
+			+ "(case sensitive: " + caseSensitive + ")";
 	}
 	
 }
