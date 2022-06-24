@@ -188,7 +188,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			if (chunks != null) {
 				entities = EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e));
 			} else {
-				entities = EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null);
+				return super.iterator(e);
 			}
 			return Arrays.stream(entities).iterator();
 		}
