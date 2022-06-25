@@ -48,6 +48,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -210,7 +211,7 @@ public class HTMLGenerator {
 					if (filesInside.isDirectory()) 
 						continue;
 						
-					if (!filesInside.getName().toLowerCase().endsWith(".png")) { // Copy images
+					if (!filesInside.getName().toLowerCase(Locale.ENGLISH).endsWith(".png")) { // Copy images
 						writeFile(new File(fileTo + "/" + filesInside.getName()), readFile(filesInside));
 					}
 					
