@@ -1681,7 +1681,7 @@ visual effects:
 			name: sculk charge pop @-
 			pattern: sculk charge pop
 		shriek:
-			name: skriek @-
+			name: shriek @-
 			pattern: shriek
 
 
