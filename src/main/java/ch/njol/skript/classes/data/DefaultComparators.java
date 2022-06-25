@@ -281,8 +281,6 @@ public class DefaultComparators {
 			}
 		});
 	}
-
-	private static final boolean SUPPORTS_CHEST_BOAT = Skript.classExists("org.bukkit.entity.ChestBoat");
 	
 	// EntityData - ItemType
 	public final static Comparator<EntityData, ItemType> entityItemComparator = new Comparator<EntityData, ItemType>() {
@@ -298,7 +296,7 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
-			if (SUPPORTS_CHEST_BOAT && e instanceof BoatChestData)
+			if (e instanceof BoatChestData)
 				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
 				return Relation.get(i.isOfType(Material.RABBIT));
