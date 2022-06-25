@@ -67,7 +67,6 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, SkriptParser.ParseResult parseResult) {
-
 		return true;
 	}
 
