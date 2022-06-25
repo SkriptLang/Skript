@@ -119,7 +119,6 @@ public class BoatChestData extends EntityData<ChestBoat> {
 		return false;
 	}
 
-
 	public boolean isOfItemType(ItemType itemType) {
 		if (itemType.getRandom() == null)
 			return false;
