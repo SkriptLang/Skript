@@ -62,8 +62,8 @@ public class HTMLGenerator {
 	
 	private String skeleton;
 
-	private static String skriptVersion = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
-	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(skriptVersion + "(?!\\.)");
+	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
+	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)");
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
 	public HTMLGenerator(File templateDir, File outputDir) {

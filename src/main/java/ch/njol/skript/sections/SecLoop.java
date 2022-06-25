@@ -21,7 +21,10 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -62,19 +65,19 @@ import java.util.WeakHashMap;
 })
 @Examples({
 	"loop all players:",
-		"\tsend \"Hello %loop-player%!\" to loop-player",
+	"\tsend \"Hello %loop-player%!\" to loop-player",
 	"",
 	"loop items in player's inventory:",
-		"\tif loop-item is dirt:",
-			"\t\tset loop-item to air",
+	"\tif loop-item is dirt:",
+	"\t\tset loop-item to air",
 	"",
 	"loop 10 times:",
-		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-		"\twait 1 second",
+	"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+	"\twait 1 second",
 	"",
 	"loop {Coins::*}:",
-		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-			"the player and loop-value is the actually coins value such as 200"
+	"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
+		"the player and loop-value is the actually coins value such as 200"
 })
 @Since("1.0")
 public class SecLoop extends Section {

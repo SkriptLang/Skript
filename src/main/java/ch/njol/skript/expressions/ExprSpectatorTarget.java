@@ -18,16 +18,18 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.coll.CollectionUtils;
 
 @Name("Spectator Target")
 @Description({"Returns the entity which is followed by the camera of the player when in spectator mode."})
