@@ -298,7 +298,7 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
-			if (SUPPORTS_CHEST_BOAT && e instanceof ChestBoat)
+			if (SUPPORTS_CHEST_BOAT && e instanceof BoatChestData)
 				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
 				return Relation.get(i.isOfType(Material.RABBIT));
