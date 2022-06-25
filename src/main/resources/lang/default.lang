@@ -258,6 +258,9 @@ biomes:
 	windswept_gravelly_hills: windswept gravelly hills, gravelly mountains
 	windswept_savanna: windswept savanna, shattered savanna
 	wooded_badlands: wooded badlands, wooded mesa, mesa forest, badlands forest
+	# 1.19 biomes
+	mangrove_swamp: mangrove swamp
+	deep_dark: deep dark
 
 # -- Tree Types --
 tree types:
@@ -1256,6 +1259,7 @@ damage causes:
 	freeze: freeze
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
+	sonic_boom: sonic boom
 
 # -- Teleport Causes --
 teleport causes:
