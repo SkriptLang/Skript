@@ -41,19 +41,19 @@ import ch.njol.util.coll.CollectionUtils;
 	"\tset arrow pierce level of event-projectile to 5"})
 @RequiredPlugins("Minecraft 1.14+")
 @Since("2.5.1")
-public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, Number> {
+public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, Long> {
 	
 	private final static boolean CAN_USE_PIERCE = Skript.methodExists(Arrow.class, "getPierceLevel");
 	
 	static {
 		if (CAN_USE_PIERCE)
-			register(ExprArrowPierceLevel.class, Number.class, "[the] arrow pierce level", "projectiles");
+			register(ExprArrowPierceLevel.class, Long.class, "arrow pierce level", "projectiles");
 	}
 	
 	@Nullable
 	@Override
-	public Number convert(Projectile arrow) {
-		return ((Arrow) arrow).getPierceLevel();
+	public Long convert(Projectile arrow) {
+		return (long) ((Arrow) arrow).getPierceLevel();
 	}
 	
 	@Nullable
@@ -99,8 +99,8 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, N
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override

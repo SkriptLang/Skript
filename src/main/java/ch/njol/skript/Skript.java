@@ -18,62 +18,6 @@
  */
 package ch.njol.skript;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.logging.Filter;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-
-import ch.njol.skript.lang.Section;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.BurgerHelper;
@@ -98,6 +42,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.Statement;
@@ -144,6 +89,58 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
+import com.google.gson.Gson;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Filter;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -201,6 +198,24 @@ public final class Skript extends JavaPlugin implements Listener {
 		instance = this;
 	}
 	
+	private static Version minecraftVersion = new Version(666), UNKNOWN_VERSION = new Version(666);
+	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
+
+	/**
+	 * Check minecraft version and assign it to minecraftVersion field
+	 * This method is created to update MC version before onEnable method
+	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
+	 */
+	public static void updateMinecraftVersion() {
+		String bukkitV = Bukkit.getBukkitVersion();
+		Matcher m = Pattern.compile("\\d+\\.\\d+(\\.\\d+)?").matcher(bukkitV);
+		if (!m.find()) {
+			minecraftVersion = new Version(666, 0, 0);
+		} else {
+			minecraftVersion = new Version("" + m.group());
+		}
+	}
+	
 	@Nullable
 	private static Version version = null;
 	
@@ -228,10 +243,16 @@ public final class Skript extends JavaPlugin implements Listener {
 			return ServerPlatform.BUKKIT_UNKNOWN;
 		}
 	}
-	
-	public static boolean using64BitJava() {
-		// Property returned should either be "Java HotSpot(TM) 64-Bit Server VM" or "OpenJDK 64-Bit Server VM"
-		return System.getProperty("java.vm.name").contains("64");
+
+	/**
+	 * Returns true if the underlying installed Java/JVM is 32-bit, false otherwise.
+	 * Note that this depends on a internal system property and these can always be overridden by user using -D JVM options,
+	 * more specifically, this method will return false on non OracleJDK/OpenJDK based JVMs, that don't include bit information in java.vm.name system property.
+	 * @return Whether the installed Java/JVM is 32-bit or not.
+	 */
+	private static boolean using32BitJava() {
+		// Property returned should either be "Java HotSpot(TM) 32-Bit Server VM" or "OpenJDK 32-Bit Server VM" if 32-bit and using OracleJDK/OpenJDK
+		return System.getProperty("java.vm.name").contains("32");
 	}
 	
 	/**
@@ -280,12 +301,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			Skript.warning("Skript officially supports Paper and Spigot.");
 		}
 		
-		// Throw a warning if the user is using 32-bit Java, since that is known to potentially cause StackOverflowErrors
-		if (!using64BitJava()) {
-			Skript.warning("You are currently using 32-bit Java. This may result in a StackOverflowError when loading aliases.");
-			Skript.warning("Please update to 64-bit Java to remove this warning.");
-		}
-		
 		// If nothing got triggered, everything is probably ok
 		return true;
 	}
@@ -301,6 +316,14 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static boolean isHookEnabled(Class<? extends Hook<?>> hook) {
 		return !disabledHookRegistrations.contains(hook);
+	}
+
+	/**
+	 * @return whether hooks have been loaded,
+	 * and if {@link #disableHookRegistration(Class[])} won't error because of this.
+	 */
+	public static boolean isFinishedLoadingHooks() {
+		return finishedLoadingHooks;
 	}
 
 	/**
@@ -330,7 +353,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		Language.loadDefault(getAddonInstance());
+		getAddonInstance();
 		
 		Workarounds.init();
 		
@@ -345,10 +368,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 		
-		final File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
-		final File config = new File(getDataFolder(), "config.sk");
-		final File features = new File(getDataFolder(), "features.sk");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists()) {
+		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+		File config = new File(getDataFolder(), "config.sk");
+		File features = new File(getDataFolder(), "features.sk");
+		File lang = new File(getDataFolder(), "lang");
+		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -357,19 +381,33 @@ public final class Skript extends JavaPlugin implements Listener {
 						throw new IOException("Could not create the directory " + scripts);
 					populateExamples = true;
 				}
+
+				boolean populateLanguageFiles = false;
+				if (!lang.isDirectory()) {
+					if (!lang.mkdirs())
+						throw new IOException("Could not create the directory " + lang);
+					populateLanguageFiles = true;
+				}
+
 				f = new ZipFile(getFile());
-				for (final ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
+				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (e.getName().startsWith(SCRIPTSFOLDER + "/") && populateExamples) {
-						final String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
 						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
+					} else if (populateLanguageFiles
+							&& e.getName().startsWith("lang/")
+							&& e.getName().endsWith(".lang")
+							&& !e.getName().endsWith("/default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
 							saveTo = config;
 //					} else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
-//						final File af = new File(getDataFolder(), e.getName());
+//						File af = new File(getDataFolder(), e.getName());
 //						if (!af.exists())
 //							saveTo = af;
 					} else if (e.getName().startsWith("features.sk")) {
@@ -377,7 +415,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							saveTo = features;
 					}
 					if (saveTo != null) {
-						final InputStream in = f.getInputStream(e);
+						InputStream in = f.getInputStream(e);
 						try {
 							assert in != null;
 							FileUtils.save(in, saveTo);
@@ -387,13 +425,13 @@ public final class Skript extends JavaPlugin implements Listener {
 					}
 				}
 				info("Successfully generated the config and the example scripts.");
-			} catch (final ZipException e) {} catch (final IOException e) {
+			} catch (ZipException ignored) {} catch (IOException e) {
 				error("Error generating the default files: " + ExceptionUtils.toString(e));
 			} finally {
 				if (f != null) {
 					try {
 						f.close();
-					} catch (final IOException e) {}
+					} catch (IOException ignored) {}
 				}
 			}
 		}
@@ -433,14 +471,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		try {
 			Aliases.load(); // Loaded before anything that might use them
 		} catch (StackOverflowError e) {
-			if (using64BitJava()) {
-				throw e; // Uh oh, this shouldn't happen. Re-throw the error.
-			} else {
+			if (using32BitJava()) {
 				Skript.error("");
 				Skript.error("There was a StackOverflowError that occured while loading aliases.");
 				Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
 				Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
 				Skript.error("");
+			} else {
+				throw e; // Uh oh, this shouldn't happen. Re-throw the error.
 			}
 		}
 		
@@ -454,6 +492,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
+		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitClasses();
@@ -472,9 +511,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
-		
-		Language.setUseLocal(true);
-		
+
 		Commands.registerListeners();
 		
 		if (logNormal())
@@ -512,8 +549,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
-				
-				Language.setUseLocal(false);
 				
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -572,48 +607,51 @@ public final class Skript extends JavaPlugin implements Listener {
 				
 				// Skript initialization done
 				debug("Early init done");
-				if (TestMode.ENABLED) { // Ignore late init (scripts, etc.) in test mode
-					if (TestMode.DEV_MODE) { // Run tests NOW!
-						info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
-					} else {
-						info("Running all tests from " + TestMode.TEST_DIR);
-						
-						// Treat parse errors as fatal testing failure
-						@SuppressWarnings("null")
-						CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
-						try {
-							errorCounter.start();
-							File testDir = TestMode.TEST_DIR.toFile();
-							assert testDir != null;
-							List<Config> configs = ScriptLoader.loadStructures(testDir);
-							ScriptLoader.loadScripts(configs, errorCounter).join();
-						} finally {
-							errorCounter.stop();
+
+				Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+					if (TestMode.ENABLED) { // Ignore late init (scripts, etc.) in test mode
+						if (TestMode.DEV_MODE) { // Run tests NOW!
+							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
+						} else {
+							info("Running all tests from " + TestMode.TEST_DIR);
+
+							// Treat parse errors as fatal testing failure
+							@SuppressWarnings("null")
+							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
+							try {
+								errorCounter.start();
+								File testDir = TestMode.TEST_DIR.toFile();
+								assert testDir != null;
+								List<Config> configs = ScriptLoader.loadStructures(testDir);
+								ScriptLoader.loadScripts(configs, errorCounter).join();
+							} finally {
+								errorCounter.stop();
+							}
+
+							Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
+
+							info("Collecting results to " + TestMode.RESULTS_FILE);
+							if (errorCounter.getCount() > 0) {
+								TestTracker.testStarted("parse scripts");
+								TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
+							}
+							if (errored) { // Check for exceptions thrown while script was executing
+								TestTracker.testStarted("run scripts");
+								TestTracker.testFailed("exception was thrown during execution");
+							}
+							String results = new Gson().toJson(TestTracker.collectResults());
+							try {
+								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
+							}
+							info("Testing done, shutting down the server.");
+							Bukkit.getServer().shutdown();
 						}
-						
-						Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
-						
-						info("Collecting results to " + TestMode.RESULTS_FILE);
-						if (errorCounter.getCount() > 0) {
-							TestTracker.testStarted("parse scripts");
-							TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
-						}
-						if (errored) { // Check for exceptions thrown while script was executing
-							TestTracker.testStarted("run scripts");
-							TestTracker.testFailed("exception was thrown during execution");
-						}
-						String results = new Gson().toJson(TestTracker.collectResults());
-						try {
-							Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-						} catch (IOException e) {
-							Skript.exception(e, "Failed to write test results.");
-						}
-						info("Testing done, shutting down the server.");
-						Bukkit.getServer().shutdown();
+
+						return;
 					}
-					
-					return;
-				}
+				}, 100);
 				
 				final long vld = System.currentTimeMillis() - vls;
 				if (logNormal())
@@ -868,9 +906,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 	}
 	
-	private static Version minecraftVersion = new Version(666);
-	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
-	
 	public static Version getMinecraftVersion() {
 		return minecraftVersion;
 	}
@@ -886,14 +921,23 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether this server is running Minecraft <tt>major.minor</tt> or higher
 	 */
 	public static boolean isRunningMinecraft(final int major, final int minor) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) { // Make sure minecraftVersion is properly assigned.
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final int major, final int minor, final int revision) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(major, minor, revision) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final Version v) {
+		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
+			updateMinecraftVersion();
+		}
 		return minecraftVersion.compareTo(v) >= 0;
 	}
 	
@@ -1045,7 +1089,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 
 			try {
-				IS_RUNNING = MC_SERVER.getClass().getMethod("isRunning");
+				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
+				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
+				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
@@ -1166,12 +1212,14 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static boolean acceptRegistrations = true;
 	
 	public static boolean isAcceptRegistrations() {
-		return acceptRegistrations;
+		if (instance == null)
+			throw new IllegalStateException("Skript was never loaded");
+		return acceptRegistrations && instance.isEnabled();
 	}
 	
 	public static void checkAcceptRegistrations() {
-		if (!acceptRegistrations)
-			throw new SkriptAPIException("Registering is disabled after initialisation!");
+		if (!isAcceptRegistrations())
+			throw new SkriptAPIException("Registration can only be done during plugin initialization");
 	}
 	
 	private static void stopAcceptingRegistrations() {
@@ -1527,7 +1575,15 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Set to true when an exception is thrown.
 	 */
 	private static boolean errored = false;
-	
+
+	/**
+	 * Mark that an exception has occurred at some point during runtime.
+	 * Only used for Skript's testing system.
+	 */
+	public static void markErrored() {
+		errored = true;
+	}
+
 	/**
 	 * Used if something happens that shouldn't happen
 	 * 

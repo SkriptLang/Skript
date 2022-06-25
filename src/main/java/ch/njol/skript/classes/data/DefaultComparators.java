@@ -18,36 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.Objects;
-
-import ch.njol.skript.aliases.MatchQuality;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.slot.EquipmentSlot;
-import ch.njol.util.Kleenean;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Wither;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
@@ -57,16 +27,40 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.registrations.Comparators;
+import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Date;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Wither;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Objects;
 
 @SuppressWarnings({"rawtypes"})
 public class DefaultComparators {
@@ -78,7 +72,7 @@ public class DefaultComparators {
 		// Number - Number
 		Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
 			@Override
-			public Relation compare(final Number n1, final Number n2) {
+			public Relation compare(Number n1, Number n2) {
 				if (n1 instanceof Long && n2 instanceof Long)
 					return Relation.get(n1.longValue() - n2.longValue());
 				Double d1 = n1.doubleValue(),
@@ -88,13 +82,13 @@ public class DefaultComparators {
 				} else if (d1.isInfinite() || d2.isInfinite()) {
 					return d1 > d2 ? Relation.GREATER : d1 < d2 ? Relation.SMALLER : Relation.EQUAL;
 				} else {
-					final double diff = d1 - d2;
+					double diff = d1 - d2;
 					if (Math.abs(diff) < Skript.EPSILON)
 						return Relation.EQUAL;
 					return Relation.get(diff);
 				}
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return true;
@@ -117,7 +111,7 @@ public class DefaultComparators {
 			public boolean supportsOrdering() {
 				return false;
 			}
-			
+
 		});
 		
 		// Slot - Number
@@ -126,18 +120,16 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot o1, Number o2) {
 				if (o1 instanceof SlotWithIndex) {
-					boolean same = ((SlotWithIndex) o1).getIndex() == o2.intValue();
-					if (same) // Slot has index and the index is same with number
-						return Relation.EQUAL;
+					return Relation.get(((SlotWithIndex) o1).getIndex() - o2.intValue());
 				}
 				return Relation.NOT_EQUAL;
 			}
 
 			@Override
 			public boolean supportsOrdering() {
-				return false;
+				return true;
 			}
-			
+
 		});
 		
 		// Slot - ItemType
@@ -145,11 +137,27 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot slot, ItemType item) {
 				ItemStack stack = slot.getItem();
-				if (stack == null)
+				if (stack == null || stack.getAmount() == 0)
 					return Comparators.compare(new ItemType(Material.AIR), item);
 				return Comparators.compare(new ItemType(stack), item);
 			}
-			
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// ItemType - Slot
+		Comparators.registerComparator(ItemType.class, Slot.class, new Comparator<ItemType, Slot>() {
+			@Override
+			public Relation compare(ItemType item, Slot slot) {
+				ItemStack stack = slot.getItem();
+				if (stack == null || stack.getAmount() == 0)
+					return Comparators.compare(item, new ItemType(Material.AIR));
+				return Comparators.compare(item, new ItemType(stack));
+			}
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -159,10 +167,23 @@ public class DefaultComparators {
 		// ItemStack - ItemType
 		Comparators.registerComparator(ItemStack.class, ItemType.class, new Comparator<ItemStack, ItemType>() {
 			@Override
-			public Relation compare(final ItemStack is, final ItemType it) {
+			public Relation compare(ItemStack is, ItemType it) {
 				return Comparators.compare(new ItemType(is), it);
 			}
-			
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// ItemType - ItemStack
+		Comparators.registerComparator(ItemType.class, ItemStack.class, new Comparator<ItemType, ItemStack>() {
+			@Override
+			public Relation compare(ItemType it, ItemStack is) {
+				return Comparators.compare(it, new ItemType(is));
+			}
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -172,10 +193,10 @@ public class DefaultComparators {
 		// Block - ItemType
 		Comparators.registerComparator(Block.class, ItemType.class, new Comparator<Block, ItemType>() {
 			@Override
-			public Relation compare(final Block b, final ItemType it) {
-				return Relation.get(it.isOfType(b));
+			public Relation compare(Block b, ItemType it) {
+				return Comparators.compare(new ItemType(b), it);
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -189,7 +210,7 @@ public class DefaultComparators {
 				public Relation compare(Block block, BlockData data) {
 					return Relation.get(block.getBlockData().matches(data));
 				}
-				
+
 				@Override
 				public boolean supportsOrdering() {
 					return false;
@@ -200,26 +221,20 @@ public class DefaultComparators {
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
-			public Relation compare(final ItemType i1, final ItemType i2) {
-				if (i1.isAll() != i2.isAll())
-					return Relation.NOT_EQUAL;
-				if (i1.getAmount() != i2.getAmount())
-					return Relation.NOT_EQUAL;
-				for (ItemData myType : i1.getTypes()) {
-					for (ItemData otherType : i2.getTypes()) {
-						if (myType.matchPlain(otherType)) {
-							return Relation.EQUAL;
-						}
-						boolean plain = myType.isPlain() != otherType.isPlain();
-						// Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
-						if (myType.matchAlias(otherType).isAtLeast(plain ? MatchQuality.EXACT : otherType.isAlias() && !myType.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM)) {
-							return Relation.EQUAL;
-						}
+			public Relation compare(ItemType i1, ItemType i2) {
+				int otherAmount = i2.getAmount();
+				if (i1.getAmount() != otherAmount) {
+					// See https://github.com/SkriptLang/Skript/issues/4278 for reference
+					if (otherAmount != 1) // Don't ignore stack size if the other ItemType has a stack size other than one, even if it may be an alias
+						return Relation.NOT_EQUAL;
+					for (ItemData itemData : i2.getTypes()) {
+						if (!itemData.isAlias()) // Don't ignore stack size if the other ItemType has non alias data.
+							return Relation.NOT_EQUAL;
 					}
 				}
-				return Relation.NOT_EQUAL;
+				return Relation.get(i1.isSimilar(i2));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -229,10 +244,10 @@ public class DefaultComparators {
 		// Block - Block
 		Comparators.registerComparator(Block.class, Block.class, new Comparator<Block, Block>() {
 			@Override
-			public Relation compare(final Block b1, final Block b2) {
-				return Relation.get(b1.equals(b2));
+			public Relation compare(Block b1, Block b2) {
+				return Relation.get(BlockUtils.extractBlock(b1).equals(BlockUtils.extractBlock(b2)));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -242,10 +257,10 @@ public class DefaultComparators {
 		// Entity - EntityData
 		Comparators.registerComparator(Entity.class, EntityData.class, new Comparator<Entity, EntityData>() {
 			@Override
-			public Relation compare(final Entity e, final EntityData t) {
+			public Relation compare(Entity e, EntityData t) {
 				return Relation.get(t.isInstance(e));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -254,10 +269,10 @@ public class DefaultComparators {
 		// EntityData - EntityData
 		Comparators.registerComparator(EntityData.class, EntityData.class, new Comparator<EntityData, EntityData>() {
 			@Override
-			public Relation compare(final EntityData t1, final EntityData t2) {
+			public Relation compare(EntityData t1, EntityData t2) {
 				return Relation.get(t2.isSupertypeOf(t1));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -268,9 +283,9 @@ public class DefaultComparators {
 	// EntityData - ItemType
 	public final static Comparator<EntityData, ItemType> entityItemComparator = new Comparator<EntityData, ItemType>() {
 		@Override
-		public Relation compare(final EntityData e, final ItemType i) {
+		public Relation compare(EntityData e, ItemType i) {
 			// TODO fix broken comparisions - will probably require updating potion API of Skript
-			
+
 			if (e instanceof Item)
 				return Relation.get(i.isOfType(((Item) e).getItemStack()));
 //			if (e instanceof ThrownPotion)
@@ -279,6 +294,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof RabbitData)
+				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
 				assert data != null;
 				EntityData<?> entity = Aliases.getRelatedEntity(data);
@@ -287,7 +304,7 @@ public class DefaultComparators {
 			}
 			return Relation.NOT_EQUAL;
 		}
-		
+
 		@Override
 		public boolean supportsOrdering() {
 			return false;
@@ -311,7 +328,7 @@ public class DefaultComparators {
 			public boolean supportsOrdering() {
 				return false;
 			}
-			
+
 		});
 	}
 	
@@ -319,10 +336,10 @@ public class DefaultComparators {
 		// CommandSender - CommandSender
 		Comparators.registerComparator(CommandSender.class, CommandSender.class, new Comparator<CommandSender, CommandSender>() {
 			@Override
-			public Relation compare(final CommandSender s1, final CommandSender s2) {
+			public Relation compare(CommandSender s1, CommandSender s2) {
 				return Relation.get(s1.equals(s2));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -332,10 +349,10 @@ public class DefaultComparators {
 		// OfflinePlayer - OfflinePlayer
 		Comparators.registerComparator(OfflinePlayer.class, OfflinePlayer.class, new Comparator<OfflinePlayer, OfflinePlayer>() {
 			@Override
-			public Relation compare(final OfflinePlayer p1, final OfflinePlayer p2) {
+			public Relation compare(OfflinePlayer p1, OfflinePlayer p2) {
 				return Relation.get(Objects.equals(p1.getName(), p2.getName()));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -345,11 +362,11 @@ public class DefaultComparators {
 		// OfflinePlayer - String
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
-			public Relation compare(final OfflinePlayer p, final String name) {
+			public Relation compare(OfflinePlayer p, String name) {
 				String offlineName = p.getName();
 				return offlineName == null ? Relation.NOT_EQUAL : Relation.get(offlineName.equalsIgnoreCase(name));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -359,10 +376,10 @@ public class DefaultComparators {
 		// World - String
 		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {
 			@Override
-			public Relation compare(final World w, final String name) {
+			public Relation compare(World w, String name) {
 				return Relation.get(w.getName().equalsIgnoreCase(name));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -372,10 +389,10 @@ public class DefaultComparators {
 		// String - String
 		Comparators.registerComparator(String.class, String.class, new Comparator<String, String>() {
 			@Override
-			public Relation compare(final String s1, final String s2) {
+			public Relation compare(String s1, String s2) {
 				return Relation.get(StringUtils.equals(s1, s2, SkriptConfig.caseSensitive.value()));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -385,10 +402,10 @@ public class DefaultComparators {
 		// Date - Date
 		Comparators.registerComparator(Date.class, Date.class, new Comparator<Date, Date>() {
 			@Override
-			public Relation compare(final Date d1, final Date d2) {
+			public Relation compare(Date d1, Date d2) {
 				return Relation.get(d1.compareTo(d2));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return true;
@@ -398,10 +415,10 @@ public class DefaultComparators {
 		// Time - Time
 		Comparators.registerComparator(Time.class, Time.class, new Comparator<Time, Time>() {
 			@Override
-			public Relation compare(final Time t1, final Time t2) {
+			public Relation compare(Time t1, Time t2) {
 				return Relation.get(t1.getTime() - t2.getTime());
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return true;
@@ -411,10 +428,10 @@ public class DefaultComparators {
 		// Timespan - Timespan
 		Comparators.registerComparator(Timespan.class, Timespan.class, new Comparator<Timespan, Timespan>() {
 			@Override
-			public Relation compare(final Timespan t1, final Timespan t2) {
+			public Relation compare(Timespan t1, Timespan t2) {
 				return Relation.get(t1.getMilliSeconds() - t2.getMilliSeconds());
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return true;
@@ -424,10 +441,10 @@ public class DefaultComparators {
 		// Time - Timeperiod
 		Comparators.registerComparator(Time.class, Timeperiod.class, new Comparator<Time, Timeperiod>() {
 			@Override
-			public Relation compare(final Time t, final Timeperiod p) {
+			public Relation compare(Time t, Timeperiod p) {
 				return Relation.get(p.contains(t));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -437,10 +454,10 @@ public class DefaultComparators {
 		// StructureType - StructureType
 		Comparators.registerComparator(StructureType.class, StructureType.class, new Comparator<StructureType, StructureType>() {
 			@Override
-			public Relation compare(final StructureType s1, final StructureType s2) {
+			public Relation compare(StructureType s1, StructureType s2) {
 				return Relation.get(CollectionUtils.containsAll(s2.getTypes(), s2.getTypes()));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -450,10 +467,10 @@ public class DefaultComparators {
 		// Object - ClassInfo
 		Comparators.registerComparator(Object.class, ClassInfo.class, new Comparator<Object, ClassInfo>() {
 			@Override
-			public Relation compare(final Object o, final ClassInfo c) {
+			public Relation compare(Object o, ClassInfo c) {
 				return Relation.get(c.getC().isInstance(o) || o instanceof ClassInfo && c.getC().isAssignableFrom(((ClassInfo<?>) o).getC()));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -480,7 +497,7 @@ public class DefaultComparators {
 
 				return Relation.NOT_EQUAL;
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -489,22 +506,22 @@ public class DefaultComparators {
 		// DamageCause - EntityData
 		Comparators.registerComparator(DamageCause.class, EntityData.class, new Comparator<DamageCause, EntityData>() {
 			@Override
-			public Relation compare(final DamageCause dc, final EntityData e) {
+			public Relation compare(DamageCause dc, EntityData e) {
 				switch (dc) {
 					case ENTITY_ATTACK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Entity.class)));
+						return Relation.get(EntityData.fromClass(Entity.class).isSupertypeOf(e));
 					case PROJECTILE:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Projectile.class)));
+						return Relation.get(EntityData.fromClass(Projectile.class).isSupertypeOf(e));
 					case WITHER:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Wither.class)));
+						return Relation.get(EntityData.fromClass(Wither.class).isSupertypeOf(e));
 					case FALLING_BLOCK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(FallingBlock.class)));
+						return Relation.get(EntityData.fromClass(FallingBlock.class).isSupertypeOf(e));
 						//$CASES-OMITTED$
 					default:
 						return Relation.NOT_EQUAL;
 				}
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -516,7 +533,7 @@ public class DefaultComparators {
 			public Relation compare(GameruleValue o1, GameruleValue o2) {
 				return Relation.get(o1.equals(o2));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -530,7 +547,7 @@ public class DefaultComparators {
 				Number gameruleValue = (Number) o1.getGameruleValue();
 				return Comparators.compare(gameruleValue, o2);
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return true;
@@ -543,7 +560,7 @@ public class DefaultComparators {
 				if (!(o1.getGameruleValue() instanceof Boolean)) return Relation.NOT_EQUAL;
 				return Relation.get(o2.equals(o1.getGameruleValue()));
 			}
-			
+
 			@Override
 			public boolean supportsOrdering() {
 				return false;
@@ -558,7 +575,7 @@ public class DefaultComparators {
 				public Relation compare(EnchantmentOffer eo, EnchantmentType et) {
 					return Relation.get(eo.getEnchantment() == et.getType() && eo.getEnchantmentLevel() == et.getLevel());
 				}
-				
+
 				@Override
 				public boolean supportsOrdering() {
 					return false;
@@ -570,12 +587,24 @@ public class DefaultComparators {
 				public Relation compare(EnchantmentOffer eo, Experience exp) {
 					return Relation.get(eo.getCost() == exp.getXP());
 				}
-				
+
 				@Override public boolean supportsOrdering() {
 					return false;
 				}
 			});
 		}
+
+		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
+			@Override
+			public Relation compare(Inventory inventory, InventoryType inventoryType) {
+				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
 	}
 	
 }

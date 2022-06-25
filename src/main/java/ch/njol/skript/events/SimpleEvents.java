@@ -324,7 +324,7 @@ public class SimpleEvents {
 				.description("Called when a player starts or stops sneaking. Use <a href='conditions.html#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
 				.examples("# make players that stop sneaking jump",
 						"on sneak toggle:",
-						"	player was sneaking",
+						"	player is sneaking",
 						"	push the player upwards at speed 0.5")
 				.since("1.0");
 		Skript.registerEvent("Sprint Toggle", SimpleEvent.class, PlayerToggleSprintEvent.class, "[player] toggl(e|ing) sprint", "[player] sprint toggl(e|ing)")
@@ -366,7 +366,7 @@ public class SimpleEvents {
 				.description("As signs are placed empty, this event is called when a player is done editing a sign.")
 				.examples("on sign change:",
 						"	line 2 is empty",
-						"	set line 1 to \"<red>%line 1%\"")
+						"	set line 1 to \"&lt;red&gt;%line 1%\"")
 				.since("1.0");
 		Skript.registerEvent("Spawn Change", SimpleEvent.class, SpawnChangeEvent.class, "[world] spawn change")
 				.description("Called when the spawn point of a world changes.")
@@ -574,7 +574,7 @@ public class SimpleEvents {
 		.description("Called when a player successfully enchants an item.",
 			" To get the enchanted item, see the <a href='expressions.html#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
 		.examples("on enchant:",
-			"\tif the clicked button is enchantment option 1:",
+			"\tif the clicked button is 1: # offer 1",
 			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
 		.since("2.5");
 		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")

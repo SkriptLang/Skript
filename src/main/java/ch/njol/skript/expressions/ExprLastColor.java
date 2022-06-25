@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Last Color")
 @Description("The colors used at the end of a string. The colors of the returned string will be formatted with their symbols.")
 @Examples("set {_color} to the last colors of \"<red>hey<blue>yo\"")
-@Since("INSERT VERSION")
+@Since("2.6")
 public class ExprLastColor extends SimplePropertyExpression<String, String> {
 
 	static {

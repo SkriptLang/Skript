@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -73,13 +74,13 @@ import ch.njol.util.NonNullPair;
 public class ExprParse extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprParse.class, Object.class, ExpressionType.COMBINED,
-				"%string% parsed as (%-*classinfo%|\"<.*>\")");
+			"%string% parsed as (%-*classinfo%|\"<.*>\")");
 	}
 	
 	@Nullable
 	static String lastError = null;
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> text;
 	
 	@Nullable
@@ -92,18 +93,24 @@ public class ExprParse extends SimpleExpression<Object> {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		text = (Expression<String>) exprs[0];
 		if (exprs[1] == null) {
-			String pattern = "" + parseResult.regexes.get(0).group();
+			String pattern = ChatColor.translateAlternateColorCodes('&', parseResult.regexes.get(0).group());
 			if (!VariableString.isQuotedCorrectly(pattern, false)) {
-				Skript.error("Invalid amount and/or placement of double quotes in '" + pattern + "'", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("Invalid amount and/or placement of double quotes in '" + pattern + "'");
 				return false;
 			}
+			
+			NonNullPair<String, boolean[]> p = SkriptParser.validatePattern(pattern);
+			if (p == null)
+				return false;
+			pattern = p.getFirst();
+			
 			// escape '¦'
-			final StringBuilder b = new StringBuilder(pattern.length());
+			StringBuilder b = new StringBuilder(pattern.length());
 			for (int i = 0; i < pattern.length(); i++) {
-				final char c = pattern.charAt(i);
+				char c = pattern.charAt(i);
 				if (c == '\\') {
 					b.append(c);
 					b.append(pattern.charAt(i + 1));
@@ -115,10 +122,8 @@ public class ExprParse extends SimpleExpression<Object> {
 				}
 			}
 			pattern = "" + b.toString();
-			final NonNullPair<String, boolean[]> p = SkriptParser.validatePattern(pattern);
-			if (p == null)
-				return false;
-			this.pattern = p.getFirst();
+			
+			this.pattern = pattern;
 			plurals = p.getSecond();
 		} else {
 			c = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
@@ -126,9 +131,9 @@ public class ExprParse extends SimpleExpression<Object> {
 				Skript.error("Parsing as text is useless as only things that are already text may be parsed");
 				return false;
 			}
-			final Parser<?> p = c.getParser();
+			Parser<?> p = c.getParser();
 			if (p == null || !p.canParse(ParseContext.COMMAND)) { // TODO special parse context?
-				Skript.error("Text cannot be parsed as " + c.getName().withIndefiniteArticle(), ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("Text cannot be parsed as " + c.getName().withIndefiniteArticle());
 				return false;
 			}
 		}
@@ -138,24 +143,26 @@ public class ExprParse extends SimpleExpression<Object> {
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
-		final String t = text.getSingle(e);
+	protected Object[] get(Event e) {
+		String t = text.getSingle(e);
 		if (t == null)
 			return null;
-		final ParseLogHandler h = SkriptLogger.startParseLogHandler();
+		ParseLogHandler h = SkriptLogger.startParseLogHandler();
 		try {
+			lastError = null;
+			
 			if (c != null) {
-				final Parser<?> p = c.getParser();
+				Parser<?> p = c.getParser();
 				assert p != null; // checked in init()
-				final Object o = p.parse(t, ParseContext.COMMAND);
+				Object o = p.parse(t, ParseContext.COMMAND);
 				if (o != null) {
-					final Object[] one = (Object[]) Array.newInstance(c.getC(), 1);
+					Object[] one = (Object[]) Array.newInstance(c.getC(), 1);
 					one[0] = o;
 					return one;
 				}
 			} else {
 				assert pattern != null && plurals != null;
-				final ParseResult r = SkriptParser.parse(t, pattern);
+				ParseResult r = SkriptParser.parse(t, pattern);
 				if (r != null) {
 					assert plurals.length == r.exprs.length;					
 					int resultCount = 0;
@@ -173,8 +180,16 @@ public class ExprParse extends SimpleExpression<Object> {
 					return os;
 				}
 			}
-			final LogEntry err = h.getError();
-			lastError = err != null ? err.getMessage() : null;
+			LogEntry err = h.getError();
+			if (err != null) {
+				lastError = err.toString();
+			} else {
+				if (c != null) {
+					lastError = t + " could not be parsed as " + c.getName().withIndefiniteArticle();
+				} else {
+					lastError = t + " could not be parsed as \"" + pattern + "\"";
+				}
+			}
 			return null;
 		} finally {
 			h.clear();
@@ -188,12 +203,12 @@ public class ExprParse extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		return c != null ? c.getC() : Object[].class;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return text.toString(e, debug) + " parsed as " + (c != null ? c.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
 	}
 	

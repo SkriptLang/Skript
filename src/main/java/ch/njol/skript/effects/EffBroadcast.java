@@ -18,32 +18,40 @@
  */
 package ch.njol.skript.effects;
 
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Broadcast")
-@Description({"Broadcasts a message to the server. Only formatting options supported by console",
-		"(i.e. colors) are supported. If you need to use advanced chat formatting, send the",
-		"message to all players instead of broadcasting it."})
-@Examples({"broadcast \"Welcome %player% to the server!\"",
-		"broadcast \"Woah! It's a message!\""})
-@Since("1.0, 2.6 (broadcasting objects)")
+@Description("Broadcasts a message to the server.")
+@Examples({
+	"broadcast \"Welcome %player% to the server!\"",
+	"broadcast \"Woah! It's a message!\""
+})
+@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
 public class EffBroadcast extends Effect {
 
 	static {
@@ -51,44 +59,62 @@ public class EffBroadcast extends Effect {
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> messages;
+	private Expression<?> messageExpr;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?>[] messages;
 	@Nullable
 	private Expression<World> worlds;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		messages = LiteralUtils.defendExpression(exprs[0]);
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		messageExpr = LiteralUtils.defendExpression(exprs[0]);
+		messages = messageExpr instanceof ExpressionList ?
+			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		worlds = (Expression<World>) exprs[1];
-		return LiteralUtils.canInitSafely(messages);
+		return LiteralUtils.canInitSafely(messageExpr);
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public void execute(Event e) {
-		World[] worlds = this.worlds != null ? this.worlds.getArray(e) : null;
+		List<CommandSender> receivers = new ArrayList<>();
+		if (worlds == null) {
+			receivers.addAll(Bukkit.getOnlinePlayers());
+			receivers.add(Bukkit.getConsoleSender());
+		} else {
+			for (World world : worlds.getArray(e))
+				receivers.addAll(world.getPlayers());
+		}
 
-		for (Object object : messages.getArray(e)) {
-			String string = object instanceof String ? (String) object : Classes.toString(object);
-
-			if (worlds == null) {
-				// not Bukkit.broadcastMessage to ignore permissions
-				for (Player player : PlayerUtils.getOnlinePlayers()) {
-					player.sendMessage(string);
+		for (Expression<?> message : getMessages()) {
+			if (message instanceof VariableString) {
+				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
+				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
+			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
+				for (Object realMessage : message.getArray(e)) {
+					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
+					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 				}
-				Bukkit.getConsoleSender().sendMessage(string);
 			} else {
-				for (World w : worlds) {
-					for (Player player : w.getPlayers()) {
-						player.sendMessage(string);
-					}
+				for (Object messageObject : message.getArray(e)) {
+					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
+					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
 				}
 			}
 		}
 	}
-	
+
+	private Expression<?>[] getMessages() {
+		if (messageExpr instanceof ExpressionList && !messageExpr.getAnd()) {
+			return new Expression[] {CollectionUtils.getRandom(messages)};
+		}
+		return messages;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "broadcast " + messages.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
+		return "broadcast " + messageExpr.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
 	}
 	
 }
