@@ -33,6 +33,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.util.SkriptColor;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -75,6 +76,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Callback;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -268,24 +270,32 @@ public abstract class Commands {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				// Call the event on the Bukkit API for addon developers.
+				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command);
+				Bukkit.getPluginManager().callEvent(effectCommand);
+				command = effectCommand.getCommand();
 				ParserInstance parserInstance = ParserInstance.get();
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
-				Effect e = Effect.parse(command, null);
+				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
 				
-				if (e != null) {
+				if (effect != null) {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
-					
-					sender.sendMessage(ChatColor.GRAY + "executing '" + ChatColor.stripColor(command) + "'");
-					if (SkriptConfig.logPlayerCommands.value() && !(sender instanceof ConsoleCommandSender))
-						Skript.info(sender.getName() + " issued effect command: " + command);
-					TriggerItem.walk(e, new EffectCommandEvent(sender, command));
+					if (!effectCommand.isCancelled()) {
+						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
+						if (SkriptConfig.logPlayerCommands.value() && !(sender instanceof ConsoleCommandSender))
+							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
+						TriggerItem.walk(effect, effectCommand);
+						Variables.removeLocals(effectCommand);
+					} else {
+						sender.sendMessage(ChatColor.RED + "your effect command '" + SkriptColor.replaceColorChar(command) + "' was cancelled.");
+					}
 				} else {
 					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
-						SkriptLogger.LOGGER.severe("Error in: " + ChatColor.stripColor(command));
+						SkriptLogger.LOGGER.severe("Error in: " + SkriptColor.replaceColorChar(command));
 					else
-						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + ChatColor.stripColor(command));
+						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + SkriptColor.replaceColorChar(command));
 					log.printErrors(sender, "(No specific information is available)");
 				}
 			} finally {
@@ -293,7 +303,7 @@ public abstract class Commands {
 			}
 			return true;
 		} catch (final Exception e) {
-			Skript.exception(e, "Unexpected error while executing effect command '" + command + "' by '" + sender.getName() + "'");
+			Skript.exception(e, "Unexpected error while executing effect command '" + SkriptColor.replaceColorChar(command) + "' by '" + sender.getName() + "'");
 			sender.sendMessage(ChatColor.RED + "An internal error occurred while executing this effect. Please refer to the server log for details.");
 			return true;
 		}

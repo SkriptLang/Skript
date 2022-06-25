@@ -47,7 +47,7 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 	
 	static {
 		if (CAN_USE_PIERCE)
-			register(ExprArrowPierceLevel.class, Long.class, "[the] arrow pierce level", "projectiles");
+			register(ExprArrowPierceLevel.class, Long.class, "arrow pierce level", "projectiles");
 	}
 	
 	@Nullable
