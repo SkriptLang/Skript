@@ -33,11 +33,13 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Enchantment Offer Enchantment Cost")
-@Description({"The cost of an enchantment offer. This is displayed to the right of an enchantment offer.",
-			" If the cost is changed, it will always be at least 1.",
-			" This changes how many levels are required to enchant, but does not change the number of levels removed.",
-			" To change the number of levels removed, use the enchant event."})
+@Name("Enchantment Offer Cost")
+@Description({
+	"The cost of an enchantment offer. This is displayed to the right of an enchantment offer.",
+	"If the cost is changed, it will always be at least 1.",
+	"This changes how many levels are required to enchant, but does not change the number of levels removed.",
+	"To change the number of levels removed, use the enchant event."
+})
 @Examples("set cost of enchantment offer 1 to 50")
 @Since("2.5")
 @RequiredPlugins("1.11 or newer")

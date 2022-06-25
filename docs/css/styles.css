@@ -403,7 +403,7 @@ div.active-syntax .item-examples p {
     color: var(--font-color);
     background-color: rgba(0, 0, 0, 0.08);
     border-left: solid 3px #ff9800;
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 
 #content {
