@@ -119,7 +119,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		Material material = t.getMaterial();
 
 		if (material == Material.AIR || !material.isBlock()) {
-			assert false;
+			assert false : t;
 			return null;
 		}
 		FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(loc, material.createBlockData());
