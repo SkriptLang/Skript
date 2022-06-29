@@ -465,9 +465,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			assert updater != null;
 			updater.updateCheck(console);
 		}
-		
-		BukkitUnsafe.initialize(); // Needed for aliases
-		
+
 		try {
 			Aliases.load(); // Loaded before anything that might use them
 		} catch (StackOverflowError e) {
