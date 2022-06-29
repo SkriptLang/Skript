@@ -26,6 +26,7 @@ allprojects {
 }
 
 dependencies {
+	implementation 'org.jetbrains:annotations:20.1.0'
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17.1-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
