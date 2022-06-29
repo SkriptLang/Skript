@@ -119,8 +119,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
+	 *
+	 * @deprecated before 1.13 is no longer supported
 	 */
-	public static final boolean itemDataValues = !Skript.isRunningMinecraft(1, 13);
+	@Deprecated
+	public static final boolean itemDataValues = false;
 	
 	/**
 	 * ItemStack, which is used for everything but serialization.
@@ -341,16 +344,12 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			return MatchQuality.DIFFERENT;
 		}
 		BlockValues values = blockValues;
-		if (!itemDataValues) {
-			// Items (held in inventories) don't have block values
-			// If this is an item, given item must not have them either
-			if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
-				return MatchQuality.SAME_MATERIAL;
-			}
-		} else if (itemFlags != 0 && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
-			return MatchQuality.DIFFERENT; // On 1.12 and below, items may share a material but have a different data value (ex: white wool vs red wool)
+		// Items (held in inventories) don't have block values
+		// If this is an item, given item must not have them either
+		if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
+			return MatchQuality.SAME_MATERIAL;
 		}
-		
+
 		/*
 		 * Initially, expect exact match. Lower expectations as new differences
 		 * between items are discovered.
@@ -649,10 +648,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			meta.setDisplayName(null); // Clear display name
 			data.stack.setItemMeta(meta);
 		}
-		if (!itemDataValues) {
-			ItemUtils.setDamage(data.stack, 0); // Set to undamaged
-		}
-		
+		ItemUtils.setDamage(data.stack, 0); // Set to undamaged
+
 		data.type = type;
 		data.blockValues = blockValues;
 		data.itemForm = itemForm;
