@@ -217,7 +217,7 @@ public class Language {
 	}
 	
 	public static boolean load(String name) {
-		name = "" + name.toLowerCase();
+		name = "" + name.toLowerCase(Locale.ENGLISH);
 
 		localizedLanguage = new HashMap<>();
 		boolean exists = load(Skript.getAddonInstance(), name);

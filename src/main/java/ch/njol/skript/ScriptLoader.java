@@ -701,7 +701,7 @@ public class ScriptLoader {
 					if (!SkriptParser.validateLine(event))
 						continue;
 					
-					if (event.toLowerCase().startsWith("command ")) {
+					if (event.toLowerCase(Locale.ENGLISH).startsWith("command ")) {
 						
 						getParser().setCurrentEvent("command", CommandEvent.class);
 						
@@ -715,7 +715,7 @@ public class ScriptLoader {
 						getParser().deleteCurrentEvent();
 						
 						continue;
-					} else if (event.toLowerCase().startsWith("function ")) {
+					} else if (event.toLowerCase(Locale.ENGLISH).startsWith("function ")) {
 						
 						getParser().setCurrentEvent("function", FunctionEvent.class);
 						
@@ -964,7 +964,7 @@ public class ScriptLoader {
 				if (!SkriptParser.validateLine(event))
 					continue;
 				
-				if (event.toLowerCase().startsWith("function ")) {
+				if (event.toLowerCase(Locale.ENGLISH).startsWith("function ")) {
 					
 					getParser().setCurrentEvent("function", FunctionEvent.class);
 					
@@ -1163,7 +1163,7 @@ public class ScriptLoader {
 			assert false : node;
 			return null;
 		}
-		if (event.toLowerCase().startsWith("on "))
+		if (event.toLowerCase(Locale.ENGLISH).startsWith("on "))
 			event = "" + event.substring("on ".length());
 		
 		NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent =

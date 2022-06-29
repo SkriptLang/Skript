@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -1007,7 +1008,7 @@ public class SkriptParser {
 
 				String priorityString = split[split.length - 1];
 				try {
-					priority = EventPriority.valueOf(priorityString.toUpperCase());
+					priority = EventPriority.valueOf(priorityString.toUpperCase(Locale.ENGLISH));
 				} catch (IllegalArgumentException e) { // Priority doesn't exist
 					log.printErrors("The priority " + priorityString + " doesn't exist");
 					return null;
