@@ -56,12 +56,7 @@ public class BukkitUnsafe {
 	 */
 	@Nullable
 	private static final UnsafeValues unsafe = Bukkit.getUnsafe();
-	
-	/**
-	 * 1.9 Spigot has some "fun" bugs.
-	 */
-	private static final boolean knownNullPtr = !Skript.isRunningMinecraft(1, 11);
-	
+
 	static {
 		if (unsafe == null)
 			throw new Error("UnsafeValues are not available.");
@@ -184,16 +179,7 @@ public class BukkitUnsafe {
 		if (unsafe == null)
 			throw new IllegalStateException("modifyItemStack could not be performed as UnsafeValues are not available.");
 		assert unsafe != null;
-		try {
-			unsafe.modifyItemStack(stack, arguments);
-		} catch (NullPointerException e) {
-			if (knownNullPtr) { // Probably known Spigot bug
-				// So we continue doing whatever we were doing and hope it works
-				Skript.warning("Item " + stack.getType() + arguments + " failed modifyItemStack. This is a bug on old Spigot versions.");
-			} else { // Not known null pointer, don't just swallow
-				throw e;
-			}
-		}
+		unsafe.modifyItemStack(stack, arguments);
 	}
 	
 	private static void initIdMappings() {
