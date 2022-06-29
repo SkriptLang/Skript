@@ -18,9 +18,6 @@
  */
 package ch.njol.skript.bukkitutil;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,34 +35,33 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.util.Task;
 
 /**
- * TODO check all updates and find out which ones are not required
- * 
- * @author Peter Güttinger
+ * Contains utility methods related to players
  */
 public abstract class PlayerUtils {
-	private PlayerUtils() {}
-	
-	final static Set<Player> inviUpdate = new HashSet<>();
-	
-	public static void updateInventory(final @Nullable Player p) {
-		if (p != null)
-			inviUpdate.add(p);
+
+	private static final Set<Player> inventoryUpdateList = Collections.synchronizedSet(new HashSet<>());
+
+	/**
+	 * Updates the clients inventory within a tick, using {@link Player#updateInventory()}.
+	 * Recommended over directly calling the update method,
+	 * as multiple calls to this method within a short timespan will not send multiple updates to the client.
+	 */
+	public static void updateInventory(@Nullable Player player) {
+		if (player != null)
+			inventoryUpdateList.add(player);
 	}
-	
-	// created when first used
-	final static Task task = new Task(Skript.getInstance(), 1, 1) {
-		@Override
-		public void run() {
-			try {
-				for (final Player p : inviUpdate)
+
+	static {
+		new Task(Skript.getInstance(), 1, 1) {
+			@Override
+			public void run() {
+				for (Player p : inventoryUpdateList)
 					p.updateInventory();
-			} catch (final NullPointerException e) { // can happen on older CraftBukkit (Tekkit) builds
-				if (Skript.debug())
-					e.printStackTrace();
+
+				inventoryUpdateList.clear();
 			}
-			inviUpdate.clear();
-		}
-	};
+		};
+	}
 
 	/**
 	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead
