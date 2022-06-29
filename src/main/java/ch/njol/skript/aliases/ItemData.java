@@ -459,18 +459,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			PotionData theirPotion = ((PotionMeta) second).getBasePotionData();
 			return !Objects.equals(ourPotion, theirPotion) ? MatchQuality.SAME_MATERIAL : quality;
 		}
-		
-		// Only check spawn egg data on 1.12 and below. See issue #3167
-		if (!MaterialRegistry.newMaterials && SPAWN_EGG_META_EXISTS && second instanceof SpawnEggMeta) {
-			if (!(first instanceof SpawnEggMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a spawn egg, first is clearly not
-			}
-			// Compare spawn egg spawned type
-			EntityType ourSpawnedType = ((SpawnEggMeta) first).getSpawnedType();
-			EntityType theirSpawnedType = ((SpawnEggMeta) second).getSpawnedType();
-			return !Objects.equals(ourSpawnedType, theirSpawnedType) ? MatchQuality.SAME_MATERIAL : quality;
-		}
-		
+
 		// Skull owner
 		if (second instanceof SkullMeta) {
 			if (!(first instanceof SkullMeta)) {
