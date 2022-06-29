@@ -66,43 +66,15 @@ public abstract class PlayerUtils {
 			inviUpdate.clear();
 		}
 	};
-	
-	private final static boolean hasCollecionGetOnlinePlayers = Skript.methodExists(Bukkit.class, "getOnlinePlayers", new Class[0], Collection.class);
-	@Nullable
-	private static Method getOnlinePlayers = null;
-	
-	@SuppressWarnings({"null", "unchecked"})
+
+	/**
+	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead
+	 */
+	@Deprecated
 	public static Collection<? extends Player> getOnlinePlayers() {
-		if (hasCollecionGetOnlinePlayers) {
-			return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
-		} else {
-			if (getOnlinePlayers == null) {
-				try {
-					getOnlinePlayers = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
-				} catch (final NoSuchMethodException e) {
-					Skript.outdatedError(e);
-				} catch (final SecurityException e) {
-					Skript.exception(e);
-				}
-			}
-			try {
-				final Object o = getOnlinePlayers.invoke(null);
-				if (o instanceof Collection<?>)
-					return ImmutableList.copyOf((Collection<? extends Player>) o);
-				else
-					return Arrays.asList(((Player[]) o).clone());
-			} catch (final IllegalAccessException e) {
-				Skript.outdatedError(e);
-			} catch (final IllegalArgumentException e) {
-				Skript.outdatedError(e);
-			} catch (final InvocationTargetException e) {
-				Skript.exception(e);
-			}
-			return Collections.emptyList();
-		}
+		return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
 	}
-	
-	
+
 	public static boolean canEat(Player p, Material food) {
 		GameMode gm = p.getGameMode();
 		if (gm == GameMode.CREATIVE || gm == GameMode.SPECTATOR)
@@ -123,7 +95,7 @@ public abstract class PlayerUtils {
 		}
 		if (p.getFoodLevel() < 20 || special)
 			return true;
-		
+
 		return false;
 	}
 }
