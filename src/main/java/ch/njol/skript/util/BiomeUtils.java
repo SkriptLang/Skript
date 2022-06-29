@@ -18,30 +18,26 @@
  */
 package ch.njol.skript.util;
 
-import ch.njol.skript.bukkitutil.BiomeMappings;
-import ch.njol.skript.localization.Language;
-
 import org.bukkit.block.Biome;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * @author Peter Güttinger
+ * Contains utility methods related to biomes
  */
-public abstract class BiomeUtils {
-	private BiomeUtils() {}
-	
-	@Nullable
-	public static Biome parse(final String s) {
-		return BiomeMappings.parse(s);
+public class BiomeUtils {
+
+	private final static EnumUtils<Biome> util = new EnumUtils<>(Biome.class, "biomes");
+
+	public static @Nullable Biome parse(String name) {
+		return util.parse(name);
 	}
-	
-	public static String toString(final Biome b, final int flags) {
-		return BiomeMappings.toString(b, flags);
+
+	public static String toString(Biome biome, int flags) {
+		return util.toString(biome, flags);
 	}
-	
-	public static String getAllNames() { // This is hack for class loading order...
-		return "Biome names; you can use F3 ingame";
-		//return BiomeMappings.getAllNames();
+
+	public static String getAllNames() {
+		return util.getAllNames();
 	}
-	
+
 }
