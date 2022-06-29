@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright Peter G??ttinger, SkriptLang team and contributors
+ * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
@@ -53,8 +53,8 @@ public class ExprListIndex extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprListIndex.class, Object.class, ExpressionType.COMBINED,
-			"[(first|2??last)] [(1??variable)] index of %object% in %objects%",
-			"[all] [(1??variable)] ind(ex|ic)es of %object% in %objects%");
+			"[(first|2¦last)] [(1¦variable)] index of %object% in %objects%",
+			"[all] [(1¦variable)] ind(ex|ic)es of %object% in %objects%");
 	}
 
 	private Expression<?> elementExpr, listExpr;
