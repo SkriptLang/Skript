@@ -22,6 +22,9 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -36,7 +39,16 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			register(ExprCharges.class, Integer.class, "charge[s]", "blocks");
+			register(ExprCharges.class, Integer.class, "[:max[imum]] charge[s]", "blocks");
+	}
+
+	private boolean maxCharges;
+
+	@Override
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		super.init(exprs, matchedPattern, isDelayed, parseResult);
+		maxCharges = parseResult.hasTag("max");
+		return true;
 	}
 
 	@Nullable
@@ -44,6 +56,8 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	public Integer convert(Block block) {
 		BlockData blockData = block.getBlockData();
 		if (blockData instanceof RespawnAnchor) {
+			if (maxCharges)
+				return ((RespawnAnchor) blockData).getMaximumCharges();
 			return ((RespawnAnchor) blockData).getCharges();
 		}
 		return null;

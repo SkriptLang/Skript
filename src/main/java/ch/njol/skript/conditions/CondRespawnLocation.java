@@ -33,7 +33,7 @@ public class CondRespawnLocation extends Condition {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)(0¦|1¦n('|o)t) [a] (:bed|respawn anchor) [spawn]");
+			Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)[(1¦(n'| no)t)] [a] (:bed [spawn]|respawn anchor)");
 	}
 
 	private boolean bedSpawn;
@@ -61,7 +61,7 @@ public class CondRespawnLocation extends Condition {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "the respawn location" + (isNegated() ? " isn't" : " is") + " a" + (bedSpawn ? " bed" : " respawn anchor");
+		return "the respawn location" + (isNegated() ? " isn't" : " is") + " a" + (bedSpawn ? " bed spawn" : " respawn anchor");
 	}
 
 }
