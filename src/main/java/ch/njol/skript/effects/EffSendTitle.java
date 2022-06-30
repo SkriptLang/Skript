@@ -45,7 +45,8 @@ import ch.njol.util.Kleenean;
 })
 @Examples({
 	"send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds",
-	"send title \"Hi %player%\" to player", "send title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players",
+	"send title \"Hi %player%\" to player",
+	"send title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players",
 	"send title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second",
 	"send subtitle \"Party!\" to all players"
 })
