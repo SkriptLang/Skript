@@ -30,6 +30,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Locale;
+
 public final class Parameter<T> {
 	
 	/**
@@ -58,7 +60,7 @@ public final class Parameter<T> {
 	
 	@SuppressWarnings("null")
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
-		this.name = name != null ? name.toLowerCase() : null;
+		this.name = name != null ? name.toLowerCase(Locale.ENGLISH) : null;
 		this.type = type;
 		this.def = def;
 		this.single = single;

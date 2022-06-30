@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import java.io.File;
 
+import ch.njol.skript.util.SkriptColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -97,6 +98,10 @@ public abstract class TriggerItem implements Debuggable {
 		} catch (final Exception ex) {
 			if (ex.getStackTrace().length != 0) // empty exceptions have already been printed
 				Skript.exception(ex, i);
+		} catch (Throwable throwable) {
+			// not all Throwables are Exceptions, but we usually don't want to catch them (without rethrowing)
+			Skript.markErrored();
+			throw throwable;
 		}
 		return false;
 	}
@@ -124,7 +129,7 @@ public abstract class TriggerItem implements Debuggable {
 	protected final void debug(final Event e, final boolean run) {
 		if (!Skript.debug())
 			return;
-		Skript.debug(getIndentation() + (run ? "" : "-") + toString(e, true));
+		Skript.debug(SkriptColor.replaceColorChar(getIndentation() + (run ? "" : "-") + toString(e, true)));
 	}
 	
 	@Override
