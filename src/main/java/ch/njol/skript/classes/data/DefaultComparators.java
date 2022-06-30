@@ -204,20 +204,18 @@ public class DefaultComparators {
 		});
 		
 		// Block - BlockData
-		if (Skript.classExists("org.bukkit.block.data.BlockData")) {
-			Comparators.registerComparator(Block.class, BlockData.class, new Comparator<Block, BlockData>() {
-				@Override
-				public Relation compare(Block block, BlockData data) {
-					return Relation.get(block.getBlockData().matches(data));
-				}
+		Comparators.registerComparator(Block.class, BlockData.class, new Comparator<Block, BlockData>() {
+			@Override
+			public Relation compare(Block block, BlockData data) {
+				return Relation.get(block.getBlockData().matches(data));
+			}
 
-				@Override
-				public boolean supportsOrdering() {
-					return false;
-				}
-			});
-		}
-		
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
