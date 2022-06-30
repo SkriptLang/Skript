@@ -174,7 +174,7 @@ public class SkriptClasses {
 					
 					@Override
 					public String toVariableNameString(final WeatherType o) {
-						return "" + o.name().toLowerCase();
+						return "" + o.name().toLowerCase(Locale.ENGLISH);
 					}
 
 				})
@@ -300,7 +300,7 @@ public class SkriptClasses {
 						"	wait a minecraft second and 5 ticks",
 						"every 10 mc days and 12 hours:",
 						"	halt for 12.7 irl minutes, 12 hours and 120.5 seconds")
-				.since("1.0, INSERT VERSION (weeks, months, years)")
+				.since("1.0, 2.6.1 (weeks, months, years)")
 				.parser(new Parser<Timespan>() {
 					@Override
 					@Nullable
@@ -702,7 +702,7 @@ public class SkriptClasses {
 
 					@Override
 					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase();
+						return "" + o.name().toLowerCase(Locale.ENGLISH);
 					}
 				}).serializer(new EnumSerializer<>(StructureType.class)));
 

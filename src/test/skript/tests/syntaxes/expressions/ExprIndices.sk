@@ -9,8 +9,8 @@ test "sorted indices":
 	set {_leader-board::marcelo} to 17
 	set {_leader-board::leandro} to 17
 
-	set {_descending-indices::*} to sorted indices of {_leader-board::*} in descending order
-	set {_ascending-indices::*} to sorted {_leader-board::*}'s indices in ascending order
+	set {_descending-indices::*} to indices of {_leader-board::*} in descending order
+	set {_ascending-indices::*} to {_leader-board::*}'s indices in ascending order
 	set {_ascending-values::*} to sorted {_leader-board::*}
 	set {_descending-values::*} to reversed {_ascending-values::*}
 
