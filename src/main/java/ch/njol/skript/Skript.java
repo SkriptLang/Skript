@@ -1021,7 +1021,8 @@ public final class Skript extends JavaPlugin implements Listener {
 
 			try {
 				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
-				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
+				// 1.19 mapping is u and 1.18 is v
+				String isRunningMethod = Skript.isRunningMinecraft(1, 19) ? "u" : Skript.isRunningMinecraft(1, 18) ? "v" :"isRunning";
 				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
@@ -1506,7 +1507,15 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Set to true when an exception is thrown.
 	 */
 	private static boolean errored = false;
-	
+
+	/**
+	 * Mark that an exception has occurred at some point during runtime.
+	 * Only used for Skript's testing system.
+	 */
+	public static void markErrored() {
+		errored = true;
+	}
+
 	/**
 	 * Used if something happens that shouldn't happen
 	 * 
