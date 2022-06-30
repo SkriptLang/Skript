@@ -29,7 +29,9 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprMaxCharges extends SimplePropertyExpression<Block, Number> {
 
 	static {
-		register(ExprMaxCharges.class, Number.class, "max[imum] charge[s]", "blocks");
+		if(Skript.isRunningMinecraft(1, 16)) {
+			register(ExprMaxCharges.class, Number.class, "max[imum] charge[s]", "blocks");
+		}
 	}
 
 	@Nullable

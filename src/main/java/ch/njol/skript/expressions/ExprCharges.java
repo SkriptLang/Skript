@@ -35,7 +35,9 @@ import static java.lang.Math.min;
 public class ExprCharges extends SimplePropertyExpression<Block, Number> {
 
 	static {
-		register(ExprCharges.class, Number.class, "charge[s]", "blocks");
+		if(Skript.isRunningMinecraft(1, 16)) {
+			register(ExprCharges.class, Number.class, "charge[s]", "blocks");
+		}
 	}
 
 	@Nullable

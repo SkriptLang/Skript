@@ -30,7 +30,9 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondAnchorWorks extends Condition {
 
 	static {
-		Skript.registerCondition(CondAnchorWorks.class, "[respawn] anchor[s] (0¦[do]|1¦do(n'| no)t) work in %worlds%");
+		if(Skript.isRunningMinecraft(1, 16)) {
+			Skript.registerCondition(CondAnchorWorks.class, "[respawn] anchor[s] (0¦[do]|1¦do(n'| no)t) work in %worlds%");
+		}
 	}
 
 	Expression<World> worlds;

@@ -33,7 +33,9 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondRespawnLocation extends Condition {
 
 	static {
-		Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)(0¦|1¦n('|o)t) [a[n]] (:bed|[respawn] anchor) [spawn]");
+		if(Skript.isRunningMinecraft(1, 16)) {
+			Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)(0¦|1¦n('|o)t) [a[n]] (:bed|[respawn] anchor) [spawn]");
+		}
 	}
 
 	private boolean bedSpawn;
