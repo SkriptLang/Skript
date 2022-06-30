@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -54,9 +55,17 @@ import org.eclipse.jdt.annotation.Nullable;
 @RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
 public class ExprAge extends SimplePropertyExpression<Object, Number> {
-	
+
+	private static String FROM_TYPE = "";
+
 	static {
-		register(ExprAge.class, Number.class, "[:max[imum]] age", "blocks/entities");
+		if (Skript.classExists("org.bukkit.entity.Ageable"))
+			FROM_TYPE += "entities";
+		if (Skript.classExists("org.bukkit.block.data.Ageable"))
+			FROM_TYPE += "/blocks"; // org.bukkit.entity.Ageable exists before org.bukkit.block.data.Ageable
+
+		if (!FROM_TYPE.isEmpty())
+			register(ExprAge.class, Number.class, "[:max[imum]] age", FROM_TYPE);
 	}
 
 	private boolean isMax = false;
