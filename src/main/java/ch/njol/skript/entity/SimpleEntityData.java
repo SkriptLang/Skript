@@ -235,53 +235,51 @@ public class SimpleEntityData extends EntityData<Entity> {
 		if (Skript.classExists("org.bukkit.entity.AreaEffectCloud")) {
 			types.add(new SimpleEntityDataInfo("area effect cloud", AreaEffectCloud.class));
 		}
-		if (Skript.isRunningMinecraft(1, 11)) { // More subtypes, more supertypes - changes needed
-			types.add(new SimpleEntityDataInfo("wither skeleton", WitherSkeleton.class));
-			types.add(new SimpleEntityDataInfo("stray", Stray.class));
-			types.add(new SimpleEntityDataInfo("husk", Husk.class));
-			types.add(new SimpleEntityDataInfo("skeleton", Skeleton.class, true));
+		// More subtypes, more supertypes - changes needed
+		types.add(new SimpleEntityDataInfo("wither skeleton", WitherSkeleton.class));
+		types.add(new SimpleEntityDataInfo("stray", Stray.class));
+		types.add(new SimpleEntityDataInfo("husk", Husk.class));
+		types.add(new SimpleEntityDataInfo("skeleton", Skeleton.class, true));
 
-			// Guardians
-			types.add(new SimpleEntityDataInfo("elder guardian", ElderGuardian.class));
-			types.add(new SimpleEntityDataInfo("normal guardian", Guardian.class));
-			types.add(new SimpleEntityDataInfo("guardian", Guardian.class, true));
+		// Guardians
+		types.add(new SimpleEntityDataInfo("elder guardian", ElderGuardian.class));
+		types.add(new SimpleEntityDataInfo("normal guardian", Guardian.class));
+		types.add(new SimpleEntityDataInfo("guardian", Guardian.class, true));
 
-			// Horses
-			types.add(new SimpleEntityDataInfo("donkey", Donkey.class));
-			types.add(new SimpleEntityDataInfo("mule", Mule.class));
-			types.add(new SimpleEntityDataInfo("llama", Llama.class));
-			types.add(new SimpleEntityDataInfo("undead horse", ZombieHorse.class));
-			types.add(new SimpleEntityDataInfo("skeleton horse", SkeletonHorse.class));
-			types.add(new SimpleEntityDataInfo("horse", Horse.class));
+		// Horses
+		types.add(new SimpleEntityDataInfo("donkey", Donkey.class));
+		types.add(new SimpleEntityDataInfo("mule", Mule.class));
+		types.add(new SimpleEntityDataInfo("llama", Llama.class));
+		types.add(new SimpleEntityDataInfo("undead horse", ZombieHorse.class));
+		types.add(new SimpleEntityDataInfo("skeleton horse", SkeletonHorse.class));
+		types.add(new SimpleEntityDataInfo("horse", Horse.class));
 
-			// New 1.11 horse supertypes
-			types.add(new SimpleEntityDataInfo("chested horse", ChestedHorse.class, true));
-			types.add(new SimpleEntityDataInfo("any horse", AbstractHorse.class, true));
+		// New 1.11 horse supertypes
+		types.add(new SimpleEntityDataInfo("chested horse", ChestedHorse.class, true));
+		types.add(new SimpleEntityDataInfo("any horse", AbstractHorse.class, true));
 
-			types.add(new SimpleEntityDataInfo("llama spit", LlamaSpit.class));
+		types.add(new SimpleEntityDataInfo("llama spit", LlamaSpit.class));
 
-			// 1.11 hostile mobs
-			types.add(new SimpleEntityDataInfo("evoker", Evoker.class));
-			types.add(new SimpleEntityDataInfo("evoker fangs", EvokerFangs.class));
-			types.add(new SimpleEntityDataInfo("vex", Vex.class));
-			types.add(new SimpleEntityDataInfo("vindicator", Vindicator.class));
-		}
-		
+		// 1.11 hostile mobs
+		types.add(new SimpleEntityDataInfo("evoker", Evoker.class));
+		types.add(new SimpleEntityDataInfo("evoker fangs", EvokerFangs.class));
+		types.add(new SimpleEntityDataInfo("vex", Vex.class));
+		types.add(new SimpleEntityDataInfo("vindicator", Vindicator.class));
+
 		if (Skript.classExists("org.bukkit.entity.Illusioner")) // Added in 1.12
 			types.add(new SimpleEntityDataInfo("illusioner", Illusioner.class));
-		
-		if (Skript.isRunningMinecraft(1, 13)) { // More subtypes, more supertypes - changes needed
-			types.add(new SimpleEntityDataInfo("dolphin", Dolphin.class));
-			types.add(new SimpleEntityDataInfo("phantom", Phantom.class));
-			types.add(new SimpleEntityDataInfo("drowned", Drowned.class));
-			types.add(new SimpleEntityDataInfo("turtle", Turtle.class));
-			types.add(new SimpleEntityDataInfo("cod", Cod.class));
-			types.add(new SimpleEntityDataInfo("puffer fish", PufferFish.class));
-			types.add(new SimpleEntityDataInfo("salmon", Salmon.class));
-			types.add(new SimpleEntityDataInfo("tropical fish", TropicalFish.class));
-			types.add(new SimpleEntityDataInfo("trident", Trident.class));
-		}
-		
+
+		// More subtypes, more supertypes - changes needed
+		types.add(new SimpleEntityDataInfo("dolphin", Dolphin.class));
+		types.add(new SimpleEntityDataInfo("phantom", Phantom.class));
+		types.add(new SimpleEntityDataInfo("drowned", Drowned.class));
+		types.add(new SimpleEntityDataInfo("turtle", Turtle.class));
+		types.add(new SimpleEntityDataInfo("cod", Cod.class));
+		types.add(new SimpleEntityDataInfo("puffer fish", PufferFish.class));
+		types.add(new SimpleEntityDataInfo("salmon", Salmon.class));
+		types.add(new SimpleEntityDataInfo("tropical fish", TropicalFish.class));
+		types.add(new SimpleEntityDataInfo("trident", Trident.class));
+
 		if (Skript.isRunningMinecraft(1, 14)) {
 			types.add(new SimpleEntityDataInfo("pillager", Pillager.class));
 			types.add(new SimpleEntityDataInfo("ravager", Ravager.class));
