@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -36,39 +35,49 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Block Age")
-@Description({"Returns the age or max age of a block. 'Age' represents the different growth stages that a crop-like block can go through.",
-			"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested."})
-@Examples("set age of targeted block to max age of targeted block")
+@Name("Age of Block/Entity")
+@Description({
+	"Returns the age or max age of blocks and age for entities (there in no max age for entities).",
+	"For blocks, 'Age' represents the different growth stages that a crop-like block can go through. " +
+	"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested.",
+	"For entities, 'Age' represents the time left for them to become adults and it is minus until it reached 0 which means they're adults, " +
+	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -23999 once spawned."
+})
+@Examples({
+	"# Set targeted crop to fully grown crop",
+	"set age of targeted block to max age of targeted block",
+	" ",
+	"# Spawn a baby cow that will only need 1 minute to become an adult",
+	"spawn a baby cow at player",
+	"set age of last spawned entity to -1200 # in ticks = 60 seconds"
+})
 @RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
-public class ExprBlockAge extends SimplePropertyExpression<Block, Integer> {
+public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.block.data.Ageable"))
-			register(ExprBlockAge.class, Integer.class, "[:max[imum]] age", "block");
+		register(ExprAge.class, Integer.class, "[:max[imum]] age", "blocks/entities");
 	}
 
 	private boolean isMax = false;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
-		setExpr((Expression<Block>) exprs[0]);
+		setExpr(exprs[0]);
 		return true;
 	}
 
 	@Override
 	@Nullable
-	public Integer convert(Block block) {
-		BlockData bd = block.getBlockData();
-		if (bd instanceof Ageable) {
-			if (isMax)
-				return ((Ageable) bd).getMaximumAge();
-			else
-				return ((Ageable) bd).getAge();
+	public Integer convert(Object obj) {
+		if (obj instanceof Block) {
+			Ageable ageable = (Ageable) ((Block) obj).getBlockData();
+			return isMax ? ageable.getMaximumAge() : ageable.getAge();
+		} else if (obj instanceof org.bukkit.entity.Ageable) {
+			return  ((org.bukkit.entity.Ageable) obj).getAge();
 		}
+
 		return null;
 	}
 	
@@ -84,12 +93,18 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Integer> {
 			return;
 
 		int value = mode == ChangeMode.RESET ? 0 : ((Number) delta[0]).intValue();
-		for (Block block : getExpr().getArray(event)) {
-			BlockData bd = block.getBlockData();
-			if (bd instanceof Ageable) {
-				((Ageable) bd).setAge(value);
+		for (Object obj : getExpr().getArray(event)) {
+			if (obj instanceof Block) {
+				Block block = (Block) obj;
+				BlockData bd = block.getBlockData();
+				if (bd instanceof Ageable) {
+					((Ageable) bd).setAge(Math.max(Math.min(value, ((Ageable) bd).getMaximumAge()), 0));
+					block.setBlockData(bd);
+				}
+			} else if (obj instanceof org.bukkit.entity.Ageable) {
+				// Bukkit accepts higher values that 0, they will keep going down to 0 though (some Animal type might be using that - not sure)
+				((org.bukkit.entity.Ageable) obj).setAge(value);
 			}
-			block.setBlockData(bd);
 		}
 	}
 	
@@ -102,5 +117,5 @@ public class ExprBlockAge extends SimplePropertyExpression<Block, Integer> {
 	protected String getPropertyName() {
 		return (isMax ? "max " : "") + "age";
 	}
-	
+
 }
