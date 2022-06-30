@@ -20,6 +20,7 @@ package ch.njol.skript.entity;
 
 import org.bukkit.Location;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.lang.Literal;
@@ -68,18 +69,18 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 		if (xp != -1)
 			entity.setExperience(xp);
 	}
-	
+
 	@Override
 	@Nullable
-	public ExperienceOrb spawn(final Location loc) {
-		final ExperienceOrb orb = super.spawn(loc);
+	public ExperienceOrb spawn(Location loc, @Nullable Consumer<ExperienceOrb> consumer) {
+		ExperienceOrb orb = super.spawn(loc, consumer);
 		if (orb == null)
 			return null;
 		if (xp == -1)
 			orb.setExperience(1);
 		return orb;
 	}
-	
+
 	private final static ArgsMessage format = new ArgsMessage("entities.xp-orb.format");
 	
 	@Override
