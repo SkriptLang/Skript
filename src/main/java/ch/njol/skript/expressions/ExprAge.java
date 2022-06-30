@@ -54,7 +54,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
-public class ExprAge extends SimplePropertyExpression<Object, Number> {
+public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	private static String FROM_TYPE = "";
 
@@ -65,7 +65,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Number> {
 			FROM_TYPE += "/blocks"; // org.bukkit.entity.Ageable exists before org.bukkit.block.data.Ageable
 
 		if (!FROM_TYPE.isEmpty())
-			register(ExprAge.class, Number.class, "[:max[imum]] age", FROM_TYPE);
+			register(ExprAge.class, Integer.class, "[:max[imum]] age", FROM_TYPE);
 	}
 
 	private boolean isMax = false;
@@ -79,7 +79,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Number> {
 
 	@Override
 	@Nullable
-	public Number convert(Object obj) {
+	public Integer convert(Object obj) {
 		if (obj instanceof Block) {
 			BlockData bd = ((Block) obj).getBlockData();
 			if (!(bd instanceof Ageable))
@@ -147,8 +147,8 @@ public class ExprAge extends SimplePropertyExpression<Object, Number> {
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 	
 	@Override
