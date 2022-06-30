@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"For blocks, 'Age' represents the different growth stages that a crop-like block can go through. " +
 	"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested.",
 	"For entities, 'Age' represents the time left for them to become adults and it's in minus increasing to be 0 which means they're adults, " +
-	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -23999 once spawned."
+	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -24000 once spawned."
 })
 @Examples({
 	"# Set targeted crop to fully grown crop",
@@ -53,10 +53,10 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
-public class ExprAge extends SimplePropertyExpression<Object, Integer> {
+public class ExprAge extends SimplePropertyExpression<Object, Number> {
 	
 	static {
-		register(ExprAge.class, Integer.class, "[:max[imum]] age", "blocks/entities");
+		register(ExprAge.class, Number.class, "[:max[imum]] age", "blocks/entities");
 	}
 
 	private boolean isMax = false;
@@ -70,52 +70,95 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	@Nullable
-	public Integer convert(Object obj) {
+	public Number convert(Object obj) {
 		if (obj instanceof Block) {
-			Ageable ageable = (Ageable) ((Block) obj).getBlockData();
+			BlockData bd = ((Block) obj).getBlockData();
+			if (!(bd instanceof Ageable))
+				return null;
+			Ageable ageable = (Ageable) bd;
 			return isMax ? ageable.getMaximumAge() : ageable.getAge();
 		} else if (obj instanceof org.bukkit.entity.Ageable) {
 			return  ((org.bukkit.entity.Ageable) obj).getAge();
 		}
-
 		return null;
 	}
 	
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return !isMax && (mode == ChangeMode.SET || mode == ChangeMode.RESET) ? CollectionUtils.array(Number.class) : null;
+		if (isMax || mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.DELETE)
+			return null;
+		return CollectionUtils.array(Number.class);
+
 	}
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET && (delta == null || delta[0] == null))
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || delta[0] == null))
 			return;
 
-		int value = mode == ChangeMode.RESET ? 0 : ((Number) delta[0]).intValue();
-		for (Object obj : getExpr().getArray(event)) {
-			if (obj instanceof Block) {
-				Block block = (Block) obj;
-				BlockData bd = block.getBlockData();
-				if (bd instanceof Ageable) {
-					((Ageable) bd).setAge(Math.max(Math.min(value, ((Ageable) bd).getMaximumAge()), 0));
-					block.setBlockData(bd);
+		int newValue;
+		switch (mode) {
+			case ADD:
+				newValue = ((Number) delta[0]).intValue();
+				for (Object obj : getExpr().getArray(event)) {
+					Number oldValue = convert(obj);
+					if (oldValue == null)
+						continue;
+					setAge(obj, oldValue.intValue() + newValue);
 				}
-			} else if (obj instanceof org.bukkit.entity.Ageable) {
-				// Bukkit accepts higher values than 0, they will keep going down to 0 though (some Animals type might be using that - not sure)
-				((org.bukkit.entity.Ageable) obj).setAge(value);
-			}
+				break;
+			case REMOVE:
+				newValue = ((Number) delta[0]).intValue();
+				for (Object obj : getExpr().getArray(event)) {
+					Number oldValue = convert(obj);
+					if (oldValue == null)
+						continue;
+					setAge(obj, oldValue.intValue() - newValue);
+				}
+				break;
+			case SET:
+				newValue = ((Number) delta[0]).intValue();
+				for (Object obj : getExpr().getArray(event)) {
+					setAge(obj, newValue);
+				}
+				break;
+			case RESET:
+				for (Object obj : getExpr().getArray(event)) {
+					int value = 0;
+					// baby animals takes 20 minutes to grow up - ref: https://minecraft.fandom.com/wiki/Breeding
+					if (obj instanceof org.bukkit.entity.Ageable)
+						// it might change later on so removing entity age reset would be better unless
+						// bukkit adds a method returning the default age
+						value = -24000;
+					setAge(obj, value);
+				}
+				break;
 		}
 	}
 	
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
 	}
 	
 	@Override
 	protected String getPropertyName() {
 		return (isMax ? "max " : "") + "age";
+	}
+
+	private void setAge(Object obj, int value) {
+		if (obj instanceof Block) {
+			Block block = (Block) obj;
+			BlockData bd = block.getBlockData();
+			if (bd instanceof Ageable) {
+				((Ageable) bd).setAge(Math.max(Math.min(value, ((Ageable) bd).getMaximumAge()), 0));
+				block.setBlockData(bd);
+			}
+		} else if (obj instanceof org.bukkit.entity.Ageable) {
+			// Bukkit accepts higher values than 0, they will keep going down to 0 though (some Animals type might be using that - not sure)
+			((org.bukkit.entity.Ageable) obj).setAge(value);
+		}
 	}
 
 }
