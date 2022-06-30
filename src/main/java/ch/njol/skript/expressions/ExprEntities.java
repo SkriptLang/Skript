@@ -54,7 +54,7 @@ import ch.njol.util.coll.iterator.NonNullIterator;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, " +
-		"e.g. 'all players', 'all creepers in the player's world', or 'players in radius 100 of the player'.")
+		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
 @Examples({"kill all creepers in the player's world",
 		"send \"Psst!\" to all players within 100 meters of the player",
 		"give a diamond to all ops",
@@ -168,6 +168,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				return null;
 			double d = n.doubleValue();
 
+			if (l.getWorld() == null) // safety
+				return null;
+
 			Collection<Entity> es = l.getWorld().getNearbyEntities(l, d, d, d);
 			double radiusSquared = d * d * Skript.EPSILON_MULT;
 			EntityData<?>[] ts = types.getAll(e);
@@ -181,16 +184,10 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					return false;
 				});
 		} else {
-			if (worlds == null && chunks == null && returnType == Player.class)
+			if (chunks == null || returnType == Player.class)
 				return super.iterator(e);
 
-			Entity[] entities;
-			if (chunks != null) {
-				entities = EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e));
-			} else {
-				return super.iterator(e);
-			}
-			return Arrays.stream(entities).iterator();
+			return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
 		}
 	}
 
