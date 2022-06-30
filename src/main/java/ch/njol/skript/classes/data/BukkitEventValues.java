@@ -1053,7 +1053,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Slot get(final PrepareItemCraftEvent e) {
-				return new InventorySlot(e.getInventory(), 9);
+				return new InventorySlot(e.getInventory(), 0);
 			}
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Player.class, new Getter<Player, PrepareItemCraftEvent>() {

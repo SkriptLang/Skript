@@ -1282,7 +1282,7 @@ game modes:
 
 # -- Visual Effects --
 visual effects:
-	area_expression: [with [(1¦offset of %-number%, %-number%(,| and) %-number%)][(2¦[and ]speed %-number%)]]
+	area_expression: [[with] [(1¦offset (of|by) %-number%, %-number%(,| and) %-number%)][(2¦[(and|at) ]speed %-number%)]]
 	effect:
 		ender_signal:
 			name: ender signal @an
