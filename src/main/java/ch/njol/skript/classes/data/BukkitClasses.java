@@ -1622,37 +1622,36 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Status.class)));
-		
-		if (Skript.classExists("org.bukkit.SoundCategory")) {
-			EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
-			Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
-					.user("sound ?categor(y|ies)")
-					.name("Sound Category")
-					.description("The category of a sound, they are used for sound options of Minecraft. " +
-							"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
-					.usage(soundCategories.getAllNames())
-					.since("2.4")
-					.requiredPlugins("Minecraft 1.11 or newer")
-					.parser(new Parser<SoundCategory>() {
-						@Override
-						@Nullable
-						public SoundCategory parse(final String s, final ParseContext context) {
-							return soundCategories.parse(s);
-						}
-						
-						@Override
-						public String toString(SoundCategory state, int flags) {
-							return soundCategories.toString(state, flags);
-						}
-						
-						@SuppressWarnings("null")
-						@Override
-						public String toVariableNameString(SoundCategory category) {
-							return category.name();
-						}
-					})
-					.serializer(new EnumSerializer<>(SoundCategory.class)));
-		}
+
+		EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
+		Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
+				.user("sound ?categor(y|ies)")
+				.name("Sound Category")
+				.description("The category of a sound, they are used for sound options of Minecraft. " +
+						"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
+				.usage(soundCategories.getAllNames())
+				.since("2.4")
+				.requiredPlugins("Minecraft 1.11 or newer")
+				.parser(new Parser<SoundCategory>() {
+					@Override
+					@Nullable
+					public SoundCategory parse(final String s, final ParseContext context) {
+						return soundCategories.parse(s);
+					}
+
+					@Override
+					public String toString(SoundCategory state, int flags) {
+						return soundCategories.toString(state, flags);
+					}
+
+					@SuppressWarnings("null")
+					@Override
+					public String toVariableNameString(SoundCategory category) {
+						return category.name();
+					}
+				})
+				.serializer(new EnumSerializer<>(SoundCategory.class)));
+
 		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
 			EnumUtils<Gene> genes = new EnumUtils<>(Gene.class, "genes");
 			Classes.registerClass(new ClassInfo<>(Gene.class, "gene")
@@ -1737,34 +1736,32 @@ public class BukkitClasses {
 					.serializer(new EnumSerializer<>(Cat.Type.class)));
 		}
 
-		if (Skript.classExists("org.bukkit.GameRule")) {
-			Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
-				.user("gamerules?")
-				.name("Gamerule")
-				.description("A gamerule")
-				.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
-				.since("2.5")
-				.requiredPlugins("Minecraft 1.13 or newer")
-				.parser(new Parser<GameRule>() {
-					@Override
-					@Nullable
-					public GameRule parse(final String input, final ParseContext context) {
-						return GameRule.getByName(input);
-					}
-					
-					@Override
-					public String toString(GameRule o, int flags) {
-						return o.getName();
-					}
-					
-					@Override
-					public String toVariableNameString(GameRule o) {
-						return o.getName();
-					}
-				})
-			);
-		}
-		
+		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
+			.user("gamerules?")
+			.name("Gamerule")
+			.description("A gamerule")
+			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
+			.since("2.5")
+			.requiredPlugins("Minecraft 1.13 or newer")
+			.parser(new Parser<GameRule>() {
+				@Override
+				@Nullable
+				public GameRule parse(final String input, final ParseContext context) {
+					return GameRule.getByName(input);
+				}
+
+				@Override
+				public String toString(GameRule o, int flags) {
+					return o.getName();
+				}
+
+				@Override
+				public String toVariableNameString(GameRule o) {
+					return o.getName();
+				}
+			})
+		);
+
 // 		Temporarily disabled until bugs are fixed
 //		if (Skript.classExists("org.bukkit.persistence.PersistentDataHolder")) {
 //			Classes.registerClass(new ClassInfo<>(PersistentDataHolder.class, "persistentdataholder")
@@ -1784,32 +1781,31 @@ public class BukkitClasses {
 //					.since("2.5"));
 //		}
 
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
-			Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
-				.name("Enchantment Offer")
-				.description("The enchantmentoffer in an enchant prepare event.")
-				.examples("on enchant prepare:",
-					"\tset enchant offer 1 to sharpness 1",
-					"\tset the cost of enchant offer 1 to 10 levels")
-				.since("2.5")
-				.parser(new Parser<EnchantmentOffer>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
+		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
+			.user("enchant[ment][ ]offers?")
+			.name("Enchantment Offer")
+			.description("The enchantmentoffer in an enchant prepare event.")
+			.examples("on enchant prepare:",
+				"\tset enchant offer 1 to sharpness 1",
+				"\tset the cost of enchant offer 1 to 10 levels")
+			.since("2.5")
+			.parser(new Parser<EnchantmentOffer>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
 
-					@Override
-					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
-					}
-	
-					@Override
-					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-					}
-				}));
-		}
+				@Override
+				public String toString(EnchantmentOffer eo, int flags) {
+					return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+				}
+
+				@Override
+				public String toVariableNameString(EnchantmentOffer eo) {
+					return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+				}
+			}));
+
 		EnumUtils<Attribute> attributes = new EnumUtils<>(Attribute.class, "attribute types");
 		Classes.registerClass(new ClassInfo<>(Attribute.class, "attributetype")
 				.user("attribute ?types?")
