@@ -20,7 +20,6 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
 import com.destroystokyo.paper.block.BlockSoundGroup;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -101,10 +100,6 @@ public class BlockStateBlock implements Block {
 	@Override
 	public byte getData() {
 		return state.getRawData();
-	}
-
-	public void setData(byte data) throws Throwable {
-		MagicBlockCompat.setRawDataMethod.invokeExact(state, data);
 	}
 
 	@Override
