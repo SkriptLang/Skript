@@ -102,7 +102,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 					block.setBlockData(bd);
 				}
 			} else if (obj instanceof org.bukkit.entity.Ageable) {
-				// Bukkit accepts higher values that 0, they will keep going down to 0 though (some Animal type might be using that - not sure)
+				// Bukkit accepts higher values than 0, they will keep going down to 0 though (some Animals type might be using that - not sure)
 				((org.bukkit.entity.Ageable) obj).setAge(value);
 			}
 		}
