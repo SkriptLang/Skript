@@ -33,7 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Saturation")
 @Description("The saturation of a player. If used in a player event, it can be omitted and will default to event-player.")
 @Examples("set saturation of player to 20")
-@Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable), INSERT VERSION (syntax pattern changed)")
+@Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable), 2.6.2 (syntax pattern changed)")
 public class ExprSaturation extends SimplePropertyExpression<Player, Number> {
 
 	static {

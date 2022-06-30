@@ -201,7 +201,7 @@ public class HTMLGenerator {
 					if (filesInside.isDirectory()) 
 						continue;
 						
-					if (!filesInside.getName().toLowerCase().endsWith(".png")) { // Copy images
+					if (!filesInside.getName().toLowerCase(Locale.ENGLISH).endsWith(".png")) { // Copy images
 						writeFile(new File(fileTo + "/" + filesInside.getName()), readFile(filesInside));
 					}
 					
