@@ -20,6 +20,8 @@ package ch.njol.skript.log;
 
 import java.util.logging.Level;
 
+import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.util.Utils;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -42,7 +44,15 @@ public class LogEntry {
 	@Nullable
 	private final String from;
 	private final boolean tracked;
-	
+
+	private static final String CONFIG_NODE = "skript command.reload";
+	private static final ArgsMessage WARNING_LINE_INFO = new ArgsMessage(CONFIG_NODE + ".warning line info");
+	private static final ArgsMessage ERROR_LINE_INFO = new ArgsMessage(CONFIG_NODE + ".error line info");
+	private static final ArgsMessage WARNING_DETAILS = new ArgsMessage(CONFIG_NODE + ".warning details");
+	private static final ArgsMessage ERROR_DETAILS = new ArgsMessage(CONFIG_NODE + ".error details");
+	private static final ArgsMessage OTHER_DETAILS = new ArgsMessage(CONFIG_NODE + ".other details");
+	private static final ArgsMessage LINE_DETAILS = new ArgsMessage(CONFIG_NODE + ".line details");
+
 	public LogEntry(Level level, String message) {
 		this(level, ErrorQuality.SEMANTIC_ERROR.quality(), message, SkriptLogger.getNode());
 	}
@@ -102,7 +112,7 @@ public class LogEntry {
 	}
 	
 	public String getMessage() {
-		return toString();
+		return message;
 	}
 	
 	private boolean used = false;
@@ -128,8 +138,41 @@ public class LogEntry {
 	public String toString() {
 		if (node == null || level.intValue() < Level.WARNING.intValue())
 			return message;
+
 		Config c = node.getConfig();
 		return message + from + " (" + c.getFileName() + ", line " + node.getLine() + ": " + node.save().trim() + "')";
+	}
+
+	public String toFormattedString() {
+		if (node == null || level.intValue() < Level.WARNING.intValue())
+			return message;
+
+		Config c = node.getConfig();
+
+		ArgsMessage details;
+		ArgsMessage lineInfo = WARNING_LINE_INFO;
+		if (level.intValue() == Level.WARNING.intValue()) { // warnings
+			details = WARNING_DETAILS;
+		} else if (level.intValue() == Level.SEVERE.intValue()) { // errors
+			details = ERROR_DETAILS;
+			lineInfo = ERROR_LINE_INFO;
+		} else { // anything else
+			details = OTHER_DETAILS;
+		}
+
+		// Replace configured messages chat styles without user variables
+		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
+		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
+		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
+
+		return
+			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) +
+			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
+			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
+	}
+
+	private String replaceNewline(String s) {
+		return s.replaceAll("\\\\n", "\n");
 	}
 	
 }

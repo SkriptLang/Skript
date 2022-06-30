@@ -54,7 +54,7 @@ import ch.njol.util.Kleenean;
 @Name("Change: Set/Add/Remove/Delete/Reset")
 @Description("A very general effect that can change many <a href='../expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
 @Examples({"# set:",
-		"Set the player's display name to \"<red>%name of player%\"",
+		"Set the player's display name to \"&lt;red&gt;%name of player%\"",
 		"set the block above the victim to lava",
 		"# add:",
 		"add 2 to the player's health # preferably use '<a href='#heal'>heal</a>' for this",
@@ -225,6 +225,7 @@ public class EffChange extends Effect {
 						Skript.error(what + " can't be set to " + changer + " because the latter is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
 					else
 						Skript.error(changer + " can't be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
+					log.printError();
 					return false;
 				}
 				log.printLog();
@@ -270,12 +271,11 @@ public class EffChange extends Effect {
 	
 	@Override
 	protected void execute(Event e) {
-		Expression<?> changer = this.changer;
 		Object[] delta = changer == null ? null : changer.getArray(e);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
-			if (changed.acceptChange(ChangeMode.DELETE) != null)
+			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;
 		}

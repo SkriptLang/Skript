@@ -18,27 +18,6 @@
  */
 package ch.njol.skript.entity;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
@@ -65,6 +44,23 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Consumer;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
@@ -80,7 +76,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
-	
+
+	private static final Pattern REGEX_PATTERN = Pattern.compile("[a-zA-Z -]+");
+
 	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
 		@Override
 		public Fields serialize(final EntityData o) throws NotSerializableException {
@@ -176,12 +174,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 					public String toVariableNameString(final EntityData o) {
 						return "entitydata:" + o.toString();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return "entitydata:.+";
-					}
-				}).serializer(serializer));
+                }).serializer(serializer));
 	}
 	
 	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
@@ -388,7 +381,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Prints errors.
 	 * 
@@ -397,8 +390,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public static EntityData<?> parse(final String s) {
-		final Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
+	public static EntityData<?> parse(String s) {
+		if (!REGEX_PATTERN.matcher(s).matches())
+			return null;
+		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(s), it, null);
 	}
 	
@@ -410,23 +405,36 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public static EntityData<?> parseWithoutIndefiniteArticle(final String s) {
-		final Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
+	public static EntityData<?> parseWithoutIndefiniteArticle(String s) {
+		if (!REGEX_PATTERN.matcher(s).matches())
+			return null;
+		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(s, it, null);
 	}
 	
 	@Nullable
-	public E spawn(final Location loc) {
+	public final E spawn(Location loc) {
+		return spawn(loc, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public E spawn(Location loc, @Nullable Consumer<E> consumer) {
 		assert loc != null;
 		try {
-			final E e = loc.getWorld().spawn(loc, getType());
+			E e;
+			if (consumer != null)
+				e = loc.getWorld().spawn(loc, (Class<E>) getType(), consumer);
+			else
+				e = loc.getWorld().spawn(loc, getType());
+
 			if (baby.isTrue())
 				EntityUtils.setBaby(e);
 			else if (baby.isFalse())
 				EntityUtils.setAdult(e);
 			set(e);
 			return e;
-		} catch (final IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			if (Skript.testing())
 				Skript.error("Can't spawn " + getType().getName());
 			return null;

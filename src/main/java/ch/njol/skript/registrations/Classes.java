@@ -33,14 +33,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -336,7 +335,7 @@ public abstract class Classes {
 	@Nullable
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
-		name = "" + name.toLowerCase();
+		name = "" + name.toLowerCase(Locale.ENGLISH);
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			final Pattern[] uip = ci.getUserInputPatterns();
 			if (uip == null)
@@ -573,12 +572,7 @@ public abstract class Classes {
 			public String toVariableNameString(final T o) {
 				throw new UnsupportedOperationException();
 			}
-			
-			@Override
-			public String getVariableNamePattern() {
-				throw new UnsupportedOperationException();
-			}
-		};
+        };
 	}
 	
 	/**
