@@ -43,6 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -229,8 +230,8 @@ public abstract class Utils {
 		for (final String[] p : plurals) {
 			if (s.endsWith(p[1]))
 				return new NonNullPair<>(s.substring(0, s.length() - p[1].length()) + p[0], Boolean.TRUE);
-			if (s.endsWith(p[1].toUpperCase()))
-				return new NonNullPair<>(s.substring(0, s.length() - p[1].length()) + p[0].toUpperCase(), Boolean.TRUE);
+			if (s.endsWith(p[1].toUpperCase(Locale.ENGLISH)))
+				return new NonNullPair<>(s.substring(0, s.length() - p[1].length()) + p[0].toUpperCase(Locale.ENGLISH), Boolean.TRUE);
 		}
 		return new NonNullPair<>(s, Boolean.FALSE);
 	}
@@ -486,9 +487,9 @@ public abstract class Utils {
 				chat.clear();
 				for (final ChatColor style : styles) {
 					for (final String s : Language.getList("chat styles." + style.name())) {
-						chat.put(s.toLowerCase(), style.toString());
+						chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 						if (english)
-							englishChat.put(s.toLowerCase(), style.toString());
+							englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 					}
 				}
 			}
@@ -521,7 +522,7 @@ public abstract class Utils {
 				SkriptColor color = SkriptColor.fromName("" + m.group(1));
 				if (color != null)
 					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase();
+				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
 				final String f = chat.get(tag);
 				if (f != null)
 					return f;
@@ -559,7 +560,7 @@ public abstract class Utils {
 				SkriptColor color = SkriptColor.fromName("" + m.group(1));
 				if (color != null)
 					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase();
+				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
 				final String f = englishChat.get(tag);
 				if (f != null)
 					return f;

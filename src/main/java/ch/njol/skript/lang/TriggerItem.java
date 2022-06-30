@@ -98,6 +98,10 @@ public abstract class TriggerItem implements Debuggable {
 		} catch (final Exception ex) {
 			if (ex.getStackTrace().length != 0) // empty exceptions have already been printed
 				Skript.exception(ex, i);
+		} catch (Throwable throwable) {
+			// not all Throwables are Exceptions, but we usually don't want to catch them (without rethrowing)
+			Skript.markErrored();
+			throw throwable;
 		}
 		return false;
 	}
