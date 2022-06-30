@@ -154,8 +154,6 @@ public final class BukkitEventValues {
 	
 	public BukkitEventValues() {}
 
-	private static final boolean NAMESPACE_SUPPORT = Skript.classExists("org.bukkit.NamespacedKey");
-	
 	static {
 		
 		// === WorldEvents ===
@@ -1065,28 +1063,26 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// CraftEvents - recipe namespaced key strings
-		if (NAMESPACE_SUPPORT) {
-			EventValues.registerEventValue(CraftItemEvent.class, String.class, new Getter<String, CraftItemEvent>() {
-				@Nullable
-				@Override
-				public String get(CraftItemEvent e) {
-					Recipe recipe = e.getRecipe();
-					if (recipe instanceof Keyed)
-						return ((Keyed) recipe).getKey().toString();
-					return null;
-				}
-			}, 0);
-			EventValues.registerEventValue(PrepareItemCraftEvent.class, String.class, new Getter<String, PrepareItemCraftEvent>() {
-				@Nullable
-				@Override
-				public String get(PrepareItemCraftEvent e) {
-					Recipe recipe = e.getRecipe();
-					if (recipe instanceof Keyed)
-						return ((Keyed) recipe).getKey().toString();
-					return null;
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(CraftItemEvent.class, String.class, new Getter<String, CraftItemEvent>() {
+			@Nullable
+			@Override
+			public String get(CraftItemEvent e) {
+				Recipe recipe = e.getRecipe();
+				if (recipe instanceof Keyed)
+					return ((Keyed) recipe).getKey().toString();
+				return null;
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, String.class, new Getter<String, PrepareItemCraftEvent>() {
+			@Nullable
+			@Override
+			public String get(PrepareItemCraftEvent e) {
+				Recipe recipe = e.getRecipe();
+				if (recipe instanceof Keyed)
+					return ((Keyed) recipe).getKey().toString();
+				return null;
+			}
+		}, 0);
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, new Getter<Player, InventoryOpenEvent>() {
 			@Override
