@@ -19,9 +19,7 @@
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.BurgerHelper;
-import ch.njol.skript.bukkitutil.Workarounds;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Converter;
@@ -354,8 +352,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
 		getAddonInstance();
-		
-		Workarounds.init();
 		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
