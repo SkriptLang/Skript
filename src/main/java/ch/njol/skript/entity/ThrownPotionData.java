@@ -48,7 +48,6 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 	
 	private static final Adjective m_adjective = new Adjective("entities.thrown potion.adjective");
-	private static final boolean RUNNING_LEGACY = !Skript.isRunningMinecraft(1, 13);
 	private static final ItemType POTION = Aliases.javaItemType("potion");
 	private static final ItemType SPLASH_POTION = Aliases.javaItemType("splash potion");
 	private static final ItemType LINGER_POTION = Aliases.javaItemType("lingering potion");
@@ -61,8 +60,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		if (exprs.length > 0 && exprs[0] != null) {
 			return (types = Converters.convert((ItemType[]) exprs[0].getAll(), ItemType.class, t -> {
 				// If the itemtype is a potion, lets make it a splash potion (required by Bukkit)
-				// Due to an issue with 1.12.2 and below, we have to force a lingering potion to be a splash potion
-				if (t.isSupertypeOf(POTION) || (t.isSupertypeOf(LINGER_POTION) && RUNNING_LEGACY)) {
+				if (t.isSupertypeOf(POTION)) {
 					ItemMeta meta = t.getItemMeta();
 					ItemType itemType = SPLASH_POTION.clone();
 					itemType.setItemMeta(meta);
