@@ -20,11 +20,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,48 +32,77 @@ import org.eclipse.jdt.annotation.Nullable;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class ExprCharges extends SimplePropertyExpression<Block, Number> {
+public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		if(Skript.isRunningMinecraft(1, 16)) {
-			register(ExprCharges.class, Number.class, "charge[s]", "blocks");
-		}
+		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
+			register(ExprCharges.class, Integer.class, "charge[s]", "blocks");
 	}
 
 	@Nullable
 	@Override
-	public Number convert(Block block) {
-		if(!block.getBlockData().getMaterial().equals(Material.RESPAWN_ANCHOR)) {
-			Skript.error("You can only use the 'charges' expression with a respawn anchor!");
-			return null;
+	public Integer convert(Block block) {
+		BlockData blockData = block.getBlockData();
+		if (blockData instanceof RespawnAnchor) {
+			return ((RespawnAnchor) blockData).getCharges();
 		}
-		RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
-		return anchor.getCharges();
-	}
-
-	@Nullable
-	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET)
-			return CollectionUtils.array(Number.class);
 		return null;
 	}
 
+	@Nullable
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (delta == null) {
-			return;
-		}
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.REMOVE_ALL)
+			return null;
+		return CollectionUtils.array(Number.class);
+	}
 
-		int charge = ((Number) delta[0]).intValue();
-		charge = min(max(charge, 0), 4);
+	@Override
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 
-		for (Block block : getExpr().getArray(e)) {
-			if(block.getBlockData().getMaterial().equals(Material.RESPAWN_ANCHOR)) {
-				RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
-				anchor.setCharges(charge);
-				block.setBlockData(anchor);
-			}
+		int charge = 0;
+
+		switch (mode) {
+			case REMOVE:
+				if (delta == null)
+					return;
+				charge = ((Number) delta[0]).intValue();
+				for (Block block : getExpr().getArray(e)) {
+					if (block.getBlockData() instanceof RespawnAnchor) {
+						RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
+						anchor.setCharges(min(max(anchor.getCharges() - charge, 0), 4));
+						block.setBlockData(anchor);
+					}
+				}
+				break;
+			case ADD:
+				if (delta == null)
+					return;
+				charge = ((Number) delta[0]).intValue();
+				for (Block block : getExpr().getArray(e)) {
+					if (block.getBlockData() instanceof RespawnAnchor) {
+						RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
+						anchor.setCharges(min(max(anchor.getCharges() + charge, 0), 4));
+						block.setBlockData(anchor);
+					}
+				}
+				break;
+			case SET:
+				if (delta == null)
+					return;
+				charge = ((Number) delta[0]).intValue();
+			case RESET:
+			case DELETE:
+				for (Block block : getExpr().getArray(e)) {
+					if (block.getBlockData() instanceof RespawnAnchor) {
+						RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
+						anchor.setCharges(min(max(charge, 0), 4));
+						block.setBlockData(anchor);
+					}
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -83,8 +112,8 @@ public class ExprCharges extends SimplePropertyExpression<Block, Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 }

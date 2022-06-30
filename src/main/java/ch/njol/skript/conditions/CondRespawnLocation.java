@@ -22,8 +22,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -33,18 +32,17 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondRespawnLocation extends Condition {
 
 	static {
-		if(Skript.isRunningMinecraft(1, 16)) {
-			Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)(0¦|1¦n('|o)t) [a[n]] (:bed|[respawn] anchor) [spawn]");
-		}
+		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
+			Skript.registerCondition(CondRespawnLocation.class, "[the] respawn location (was|is)(0¦|1¦n('|o)t) [a] (:bed|respawn anchor) [spawn]");
 	}
 
 	private boolean bedSpawn;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
-			Skript.error("The condition 'respawn location' may only be used in the respawn event", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("The condition 'respawn location' may only be used in the respawn event");
 			return false;
 		}
 		setNegated(parseResult.mark == 1);
@@ -53,16 +51,17 @@ public class CondRespawnLocation extends Condition {
 	}
 
 	@Override
-	public boolean check(final Event e) {
-		final PlayerRespawnEvent event = (PlayerRespawnEvent) e;
-		if(bedSpawn) return event.isBedSpawn() != isNegated();
-		else return event.isAnchorSpawn() != isNegated();
+	public boolean check(Event e) {
+		PlayerRespawnEvent event = (PlayerRespawnEvent) e;
+		if (bedSpawn)
+			return event.isBedSpawn() != isNegated();
+		else
+			return event.isAnchorSpawn() != isNegated();
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		final PlayerRespawnEvent event = (PlayerRespawnEvent) e;
-		return "the respawn location" + (isNegated() ? " isn't" : " is") + " a" + (event.isAnchorSpawn() ? " respawn anchor" : " bed");
+	public String toString(@Nullable Event e, boolean debug) {
+		return "the respawn location" + (isNegated() ? " isn't" : " is") + " a" + (bedSpawn ? " bed" : " respawn anchor");
 	}
 
 }

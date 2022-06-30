@@ -21,28 +21,26 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.eclipse.jdt.annotation.Nullable;
 
-public class ExprMaxCharges extends SimplePropertyExpression<Block, Number> {
+public class ExprMaxCharges extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		if(Skript.isRunningMinecraft(1, 16)) {
-			register(ExprMaxCharges.class, Number.class, "max[imum] charge[s]", "blocks");
-		}
+		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
+			register(ExprMaxCharges.class, Integer.class, "max[imum] charge[s]", "blocks");
 	}
 
 	@Nullable
 	@Override
-	public Number convert(Block block) {
-		if(!block.getBlockData().getMaterial().equals(Material.RESPAWN_ANCHOR)) {
-			Skript.error("You can only use the 'max charges' expression with a respawn anchor!");
-			return null;
+	public Integer convert(Block block) {
+		BlockData blockData = block.getBlockData();
+		if (blockData instanceof RespawnAnchor) {
+			return ((RespawnAnchor) blockData).getMaximumCharges();
 		}
-		RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
-		return anchor.getMaximumCharges();
+		return null;
 	}
 
 	@Override
@@ -51,8 +49,8 @@ public class ExprMaxCharges extends SimplePropertyExpression<Block, Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 }

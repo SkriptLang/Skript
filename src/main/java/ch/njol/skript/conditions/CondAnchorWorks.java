@@ -21,7 +21,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.World;
 import org.bukkit.event.Event;
@@ -30,31 +30,28 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondAnchorWorks extends Condition {
 
 	static {
-		if(Skript.isRunningMinecraft(1, 16)) {
-			Skript.registerCondition(CondAnchorWorks.class, "[respawn] anchor[s] (0¦[do]|1¦do(n'| no)t) work in %worlds%");
-		}
+		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
+			Skript.registerCondition(CondAnchorWorks.class, "respawn anchor[s] ([do]|1¦do(n't| not)) work[s] in %worlds%");
 	}
 
-	Expression<World> worlds;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<World> worlds;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		setNegated(parseResult.mark == 1);
 		return true;
 	}
 
 	@Override
-	public boolean check(final Event e) {
-		for(World world : worlds.getArray(e)) {
-			return world.isRespawnAnchorWorks() != isNegated();
-		}
-		return false;
+	public boolean check(Event e) {
+		return worlds.check(e, World::isRespawnAnchorWorks, isNegated());
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "respawn anchors " + (isNegated() ? " do" : " don't") + " work in " + worlds.toString(e, debug);
 	}
 
