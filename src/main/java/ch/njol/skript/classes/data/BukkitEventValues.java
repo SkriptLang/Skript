@@ -540,15 +540,13 @@ public final class BukkitEventValues {
 				return e.getBlock();
 			}
 		}, 0);
-		if (Skript.classExists("org.bukkit.event.entity.AreaEffectCloudApplyEvent")) {
-			EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
-				@Override
-				@Nullable
-				public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-					return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
+			@Override
+			@Nullable
+			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
+				return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
+			}
+		}, 0);
 		// ItemSpawnEvent
 		EventValues.registerEventValue(ItemSpawnEvent.class, ItemType.class, new Getter<ItemType, ItemSpawnEvent>() {
 			@Override
@@ -676,48 +674,42 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// EntityPickupItemEvent
-		if (Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent")) {
-			EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, new Getter<Entity, EntityPickupItemEvent>() {
-				@Override
-				public @Nullable Entity get(EntityPickupItemEvent e) {
-					return e.getEntity();
-				}
-			}, 0);
-			EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, new Getter<Item, EntityPickupItemEvent>() {
-				@Override
-				@Nullable
-				public Item get(final EntityPickupItemEvent e) {
-					return e.getItem();
-				}
-			}, 0);
-			EventValues.registerEventValue(EntityPickupItemEvent.class, ItemType.class, new Getter<ItemType, EntityPickupItemEvent>() {
-				@Override
-				@Nullable
-				public ItemType get(final EntityPickupItemEvent e) {
-					return new ItemType(e.getItem().getItemStack());
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, new Getter<Entity, EntityPickupItemEvent>() {
+			@Override
+			public @Nullable Entity get(EntityPickupItemEvent e) {
+				return e.getEntity();
+			}
+		}, 0);
+		EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, new Getter<Item, EntityPickupItemEvent>() {
+			@Override
+			@Nullable
+			public Item get(final EntityPickupItemEvent e) {
+				return e.getItem();
+			}
+		}, 0);
+		EventValues.registerEventValue(EntityPickupItemEvent.class, ItemType.class, new Getter<ItemType, EntityPickupItemEvent>() {
+			@Override
+			@Nullable
+			public ItemType get(final EntityPickupItemEvent e) {
+				return new ItemType(e.getItem().getItemStack());
+			}
+		}, 0);
 		// PlayerItemConsumeEvent
-		if (Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent")) {
-			EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemType.class, new Getter<ItemType, PlayerItemConsumeEvent>() {
-				@Override
-				@Nullable
-				public ItemType get(final PlayerItemConsumeEvent e) {
-					return new ItemType(e.getItem());
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemType.class, new Getter<ItemType, PlayerItemConsumeEvent>() {
+			@Override
+			@Nullable
+			public ItemType get(final PlayerItemConsumeEvent e) {
+				return new ItemType(e.getItem());
+			}
+		}, 0);
 		// PlayerItemBreakEvent
-		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
-			EventValues.registerEventValue(PlayerItemBreakEvent.class, ItemType.class, new Getter<ItemType, PlayerItemBreakEvent>() {
-				@Override
-				@Nullable
-				public ItemType get(final PlayerItemBreakEvent e) {
-					return new ItemType(e.getBrokenItem());
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(PlayerItemBreakEvent.class, ItemType.class, new Getter<ItemType, PlayerItemBreakEvent>() {
+			@Override
+			@Nullable
+			public ItemType get(final PlayerItemBreakEvent e) {
+				return new ItemType(e.getBrokenItem());
+			}
+		}, 0);
 		// PlayerInteractEntityEvent
 		EventValues.registerEventValue(PlayerInteractEntityEvent.class, Entity.class, new Getter<Entity, PlayerInteractEntityEvent>() {
 			@Override
@@ -786,30 +778,28 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		//PlayerItemMendEvent
-		if (Skript.classExists("org.bukkit.event.player.PlayerItemMendEvent")) {
-			EventValues.registerEventValue(PlayerItemMendEvent.class, Player.class, new Getter<Player, PlayerItemMendEvent>() {
-				@Override
-				@Nullable
-				public Player get(PlayerItemMendEvent e) {
-					return e.getPlayer();
-				}
-			}, 0);
-			EventValues.registerEventValue(PlayerItemMendEvent.class, ItemType.class, new Getter<ItemType, PlayerItemMendEvent>() {
-				@Override
-				@Nullable
-				public ItemType get(PlayerItemMendEvent e) {
-					return new ItemType(e.getItem());
-				}
-			}, 0);
-			EventValues.registerEventValue(PlayerItemMendEvent.class, Entity.class, new Getter<Entity, PlayerItemMendEvent>() {
-				@Override
-				@Nullable
-				public Entity get(PlayerItemMendEvent e) {
-					return e.getExperienceOrb();
-				}
-			}, 0);
-		}
-		
+		EventValues.registerEventValue(PlayerItemMendEvent.class, Player.class, new Getter<Player, PlayerItemMendEvent>() {
+			@Override
+			@Nullable
+			public Player get(PlayerItemMendEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerItemMendEvent.class, ItemType.class, new Getter<ItemType, PlayerItemMendEvent>() {
+			@Override
+			@Nullable
+			public ItemType get(PlayerItemMendEvent e) {
+				return new ItemType(e.getItem());
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerItemMendEvent.class, Entity.class, new Getter<Entity, PlayerItemMendEvent>() {
+			@Override
+			@Nullable
+			public Entity get(PlayerItemMendEvent e) {
+				return e.getExperienceOrb();
+			}
+		}, 0);
+
 		// --- HangingEvents ---
 
 		// Note: will not work in HangingEntityBreakEvent due to event-entity being parsed as HangingBreakByEntityEvent#getRemover() from code down below
@@ -1024,15 +1014,13 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		//BlockFertilizeEvent
-		if(Skript.classExists("org.bukkit.event.block.BlockFertilizeEvent")) {
-			EventValues.registerEventValue(BlockFertilizeEvent.class, Player.class, new Getter<Player, BlockFertilizeEvent>() {
-				@Nullable
-				@Override
-				public Player get(BlockFertilizeEvent event) {
-					return event.getPlayer();
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(BlockFertilizeEvent.class, Player.class, new Getter<Player, BlockFertilizeEvent>() {
+			@Nullable
+			@Override
+			public Player get(BlockFertilizeEvent event) {
+				return event.getPlayer();
+			}
+		}, 0);
 		// CraftItemEvent REMIND maybe re-add this when Skript parser is reworked?
 //		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, new Getter<ItemStack, CraftItemEvent>() {
 //			@Override
@@ -1230,27 +1218,25 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		//FireworkExplodeEvent
-		if (Skript.classExists("org.bukkit.event.entity.FireworkExplodeEvent")) {
-			EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, new Getter<Firework, FireworkExplodeEvent>() {
-				@Override
-				@Nullable
-				public Firework get(FireworkExplodeEvent e) {
-					return e.getEntity();
-				}
-			}, 0);
-			EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, new Getter<FireworkEffect, FireworkExplodeEvent>() {
-				@Override
-				@Nullable
-				public FireworkEffect get(FireworkExplodeEvent e) {
-					List<FireworkEffect> effects = e.getEntity().getFireworkMeta().getEffects();
-					if (effects.size() == 0)
-						return null;
-					return effects.get(0);
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, new Getter<Firework, FireworkExplodeEvent>() {
+			@Override
+			@Nullable
+			public Firework get(FireworkExplodeEvent e) {
+				return e.getEntity();
+			}
+		}, 0);
+		EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, new Getter<FireworkEffect, FireworkExplodeEvent>() {
+			@Override
+			@Nullable
+			public FireworkEffect get(FireworkExplodeEvent e) {
+				List<FireworkEffect> effects = e.getEntity().getFireworkMeta().getEffects();
+				if (effects.size() == 0)
+					return null;
+				return effects.get(0);
+			}
+		}, 0);
 		//PlayerRiptideEvent
-		if (Skript.classExists("org.bukkit.event.player.PlayerRiptideEvent")) {
+		if (true) {
 			EventValues.registerEventValue(PlayerRiptideEvent.class, ItemType.class, new Getter<ItemType, PlayerRiptideEvent>() {
 				@Override
 				public ItemType get(PlayerRiptideEvent e) {
