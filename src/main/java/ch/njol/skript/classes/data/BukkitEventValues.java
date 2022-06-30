@@ -153,8 +153,7 @@ import ch.njol.skript.util.slot.Slot;
 public final class BukkitEventValues {
 	
 	public BukkitEventValues() {}
-	
-	private static final boolean offHandSupport = Skript.isRunningMinecraft(1, 9);
+
 	private static final boolean NAMESPACE_SUPPORT = Skript.classExists("org.bukkit.NamespacedKey");
 	
 	static {
@@ -733,17 +732,13 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public ItemType get(final PlayerInteractEntityEvent e) {
-				if (offHandSupport) {
-					EquipmentSlot hand = e.getHand();
-					if (hand == EquipmentSlot.HAND)
-						return new ItemType(e.getPlayer().getInventory().getItemInMainHand());
-					else if (hand == EquipmentSlot.OFF_HAND)
-						return new ItemType(e.getPlayer().getInventory().getItemInOffHand());
-					else
-						return null;
-				} else {
-					return new ItemType(e.getPlayer().getItemInHand());
-				}
+				EquipmentSlot hand = e.getHand();
+				if (hand == EquipmentSlot.HAND)
+					return new ItemType(e.getPlayer().getInventory().getItemInMainHand());
+				else if (hand == EquipmentSlot.OFF_HAND)
+					return new ItemType(e.getPlayer().getInventory().getItemInOffHand());
+				else
+					return null;
 			}
 		}, 0);
 		// PlayerInteractEvent
