@@ -61,7 +61,7 @@ public class EffContinue extends Effect {
 			.collect(Collectors.toList());
 		
 		if (currentSections.isEmpty()) {
-			Skript.error("Continue may only be used in loops");
+			Skript.error("Continue may only be used in while or loops");
 			return false;
 		}
 		
