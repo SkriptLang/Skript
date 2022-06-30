@@ -56,7 +56,6 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class BlockStateBlock implements Block {
 
-	private static final boolean IS_RUNNING_1_13 = Skript.isRunningMinecraft(1, 13);
 	private static final boolean ISPASSABLE_METHOD_EXISTS = Skript.methodExists(Block.class, "isPassable");
 
 	final BlockState state;
@@ -393,10 +392,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setType(Material type, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -411,19 +406,11 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public BlockData getBlockData() {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		return state.getBlockData();
 	}
 
 	@Override
 	public void setBlockData(BlockData data) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -438,10 +425,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setBlockData(BlockData data, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
