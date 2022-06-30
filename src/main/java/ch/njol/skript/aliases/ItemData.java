@@ -81,9 +81,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	static final MaterialRegistry materialRegistry;
 	
-	private static final boolean SPAWN_EGG_META_EXISTS = Skript.classExists("org.bukkit.inventory.meta.SpawnEggMeta");
-	private static final boolean HAS_NEW_SKULL_META_METHODS = Skript.methodExists(SkullMeta.class, "getOwningPlayer");
-	
 	// Load or create material registry
 	static {
 		Gson gson = new GsonBuilder().registerTypeAdapterFactory(EnumTypeAdapter.factory).serializeNulls().create();
@@ -466,17 +463,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				return MatchQuality.DIFFERENT; // Second is a skull, first is clearly not
 			}
 			// Compare skull owners
-			if (HAS_NEW_SKULL_META_METHODS) {
-				OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
-				OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
-				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-			} else { // Use old methods
-				@SuppressWarnings("deprecation")
-				String ourOwner = ((SkullMeta) first).getOwner();
-				@SuppressWarnings("deprecation")
-				String theirOwner = ((SkullMeta) second).getOwner();
-				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-			}
+			OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
+			OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
+			return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
 		}
 		
 		return quality;
