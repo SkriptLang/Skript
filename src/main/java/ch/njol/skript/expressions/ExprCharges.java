@@ -16,15 +16,11 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -39,9 +35,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Name("Charges")
+@Name("Respawn Anchor Charges")
 @Description("The charges of a respawn anchor.")
 @Examples({"set the charges of event-block to 3"})
+@RequiredPlugins("Minecraft 1.16+")
 @Since("INSERT VERSION")
 public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 
@@ -53,7 +50,7 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	private boolean maxCharges;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		maxCharges = parseResult.hasTag("max");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}

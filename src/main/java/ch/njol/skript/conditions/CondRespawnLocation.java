@@ -16,14 +16,10 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -32,9 +28,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Respawn Location")
+@Name("Is Bed/Anchor Spawn")
 @Description("Checks what the respawn location of a player in the respawn event is.")
 @Examples({"respawn location is a bed"})
+@RequiredPlugins("Minecraft 1.16+")
 @Since("INSERT VERSION")
 public class CondRespawnLocation extends Condition {
 
