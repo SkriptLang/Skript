@@ -18,6 +18,13 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptEventHandler;
+import ch.njol.skript.lang.util.SimpleEvent;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -30,9 +37,9 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
@@ -40,7 +47,6 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -85,7 +91,11 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.*;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
@@ -98,14 +108,6 @@ import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
-
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptEventHandler;
-import ch.njol.skript.lang.util.SimpleEvent;
 
 /**
  * @author Peter Güttinger

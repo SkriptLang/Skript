@@ -33,10 +33,11 @@ public class EvtVehicleCollision extends SkriptEvent {
 	static {
 		Class<? extends Event>[] events = CollectionUtils.array(VehicleBlockCollisionEvent.class, VehicleEntityCollisionEvent.class);
 
-		Skript.registerEvent("Vehicle Collision", EvtVehicleCollision.class, events, "vehicle [(1¦block|2¦entity)] collision", "(1¦block|2¦entity|) collision of [a] vehicle")
+		Skript.registerEvent("Vehicle Collision", EvtVehicleCollision.class, events, "vehicle [(:block|:entity)] collision", "[(:block|:entity)] collision of [a] vehicle")
 			.description("Called when a vehicle collides with an entity or a block.")
-			.examples("on vehicle move:",
-				"\t\tpush vehicle upwards with force 1.5")
+			.examples(
+				"on vehicle move:",
+				"\tpush vehicle upwards with force 1.5")
 			.since("INSERT VERSION");
 	}
 
@@ -44,15 +45,15 @@ public class EvtVehicleCollision extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		isAny = parseResult.mark == 0;
-		isBlock = parseResult.mark == 1;
-		isEntity = parseResult.mark == 2;
+		isBlock = parseResult.hasTag("block");
+		isEntity = parseResult.hasTag("entity");
+		isAny = !isEntity && !isBlock;
 		return true;
 	}
 
 	@Override
 	public boolean check(Event e) {
-		return isEntity ? e instanceof VehicleEntityCollisionEvent : (isBlock ? e instanceof VehicleBlockCollisionEvent : true);
+		return isEntity ? e instanceof VehicleEntityCollisionEvent : (e instanceof VehicleBlockCollisionEvent || !isBlock);
 	}
 
 	@Override

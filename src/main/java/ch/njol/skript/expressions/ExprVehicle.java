@@ -35,9 +35,11 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Vehicle")
 @Description("The vehicle in a vehicle event.")
-@Examples({"on vehicle damage:",
+@Examples({
+	"on vehicle damage:",
 	"\tif the vehicle is a boat:",
-	"\t\tcancel event"})
+	"\t\tcancel event"
+})
 @Since("INSERT VERSION")
 public class ExprVehicle extends SimpleExpression<Vehicle> {
 
@@ -47,9 +49,9 @@ public class ExprVehicle extends SimpleExpression<Vehicle> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
-		System.out.println(getParser().getCurrentEvents()[0].toString());
-		if (!VehicleEvent.class.isAssignableFrom(getParser().getCurrentEvents()[0])) {
-			Skript.error("Cannot use 'vehicle' outside of a vehicle related events.");
+//		if (!VehicleEvent.class.isAssignableFrom(getParser().getCurrentEvents()[0])) {
+		if (!getParser().isCurrentEvent(VehicleEvent.class)) { // does this work as above? still need to test
+			Skript.error("Cannot use 'vehicle' outside of a vehicle related events");
 			return false;
 		}
 		return true;

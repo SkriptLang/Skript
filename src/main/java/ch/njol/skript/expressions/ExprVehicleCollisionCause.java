@@ -35,24 +35,26 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Vehicle Collision Cause")
 @Description("The vehicle collision cause. This will return either a block or an entity.")
-@Examples({"on vehicle collision:",
+@Examples({
+	"on vehicle collision:",
 	"\tif vehicle collision cause is an entity:",
 	"\t\tkill event-entity",
 	"",
 	"on vehicle block collision:",
 	"\tif collision cause is a block:",
-	"\t\tdamage event-entity by 1 heart"})
+	"\t\tdamage event-entity by 1 heart"
+})
 @Since("INSERT VERSION")
 public class ExprVehicleCollisionCause extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprVehicleCollisionCause.class, Object.class, ExpressionType.SIMPLE, "[the] [vehicle] collision cause");
+		Skript.registerExpression(ExprVehicleCollisionCause.class, Object.class, ExpressionType.SIMPLE, "[the] vehicle collision cause");
 	}
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
 		if (!getParser().isCurrentEvent(VehicleEntityCollisionEvent.class, VehicleBlockCollisionEvent.class)) {
-			Skript.error("Cannot use 'vehicle collision cause' outside of a vehicle collision event.");
+			Skript.error("Cannot use 'vehicle collision cause' outside of a vehicle collision event");
 			return false;
 		}
 		return true;
@@ -60,7 +62,8 @@ public class ExprVehicleCollisionCause extends SimpleExpression<Object> {
 
 	@Override
 	protected Object[] get(Event e) {
-		return new Object[] { e instanceof VehicleEntityCollisionEvent ? ((VehicleEntityCollisionEvent) e).getEntity() : ((VehicleBlockCollisionEvent) e).getBlock()};
+		return new Object[] { e instanceof VehicleEntityCollisionEvent ? ((VehicleEntityCollisionEvent) e).getEntity()
+			: ((VehicleBlockCollisionEvent) e).getBlock()};
 	}
 
 	@Override
@@ -69,7 +72,7 @@ public class ExprVehicleCollisionCause extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		return Object.class;
 	}
 

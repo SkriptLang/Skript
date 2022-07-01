@@ -38,28 +38,28 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Vehicle Of")
-@Description({"The vehicle an entity is in, if any. This can actually be any entity, e.g. spider jockeys are skeletons that ride on a spider, so the spider is the 'vehicle' of the skeleton.",
-		"See also: <a href='#ExprPassenger'>passenger</a>"})
-@Examples({"vehicle of the player is a minecart"})
+@Description({
+	"The vehicle an entity is in, if any. This can actually be any entity, e.g. spider jockeys are skeletons that" +
+		" ride on a spider, so the spider is the 'vehicle' of the skeleton.",
+		"See also: <a href='./expressions.html#ExprPassenger'>passenger</a>"
+})
+@Examples("vehicle of the player is a minecart")
 @Since("2.0")
 public class ExprVehicleOf extends SimplePropertyExpression<Entity, Entity> {
 	
-	static final boolean hasMountEvents = Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
+	static boolean hasMountEvents = Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
 	
 	static {
 		register(ExprVehicleOf.class, Entity.class, "vehicle[s]", "entities");
 	}
 	
 	@Override
-	protected Entity[] get(final Event e, final Entity[] source) {
+	protected Entity[] get(Event e, Entity[] source) {
 		return get(source, new Converter<Entity, Entity>() {
 			@Override
 			@Nullable
-			public Entity convert(final Entity p) {
+			public Entity convert(Entity p) {
 				if (getTime() >= 0 && e instanceof VehicleEnterEvent && p.equals(((VehicleEnterEvent) e).getEntered()) && !Delay.isDelayed(e)) {
 					return ((VehicleEnterEvent) e).getVehicle();
 				}
@@ -81,24 +81,13 @@ public class ExprVehicleOf extends SimplePropertyExpression<Entity, Entity> {
 	
 	@Override
 	@Nullable
-	public Entity convert(final Entity e) {
-		assert false;
+	public Entity convert(Entity e) {
 		return e.getVehicle();
 	}
 	
 	@Override
-	public Class<? extends Entity> getReturnType() {
-		return Entity.class;
-	}
-	
-	@Override
-	protected String getPropertyName() {
-		return "vehicle";
-	}
-	
-	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			return new Class[] {Entity.class, EntityData.class};
 		}
@@ -106,22 +95,22 @@ public class ExprVehicleOf extends SimplePropertyExpression<Entity, Entity> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			assert delta != null;
-			final Entity[] ps = getExpr().getArray(e);
+			Entity[] ps = getExpr().getArray(e);
 			if (ps.length == 0)
 				return;
-			final Object o = delta[0];
+			Object o = delta[0];
 			if (o instanceof Entity) {
 				((Entity) o).eject();
-				final Entity p = CollectionUtils.getRandom(ps);
+				Entity p = CollectionUtils.getRandom(ps);
 				assert p != null;
 				p.leaveVehicle();
 				((Entity) o).setPassenger(p);
 			} else if (o instanceof EntityData) {
-				for (final Entity p : ps) {
-					final Entity v = ((EntityData<?>) o).spawn(p.getLocation());
+				for (Entity p : ps) {
+					Entity v = ((EntityData<?>) o).spawn(p.getLocation());
 					if (v == null)
 						continue;
 					v.setPassenger(p);
@@ -133,10 +122,20 @@ public class ExprVehicleOf extends SimplePropertyExpression<Entity, Entity> {
 			super.change(e, delta, mode);
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
-	public boolean setTime(final int time) {
+	public Class<? extends Entity> getReturnType() {
+		return Entity.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "vehicle";
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), VehicleEnterEvent.class, VehicleExitEvent.class);
 	}
 	

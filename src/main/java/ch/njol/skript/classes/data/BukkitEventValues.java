@@ -18,8 +18,24 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.List;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.events.EvtMoveOn;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.events.bukkit.SkriptStartEvent;
+import ch.njol.skript.events.bukkit.SkriptStopEvent;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.BlockStateBlock;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DelayedChangeBlock;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.slot.InventorySlot;
+import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -39,7 +55,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Vehicle;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -107,7 +122,12 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.event.vehicle.*;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.vehicle.VehicleEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.ChunkEvent;
@@ -122,25 +142,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.events.EvtMoveOn;
-import ch.njol.skript.events.bukkit.ScriptEvent;
-import ch.njol.skript.events.bukkit.SkriptStartEvent;
-import ch.njol.skript.events.bukkit.SkriptStopEvent;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.BlockStateBlock;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DelayedChangeBlock;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.slot.InventorySlot;
-import ch.njol.skript.util.slot.Slot;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
