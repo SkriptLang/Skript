@@ -19,6 +19,10 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -27,11 +31,15 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+@Name("Anchors Work")
+@Description("Checks whether or not respawn anchors work in a world.")
+@Examples({"respawn anchors work in world \"world_nether\""})
+@Since("INSERT VERSION")
 public class CondAnchorWorks extends Condition {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			Skript.registerCondition(CondAnchorWorks.class, "respawn anchor[s] ([do]|1¦do(n't| not)) work[s] in %worlds%");
+			Skript.registerCondition(CondAnchorWorks.class, "respawn anchors [(do|1:do(n't| not))] work in %worlds%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
