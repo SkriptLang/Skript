@@ -50,7 +50,6 @@ public class SecWhile extends LoopSection {
 	private final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,

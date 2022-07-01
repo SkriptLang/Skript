@@ -60,6 +60,7 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 	private int loopNumber;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		loopNumber = -1;
 		if (exprs[0] != null) {
