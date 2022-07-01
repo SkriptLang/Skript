@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
  * @author Peter Güttinger
  */
 @Name("Loop value")
-@Description("The currently looped value.")
+@Description("Returns the currently looped value.")
 @Examples({
 	"# Countdown",
 	"loop 10 times:",
@@ -71,10 +71,10 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, "[the] loop-<.+>");
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private String name;
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SecLoop loop;
 	
 	// whether this loops a variable
@@ -95,7 +95,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			i = Utils.parseInt("" + m.group(2));
 		}
 
-		if ("counter".equals(s) || "iteration".equals(s)) // ExprLoopIteration - in case of classinfo conflicts
+		if ("counter".equalsIgnoreCase(s) || "iteration".equalsIgnoreCase(s)) // ExprLoopIteration - in case of classinfo conflicts
 			return false;
 
 		Class<?> c = Classes.getClassFromUserInput(s);
@@ -103,7 +103,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		SecLoop loop = null;
 
 		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equals(s) || l.getLoopedExpression().isLoopOf(s)) {
+			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
 					j++;
 					continue;
