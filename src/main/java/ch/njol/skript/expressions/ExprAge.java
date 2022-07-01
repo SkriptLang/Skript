@@ -58,15 +58,15 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 
 	static {
-		String FROM_TYPE = "";
+		String fromType = "";
 		
 		if (Skript.classExists("org.bukkit.entity.Ageable"))
-			FROM_TYPE += "entities";
+			fromType += "entities";
 		if (Skript.classExists("org.bukkit.block.data.Ageable"))
-			FROM_TYPE += "/blocks"; // org.bukkit.entity.Ageable exists before org.bukkit.block.data.Ageable
+			fromType += "/blocks"; // org.bukkit.entity.Ageable exists before org.bukkit.block.data.Ageable
 
-		if (!FROM_TYPE.isEmpty())
-			register(ExprAge.class, Integer.class, "[:max[imum]] age", FROM_TYPE);
+		if (!fromType.isEmpty())
+			register(ExprAge.class, Integer.class, "[:max[imum]] age", fromType);
 	}
 
 	private boolean isMax = false;
