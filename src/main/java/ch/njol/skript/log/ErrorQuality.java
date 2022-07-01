@@ -32,7 +32,7 @@ public enum ErrorQuality {
 	}
 	
 	@SuppressWarnings("null")
-	public static ErrorQuality get(final int quality) {
+	public static ErrorQuality get(int quality) {
 		return values()[quality];
 	}
 	

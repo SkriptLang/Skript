@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -65,7 +64,7 @@ public class EffPlayerInfoVisibility extends Effect {
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The player info visibility effect requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class)) {
+		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
 			Skript.error("The player info visibility effect can't be used outside of a server list ping event");
 			return false;
 		} else if (isDelayed == Kleenean.TRUE) {

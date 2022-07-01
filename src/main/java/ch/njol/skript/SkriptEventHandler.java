@@ -95,8 +95,8 @@ public abstract class SkriptEventHandler {
 	private static final List<Trigger> selfRegisteredTriggers = new ArrayList<>();
 	
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
-		return triggers.stream()
-			.filter(pair -> event.equals(pair.getFirst()))
+		return new ArrayList<>(triggers).stream()
+			.filter(pair -> pair.getFirst().isAssignableFrom(event))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}

@@ -24,7 +24,6 @@ import java.util.Iterator;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
@@ -251,7 +250,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 */
 	@Override
 	public boolean setTime(final int time) {
-		if (ScriptLoader.hasDelayBefore == Kleenean.TRUE && time != 0) {
+		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed");
 			return false;
 		}
@@ -260,22 +259,22 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 	
 	protected final boolean setTime(final int time, final Class<? extends Event> applicableEvent) {
-		if (ScriptLoader.hasDelayBefore == Kleenean.TRUE && time != 0) {
+		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed");
 			return false;
 		}
-		if (!ScriptLoader.isCurrentEvent(applicableEvent))
+		if (!getParser().isCurrentEvent(applicableEvent))
 			return false;
 		this.time = time;
 		return true;
 	}
 	
 	protected final boolean setTime(final int time, final Class<? extends Event> applicableEvent, final Expression<?>... mustbeDefaultVars) {
-		if (ScriptLoader.hasDelayBefore == Kleenean.TRUE && time != 0) {
+		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed");
 			return false;
 		}
-		if (!ScriptLoader.isCurrentEvent(applicableEvent))
+		if (!getParser().isCurrentEvent(applicableEvent))
 			return false;
 		for (final Expression<?> var : mustbeDefaultVars) {
 			if (!var.isDefault()) {
@@ -287,14 +286,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 	
 	protected final boolean setTime(final int time, final Expression<?> mustbeDefaultVar, final Class<? extends Event>... applicableEvents) {
-		if (ScriptLoader.hasDelayBefore == Kleenean.TRUE && time != 0) {
+		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed");
 			return false;
 		}
 		if (!mustbeDefaultVar.isDefault())
 			return false;
 		for (final Class<? extends Event> e : applicableEvents) {
-			if (ScriptLoader.isCurrentEvent(e)) {
+			if (getParser().isCurrentEvent(e)) {
 				this.time = time;
 				return true;
 			}

@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -289,7 +288,9 @@ public abstract class Node {
 	public String toString() {
 		if (parent == null)
 			return config.getFileName();
-		return save_i() + comment + " (" + config.getFileName() + ", " + (lineNum == -1 ? "unknown line" : "line " + lineNum) + ")";
+		return save_i()
+			+ (comment.isEmpty() ? "" : " " + comment)
+			+ " (" + config.getFileName() + ", " + (lineNum == -1 ? "unknown line" : "line " + lineNum) + ")";
 	}
 	
 	public boolean debug() {

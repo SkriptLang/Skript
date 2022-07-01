@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -39,15 +38,15 @@ import ch.njol.util.Kleenean;
 @Examples({"on inventory click:",
 		"	send \"You clicked the hotbar button %hotbar button%!\""})
 @Since("2.5")
-public class ExprHotbarButton extends SimpleExpression<Number> {
+public class ExprHotbarButton extends SimpleExpression<Long> {
 	
 	static {
-		Skript.registerExpression(ExprHotbarButton.class, Number.class, ExpressionType.SIMPLE, "[the] hotbar button");
+		Skript.registerExpression(ExprHotbarButton.class, Long.class, ExpressionType.SIMPLE, "[the] hotbar button");
 	}
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!ScriptLoader.isCurrentEvent(InventoryClickEvent.class)) {
+		if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
 			Skript.error("The 'hotbar button' expression may only be used in an inventory click event.");
 			return false;
 		}
@@ -56,9 +55,9 @@ public class ExprHotbarButton extends SimpleExpression<Number> {
 	
 	@Nullable
 	@Override
-	protected Number[] get(Event e) {
+	protected Long[] get(Event e) {
 		if (e instanceof InventoryClickEvent)
-			return new Number[] {Integer.valueOf(((InventoryClickEvent) e).getHotbarButton())};
+			return new Long[] {(long) ((InventoryClickEvent) e).getHotbarButton()};
 		return null;
 	}
 	
@@ -68,12 +67,13 @@ public class ExprHotbarButton extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the hotbar button";
 	}
+
 }

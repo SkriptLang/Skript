@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.Skript;
 import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.block.Block;
@@ -47,9 +48,6 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Colour of")
 @Description("The <a href='../classes.html#color'>colour</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
 @Examples({"on click on wool:",
@@ -86,35 +84,38 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			return colors.toArray(new Color[0]);
 		}
 		return get(source, o -> {
-				Colorable colorable = getColorable(o);
-				
-				if (colorable == null)
-					return null;
-				return SkriptColor.fromDyeColor(colorable.getColor());
+			Colorable colorable = getColorable(o);
+
+			if (colorable == null)
+				return null;
+			DyeColor dyeColor = colorable.getColor();
+			if (dyeColor == null)
+				return null;
+			return SkriptColor.fromDyeColor(dyeColor);
 		});
 	}
+
 	@Override
 	public Class<? extends Color> getReturnType() {
 		return Color.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "colour of " + getExpr().toString(e, debug);
 	}
-	
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		Class<?> returnType = getExpr().getReturnType();
-		
+
 		if (FireworkEffect.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color[].class);
-		
+
 		if (mode != ChangeMode.SET && !getExpr().isSingle())
 			return null;
-		
+
 		if (Entity.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color.class);
 		else if (Block.class.isAssignableFrom(returnType))
@@ -123,36 +124,44 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			return CollectionUtils.array(Color.class);
 		return null;
 	}
-	
+
 	@SuppressWarnings("deprecated")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		DyeColor color = ((Color) delta[0]).asDyeColor();
-		
+
 		for (Object o : getExpr().getArray(e)) {
 			if (o instanceof Item || o instanceof ItemType) {
 				ItemStack stack = o instanceof Item ? ((Item) o).getItemStack() : ((ItemType) o).getRandom();
-				
+
 				if (stack == null)
 					continue;
-				
+
 				MaterialData data = stack.getData();
-				
+
 				if (!(data instanceof Colorable))
 					continue;
-				
+
 				((Colorable) data).setColor(color);
 				stack.setData(data);
-				
+
 				if (o instanceof Item)
 					((Item) o).setItemStack(stack);
 			} else if (o instanceof Block || o instanceof Colorable) {
 				Colorable colorable = getColorable(o);
-				
-				if (colorable != null)
-					colorable.setColor(color);
+
+				if (colorable != null) {
+					try {
+						colorable.setColor(color);
+					} catch (UnsupportedOperationException ex) {
+						// https://github.com/SkriptLang/Skript/issues/2931
+						Skript.error("Tried setting the colour of a bed, but this isn't possible in your Minecraft version, " +
+							"since different coloured beds are different materials. " +
+							"Instead, set the block to right material, such as a blue bed."); // Let's just assume it's a bed
+					}
+				}
 			} else if (o instanceof FireworkEffect) {
 				Color[] input = (Color[]) delta;
 				FireworkEffect effect = ((FireworkEffect) o);
@@ -181,23 +190,23 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("deprecated")
 	@Nullable
 	private Colorable getColorable(Object colorable) {
 		if (colorable instanceof Item || colorable instanceof ItemType) {
 			ItemStack item = colorable instanceof Item ?
 					((Item) colorable).getItemStack() : ((ItemType) colorable).getRandom();
-			
+
 			if (item == null)
 				return null;
 			MaterialData data = item.getData();
-			
+
 			if (data instanceof Colorable)
 				return (Colorable) data;
 		} else if (colorable instanceof Block) {
 			BlockState state = ((Block) colorable).getState();
-			
+
 			if (state instanceof Colorable)
 				return (Colorable) state;
 		} else if (colorable instanceof Colorable) {
@@ -205,4 +214,5 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		}
 		return null;
 	}
+
 }

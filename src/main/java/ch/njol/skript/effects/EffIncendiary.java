@@ -18,7 +18,12 @@
  */
 package ch.njol.skript.effects;
 
-import ch.njol.skript.ScriptLoader;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Explosive;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -29,12 +34,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Explosive;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Make Incendiary")
 @Description("Sets if an entity's explosion will leave behind fire. This effect is also usable in an explosion prime event.")
@@ -62,7 +61,7 @@ public class EffIncendiary extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = matchedPattern == 2;
-		if (isEvent && !ScriptLoader.isCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (isEvent && !getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("Making 'the explosion' fiery is only usable in an explosion prime event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

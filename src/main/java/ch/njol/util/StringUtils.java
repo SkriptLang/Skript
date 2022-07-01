@@ -41,13 +41,14 @@ public abstract class StringUtils {
 	 * @param i the number
 	 * @return 1st, 2nd, 3rd, 4th, etc.
 	 */
-	public static String fancyOrderNumber(final int i) {
-		final int imod10 = i % 10;
-		if (imod10 == 1)
+	public static String fancyOrderNumber(int i) {
+		int iModTen = i % 10;
+		int iModHundred = i % 100;
+		if (iModTen == 1 && iModHundred != 11)
 			return i + "st";
-		if (imod10 == 2)
+		if (iModTen == 2 && iModHundred != 12)
 			return i + "nd";
-		if (imod10 == 3)
+		if (iModTen == 3 && iModHundred != 13)
 			return i + "rd";
 		return i + "th";
 	}
@@ -402,7 +403,7 @@ public abstract class StringUtils {
 	public static String replace(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {
 		if (caseSensitive)
 			return "" + haystack.replace(needle, replacement);
-		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), replacement);
+		return "" + haystack.replaceAll("(?ui)" + Pattern.quote(needle), Matcher.quoteReplacement(replacement));
 	}
 	
 	public static String replaceFirst(final String haystack, final String needle, final String replacement, final boolean caseSensitive) {

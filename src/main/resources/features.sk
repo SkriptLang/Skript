@@ -10,7 +10,7 @@ DEBUG: false
 #Take note that you can only disable Expressions, Effects, Conditions or Events. You can't disable Classinfos and similar.
 
 
-#If you need more info. Ask me (Mirreducki not Njol) about anything on this, or make an issue report at https://github.com/bensku/Skript/issues
+#If you need more info. Ask me (Mirreducki not Njol) about anything on this, or make an issue report at https://github.com/SkriptLang/Skript/issues
 
 features:
 	#Examples

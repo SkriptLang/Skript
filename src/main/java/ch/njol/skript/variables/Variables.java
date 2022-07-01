@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
@@ -35,6 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -214,6 +216,8 @@ public abstract class Variables {
 				return false;
 			}
 		} finally {
+			SkriptLogger.setNode(null);
+
 			// make sure to put the loaded variables into the variables map
 			final int n = onStoragesLoaded();
 			if (n != 0) {
@@ -241,10 +245,7 @@ public abstract class Variables {
 	 */
 	final static VariablesMap variables = new VariablesMap();
 
-	/**
-	 * Not to be accessed outside of Bukkit's main thread!
-	 */
-	private final static Map<Event, VariablesMap> localVariables = new HashMap<>();
+	private final static Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
 	
 	/**
 	 * Remember to lock with {@link #getReadLock()} and to not make any changes!
@@ -266,12 +267,33 @@ public abstract class Variables {
 	
 	/**
 	 * Sets local variables associated with given event.
+	 * If the given map is null, local variables for this event will be <b>removed</b> if they are present!
 	 * Warning: this can overwrite local variables!
 	 * @param event Event.
 	 * @param map New local variables.
 	 */
-	public static void setLocalVariables(Event event, Object map) {
-		localVariables.put(event, (VariablesMap) map);
+	public static void setLocalVariables(Event event, @Nullable Object map) {
+		if (map != null) {
+			localVariables.put(event, (VariablesMap) map);
+		} else {
+			removeLocals(event);
+		}
+	}
+
+	/**
+	 * Creates a copy of the VariablesMap for local variables in an event.
+	 * @param event The event to copy local variables from.
+	 * @return A VariablesMap copy for the local variables in an event.
+	 */
+	@Nullable
+	public static Object copyLocalVariables(Event event) {
+		VariablesMap from = localVariables.get(event);
+		if (from == null)
+			return null;
+		VariablesMap copy = new VariablesMap();
+		copy.hashMap.putAll(from.hashMap);
+		copy.treeMap.putAll(from.treeMap);
+		return copy;
 	}
 	
 	/**
@@ -348,9 +370,7 @@ public abstract class Variables {
 		}
 		if (local) {
 			assert e != null : n;
-			VariablesMap map = localVariables.get(e);
-			if (map == null)
-				localVariables.put(e, map = new VariablesMap());
+			VariablesMap map = localVariables.computeIfAbsent(e, event -> new VariablesMap());
 			map.setVariable(n, value);
 		} else {
 			setVariable(n, value);
@@ -523,8 +543,7 @@ public abstract class Variables {
 		return new SerializedVariable(name, var);
 	}
 	
-	@Nullable
-	public static SerializedVariable.Value serialize(final @Nullable Object value) {
+	public static SerializedVariable.@Nullable Value serialize(final @Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
 		return Classes.serialize(value);
 	}

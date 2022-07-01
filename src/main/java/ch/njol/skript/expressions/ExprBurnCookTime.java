@@ -27,7 +27,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -73,7 +72,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		cookTime = parseResult.mark == 1;
 		isEvent = matchedPattern == 0;
-		if (isEvent && !ScriptLoader.isCurrentEvent(FurnaceBurnEvent.class)) {
+		if (isEvent && !getParser().isCurrentEvent(FurnaceBurnEvent.class)) {
 			Skript.error("Cannot use 'burning time' outside a fuel burn event.");
 			return false;
 		}

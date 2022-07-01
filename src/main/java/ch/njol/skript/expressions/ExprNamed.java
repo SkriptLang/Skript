@@ -45,9 +45,9 @@ import ch.njol.util.Kleenean;
 @Name("Named Item/Inventory")
 @Description("Directly names an item/inventory, useful for defining a named item/inventory in a script. " +
 		"If you want to (re)name existing items/inventories you can either use this expression or use <code>set <a href='#ExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
-@Examples({"give a diamond sword of sharpness 100 named \"<gold>Excalibur\" to the player",
-		"set tool of player to the player's tool named \"<gold>Wand\"",
-		"set the name of the player's tool to \"<gold>Wand\"",
+@Examples({"give a diamond sword of sharpness 100 named \"&lt;gold&gt;Excalibur\" to the player",
+		"set tool of player to the player's tool named \"&lt;gold&gt;Wand\"",
+		"set the name of the player's tool to \"&lt;gold&gt;Wand\"",
 		"open hopper inventory named \"Magic Hopper\" to player"})
 @Since("2.0, 2.2-dev34 (inventories)")
 public class ExprNamed extends PropertyExpression<Object, Object> {
