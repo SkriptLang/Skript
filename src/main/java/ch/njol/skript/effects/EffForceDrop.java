@@ -67,7 +67,7 @@ public class EffForceDrop extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		String all = dropAll ? "all of the items" : "one of the item";
+		String all = dropAll ? "all of the items" : "one of the items";
 		return String.format("force %s to drop %s in hand", players.toString(e, debug), all);
 	}
 
