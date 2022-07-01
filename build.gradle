@@ -27,7 +27,7 @@ allprojects {
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17.1-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
