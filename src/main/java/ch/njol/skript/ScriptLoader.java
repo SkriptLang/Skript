@@ -763,7 +763,7 @@ public class ScriptLoader {
 				}
 				
 				if (Skript.logHigh())
-					Skript.info("loaded " + scriptInfo.triggers + " trigger" + (scriptInfo.triggers == 1 ? "" : "s")+ " and " + scriptInfo.commands + " command" + (scriptInfo.commands == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
+					Skript.info("loaded " + scriptInfo.triggers + " trigger" + (scriptInfo.triggers == 1 ? "" : "s") + " and " + scriptInfo.commands + " command" + (scriptInfo.commands == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
 				
 				getParser().setCurrentScript(null);
 				Aliases.setScriptAliases(null); // These are per-script
