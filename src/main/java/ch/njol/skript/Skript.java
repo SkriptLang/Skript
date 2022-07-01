@@ -90,6 +90,8 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -656,128 +658,57 @@ public final class Skript extends JavaPlugin implements Listener {
 				final long vld = System.currentTimeMillis() - vls;
 				if (logNormal())
 					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
-				
-				Metrics metrics = new Metrics(Skript.this);
-				
-				metrics.addCustomChart(new Metrics.SimplePie("pluginLanguage") {
-					
-					@Override
-					public String getValue() {
-						return Language.getName();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("effectCommands") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.enableEffectCommands.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("uuidsWithPlayers") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.usePlayerUUIDsInVariableNames.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("playerVariableFix") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.enablePlayerVariableFix.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("logVerbosity") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.verbosity.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("pluginPriority") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("logPlayerCommands") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.logPlayerCommands.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("maxTargetDistance") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.maxTargetBlockDistance.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("softApiExceptions") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.apiSoftExceptions.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("timingsStatus") {
-					
-					@Override
-					public String getValue() {
-						if (!Skript.classExists("co.aikar.timings.Timings"))
-							return "unsupported";
-						else
-							return "" + SkriptConfig.enableTimings.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("parseLinks") {
-					
-					@Override
-					public String getValue() {
-						return "" + ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH);
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("colorResetCodes") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.colorResetCodes.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("functionsWithNulls") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.executeFunctionsWithMissingParams.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("buildFlavor") {
-					
-					@Override
-					public String getValue() {
-						if (updater != null) {
-							return updater.getCurrentRelease().flavor;
-						}
-						return "unknown";
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("updateCheckerEnabled") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.checkForNewVersion.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("releaseChannel") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.releaseChannel.value();
-					}
-				});
-				
+
+				// Enable metrics and register custom charts
+				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID
+				metrics.addCustomChart(new SimplePie("pluginLanguage", Language::getName));
+				metrics.addCustomChart(new SimplePie("effectCommands", () ->
+					SkriptConfig.enableEffectCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("uuidsWithPlayers", () ->
+					SkriptConfig.usePlayerUUIDsInVariableNames.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("playerVariableFix", () ->
+					SkriptConfig.enablePlayerVariableFix.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("logVerbosity", () ->
+					SkriptConfig.verbosity.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
+				));
+				metrics.addCustomChart(new SimplePie("pluginPriority", () ->
+					SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
+				));
+				metrics.addCustomChart(new SimplePie("logPlayerCommands", () ->
+					SkriptConfig.logPlayerCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("maxTargetDistance", () ->
+					SkriptConfig.maxTargetBlockDistance.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("softApiExceptions", () ->
+					SkriptConfig.apiSoftExceptions.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("timingsStatus", () -> {
+					if (!Skript.classExists("co.aikar.timings.Timings"))
+						return "unsupported";
+					return SkriptConfig.enableTimings.value().toString();
+				}));
+				metrics.addCustomChart(new SimplePie("parseLinks", () ->
+					ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH)
+				));
+				metrics.addCustomChart(new SimplePie("colorResetCodes", () ->
+					SkriptConfig.colorResetCodes.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("functionsWithNulls", () ->
+					SkriptConfig.executeFunctionsWithMissingParams.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("buildFlavor", () -> {
+					if (updater != null)
+						return updater.getCurrentRelease().flavor;
+					return "unknown";
+				}));
+				metrics.addCustomChart(new SimplePie("updateCheckerEnabled", () ->
+					SkriptConfig.checkForNewVersion.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("releaseChannel", SkriptConfig.releaseChannel::value));
 				Skript.metrics = metrics;
 				
 				/*

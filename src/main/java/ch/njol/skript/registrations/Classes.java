@@ -281,8 +281,8 @@ public abstract class Classes {
 	 * <p>
 	 * This method can be called even while Skript is loading.
 	 * 
-	 * @param c The exact class to get the class info for
-	 * @return The class info for the given class of null if no info was found.
+	 * @param c The exact class to get the class info for.
+	 * @return The class info for the given class or null if no info was found.
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable

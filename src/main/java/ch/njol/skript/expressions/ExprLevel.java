@@ -121,6 +121,8 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 					assert false;
 					continue;
 			}
+			if (level < 0)
+				continue;
 			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
 				((PlayerDeathEvent) e).setNewLevel(level);
 			} else {
