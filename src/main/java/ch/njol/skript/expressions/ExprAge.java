@@ -56,9 +56,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
-	private static String FROM_TYPE = "";
 
 	static {
+		String FROM_TYPE = "";
+		
 		if (Skript.classExists("org.bukkit.entity.Ageable"))
 			FROM_TYPE += "entities";
 		if (Skript.classExists("org.bukkit.block.data.Ageable"))
