@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -269,7 +270,7 @@ public abstract class Aliases {
 				t.setAmount(1);
 		}
 		
-		String lc = s.toLowerCase();
+		String lc = s.toLowerCase(Locale.ENGLISH);
 		String of = Language.getSpaced("enchantments.of").toLowerCase();
 		int c = -1;
 		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
@@ -335,7 +336,7 @@ public abstract class Aliases {
 	@Nullable
 	private static ItemType getAlias(final String s) {
 		ItemType i;
-		String lc = "" + s.toLowerCase();
+		String lc = "" + s.toLowerCase(Locale.ENGLISH);
 		final Matcher m = p_any.matcher(lc);
 		if (m.matches()) {
 			lc = "" + m.group(m.groupCount());
