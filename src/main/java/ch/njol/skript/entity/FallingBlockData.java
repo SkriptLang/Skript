@@ -118,7 +118,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		assert t != null;
 		Material material = t.getMaterial();
 
-		if (material == Material.AIR || !material.isBlock()) {
+		if (!material.isBlock()) {
 			assert false : t;
 			return null;
 		}
