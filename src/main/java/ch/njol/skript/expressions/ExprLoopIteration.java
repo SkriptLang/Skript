@@ -69,9 +69,7 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 		int i = 1;
 		LoopSection loop = null;
 
-		for (TriggerSection l : getParser().getCurrentSections()) {
-			if (!(l instanceof LoopSection))
-				continue;
+		for (LoopSection l : getParser().getCurrentSections(LoopSection.class)) {
 
 			if (i < loopNumber) {
 				i++;
@@ -82,7 +80,7 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 				Skript.error("There are multiple loops. Use loop-iteration-1/2/3/etc. to specify which loop-iteration you want.");
 				return false;
 			}
-			loop = (LoopSection) l;
+			loop = l;
 
 			if (i == loopNumber)
 				break;
