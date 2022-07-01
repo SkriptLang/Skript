@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 
 @Name("Continue")
-@Description("Skips the value currently being looped, moving on to the next value if it exists.")
+@Description("Skips the value currently being looped, moving on to the next value/iteration if it exists/true.")
 @Examples({
 	"# Broadcast online moderators",
 	"loop all players:",
