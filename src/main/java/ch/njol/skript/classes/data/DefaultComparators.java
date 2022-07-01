@@ -487,10 +487,8 @@ public class DefaultComparators {
 						return Relation.get(t.equals(lava));
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
-				}
-				if (Skript.fieldExists(DamageCause.class, "HOT_FLOOR")
-						&& dc.equals(DamageCause.HOT_FLOOR)) {
-					return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
+					case HOT_FLOOR:
+						return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
 				}
 
 				return Relation.NOT_EQUAL;
