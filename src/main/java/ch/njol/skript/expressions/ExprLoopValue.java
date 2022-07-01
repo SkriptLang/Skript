@@ -82,7 +82,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
 	boolean isIndex = false;
 
-	private final Pattern LOOP_PATTERN = Pattern.compile("^(.+)-(\\d+)$");
+	private static final Pattern LOOP_PATTERN = Pattern.compile("^(.+)-(\\d+)$");
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
