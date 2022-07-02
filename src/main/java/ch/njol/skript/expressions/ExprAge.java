@@ -56,7 +56,6 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
-
 	static {
 		String fromType = "";
 		
