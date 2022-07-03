@@ -97,7 +97,6 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 		if (isMax || mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.DELETE)
 			return null;
 		return CollectionUtils.array(Number.class);
-
 	}
 	
 	@Override
