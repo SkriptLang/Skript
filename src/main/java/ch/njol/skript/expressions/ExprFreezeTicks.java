@@ -59,33 +59,34 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
-		for (Entity entity : getExpr().getArray(e)) {
-			int newTime = 0;
-			switch (mode) {
-				case ADD:
+		int time = (delta == null || delta[0] == null) ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int newTime;
+		switch (mode) {
+			case ADD:
+				for (Entity entity : getExpr().getArray(e)) {
 					newTime = entity.getFreezeTicks() + time;
-					break;
-				case REMOVE:
+					setFreezeTicks(entity, newTime);
+				}
+				break;
+			case REMOVE:
+				for (Entity entity : getExpr().getArray(e)) {
 					newTime = entity.getFreezeTicks() - time;
-					break;
-				case SET:
-					newTime = time;
-					break;
-				case DELETE:
-				case RESET:
-					newTime = 0; // Redundant, but for the sake of clarity
-					break;
-				default:
-					assert false;
-			}
-			//Limit time to between 0 and max
-			if (newTime < 0)
-				newTime = 0;
-			if (entity.getMaxFreezeTicks() < newTime)
-				newTime = entity.getMaxFreezeTicks();
-			// Set new time
-			entity.setFreezeTicks(newTime);
+					setFreezeTicks(entity, newTime);
+				}
+				break;
+			case SET:
+				for (Entity entity : getExpr().getArray(e)) {
+					setFreezeTicks(entity, time);
+				}
+				break;
+			case DELETE:
+			case RESET:
+				for (Entity entity : getExpr().getArray(e)) {
+					setFreezeTicks(entity, 0);
+				}
+				break;
+			default:
+				assert false;
 		}
 	}
 
@@ -99,4 +100,13 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 		return "freeze time";
 	}
 
+	private void setFreezeTicks(Entity entity, int ticks){
+		//Limit time to between 0 and max
+		if (ticks < 0)
+			ticks = 0;
+		if (entity.getMaxFreezeTicks() < ticks)
+			ticks = entity.getMaxFreezeTicks();
+		// Set new time
+		entity.setFreezeTicks(ticks);
+	}
 }
