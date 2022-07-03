@@ -86,7 +86,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 			Ageable ageable = (Ageable) bd;
 			return isMax ? ageable.getMaximumAge() : ageable.getAge();
 		} else if (obj instanceof org.bukkit.entity.Ageable) {
-			return  ((org.bukkit.entity.Ageable) obj).getAge();
+			return ((org.bukkit.entity.Ageable) obj).getAge();
 		}
 		return null;
 	}
