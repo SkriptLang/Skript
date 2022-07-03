@@ -1528,7 +1528,7 @@ visual effects:
 			pattern: campfire signal smoke
 		composter:
 			name: composter @-
-			pattern: composter
+			pattern: composter particle
 		flash:
 			name: flash @-
 			pattern: flash
