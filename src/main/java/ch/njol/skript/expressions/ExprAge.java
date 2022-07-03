@@ -151,7 +151,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 	
 	@Override
 	protected String getPropertyName() {
-		return (isMax ? "max " : "") + "age";
+		return (isMax ? "maximum " : "") + "age";
 	}
 
 	private void setAge(Object obj, int value) {
