@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Age of Block/Entity")
 @Description({
-	"Returns the age or max age of blocks and age for entities (there in no max age for entities).",
+	"Returns the age or maximum age of blocks and age for entities (there in no maximum age for entities).",
 	"For blocks, 'Age' represents the different growth stages that a crop-like block can go through. " +
 	"A value of 0 indicates that the crop was freshly planted, whilst a value equal to 'maximum age' indicates that the crop is ripe and ready to be harvested.",
 	"For entities, 'Age' represents the time left for them to become adults and it's in minus increasing to be 0 which means they're adults, " +
@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({
 	"# Set targeted crop to fully grown crop",
-	"set age of targeted block to max age of targeted block",
+	"set age of targeted block to maximum age of targeted block",
 	" ",
 	"# Spawn a baby cow that will only need 1 minute to become an adult",
 	"spawn a baby cow at player",
@@ -152,7 +152,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 	
 	@Override
 	protected String getPropertyName() {
-		return (isMax ? "max " : "") + "age";
+		return (isMax ? "maximum " : "") + "age";
 	}
 
 	private void setAge(Object obj, int value) {
