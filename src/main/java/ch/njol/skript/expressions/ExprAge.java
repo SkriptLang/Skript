@@ -57,15 +57,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		String fromType = "";
-		
-		if (Skript.classExists("org.bukkit.entity.Ageable"))
-			fromType += "entities";
-		if (Skript.classExists("org.bukkit.block.data.Ageable"))
-			fromType += "/blocks"; // org.bukkit.entity.Ageable exists before org.bukkit.block.data.Ageable
-
-		if (!fromType.isEmpty())
-			register(ExprAge.class, Integer.class, "[:max[imum]] age", fromType);
+		register(ExprAge.class, Integer.class, "[:max[imum]] age", "blocks/entities");
 	}
 
 	private boolean isMax = false;
@@ -90,7 +82,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -98,57 +90,45 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 			return null;
 		return CollectionUtils.array(Number.class);
 	}
-	
+
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || delta[0] == null))
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
 			return;
 
-		int newValue;
-		switch (mode) {
-			case ADD:
-				newValue = ((Number) delta[0]).intValue();
-				for (Object obj : getExpr().getArray(event)) {
-					Number oldValue = convert(obj);
-					if (oldValue == null)
-						continue;
-					setAge(obj, oldValue.intValue() + newValue);
-				}
-				break;
-			case REMOVE:
-				newValue = ((Number) delta[0]).intValue();
-				for (Object obj : getExpr().getArray(event)) {
-					Number oldValue = convert(obj);
-					if (oldValue == null)
-						continue;
+		for (Object obj : getExpr().getArray(event)) {
+			Number oldValue = convert(obj);
+			if (oldValue == null && mode != ChangeMode.RESET)
+				continue;
+
+			int newValue = mode != ChangeMode.RESET ? ((Number) delta[0]).intValue() : 0;
+			switch (mode) {
+				case REMOVE:
 					setAge(obj, oldValue.intValue() - newValue);
-				}
-				break;
-			case SET:
-				newValue = ((Number) delta[0]).intValue();
-				for (Object obj : getExpr().getArray(event)) {
+					break;
+				case ADD:
+					setAge(obj, oldValue.intValue() + newValue);
+					break;
+				case SET:
 					setAge(obj, newValue);
-				}
-				break;
-			case RESET:
-				for (Object obj : getExpr().getArray(event)) {
-					int value = 0;
+					break;
+				case RESET:
 					// baby animals takes 20 minutes to grow up - ref: https://minecraft.fandom.com/wiki/Breeding
 					if (obj instanceof org.bukkit.entity.Ageable)
 						// it might change later on so removing entity age reset would be better unless
 						// bukkit adds a method returning the default age
-						value = -24000;
-					setAge(obj, value);
-				}
-				break;
+						newValue = -24000;
+					setAge(obj, newValue);
+					break;
+			}
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Integer> getReturnType() {
 		return Integer.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return (isMax ? "maximum " : "") + "age";
