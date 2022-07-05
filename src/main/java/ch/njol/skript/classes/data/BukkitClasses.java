@@ -733,19 +733,19 @@ public class BukkitClasses {
 					@Override
 					@Nullable
 					public Player parse(String s, ParseContext context) {
-						if (!s.isEmpty()) {
-							if (context == ParseContext.COMMAND) {
-								if (UUID_PATTERN.matcher(s).matches())
-									return Bukkit.getPlayer(UUID.fromString(s));
-								List<Player> ps = Bukkit.matchPlayer(s);
-								if (ps.size() == 1)
-									return ps.get(0);
-								if (ps.size() == 0)
-									Skript.error(String.format(Language.get("commands.no player starts with"), s));
-								else
-									Skript.error(String.format(Language.get("commands.multiple players start with"), s));
+						if (context != ParseContext.COMMAND) {
+							if (s.isEmpty())
 								return null;
-							}
+							if (UUID_PATTERN.matcher(s).matches())
+								return Bukkit.getPlayer(UUID.fromString(s));
+							List<Player> ps = Bukkit.matchPlayer(s);
+							if (ps.size() == 1)
+								return ps.get(0);
+							if (ps.size() == 0)
+								Skript.error(String.format(Language.get("commands.no player starts with"), s));
+							else
+								Skript.error(String.format(Language.get("commands.multiple players start with"), s));
+							return null;
 						}
 						assert false;
 						return null;
