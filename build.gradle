@@ -20,14 +20,15 @@ allprojects {
 		mavenCentral()
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		maven { url 'https://papermc.io/repo/repository/maven-public/' }
+		maven { url 'https://repo.papermc.io/repository/maven-public/' }
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
 	}
 }
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.17.1-R0.1-SNAPSHOT'
+	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
@@ -77,8 +78,11 @@ tasks.withType(ShadowJar) {
 	]
 	dependencies {
 		include(dependency('io.papermc:paperlib'))
+		include(dependency('org.bstats:bstats-bukkit'))
+		include(dependency('org.bstats:bstats-base'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
+	relocate 'org.bstats', 'ch.njol.skript.bstats'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -142,7 +146,7 @@ tasks.create('testNaming') {
 		// Regression tests
 		for (def file : project.file('src/test/skript/tests/regressions').listFiles()) {
 			def name = file.getName()
-			if (name.toLowerCase() != name) {
+			if (name.toLowerCase(Locale.ENGLISH) != name) {
 				throw new InvalidUserDataException('invalid test name: ' + name)
 			}
 		}
@@ -189,7 +193,7 @@ void createTestTask(String name, String environments, boolean devMode) {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.16.5.json', false)
+createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.18.2.json', false)
 createTestTask('skriptTest', 'src/test/skript/environments/main', false)
 createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null
