@@ -23,8 +23,10 @@ import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -62,7 +64,7 @@ public enum SkriptColor implements Color {
 	
 	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE),
 	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE);
-	
+
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
 	private final static String LANGUAGE_NODE = "colors";
@@ -75,7 +77,7 @@ public enum SkriptColor implements Color {
 				String node = LANGUAGE_NODE + "." + color.name();
 				color.setAdjective(new Adjective(node + ".adjective"));
 				for (String name : Language.getList(node + ".names"))
-					names.put(name.toLowerCase(), color);
+					names.put(name.toLowerCase(Locale.ENGLISH), color);
 			}
 		});
 	}
@@ -219,7 +221,18 @@ public enum SkriptColor implements Color {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Replace chat color character '§' with '&'
+	 * This is an alternative method to {@link ChatColor#stripColor(String)}
+	 * But does not strip the color code.
+	 * @param s string to replace chat color character of.
+	 * @return String with replaced chat color character
+	 */
+	public static String replaceColorChar(String s) {
+		return s.replace('\u00A7', '&');
+	}
+
 	@Override
 	public String toString() {
 		return adjective == null ? "" + name() : adjective.toString(-1, 0);
