@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -241,7 +242,7 @@ public abstract class Commands {
 	 */
 	static boolean handleCommand(final CommandSender sender, final String command) {
 		final String[] cmd = command.split("\\s+", 2);
-		cmd[0] = cmd[0].toLowerCase();
+		cmd[0] = cmd[0].toLowerCase(Locale.ENGLISH);
 		if (cmd[0].endsWith("?")) {
 			final ScriptCommand c = commands.get(cmd[0].substring(0, cmd[0].length() - 1));
 			if (c != null) {
@@ -346,7 +347,7 @@ public abstract class Commands {
 		final boolean a = m.matches();
 		assert a;
 
-		final String command = "" + m.group(1).toLowerCase();
+		final String command = "" + m.group(1).toLowerCase(Locale.ENGLISH);
 		final ScriptCommand existingCommand = commands.get(command);
 		if (alsoRegister && existingCommand != null && existingCommand.getLabel().equals(command)) {
 			final File f = existingCommand.getScript();
@@ -530,7 +531,7 @@ public abstract class Commands {
 		}
 		commands.put(command.getLabel(), command);
 		for (final String alias : command.getActiveAliases()) {
-			commands.put(alias.toLowerCase(), command);
+			commands.put(alias.toLowerCase(Locale.ENGLISH), command);
 		}
 		command.registerHelp();
 	}
