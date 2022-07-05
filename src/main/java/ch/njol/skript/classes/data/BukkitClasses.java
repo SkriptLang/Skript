@@ -733,7 +733,7 @@ public class BukkitClasses {
 					@Override
 					@Nullable
 					public Player parse(String s, ParseContext context) {
-						if (context != ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND) {
 							if (s.isEmpty())
 								return null;
 							if (UUID_PATTERN.matcher(s).matches())
