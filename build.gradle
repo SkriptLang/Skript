@@ -26,6 +26,7 @@ allprojects {
 }
 
 dependencies {
+	implementation 'org.jetbrains:annotations:20.1.0'
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
