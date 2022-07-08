@@ -19,50 +19,54 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.LiteralUtils;
-import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprRawString extends SimpleExpression<String> {
+import static ch.njol.skript.lang.SkriptParser.ParseResult;
+
+@Name("Raw String")
+@Description("Returns the string without any formatting it nor stripping the formats from it, " +
+	"e.g. `raw \"&aHello There!\"` would output `&aHello There!`")
+@Examples("send raw \"&aThis text is unformatted!\" to all players")
+public class ExprRawString extends PropertyExpression<String, String> {
 
 	static {
 		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.SIMPLE, "raw %strings%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> expr;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<? extends String>[] messages;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		expr = LiteralUtils.defendExpression(exprs[0]);
-		messages = expr instanceof ExpressionList<?> ?
-			((ExpressionList<String>) expr).getExpressions() : new Expression[]{expr};
+		setExpr(LiteralUtils.defendExpression(exprs[0]));
+		messages = getExpr() instanceof ExpressionList<?> ?
+			((ExpressionList<String>) getExpr()).getExpressions() : new Expression[]{getExpr()};
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof ExprColoured) {
 				Skript.error("the 'colored' expression may not be used with a 'raw string' expression");
 				return false;
 			}
 		}
-		return LiteralUtils.canInitSafely(expr);
+		return LiteralUtils.canInitSafely(getExpr());
 	}
 
 	@Override
-	@Nullable
-	protected String[] get(Event e) {
+	protected String[] get(Event e, String[] source) {
 		List<String> strings = new ArrayList<>();
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof VariableString) {
@@ -75,17 +79,12 @@ public class ExprRawString extends SimpleExpression<String> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
-	}
-
-	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "raw " + expr.toString(e, debug);
+		return "raw " + getExpr().toString(e, debug);
 	}
 }
