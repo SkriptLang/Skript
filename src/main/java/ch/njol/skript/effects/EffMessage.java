@@ -135,11 +135,6 @@ public class EffMessage extends Effect {
 						for (Object object : messageArray) {
 							sendMessage((Player) receiver, sender, BungeeConverter.convert(ChatMessages.parse((String) object)));
 						}
-					} else if (message instanceof ExprRawString) {
-						for (Object messageObject : message.getArray(e)) {
-							String realMessage = (String) messageObject;
-							sendMessage((Player) receiver, sender, new TextComponent(realMessage));
-						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
 						for (Object object : messageArray) {
 							List<MessageComponent> components = ChatMessages.fromParsedString(toString(object));

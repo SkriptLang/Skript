@@ -97,11 +97,6 @@ public class EffBroadcast extends Effect {
 					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 				}
-			} else if (message instanceof ExprRawString) {
-				for (Object messageObject : message.getArray(e)) {
-					String realMessage = (String) messageObject;
-					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
-				}
 			} else {
 				for (Object messageObject : message.getArray(e)) {
 					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
