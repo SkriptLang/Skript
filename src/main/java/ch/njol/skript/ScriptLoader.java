@@ -1375,20 +1375,20 @@ public class ScriptLoader {
 	}
 	
 	/**
-	 * @see ParserInstance#isCurrentEvent(Class)
+	 * @see ParserInstance#isAnyCurrentEvent(Class)
 	 */
 	@Deprecated
 	public static boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
-		return getParser().isCurrentEvent(event);
+		return getParser().isAnyCurrentEvent(event);
 	}
 	
 	/**
-	 * @see ParserInstance#isCurrentEvent(Class[])
+	 * @see ParserInstance#isAnyCurrentEvent(Class[])
 	 */
 	@SafeVarargs
 	@Deprecated
 	public static boolean isCurrentEvent(Class<? extends Event>... events) {
-		return getParser().isCurrentEvent(events);
+		return getParser().isAnyCurrentEvent(events);
 	}
 	
 	/**

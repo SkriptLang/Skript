@@ -74,7 +74,7 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(PrepareItemEnchantEvent.class)) {
 			Skript.error("Enchantment offers are only usable in enchant prepare events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

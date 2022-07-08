@@ -56,7 +56,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class) && !getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(EnchantItemEvent.class) && !getParser().isAnyCurrentEvent(PrepareItemEnchantEvent.class)) {
 			Skript.error("The enchant item is only usable in an enchant prepare event or enchant event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

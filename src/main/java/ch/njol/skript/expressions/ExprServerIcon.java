@@ -64,7 +64,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 			Skript.error("The server icon expression requires Paper 1.12.2 or newer");
 			return false;
 		}
-		isServerPingEvent = getParser().isCurrentEvent(PaperServerListPingEvent.class);
+		isServerPingEvent = getParser().isAnyCurrentEvent(PaperServerListPingEvent.class);
 		isDefault = (parseResult.mark == 0 && !isServerPingEvent) || parseResult.mark == 1;
 		if (!isServerPingEvent && !isDefault) {
 			Skript.error("The 'shown' server icon expression can't be used outside of a server list ping event");

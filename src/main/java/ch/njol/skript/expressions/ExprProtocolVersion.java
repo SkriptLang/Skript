@@ -69,7 +69,7 @@ public class ExprProtocolVersion extends SimpleExpression<Long> {
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The protocol version expression requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
+		} else if (!getParser().isAnyCurrentEvent(PaperServerListPingEvent.class)) {
 			Skript.error("The protocol version expression can't be used outside of a server list ping event");
 			return false;
 		}

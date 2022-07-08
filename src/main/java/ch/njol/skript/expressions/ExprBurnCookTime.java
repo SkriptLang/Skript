@@ -41,7 +41,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
@@ -72,7 +71,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		cookTime = parseResult.mark == 1;
 		isEvent = matchedPattern == 0;
-		if (isEvent && !getParser().isCurrentEvent(FurnaceBurnEvent.class)) {
+		if (isEvent && !getParser().isAnyCurrentEvent(FurnaceBurnEvent.class)) {
 			Skript.error("Cannot use 'burning time' outside a fuel burn event.");
 			return false;
 		}

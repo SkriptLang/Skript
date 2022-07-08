@@ -56,10 +56,10 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isRemover = parseResult.hasTag("remover");
 
-		if (isRemover && !getParser().isCurrentEvent(HangingBreakEvent.class)) {
+		if (isRemover && !getParser().isAnyCurrentEvent(HangingBreakEvent.class)) {
 			Skript.error("The expression 'hanging remover' can only be used in break event");
 			return false;
-		} else if (!getParser().isCurrentEvent(HangingBreakEvent.class, HangingPlaceEvent.class)) {
+		} else if (!getParser().isAnyCurrentEvent(HangingBreakEvent.class, HangingPlaceEvent.class)) {
 			Skript.error("The expression 'hanging entity' can only be used in break and place events");
 			return false;
 		}

@@ -51,7 +51,7 @@ public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isCurrentEvent(AreaEffectCloudApplyEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(AreaEffectCloudApplyEvent.class)) {
 			Skript.error("The 'affected entities' expression may only be used in an area cloud effect event.");
 			return false;
 		}

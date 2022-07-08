@@ -54,7 +54,7 @@ public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(EnchantItemEvent.class)) {
 			Skript.error("The experience cost of enchanting is only usable in an enchant event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

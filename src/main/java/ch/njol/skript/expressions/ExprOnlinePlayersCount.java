@@ -61,9 +61,9 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class);
+		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class);
 		if (parseResult.mark == 2) {
-			if (getParser().isCurrentEvent(ServerListPingEvent.class)) {
+			if (getParser().isAnyCurrentEvent(ServerListPingEvent.class)) {
 				Skript.error("The 'fake' online players count expression requires Paper 1.12.2 or newer");
 				return false;
 			} else if (!isPaperEvent) {

@@ -67,8 +67,8 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class)
-			|| !SUPPORT_PROJECTILE_HIT && getParser().isCurrentEvent(ProjectileHitEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class)
+			|| !SUPPORT_PROJECTILE_HIT && getParser().isAnyCurrentEvent(ProjectileHitEvent.class)) {
 			Skript.error("The expression 'victim' can only be used in a damage" + (SUPPORT_PROJECTILE_HIT ? ", death, or projectile hit" : " or death") + " event");
 			return false;
 		}

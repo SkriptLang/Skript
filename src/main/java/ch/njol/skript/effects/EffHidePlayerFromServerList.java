@@ -60,8 +60,8 @@ public class EffHidePlayerFromServerList extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		boolean isServerPingEvent = getParser().isAnyCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class));
 		if (!isServerPingEvent) {
 			Skript.error("The hide player from server list effect can't be used outside of a server list ping event");
 			return false;

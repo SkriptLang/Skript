@@ -68,7 +68,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		pattern = matchedPattern;
-		if (!getParser().isCurrentEvent(ScriptCommandEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(ScriptCommandEvent.class)) {
 			Skript.error("The " + getExpressionName() + " expression can only be used within a command", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

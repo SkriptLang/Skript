@@ -56,8 +56,8 @@ public class ExprMOTD extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		boolean isServerPingEvent = getParser().isAnyCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class));
 		if (parseResult.mark == 2 && !isServerPingEvent) {
 			Skript.error("The 'shown' MOTD expression can't be used outside of a server list ping event");
 			return false;

@@ -59,7 +59,7 @@ public class ExprPortal extends SimpleExpression<Block> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (getParser().isCurrentEvent(PortalCreateEvent.class))
+		if (getParser().isAnyCurrentEvent(PortalCreateEvent.class))
 			return true;
 		Skript.error("The 'portal' expression may only be used in a portal creation event.");
 		return false;

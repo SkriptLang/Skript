@@ -56,7 +56,7 @@ public class ExprExplosionYield extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("The explosion radius is only usable in explosion prime events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

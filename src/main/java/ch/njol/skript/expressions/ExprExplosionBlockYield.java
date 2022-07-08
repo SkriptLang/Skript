@@ -56,7 +56,7 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityExplodeEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(EntityExplodeEvent.class)) {
 			Skript.error("The 'explosion block yield' is only usable in an explosion event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

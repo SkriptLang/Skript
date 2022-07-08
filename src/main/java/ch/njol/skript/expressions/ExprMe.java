@@ -47,7 +47,7 @@ public class ExprMe extends SimpleExpression<Player> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return getParser().isCurrentEvent(EffectCommandEvent.class);
+		return getParser().isAnyCurrentEvent(EffectCommandEvent.class);
 	}
 
 	@Override

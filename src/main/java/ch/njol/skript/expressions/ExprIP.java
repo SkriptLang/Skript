@@ -73,9 +73,9 @@ public class ExprIP extends SimpleExpression<String> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isProperty = matchedPattern < 2;
-		isConnectEvent = getParser().isCurrentEvent(PlayerLoginEvent.class);
-		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		isConnectEvent = getParser().isAnyCurrentEvent(PlayerLoginEvent.class);
+		boolean isServerPingEvent = getParser().isAnyCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class));
 		if (isProperty) {
 			players = (Expression<Player>) exprs[0];
 		} else if (!isConnectEvent && !isServerPingEvent) {

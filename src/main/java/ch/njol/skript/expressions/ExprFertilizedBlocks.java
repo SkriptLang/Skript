@@ -54,7 +54,7 @@ public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BlockFertilizeEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(BlockFertilizeEvent.class)) {
 			Skript.error("The 'fertilized blocks' are only usable in block fertilize events");
 			return false;
 		}

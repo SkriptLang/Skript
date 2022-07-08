@@ -57,8 +57,8 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		boolean isServerPingEvent = getParser().isAnyCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class));
 		if (parseResult.mark == 2 && !isServerPingEvent) {
 			Skript.error("The 'shown' max players count expression can't be used outside of a server list ping event");
 			return false;

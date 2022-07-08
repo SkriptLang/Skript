@@ -60,7 +60,7 @@ public class CondIncendiary extends Condition {
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = matchedPattern == 2;
-		if (isEvent && !getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (isEvent && !getParser().isAnyCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("Checking if 'the explosion' is fiery is only possible in an explosion prime event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

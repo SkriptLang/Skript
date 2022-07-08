@@ -55,7 +55,7 @@ public class CondResourcePack extends Condition {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerResourcePackStatusEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(PlayerResourcePackStatusEvent.class)) {
 			Skript.error("The resource pack condition can't be used outside of a resource pack response event");
 			return false;
 		}

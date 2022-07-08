@@ -49,7 +49,7 @@ public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+		if (!getParser().isAnyCurrentEvent(PrepareItemEnchantEvent.class)) {
 			Skript.error("The enchantment bonus is only usable in an enchant prepare event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
