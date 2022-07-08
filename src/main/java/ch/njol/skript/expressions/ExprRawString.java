@@ -19,27 +19,32 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Converter;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-public class ExprRawString extends PropertyExpression<String, String> {
+public class ExprRawString extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.SIMPLE, "raw %string%");
 	}
 
+	@SuppressWarnings("null")
+	private Expression<String> expr;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		setExpr((Expression<? extends String>) exprs[0]);
-		if (getExpr() instanceof ExprColoured) {
+		expr = (Expression<String>) exprs[0];
+		if (expr instanceof ExprColoured) {
 			Skript.error("the 'colored' expression may not be used with a 'raw string' expression", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
@@ -47,17 +52,24 @@ public class ExprRawString extends PropertyExpression<String, String> {
 	}
 
 	@Override
-	protected String[] get(Event e, String[] source) {
-		return new String[]{((VariableString) getExpr()).toUnformattedString(e)};
+	protected @Nullable String[] get(Event e) {
+		if (expr instanceof VariableString)
+			return new String[]{((VariableString) expr).toUnformattedString(e)};
+		return new String[]{expr.getSingle(e)};
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "raw " + getExpr().toString(e, debug);
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "raw " + expr.toString(e, debug);
 	}
 }
