@@ -61,7 +61,8 @@ public class ExprRawString extends SimpleExpression<String> {
 	}
 
 	@Override
-	protected @Nullable String[] get(Event e) {
+	@Nullable
+	protected String[] get(Event e) {
 		List<String> strings = new ArrayList<>();
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof VariableString) {
