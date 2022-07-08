@@ -21,10 +21,13 @@ package ch.njol.skript.effects;
 import java.util.List;
 import java.util.UUID;
 
+import ch.njol.skript.expressions.ExprRawString;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.util.coll.CollectionUtils;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -131,6 +134,11 @@ public class EffMessage extends Effect {
 					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
 						for (Object object : messageArray) {
 							sendMessage((Player) receiver, sender, BungeeConverter.convert(ChatMessages.parse((String) object)));
+						}
+					} else if (message instanceof ExprRawString) {
+						for (Object messageObject : message.getArray(e)) {
+							String realMessage = (String) messageObject;
+							sendMessage((Player) receiver, sender, new TextComponent(realMessage));
 						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
 						for (Object object : messageArray) {

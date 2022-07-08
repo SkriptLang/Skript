@@ -24,6 +24,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprColoured;
+import ch.njol.skript.expressions.ExprRawString;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -95,6 +96,11 @@ public class EffBroadcast extends Effect {
 				for (Object realMessage : message.getArray(e)) {
 					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
+				}
+			} else if (message instanceof ExprRawString) {
+				for (Object messageObject : message.getArray(e)) {
+					String realMessage = (String) messageObject;
+					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
 				}
 			} else {
 				for (Object messageObject : message.getArray(e)) {
