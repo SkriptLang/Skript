@@ -53,7 +53,7 @@ public class ExprRawString extends SimpleExpression<String> {
 			((ExpressionList<String>) expr).getExpressions() : new Expression[]{expr};
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof ExprColoured) {
-				Skript.error("the 'colored' expression may not be used with a 'raw string' expression", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("the 'colored' expression may not be used with a 'raw string' expression");
 				return false;
 			}
 		}
