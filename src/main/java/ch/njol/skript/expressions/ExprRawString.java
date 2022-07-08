@@ -47,7 +47,7 @@ public class ExprRawString extends SimpleExpression<String> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		expr = LiteralUtils.defendExpression(exprs[0]);
 		messages = expr instanceof ExpressionList<?> ?
 			((ExpressionList<String>) expr).getExpressions() : new Expression[]{expr};
