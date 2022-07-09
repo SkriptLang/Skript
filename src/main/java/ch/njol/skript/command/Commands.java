@@ -190,37 +190,6 @@ public abstract class Commands {
 		}
 	};
 
-	private static final Listener CHAT_LISTENER = new Listener() {
-		@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-		public void onPlayerChat(final AsyncPlayerChatEvent e) {
-			if (!SkriptConfig.enableEffectCommands.value() || !e.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
-				return;
-			if (!e.isAsynchronous()) {
-				if (handleEffectCommand(e.getPlayer(), e.getMessage()))
-					e.setCancelled(true);
-			} else {
-				final Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						return handleEffectCommand(e.getPlayer(), e.getMessage());
-					}
-				});
-				try {
-					while (true) {
-						try {
-							if (f.get())
-								e.setCancelled(true);
-							break;
-						} catch (final InterruptedException e1) {
-						}
-					}
-				} catch (final ExecutionException e1) {
-					Skript.exception(e1);
-				}
-			}
-		}
-	};
-	
 	/**
 	 * @param sender
 	 * @param command full command string without the slash
@@ -546,7 +515,36 @@ public abstract class Commands {
 		if (!registeredListeners) {
 			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
 
-			Bukkit.getPluginManager().registerEvents(CHAT_LISTENER, Skript.getInstance());
+			Bukkit.getPluginManager().registerEvents(new Listener() {
+				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+				public void onPlayerChat(final AsyncPlayerChatEvent e) {
+					if (!SkriptConfig.enableEffectCommands.value() || !e.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+						return;
+					if (!e.isAsynchronous()) {
+						if (handleEffectCommand(e.getPlayer(), e.getMessage()))
+							e.setCancelled(true);
+					} else {
+						final Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), new Callable<Boolean>() {
+							@Override
+							public Boolean call() throws Exception {
+								return handleEffectCommand(e.getPlayer(), e.getMessage());
+							}
+						});
+						try {
+							while (true) {
+								try {
+									if (f.get())
+										e.setCancelled(true);
+									break;
+								} catch (final InterruptedException e1) {
+								}
+							}
+						} catch (final ExecutionException e1) {
+							Skript.exception(e1);
+						}
+					}
+				}
+			}, Skript.getInstance());
 
 			registeredListeners = true;
 		}
