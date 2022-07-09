@@ -64,10 +64,10 @@ import net.md_5.bungee.api.chat.BaseComponent;
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
-
+	
 	private static final boolean SUPPORTS_SENDER = Skript.classExists("org.bukkit.command.CommandSender$Spigot") &&
-			Skript.methodExists(CommandSender.Spigot.class, "sendMessage", UUID.class, BaseComponent.class);
-
+		Skript.methodExists(CommandSender.Spigot.class, "sendMessage", UUID.class, BaseComponent.class);
+	
 	static {
 		if (SUPPORTS_SENDER)
 			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%] [from %-player%]");
@@ -86,17 +86,17 @@ public class EffMessage extends Effect {
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<CommandSender> recipients;
-
+	
 	@Nullable
 	private Expression<Player> sender;
-
+	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		messageExpr = LiteralUtils.defendExpression(exprs[0]);
 
 		messages = messageExpr instanceof ExpressionList ?
-				((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
+			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		recipients = (Expression<CommandSender>) exprs[1];
 		if (SUPPORTS_SENDER)
 			sender = (Expression<Player>) exprs[2];
@@ -126,7 +126,7 @@ public class EffMessage extends Effect {
 				if (receiver instanceof Player) { // Can use JSON formatting
 					if (message instanceof VariableString) { // Process formatting that is safe
 						sendMessage((Player) receiver, sender,
-								BungeeConverter.convert(messageComponents)
+							BungeeConverter.convert(messageComponents)
 						);
 					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
 						for (Object object : messageArray) {
@@ -146,7 +146,7 @@ public class EffMessage extends Effect {
 			}
 		}
 	}
-
+	
 	private void sendMessage(Player receiver, @Nullable Player sender, BaseComponent... components) {
 		if (SUPPORTS_SENDER && sender != null)
 			receiver.spigot().sendMessage(sender.getUniqueId(), components);
@@ -168,7 +168,7 @@ public class EffMessage extends Effect {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "send " + messageExpr.toString(e, debug) + " to " + recipients.toString(e, debug) +
-				(sender != null ? " from " + sender.toString(e, debug) : "");
+			(sender != null ? " from " + sender.toString(e, debug) : "");
 	}
-
+	
 }
