@@ -195,10 +195,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * 
 	 * @param time -1 for past or 1 for future. 0 is never passed to this method as it represents the default state.
 	 * @return Whether this expression has distinct time states, e.g. a player never changes but a block can. This should be sensitive for the event (using
-	 *         {@link ch.njol.skript.lang.parser.ParserInstance#isAnyCurrentEvent(Class)}).
+	 *         {@link ch.njol.skript.lang.parser.ParserInstance#isCurrentEvent(Class)}).
 	 * @see SimpleExpression#setTime(int, Class, Expression...)
 	 * @see SimpleExpression#setTime(int, Expression, Class...)
-	 * @see ch.njol.skript.lang.parser.ParserInstance#isAnyCurrentEvent(Class...)
+	 * @see ch.njol.skript.lang.parser.ParserInstance#isCurrentEvent(Class...)
 	 */
 	public boolean setTime(int time);
 	
