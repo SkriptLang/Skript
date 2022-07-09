@@ -49,24 +49,24 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
-	"in given string or in <a href=expressions.html#ExprColoured>formatted expressions</a> will be parsed.",
-	"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
-	"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
-	"but for this to work, the message needs to be sent from a player."})
+		"in given string or in <a href=expressions.html#ExprColoured>formatted expressions</a> will be parsed.",
+		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
+		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
+		"but for this to work, the message needs to be sent from a player."})
 @Examples({"message \"A wild %player% appeared!\"",
-	"message \"This message is a distraction. Mwahaha!\"",
-	"send \"Your kill streak is %{kill streak::%uuid of player%}%.\" to player",
-	"if the targeted entity exists:",
-	"\tmessage \"You're currently looking at a %type of the targeted entity%!\"",
-	"on chat:",
-	"\tcancel event",
-	"\tsend \"[%player%] >> %message%\" to all players from player"})
+		"message \"This message is a distraction. Mwahaha!\"",
+		"send \"Your kill streak is %{kill streak::%uuid of player%}%.\" to player",
+		"if the targeted entity exists:",
+		"\tmessage \"You're currently looking at a %type of the targeted entity%!\"",
+		"on chat:",
+		"\tcancel event",
+		"\tsend \"[%player%] >> %message%\" to all players from player"})
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
 
 	private static final boolean SUPPORTS_SENDER = Skript.classExists("org.bukkit.command.CommandSender$Spigot") &&
-		Skript.methodExists(CommandSender.Spigot.class, "sendMessage", UUID.class, BaseComponent.class);
+			Skript.methodExists(CommandSender.Spigot.class, "sendMessage", UUID.class, BaseComponent.class);
 
 	static {
 		if (SUPPORTS_SENDER)
@@ -96,7 +96,7 @@ public class EffMessage extends Effect {
 		messageExpr = LiteralUtils.defendExpression(exprs[0]);
 
 		messages = messageExpr instanceof ExpressionList ?
-			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
+				((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		recipients = (Expression<CommandSender>) exprs[1];
 		if (SUPPORTS_SENDER)
 			sender = (Expression<Player>) exprs[2];
@@ -126,7 +126,7 @@ public class EffMessage extends Effect {
 				if (receiver instanceof Player) { // Can use JSON formatting
 					if (message instanceof VariableString) { // Process formatting that is safe
 						sendMessage((Player) receiver, sender,
-							BungeeConverter.convert(messageComponents)
+								BungeeConverter.convert(messageComponents)
 						);
 					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
 						for (Object object : messageArray) {
@@ -168,7 +168,7 @@ public class EffMessage extends Effect {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "send " + messageExpr.toString(e, debug) + " to " + recipients.toString(e, debug) +
-			(sender != null ? " from " + sender.toString(e, debug) : "");
+				(sender != null ? " from " + sender.toString(e, debug) : "");
 	}
 
 }
