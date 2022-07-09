@@ -90,4 +90,5 @@ public class ExprRawString extends PropertyExpression<String, String> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "raw " + getExpr().toString(e, debug);
 	}
+
 }
