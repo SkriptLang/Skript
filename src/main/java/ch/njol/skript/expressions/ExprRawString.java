@@ -34,6 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -75,7 +76,7 @@ public class ExprRawString extends PropertyExpression<String, String> {
 				strings.add(((VariableString) message).toUnformattedString(e));
 				continue;
 			}
-			strings.addAll(List.of(message.getArray(e)));
+			strings.addAll(Arrays.asList(message.getArray(e)));
 		}
 		return strings.toArray(new String[0]);
 	}
