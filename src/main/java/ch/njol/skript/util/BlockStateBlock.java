@@ -26,6 +26,7 @@ import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.SoundGroup;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -199,6 +200,11 @@ public class BlockStateBlock implements Block {
 	@Override
 	public Biome getBiome() {
 		return state.getBlock().getBiome();
+	}
+
+	@Override
+	public @NotNull Biome getComputedBiome() {
+		return state.getBlock().getComputedBiome();
 	}
 
 	@Override
@@ -459,6 +465,11 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public @NotNull SoundGroup getBlockSoundGroup() {
+		return state.getBlock().getBlockSoundGroup();
+	}
+
+	@Override
 	public String getTranslationKey() {
 		return state.getBlock().getTranslationKey();
 	}
@@ -486,6 +497,11 @@ public class BlockStateBlock implements Block {
 	@Override
 	public @NotNull VoxelShape getCollisionShape() {
 		return state.getBlock().getCollisionShape();
+	}
+
+	@Override
+	public boolean canPlace(@NotNull BlockData data) {
+		return state.getBlock().canPlace(data);
 	}
 
 	@Override

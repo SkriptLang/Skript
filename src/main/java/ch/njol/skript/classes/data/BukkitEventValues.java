@@ -18,8 +18,24 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.List;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.events.EvtMoveOn;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.events.bukkit.SkriptStartEvent;
+import ch.njol.skript.events.bukkit.SkriptStopEvent;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.BlockStateBlock;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DelayedChangeBlock;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.slot.InventorySlot;
+import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -126,25 +142,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.events.EvtMoveOn;
-import ch.njol.skript.events.bukkit.ScriptEvent;
-import ch.njol.skript.events.bukkit.SkriptStartEvent;
-import ch.njol.skript.events.bukkit.SkriptStopEvent;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.BlockStateBlock;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DelayedChangeBlock;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.slot.InventorySlot;
-import ch.njol.skript.util.slot.Slot;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -153,6 +151,8 @@ import ch.njol.skript.util.slot.Slot;
 public final class BukkitEventValues {
 	
 	public BukkitEventValues() {}
+
+	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
 
 	static {
 		
@@ -1021,20 +1021,24 @@ public final class BukkitEventValues {
 				return event.getPlayer();
 			}
 		}, 0);
-		// CraftItemEvent REMIND maybe re-add this when Skript parser is reworked?
-//		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, new Getter<ItemStack, CraftItemEvent>() {
-//			@Override
-//			@Nullable
-//			public ItemStack get(final CraftItemEvent e) {
-//				return e.getRecipe().getResult();
-//			}
-//		}, 0);
 		// PrepareItemCraftEvent
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Slot.class, new Getter<Slot, PrepareItemCraftEvent>() {
 			@Override
-			@Nullable
 			public Slot get(final PrepareItemCraftEvent e) {
-				return new InventorySlot(e.getInventory(), 9);
+				return new InventorySlot(e.getInventory(), 0);
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, ItemStack.class, new Getter<ItemStack, PrepareItemCraftEvent>() {
+			@Override
+			public ItemStack get(PrepareItemCraftEvent e) {
+				ItemStack item = e.getInventory().getResult();
+				return item != null ? item : AIR_IS;
+			}
+		}, 0);
+		EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, new Getter<Inventory, PrepareItemCraftEvent>() {
+			@Override
+			public Inventory get(PrepareItemCraftEvent e) {
+				return e.getInventory();
 			}
 		}, 0);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Player.class, new Getter<Player, PrepareItemCraftEvent>() {
@@ -1069,6 +1073,14 @@ public final class BukkitEventValues {
 				if (recipe instanceof Keyed)
 					return ((Keyed) recipe).getKey().toString();
 				return null;
+			}
+		}, 0);
+		// CraftItemEvent
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, new Getter<ItemStack, CraftItemEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(CraftItemEvent e) {
+				return e.getRecipe().getResult();
 			}
 		}, 0);
 		//InventoryOpenEvent
