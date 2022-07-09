@@ -271,6 +271,9 @@ public class ParserInstance {
 	 * To fix this, you can use the {@link #isAnyCurrentEvent(Class) 'any'} variant, but you need to make sure that your runtime code
 	 * is able to handle other {@link Event}s as well.
 	 * This is usually done by, for example, {@code if (!(e instanceof BlockBreakEvent)) return null;}.
+	 *
+	 * <br><br>
+	 * <b>For code clarity, we recommend not calling this method, instead making a choice between one of the two variants.</b>
 	 */
 	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
 		return isAnyCurrentEvent(event);
@@ -279,6 +282,9 @@ public class ParserInstance {
 	/**
 	 * Same as {@link #isCurrentEvent(Class)}, but accepts multiple event class arguments.
 	 * This method is the exact same as {@link #isAnyCurrentEvent(Class[])}.
+	 *
+	 * <br><br>
+	 * <b>For code clarity, we recommend not calling this method, instead making a choice between one of the two variants.</b>
 	 */
 	@SafeVarargs
 	public final boolean isCurrentEvent(Class<? extends Event>... events) {
