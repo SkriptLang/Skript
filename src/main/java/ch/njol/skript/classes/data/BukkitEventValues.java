@@ -1248,14 +1248,12 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		//PlayerRiptideEvent
-		if (true) {
-			EventValues.registerEventValue(PlayerRiptideEvent.class, ItemType.class, new Getter<ItemType, PlayerRiptideEvent>() {
-				@Override
-				public ItemType get(PlayerRiptideEvent e) {
-					return new ItemType(e.getItem());
-				}
-			}, 0);
-		}
+		EventValues.registerEventValue(PlayerRiptideEvent.class, ItemType.class, new Getter<ItemType, PlayerRiptideEvent>() {
+			@Override
+			public ItemType get(PlayerRiptideEvent e) {
+				return new ItemType(e.getItem());
+			}
+		}, 0);
 		//PlayerArmorChangeEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemType.class, new Getter<ItemType, PlayerArmorChangeEvent>() {
