@@ -61,7 +61,10 @@ import ch.njol.util.Kleenean;
 public class EffToggle extends Effect {
 	
 	static {
-		Skript.registerEffect(EffToggle.class, "(close|turn off|de[-]activate) %blocks%", "(toggle|switch) [[the] state of] %booleans/blocks%", "(open|turn on|activate) %blocks%");
+		Skript.registerEffect(EffToggle.class, 
+				"(close|turn off|de[-]activate) %blocks%",
+		 		"(toggle|switch) [[the] state of] %booleans/blocks%",
+		  		"(open|turn on|activate) %blocks%");
 	}
 	
 	@Nullable
