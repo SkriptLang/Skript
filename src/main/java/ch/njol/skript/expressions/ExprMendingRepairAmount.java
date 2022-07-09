@@ -51,7 +51,7 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(PlayerItemMendEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerItemMendEvent.class)) {
 			Skript.error("The 'mending repair amount' is only usable in item mend events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

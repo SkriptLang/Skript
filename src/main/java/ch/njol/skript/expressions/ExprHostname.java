@@ -49,7 +49,7 @@ public class ExprHostname extends SimpleExpression<String> {
 	@Override
 	@SuppressWarnings({"null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(PlayerLoginEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerLoginEvent.class)) {
 			Skript.error("The hostname expression must be used in a player connect event");
 			return false;
 		}

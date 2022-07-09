@@ -23,7 +23,6 @@ import java.util.Set;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -67,7 +66,7 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(getParser().isAnyCurrentEvent(AsyncPlayerChatEvent.class))) {
+		if (!(getParser().isCurrentEvent(AsyncPlayerChatEvent.class))) {
 			Skript.error("Cannot use chat recipients expression outside of a chat event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

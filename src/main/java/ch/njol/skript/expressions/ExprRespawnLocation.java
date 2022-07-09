@@ -51,7 +51,7 @@ public class ExprRespawnLocation extends SimpleExpression<Location> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(PlayerRespawnEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
 			Skript.error("The expression 'respawn location' may only be used in the respawn event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

@@ -58,7 +58,7 @@ public class ExprDamage extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class)) {
 			Skript.error("The expression 'damage' may only be used in damage events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

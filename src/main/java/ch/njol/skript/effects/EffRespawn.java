@@ -55,14 +55,14 @@ public class EffRespawn extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (getParser().isAnyCurrentEvent(PlayerRespawnEvent.class)) { // Just in case someone tries to do this
+		if (getParser().isCurrentEvent(PlayerRespawnEvent.class)) { // Just in case someone tries to do this
 			Skript.error("Respawning the player in a respawn event is not possible", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
 		players = (Expression<Player>) exprs[0];
 		// Force a delay before respawning the player if we're in the death event and there isn't already a delay
 		// Unexpected behavior may occur if we don't do this
-		forceDelay = getParser().isAnyCurrentEvent(PlayerDeathEvent.class) && isDelayed.isFalse();
+		forceDelay = getParser().isCurrentEvent(PlayerDeathEvent.class) && isDelayed.isFalse();
 		return true;
 	}
 

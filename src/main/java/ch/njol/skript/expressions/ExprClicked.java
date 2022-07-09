@@ -131,13 +131,13 @@ public class ExprClicked extends SimpleExpression<Object> {
 				Object type = exprs[0] == null ? null : ((Literal<?>) exprs[0]).getSingle();
 				if (type instanceof EntityData) {
 					entityType = (EntityData<?>) type;
-					if (!getParser().isAnyCurrentEvent(PlayerInteractEntityEvent.class) && !getParser().isAnyCurrentEvent(PlayerInteractAtEntityEvent.class)) {
+					if (!getParser().isCurrentEvent(PlayerInteractEntityEvent.class) && !getParser().isCurrentEvent(PlayerInteractAtEntityEvent.class)) {
 						Skript.error("The expression 'clicked entity' may only be used in a click event");
 						return false;
 					}
 				} else {
 					itemType = (ItemType) type;
-					if (!getParser().isAnyCurrentEvent(PlayerInteractEvent.class)) {
+					if (!getParser().isCurrentEvent(PlayerInteractEvent.class)) {
 						Skript.error("The expression 'clicked block' may only be used in a click event");
 						return false;
 					}
@@ -147,13 +147,13 @@ public class ExprClicked extends SimpleExpression<Object> {
 			case ACTION:
 			case TYPE:
 			case SLOT:
-				if (!getParser().isAnyCurrentEvent(InventoryClickEvent.class)) {
+				if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
 					Skript.error("The expression '" + clickable.getName() + "' may only be used in an inventory click event");
 					return false;
 				}
 				break;
 			case ENCHANT_BUTTON:
-				if (!getParser().isAnyCurrentEvent(EnchantItemEvent.class)) {
+				if (!getParser().isCurrentEvent(EnchantItemEvent.class)) {
 					Skript.error("The expression 'clicked enchantment button' is only usable in an enchant event.");
 					return false;
 				}

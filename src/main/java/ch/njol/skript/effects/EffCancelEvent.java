@@ -73,7 +73,7 @@ public class EffCancelEvent extends Effect {
 			if (Cancellable.class.isAssignableFrom(e) || BlockCanBuildEvent.class.isAssignableFrom(e))
 				return true; // TODO warning if some event(s) cannot be cancelled even though some can (needs a way to be suppressed)
 		}
-		if (getParser().isAnyCurrentEvent(PlayerLoginEvent.class))
+		if (getParser().isCurrentEvent(PlayerLoginEvent.class))
 			Skript.error("A connect event cannot be cancelled, but the player may be kicked ('kick player by reason of \"...\"')", ErrorQuality.SEMANTIC_ERROR);
 		else
 			Skript.error(Utils.A(getParser().getCurrentEventName()) + " event cannot be cancelled", ErrorQuality.SEMANTIC_ERROR);

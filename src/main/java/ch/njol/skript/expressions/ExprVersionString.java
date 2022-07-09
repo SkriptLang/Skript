@@ -58,10 +58,10 @@ public class ExprVersionString extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (getParser().isAnyCurrentEvent(ServerListPingEvent.class)) {
+		if (getParser().isCurrentEvent(ServerListPingEvent.class)) {
 			Skript.error("The version string expression requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!(PAPER_EVENT_EXISTS && getParser().isAnyCurrentEvent(PaperServerListPingEvent.class))) {
+		} else if (!(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class))) {
 			Skript.error("The version string expression can't be used outside of a server list ping event");
 			return false;
 		}

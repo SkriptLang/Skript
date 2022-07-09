@@ -49,7 +49,7 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class)) {
+		if (!getParser().isCurrentEvent(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class)) {
 			Skript.error("The moved blocks are only usable in piston extend and retract events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

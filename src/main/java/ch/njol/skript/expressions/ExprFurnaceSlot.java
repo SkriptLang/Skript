@@ -77,10 +77,10 @@ public class ExprFurnaceSlot extends PropertyExpression<Block, Slot> {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		isEvent = matchedPattern == 0;
 		slot = parseResult.mark;
-		if (isEvent && slot == RESULT && !getParser().isAnyCurrentEvent(FurnaceSmeltEvent.class)) {
+		if (isEvent && slot == RESULT && !getParser().isCurrentEvent(FurnaceSmeltEvent.class)) {
 			Skript.error("Cannot use 'result slot' outside a fuel smelt event.");
 			return false;
-		} else if (isEvent && slot == FUEL && !getParser().isAnyCurrentEvent(FurnaceBurnEvent.class)) {
+		} else if (isEvent && slot == FUEL && !getParser().isCurrentEvent(FurnaceBurnEvent.class)) {
 			Skript.error("Cannot use 'fuel slot' outside a fuel burn event.");
 			return false;
 		}

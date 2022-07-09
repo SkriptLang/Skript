@@ -71,7 +71,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		cookTime = parseResult.mark == 1;
 		isEvent = matchedPattern == 0;
-		if (isEvent && !getParser().isAnyCurrentEvent(FurnaceBurnEvent.class)) {
+		if (isEvent && !getParser().isCurrentEvent(FurnaceBurnEvent.class)) {
 			Skript.error("Cannot use 'burning time' outside a fuel burn event.");
 			return false;
 		}

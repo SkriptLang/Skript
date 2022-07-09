@@ -50,7 +50,7 @@ public class ExprHealReason extends SimpleExpression<RegainReason> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(EntityRegainHealthEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
 			Skript.error("Heal reason can only be used in an on heal event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

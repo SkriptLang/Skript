@@ -58,7 +58,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
 			Skript.error("The experience expression can only be used in experience spawn and block break events");
 			return false;
 		}

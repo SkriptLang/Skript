@@ -21,7 +21,6 @@ package ch.njol.skript.conditions;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
-import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -56,7 +55,7 @@ public class CondResourcePack extends Condition {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(PlayerResourcePackStatusEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerResourcePackStatusEvent.class)) {
 			Skript.error("The resource pack condition can't be used outside of a resource pack response event");
 			return false;
 		}

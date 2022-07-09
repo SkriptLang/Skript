@@ -52,7 +52,7 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(EntityExplodeEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityExplodeEvent.class)) {
 			Skript.error("Exploded blocks can only be retrieved from an explode event.");
 			return false;
 		}

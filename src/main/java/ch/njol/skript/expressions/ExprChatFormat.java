@@ -66,7 +66,7 @@ public class ExprChatFormat extends SimpleExpression<String>{
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(AsyncPlayerChatEvent.class)){
+		if (!getParser().isCurrentEvent(AsyncPlayerChatEvent.class)){
 			Skript.error("The expression 'chat format' may only be used in chat events");
 			return false;
 		}

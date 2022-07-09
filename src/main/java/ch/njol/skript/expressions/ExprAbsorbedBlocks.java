@@ -53,7 +53,7 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(SpongeAbsorbEvent.class)) {
+		if (!getParser().isCurrentEvent(SpongeAbsorbEvent.class)) {
 			Skript.error("The 'absorbed blocks' are only usable in sponge absorb events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

@@ -61,7 +61,7 @@ public class EffIncendiary extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = matchedPattern == 2;
-		if (isEvent && !getParser().isAnyCurrentEvent(ExplosionPrimeEvent.class)) {
+		if (isEvent && !getParser().isCurrentEvent(ExplosionPrimeEvent.class)) {
 			Skript.error("Making 'the explosion' fiery is only usable in an explosion prime event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

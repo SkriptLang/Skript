@@ -64,7 +64,7 @@ public class EffPlayerInfoVisibility extends Effect {
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The player info visibility effect requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!getParser().isAnyCurrentEvent(PaperServerListPingEvent.class)) {
+		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
 			Skript.error("The player info visibility effect can't be used outside of a server list ping event");
 			return false;
 		} else if (isDelayed == Kleenean.TRUE) {

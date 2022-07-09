@@ -55,7 +55,7 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isAnyCurrentEvent(EntityRegainHealthEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
 			Skript.error("The expression 'heal amount' may only be used in a healing event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

@@ -46,7 +46,7 @@ public class ExprHotbarButton extends SimpleExpression<Long> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isAnyCurrentEvent(InventoryClickEvent.class)) {
+		if (!getParser().isCurrentEvent(InventoryClickEvent.class)) {
 			Skript.error("The 'hotbar button' expression may only be used in an inventory click event.");
 			return false;
 		}
