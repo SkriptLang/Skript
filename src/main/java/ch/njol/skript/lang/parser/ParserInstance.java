@@ -250,69 +250,24 @@ public class ParserInstance {
 	 */
 
 	/**
-	 * Used to check if the {@link Event} provided at runtime will be of a given type.
+	 * This method checks whether <i>at least one</i> of the current event classes
+	 * is covered by the argument event class (i.e. equal to the class or a subclass of it).
 	 * <br>
-	 * There are multiple variants of this method, with a choice between a single or multiple arguments
-	 * and a choice between the {@link #isAnyCurrentEvent(Class) 'any'} check or the {@link #isAllCurrentEvent(Class) 'all'} check.
-	 * This method defaults to the 'any' variant.
-	 * <br><br>
-	 * If you don't know which to pick for your syntax element, the 'all' variant is safer:
-	 * if you return false in {@link ch.njol.skript.lang.SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult) init}
-	 * if the current event check returned false, at runtime you can safely cast the {@link Event} to the class you've checked with.
-	 * <br><br>
-	 * However, a Skript event may have multiple possible associated {@link Event} classes,
-	 * such as {@code on break} which allows for both {@link org.bukkit.event.block.BlockBreakEvent BlockBreakEvent}
-	 * and {@link org.bukkit.event.hanging.HangingBreakEvent HangingBreakEvent}.
+	 * Using this method in an event-specific syntax element requires a runtime check, for example <br>
+	 * {@code if (!(e instanceof BlockBreakEvent)) return null;}
 	 * <br>
-	 * If your syntax element is only for the {@code BlockBreakEvent} and you were to use the 'all' variant,
-	 * you'd find that the syntax element is unusable even in a break event.
-	 * This is because of the 2 possible events that may be provided at runtime.
-	 * <br><br>
-	 * To fix this, you can use the {@link #isAnyCurrentEvent(Class) 'any'} variant, but you need to make sure that your runtime code
-	 * is able to handle other {@link Event}s as well.
-	 * This is usually done by, for example, {@code if (!(e instanceof BlockBreakEvent)) return null;}.
+	 * This check is required because there can be more than 1 event class at parse-time, but this method
+	 * only checks if one of them matches the argument class.
 	 *
 	 * <br><br>
-	 * <b>For code clarity, we recommend not calling this method, instead making a choice between one of the two variants.</b>
+	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
 	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
-		return isAnyCurrentEvent(event);
-	}
-
-	/**
-	 * Same as {@link #isCurrentEvent(Class)}, but accepts multiple event class arguments.
-	 * This method is the exact same as {@link #isAnyCurrentEvent(Class[])}.
-	 *
-	 * <br><br>
-	 * <b>For code clarity, we recommend not calling this method, instead making a choice between one of the two variants.</b>
-	 */
-	@SafeVarargs
-	public final boolean isCurrentEvent(Class<? extends Event>... events) {
-		return isAnyCurrentEvent(events);
-	}
-
-	/**
-	 * This method checks whether <i>at least one</i> of the current event classes
-	 * is covered (i.e. equal to the class or a subclass of it) by the argument event class.
-	 * <br>
-	 * This contrasts to {@link #isAllCurrentEvent(Class)}, which checks if <i>all</i> of
-	 * the current event classes are covered.
-	 * <br>
-	 * Using this method in an event-specific syntax element {@link #isCurrentEvent(Class) requires a runtime check},
-	 * for example <br>
-	 * {@code if (!(e instanceof BlockBreakEvent)) return null;}
-	 *
-	 * <br><br>
-	 * See also {@link #isCurrentEvent(Class)} for which method to pick
-	 * <br>
-	 * See also {@link #isAnyCurrentEvent(Class[])} for checking with multiple argument classes
-	 */
-	public boolean isAnyCurrentEvent(@Nullable Class<? extends Event> event) {
 		return CollectionUtils.containsSuperclass(currentEvents, event);
 	}
 
 	/**
-	 * Same as {@link #isAnyCurrentEvent(Class)}, but allows for plural argument input.
+	 * Same as {@link #isCurrentEvent(Class)}, but allows for plural argument input.
 	 * <br>
 	 * This means that this method will return whether any of the current event classes is covered
 	 * by any of the argument classes.
@@ -321,61 +276,13 @@ public class ParserInstance {
 	 * you can use {@link CollectionUtils#isAnyInstanceOf(Object, Class[])} for this, for example: <br>
 	 * {@code if (!CollectionUtils.isAnyInstanceOf(e, BlockBreakEvent.class, BlockPlaceEvent.class)) return null;}
 	 *
-	 * @see #isAnyCurrentEvent(Class)
+	 * @see #isCurrentEvent(Class)
 	 */
 	@SafeVarargs
-	public final boolean isAnyCurrentEvent(Class<? extends Event>... events) {
+	public final boolean isCurrentEvent(Class<? extends Event>... events) {
 		return CollectionUtils.containsAnySuperclass(currentEvents, events);
 	}
 
-	/**
-	 * This method checks whether the current event classes are <i>all</i>
-	 * covered (i.e. equal to the class or a subclass of it) by the argument event class.
-	 * <br>
-	 * This contrasts to {@link #isAnyCurrentEvent(Class)}, which only checks if <i>at least one</i>
-	 * of the current event classes is covered.
-	 * <br><br>
-	 * See also {@link #isCurrentEvent(Class)} for which method to pick
-	 * <br>
-	 * See also {@link #isAllCurrentEvent(Class[])} for checking with multiple argument classes
-	 */
-	public boolean isAllCurrentEvent(@Nullable Class<? extends Event> checkEvent) {
-		if (checkEvent == null || currentEvents == null || currentEvents.length == 0)
-			return false;
-		for (Class<? extends Event> currentEvent : currentEvents) {
-			if (!currentEvent.isAssignableFrom(checkEvent))
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Same as {@link #isAllCurrentEvent(Class)}, but allows for plural argument input.
-	 * <br>
-	 * This means that this method will return whether all the current event classes
-	 * are covered by at least one of the argument event classes.
-	 *
-	 * @see #isAllCurrentEvent(Class)
-	 */
-	@SafeVarargs
-	public final boolean isAllCurrentEvent(Class<? extends Event>... checkEvents) {
-		if (currentEvents == null || currentEvents.length == 0)
-			return false;
-		for (Class<? extends Event> currentEvent : currentEvents) {
-			boolean anyCheckMatched = false;
-			for (Class<? extends Event> checkEvent : checkEvents) {
-				if (currentEvent.isAssignableFrom(checkEvent)) {
-					anyCheckMatched = true;
-					break;
-				}
-			}
-
-			if (anyCheckMatched)
-				return false;
-		}
-		return true;
-	}
-	
 	/*
 	 * Addon data
 	 */
