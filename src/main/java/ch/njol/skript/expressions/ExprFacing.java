@@ -47,9 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tset loop-block to cobblestone"})
 @Since("1.4")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
-	
-	private static final boolean useBlockData = true;
-	
+
 	static {
 		register(ExprFacing.class, Direction.class, "(1¦horizontal|) facing", "livingentities/blocks");
 	}
