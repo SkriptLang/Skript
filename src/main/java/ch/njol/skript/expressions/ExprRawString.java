@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -38,9 +39,10 @@ import java.util.List;
 import static ch.njol.skript.lang.SkriptParser.ParseResult;
 
 @Name("Raw String")
-@Description("Returns the string without formattings (colors etc.) and without stripping them from it, " +
+@Description("Returns the string without formatting (colors etc.) and without stripping them from it, " +
 	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
 @Examples("send raw \"&aThis text is unformatted!\" to all players")
+@Since("INSERT VERSION")
 public class ExprRawString extends PropertyExpression<String, String> {
 
 	static {
