@@ -60,6 +60,9 @@ public class ExprHealReason extends SimpleExpression<RegainReason> {
 	@Nullable
 	@Override
 	protected RegainReason[] get(Event e) {
+		if (!(e instanceof EntityRegainHealthEvent))
+			return null;
+
 		return new RegainReason[]{((EntityRegainHealthEvent) e).getRegainReason()};
 	}
 	

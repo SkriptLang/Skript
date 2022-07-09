@@ -53,6 +53,9 @@ public class ExprMe extends SimpleExpression<Player> {
 	@Override
 	@Nullable
 	protected Player[] get(Event e) {
+		if (!(e instanceof EffectCommandEvent))
+			return null;
+
 		CommandSender commandSender = ((EffectCommandEvent) e).getSender();
 		if (commandSender instanceof Player)
 			return new Player[] {(Player) commandSender};

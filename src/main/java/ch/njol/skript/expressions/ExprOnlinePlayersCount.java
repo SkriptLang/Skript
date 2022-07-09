@@ -78,6 +78,9 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 	@Override
 	@Nullable
 	public Long[] get(Event e) {
+		if (!isReal && !(e instanceof PaperServerListPingEvent))
+			return null;
+
 		if (isReal)
 			return CollectionUtils.array((long) PlayerUtils.getOnlinePlayers().size());
 		else
@@ -107,6 +110,9 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		PaperServerListPingEvent event = (PaperServerListPingEvent) e;
 		switch (mode) {
 			case SET:

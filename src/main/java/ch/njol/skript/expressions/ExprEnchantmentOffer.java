@@ -91,6 +91,9 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	@Override
 	@Nullable
 	protected EnchantmentOffer[] get(Event e) {
+		if (!(e instanceof PrepareItemEnchantEvent))
+			return null;
+
 		if (all)
 			return ((PrepareItemEnchantEvent) e).getOffers();
 		if (exprOfferNumber == null)

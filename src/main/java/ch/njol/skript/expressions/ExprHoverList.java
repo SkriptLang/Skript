@@ -83,6 +83,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String[] get(Event e) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return null;
+
 		return ((PaperServerListPingEvent) e).getPlayerSample().stream()
 				.map(PlayerProfile::getName)
 				.toArray(String[]::new);
@@ -109,6 +112,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		List<PlayerProfile> values = new ArrayList<>();
 		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET) {
 			for (Object o : delta) {

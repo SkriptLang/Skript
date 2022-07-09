@@ -292,11 +292,9 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		}
 		if (!mustbeDefaultVar.isDefault())
 			return false;
-		for (final Class<? extends Event> e : applicableEvents) {
-			if (getParser().isAnyCurrentEvent(e)) {
-				this.time = time;
-				return true;
-			}
+		if (getParser().isAnyCurrentEvent(applicableEvents)) {
+			this.time = time;
+			return true;
 		}
 		return false;
 	}

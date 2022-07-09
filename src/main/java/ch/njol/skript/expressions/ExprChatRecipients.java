@@ -23,6 +23,7 @@ import java.util.Set;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -81,6 +82,9 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 	@Override
 	@Nullable
 	protected Player[] get(Event event) {
+		if (!(event instanceof AsyncPlayerChatEvent))
+			return null;
+
 		AsyncPlayerChatEvent ae = (AsyncPlayerChatEvent) event;
 		Set<Player> playerSet = ae.getRecipients();
 		return playerSet.toArray(new Player[playerSet.size()]);
@@ -88,6 +92,9 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof AsyncPlayerChatEvent))
+			return;
+
 		final Player[] recipients = (Player[]) delta;
 		switch (mode) {
 			case REMOVE:

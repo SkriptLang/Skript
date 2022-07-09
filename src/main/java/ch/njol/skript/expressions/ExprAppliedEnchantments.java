@@ -65,6 +65,9 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 	@Override
 	@Nullable
 	protected EnchantmentType[] get(Event e) {
+		if (!(e instanceof EnchantItemEvent))
+			return null;
+
 		return ((EnchantItemEvent) e).getEnchantsToAdd().entrySet().stream()
 				.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
 				.toArray(EnchantmentType[]::new);
@@ -81,6 +84,9 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof EnchantItemEvent))
+			return;
+
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
 		if (delta != null && delta.length != 0) {
 			for (int i = 0; i < delta.length; i++) {

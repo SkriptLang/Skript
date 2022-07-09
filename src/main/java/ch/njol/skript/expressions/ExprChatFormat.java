@@ -81,13 +81,16 @@ public class ExprChatFormat extends SimpleExpression<String>{
 	@Override
 	@Nullable
 	protected String[] get(Event e) {
+		if (!(e instanceof AsyncPlayerChatEvent))
+			return null;
+
 		return new String[]{convertToFriendly(((AsyncPlayerChatEvent) e).getFormat())};
 	}
 	
 	//delta[0] has to be a String unless Skript has horribly gone wrong
 	@Override
 	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (delta == null){
+		if (delta == null || !(e instanceof AsyncPlayerChatEvent)){
 			return;
 		}
 		String format = null;

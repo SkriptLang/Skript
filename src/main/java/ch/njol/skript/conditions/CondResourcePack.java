@@ -21,6 +21,7 @@ package ch.njol.skript.conditions;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -66,6 +67,9 @@ public class CondResourcePack extends Condition {
 	
 	@Override
 	public boolean check(Event e) {
+		if (!(e instanceof PlayerResourcePackStatusEvent))
+			return isNegated();
+
 		Status state = ((PlayerResourcePackStatusEvent) e).getStatus();
 		return states.check(e, state::equals, isNegated());
 	}

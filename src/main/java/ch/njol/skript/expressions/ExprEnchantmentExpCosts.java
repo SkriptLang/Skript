@@ -87,6 +87,9 @@ public class ExprEnchantmentExpCosts extends SimpleExpression<Long> {
 	@Override
 	@Nullable
 	protected Long[] get(Event event) {
+		if (!(event instanceof PrepareItemEnchantEvent))
+			return null;
+
 		PrepareItemEnchantEvent e = (PrepareItemEnchantEvent) event;
 		if (multiple) {
 			return Arrays.stream(e.getExpLevelCostsOffered())
@@ -113,7 +116,7 @@ public class ExprEnchantmentExpCosts extends SimpleExpression<Long> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (delta == null)
+		if (delta == null || !(event instanceof PrepareItemEnchantEvent))
 			return;
 		Object c = delta[0];
 		int cost = c instanceof Number ? ((Number) c).intValue() : ((Experience) c).getXP();

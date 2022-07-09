@@ -79,6 +79,9 @@ public class ExprProtocolVersion extends SimpleExpression<Long> {
 	@Override
 	@Nullable
 	public Long[] get(Event e) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return null;
+
 		return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getProtocolVersion());
 	}
 
@@ -97,6 +100,9 @@ public class ExprProtocolVersion extends SimpleExpression<Long> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		((PaperServerListPingEvent) e).setProtocolVersion(((Number) delta[0]).intValue());
 	}
 

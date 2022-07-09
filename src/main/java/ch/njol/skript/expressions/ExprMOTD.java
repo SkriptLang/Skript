@@ -69,6 +69,9 @@ public class ExprMOTD extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String[] get(Event e) {
+		if (!isDefault && !(e instanceof ServerListPingEvent))
+			return null;
+
 		if (isDefault)
 			return CollectionUtils.array(Bukkit.getMotd());
 		else
@@ -96,6 +99,9 @@ public class ExprMOTD extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof ServerListPingEvent))
+			return;
+
 		ServerListPingEvent event = (ServerListPingEvent) e;
 		switch (mode) {
 			case SET:
