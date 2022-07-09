@@ -178,7 +178,6 @@ public class EffToggle extends Effect {
 	
 	/**
 	 * Handles toggling blocks on 1.12 and older.
-	 * @param e Event.
 	 */
 	private void executeLegacy(Block b) {
 		int type = b.getType().getId();
