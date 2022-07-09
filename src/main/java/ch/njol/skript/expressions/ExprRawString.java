@@ -39,7 +39,7 @@ import static ch.njol.skript.lang.SkriptParser.ParseResult;
 
 @Name("Raw String")
 @Description("Returns the string without formattings (colors etc.) and without stripping them from it, " +
-	"e.g. `raw \"&aHello There!\"` would output `&aHello There!`")
+	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
 @Examples("send raw \"&aThis text is unformatted!\" to all players")
 public class ExprRawString extends PropertyExpression<String, String> {
 
