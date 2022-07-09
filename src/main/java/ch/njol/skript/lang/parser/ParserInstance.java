@@ -243,12 +243,6 @@ public class ParserInstance {
 		hasDelayBefore = Kleenean.FALSE;
 	}
 
-	/*
-	All 6 combinations of isCurrentEvent:
-	- single or plural argument
-	- any, all or default check
-	 */
-
 	/**
 	 * This method checks whether <i>at least one</i> of the current event classes
 	 * is covered by the argument event class (i.e. equal to the class or a subclass of it).
