@@ -93,15 +93,16 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
+		if (mode != ChangeMode.RESET && delta == null)
 			return;
+
+		int newValue = mode != ChangeMode.RESET ? ((Number) delta[0]).intValue() : 0;
 
 		for (Object obj : getExpr().getArray(event)) {
 			Number oldValue = convert(obj);
 			if (oldValue == null && mode != ChangeMode.RESET)
 				continue;
 
-			int newValue = mode != ChangeMode.RESET ? ((Number) delta[0]).intValue() : 0;
 			switch (mode) {
 				case REMOVE:
 					setAge(obj, oldValue.intValue() - newValue);
