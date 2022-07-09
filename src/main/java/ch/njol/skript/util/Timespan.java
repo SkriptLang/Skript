@@ -63,7 +63,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private final long millis;
 
 	@SuppressWarnings("unchecked")
-	final static NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
+	static final NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
 		new NonNullPair<>(Times.YEAR.name, Times.YEAR.time),
 		new NonNullPair<>(Times.MONTH.name, Times.MONTH.time),
 		new NonNullPair<>(Times.WEEK.name, Times.WEEK.time),
