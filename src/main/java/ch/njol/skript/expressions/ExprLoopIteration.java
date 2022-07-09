@@ -35,7 +35,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Loop Iteration")
-@Description("Returns the loop's current iteration count (for both normal and while loop).")
+@Description("Returns the loop's current iteration count (for both normal and while loops).")
 @Examples({
 	"while player is online:",
 		"\tgive player 1 stone",
