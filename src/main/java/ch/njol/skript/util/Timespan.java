@@ -19,6 +19,7 @@
 package ch.njol.skript.util;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Locale;
 
@@ -38,29 +39,24 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 	private enum Times {
 
-		TICK(new Noun("time.tick"), 50L),
-		SECOND(new Noun("time.second"), 1000L),
-		MINUTE(new Noun("time.minute"), SECOND.time * 60L),
-		HOUR(new Noun("time.hour"), MINUTE.time * 60L),
-		DAY(new Noun("time.day"), HOUR.time * 24L),
-		WEEK(new Noun("time.week"), DAY.time * 7L),
-		MONTH(new Noun("time.month"), DAY.time * 30L),
-		YEAR(new Noun("time.year"), DAY.time * 365L);
+		TICK("time.tick", 50L),
+		SECOND("time.second", 1000L),
+		MINUTE("time.minute", SECOND.time * 60L),
+		HOUR("time.hour", MINUTE.time * 60L),
+		DAY("time.day", HOUR.time * 24L),
+		WEEK("time.week", DAY.time * 7L),
+		MONTH("time.month", DAY.time * 30L),
+		YEAR("time.year", DAY.time * 365L);
 
 		private final Noun name;
 		private final long time;
 
-		Times(Noun name, long time) {
-			this.name = name;
+		Times(String name, long time) {
+			this.name = new Noun(name);
 			this.time = time;
 		}
 
 	}
-
-	public static final Pattern TIMESPAN_PATTERN = Pattern.compile("^\\d+:\\d\\d(:\\d\\d){0,2}(\\.\\d{1,4})?$");
-	public static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
-	private static final HashMap<String, Long> parseValues = new HashMap<>();
-	private final long millis;
 
 	@SuppressWarnings("unchecked")
 	static final NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
@@ -84,6 +80,12 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			}
 		});
 	}
+
+	public static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
+	public static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
+	public static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final HashMap<String, Long> parseValues = new HashMap<>();
+	private final long millis;
 	
 	@Nullable
 	public static Timespan parse(final String s) {
@@ -94,21 +96,28 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
-		if (TIMESPAN_PATTERN.matcher(s).matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
-			final String[] ss = s.split("[:.]");
-			final long[] times = {Times.DAY.time, Times.HOUR.time, Times.MINUTE.time, Times.SECOND.time, 1L}; // d, h, m, s, ms
+		Matcher matcher = TIMESPAN_PATTERN.matcher(s);
+		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
+			final String[] ss = TIMESPAN_SPLIT_PATTERN.split(s);
+			final long[] times = {1L, Times.SECOND.time, Times.MINUTE.time, Times.HOUR.time, Times.DAY.time}; // ms, s, m, h, d
 
 			boolean hasMs = s.contains(".");
 			int length = ss.length;
-			int offset = 2; // MM:SS[.ms]
-			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
-				offset = 0;
-			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
-				offset = 1;
-
-			for (int i = 0; i < ss.length; i++) {
-				t += times[offset + i] * Utils.parseLong("" + ss[i]);
+			for (int i = length - 1; i >= 0; i--) {
+//				for (int i = 0; i < ss.length; i++) {
+				t += times[length - (hasMs ? 1 : 0)] * Utils.parseLong("" + ss[i - 1]); // DD:HH:MM:SS.ms length=5
+//				}
 			}
+//			int offset = 2; // MM:SS[.ms]
+//			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
+//				offset = 0;
+//			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
+//				offset = 1;
+//
+//			for (int i = 0; i < ss.length; i++) {
+//				t += times[offset + i] * Utils.parseLong("" + ss[i]);
+//			}
+
 		} else { // <number> minutes/seconds/.. etc
 			final String[] subs = s.toLowerCase(Locale.ENGLISH).split("\\s+");
 			for (int i = 0; i < subs.length; i++) {
@@ -131,7 +140,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 					try {
 						amount = Double.parseDouble(sub);
 					} catch (NumberFormatException e) {
-						throw new IllegalArgumentException("invalid timespan: " + s);
+						throw new IllegalArgumentException("Invalid timespan: " + s);
 					}
 					sub = subs[++i];
 				}
