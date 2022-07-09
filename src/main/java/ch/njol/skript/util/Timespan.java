@@ -195,7 +195,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 	
 	public long getTicks_i() {
-		return Math.round((millis / 50f));
+		return millis / Times.TICK.time;
 	}
 	
 	/**
