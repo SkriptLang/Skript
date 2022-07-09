@@ -18,14 +18,21 @@
  */
 package ch.njol.skript.util;
 
+import java.util.*;
+
+import ch.njol.util.*;
+import ch.njol.util.coll.CollectionUtils;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffTeleport;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.*;
-import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;

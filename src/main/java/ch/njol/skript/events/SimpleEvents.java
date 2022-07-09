@@ -37,10 +37,8 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -192,10 +190,6 @@ public class SimpleEvents {
 		Skript.registerEvent("Combust", SimpleEvent.class, EntityCombustEvent.class, "combust[ing]")
 				.description("Called when an entity is set on fire, e.g. by fire or lava, a fireball, or by standing in direct sunlight (zombies, skeletons).")
 				.examples("on combust:")
-				.since("1.0");
-		Skript.registerEvent("Explode", SimpleEvent.class, EntityExplodeEvent.class, "explo(d(e|ing)|sion)")
-				.description("Called when an entity (a primed TNT or a creeper) explodes.")
-				.examples("on explosion:")
 				.since("1.0");
 //		Skript.registerEvent(SimpleEvent.class, EntityInteractEvent.class, "interact");// = entity interacts with block, e.g. endermen?; player -> PlayerInteractEvent // likely tripwires, pressure plates, etc.
 		Skript.registerEvent("Portal Enter", SimpleEvent.class, EntityPortalEnterEvent.class, "portal enter[ing]", "entering [a] portal")

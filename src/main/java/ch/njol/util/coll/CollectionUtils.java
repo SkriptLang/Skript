@@ -19,6 +19,7 @@
 package ch.njol.util.coll;
 
 import ch.njol.util.Pair;
+import ch.njol.util.Predicate;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -26,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -434,6 +436,27 @@ public abstract class CollectionUtils {
 			wrapped[i] = primitive[i];
 		}
 		return wrapped;
+	}
+
+	/**
+	 * Removes the first n elements from a Collection that matches the filter
+	 *
+	 * @param coll the {@link Collection} to remove from.
+	 * @param n the amount of elements to remove
+	 * @param filter the {@link Predicate} / filter that will be checked to remove the elements
+	 * @return amount of elements that matched the filter and have been removed.
+	 */
+	public <E> int removeFirstIf(Collection<E> coll, int n, Predicate<E> filter) {
+		Iterator<E> each = coll.iterator();
+		int removed = 0;
+
+		for (; each.hasNext() && n > 0; n--) {
+			if (filter.test(each.next())) {
+				each.remove();
+				removed++;
+			}
+		}
+		return removed;
 	}
 	
 }
