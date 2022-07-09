@@ -38,7 +38,7 @@ import java.util.List;
 import static ch.njol.skript.lang.SkriptParser.ParseResult;
 
 @Name("Raw String")
-@Description("Returns the string without any formatting it nor stripping the formats from it, " +
+@Description("Returns the string without formattings (colors etc.) and without stripping them from it, " +
 	"e.g. `raw \"&aHello There!\"` would output `&aHello There!`")
 @Examples("send raw \"&aThis text is unformatted!\" to all players")
 public class ExprRawString extends PropertyExpression<String, String> {
