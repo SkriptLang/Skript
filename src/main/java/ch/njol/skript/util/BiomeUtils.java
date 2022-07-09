@@ -28,7 +28,8 @@ public class BiomeUtils {
 
 	private final static EnumUtils<Biome> util = new EnumUtils<>(Biome.class, "biomes");
 
-	public static @Nullable Biome parse(String name) {
+	@Nullable
+	public static Biome parse(String name) {
 		return util.parse(name);
 	}
 
