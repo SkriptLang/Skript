@@ -27,6 +27,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -37,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ch.njol.skript.lang.SkriptParser.ParseResult;
 
 @Name("Raw String")
 @Description("Returns the string without formatting (colors etc.) and without stripping them from it, " +
