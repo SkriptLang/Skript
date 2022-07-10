@@ -18,8 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.chat.ChatMessages;
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.checkerframework.checker.regex.qual.Regex;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -32,6 +36,9 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Case Text")
 @Description("Copy of given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, and Kebab-Case")
@@ -121,8 +128,11 @@ public class ExprStringCase extends SimpleExpression<String> {
 					case 0: // Basic Case Change 
 						strs[i] = (casemode == 1) ? strs[i].toUpperCase() : strs[i].toLowerCase();
 						break;
-					case 1: // Proper Case 
+					case 1: // Proper Case
+						String cStr = strs[i];
+						strs[i] = strs[i].replaceAll("[&§][0-9a-fk-orx]", "").replaceAll("<#(?:[0-9a-fA-F]{3}){1,2}$>", "");
 						strs[i] = (casemode == 3) ? WordUtils.capitalizeFully(strs[i]) : WordUtils.capitalize(strs[i]);
+						strs[i] = addColorCodes(cStr, strs[i]);
 						break;
 					case 2: // Camel Case 
 						strs[i] = toCamelCase(strs[i], casemode == 3);
@@ -168,24 +178,28 @@ public class ExprStringCase extends SimpleExpression<String> {
 			case 5: // Kebab Case 
 				return ((casemode == 0) ? "" : ((casemode == 1)) ? "upper " : "lower ") + "kebab case";
 		}
-		return ""; // Shouldn't reach here anyways 
+		return ""; // Shouldn't reach here anyways
 	}
 	
 	@SuppressWarnings("null")
 	private static String toCamelCase(String str, boolean strict) {
-		String[] words = str.split(" "); // Splits at spaces 
+		String cStr = str.replaceAll(" ", "");
+		str = str.replaceAll("[&§][0-9a-fk-orx]", "").replaceAll("<#(?:[0-9a-fA-F]{3}){1,2}$>", "");
+		String[] words = str.split(" "); // Splits at spaces
 		String buf = words.length > 0 ? (strict ? words[0].toLowerCase() : WordUtils.uncapitalize(words[0])) : "";
 		for (int i = 1; i < words.length; i++)
 			buf += strict ? WordUtils.capitalizeFully(words[i]) : WordUtils.capitalize(words[i]);
-		return buf;
+		return addColorCodes(cStr, buf);
 	}
 	
 	private static String toPascalCase(String str, boolean strict) {
-		String[] words = str.split(" "); // Splits at spaces 
+		String cStr = str.replaceAll(" ", "");
+		str = str.replaceAll("[&§][0-9a-fk-orx]", "").replaceAll("<#(?:[0-9a-fA-F]{3}){1,2}$>", "");
+		String[] words = str.split(" "); // Splits at spaces
 		String buf = "";
 		for (int i = 0; i < words.length; i++)
 			buf += strict ? WordUtils.capitalizeFully(words[i]) : WordUtils.capitalize(words[i]);
-		return buf;
+		return addColorCodes(cStr, buf);
 	}
 	
 	@SuppressWarnings("null")
@@ -209,5 +223,23 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return sb.toString();
 	}
-	
+
+	private static String addColorCodes(String colored, String uncolored) {
+		StringBuilder stringBuilder = new StringBuilder(uncolored);
+		Matcher matcher = Pattern.compile("<#(?:[0-9a-fA-F]{3}){1,2}$>").matcher(colored);
+		int i = 0;
+		while (matcher.find()) {
+			stringBuilder.insert(colored.indexOf(matcher.group()) + i, matcher.group());
+			colored = colored.replaceFirst("<#(?:[0-9a-fA-F]{3}){1,2}$>", "");
+			i = i + 9;
+		}
+		matcher = Pattern.compile("[&§][0-9a-fk-orx]").matcher(colored);
+		i = 0;
+		while (matcher.find()) {
+			stringBuilder.insert(colored.indexOf(matcher.group()) + i, matcher.group());
+			colored = colored.replaceFirst("[&§][0-9a-fk-orx]", "");
+			i = i + 2;
+		}
+		return stringBuilder.toString();
+	}
 }
