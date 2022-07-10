@@ -1,0 +1,190 @@
+# Polski plik językowy
+
+# Dla której wersji Skriptu został napisany ten plik językowy
+version: @version@
+
+# Co null (nic) powinno być wyświetlane jako ciąg / tekst
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ stworzony przez & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] # nieużywany
+	quotes error: Nieprawidłowe użycie cudzysłowów ("). Jeśli chcesz użyć cudzysłowów w "tekście cytowanym", podwoić je: "".
+	brackets error: Nieprawidłowa ilość lub rozmieszczenie nawiasów. Upewnij się, że każdy nawias otwierający ma odpowiadający mu nawias zamykający.
+	invalid reload: Skript może być przeładowany tylko przez polecenie '/reload' Bukkita lub '/skript reload'.
+	no scripts: Nie znaleziono żadnych skryptów, może warto jakieś napisać ;)
+	no errors: Wszystkie skrypty załadowane bez błędów.
+	scripts loaded: Załadowano %s skrytptów¦¦s¦ o łącznej wartości %s wyzwalacza¦¦s¦ i %s komend¦¦s¦ w %s
+	finished loading: Zakończone ładowanie.
+
+# -- Komendy Skript --
+skript command:
+	usage: użycie:
+	help:
+		description: Główne polecenie Skriptu
+		help: wpisując tę wiadomość pomocy. Użyj '/skript reload/enable/disable/update' aby uzyskać więcej informacji
+		reload:
+			description: Przeładowuje konfigurację, wszystkie skrypty, wszystko, lub konkretny skrypt
+			all: Przeładowuje konfigurację, wszystkie konfiguracje aliasów i wszystkie skrypty
+			config: Przeładowuje główną konfigurację
+			aliases: Przeładowuje konfiguracje aliasów (aliases-english.zip lub plugin jar)
+			scripts: Przeładowuje wszystkie skrypty
+			<script>: Przeładowuje określony skrypt lub folder skryptów
+		enable:
+			description: Włącza wszystkie skrypty lub określony
+			all: Włącza wszystkie skrypty
+			<script>: Włącza określony skrypt lub folder skryptów
+		disable:
+			description: Wyłącza wszystkie skrypty lub konkretny
+			all: Wyłącza wszystkie skrypty
+			<script>: Wyłącza określony skrypt lub folder skryptów
+		update:
+			description: Sprawdź aktualizacje, przeczytaj changelog lub pobierz najnowszą wersję Skript
+			check: Sprawdza, czy jest nowa wersja
+			changes: Wyświetla wszystkie zmiany od bieżącej wersji
+			download: Pobierz najnowszą wersję
+		info: Drukuje wiadomość z linkami do aliasów i dokumentacji Skryptu
+		gen-docs: Generuje dokumentację przy użyciu doc-templates w folderze pluginów
+		test: Służy do uruchamiania testów Skript.
+
+	invalid script: Nie można znaleźć skryptu <grey>'<gold>%s<grey>'<red> w folderze scripts!
+	invalid folder: Nie można znaleźć folderu <grey>'<gold>%s<grey>'<red> w folderze scripts!
+	reload:
+		warning line info: <gold><bold>Linia %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Linia %s:<gray> (%s)<reset>\n
+		reloading: Przeładowywanie <gold>%s<reset>...
+		reloaded: <lime>Przeładowanie zakończone sukcesem <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		error: <light red>Encountered <gold>%2$s <light red>błąd¦¦s¦ podczas przeładowywania <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> jest obecnie wyłączony. Użyj <gray>/<gold>skript <cyan>enable <red>%s<reset> aby go włączyć.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Linia: <gray>%s<reset>\n <reset>
+
+		config, aliasy i skrypty: konfiguracja, aliasy i wszystkie skrypty
+		scripts: wszystkie skrypty
+		main config: konfiguracja główna
+		aliases: aliasy
+		script: <gold>%s<reset>
+		scripts in folder: wszystkie skrypty w <gold>%s<reset>
+		x scripts in folder: <gold>%2$s <reset>skrypt¦¦s¦ w <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> nie zawiera żadnych włączonych skryptów.
+	enable:
+		all:
+			enabling: Włączenie wszystkich wyłączonych skryptów...
+			enabled: Udało się włączyć i sparsować wszystkie wcześniej wyłączone skrypty.
+			error: Spotkano %s błędy¦¦s¦ podczas sprawdzania wyłączonych skryptów!
+			io error: Nie można załadować żadnych skryptów (niektóre skrypty mogły zostać już przemianowane i zostaną włączone po ponownym uruchomieniu serwera): %s
+		single:
+			already enabled: <gold>%s<reset> jest już włączone! Użyj <gray>/<gold>skript <cyan>reload <red>%s<reset> aby przeładować go, jeśli został edytowany.
+			enabling: Właczanie <gold>%s<reset>...
+			enabled: Pomyślnie włączone i przetworzone <gold>%s<reset>.
+			error: Napotkano %2$s bład¦¦s¦ podczas przetwarzania <gold>%1$s<red>!
+			io error: Nie można włączyć <gold>%s<red>: %s
+		folder:
+			empty: <gold>%s<reset> nie zawiera żadnych wyłączonych skryptów.
+			enabling: Włączanie <gold>%2$s <reset>skryptu¦¦s¦ w <gold>%1$s<reset>...
+			enabled: Pomyślnie włączone i przetworzone <gold>%2$s<reset> wcześniej wyłączone skrypty w <gold>%1$s<reset>.
+			error: Napotkano %2$s bład¦¦s¦ podczas przetwarzania skryptów w <gold>%1$s<red>!
+			io error: Błąd podczas włączania skryptów w <gold>%s<red> (niektóre skrypty mogą zostać włączone po ponownym uruchomieniu serwera): %s
+	disable:
+		all:
+			disabled: Udało się wyłączyć wszystkie skrypty.
+			io error: Nie udało się zmienić nazwy wszystkich skryptów - niektóre skrypty zostaną ponownie włączone po ponownym uruchomieniu serwera: %s
+		single:
+			already disabled: <gold>%s<reset> jest już wyłączony!
+			disabled: Wyłączono pomyślnie <gold>%s<reset>.
+			io error: Nie można zmienić nazwy <gold>%s<red>, zostanie on ponownie włączony po ponownym uruchomieniu serwera: %s
+		folder:
+			empty: <gold>%s<reset> nie zawiera żadnych włączonych skryptów,
+			disabled: Wyłączono pomyślnie <gold>%2$s<reset> skrypt(y) w <gold>%1$s<reset>.
+			io error: Nie można wyłączyć żadnego skryptu w <gold>%s<red> (niektóre skrypty mogą zostać wyłączone po ponownym uruchomieniu serwera): %s
+	update:
+		# sprawdzanie/ pobieranie: patrz Aktualizator
+		changes:
+			# wiele wersji:
+			# 	tytuł: <gold>%s<r> aktualizacja¦ ma¦mają¦ zostały wydane od czasu tej wersji (<gold>%s<r>) z Skript:
+			# 	stopka: Aby wyświetlić changelog wersji, wpisz <gold>/skript update changes <version><reset>
+			# nieprawidłowa wersja: Brak changelogu dla wersji <gold>%s<red> available
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>strona %s z %s. Wpisz <gold>/skript update changes %s<gray> na następną stronę (wskazówka: użyj klawisza strzałki w górę)
+	info:
+		aliases: Aliasy Skriptu można znaleźć tutaj.: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Dokumentację Skript można znaleźć tutaj: <aqua>https://docs.skriptlang.org/
+		tutorials: Tutoriale Skript można znaleźć tutaj: <aqua>https://docs.skriptlang.org/tutorials
+		version: Wersja Skript: <aqua>%s
+		server: Wersja serwera: <aqua>%s
+		addons: Installed Skript Addons: <aqua>%s
+		dependencies: Zainstalowane zależności: <aqua>%s
+
+# -- Aktualizator --
+updater:
+	not started: Skript nie sprawdził jeszcze najnowszej wersji. Użyj <gold>/skript update check<reset> aby sprawdzić.
+	checking: Sprawdzanie czy jest najnowsza wersja Skript...
+	check in progress: Sprawdzanie nowej wersji jest obecnie w toku.
+	updater disabled: Aktualizator jest wyłączony, więc sprawdzenie najnowszej wersji Skript nie zostało wykonane.
+	check error: <red>Wystąpił błąd sprawdzania najnowszej wersji Skript:<light red> %s
+	running latest version: Obecnie używasz najnowszej stabilnej wersji Skript.
+	running latest version (beta): aktualnie masz włączoną <i>bete<r> wersji Skript, i żadnych nowych <i>stabilnych<r> wersja jest dostępna. Należy pamiętać, że aktualizację do nowszych wersji beta należy przeprowadzić ręcznie!
+	update available: Nowa wersja Skript jest dostępna: <gold>%s<reset> (obecnie prowadzisz <gold>%s<reset>)
+	downloading: Pobieranie Skryptu <gold>%s<reset>...
+	download in progress: Obecnie trwa pobieranie najnowszej wersji programu Skript.
+	download error: <red>Wystąpił błąd przy pobieraniu najnowszej wersji Skript.:<light red> %s
+	downloaded: Najnowsza wersja programu Skript została pobrana! Uruchom ponownie serwer lub użyj /reload aby zastosować zmiany.
+	internal error: Podczas sprawdzania najnowszej wersji Skript wystąpił wewnętrzny błąd. Szczegółowe informacje znajdują się w logu serwera.
+	custom version: Obecnie używasz niestandardowej wersji Skript. Żadne aktualizacje nie zostaną automatycznie zainstalowane.
+	nightly build: Obecnie używasz wersji rozwojowej programu Skript. Żadne aktualizacje nie zostaną automatycznie zainstalowane.
+
+# -- Commands --
+commands:
+	no permission message: Nie masz wymaganych uprawnień, aby użyć tego polecenia
+	cooldown message: Używasz tego polecenia zbyt często, spróbuj ponownie później
+	executable by players: Ta komenda może być użyta tylko przez graczy
+	executable by console: To polecenie może być użyte tylko przez konsolę
+	correct usage: Prawidłowe użycie:
+	invalid argument: Nieważny argument <gray>'%s<gray>'<reset>. Dozwolone są:
+	too many arguments: To polecenie może zaakceptować tylko jedno %2$s.
+	internal error: Podczas próby wykonania tego polecenia wystąpił wewnętrzny błąd.
+	no player starts with: Nie ma w sieci gracza, którego imię zaczyna się od '%s'
+	multiple players start with: W sieci jest kilku graczy, których nazwiska zaczynają się od '%s'
+
+# -- Połączenia --
+hooks:
+	hooked: Udało się zahaczyć o %s
+	error: Nie można było podłączyć się do %1$s. Może się to zdarzyć, jeśli Skript nie obsługuje zainstalowanej wersji %1$s
+
+# -- Aliasy --
+aliases:
+	# Błędy i ostrzeżenia
+	empty string: '' nie jest typem pozycji
+	invalid item type: '%s' nie jest typem pozycji
+	empty name: Alias musi mieć nazwę
+	brackets error: Nieprawidłowe użycie nawiasów
+	not enough brackets: Sekcja zaczynająca się od znaku %s ('%s') musi być zamknięta
+	too many brackets: Znak %s ('%s') zamyka nieistniejącą sekcję
+	unknown variation: Zróżnicowanie %s nie został zdefiniowany przed
+	missing aliases: Podążając za Minecraft ids nie mają żadnych aliasów:
+	empty alias: Alias nie ma zdefiniowanego Minecraft id ani tagów.
+	invalid minecraft id: Minecraft id %s jest nieprawidłowy
+	useless variation: Wariacja nie ma określonego Minecraft id ani tagów, więc jest bezużyteczna
+	invalid tags: Podane tagi nie są zdefiniowane w poprawnym JSON.
+	unexpected section: Sekcje nie są tu dozwolone
+	invalid variation section: Sekcja powinna być sekcją wariacyjną, ale %s nie jest prawidłową nazwą wariantu
+	outside section: Aliasy muszą być umieszczone w sekcjach
+
+	# Inne wiadomości
+	loaded x aliases from: Załadowano %s angielskie aliasy od %s
+	loaded x aliases: Załadowano łącznie %s angielskie aliasy
+
+# -- Czas --
+time:
+	errors:
+		24 hours: Dzień ma tylko 24 godziny
+		12 hours: Użycie formatu 12-godzinnego nie pozwala na więcej niż 12 godzin
+		60 minutes: Godzina ma tylko 60 minut
+
+# -- Wyjątki IO --
+io exceptions:
+	unknownhostexception: Nie można się połączyć z %s
+	accessdeniedexception: Odmowa dostępu dla %s
