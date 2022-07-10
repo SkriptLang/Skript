@@ -18,12 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.chat.ChatMessages;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.checkerframework.checker.regex.qual.Regex;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
