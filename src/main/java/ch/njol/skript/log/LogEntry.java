@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.log;
 
-import java.util.Objects;
 import java.util.logging.Level;
 
 import ch.njol.skript.localization.ArgsMessage;
