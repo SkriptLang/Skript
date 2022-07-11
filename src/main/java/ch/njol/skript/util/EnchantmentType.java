@@ -20,6 +20,7 @@ package ch.njol.skript.util;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -118,7 +119,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 				NAMES.put(e, names[0]);
 				
 				for (String name : names)
-					PATTERNS.put(name.toLowerCase(), e);
+					PATTERNS.put(name.toLowerCase(Locale.ENGLISH), e);
 			}
 		});
 	}
@@ -152,7 +153,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 	
 	@Nullable
 	public static Enchantment parseEnchantment(final String s) {
-		return PATTERNS.get(s.toLowerCase());
+		return PATTERNS.get(s.toLowerCase(Locale.ENGLISH));
 	}
 	
 	@SuppressWarnings("null")
