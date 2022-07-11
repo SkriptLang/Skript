@@ -34,6 +34,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
@@ -602,6 +603,19 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Inventory inventory, InventoryType inventoryType) {
 				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// World - WeatherType
+		Comparators.registerComparator(World.class, WeatherType.class, new Comparator<World, WeatherType>() {
+			@Override
+			public Relation compare(World world, WeatherType weatherType) {
+				return Relation.get(WeatherType.fromWorld(world) == weatherType);
 			}
 
 			@Override
