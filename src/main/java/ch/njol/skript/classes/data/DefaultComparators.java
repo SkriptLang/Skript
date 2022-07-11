@@ -25,6 +25,7 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
+import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
@@ -51,6 +52,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.ChestBoat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
@@ -121,16 +123,14 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Slot o1, Number o2) {
 				if (o1 instanceof SlotWithIndex) {
-					boolean same = ((SlotWithIndex) o1).getIndex() == o2.intValue();
-					if (same) // Slot has index and the index is same with number
-						return Relation.EQUAL;
+					return Relation.get(((SlotWithIndex) o1).getIndex() - o2.intValue());
 				}
 				return Relation.NOT_EQUAL;
 			}
 
 			@Override
 			public boolean supportsOrdering() {
-				return false;
+				return true;
 			}
 
 		});
@@ -297,6 +297,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof BoatChestData)
+				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
 				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
@@ -512,13 +514,13 @@ public class DefaultComparators {
 			public Relation compare(DamageCause dc, EntityData e) {
 				switch (dc) {
 					case ENTITY_ATTACK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Entity.class)));
+						return Relation.get(EntityData.fromClass(Entity.class).isSupertypeOf(e));
 					case PROJECTILE:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Projectile.class)));
+						return Relation.get(EntityData.fromClass(Projectile.class).isSupertypeOf(e));
 					case WITHER:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(Wither.class)));
+						return Relation.get(EntityData.fromClass(Wither.class).isSupertypeOf(e));
 					case FALLING_BLOCK:
-						return Relation.get(e.isSupertypeOf(EntityData.fromClass(FallingBlock.class)));
+						return Relation.get(EntityData.fromClass(FallingBlock.class).isSupertypeOf(e));
 						//$CASES-OMITTED$
 					default:
 						return Relation.NOT_EQUAL;
