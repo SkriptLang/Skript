@@ -224,6 +224,16 @@ public class FunctionReference<T> {
 						function = previousFunction;
 					}
 					return false;
+				} else if (p.single && !e.isSingle()) {
+					if (first) {
+						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
+							+ "but a single argument was expected");
+					} else {
+						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+							+ " These will continue to use the old version of the function until Skript restarts.");
+						function = previousFunction;
+					}
+					return false;
 				}
 				parameters[i] = e;
 			} finally {
