@@ -84,7 +84,7 @@ public class StructCommand extends Structure {
 
 	private static final Pattern
 		COMMAND_PATTERN = Pattern.compile("(?i)^command /?(\\S+)\\s*(\\s+(.+))?$"),
-		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:(.+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
+		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
 		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
 	private static final AtomicBoolean syncCommands = new AtomicBoolean();

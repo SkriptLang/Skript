@@ -276,7 +276,7 @@ public class SkriptCommand implements CommandExecutor {
 
 			else if (args[0].equalsIgnoreCase("disable")) {
 
-				if (args[1].equals("all")) {
+				if (args[1].equalsIgnoreCase("all")) {
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 					try {
 						toggleFiles(Skript.getInstance().getScriptsFolder(), false);
@@ -338,7 +338,7 @@ public class SkriptCommand implements CommandExecutor {
 					Skript.info(sender, "" + SkriptUpdater.m_internal_error);
 					return true;
 				}
-				if (args[1].equals("check")) {
+				if (args[1].equalsIgnoreCase("check")) {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
@@ -350,6 +350,7 @@ public class SkriptCommand implements CommandExecutor {
 			else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
 				info(sender, "info.documentation");
+				info(sender, "info.tutorials");
 				info(sender, "info.server", Bukkit.getVersion());
 				info(sender, "info.version", Skript.getVersion());
 
