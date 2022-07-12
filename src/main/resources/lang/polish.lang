@@ -4,7 +4,7 @@
 version: @version@
 
 # What null (nothing) should show up as in a string/text
-none: <nic>
+none: <none>
 
 # -- Skript --
 skript:
