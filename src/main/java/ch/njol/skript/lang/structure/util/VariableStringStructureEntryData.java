@@ -35,7 +35,6 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 
 	private final StringMode stringMode;
 
-	@Nullable
 	private final Class<? extends Event>[] events;
 
 	/**
@@ -44,7 +43,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, Class<? extends Event>... events) {
 		super(key);
 		this.stringMode = StringMode.MESSAGE;
 		this.events = events;
@@ -56,7 +55,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, Class<? extends Event>... events) {
 		super(key, defaultValue);
 		this.stringMode = StringMode.MESSAGE;
 		this.events = events;
@@ -68,7 +67,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, boolean optional, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, boolean optional, Class<? extends Event>... events) {
 		super(key, optional);
 		this.stringMode = StringMode.MESSAGE;
 		this.events = events;
@@ -81,7 +80,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, StringMode stringMode, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, StringMode stringMode, Class<? extends Event>... events) {
 		super(key);
 		this.stringMode = stringMode;
 		this.events = events;
@@ -94,7 +93,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, StringMode stringMode, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, StringMode stringMode, Class<? extends Event>... events) {
 		super(key, defaultValue);
 		this.stringMode = stringMode;
 		this.events = events;
@@ -107,7 +106,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, boolean optional, StringMode stringMode, @Nullable Class<? extends Event>... events) {
+	public VariableStringStructureEntryData(String key, boolean optional, StringMode stringMode, Class<? extends Event>... events) {
 		super(key, optional);
 		this.stringMode = stringMode;
 		this.events = events;

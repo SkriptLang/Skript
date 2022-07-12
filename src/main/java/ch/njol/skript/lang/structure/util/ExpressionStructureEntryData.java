@@ -33,8 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<Expression<? extends T>> {
 
 	private final Class<T> returnType;
-
-	@Nullable
+	
 	private final Class<? extends Event>[] events;
 
 	/**

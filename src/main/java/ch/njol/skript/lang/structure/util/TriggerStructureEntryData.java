@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 
-	@Nullable
 	private final Class<? extends Event>[] events;
 
 	/**
@@ -45,7 +44,7 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public TriggerStructureEntryData(String key, @Nullable Class<? extends Event>... events) {
+	public TriggerStructureEntryData(String key, Class<? extends Event>... events) {
 		super(key);
 		this.events = events;
 	}
@@ -56,7 +55,7 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public TriggerStructureEntryData(String key, Trigger defaultValue, @Nullable Class<? extends Event>... events) {
+	public TriggerStructureEntryData(String key, Trigger defaultValue, Class<? extends Event>... events) {
 		super(key, defaultValue);
 		this.events = events;
 	}
@@ -67,7 +66,7 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public TriggerStructureEntryData(String key, boolean optional, @Nullable Class<? extends Event>... events) {
+	public TriggerStructureEntryData(String key, boolean optional, Class<? extends Event>... events) {
 		super(key, optional);
 		this.events = events;
 	}

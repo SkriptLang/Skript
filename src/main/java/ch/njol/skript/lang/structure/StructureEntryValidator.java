@@ -26,6 +26,7 @@ import ch.njol.util.NonNullPair;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,13 @@ public class StructureEntryValidator {
 		this.entryData = entryData;
 		this.allowUnknownEntries = allowUnknownEntries;
 		this.allowUnknownSections = allowUnknownSections;
+	}
+
+	/**
+	 * @return An unmodifiable list containing all {@link StructureEntryData} of this validator.
+	 */
+	public List<StructureEntryData<?>> getEntryData() {
+		return Collections.unmodifiableList(entryData);
 	}
 
 	/**

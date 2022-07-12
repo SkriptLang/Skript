@@ -26,9 +26,11 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.structure.Structure;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Validate;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -39,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ParserInstance {
 	
@@ -67,7 +68,6 @@ public class ParserInstance {
 	// Event
 	@Nullable
 	private String currentEventName;
-	@Nullable
 	private Class<? extends Event>[] currentEvents;
 	@Nullable
 	private SkriptEvent currentSkriptEvent;
@@ -165,8 +165,7 @@ public class ParserInstance {
 	public String getCurrentEventName() {
 		return currentEventName;
 	}
-	
-	@Nullable
+
 	public Class<? extends Event>[] getCurrentEvents() {
 		return currentEvents;
 	}
@@ -276,8 +275,14 @@ public class ParserInstance {
 	public void setCurrentEventName(@Nullable String currentEventName) {
 		this.currentEventName = currentEventName;
 	}
-	
-	public void setCurrentEvents(@Nullable Class<? extends Event>[] currentEvents) {
+
+	/**
+	 * @param currentEvents The events that may be present during execution.
+	 *                      An instance of the events present in the provided array MUST be used to execute any loaded items.
+	 *                      If items are to be loaded without context, use {@link ContextlessEvent}.
+	 */
+	public void setCurrentEvents(Class<? extends Event>[] currentEvents) {
+		Validate.isTrue(currentEvents.length != 0, "'currentEvents' may not be empty!");
 		this.currentEvents = currentEvents;
 		getDataInstances().forEach(data -> data.onCurrentEventsChange(currentEvents));
 	}
@@ -310,7 +315,8 @@ public class ParserInstance {
 	
 	// Other
 	@SafeVarargs
-	public final void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
+	public final void setCurrentEvent(String name, Class<? extends Event>... events) {
+		Validate.isTrue(events.length != 0, "'events' may not be empty!");
 		currentEventName = name;
 		setCurrentEvents(events);
 		hasDelayBefore = Kleenean.FALSE;
@@ -318,11 +324,11 @@ public class ParserInstance {
 	
 	public void deleteCurrentEvent() {
 		currentEventName = null;
-		setCurrentEvents(null);
+		setCurrentEvents(CollectionUtils.array(ContextlessEvent.class));
 		hasDelayBefore = Kleenean.FALSE;
 	}
 	
-	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
+	public boolean isCurrentEvent(Class<? extends Event> event) {
 		return CollectionUtils.containsSuperclass(currentEvents, event);
 	}
 	
@@ -356,7 +362,7 @@ public class ParserInstance {
 
 		public void onCurrentScriptChange(@Nullable Script oldScript, @Nullable Script newScript) { }
 
-		public void onCurrentEventsChange(@Nullable Class<? extends Event>[] currentEvents) { }
+		public void onCurrentEventsChange(Class<? extends Event>[] currentEvents) { }
 		
 	}
 	
