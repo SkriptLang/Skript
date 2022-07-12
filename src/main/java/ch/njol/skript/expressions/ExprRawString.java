@@ -60,7 +60,7 @@ public class ExprRawString extends PropertyExpression<String, String> {
 			((ExpressionList<String>) getExpr()).getExpressions() : new Expression[]{getExpr()};
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof ExprColoured) {
-				Skript.error("the 'colored' expression may not be used with a 'raw string' expression");
+				Skript.error("The 'colored' expression may not be used with a 'raw string' expression");
 				return false;
 			}
 		}
