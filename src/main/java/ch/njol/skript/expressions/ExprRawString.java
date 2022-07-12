@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 @Name("Raw String")
 @Description("Returns the string without formatting (colors etc.) and without stripping them from it, " +
 	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
