@@ -29,6 +29,7 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -43,32 +44,34 @@ import java.util.List;
 	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
 @Examples("send raw \"&aThis text is unformatted!\" to all players")
 @Since("INSERT VERSION")
-public class ExprRawString extends PropertyExpression<String, String> {
+public class ExprRawString extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.SIMPLE, "raw %strings%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<? extends String> expr;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<? extends String>[] messages;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(LiteralUtils.defendExpression(exprs[0]));
-		messages = getExpr() instanceof ExpressionList<?> ?
-			((ExpressionList<String>) getExpr()).getExpressions() : new Expression[]{getExpr()};
+		expr = LiteralUtils.defendExpression(exprs[0]);
+		messages = expr instanceof ExpressionList<?> ?
+			((ExpressionList<String>) expr).getExpressions() : new Expression[]{expr};
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof ExprColoured) {
 				Skript.error("The 'colored' expression may not be used with a 'raw string' expression");
 				return false;
 			}
 		}
-		return LiteralUtils.canInitSafely(getExpr());
+		return LiteralUtils.canInitSafely(expr);
 	}
 
 	@Override
-	protected String[] get(Event e, String[] source) {
+	protected String[] get(Event e) {
 		List<String> strings = new ArrayList<>();
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof VariableString) {
@@ -81,13 +84,17 @@ public class ExprRawString extends PropertyExpression<String, String> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return expr.isSingle();
+	}
+
+	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "raw " + getExpr().toString(e, debug);
+		return "raw " + expr.toString(e, debug);
 	}
-
 }
