@@ -2,5 +2,10 @@ test "entities in chunk":
 	spawn 10 sheep at spawn of world "world"
 	wait 1 tick
 	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not > 10: %size of all entities in chunk at spawn of world "world"%"
+
+	loop all entities in chunk at spawn of world "world":
+		add loop-entity to {_e::*}
+	assert size of {_e::*} >= 10 with "Size of all entities in spawn chunk is not > 10 (iterating): %size of {_e::*}%"
+
 	delete all entities in chunk at spawn of world "world"
 	assert size of all entities in chunk at spawn of world "world" = 0 with "Size of all entities in spawn chunk != 0: %size of all entities in chunk at spawn of world "world"%"
