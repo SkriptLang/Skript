@@ -1,10 +1,10 @@
-# Polski plik językowy
+# Default Polish language file
 
-# Dla której wersji Skriptu został napisany ten plik językowy
+# Which version of Skript this language file was written for
 version: @version@
 
-# Co null (nic) powinno być wyświetlane jako ciąg / tekst
-none: <none>
+# What null (nothing) should show up as in a string/text
+none: <nic>
 
 # -- Skript --
 skript:
@@ -18,7 +18,7 @@ skript:
 	scripts loaded: Załadowano %s skrytptów¦¦s¦ o łącznej wartości %s wyzwalacza¦¦s¦ i %s komend¦¦s¦ w %s
 	finished loading: Zakończone ładowanie.
 
-# -- Komendy Skript --
+# -- Skript command --
 skript command:
 	usage: użycie:
 	help:
@@ -101,7 +101,7 @@ skript command:
 			disabled: Wyłączono pomyślnie <gold>%2$s<reset> skrypt(y) w <gold>%1$s<reset>.
 			io error: Nie można wyłączyć żadnego skryptu w <gold>%s<red> (niektóre skrypty mogą zostać wyłączone po ponownym uruchomieniu serwera): %s
 	update:
-		# sprawdzanie/ pobieranie: patrz Aktualizator
+		# check/download: see Updater
 		changes:
 			# wiele wersji:
 			# 	tytuł: <gold>%s<r> aktualizacja¦ ma¦mają¦ zostały wydane od czasu tej wersji (<gold>%s<r>) z Skript:
@@ -118,7 +118,7 @@ skript command:
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Zainstalowane zależności: <aqua>%s
 
-# -- Aktualizator --
+# -- Updater --
 updater:
 	not started: Skript nie sprawdził jeszcze najnowszej wersji. Użyj <gold>/skript update check<reset> aby sprawdzić.
 	checking: Sprawdzanie czy jest najnowsza wersja Skript...
@@ -149,14 +149,14 @@ commands:
 	no player starts with: Nie ma w sieci gracza, którego imię zaczyna się od '%s'
 	multiple players start with: W sieci jest kilku graczy, których nazwiska zaczynają się od '%s'
 
-# -- Połączenia --
+# -- Hooks --
 hooks:
 	hooked: Udało się zahaczyć o %s
 	error: Nie można było podłączyć się do %1$s. Może się to zdarzyć, jeśli Skript nie obsługuje zainstalowanej wersji %1$s
 
-# -- Aliasy --
+# -- Aliases --
 aliases:
-	# Błędy i ostrzeżenia
+	# Errors and warnings
 	empty string: '' nie jest typem pozycji
 	invalid item type: '%s' nie jest typem pozycji
 	empty name: Alias musi mieć nazwę
@@ -173,18 +173,18 @@ aliases:
 	invalid variation section: Sekcja powinna być sekcją wariacyjną, ale %s nie jest prawidłową nazwą wariantu
 	outside section: Aliasy muszą być umieszczone w sekcjach
 
-	# Inne wiadomości
+	# Other messages
 	loaded x aliases from: Załadowano %s angielskie aliasy od %s
 	loaded x aliases: Załadowano łącznie %s angielskie aliasy
 
-# -- Czas --
+# -- Time --
 time:
 	errors:
 		24 hours: Dzień ma tylko 24 godziny
 		12 hours: Użycie formatu 12-godzinnego nie pozwala na więcej niż 12 godzin
 		60 minutes: Godzina ma tylko 60 minut
 
-# -- Wyjątki IO --
+# -- IO Exceptions --
 io exceptions:
 	unknownhostexception: Nie można się połączyć z %s
 	accessdeniedexception: Odmowa dostępu dla %s
