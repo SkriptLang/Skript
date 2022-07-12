@@ -93,6 +93,8 @@ enchantments:
 		quick_charge: Quick Charge
 		# new 1.16 Enchantment
 		soul_speed: Soul Speed
+		# new 1.19 Enchantment
+		swift_sneak: Swift Sneak
 
 # -- Potion Effects --
 potions:
@@ -132,6 +134,9 @@ potions:
 	# 1.14 potion effect types
 	bad_omen: bad omen
 	hero_of_the_village: hero of the village
+
+	# 1.19 potion effect types
+	darkness: darkness
 
 # -- Weather --
 weather:
@@ -253,6 +258,9 @@ biomes:
 	windswept_gravelly_hills: windswept gravelly hills, gravelly mountains
 	windswept_savanna: windswept savanna, shattered savanna
 	wooded_badlands: wooded badlands, wooded mesa, mesa forest, badlands forest
+	# 1.19 biomes
+	mangrove_swamp: mangrove swamp
+	deep_dark: deep dark
 
 # -- Tree Types --
 tree types:
@@ -1147,7 +1155,52 @@ entities:
 	glow item frame:
 		name: glow item frame¦s
 		pattern: glow item[ ]frame(|1¦s)
-
+	# 1.19 Entities
+	chest boat:
+		name: chest boat¦s
+		pattern: chest boat(|1¦s)
+	any chest boat:
+		name: chest boat¦s
+		pattern: any chest boat(|1¦s)
+	oak chest boat:
+		name: oak chest boat¦s
+		pattern: oak chest boat(|1¦s)
+	spruce chest boat:
+		name: spruce chest boat¦s
+		pattern: spruce chest boat(|1¦s)
+	birch chest boat:
+		name: birch chest boat¦s
+		pattern: birch chest boat(|1¦s)
+	jungle chest boat:
+		name: jungle chest boat¦s
+		pattern: jungle chest boat(|1¦s)
+	acacia chest boat:
+		name: acacia chest boat¦s
+		pattern: acacia chest boat(|1¦s)
+	dark oak chest boat:
+		name: dark oak chest boat¦s
+		pattern: dark oak chest boat(|1¦s)
+	frog:
+		name: frog¦s
+		pattern: <age> frog(|1¦s)|(4¦)frog (kid(|1¦s)|child(|1¦ren))
+	temperate frog:
+		name: temperate frog¦s
+		pattern: <age> temperate frog(|1¦s)|(4¦)temperate frog (kid(|1¦s)|child(|1¦ren))
+	warm frog:
+		name: warm frog¦s
+		pattern: <age> warm frog(|1¦s)|(4¦)warm frog (kid(|1¦s)|child(|1¦ren))
+	cold frog:
+		name: cold frog¦s
+		pattern: <age> cold frog(|1¦s)|(4¦)cold frog (kid(|1¦s)|child(|1¦ren))
+	allay:
+		name: allay¦s
+		pattern: allay(|1¦s)
+	tadpole:
+		name: tadpole¦s
+		pattern: tadpole(|1¦s)
+	warden:
+		name: warden¦s
+		pattern: warden(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
@@ -1206,6 +1259,7 @@ damage causes:
 	freeze: freeze
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
+	sonic_boom: sonic boom
 
 # -- Teleport Causes --
 teleport causes:
@@ -1228,7 +1282,7 @@ game modes:
 
 # -- Visual Effects --
 visual effects:
-	area_expression: [with [(1¦offset of %-number%, %-number%(,| and) %-number%)][(2¦[and ]speed %-number%)]]
+	area_expression: [[with] [(1¦offset (of|by) %-number%, %-number%(,| and) %-number%)][(2¦[(and|at) ]speed %-number%)]]
 	effect:
 		ender_signal:
 			name: ender signal @an
@@ -1474,7 +1528,7 @@ visual effects:
 			pattern: campfire signal smoke
 		composter:
 			name: composter @-
-			pattern: composter
+			pattern: composter particle
 		flash:
 			name: flash @-
 			pattern: flash
@@ -1613,6 +1667,23 @@ visual effects:
 			name: scrape @-
 			pattern: scrape
 
+		# 1.19 particles
+		sonic_boom:
+			name: sonic boom @-
+			pattern: sonic boom
+		sculk_soul:
+			name: sculk soul @-
+			pattern: sculk soul
+		sculk_charge:
+			name: sculk charge @-
+			pattern: sculk charge
+		sculk_charge_pop:
+			name: sculk charge pop @-
+			pattern: sculk charge pop
+		shriek:
+			name: shriek @-
+			pattern: shriek
+
 
 # -- Inventory Actions --
 inventory actions:
@@ -1704,6 +1775,7 @@ spawn reasons:
 	infection: infection, infected
 	jockey: jockey
 	lightning: lightning
+	metamorphosis: metamorphosis
 	mount: mount
 	natural: natural
 	nether_portal: nether portal
@@ -1718,6 +1790,7 @@ spawn reasons:
 	slime_split: slime split
 	spawner: mob spawner, creature spawner, spawner
 	spawner_egg: spawn egg
+	spell: spell
 	trap: trap
 	village_defense: village defense, golem defense, iron golem defense
 	village_invasion: village invasion, village invading
