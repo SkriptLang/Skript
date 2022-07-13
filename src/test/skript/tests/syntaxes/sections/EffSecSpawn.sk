@@ -1,0 +1,9 @@
+test "spawn section" when minecraft version is not "1.9.4":
+	spawn a pig at spawn of "world":
+		assert event-entity is a pig with "entity not a pig"
+		set {_test} to event-entity
+		assert {_test} is set with "entity not set"
+		assert {_test} is a pig with "entity variable not a pig"
+		set {_location} to event-location
+		assert {_location} is set with "location not set"
+		assert y-coord of spawn of "world" is y-coord of {_location} with "location y coordinate not right"

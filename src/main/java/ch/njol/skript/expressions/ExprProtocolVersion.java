@@ -18,26 +18,24 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.ScriptLoader;
-import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.Kleenean;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.server.ServerListPingEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.util.coll.CollectionUtils;
 
 @Name("Protocol Version")
 @Description({"The protocol version that will be sent as the protocol version of the server in a server list ping event. " +
@@ -53,15 +51,15 @@ import org.eclipse.jdt.annotation.Nullable;
 		"This can be set in a <a href='events.html#server_list_ping'>server list ping</a> event only",
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
 @Examples({"on server list ping:",
-		"\tset the version string to \"<light green>Version: <orange>%minecraft version%\"",
+		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
 		"\tset the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
-public class ExprProtocolVersion extends SimpleExpression<Number> {
+public class ExprProtocolVersion extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprProtocolVersion.class, Number.class, ExpressionType.SIMPLE, "[the] [(sent|required|fake)] protocol version [number]");
+		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [server] [(sent|required|fake)] protocol version [number]");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -71,7 +69,7 @@ public class ExprProtocolVersion extends SimpleExpression<Number> {
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The protocol version expression requires Paper 1.12.2 or newer");
 			return false;
-		} else if (!ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class)) {
+		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
 			Skript.error("The protocol version expression can't be used outside of a server list ping event");
 			return false;
 		}
@@ -80,14 +78,14 @@ public class ExprProtocolVersion extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	public Number[] get(Event e) {
-		return CollectionUtils.array(((PaperServerListPingEvent) e).getProtocolVersion());
+	public Long[] get(Event e) {
+		return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getProtocolVersion());
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (ScriptLoader.hasDelayBefore.isTrue()) {
+		if (getParser().getHasDelayBefore().isTrue()) {
 			Skript.error("Can't change the protocol version anymore after the server list ping event has already passed");
 			return null;
 		}
@@ -108,8 +106,8 @@ public class ExprProtocolVersion extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

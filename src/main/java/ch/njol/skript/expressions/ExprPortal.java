@@ -27,7 +27,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -60,7 +59,7 @@ public class ExprPortal extends SimpleExpression<Block> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (ScriptLoader.isCurrentEvent(PortalCreateEvent.class))
+		if (getParser().isCurrentEvent(PortalCreateEvent.class))
 			return true;
 		Skript.error("The 'portal' expression may only be used in a portal creation event.");
 		return false;

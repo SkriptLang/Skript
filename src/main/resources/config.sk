@@ -85,8 +85,8 @@ player variable fix: true
 # It will check if the player is online and then get the valid(new) player object and update the variable object to that one.
 
 use player UUIDs in variable names: false
-# Whether to use a player's UUID instead of their name in variables, e.g. {home.%player%} will look like
-# {home.e5240337-a4a2-39dd-8ed9-e5ce729a8522} instead of {home.njol}.
+# Whether to use a player's UUID instead of their name in variables, e.g. {home::%player%} will look like
+# {home::e5240337-a4a2-39dd-8ed9-e5ce729a8522} instead of {home::njol}.
 # Please note that if this setting is changed old variables WILL NOT be renamed automatically.
 
 
@@ -118,9 +118,6 @@ plugin priority: high
 # - effects 'remove ... from drops'/'clear drops': Drops added by other plugins are not removed => increase priority
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
 
-# Skript will call an extra EntityDamageEvent to check if the damage effect can be cancelled.
-# This setting will control if you want that added extra check
-disable damage event cancellation checking: false
 
 log player commands: false
 # Whether Skript should log the usage of custom commands.
@@ -143,11 +140,6 @@ case sensitive: false
 # Whether Skript's functions should be case sensitive or not.
 # This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
-
-disable variable conflict warnings: false
-# Disables warnings of potential variable name conflicts if set to true.
-# I recommend to not touch this option, but if you do so you should at least set it back to false
-# whenever you create new scripts with new variables.
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
@@ -185,6 +177,32 @@ keep command last usage dates: false
 # When a cooldown is set on a command, the last usage date is kept in memory (or in a variable if cooldown storage is specified),
 # but when the player uses the command again after the cooldown period is over, the last usage will be deleted as it's no longer needed,
 # If you need to use the expression 'last usage date', then you'll want to enable this.
+
+script loader thread size: 0
+# Enables asynchronous script loading, which will load scripts in the background instead of blocking the server to load scripts.
+# Setting this to a value of 0 or lower will disabled asynchronous loading, and all scripts will be loaded on the main server thread.
+# Setting this to a value of 1 will enabled asynchronous loading, which won't block the main server.
+# Setting this to a value of 2 or higher will enable parallel loading as well as asynchronous loading,
+#   which will distribute the loading of scripts over multiple threads. This could cause issues if your scripts depend on
+#   their loading order (function definitions are always loaded in advance, so they won't be affected).
+# You may also set this option to 'processor count' (without apostrophes) to use the number of available processors.
+# Do note that though, this option may cause issues with addons and possibly some scripts! Do NOT enable this option unless you have really long
+#   script load times AND you take the risk of lost data and full responsibility!
+
+disable hooks:
+	vault: false
+	regions:
+		grief prevention: false
+		precious stones: false
+		residence: false
+		worldguard: false
+# Controls whether Skript should attempt to hook into the plugins listed above.
+# If you change a setting here while the server is running, a restart is required for that change to take effect.
+# Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
+
+player name regex pattern: [a-zA-Z0-9_]{1,16}
+# A regex pattern that is used to match player names.
+# This can be used if you are using Geyser, where some usernames are prefixed by a certain character.
 
 # ==== Variables ====
 

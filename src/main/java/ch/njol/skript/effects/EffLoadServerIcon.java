@@ -70,7 +70,7 @@ public class EffLoadServerIcon extends AsyncEffect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		ScriptLoader.hasDelayBefore = Kleenean.TRUE;
+		getParser().setHasDelayBefore(Kleenean.TRUE);
 		if (!PAPER_EVENT_EXISTS) {
 			Skript.error("The load server icon effect requires Paper 1.12.2 or newer");
 			return false;

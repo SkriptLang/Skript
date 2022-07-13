@@ -55,7 +55,7 @@ public class EvtMove extends SkriptEvent {
 				"\tif event-entity is not in world \"world\":",
 				"\t\tkill event-entity")
 			.requiredPlugins("Paper 1.16.5+ (entity move)")
-			.since("INSERT VERSION");
+			.since("2.6");
 	}
 
 	private EntityData<?> type;

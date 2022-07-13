@@ -1,0 +1,37 @@
+test "while section":
+
+	set {_x} to 0
+	while {_x} < 5:
+		add 1 to {_x}
+	assert {_x} is 5 with "while loop did not run 5 times (ran %{_x}% times)"
+
+	set {_x} to 0
+	do while {_x} < 5:
+		add 1 to {_x}
+	assert {_x} is 5 with "do while loop did not run 5 times (ran %{_x}% times)"
+
+	set {_x} to 0
+	while {_x} > 5:
+		add 1 to {_x}
+	assert {_x} is 0 with "while loop did not run 0 times (ran %{_x}% times)"
+
+	set {_x} to 0
+	do while {_x} > 5:
+		add 1 to {_x}
+	assert {_x} is 1 with "do while loop did not run 1 time (ran %{_x}% times)"
+
+	set {_x} to 0
+	loop 2 times:
+		do while {_x} > 5:
+			add 1 to {_x}
+	assert {_x} is 2 with "do while loop in a loop did not run 1 time per loop (ran %{_x}% times total)"
+
+	set {_x} to 0
+	loop 2 times:
+		if loop-number is 2: # we completed the first loop, x should be 4
+			assert {_x} is 4 with "do while loop in a loop with exit did not run 4 times (ran %{_x}% times)"
+		do while {_x} != 4:
+			add 1 to {_x}
+			if {_x} is 5:
+				exit loop # Exit the while loop to prevent infinite repetition
+	assert {_x} is 5 with "do while loop in a loop with exit did not run 5 times (ran %{_x}% times)"

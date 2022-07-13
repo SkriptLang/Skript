@@ -30,7 +30,7 @@ public class HandlerList implements Iterable<LogHandler> {
 	
 	private final LinkedList<LogHandler> list = new LinkedList<>();
 	
-	public void add(final LogHandler h) {
+	public void add(LogHandler h) {
 		list.addFirst(h);
 	}
 	
@@ -45,7 +45,7 @@ public class HandlerList implements Iterable<LogHandler> {
 		return list.iterator();
 	}
 	
-	public boolean contains(final LogHandler h) {
+	public boolean contains(LogHandler h) {
 		return list.contains(h);
 	}
 	

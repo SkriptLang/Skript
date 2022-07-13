@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("A plain item is an item with no modifications. It can be used to convert items to their default state or to match with other default items.")
 @Examples({"if the player's tool is a plain diamond: # check if player's tool has no modifications",
 		"\tsend \"You are holding a plain diamond!\""})
-@Since("INSERT VERSION")
+@Since("2.6")
 public class ExprPlain extends SimpleExpression<ItemType> {
 	
 	@SuppressWarnings("null")

@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -35,7 +36,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.effects.EffSpawn;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -64,17 +64,17 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player drops an item from their inventory.")
 				.examples("on drop:")
 				.since("<i>unknown</i> (before 2.1)");
-		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
-				.description("Called when a player crafts an item.")
-				.examples("on craft:")
-				.since("<i>unknown</i> (before 2.1)");
-		if (hasPrepareCraftEvent) {
+		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
 					.since("2.2-Fixes-V10");
 		}
+		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
+		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
+				.description("Called when a player crafts an item.")
+				.examples("on craft:")
+				.since("<i>unknown</i> (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
 					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %itemtypes%]")
@@ -136,7 +136,7 @@ public class EvtItem extends SkriptEvent {
 	@Override
 	public boolean check(final Event e) {
 		if (e instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
-			EffSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
+			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
 		if (hasEntityPickupItemEvent && ((!entity && e instanceof EntityPickupItemEvent) || (entity && e instanceof PlayerPickupItemEvent)))
 			return false;
 		if (types == null)

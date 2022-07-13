@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -59,7 +58,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!ScriptLoader.isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
 			Skript.error("The experience expression can only be used in experience spawn and block break events");
 			return false;
 		}

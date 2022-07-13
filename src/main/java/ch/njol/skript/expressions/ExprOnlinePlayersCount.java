@@ -23,7 +23,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -48,10 +47,10 @@ import ch.njol.util.coll.CollectionUtils;
 		"	# This will make the max players count 5 if there are 4 players online.",
 		"	set the fake max players count to (online players count + 1)"})
 @Since("2.3")
-public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
+public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprOnlinePlayersCount.class, Number.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprOnlinePlayersCount.class, Long.class, ExpressionType.PROPERTY,
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] [online] player (count|amount|number)",
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] (count|amount|number|size) of online players");
 	}
@@ -62,9 +61,9 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isPaperEvent = PAPER_EVENT_EXISTS && ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class);
+		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		if (parseResult.mark == 2) {
-			if (ScriptLoader.isCurrentEvent(ServerListPingEvent.class)) {
+			if (getParser().isCurrentEvent(ServerListPingEvent.class)) {
 				Skript.error("The 'fake' online players count expression requires Paper 1.12.2 or newer");
 				return false;
 			} else if (!isPaperEvent) {
@@ -78,18 +77,18 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	public Number[] get(Event e) {
+	public Long[] get(Event e) {
 		if (isReal)
-			return CollectionUtils.array(PlayerUtils.getOnlinePlayers().size());
+			return CollectionUtils.array((long) PlayerUtils.getOnlinePlayers().size());
 		else
-			return CollectionUtils.array(((PaperServerListPingEvent) e).getNumPlayers());
+			return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getNumPlayers());
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (!isReal) {
-			if (ScriptLoader.hasDelayBefore.isTrue()) {
+			if (getParser().getHasDelayBefore().isTrue()) {
 				Skript.error("Can't change the shown online players count anymore after the server list ping event has already passed");
 				return null;
 			}
@@ -131,8 +130,8 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -125,7 +124,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			boolean hasValue = false;
-			final Class<? extends Event>[] es = ScriptLoader.getCurrentEvents();
+			final Class<? extends Event>[] es = getParser().getCurrentEvents();
 			if (es == null) {
 				assert false;
 				return false;
@@ -142,7 +141,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 			}
 			if (!hasValue) {
-				log.printError("There's no " + Classes.getSuperClassInfo(c).getName() + " in " + Utils.a(ScriptLoader.getCurrentEventName()) + " event");
+				log.printError("There's no " + Classes.getSuperClassInfo(c).getName() + " in " + Utils.a(getParser().getCurrentEventName()) + " event");
 				return false;
 			}
 			log.printLog();
@@ -189,7 +188,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	
 	@Override
 	public boolean setTime(final int time) {
-		final Class<? extends Event>[] es = ScriptLoader.getCurrentEvents();
+		final Class<? extends Event>[] es = getParser().getCurrentEvents();
 		if (es == null) {
 			assert false;
 			return false;

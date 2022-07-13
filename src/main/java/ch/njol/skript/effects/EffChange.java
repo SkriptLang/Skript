@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
@@ -55,7 +54,7 @@ import ch.njol.util.Kleenean;
 @Name("Change: Set/Add/Remove/Delete/Reset")
 @Description("A very general effect that can change many <a href='../expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
 @Examples({"# set:",
-		"Set the player's display name to \"<red>%name of player%\"",
+		"Set the player's display name to \"&lt;red&gt;%name of player%\"",
 		"set the block above the victim to lava",
 		"# add:",
 		"add 2 to the player's health # preferably use '<a href='#heal'>heal</a>' for this",
@@ -149,13 +148,13 @@ public class EffChange extends Effect {
 				changed = exprs[0];
 		}
 		
-		final CountingLogHandler h = SkriptLogger.startLogHandler(new CountingLogHandler(Level.SEVERE));
-		final Class<?>[] rs;
-		final String what;
+		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
+		Class<?>[] rs;
+		String what;
 		try {
 			rs = changed.acceptChange(mode);
-			final ClassInfo<?> c = Classes.getSuperClassInfo(changed.getReturnType());
-			final Changer<?> changer = c.getChanger();
+			ClassInfo<?> c = Classes.getSuperClassInfo(changed.getReturnType());
+			Changer<?> changer = c.getChanger();
 			what = changer == null || !Arrays.equals(changer.acceptChange(mode), rs) ? changed.toString(null, false) : c.getName().withIndefiniteArticle();
 		} finally {
 			h.stop();
@@ -217,7 +216,6 @@ public class EffChange extends Effect {
 						return false;
 					}
 					log.clear();
-					log.printLog();
 					final Class<?>[] r = new Class[rs.length];
 					for (int i = 0; i < rs.length; i++)
 						r[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
@@ -227,6 +225,7 @@ public class EffChange extends Effect {
 						Skript.error(what + " can't be set to " + changer + " because the latter is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
 					else
 						Skript.error(changer + " can't be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
+					log.printError();
 					return false;
 				}
 				log.printLog();
@@ -257,8 +256,8 @@ public class EffChange extends Effect {
 			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
 				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
 				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
-					if (ScriptLoader.currentScript != null) {
-						if (!ScriptOptions.getInstance().suppressesWarning(ScriptLoader.currentScript.getFile(), "instance var")) {
+					if (getParser().getCurrentScript() != null) {
+						if (!ScriptOptions.getInstance().suppressesWarning(getParser().getCurrentScript().getFile(), "instance var")) {
 							Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
 						}
 					} else {
@@ -272,12 +271,11 @@ public class EffChange extends Effect {
 	
 	@Override
 	protected void execute(Event e) {
-		Expression<?> changer = this.changer;
 		Object[] delta = changer == null ? null : changer.getArray(e);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
-			if (changed.acceptChange(ChangeMode.DELETE) != null)
+			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;
 		}

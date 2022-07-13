@@ -52,6 +52,11 @@ public class AliasesProvider {
 	 * All aliases that are currently loaded by this provider.
 	 */
 	private final Map<String, ItemType> aliases;
+
+	/**
+	 * All materials that are currently loaded by this provider.
+	 */
+	private final List<Material> materials;
 	
 	/**
 	 * Tags are in JSON format. We may need GSON when merging tags
@@ -90,11 +95,11 @@ public class AliasesProvider {
 		
 		@Nullable
 		public String insertId(@Nullable String inserted) {
-			if (id == null) // Inserting to nothing
-				return inserted;
-			if (inserted == null)
+			if (inserted == null) // Nothing to insert
 				return id;
 			inserted = inserted.substring(0, inserted.length() - 1); // Strip out -
+			if (id == null) // Inserting to nothing
+				return inserted;
 			
 			String id = this.id;
 			assert id != null;
@@ -166,6 +171,7 @@ public class AliasesProvider {
 		this.aliases = new HashMap<>(expectedCount);
 		this.variations = new HashMap<>(expectedCount / 20);
 		this.aliasesMap = new AliasesMap();
+		this.materials = new ArrayList<>();
 		
 		this.gson = new Gson();
 	}
@@ -259,6 +265,8 @@ public class AliasesProvider {
 			if (material == null) { // If server doesn't recognize id, do not proceed
 				throw new InvalidMinecraftIdException(id);
 			}
+			if (!materials.contains(material))
+				materials.add(material);
 			
 			// Hacky: get related entity from block states
 			String entityName = blockStates.remove("relatedEntity");
@@ -298,7 +306,7 @@ public class AliasesProvider {
 			MaterialName materialName = new MaterialName(data.type, name.singular, name.plural, name.gender);
 			aliasesMap.addAlias(new AliasesMap.AliasData(data, materialName, id, related));
 		}
-		 
+
 		// Check if there is item type with this name already, create otherwise
 		ItemType type = aliases.get(name.singular);
 		if (type == null)
@@ -307,11 +315,16 @@ public class AliasesProvider {
 			type = new ItemType();
 			aliases.put(name.singular, type); // Singular form
 			aliases.put(name.plural, type); // Plural form
+			type.addAll(datas);
+		} else { // There is already an item type with this name, we need to *only* add new data
+			newDataLoop: for (ItemData newData : datas) {
+				for (ItemData existingData : type.getTypes()) {
+					if (newData == existingData || newData.matchAlias(existingData).isAtLeast(MatchQuality.EXACT)) // Don't add this data, the item type already contains it!
+						continue newDataLoop;
+				}
+				type.add(newData);
+			}
 		}
-		
-		// Add item datas we got earlier to the type
-		assert datas != null;
-		type.addAll(datas);
 	}
 	
 	public void addVariationGroup(String name, VariationGroup group) {
@@ -332,8 +345,7 @@ public class AliasesProvider {
 		return item;
 	}
 	
-	@Nullable
-	public AliasesMap.AliasData getAliasData(ItemData item) {
+	public AliasesMap.@Nullable AliasData getAliasData(ItemData item) {
 		AliasesMap.AliasData data = aliasesMap.matchAlias(item).getData();
 		if (data == null && parent != null) {
 			return parent.getAliasData(item);
@@ -376,6 +388,15 @@ public class AliasesProvider {
 
 	public int getAliasCount() {
 		return aliases.size();
+	}
+
+	/**
+	 * Check if this provider has an alias for the given material.
+	 * @param material Material to check alias for
+	 * @return True if this material has an alias
+	 */
+	public boolean hasAliasForMaterial(Material material) {
+		return materials.contains(material);
 	}
 
 }

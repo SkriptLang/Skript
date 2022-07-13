@@ -24,7 +24,6 @@ import org.bukkit.util.CachedServerIcon;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -65,7 +64,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 			Skript.error("The server icon expression requires Paper 1.12.2 or newer");
 			return false;
 		}
-		isServerPingEvent = ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class);
+		isServerPingEvent = getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		isDefault = (parseResult.mark == 0 && !isServerPingEvent) || parseResult.mark == 1;
 		if (!isServerPingEvent && !isDefault) {
 			Skript.error("The 'shown' server icon expression can't be used outside of a server list ping event");
@@ -91,7 +90,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (isServerPingEvent && !isDefault) {
-			if (ScriptLoader.hasDelayBefore.isTrue()) {
+			if (getParser().getHasDelayBefore().isTrue()) {
 				Skript.error("Can't change the server icon anymore after the server list ping event has already passed");
 				return null;
 			}

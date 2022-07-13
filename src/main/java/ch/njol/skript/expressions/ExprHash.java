@@ -45,10 +45,10 @@ import ch.njol.util.Kleenean;
 		"When hashing data, you <strong>must</strong> specify algorithms that will be used for security reasons! ",
 		"<p>Please note that a hash cannot be reversed under normal circumstanses. You will not be able to get original value from a hash with Skript."})
 @Examples({
-		"command /setpass <text>:",
+		"command /setpass &lt;text&gt;:",
 		"\ttrigger:",
 		"\t\tset {password::%uuid of player%} to text-argument hashed with SHA-256",
-		"command /login <text>:",
+		"command /login &lt;text&gt;:",
 		"\ttrigger:",
 		"\t\tif text-argument hashed with SHA-256 is {password::%uuid of player%}:",
 		"\t\t\tmessage \"Login successful.\"",

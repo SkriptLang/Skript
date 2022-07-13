@@ -23,51 +23,28 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.Getter;
-
-/**
- * @author Peter Güttinger
- */
 public class ExperienceSpawnEvent extends Event implements Cancellable {
-	static {
-		EventValues.registerEventValue(ExperienceSpawnEvent.class, Location.class, new Getter<Location, ExperienceSpawnEvent>() {
-			@Override
-			public Location get(final ExperienceSpawnEvent e) {
-				return e.getLocation();
-			}
-		}, 0);
-		EventValues.registerEventValue(ExperienceSpawnEvent.class, Experience.class, new Getter<Experience, ExperienceSpawnEvent>() {
-			@Override
-			public Experience get(final ExperienceSpawnEvent e) {
-				return new Experience(e.getSpawnedXP());
-			}
-		}, 0);
-	}
 	
-	private int xp;
+	private int exp;
+	private final Location location;
+	private boolean cancelled = false;
 	
-	private final Location l;
-	
-	public ExperienceSpawnEvent(final int xp, final Location l) {
-		this.xp = xp;
-		this.l = l;
+	public ExperienceSpawnEvent(int exp, Location location) {
+		this.exp = exp;
+		this.location = location;
 	}
 	
 	public int getSpawnedXP() {
-		return xp;
+		return exp;
 	}
 	
-	public void setSpawnedXP(final int xp) {
-		this.xp = Math.max(0, xp);
+	public void setSpawnedXP(int xp) {
+		this.exp = Math.max(0, xp);
 	}
 	
 	public Location getLocation() {
-		return l;
+		return location;
 	}
-	
-	private boolean cancelled = false;
 	
 	@Override
 	public boolean isCancelled() {
