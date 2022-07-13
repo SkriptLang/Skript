@@ -1,5 +1,5 @@
 {
-  "skriptVersion" : "2.6.2",
+  "skriptVersion" : "2.6.3",
 
   "classes" : [
     {
@@ -127,7 +127,7 @@
   "id" : "damagecause",
   "name" : "Damage Cause",
   "patterns" : [
-    "contact, attack, sweep attack, projectile, suffocation, fall, fire, burning, melting, lava, drowning, block explosion, entity explosion, void, lightning, suicide, starvation, poison, potion, wither, falling block, thorns, dragon's breath, unknown, hitting wall while flying, magma, cramming, dryout, freeze",
+    "contact, attack, sweep attack, projectile, suffocation, fall, fire, burning, melting, lava, drowning, block explosion, entity explosion, void, lightning, suicide, starvation, poison, potion, wither, falling block, thorns, dragon's breath, unknown, hitting wall while flying, magma, cramming, dryout, freeze, sonic boom",
 
     "pattern_end"
   ],
@@ -175,7 +175,7 @@
   "id" : "enchantment",
   "name" : "Enchantment",
   "patterns" : [
-    "Frost Walker, Feather Falling, Unbreaking, Knockback, Projectile Protection, Respiration, Punch, Protection, Blast Protection, Lure, Impaling, Smite, Silk Touch, Infinity, Luck of The Sea, Thorns, Multishot, Curse of Vanishing, Fire Aspect, Flame, Depth Strider, Piercing, Fire Protection, Sharpness, Power, Sweeping Edge, Aqua Affinity, Curse of Binding, Bane of Arthropods, Soul Speed, Looting, Efficiency, Mending, Riptide, Quick Charge, Fortune, Loyalty, Channeling",
+    "Frost Walker, Feather Falling, Unbreaking, Swift Sneak, Knockback, Projectile Protection, Respiration, Punch, Protection, Blast Protection, Lure, Impaling, Smite, Silk Touch, Infinity, Luck of The Sea, Thorns, Multishot, Curse of Vanishing, Fire Aspect, Flame, Depth Strider, Piercing, Fire Protection, Sharpness, Power, Sweeping Edge, Aqua Affinity, Curse of Binding, Bane of Arthropods, Soul Speed, Looting, Efficiency, Mending, Riptide, Quick Charge, Fortune, Loyalty, Channeling",
 
     "pattern_end"
   ],
@@ -295,7 +295,7 @@
   "id" : "gamerule",
   "name" : "Gamerule",
   "patterns" : [
-    "doFireTick, maxCommandChainLength, fireDamage, reducedDebugInfo, disableElytraMovementCheck, announceAdvancements, drowningDamage, commandBlockOutput, forgiveDeadPlayers, doMobSpawning, maxEntityCramming, disableRaids, doWeatherCycle, doDaylightCycle, showDeathMessages, doTileDrops, universalAnger, playersSleepingPercentage, doInsomnia, doImmediateRespawn, naturalRegeneration, doMobLoot, fallDamage, keepInventory, doEntityDrops, doLimitedCrafting, mobGriefing, randomTickSpeed, spawnRadius, freezeDamage, doTraderSpawning, logAdminCommands, spectatorsGenerateChunks, sendCommandFeedback, doPatrolSpawning",
+    "doWardenSpawning, doFireTick, maxCommandChainLength, fireDamage, reducedDebugInfo, disableElytraMovementCheck, announceAdvancements, drowningDamage, commandBlockOutput, forgiveDeadPlayers, doMobSpawning, maxEntityCramming, disableRaids, doWeatherCycle, doDaylightCycle, showDeathMessages, doTileDrops, universalAnger, playersSleepingPercentage, doInsomnia, doImmediateRespawn, naturalRegeneration, doMobLoot, fallDamage, keepInventory, doEntityDrops, doLimitedCrafting, mobGriefing, randomTickSpeed, spawnRadius, freezeDamage, doTraderSpawning, logAdminCommands, spectatorsGenerateChunks, sendCommandFeedback, doPatrolSpawning",
 
     "pattern_end"
   ],
@@ -523,7 +523,7 @@
   "id" : "potioneffecttype",
   "name" : "Potion Effect Type",
   "patterns" : [
-    "null, speed, slowness, haste, mining fatigue, strength, instant health, instant damage, jump boost, nausea, regeneration, resistance, fire resistance, water breathing, invisibility, blindness, night vision, hunger, weakness, poison, wither, health boost, absorption, saturation, glowing, levitation, luck, bad luck, slow falling, conduit power, dolphins grace, bad omen, hero of the village",
+    "null, speed, slowness, haste, mining fatigue, strength, instant health, instant damage, jump boost, nausea, regeneration, resistance, fire resistance, water breathing, invisibility, blindness, night vision, hunger, weakness, poison, wither, health boost, absorption, saturation, glowing, levitation, luck, bad luck, slow falling, conduit power, dolphins grace, bad omen, hero of the village, darkness",
 
     "pattern_end"
   ],
@@ -595,7 +595,7 @@
   "id" : "spawnreason",
   "name" : "Spawn Reason",
   "patterns" : [
-    "natural, jockey, chunk generation, mob spawner, egg, spawn egg, lightning, built snowman, built iron golem, built wither, village defense, village invasion, breed, slime split, reinforcements, nether portal, dispense egg, infection, cured, ocelot baby, silverfish reveal, mount, trap, ender pearl, perching, drowned, shear, explosion, raid, patrol, beehive, piglin zombification, spawn reasons.spell, frozen, command, customized, default",
+    "natural, jockey, chunk generation, mob spawner, egg, spawn egg, lightning, built snowman, built iron golem, built wither, village defense, village invasion, breed, slime split, reinforcements, nether portal, dispense egg, infection, cured, ocelot baby, silverfish reveal, mount, trap, ender pearl, perching, drowned, shear, explosion, raid, patrol, beehive, piglin zombification, spell, frozen, metamorphosis, command, customized, default",
 
     "pattern_end"
   ],
@@ -710,7 +710,7 @@
   "id" : "visualeffect",
   "name" : "Visual Effect",
   "patterns" : [
-    "smoke, potion break, ender signal, mobspawner flames, arrow particles, jumping rabbit, hurt, wolf smoke, wolf hearts, wolf shaking, sheep eating, iron golem offering rose, villager hearts, angry villager entity, happy villager entity, witch magic, zombie turning to a villager, firework explosion, love hearts, squid rotation reset, entity poof, guardian target, block with shield, shield break, armor stand hit, hurt by thorns, iron golem sheathing rose, resurrection by totem, hurt by drowning, hurt by explosion, explosion, large explosion, huge explosion, firework's spark, water bubble, water splash, water wake, suspended, void fog, critical hit, magical critical hit, smoke particle, large smoke, spell, spell, potion swirl, transparent potion swirl, witch spell, water drip, lava drip, angry villager, happy villager, small smoke, note, portal, flying glyph, flame, lava pop, cloud, coloured dust, snowball break, snow shovel, slime, heart, item crack, block break, block dust, water drop, mob appearance, dragon breath, end rod, damage indicator, sweep attack, falling dust, totem, spit, squid ink, bubble pop, current down, bubble column up, nautilus, dolphin, sneeze, campfire cosy smoke, campfire signal smoke, composter, flash, falling lava, landing lava, falling water, dripping honey, falling honey, landing honey, falling nectar, soul fire flame, ash, crimson spore, warped spore, soul, dripping obsidian tear, falling obsidian tear, landing obsidian tear, reverse portal, white ash, falling spore blossom, spore blossom air, small flame, snowflake, dripping dripstone lava, falling dripstone lava, dripping dripstone water, falling dripstone water, glow squid ink, glow, wax on, wax off, electric spark, scrape",
+    "smoke, potion break, ender signal, mobspawner flames, arrow particles, jumping rabbit, hurt, wolf smoke, wolf hearts, wolf shaking, sheep eating, iron golem offering rose, villager hearts, angry villager entity, happy villager entity, witch magic, zombie turning to a villager, firework explosion, love hearts, squid rotation reset, entity poof, guardian target, block with shield, shield break, armor stand hit, hurt by thorns, iron golem sheathing rose, resurrection by totem, hurt by drowning, hurt by explosion, explosion, large explosion, huge explosion, firework's spark, water bubble, water splash, water wake, suspended, void fog, critical hit, magical critical hit, smoke particle, large smoke, spell, spell, potion swirl, transparent potion swirl, witch spell, water drip, lava drip, angry villager, happy villager, small smoke, note, portal, flying glyph, flame, lava pop, cloud, coloured dust, snowball break, snow shovel, slime, heart, item crack, block break, block dust, water drop, mob appearance, dragon breath, end rod, damage indicator, sweep attack, falling dust, totem, spit, squid ink, bubble pop, current down, bubble column up, nautilus, dolphin, sneeze, campfire cosy smoke, campfire signal smoke, composter, flash, falling lava, landing lava, falling water, dripping honey, falling honey, landing honey, falling nectar, soul fire flame, ash, crimson spore, warped spore, soul, dripping obsidian tear, falling obsidian tear, landing obsidian tear, reverse portal, white ash, falling spore blossom, spore blossom air, small flame, snowflake, dripping dripstone lava, falling dripstone lava, dripping dripstone water, falling dripstone water, glow squid ink, glow, wax on, wax off, electric spark, scrape, sonic boom, sculk soul, sculk charge, sculk charge pop, shriek",
 
     "pattern_end"
   ],
@@ -2408,7 +2408,7 @@ Please note that some effects can only be played on entities, e.g. wolf hearts o
   "id" : "EffPlaySound",
   "name" : "Play Sound",
   "patterns" : [
-    "play sound[s] %<a href='./classes.html#string'>texts</a>% [(in|from) %<a href='./classes.html#soundcategory'>sound category</a>%] [(at|with) volume %<a href='./classes.html#number'>number</a>%] [(and|at|with) pitch %<a href='./classes.html#number'>number</a>%] at %<a href='./classes.html#location'>locations</a>% [for %<a href='./classes.html#player'>players</a>%]",
+    "play sound[s] %<a href='./classes.html#string'>texts</a>% [(in|from) %<a href='./classes.html#soundcategory'>sound category</a>%] [(at|with) volume %<a href='./classes.html#number'>number</a>%] [(and|at|with) pitch %<a href='./classes.html#number'>number</a>%] at %<a href='./classes.html#location'>locations</a>% [(to|for) %<a href='./classes.html#player'>players</a>%]",
 "play sound[s] %<a href='./classes.html#string'>texts</a>% [(in|from) %<a href='./classes.html#soundcategory'>sound category</a>%] [(at|with) volume %<a href='./classes.html#number'>number</a>%] [(and|at|with) pitch %<a href='./classes.html#number'>number</a>%] [(to|for) %<a href='./classes.html#player'>players</a>%] [(at|from) %<a href='./classes.html#location'>locations</a>%]",
 
     "pattern_end"
@@ -2702,8 +2702,11 @@ which may cause lag spikes or server crashes when using this effect to teleport 
     "pattern_end"
   ],
   "since" : "2.3",
-  "description" : "Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times for Minecraft versions 1.11 and above.
-Note: if no input is given for the title/subtitle or the times,it will keep the ones from the last title sent, use the <a href='effects.html#EffResetTitle'>reset title</a> effect to restore the default values.",
+  "description" : "Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times for Minecraft versions 1.11 and above. 
+
+If you're sending only the subtitle, it will be shown only if there's a title displayed at the moment, otherwise it will be sent with the next title. To show only the subtitle, use: <code>send title \" \" with subtitle \"yourtexthere\" to player</code>.
+
+Note: if no input is given for the times, it will keep the ones from the last title sent, use the <a href='effects.html#EffResetTitle'>reset title</a> effect to restore the default values.",
   "examples" : "send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds\\nsend title \"Hi %player%\" to player\\nsend title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players\\nsend title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second\\nsend subtitle \"Party!\" to all players"
 },
 {
@@ -5390,7 +5393,7 @@ This is number that was displayed in the enchantment table, not the actual numbe
     "pattern_end"
   ],
   "since" : "1.2.1, 2.5 (chunks)",
-  "description" : "All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, e.g. 'all players', 'all creepers in the player's world', or 'players in radius 100 of the player'.",
+  "description" : "All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.",
   "examples" : "kill all creepers in the player's world\\nsend \"Psst!\" to all players within 100 meters of the player\\ngive a diamond to all ops\\nheal all tamed wolves in radius 2000 around {town center}\\ndelete all monsters in chunk at player"
 },
 {
