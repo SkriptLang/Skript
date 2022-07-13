@@ -25,6 +25,7 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
+import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
@@ -33,6 +34,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
@@ -50,6 +52,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.ChestBoat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
@@ -294,6 +297,8 @@ public class DefaultComparators {
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
 				return Relation.get(((BoatData)e).isOfItemType(i));
+			if (e instanceof BoatChestData)
+				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
 				return Relation.get(i.isOfType(Material.RABBIT));
 			for (ItemData data : i.getTypes()) {
@@ -598,6 +603,19 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Inventory inventory, InventoryType inventoryType) {
 				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// World - WeatherType
+		Comparators.registerComparator(World.class, WeatherType.class, new Comparator<World, WeatherType>() {
+			@Override
+			public Relation compare(World world, WeatherType weatherType) {
+				return Relation.get(WeatherType.fromWorld(world) == weatherType);
 			}
 
 			@Override
