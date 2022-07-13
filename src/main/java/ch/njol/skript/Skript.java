@@ -648,7 +648,11 @@ public final class Skript extends JavaPlugin implements Listener {
 								Skript.exception(e, "Failed to write test results.");
 							}
 							info("Testing done, shutting down the server.");
-							Bukkit.getServer().shutdown();
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
+
 						}
 
 						return;
