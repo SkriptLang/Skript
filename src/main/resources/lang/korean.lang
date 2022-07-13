@@ -111,7 +111,8 @@ skript command:
 			next page: <grey>%s의 %s페이지입니다. 다음 페이지를 보려면 <gold>/skript update changes %s <gray>를 입력하십시오 (위쪽 화살표 키를 사용해보십시오)
 	info:
 		aliases: Skript의 별명은 여기에서 찾을 수 있습니다: <aqua>https://github.com/SkriptLang/skript-aliases
-		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://skriptlang.github.io/Skript
+		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://docs.skriptlang.org/
+		tutorials: Skript의 튜토리얼은 여기에서 찾을 수 있습니다: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skript 버전: <aqua>%s
 		server: 서버 버전: <aqua>%s
 		addons: 설치된 Skript 애드온: <aqua>%s
