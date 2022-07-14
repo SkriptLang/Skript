@@ -69,6 +69,7 @@ import java.util.List;
 public class EffSecShoot extends EffectSection {
 
 	public static class ShootEvent extends Event {
+
 		private final Entity entity;
 
 		public ShootEvent(Entity entity) {
