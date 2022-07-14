@@ -107,7 +107,7 @@ document.querySelectorAll("a").forEach((e) => {
   e.addEventListener("click", (event) => {
     let id = e.getAttribute("href").replace("#", "");
     if (id != "" && id != null) {
-      offsetAnchor(event, id);
+      // offsetAnchor(event, id);
       toggleSyntax(id);
     }
   });
@@ -687,20 +687,22 @@ document.addEventListener("DOMContentLoaded", function (event) {
 // <> Example Collapse
 var examples = document.querySelectorAll(".item-examples p");
 if (examples) {
-  examples.forEach(e => {
-    let pElement = e;
-    let divElement = e.parentElement.children[1];
-    pElement.addEventListener("click", ev => {
-      if (pElement.classList.contains("example-details-opened")) {
-        pElement.classList.remove("example-details-opened");
-        pElement.classList.add("example-details-closed");
-        divElement.style.display = "none";
-      } else {
-        pElement.classList.remove("example-details-closed");
-        pElement.classList.add("example-details-opened");
-        divElement.style.display = "block";
-      }
+  setTimeout(() => {
+    examples.forEach(e => {
+      let pElement = e;
+      let divElement = e.parentElement.children[1];
+      pElement.addEventListener("click", ev => {
+        if (pElement.classList.contains("example-details-opened")) {
+          pElement.classList.remove("example-details-opened");
+          pElement.classList.add("example-details-closed");
+          divElement.style.display = "none";
+        } else {
+          pElement.classList.remove("example-details-closed");
+          pElement.classList.add("example-details-opened");
+          divElement.style.display = "block";
+        }
+      })
     })
-  })
+  }, 50)
 }
 // Example Collapse </>

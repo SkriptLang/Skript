@@ -883,10 +883,20 @@ ol.custom-list li::before {
 
 code {
     font-family: "Source Code Pro", monospace;
+    background-color: #3e3e3e9e;
+    padding: 0px 5px;
+    border-radius: 5px;
 }
 
 pre {
     font-family: "Source Code Pro", monospace;
+}
+
+pre code { /* override styling for code blocks */
+    font-family: "Source Code Pro", monospace;
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
 }
 
 #notification-box {

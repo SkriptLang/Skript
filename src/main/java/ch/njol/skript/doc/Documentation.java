@@ -193,7 +193,9 @@ public class Documentation {
 				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
 				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
 				.replace("()", "") // Remove empty mark setting groups (mark¦)
-				.replaceAll("\\[\\(((\\w+? ?)+)\\)\\]", "[$1]"); // Remove unnecessary parentheses such as [(script)]
+				// TODO replace this with a little parser to cover all possible cases
+				.replace("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:", "") // Remove new parse tags, see https://regex101.com/r/eeRwbh/1
+				.replaceAll("\\[\\(((\\w+? ?)+)\\)]", "[$1]"); // Remove unnecessary parentheses such as [(script)]
 
 		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
