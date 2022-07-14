@@ -59,7 +59,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int time = (delta == null || delta[0] == null) ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		int newTime;
 		switch (mode) {
 			case ADD:
@@ -100,7 +100,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 		return "freeze time";
 	}
 
-	private void setFreezeTicks(Entity entity, int ticks){
+	private void setFreezeTicks(Entity entity, int ticks) {
 		//Limit time to between 0 and max
 		if (ticks < 0)
 			ticks = 0;
