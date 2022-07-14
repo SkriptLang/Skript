@@ -80,8 +80,8 @@ public class EffSecShoot extends EffectSection {
 		}
 
 		@Override
-		public @NotNull
-		HandlerList getHandlers() {
+		@NotNull
+		public HandlerList getHandlers() {
 			throw new IllegalStateException();
 		}
 	}
