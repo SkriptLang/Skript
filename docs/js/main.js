@@ -102,12 +102,12 @@ function offsetAnchor(event, id) { // event can be null
   }
 }
 
-
-document.querySelectorAll("a").forEach((e) => {
+document.querySelectorAll(".link-icon").forEach((e) => {
   e.addEventListener("click", (event) => {
     let id = e.getAttribute("href").replace("#", "");
     if (id != "" && id != null) {
       // offsetAnchor(event, id);
+      event.preventDefault();
       toggleSyntax(id);
     }
   });
@@ -126,6 +126,7 @@ function copyToClipboard(value) {
   }, 50)
 }
 
+// Show notification
 function showNotification(text, bgColor, color) {
   var noti = document.body.appendChild(document.createElement("span"));
   noti.id = "notification-box";
@@ -155,14 +156,14 @@ document.querySelectorAll(".item-title > a").forEach((e) => {
 })
 // Anchor click copy link </>
 
-// <> New element click
+// <> New element label click
 document.querySelectorAll(".new-element").forEach((e) => {
   e.addEventListener("click", (event) => {
     searchNow("is:new");
   });
 })
 
-// New element click </>
+// New element label click </>
 
 // <> Search Bar
 const versionComparePattern = /.*?(\d\.\d(?:\.\d|))(\+|-|).*/gi;
@@ -195,6 +196,14 @@ if (linkParams && linkParams.get("search")) {
   setTimeout(() => {
     searchNow(linkParams.get("search")) // anchor link sometimes appear after the search param so filter it
   }, 20) // Until searchBar is loaded
+} else {
+  // Search the hash value if available
+  requestedElementID = window.location.toString().replaceAll(/(.+?.html)(#.*)?/gi, '$2');
+  if (requestedElementID != undefined && requestedElementID != "") {
+    setTimeout(() => {
+      searchNow(requestedElementID);
+    }, 20) // Until searchBar is loaded
+  }
 }
 
 var content = document.getElementById("content");
@@ -255,6 +264,7 @@ if (searchIcon) {
   })
 }
 
+// Used when selecting a version from the dropdown
 function checkVersionFilter() {
   let el = document.getElementById("search-version")
   if (el) {
