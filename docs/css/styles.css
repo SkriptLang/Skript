@@ -37,6 +37,8 @@
 
     --scrollbar-track-bg-color: rgba(255, 255, 255, 0.2);
     --scrollbar-thumb-bg-color: rgba(255, 255, 255, 0.4);
+
+    --inline-code-bg-color: #3e3e3e9e;
 }
 
 [data-theme="white"] {
@@ -80,6 +82,8 @@
 
     --scrollbar-track-bg-color: rgba(0, 0, 0, 0.03);
     --scrollbar-thumb-bg-color: rgba(48, 48, 51, 0.4);
+
+    --inline-code-bg-color: #a9a9a99e;
 
     /* transition: all 1s; */
 }
@@ -883,7 +887,7 @@ ol.custom-list li::before {
 
 code {
     font-family: "Source Code Pro", monospace;
-    background-color: #3e3e3e9e;
+    background-color: var(--inline-code-bg-color);
     padding: 0px 5px;
     border-radius: 5px;
 }
