@@ -704,7 +704,7 @@ public class HTMLGenerator {
 				continue;
 			for (String line : lines) {
 				assert line != null;
-				line = cleanPatterns(line, false);
+//				line = cleanPatterns(line, false); // class infos don't have real patterns, they are just the usage
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
