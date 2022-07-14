@@ -85,6 +85,7 @@ public class EffSecShoot extends EffectSection {
 		public HandlerList getHandlers() {
 			throw new IllegalStateException();
 		}
+
 	}
 
 	static {
