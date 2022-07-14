@@ -47,7 +47,7 @@ import java.util.List;
 public class ExprRawString extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.COMBINED, "raw %strings%");
+		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.SIMPLE, "raw %strings%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
