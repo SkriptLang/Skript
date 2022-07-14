@@ -206,7 +206,7 @@ if (linkParams && linkParams.get("search")) {
   }, 20) // Until searchBar is loaded
 } else {
   // Search the hash value if available
-  requestedElementID = window.location.toString().replaceAll(/(.+?.html)(#.*)?/gi, '$2');
+  requestedElementID = window.location.hash;
   if (requestedElementID != undefined && requestedElementID != "") {
     setTimeout(() => {
       searchNow(requestedElementID);

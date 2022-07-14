@@ -68,6 +68,11 @@ public class Documentation {
 		Documentation.docsTemplateFound = docsTemplateFound;
 	}
 
+	private static final Pattern CP_PARSE_MARKS_PATTERN = Pattern.compile("(?<=[(|])[-0-9]+?¦");
+	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
+	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
+	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
+
 	/**
 	 * Checks if system properties have 'skript.forceregisterhooks' set to true and docs template folder is found
 	 */
@@ -189,13 +194,12 @@ public class Documentation {
 
 	protected static String cleanPatterns(final String patterns, boolean escapeHTML) {
 
-		String cleanedPatterns =
-				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
-				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
-				.replace("()", "") // Remove empty mark setting groups (mark¦)
-				// TODO replace this with a little parser to cover all possible cases
-				.replace("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:", "") // Remove new parse tags, see https://regex101.com/r/eeRwbh/1
-				.replaceAll("\\[\\(((\\w+? ?)+)\\)]", "[$1]"); // Remove unnecessary parentheses such as [(script)]
+		String cleanedPatterns = escapeHTML ? escapeHTML(patterns) : patterns;
+
+		cleanedPatterns = CP_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove marks
+		cleanedPatterns = CP_EMPTY_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove empty mark setting groups (mark¦)
+		cleanedPatterns = CP_PARSE_TAGS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove new parse tags, see https://regex101.com/r/mTebpn/1
+		cleanedPatterns = CP_EXTRA_OPTIONAL_PATTERN.matcher(cleanedPatterns).replaceAll("[$1]"); // Remove unnecessary parentheses such as [(script)]
 
 		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
