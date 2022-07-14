@@ -93,7 +93,6 @@ tasks.withType(ShadowJar) {
 	from 'skript-aliases', {
 		into 'aliases-english' // Change this if we get aliases in other languages
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 processResources {
@@ -233,7 +232,6 @@ task githubRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 task spigotResources(type: ProcessResources) {
@@ -269,7 +267,6 @@ task spigotRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 task nightlyResources(type: ProcessResources) {
@@ -301,5 +298,4 @@ task nightlyRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
