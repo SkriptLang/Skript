@@ -173,7 +173,6 @@ public class EffSecShoot extends EffectSection {
 								projectile.setVelocity(vel);
 								lastSpawned = projectile;
 							} else if (Projectile.class.isAssignableFrom(type)) {
-								@SuppressWarnings("unchecked")
 								Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
 								set(projectile, d);
 								projectile.setShooter((ProjectileSource) shooter);
