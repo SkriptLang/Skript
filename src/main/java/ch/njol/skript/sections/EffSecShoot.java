@@ -159,7 +159,7 @@ public class EffSecShoot extends EffectSection {
 		}
 
 		Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
-		if (v != null){
+		if (v != null) {
 			Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
 			if (dir != null){
 				for (Object shooter : shooters.getArray(e)) {
