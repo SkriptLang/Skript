@@ -27,7 +27,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
@@ -122,7 +122,7 @@ public class EffSecShoot extends EffectSection {
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,
-						SkriptParser.ParseResult parseResult,
+						ParseResult parseResult,
 						@Nullable SectionNode sectionNode,
 						@Nullable List<TriggerItem> triggerItems) {
 		types = (Expression<EntityData<?>>) exprs[matchedPattern];
