@@ -114,6 +114,14 @@ document.querySelectorAll(".link-icon").forEach((e) => {
 })
 // Anchor correction </>
 
+// Open description/pattern links in same tab rather than scrolling because hash links uses search bar
+document.querySelectorAll(".item-wrapper a").forEach((e) => {
+  e.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.open(e.href);
+  });
+})
+
 // <> Anchor click copy link
 function copyToClipboard(value) {
   setTimeout(() => {

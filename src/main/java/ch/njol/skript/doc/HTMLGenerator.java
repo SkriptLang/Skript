@@ -850,6 +850,7 @@ public class HTMLGenerator {
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 
+		desc = handleIf(desc, "${if return-type}", true);
 		desc = RETURN_TYPE_LINK_PATTERN.matcher(desc).replaceAll(returnTypeLink);
 		desc = desc.replace("${element.return-type}", returnTypeName);
 		return desc;
