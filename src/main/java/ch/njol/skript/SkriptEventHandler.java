@@ -19,6 +19,7 @@
 package ch.njol.skript;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +31,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -58,10 +60,10 @@ public abstract class SkriptEventHandler {
 	 * the {@link EventExecutor} to be used with this listener.
 	 */
 	public static class PriorityListener implements Listener {
-		
+
 		public final EventPriority priority;
 		public final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
-		
+
 		@Nullable
 		private Event lastEvent;
 		public final EventExecutor executor = (listener, event) -> {
@@ -70,18 +72,18 @@ public abstract class SkriptEventHandler {
 			lastEvent = event;
 			check(event, ((PriorityListener) listener).priority);
 		};
-		
+
 		public PriorityListener(EventPriority priority) {
 			this.priority = priority;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Stores one {@link PriorityListener} per {@link EventPriority}
 	 */
 	private static final PriorityListener[] listeners;
-	
+
 	static {
 		EventPriority[] priorities = EventPriority.values();
 		listeners = new PriorityListener[priorities.length];
@@ -89,23 +91,23 @@ public abstract class SkriptEventHandler {
 			listeners[i] = new PriorityListener(priorities[i]);
 		}
 	}
-	
+
 	private static final List<NonNullPair<Class<? extends Event>, Trigger>> triggers = new ArrayList<>();
-	
+
 	private static final List<Trigger> selfRegisteredTriggers = new ArrayList<>();
-	
+
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
 		return new ArrayList<>(triggers).stream()
 			.filter(pair -> pair.getFirst().isAssignableFrom(event))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}
-	
+
 	private static void check(Event e, EventPriority priority) {
 		Iterator<Trigger> ts = getTriggers(e.getClass());
 		if (!ts.hasNext())
 			return;
-		
+
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
 			while (ts.hasNext()) {
@@ -119,37 +121,37 @@ public abstract class SkriptEventHandler {
 				return;
 			Class<? extends Event> c = e.getClass();
 			ts = getTriggers(c);
-			
+
 			logEventStart(e);
 		}
-		
+
 		if (e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass()) &&
-				!(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY)
-				|| e instanceof ServerCommandEvent && (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled())) {
+			!(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY)
+			|| e instanceof ServerCommandEvent && (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled())) {
 			if (Skript.logVeryHigh())
 				Skript.info(" -x- was cancelled");
 			return;
 		}
-		
+
 		while (ts.hasNext()) {
 			Trigger t = ts.next();
 			if (t.getEvent().getEventPriority() != priority || !t.getEvent().check(e))
 				continue;
-			
+
 			logTriggerStart(t);
 			Object timing = SkriptTimings.start(t.getDebugLabel());
-			
+
 			t.execute(e);
-			
+
 			SkriptTimings.stop(timing);
 			logTriggerEnd(t);
 		}
-		
+
 		logEventEnd();
 	}
-	
+
 	private static long startEvent;
-	
+
 	public static void logEventStart(Event e) {
 		startEvent = System.nanoTime();
 		if (!Skript.logVeryHigh())
@@ -157,22 +159,22 @@ public abstract class SkriptEventHandler {
 		Skript.info("");
 		Skript.info("== " + e.getClass().getName() + " ==");
 	}
-	
+
 	public static void logEventEnd() {
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("== took " + 1. * (System.nanoTime() - startEvent) / 1000000. + " milliseconds ==");
 	}
-	
+
 	private static long startTrigger;
-	
+
 	public static void logTriggerStart(Trigger t) {
 		startTrigger = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("# " + t.getName());
 	}
-	
+
 	public static void logTriggerEnd(Trigger t) {
 		if (!Skript.logVeryHigh())
 			return;
@@ -184,25 +186,25 @@ public abstract class SkriptEventHandler {
 			triggers.add(new NonNullPair<>(e, trigger));
 		}
 	}
-	
+
 	/**
 	 * Stores a self registered trigger to allow for it to be unloaded later on.
-	 * 
+	 *
 	 * @param t Trigger that has already been registered to its event
 	 */
 	public static void addSelfRegisteringTrigger(Trigger t) {
 		assert t.getEvent() instanceof SelfRegisteringSkriptEvent;
 		selfRegisteredTriggers.add(t);
 	}
-	
+
 	static ScriptInfo removeTriggers(File script) {
 		ScriptInfo info = new ScriptInfo();
 		info.files = 1;
-		
+
 		int previousSize = triggers.size();
 		triggers.removeIf(pair -> script.equals(pair.getSecond().getScript()));
 		info.triggers += previousSize - triggers.size();
-		
+
 		for (int i = 0; i < selfRegisteredTriggers.size(); i++) {
 			Trigger t = selfRegisteredTriggers.get(i);
 			if (script.equals(t.getScript())) {
@@ -212,19 +214,21 @@ public abstract class SkriptEventHandler {
 				i--;
 			}
 		}
-		
+
 		info.commands = Commands.unregisterCommands(script);
-		
+
 		return info;
 	}
-	
+
 	static void removeAllTriggers() {
 		triggers.clear();
 		for (Trigger t : selfRegisteredTriggers)
 			((SelfRegisteringSkriptEvent) t.getEvent()).unregisterAll();
 		selfRegisteredTriggers.clear();
 	}
-	
+
+	private static final Set<HandlerList> handlerListsRegisteredTo  = new HashSet<>();
+
 	/**
 	 * Registers event handlers for all events which currently loaded
 	 * triggers are using.
@@ -234,15 +238,15 @@ public abstract class SkriptEventHandler {
 		for (NonNullPair<Class<? extends Event>, Trigger> pair : triggers) {
 			assert pair.getFirst() != null;
 			Class<? extends Event> e = pair.getFirst();
-			
+
 			EventPriority priority;
 			priority = pair.getSecond().getEvent().getEventPriority();
-			
+
 			PriorityListener listener = listeners[priority.ordinal()];
 			EventExecutor executor = listener.executor;
-			
+
 			Set<Class<? extends Event>> registeredEvents = listener.registeredEvents;
-			
+
 			// PlayerInteractEntityEvent has a subclass we need for armor stands
 			if (e.equals(PlayerInteractEntityEvent.class)) {
 				if (!registeredEvents.contains(e)) {
@@ -255,9 +259,20 @@ public abstract class SkriptEventHandler {
 			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class)) {
 				continue; // Ignore, registered above
 			}
-			if (!registeredEvents.contains(e)) { // Check if event is registered
+
+			HandlerList handlerList;
+
+			try {
+				Method getHandlerListMethod = e.getMethod("getHandlerList");
+				handlerList = (HandlerList) getHandlerListMethod.invoke(e);
+			} catch (Exception exception) {
+				handlerList = null;
+			}
+
+			if (handlerList != null && !handlerListsRegisteredTo.contains(handlerList)) { // Check if event is registered
 				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
 				registeredEvents.add(e);
+				handlerListsRegisteredTo.add(handlerList);
 			}
 		}
 	}
@@ -266,5 +281,5 @@ public abstract class SkriptEventHandler {
 	 * Events which are listened even if they are cancelled.
 	 */
 	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
-	
+
 }
