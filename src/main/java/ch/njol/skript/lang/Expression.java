@@ -290,7 +290,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 
 	/**
 	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
-	 * @return A HashMap contains ChangeMode as the key and accepted types of that mode as the value
+	 * @return A Map contains ChangeMode as the key and accepted types of that mode as the value
 	 */
 	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
 		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();

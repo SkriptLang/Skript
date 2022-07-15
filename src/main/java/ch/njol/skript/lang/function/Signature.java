@@ -69,7 +69,7 @@ public class Signature<T> {
 	 */
 	final String originClassPath;
 
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single, String originClassPath) {
+	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single, @Nullable String originClassPath) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;

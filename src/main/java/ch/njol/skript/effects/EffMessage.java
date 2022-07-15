@@ -36,7 +36,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.ExprColored;
+import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -128,7 +128,7 @@ public class EffMessage extends Effect {
 						sendMessage((Player) receiver, sender,
 							BungeeConverter.convert(messageComponents)
 						);
-					} else if (message instanceof ExprColored && ((ExprColored) message).isUnsafeFormat()) { // Manually marked as trusted
+					} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
 						for (Object object : messageArray) {
 							sendMessage((Player) receiver, sender, BungeeConverter.convert(ChatMessages.parse((String) object)));
 						}

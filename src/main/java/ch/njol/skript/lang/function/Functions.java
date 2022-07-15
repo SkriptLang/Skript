@@ -231,7 +231,7 @@ public abstract class Functions {
 
 		@SuppressWarnings({"unchecked", "null"})
 		Signature<?> sign = new Signature<>(script, name,
-			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn, "");
+			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn, null);
 
 		// Register this signature
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, script);

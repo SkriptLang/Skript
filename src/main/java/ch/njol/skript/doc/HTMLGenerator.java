@@ -449,7 +449,7 @@ public class HTMLGenerator {
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
-			String[] eventNames = (events != null ? events.value() : null);
+			String[] eventNames = events != null ? events.value() : null;
 			String[] eventLinks = new String[eventNames.length];
 			for (int i = 0; i < eventNames.length; i++) {
 				String eventName = eventNames[i];
@@ -559,7 +559,7 @@ public class HTMLGenerator {
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
-			String[] eventNames = (events != null ? events.value() : null);
+			String[] eventNames = events != null ? events.value() : null;
 			String[] eventLinks = new String[eventNames.length];
 			for (int i = 0; i < eventNames.length; i++) {
 				String eventName = eventNames[i];
@@ -659,7 +659,7 @@ public class HTMLGenerator {
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
 		if (events != null) {
-			String[] eventNames = (events != null ? events.value() : null);
+			String[] eventNames = events != null ? events.value() : null;
 			String[] eventLinks = new String[eventNames.length];
 			for (int i = 0; i < eventNames.length; i++) {
 				String eventName = eventNames[i];

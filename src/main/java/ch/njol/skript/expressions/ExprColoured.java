@@ -49,9 +49,9 @@ import ch.njol.util.Kleenean;
 		"	trigger:",
 		"		message formatted text-argument # Safe, because we're sending to whoever used this command"})
 @Since("2.0")
-public class ExprColored extends PropertyExpression<String, String> {
+public class ExprColoured extends PropertyExpression<String, String> {
 	static {
-		Skript.registerExpression(ExprColored.class, String.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprColoured.class, String.class, ExpressionType.COMBINED,
 				"(colo[u]r-|colo[u]red )%strings%",
 				"(format-|formatted )%strings%",
 				"(un|non)[-](colo[u]r-|colo[u]red |format-|formatted )%strings%");

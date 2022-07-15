@@ -23,7 +23,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.ExprColored;
+import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -91,7 +91,7 @@ public class EffBroadcast extends Effect {
 			if (message instanceof VariableString) {
 				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-			} else if (message instanceof ExprColored && ((ExprColored) message).isUnsafeFormat()) { // Manually marked as trusted
+			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
 				for (Object realMessage : message.getArray(e)) {
 					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
