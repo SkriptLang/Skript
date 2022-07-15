@@ -36,7 +36,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 
-
 @Name("Plugins")
 @Description("Returns a list of the server's loaded plugins.")
 @Examples({"if the plugins list contains \"Vault\":",
