@@ -52,7 +52,7 @@ public class EvtBucketEntity extends SkriptEvent {
 
 	static {
 		if (SUPPORTED) {
-			Skript.registerEvent("Bucket Capture Entity", EvtBucketEntity.class, PlayerFishEvent.class, "[player] bucket [captur(e|ing)] entity [[of] %-entities%]");
+			Skript.registerEvent("Bucket Capture Entity", EvtBucketEntity.class, PlayerFishEvent.class, "[player] bucket captur(e|ing) [[of] %-entities%]");
 
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<ItemStack, PlayerBucketEntityEvent>() {
 				@Override
