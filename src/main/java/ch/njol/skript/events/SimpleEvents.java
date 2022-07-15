@@ -610,7 +610,6 @@ public class SimpleEvents {
 		}
 		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
 			.description("Called when an item is put in a slot for repair by an anvil. Please not that this event is called multiple times in a single item slot move.")
-			.requiredPlugins("Minecraft 1.9 or newer")
 			.examples("on anvil prepare:",
 				"\tevent-item is set # result item",
 				"\tchance of 5%:",
@@ -621,7 +620,7 @@ public class SimpleEvents {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
 					 		 "Note: this does not include anvil damage from falling.")
-				.requiredPlugins("Paper 1.13 or newer")
+				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\t\tcancel the event")
 				.since("INSERT VERSION");
