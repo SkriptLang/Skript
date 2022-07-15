@@ -1037,7 +1037,7 @@ public final class BukkitEventValues {
 			public Inventory get(final PrepareAnvilEvent e) {
 				return e.getInventory();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		// AnvilDamagedEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
