@@ -97,7 +97,7 @@ public class EffSecShoot extends EffectSection {
 			public Entity get(ShootEvent shootEvent) {
 				return shootEvent.getEntity();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 	}
 
 	private static final Double DEFAULT_SPEED = 5.0;
