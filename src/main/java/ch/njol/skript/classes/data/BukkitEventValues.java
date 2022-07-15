@@ -1030,7 +1030,7 @@ public final class BukkitEventValues {
 			public ItemStack get(final PrepareAnvilEvent e) {
 				return e.getResult();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, new Getter<Inventory, PrepareAnvilEvent>() {
 			@Override
 			@Nullable
