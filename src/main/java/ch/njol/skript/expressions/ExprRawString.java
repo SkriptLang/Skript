@@ -58,7 +58,7 @@ public class ExprRawString extends SimpleExpression<String> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		expr = LiteralUtils.defendExpression(exprs[0]);
+		expr = (Expression<String>) exprs[0];
 		messages = expr instanceof ExpressionList<?> ?
 			((ExpressionList<String>) expr).getExpressions() : new Expression[]{expr};
 		for (Expression<? extends String> message : messages) {
@@ -67,7 +67,7 @@ public class ExprRawString extends SimpleExpression<String> {
 				return false;
 			}
 		}
-		return LiteralUtils.canInitSafely(expr);
+		return true;
 	}
 
 	@Override
