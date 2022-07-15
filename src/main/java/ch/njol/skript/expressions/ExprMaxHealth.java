@@ -67,11 +67,6 @@ public class ExprMaxHealth extends SimplePropertyExpression<LivingEntity, Number
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if(!Skript.isRunningMinecraft(1, 5, 2)) {
-			Skript.error("The max health of an entity can only be changed in Minecraft 1.6 and later");
-			return null;
-		}
-		
 		if (mode != ChangeMode.DELETE && mode != ChangeMode.REMOVE_ALL)
 			return new Class[] {Number.class};
 		return null;

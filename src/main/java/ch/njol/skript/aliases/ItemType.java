@@ -938,7 +938,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				if (myType.isPlain() != otherType.isPlain()) {
 					minimumQuality = MatchQuality.EXACT;
 				} else if ((otherType.isAlias() && !myType.isAlias())
-						|| (!ItemData.itemDataValues && myType.itemForm && otherType.blockValues != null && !otherType.blockValues.isDefault())) {
+						|| (myType.itemForm && otherType.blockValues != null && !otherType.blockValues.isDefault())) {
 					// First Check: Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
 					// Second Check: Items (held in inventories) don't have block values, but the other item does (may be an item-block comparison)
 					minimumQuality = MatchQuality.SAME_MATERIAL;
