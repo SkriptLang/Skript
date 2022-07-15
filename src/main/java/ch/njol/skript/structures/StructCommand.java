@@ -153,7 +153,7 @@ public class StructCommand extends Structure {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void load() {
+	public boolean load() {
 		getParser().setCurrentEvent("command", CommandEvent.class);
 
 		String fullCommand = entryContainer.getSource().getKey();
@@ -168,7 +168,7 @@ public class StructCommand extends Structure {
 				if (level == 0) {
 					Skript.error("Invalid placement of [optional brackets]");
 					getParser().deleteCurrentEvent();
-					return;
+					return false;
 				}
 				level--;
 			}
@@ -176,7 +176,7 @@ public class StructCommand extends Structure {
 		if (level > 0) {
 			Skript.error("Invalid amount of [optional brackets]");
 			getParser().deleteCurrentEvent();
-			return;
+			return false;
 		}
 
 		Matcher matcher = COMMAND_PATTERN.matcher(fullCommand);
@@ -191,7 +191,7 @@ public class StructCommand extends Structure {
 				+ (script != null ? (" in " + script.getConfig().getFileName()) : "")
 			);
 			getParser().deleteCurrentEvent();
-			return;
+			return false;
 		}
 
 		String arguments = matcher.group(3) == null ? "" : matcher.group(3);
@@ -216,19 +216,19 @@ public class StructCommand extends Structure {
 			if (c == null) {
 				Skript.error("Unknown type '" + matcher.group(2) + "'");
 				getParser().deleteCurrentEvent();
-				return;
+				return false;
 			}
 			Parser<?> parser = c.getParser();
 			if (parser == null || !parser.canParse(ParseContext.COMMAND)) {
 				Skript.error("Can't use " + c + " as argument of a command");
 				getParser().deleteCurrentEvent();
-				return;
+				return false;
 			}
 
 			Argument<?> arg = Argument.newInstance(matcher.group(1), c, matcher.group(3), i, !p.getSecond(), optionals > 0);
 			if (arg == null) {
 				getParser().deleteCurrentEvent();
-				return;
+				return false;
 			}
 			currentArguments.add(arg);
 
@@ -306,11 +306,14 @@ public class StructCommand extends Structure {
 
 		Commands.registerCommand(scriptCommand);
 		syncCommands.set(true);
+
+		return true;
 	}
 
 	@Override
-	public void postLoad() {
+	public boolean postLoad() {
 		attemptCommandSync();
+		return true;
 	}
 
 	@Override

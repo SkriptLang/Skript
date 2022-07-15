@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.config.Config;
 import org.bukkit.event.Event;
 
 import java.util.Objects;
@@ -46,9 +47,11 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	public abstract void unregisterAll();
 
 	@Override
-	public void load() {
-		super.load();
-		afterParse(Objects.requireNonNull(getParser().getCurrentScript()));
+	public boolean load() {
+		boolean load = super.load();
+		if (load)
+			afterParse(Objects.requireNonNull(getParser().getCurrentScript()).getConfig());
+		return load;
 	}
 
 	@Override
@@ -59,9 +62,11 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	/**
 	 * This method is called when this event is parsed. Overriding this is
 	 * optional, and usually not needed.
-	 * @param script The script that is being parsed.
+	 * @param config Script that is being parsed
+	 * @deprecated Use {@link #postLoad()} instead.
 	 */
-	public void afterParse(Script script) {
+	@Deprecated
+	public void afterParse(Config config) {
 
 	}
 

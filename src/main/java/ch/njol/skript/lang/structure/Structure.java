@@ -120,23 +120,30 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	/**
 	 * The first phase of Structure loading.
 	 * During this phase, all Structures across all loading scripts are loaded with respect to their priorities.
+	 * @return Whether preloading was successful. An error should be printed prior to returning false to specify the cause.
 	 */
-	public void preLoad() { }
+	public boolean preLoad() {
+		return true;
+	}
 
 	/**
 	 * The second phase of Structure loading.
 	 * During this phase, Structures are loaded script by script.
 	 * The order they are loaded in for each script is based on the Structure's priority.
+	 * @return Whether loading was successful. An error should be printed prior to returning false to specify the cause.
 	 */
-	public abstract void load();
+	public abstract boolean load();
 
 	/**
 	 * The third and final phase of Structure loading.
 	 * The loading order and method is the same as {@link #load()}.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 *  most other Structures have finished loading.
+	 * @return Whether postLoading was successful. An error should be printed prior to returning false to specify the cause.
 	 */
-	public void postLoad() { }
+	public boolean postLoad() {
+		return true;
+	}
 
 	/**
 	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.

@@ -64,7 +64,9 @@ public class StructAliases extends Structure {
 	}
 
 	@Override
-	public void load() { }
+	public boolean load() {
+		return true;
+	}
 
 	@Override
 	public void unload() {

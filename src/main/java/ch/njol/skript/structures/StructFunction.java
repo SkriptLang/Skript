@@ -71,15 +71,16 @@ public class StructFunction extends Structure {
 	}
 
 	@Override
-	public void preLoad() {
+	public boolean preLoad() {
 		Script script = getParser().getCurrentScript();
 		if (script == null)
 			throw new IllegalStateException("Current script is null during function loading");
 		signature = Functions.loadSignature(script.getConfig().getFileName(), node);
+		return true;
 	}
 
 	@Override
-	public void load() {
+	public boolean load() {
 		getParser().setCurrentEvent("function", FunctionEvent.class);
 
 		//noinspection ConstantConditions - current script won't be null
@@ -88,14 +89,17 @@ public class StructFunction extends Structure {
 		getParser().deleteCurrentEvent();
 
 		validateFunctions.set(true);
+
+		return true;
 	}
 
 	@Override
-	public void postLoad() {
+	public boolean postLoad() {
 		if (validateFunctions.get()) {
 			validateFunctions.set(false);
 			Functions.validateFunctions();
 		}
+		return true;
 	}
 
 	@Override

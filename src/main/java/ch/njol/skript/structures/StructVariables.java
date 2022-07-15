@@ -141,7 +141,7 @@ public class StructVariables extends Structure {
 	}
 
 	@Override
-	public void load() {
+	public boolean load() {
 		for (NonNullPair<String, Object> pair : variables) {
 			String name = pair.getKey();
 			Object o = pair.getValue();
@@ -151,6 +151,7 @@ public class StructVariables extends Structure {
 
 			Variables.setVariable(name, o, null, false);
 		}
+		return true;
 	}
 
 	@Override

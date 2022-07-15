@@ -108,9 +108,9 @@ public abstract class SkriptEvent extends Structure {
 	 * Only override this method if you know what you are doing!
 	 */
 	@Override
-	public void load() {
+	public boolean load() {
 		if (!shouldLoadEvent())
-			return;
+			return false;
 
 		if (Skript.debug() || node.debug())
 			Skript.debug(expr + " (" + this + "):");
@@ -126,6 +126,8 @@ public abstract class SkriptEvent extends Structure {
 			getParser().deleteCurrentEvent();
 			getParser().deleteCurrentSkriptEvent();
 		}
+
+		return true;
 	}
 
 	/**
@@ -133,16 +135,14 @@ public abstract class SkriptEvent extends Structure {
 	 * Only override this method if you know what you are doing!
 	 */
 	@Override
-	public void postLoad() {
-		if (items == null) // shouldLoadEvent returned false
-			return;
-
+	public boolean postLoad() {
 		getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), getEventClasses());
 		getParser().setCurrentSkriptEvent(this);
 
 		Script script = getParser().getCurrentScript();
 
 		try {
+			assert items != null; // This method will only be called if 'load' was successful, meaning 'items' will be set
 			trigger = new Trigger(script, expr, this, items);
 			trigger.setLineNumber(node.getLine()); // Set line number for debugging
 			trigger.setDebugLabel(script + ": line " + node.getLine());
@@ -158,6 +158,8 @@ public abstract class SkriptEvent extends Structure {
 
 		getParser().deleteCurrentEvent();
 		getParser().deleteCurrentSkriptEvent();
+
+		return true;
 	}
 
 	/**

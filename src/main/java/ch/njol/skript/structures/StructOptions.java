@@ -95,7 +95,9 @@ public class StructOptions extends Structure {
 	}
 
 	@Override
-	public void load() { }
+	public boolean load() {
+		return true;
+	}
 
 	@Override
 	public void unload() {

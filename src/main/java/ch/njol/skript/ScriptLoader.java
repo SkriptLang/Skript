@@ -492,7 +492,16 @@ public class ScriptLoader {
 							Script script = pair.getFirst();
 							if (getParser().getCurrentScript() != script)
 								getParser().setCurrentScript(script);
-							pair.getSecond().preLoad();
+							Structure structure = pair.getSecond();
+							try {
+								if (!structure.preLoad())
+									script.getStructures().remove(structure);
+							} catch (Exception e) {
+								//noinspection ThrowableNotThrown
+								Skript.exception(e, "An error occurred while trying to load a Structure.");
+								script.getStructures().remove(structure);
+							}
+
 						});
 
 					// TODO in the future, Structure#load should be split across multiple threads if parallel loading is enabled.
@@ -501,14 +510,28 @@ public class ScriptLoader {
 					// Until these reworks happen, limiting main loading to asynchronous (not parallel) is the only choice we have.
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
-						for (Structure structure : script.getStructures())
-							structure.load();
+						script.getStructures().removeIf(structure -> {
+							try {
+								return !structure.load();
+							} catch (Exception e) {
+								//noinspection ThrowableNotThrown
+								Skript.exception(e, "An error occurred while trying to load a Structure.");
+								return true;
+							}
+						});
 					}
 
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
-						for (Structure structure : script.getStructures())
-							structure.postLoad();
+						script.getStructures().removeIf(structure -> {
+							try {
+								return !structure.postLoad();
+							} catch (Exception e) {
+								//noinspection ThrowableNotThrown
+								Skript.exception(e, "An error occurred while trying to load a Structure.");
+								return true;
+							}
+						});
 					}
 
 					return scriptInfo;
