@@ -64,8 +64,6 @@ public class Direction implements YggdrasilRobustSerializable {
 	
 	public final static BlockFace BF_X = findFace(1, 0, 0), BF_Y = findFace(0, 1, 0), BF_Z = findFace(0, 0, 1);
 
-	private static final boolean IS_LEGACY_EXISTS = Skript.methodExists(Material.class, "isLegacy");
-
 	private static BlockFace findFace(final int x, final int y, final int z) {
 		for (final BlockFace f : BlockFace.values()) {
 			if (f.getModX() == x && f.getModY() == y && f.getModZ() == z)
@@ -217,17 +215,10 @@ public class Direction implements YggdrasilRobustSerializable {
 	 */
 	@SuppressWarnings("deprecation")
 	public static BlockFace getFacing(Block b) {
-		if (IS_LEGACY_EXISTS) {
-			BlockData blockData = b.getBlockData();
-			if (!(blockData instanceof org.bukkit.block.data.Directional))
-				return BlockFace.SELF;
-			return ((org.bukkit.block.data.Directional) blockData).getFacing();
-		} else {
-			Material m = b.getType();
-			if (!Directional.class.isAssignableFrom(m.getData()))
-				return BlockFace.SELF;
-			return ((Directional) m.getNewData(b.getData())).getFacing();
-		}
+		BlockData blockData = b.getBlockData();
+		if (!(blockData instanceof org.bukkit.block.data.Directional))
+			return BlockFace.SELF;
+		return ((org.bukkit.block.data.Directional) blockData).getFacing();
 	}
 	
 	public static BlockFace getFacing(final double yaw, final double pitch) {
