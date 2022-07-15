@@ -242,16 +242,41 @@ public class ParserInstance {
 		setCurrentEvents(null);
 		hasDelayBefore = Kleenean.FALSE;
 	}
-	
+
+	/**
+	 * This method checks whether <i>at least one</i> of the current event classes
+	 * is covered by the argument event class (i.e. equal to the class or a subclass of it).
+	 * <br>
+	 * Using this method in an event-specific syntax element requires a runtime check, for example <br>
+	 * {@code if (!(e instanceof BlockBreakEvent)) return null;}
+	 * <br>
+	 * This check is required because there can be more than 1 event class at parse-time, but this method
+	 * only checks if one of them matches the argument class.
+	 *
+	 * <br><br>
+	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
+	 */
 	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
 		return CollectionUtils.containsSuperclass(currentEvents, event);
 	}
-	
+
+	/**
+	 * Same as {@link #isCurrentEvent(Class)}, but allows for plural argument input.
+	 * <br>
+	 * This means that this method will return whether any of the current event classes is covered
+	 * by any of the argument classes.
+	 * <br>
+	 * Using this method in an event-specific syntax element {@link #isCurrentEvent(Class) requires a runtime check},
+	 * you can use {@link CollectionUtils#isAnyInstanceOf(Object, Class[])} for this, for example: <br>
+	 * {@code if (!CollectionUtils.isAnyInstanceOf(e, BlockBreakEvent.class, BlockPlaceEvent.class)) return null;}
+	 *
+	 * @see #isCurrentEvent(Class)
+	 */
 	@SafeVarargs
 	public final boolean isCurrentEvent(Class<? extends Event>... events) {
 		return CollectionUtils.containsAnySuperclass(currentEvents, events);
 	}
-	
+
 	/*
 	 * Addon data
 	 */

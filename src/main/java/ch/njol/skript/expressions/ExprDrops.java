@@ -72,6 +72,9 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	@Override
 	@Nullable
 	protected ItemType[] get(Event e) {
+		if (!(e instanceof EntityDeathEvent))
+			return null;
+
 		return ((EntityDeathEvent) e).getDrops()
 			.stream()
 			.map(ItemType::new)
@@ -94,13 +97,15 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 			case DELETE:
 			case RESET:
 			default:
-				assert false;
 				return null;
 		}
 	}
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof EntityDeathEvent))
+			return;
+
 		List<ItemStack> drops = ((EntityDeathEvent) e).getDrops();
 		assert delta != null;
 		for (Object o : delta) {

@@ -29,17 +29,16 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 public class ZombieVillagerData extends EntityData<ZombieVillager> {
-	
-	private final static boolean villagerSupport = Skript.isRunningMinecraft(1, 11); // TODO test on 1.9/1.10
+
 	private final static boolean PROFESSION_UPDATE = Skript.isRunningMinecraft(1, 14);
 	private final static Villager.Profession[] professions = Villager.Profession.values();
-	
+
 	static {
 		if (PROFESSION_UPDATE)
 			EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0,
 				"zombie villager", "zombie armorer", "zombie butcher", "zombie cartographer", "zombie cleric", "zombie farmer", "zombie fisherman",
 				"zombie fletcher", "zombie leatherworker", "zombie librarian", "zombie mason", "zombie nitwit", "zombie shepherd", "zombie toolsmith", "zombie weaponsmith");
-		else if (villagerSupport)
+		else
 			EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0,
 					"zombie villager", "zombie farmer", "zombie librarian", "zombie priest", "zombie blacksmith", "zombie butcher", "zombie nitwit");
 	}

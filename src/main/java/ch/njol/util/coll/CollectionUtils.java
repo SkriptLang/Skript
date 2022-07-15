@@ -251,6 +251,17 @@ public abstract class CollectionUtils {
 		}
 		return false;
 	}
+
+	/**
+	 * @return whether the given object is an instance of any of the given classes
+	 */
+	public static boolean isAnyInstanceOf(Object object, Class<?>... classes) {
+		for (Class<?> clazz : classes) {
+			if (clazz.isInstance(object))
+				return true;
+		}
+		return false;
+	}
 	
 	private final static Random random = new Random();
 	

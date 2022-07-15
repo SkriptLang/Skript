@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -59,6 +60,9 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	@Override
 	@Nullable
 	protected Block[] get(Event e) {
+		if (!CollectionUtils.isAnyInstanceOf(e, BlockPistonExtendEvent.class, BlockPistonRetractEvent.class))
+			return null;
+
 		return (e instanceof BlockPistonExtendEvent) ? ((BlockPistonExtendEvent) e).getBlocks().toArray(new Block[0])
 				: ((BlockPistonRetractEvent) e).getBlocks().toArray(new Block[0]);
 	}

@@ -96,8 +96,10 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 				entity = ((ProjectileHitEvent) e).getHitEntity();
 			else
 				entity = ((EntityEvent) e).getEntity();
-		else
+		else if (e instanceof VehicleEvent)
 			entity = ((VehicleEvent) e).getVehicle();
+		else
+			return null;
 		if (type.isInstance(entity)) {
 			one[0] = entity;
 			return one;
