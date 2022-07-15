@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffPullHookedEntity extends Effect {
 
 	static {
-		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [(1¦of %fishinghooks%)]");
+		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [1:of %fishinghooks%]");
 	}
 
 	private Expression<FishHook> fishHook;
