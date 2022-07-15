@@ -156,7 +156,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "cooldown of " + itemtypes.toString(e, debug) + " for " + players.toString(e, debug);
+		return "the cooldown of " + itemtypes.toString(e, debug) + " for " + players.toString(e, debug);
 	}
 
 }
