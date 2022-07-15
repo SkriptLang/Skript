@@ -35,11 +35,11 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Tests whether a given string is a valid statistic name.")
 @Examples({
 	"command /isStatistic <text>:",
-		"\ttrigger:",
-			"\t\tif arg-1 is a valid statistic:",
-				"\t\t\tsend \"Yes :)\"",
-			"\t\telse:",
-				"\t\t\tsend \"No :(\""
+	"\ttrigger:",
+	"\t\tif arg-1 is a valid statistic:",
+	"\t\t\tsend \"Yes :)\"",
+	"\t\telse:",
+	"\t\t\tsend \"No :(\""
 })
 @Since("INSERT VERSION")
 public class CondIsStatistic extends Condition {
