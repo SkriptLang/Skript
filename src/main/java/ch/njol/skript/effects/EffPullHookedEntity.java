@@ -46,7 +46,7 @@ public class EffPullHookedEntity extends Effect {
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if ((!getParser().isCurrentEvent(PlayerFishEvent.class)) && parseResult.mark == 0) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class) && parseResult.mark == 0) {
 			Skript.error("The 'pull hooked entity' effect can either be used in fish event or by providing a fishing hook.");
 			return false;
 		}
