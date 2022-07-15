@@ -153,6 +153,7 @@ public class EffSecShoot extends EffectSection {
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(shootEvent, localVars);
 				trigger.execute(shootEvent);
+				Variables.setLocalVariables(e, localVars); // Carry over variable changes to the rest of the main trigger
 			};
 		} else {
 			consumer = null;
