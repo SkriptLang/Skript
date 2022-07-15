@@ -71,7 +71,8 @@ public class CondIsStatistic extends Condition {
 					return false;
 				}
 				return true;
-			}, isNegated());
+			}, isNegated()
+		);
 	}
 	
 	@Override
