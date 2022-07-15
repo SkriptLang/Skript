@@ -1046,7 +1046,7 @@ public final class BukkitEventValues {
 				public Inventory get(final AnvilDamagedEvent e) {
 					return e.getInventory();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 		}
 		//BlockFertilizeEvent
 		if(Skript.classExists("org.bukkit.event.block.BlockFertilizeEvent")) {
