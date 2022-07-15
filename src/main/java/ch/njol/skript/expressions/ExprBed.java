@@ -45,9 +45,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 })
 @Examples({
 	"if bed of player exists:",
-		"\tteleport player the the player's bed",
+	"\tteleport player the the player's bed",
 	"else:",
-		"\tteleport the player to the world's spawn point"
+	"\tteleport the player to the world's spawn point"
 })
 @Since("2.0, INSERT VERSION (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
