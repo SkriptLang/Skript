@@ -107,7 +107,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || !(delta[0] instanceof Timespan)))
 			return;
 		
-		int timespan = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0;
+		int timespan = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
 
@@ -121,7 +121,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 					case RESET:
 					case DELETE:
 					case SET:
-						p.setCooldown(mat, mode == ChangeMode.SET ? timespan : 0); // 0 for DELETE/RESET
+						p.setCooldown(mat, timespan);
 						break;
 					case REMOVE:
 						p.setCooldown(mat, Math.max(p.getCooldown(mat) - timespan, 0));
