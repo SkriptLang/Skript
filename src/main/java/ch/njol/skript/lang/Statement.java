@@ -29,32 +29,45 @@ import ch.njol.skript.log.SkriptLogger;
 
 /**
  * Supertype of conditions and effects
- * 
- * @author Peter Güttinger
+ *
  * @see Condition
  * @see Effect
  */
 public abstract class Statement extends TriggerItem implements SyntaxElement {
-	
+
 	@SuppressWarnings({"rawtypes", "unchecked", "null"})
 	@Nullable
-	public static Statement parse(final String s, final String defaultError) {
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+	public static Statement parse(String s, String defaultError) {
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			final EffFunctionCall f = EffFunctionCall.parse(s);
+			EffFunctionCall f = EffFunctionCall.parse(s);
 			if (f != null) {
 				log.printLog();
 				return f;
 			} else if (log.hasError()) {
 				log.printError();
 				return null;
-			} else {
-				log.printError();
 			}
+			log.clear();
+
+			EffectSection section = EffectSection.parse(s, null, null, null);
+			if (section != null) {
+				log.printLog();
+				return new EffectSectionEffect(section);
+			}
+			log.clear();
+
+			Statement statement = (Statement) SkriptParser.parse(s, (Iterator) Skript.getStatements().iterator(), defaultError);
+			if (statement != null) {
+				log.printLog();
+				return statement;
+			}
+
+			log.printError();
+			return null;
 		} finally {
 			log.stop();
 		}
-		return (Statement) SkriptParser.parse(s, (Iterator) Skript.getStatements().iterator(), defaultError);
 	}
-	
+
 }

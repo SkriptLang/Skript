@@ -228,7 +228,7 @@ public class EventValues {
 			if (ev.event.isAssignableFrom(e))
 				return (Getter<? extends T, ? super E>) ev.getter;
 		}
-		// Second check for assignable sub classes.
+		// Second check for assignable subclasses.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.isAssignableFrom(ev.c))
 				continue;
@@ -262,7 +262,7 @@ public class EventValues {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (checkInstanceOf && !e.isInstance(event))
+					if (checkInstanceOf && !ev.event.isInstance(event))
 						return null;
 					Object object = ((Getter<? super T, ? super E>) ev.getter).get(event);
 					if (c.isInstance(object))
@@ -273,14 +273,17 @@ public class EventValues {
 		}
 		// Fourth check will attempt to convert the event value to the type.
 		for (EventValueInfo<?, ?> ev : eventValues) {
-			boolean b = !ev.event.isAssignableFrom(e);
-			if (b && !e.isAssignableFrom(ev.event))
+			boolean checkInstanceOf = !ev.event.isAssignableFrom(e);
+			if (checkInstanceOf && !e.isAssignableFrom(ev.event))
 				continue;
+			
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, checkInstanceOf);
+			if (getter == null)
+				continue;
+			
 			if (!checkExcludes(ev, e))
 				return null;
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
-			if (getter != null)
-				return getter;
+			return getter;
 		}
 		// If the check should try again matching event values with a 0 time (most event values).
 		if (allowDefault && time != 0)
@@ -295,11 +298,11 @@ public class EventValues {
 	 * @param e
 	 * @return boolean if true the event value passes for the events.
 	 */
+	@SuppressWarnings("unchecked")
 	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
-		Class<? extends Event>[] excl = ev.excludes;
-		if (excl == null)
+		if (ev.excludes == null)
 			return true;
-		for (Class<? extends Event> ex : excl) {
+		for (Class<? extends Event> ex : (Class<? extends Event>[]) ev.excludes) {
 			if (ex.isAssignableFrom(e)) {
 				Skript.error(ev.excludeErrorMessage);
 				return false;
