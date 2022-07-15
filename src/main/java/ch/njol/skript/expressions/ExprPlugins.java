@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -25,21 +30,17 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import org.bukkit.plugin.Plugin;
-
-import java.util.ArrayList;
+import java.util.Arrays;
 
 @Name("Loaded Plugins")
 @Description("An expression to obtain a list of the names of the server's loaded plugins.")
 @Examples({
 	"if the plugins list contains \"Vault\":",
+	"\tbroadcast \"This server uses Vault plugin!\"",
+	"",
 	"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"
 })
 @Since("INSERT VERSION")
@@ -57,11 +58,9 @@ public class ExprPlugins extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event e) {
-		ArrayList<String> plugins = new ArrayList<>();
-		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
-			plugins.add(p.getName());
-		}
-		return plugins.toArray(new String[0]);
+		return Arrays.stream(Bukkit.getPluginManager().getPlugins())
+			.map(Plugin::getName)
+			.toArray(String[]::new);
 	}
 
 	@Override
