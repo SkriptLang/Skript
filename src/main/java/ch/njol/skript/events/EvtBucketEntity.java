@@ -59,20 +59,20 @@ public class EvtBucketEntity extends SkriptEvent {
 				public ItemStack get(PlayerBucketEntityEvent e) {
 					return e.getOriginalBucket();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, Player.class, new Getter<Player, PlayerBucketEntityEvent>() {
 				@Override
 				public Player get(PlayerBucketEntityEvent e) {
 					return e.getPlayer();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, Entity.class, new Getter<Entity, PlayerBucketEntityEvent>() {
 				@Override
 				@Nullable
 				public Entity get(PlayerBucketEntityEvent e) {
 					return e.getEntity();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class EvtBucketEntity extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "bucket capture of " + (entities.isEmpty() ? "entity" : StringUtils.join(entities, ", ", " and "));
+		return "bucket capture" + (entities.isEmpty() ? "" : " of " + StringUtils.join(entities, ", ", " and "));
 	}
 
 }

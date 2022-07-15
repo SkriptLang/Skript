@@ -55,20 +55,20 @@ public class EvtFish extends SkriptEvent {
 			public FishHook get(PlayerFishEvent e) {
 				return e.getHook();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerFishEvent.class, State.class, new Getter<State, PlayerFishEvent>() {
 			@Override
 			public State get(PlayerFishEvent e) {
 				return e.getState();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, new Getter<Entity, PlayerFishEvent>() {
 			@Override
 			@Nullable
 			public Entity get(PlayerFishEvent e) {
 				return e.getCaught();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 	}
 
 	private List<State> states = new ArrayList<>();
@@ -77,7 +77,6 @@ public class EvtFish extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null)
 			states = Arrays.asList(((Literal<State>) args[0]).getAll());
-
 		return true;
 	}
 

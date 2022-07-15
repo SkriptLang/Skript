@@ -36,9 +36,11 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity of the fishing hook.")
-@Examples({"on fish:",
-			"\tif hooked entity of fishing hook is a player:",
-			"\t\tteleport hooked entity of fishing hook to player"})
+@Examples({
+	"on fish:",
+	"\tif hooked entity of fishing hook is a player:",
+	"\t\tteleport hooked entity of fishing hook to player"
+})
 @Since("INSERT VERSION")
 public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, Entity> {
 
@@ -49,17 +51,17 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<FishHook>) exprs[0]);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "hooked entity of fishing hook";
+		return "hooked entity";
 	}
 
 	@Override
-	public @Nullable Entity convert(FishHook fishHook) {
+	@Nullable
+	public Entity convert(FishHook fishHook) {
 		return fishHook.getHookedEntity();
 	}
 
@@ -105,4 +107,5 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 	public String toString(@Nullable Event e, boolean debug) {
 		return "hooked entity of " + getExpr().toString(e, debug);
 	}
+
 }

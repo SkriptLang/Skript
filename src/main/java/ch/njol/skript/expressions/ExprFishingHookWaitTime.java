@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, Timespan> {
 
 	static {
-		register(ExprFishingHookWaitTime.class, Timespan.class, "(1¦min[imum]|max[imum]) wait[ing] time", "fishinghook");
+		register(ExprFishingHookWaitTime.class, Timespan.class, "(1:min[imum]|max[imum]) wait[ing] time", "fishinghook");
 	}
 
 	private boolean isMin;
@@ -48,18 +48,18 @@ public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, 
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<FishHook>) exprs[0]);
 		isMin = parseResult.mark == 1;
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "waiting time of fishing hook";
+		return (isMin ? "minimum" : "maximum") + " waiting time";
 	}
 
 	@Override
-	public @Nullable Timespan convert(FishHook fishHook) {
+	@Nullable
+	public Timespan convert(FishHook fishHook) {
 		return Timespan.fromTicks_i(isMin ? fishHook.getMinWaitTime() : fishHook.getMaxWaitTime());
 	}
 
@@ -128,4 +128,5 @@ public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, 
 	public String toString(@Nullable Event e, boolean debug) {
 		return (isMin ? "minimum" : "maximum") + " waiting time of " + getExpr().toString(e, debug);
 	}
+
 }

@@ -32,9 +32,11 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Entity Bucket")
 @Description("Gets the bucket that the Entity will be put into such as 'puffer fish bucket'.")
-@Examples({"on bucket capture entity:",
-			"\tif entity bucket is salmon bucket:",
-			"\t\tsend \"Congratulations you now have a salmon bucket!\" to player"})
+@Examples({
+	"on bucket capture entity:",
+	"\tif entity bucket is salmon bucket:",
+	"\t\tsend \"Congratulations you now have a salmon bucket!\" to player"
+})
 @Events("bucket capture entity")
 @Since("INSERT VERSION")
 public class ExprEntityBucket extends SimpleExpression<ItemStack> {
@@ -56,13 +58,14 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 			Skript.error("The 'entity bucket' expression can only be used in bucket capture entity event.");
 			return false;
 		}
-
 		return true;
 	}
 
 	@Override
 	protected @Nullable ItemStack[] get(Event e) {
-		return new ItemStack[]{ ((PlayerBucketEntityEvent) e).getEntityBucket() };
+		if (!(e instanceof PlayerBucketEntityEvent))
+			return new ItemStack[0];
+		return new ItemStack[]{((PlayerBucketEntityEvent) e).getEntityBucket()};
 	}
 
 	@Override
@@ -77,6 +80,7 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "entity bucket of bucket capture entity";
+		return "the entity bucket";
 	}
+
 }
