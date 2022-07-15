@@ -2,8 +2,10 @@ test "shoot section" when running minecraft "1.11":
 	set {_foo} to true
 	shoot an arrow from spawn of "world":
 		assert {_foo} is true with "variables from previous section wasn't carried over"
+		set {_foo} to false
 		assert event-projectile is an arrow with "projectile should be an arrow but is %event-projectile%"
 		assert location of event-projectile is set with "location of projectile is not set"
 		set metadata value "test" of event-projectile to true
 		assert metadata value "test" of event-projectile is true with "metadata value not true (check from section)"
 	assert metadata value "test" of last shot projectile is true with "metadata value not true (check with last shot projectile)"
+	assert {_foo} is false with "variables from shoot section wasn't carried over"
