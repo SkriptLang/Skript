@@ -62,9 +62,9 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	static {
 		Skript.registerExpression(ExprLastSpawnedEntity.class, Entity.class, ExpressionType.SIMPLE,
-			"[the] [last[ly]] (0¦spawned|1¦shot) %*entitydata%",
-			"[the] [last[ly]] dropped (2¦item)",
-			"[the] [last[ly]] (created|struck) (3¦lightning)");
+			"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
+			"[the] [last[ly]] dropped (2:item)",
+			"[the] [last[ly]] (created|struck) (3:lightning)");
 	}
 	
 	int from;
