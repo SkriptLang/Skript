@@ -117,6 +117,7 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -529,24 +530,26 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Load hooks from Skript jar
 				try {
 					try (JarFile jar = new JarFile(getFile())) {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
+						for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
 							if (e.getName().startsWith("ch/njol/skript/hooks/") && e.getName().endsWith("Hook.class") && StringUtils.count("" + e.getName(), '/') <= 5) {
 								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 								try {
-									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
+									Class<?> hook = Class.forName(c, true, getClassLoader());
+									if (Hook.class.isAssignableFrom(hook) && !Modifier.isAbstract(hook.getModifiers()) && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 										hook.getDeclaredConstructor().setAccessible(true);
 										hook.getDeclaredConstructor().newInstance();
 									}
-								} catch (final ClassNotFoundException ex) {
+								} catch (ClassNotFoundException ex) {
 									Skript.exception(ex, "Cannot load class " + c);
-								} catch (final ExceptionInInitializerError err) {
+								} catch (ExceptionInInitializerError err) {
 									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
+								} catch (Exception ex) {
+									Skript.exception(ex, "Exception initializing hook: " + c);
 								}
 							}
 						}
 					}
-				} catch (final Exception e) {
+				} catch (IOException e) {
 					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
@@ -648,7 +651,11 @@ public final class Skript extends JavaPlugin implements Listener {
 								Skript.exception(e, "Failed to write test results.");
 							}
 							info("Testing done, shutting down the server.");
-							Bukkit.getServer().shutdown();
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
+
 						}
 
 						return;
@@ -1525,6 +1532,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static EmptyStacktraceException exception(@Nullable Throwable cause, final @Nullable Thread thread, final @Nullable TriggerItem item, final String... info) {
 		errored = true;
+
+		// Don't send full exception message again, when caught exception (likely) comes from this method
+		if (cause instanceof EmptyStacktraceException) {
+			return new EmptyStacktraceException();
+		}
+
 		// First error: gather plugin package information
 		if (!checkedPlugins) { 
 			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
