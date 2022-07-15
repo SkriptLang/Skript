@@ -39,7 +39,7 @@ public class IndeterminateDelay extends Delay {
 		final long start = Skript.debug() ? System.nanoTime() : 0;
 		final TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			delayed.add(e);
+			Delay.addDelayedEvent(e);
 			final Timespan d = duration.getSingle(e);
 			if (d == null)
 				return null;
