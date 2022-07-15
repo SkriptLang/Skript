@@ -42,8 +42,8 @@ public class CondHasItemCooldown extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
-			"%players% (has|have) [item] cooldown (on|for) %itemtypes%",
-			"%players% (doesn't|does not|do not|don't) have [item] cooldown (on|for) %itemtypes%");
+			"%players% (has|have) [([an] item|a)] cooldown (on|for) %itemtypes%",
+			"%players% (doesn't|does not|do not|don't) have [([an] item|a)] cooldown (on|for) %itemtypes%");
 	}
 
 	private Expression<HumanEntity> players;
