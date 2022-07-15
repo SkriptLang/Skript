@@ -97,7 +97,6 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 			case DELETE:
 			case RESET:
 			default:
-				assert false;
 				return null;
 		}
 	}

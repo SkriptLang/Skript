@@ -209,15 +209,15 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	private final <T extends SyntaxElement> T parse(final Iterator<? extends SyntaxElementInfo<? extends T>> source) {
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			while (source.hasNext()) {
-				final SyntaxElementInfo<? extends T> info = source.next();
+				SyntaxElementInfo<? extends T> info = source.next();
 				patternsLoop: for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
 						ParseResult res;
 						try {
@@ -228,12 +228,12 @@ public class SkriptParser {
 						if (res != null) {
 							int x = -1;
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {
-								final int x2 = nextUnescaped(pattern, '%', x + 1);
+								int x2 = nextUnescaped(pattern, '%', x + 1);
 								if (res.exprs[j] == null) {
-									final String name = pattern.substring(x + 1, x2);
+									String name = pattern.substring(x + 1, x2);
 									if (!name.startsWith("-")) {
-										final ExprInfo vi = getExprInfo(name);
-										final DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
+										ExprInfo vi = getExprInfo(name);
+										DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
 										if (expr == null)
 											throw new SkriptAPIException("The class '" + vi.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + vi.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[i] + "]");
 										if (!(expr instanceof Literal) && (vi.flagMask & PARSE_EXPRESSIONS) == 0)
@@ -251,15 +251,13 @@ public class SkriptParser {
 								}
 								x = x2;
 							}
-							final T t = info.c.newInstance();
+							T t = info.c.newInstance();
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (final InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}

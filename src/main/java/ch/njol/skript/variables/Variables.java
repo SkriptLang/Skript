@@ -487,17 +487,21 @@ public abstract class Variables {
 		} finally {
 			variablesLock.writeLock().unlock();
 		}
-		
-		for (final VariablesStorage s : storages) {
-			if (s.accept(name)) {
-				if (s != source) {
-					final Value v = serialize(value);
-					s.save(name, v != null ? v.type : null, v != null ? v.data : null);
-					if (value != null)
-						source.save(name, null, null);
+
+		try {
+			for (final VariablesStorage s : storages) {
+				if (s.accept(name)) {
+					if (s != source) {
+						final Value v = serialize(value);
+						s.save(name, v != null ? v.type : null, v != null ? v.data : null);
+						if (value != null)
+							source.save(name, null, null);
+					}
+					return true;
 				}
-				return true;
 			}
+		} catch (Exception e) {
+			Skript.exception(e, "Error saving variable named " + name);
 		}
 		return false;
 	}
@@ -537,40 +541,42 @@ public abstract class Variables {
 		}
 	}
 	
-	public static SerializedVariable serialize(final String name, final @Nullable Object value) {
+	public static SerializedVariable serialize(String name, @Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
-		final SerializedVariable.Value var = serialize(value);
+		SerializedVariable.Value var;
+		try {
+			var = serialize(value);
+		} catch (Exception e) {
+			throw Skript.exception(e, "Error saving variable named " + name);
+		}
 		return new SerializedVariable(name, var);
 	}
 	
-	public static SerializedVariable.@Nullable Value serialize(final @Nullable Object value) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
 		return Classes.serialize(value);
 	}
 
-	private static void saveVariableChange(final String name, final @Nullable Object value) {
+	private static void saveVariableChange(String name, @Nullable Object value) {
 		saveQueue.add(serialize(name, value));
 	}
 	
-	final static BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
+	static final BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
 	
 	static volatile boolean closed = false;
 	
-	private final static Thread saveThread = Skript.newThread(new Runnable() {
-		@Override
-		public void run() {
-			while (!closed) {
-				try {
-					// Save one variable change
-					SerializedVariable v = saveQueue.take();
-					for (VariablesStorage s : storages) {
-						if (s.accept(v.name)) {
-							s.save(v);
-							break;
-						}
+	private static final Thread saveThread = Skript.newThread(() -> {
+		while (!closed) {
+			try {
+				// Save one variable change
+				SerializedVariable v = saveQueue.take();
+				for (VariablesStorage s : storages) {
+					if (s.accept(v.name)) {
+						s.save(v);
+						break;
 					}
-				} catch (final InterruptedException e) {}
-			}
+				}
+			} catch (final InterruptedException ignored) {}
 		}
 	}, "Skript variable save thread");
 	
