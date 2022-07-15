@@ -82,11 +82,12 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		if (delta == null)
 			return;
 		float value = ((Number) delta[0]).floatValue();
-		Object single = getExpr().getSingle(e);
-		if (single instanceof Location) {
-			changeLocation(((Location) single), value, mode);
-		} else if (single instanceof Vector) {
-			changeVector(e, ((Vector) single), value, mode);
+		for (Object single : getExpr().getArray(e)) {
+			if (single instanceof Location) {
+				changeLocation(((Location) single), value, mode);
+			} else if (single instanceof Vector) {
+				changeVector(((Vector) single), value, mode);
+			}
 		}
 	}
 
@@ -115,7 +116,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		}
 	}
 
-	private void changeVector(Event e, Vector vector, float n, ChangeMode mode) {
+	private void changeVector(Vector vector, float n, ChangeMode mode) {
 		float yaw = VectorMath.getYaw(vector);
 		float pitch = VectorMath.getPitch(vector);
 		switch (mode) {
@@ -127,16 +128,16 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 					yaw += n;
 				else
 					pitch -= n; // Negative because of Minecraft's / Skript's upside down pitch
-				vector = VectorMath.fromYawAndPitch(yaw, pitch);
-				getExpr().change(e, new org.bukkit.util.Vector[]{vector}, ChangeMode.SET);
+				Vector newVector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
+				VectorMath.copyVector(vector, newVector);
 				break;
 			case SET:
 				if (usesYaw)
 					yaw = VectorMath.fromSkriptYaw(n);
 				else
 					pitch = VectorMath.fromSkriptPitch(n);
-				vector = VectorMath.fromYawAndPitch(yaw, pitch);
-				getExpr().change(e, new org.bukkit.util.Vector[]{vector}, ChangeMode.SET);
+				newVector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
+				VectorMath.copyVector(vector, newVector);
 		}
 	}
 

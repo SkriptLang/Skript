@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 		"on connect:",
 		"\thostname is \"testers.example.com\"",
 		"\tsend \"Welcome back tester!\""})
-@Since("INSERT VERSION")
+@Since("2.6.1")
 public class ExprHostname extends SimpleExpression<String> {
 
 	static {
@@ -59,6 +59,9 @@ public class ExprHostname extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event e) {
+		if (!(e instanceof PlayerLoginEvent))
+			return null;
+
 		return new String[] {((PlayerLoginEvent) e).getHostname()};
 	}
 	

@@ -57,6 +57,7 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
@@ -700,7 +701,7 @@ public class ScriptLoader {
 					if (!SkriptParser.validateLine(event))
 						continue;
 					
-					if (event.toLowerCase().startsWith("command ")) {
+					if (event.toLowerCase(Locale.ENGLISH).startsWith("command ")) {
 						
 						getParser().setCurrentEvent("command", CommandEvent.class);
 						
@@ -714,7 +715,7 @@ public class ScriptLoader {
 						getParser().deleteCurrentEvent();
 						
 						continue;
-					} else if (event.toLowerCase().startsWith("function ")) {
+					} else if (event.toLowerCase(Locale.ENGLISH).startsWith("function ")) {
 						
 						getParser().setCurrentEvent("function", FunctionEvent.class);
 						
@@ -741,10 +742,13 @@ public class ScriptLoader {
 						continue;
 					
 					if (Skript.debug() || node.debug())
-						Skript.debug(event + " (" + parsedEvent.getSecond().toString(null, true) + "):");
-					
+						Skript.debug(SkriptColor.replaceColorChar(event + " (" + parsedEvent.getSecond().toString(null, true) + "):"));
+
+					Class<? extends Event>[] eventClasses = parsedEvent.getSecond().getEventClasses();
+					if (eventClasses == null)
+						eventClasses = parsedEvent.getFirst().events;
 					try {
-						getParser().setCurrentEvent("" + parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), parsedEvent.getFirst().events);
+						getParser().setCurrentEvent(parsedEvent.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 						getParser().setCurrentSkriptEvent(parsedEvent.getSecond());
 						events.add(new ParsedEventData(parsedEvent, event, node, loadItems(node)));
 					} finally {
@@ -788,7 +792,10 @@ public class ScriptLoader {
 			}
 			
 			for (ParsedEventData event : events) {
-				getParser().setCurrentEvent("" + event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), event.info.getFirst().events);
+				Class<? extends Event>[] eventClasses = event.info.getSecond().getEventClasses();
+				if (eventClasses == null)
+					eventClasses = event.info.getFirst().events;
+				getParser().setCurrentEvent(event.info.getFirst().getName().toLowerCase(Locale.ENGLISH), eventClasses);
 				getParser().setCurrentSkriptEvent(event.info.getSecond());
 				
 				Trigger trigger;
@@ -957,7 +964,7 @@ public class ScriptLoader {
 				if (!SkriptParser.validateLine(event))
 					continue;
 				
-				if (event.toLowerCase().startsWith("function ")) {
+				if (event.toLowerCase(Locale.ENGLISH).startsWith("function ")) {
 					
 					getParser().setCurrentEvent("function", FunctionEvent.class);
 					
@@ -1109,7 +1116,7 @@ public class ScriptLoader {
 					continue;
 
 				if (Skript.debug() || n.debug())
-					Skript.debug(getParser().getIndentation() + stmt.toString(null, true));
+					Skript.debug(SkriptColor.replaceColorChar(getParser().getIndentation() + stmt.toString(null, true)));
 
 				items.add(stmt);
 			} else if (n instanceof SectionNode) {
@@ -1123,7 +1130,7 @@ public class ScriptLoader {
 					continue;
 
 				if (Skript.debug() || n.debug())
-					Skript.debug(getParser().getIndentation() + section.toString(null, true));
+					Skript.debug(SkriptColor.replaceColorChar(getParser().getIndentation() + section.toString(null, true)));
 
 				items.add(section);
 
@@ -1156,7 +1163,7 @@ public class ScriptLoader {
 			assert false : node;
 			return null;
 		}
-		if (event.toLowerCase().startsWith("on "))
+		if (event.toLowerCase(Locale.ENGLISH).startsWith("on "))
 			event = "" + event.substring("on ".length());
 		
 		NonNullPair<SkriptEventInfo<?>, SkriptEvent> parsedEvent =
