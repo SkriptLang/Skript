@@ -74,7 +74,8 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 		if (o instanceof Block) {
 			BlockData data = ((Block) o).getBlockData();
 			if (data instanceof org.bukkit.block.data.Directional) {
-				return new Direction(opposite ? ((org.bukkit.block.data.Directional) data).getFacing().getOppositeFace() : ((org.bukkit.block.data.Directional) data).getFacing(), 1);
+				org.bukkit.block.data.Directional directional = (org.bukkit.block.data.Directional) data;
+				return new Direction(opposite ? directional.getFacing().getOppositeFace() : directional.getFacing(), 1);
 			}
 			return null;
 		} else if (o instanceof LivingEntity) {
