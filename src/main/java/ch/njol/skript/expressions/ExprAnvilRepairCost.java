@@ -37,19 +37,20 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Repair Cost")
 @Description({
-	"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
-	"The default value of max cost set by vanilla Minecraft is 40."
+	"An expression to get the number of levels required to complete the current repair or the maximum allowed number of levels the current repair can cost.",
+	"The default maximum allowed repair cost is 40 levels."
 })
 @Examples({
 	"on inventory click:",
 	"\tif {AnvilRepairSaleActive} = true:",
 	"\t\twait a tick # recommended, to avoid client bugs",
-	"\t\tset anvil repair cost to anvil repair cost * 50%",
-	"\t\tsend \"Anvil repair sale is ON!\" to player",
+	"\t\tset {_currentCost} to the anvil item repair cost of the event-inventory",
+	"\t\tset the anvil item repair cost of the event-inventory to {_currentCost} * 50%",
+	"\t\tsend \"The Anvil Repair Sale is active!\" to player",
 
 	"on inventory click:",
-	"\tplayer have permission \"anvil.repair.max.bypass\"",
-	"\tset max repair cost of event-inventory to 99999"
+	"\tthe player has the permission \"anvil.repair.max.bypass\"",
+	"\tset the max repair cost of the event-inventory to 99999"
 })
 @Since("INSERT VERSION")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
@@ -60,14 +61,13 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 			"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
-	boolean isMax = false;
+	private boolean isMax = false;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
-		setExpr((Expression<? extends Inventory>) exprs[0]);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -75,7 +75,6 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	public Integer convert(Inventory inv) {
 		if (!(inv instanceof AnvilInventory))
 			return null;
-
 		AnvilInventory aInv = (AnvilInventory) inv;
 		return isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost();
 	}
@@ -120,7 +119,7 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public String getPropertyName() {
-		return "anvil item" + (isMax ? " max" : "") + " repair cost";
+		return "anvil item" + (isMax ? " maximum" : "") + " repair cost";
 	}
 	
 }
