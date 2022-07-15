@@ -61,7 +61,9 @@ public class CondHasItemCooldown extends Condition {
 	public boolean check(Event e) {
 		return players.check(e, (p) -> 
 				itemtypes.check(e, (it) -> 
-						p.hasCooldown(it.getMaterial())));
+						p.hasCooldown(it.getMaterial())
+				)
+		);
 	}
 	
 	@Override
