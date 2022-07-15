@@ -57,7 +57,7 @@ import ch.njol.util.Kleenean;
 		"drop a diamond sword",
 		"push last dropped item upwards",
 		"teleport player to last struck lightning"})
-@Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item)")
+@Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), SINCE VERSION (struck lightning)")
 public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	static {
