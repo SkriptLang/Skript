@@ -32,32 +32,35 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Item Cooldown")
-@Description({"Set a cooldown on the specified material for a certain amount of ticks. ticks. 0 ticks will result in the removal of the cooldown."})
-@Examples({"on right click using stick:" +
-		"\tset item cooldown of player's tool for player to 1 minute",
-		"\tset item cooldown of stone and grass for all players to 20 seconds",
-		"\treset item cooldown of cobblestone and dirt for all players"})
+@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 tick</code> will remove the cooldown.")
+@Examples({
+	"on right click using stick:" +
+	"\tset item cooldown of player's tool for player to 1 minute",
+	"\tset item cooldown of stone and grass for all players to 20 seconds",
+	"\treset item cooldown of cobblestone and dirt for all players"
+})
 @Since("INSERT VERSION")
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	static {
 		Skript.registerExpression(ExprItemCooldown.class, Timespan.class, ExpressionType.COMBINED, 
 			"[the] [item] cooldown of %itemtypes% for %players%",
-			"%players%'[s] [item] cooldown for %itemtypes%"
+			"%players%'[s] [item] cooldown for %itemtypes%");
 	}
 	
-	private Expression<HumanEntity> players;
+	private Expression<Player> players;
 	private Expression<ItemType> itemtypes;
 	
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		players = (Expression<HumanEntity>) exprs[1];
+		players = (Expression<Player>) exprs[1];
 		itemtypes = (Expression<ItemType>) exprs[0];
 		return true;
 	}
@@ -65,7 +68,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	@SuppressWarnings("null")
 	protected Timespan[] get(Event e) {
-		HumanEntity[] players = this.players.getArray(e);
+		Player[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
 		if (players.length == 0 || itemtypes.length == 0)
 			return new Timespan[0];
@@ -75,9 +78,9 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		Timespan[] timespan = new Timespan[size];
 		
 		int i = 0;
-		for (HumanEntity he : players) {
+		for (Player p : players) {
 			for (ItemType it : itemtypes) {
-				timespan[i] = Timespan.fromTicks_i(he.getCooldown(it.getMaterial()));
+				timespan[i] = Timespan.fromTicks_i(p.getCooldown(it.getMaterial()));
 				i++;
 			}
 		}
@@ -101,46 +104,33 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 
 	@Override
 	public void change(Event e, Object[] delta, ChangeMode mode) {
-		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || !(delta[0] instanceof Timespan))) {
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || !(delta[0] instanceof Timespan)))
 			return;
-		}
 		
 		int timespan = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0;
-		HumanEntity[] players = this.players.getArray(e);
+		Player[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
+
 		if (players.length == 0 || itemtypes.length == 0)
 			return;
-		
-		switch (mode) {
-			case RESET:
-			case DELETE:
-			case SET:
-				int finalResult = 0; // default to DELETE and RESET
-				if (mode == ChangeMode.SET)
-					finalResult = timespan;
-				
-				for (HumanEntity he : players) {
-					for (ItemType it : itemtypes) {
-						he.setCooldown(it.getMaterial(), finalResult);
-					}
+
+		for (Player p : players) {
+			for (ItemType it : itemtypes) {
+				Material mat = it.getMaterial();
+				switch (mode) {
+					case RESET:
+					case DELETE:
+					case SET:
+						p.setCooldown(mat, mode == ChangeMode.SET ? timespan : 0); // 0 for DELETE/RESET
+						break;
+					case REMOVE:
+						p.setCooldown(mat, Math.max(p.getCooldown(mat) - timespan, 0));
+						break;
+					case ADD:
+						p.setCooldown(mat, p.getCooldown(mat) + timespan);
+						break;
 				}
-				break;
-			case REMOVE:
-				for (HumanEntity he : players) {
-					for (ItemType it : itemtypes) {
-						he.setCooldown(it.getMaterial(), Math.max(he.getCooldown(it.getMaterial()) - timespan, 0));
-					}
-				}
-				break;
-			case ADD:
-				for (HumanEntity he : players) {
-					for (ItemType it : itemtypes) {
-						he.setCooldown(it.getMaterial(), he.getCooldown(it.getMaterial()) + timespan);
-					}
-				}
-				break;
-			default:
-				assert false;
+			}
 		}
 	}
 
