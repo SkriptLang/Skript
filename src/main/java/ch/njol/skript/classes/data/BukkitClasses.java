@@ -1877,7 +1877,7 @@ public class BukkitClasses {
 
 					@Override
 					public String toString(FishHook o, int flags) {
-						return "Fish hook " + o.toString();
+						return "fish hook " + o.toString();
 					}
 
 					@Override
