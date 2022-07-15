@@ -36,10 +36,12 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 
-@Name("Plugins")
-@Description("Returns a list of the server's loaded plugins.")
-@Examples({"if the plugins list contains \"Vault\":",
-		"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"})
+@Name("Loaded Plugins")
+@Description("An expression to obtain a list of the names of the server's loaded plugins.")
+@Examples({
+	"if the plugins list contains \"Vault\":",
+	"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"
+})
 @Since("INSERT VERSION")
 public class ExprPlugins extends SimpleExpression<String> {
 	
