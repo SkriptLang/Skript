@@ -42,8 +42,8 @@ public class Time implements YggdrasilSerializable {
 	
 	private final int time;
 
-	private final static Pattern DAY_TIME_PATTERN = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE);
-	private final static Pattern TIME_PATTERN = Pattern.compile("\\d?\\d:\\d\\d", Pattern.CASE_INSENSITIVE);
+	private static final Pattern DAY_TIME_PATTERN = Pattern.compile("(\\d?\\d)(:(\\d\\d))? ?(am|pm)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern TIME_PATTERN = Pattern.compile("\\d?\\d:\\d\\d", Pattern.CASE_INSENSITIVE);
 
 	public Time() {
 		time = 0;
