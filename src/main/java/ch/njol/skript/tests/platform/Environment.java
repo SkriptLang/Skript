@@ -109,7 +109,7 @@ public class Environment {
 			if (source != null)
 				return;
 
-			String stringUrl = "https://papermc.io/api/v2/projects/paper/versions/" + version;
+			String stringUrl = "https://api.papermc.io/v2/projects/paper/versions/" + version;
 			URL url = new URL(stringUrl);
 			JsonObject jsonObject;
 			try (InputStream is = url.openStream()) {
@@ -130,7 +130,7 @@ public class Environment {
 			if (latestBuild == -1)
 				throw new IllegalStateException("No builds for this version");
 
-			source = "https://papermc.io/api/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
+			source = "https://api.papermc.io/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
 				+ "/downloads/paper-" + version + "-" + latestBuild + ".jar";
 		}
 	}
@@ -229,6 +229,7 @@ public class Environment {
 		args.add("-Dskript.testing.dir=" + testsRoot);
 		args.add("-Dskript.testing.devMode=" + devMode);
 		args.add("-Dskript.testing.results=test_results.json");
+		args.add("-Ddisable.watchdog=true");
 		args.addAll(Arrays.asList(jvmArgs));
 		args.addAll(Arrays.asList(commandLine));
 
