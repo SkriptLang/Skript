@@ -62,7 +62,7 @@ public class EvtStatisticChange extends SkriptEvent {
 			public String get(PlayerStatisticIncrementEvent e) {
 				return e.getStatistic().toString();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
