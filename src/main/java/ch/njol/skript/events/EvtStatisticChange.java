@@ -37,22 +37,24 @@ public class EvtStatisticChange extends SkriptEvent {
 		Skript.registerEvent("Statistic Change", EvtStatisticChange.class, PlayerStatisticIncrementEvent.class,
 				"[player] statistic[s] (change|increase) [of %string%]")
 				.description("Called when a player statistic is incremented.",
-							"This event is not called for some high frequency statistics, e.g. movement based statistics.",
-							"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value.")
+						"This event is not called for some high frequency statistics, e.g. movement based statistics.",
+						"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value."
+				)
 				.examples(
-					"on player statistic increase:",
+						"on player statistic increase:",
 						"\tsend \"Statistic increased: %event-string% from %past event-number% to %future event-number% (diff: %event-number%)\" to player",
 						"\tif event-entitytype is set:",
-							"\t\tsend \"Of entity: %event-entitytype%\" to player",
+						"\t\tsend \"Of entity: %event-entitytype%\" to player",
 						"\telse if event-item is set:",
-							"\t\tsend \"Of item: %event-item%\" to player",
-					"on player statistic increase of \"CHEST_OPENED\":",
+						"\t\tsend \"Of item: %event-item%\" to player",
+						"on player statistic increase of \"CHEST_OPENED\":",
 						"\tsend \"You just opened a chest!\" to player",
 						"",
-					"# 'TIME_SINCE_REST' is called too many times therefore it will not trigger the event unless specified like below",
-					"on player statistic increase of \"TIME_SINCE_REST\":",
+						"# 'TIME_SINCE_REST' is called too many times therefore it will not trigger the event unless specified like below",
+						"on player statistic increase of \"TIME_SINCE_REST\":",
 						"\tsend \"Your chat is being flooded\" to player"
-				).since("INSERT VERSION");
+				)
+				.since("INSERT VERSION");
 
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, String.class, new Getter<String, PlayerStatisticIncrementEvent>() {
 			@Nullable
