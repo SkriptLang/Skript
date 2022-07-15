@@ -1882,7 +1882,7 @@ public class BukkitClasses {
 
 					@Override
 					public String toVariableNameString(FishHook o) {
-						return "Fish hook " + o.toString();
+						return "fish hook " + o.toString();
 					}
 				}));
 	}
