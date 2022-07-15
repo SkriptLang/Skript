@@ -73,9 +73,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		if (players.length == 0 || itemtypes.length == 0)
 			return new Timespan[0];
 
-		int size = players.length * itemtypes.length;
-		
-		Timespan[] timespan = new Timespan[size];
+		Timespan[] timespan = new Timespan[players.length * itemtypes.length];
 		
 		int i = 0;
 		for (Player p : players) {
