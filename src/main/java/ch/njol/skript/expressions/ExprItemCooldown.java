@@ -47,8 +47,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	static {
 		Skript.registerExpression(ExprItemCooldown.class, Timespan.class, ExpressionType.COMBINED, 
-			"[item] cooldown of %itemtypes% for %players%",
-			"%itemtypes%[[']s] [item] cooldown for %players%");
+			"[the] [item] cooldown of %itemtypes% for %players%",
+			"%players%'[s] [item] cooldown for %itemtypes%"
 	}
 	
 	private Expression<HumanEntity> players;
