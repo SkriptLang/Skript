@@ -229,6 +229,7 @@ public class Environment {
 		args.add("-Dskript.testing.dir=" + testsRoot);
 		args.add("-Dskript.testing.devMode=" + devMode);
 		args.add("-Dskript.testing.results=test_results.json");
+		args.add("-Ddisable.watchdog=true");
 		args.addAll(Arrays.asList(jvmArgs));
 		args.addAll(Arrays.asList(commandLine));
 
