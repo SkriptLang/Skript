@@ -289,8 +289,6 @@ public class DefaultComparators {
 
 			if (e instanceof Item)
 				return Relation.get(i.isOfType(((Item) e).getItemStack()));
-//			if (e instanceof ThrownPotion)
-//				return Relation.get(i.isOfType(Material.POTION.getId(), PotionEffectUtils.guessData((ThrownPotion) e)));
 //			if (Skript.classExists("org.bukkit.entity.WitherSkull") && e instanceof WitherSkull)
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)

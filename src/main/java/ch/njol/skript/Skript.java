@@ -142,6 +142,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import org.skriptlang.skript.potion.PotionRegistration;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -503,6 +504,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections");
+			new PotionRegistration().register(getAddonInstance());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

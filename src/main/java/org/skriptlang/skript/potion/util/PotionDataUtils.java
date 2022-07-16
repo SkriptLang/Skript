@@ -16,17 +16,17 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+package org.skriptlang.skript.potion.util;
 
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 // Bukkit does not provide a way to get a PotionEffect from PotionData
 // This class allows us to convert base PotionData of an item into a PotionEffect
@@ -113,32 +113,19 @@ public enum PotionDataUtils {
 		for (PotionDataUtils value : PotionDataUtils.values()) {
 			if (value.potionType != null && potionData.getType() == value.potionType && potionData.isExtended() == value.extended && potionData.isUpgraded() == value.upgraded) {
 				if (value.name != null && value.name.equalsIgnoreCase("TURTLE_MASTER")) {
-					potionEffects.addAll(getSpecialTurtle(value));
+					// Bukkit does not account for the fact that Turtle Master has 2 potion effects
+					int duration = value.extended ? 800 : 400;
+					int slowAmp = value.upgraded ? 5 : 3;
+					int resistanceAmp = value.upgraded ? 3 : 2;
+					potionEffects.add(new PotionEffect(PotionEffectType.SLOW, duration, slowAmp, false));
+					potionEffects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, resistanceAmp, false));
 					continue;
 				}
-				PotionEffectType potionEffectType = PotionEffectUtils.parseByEffectType(value.potionType.getEffectType());
+				PotionEffectType potionEffectType = value.potionType.getEffectType();
 				if (potionEffectType == null)
 					continue;
 				potionEffects.add(new PotionEffect(potionEffectType, value.duration, value.amplifier, false));
 			}
-		}
-		return potionEffects;
-	}
-	
-	// Bukkit does not account for the fact that Turtle Master has 2 potion effects
-	@SuppressWarnings("null")
-	private static List<PotionEffect> getSpecialTurtle(PotionDataUtils data) {
-		List<PotionEffect> potionEffects = new ArrayList<>();
-		int duration = data.extended ? 800 : 400;
-		int slowAmp = data.upgraded ? 5 : 3;
-		int resistanceAmp = data.upgraded ? 3 : 2;
-		
-		// This is a stupid bandaid because for some reason Skript wont compare these with potion effects from Skript
-		PotionEffectType slow = PotionEffectUtils.parseByEffectType(PotionEffectType.SLOW);
-		PotionEffectType damage = PotionEffectUtils.parseByEffectType(PotionEffectType.DAMAGE_RESISTANCE);
-		if (slow != null || damage != null) {
-			potionEffects.add(new PotionEffect(slow, duration, slowAmp, false));
-			potionEffects.add(new PotionEffect(damage, duration, resistanceAmp, false));
 		}
 		return potionEffects;
 	}

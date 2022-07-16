@@ -28,9 +28,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.registrations.Converters;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.potion.util.SkriptPotionEffect;
 
 @Name("Type of")
 @Description({"Type of a block, item, entity, inventory or potion effect.",
@@ -61,8 +61,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return ((ItemType) o).getBaseType();
 		} else if (o instanceof Inventory) {
 			return ((Inventory) o).getType();
-		} else if (o instanceof PotionEffect) {
-			return ((PotionEffect) o).getType();
+		} else if (o instanceof SkriptPotionEffect) {
+			return ((SkriptPotionEffect) o).potionEffectType();
 		}
 		assert false;
 		return null;

@@ -16,13 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
-
-import ch.njol.skript.util.PotionEffectUtils;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+package org.skriptlang.skript.potion.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -35,6 +29,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.potion.util.PotionUtils;
+import org.skriptlang.skript.potion.util.SkriptPotionEffect;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffectType;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Potion Effect")
 @Description({
@@ -42,29 +41,28 @@ import ch.njol.util.Kleenean;
 		"to tipped arrows/lingering potions, Minecraft reduces the timespan."
 })
 @Examples({
-		"set {_p} to potion effect of speed of tier 1 without particles for 10 minutes",
+		"set {_p} to potion effect of speed 2 without particles for 10 minutes",
 		"add {_p} to potion effects of player's tool",
 		"add {_p} to potion effects of target entity",
-		"add potion effect of speed 1 to potion effects of player"
+		"add potion effect of speed 1 to potion effects of player",
+		"apply ambient speed 2 to player for 30 seconds"
 })
-@Since("2.5.2, INSERT VERSION (new syntax)")
-public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
+@Since("2.5.2, INSERT VERSION (syntax changes)")
+public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
 	static {
-		Skript.registerExpression(ExprPotionEffect.class, PotionEffect.class, ExpressionType.COMBINED,
-				"[new] potion [effect] of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
-				"[new] [potion [effect] of] %potioneffecttype% [potion] [[of] tier] %number% [(1¦without particles)] [for %-timespan%]", // "speed 2"
-				"[new] ambient potion [effect] of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
-				"[new] ambient [potion [effect] of] %potioneffecttype% [potion] [[of] tier] %number% [(1¦without particles)] [for %-timespan%]" // "ambient speed 2"
+		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.COMBINED,
+				"[(:ambient)] potion effect of %potioneffecttype% [%-number%] [(:without particles)] [for %-timespan%]",
+				"[(:ambient)] %potioneffecttype% %number% [potion [effect]] [(:without particles)] [for %-timespan%]"
 		);
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<PotionEffectType> potionEffectType;
 	@Nullable
-	private Expression<Number> tier;
+	private Expression<Number> amplifier;
 	@Nullable
-	private Expression<Timespan> timespan;
+	private Expression<Timespan> duration;
 	private boolean particles;
 	private boolean ambient;
 	
@@ -72,35 +70,36 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		potionEffectType = (Expression<PotionEffectType>) exprs[0];
-		tier = (Expression<Number>) exprs[1];
-		timespan = (Expression<Timespan>) exprs[2];
-		particles = parseResult.mark == 0;
-		ambient = matchedPattern >= 2;
+		amplifier = (Expression<Number>) exprs[1];
+		duration = (Expression<Timespan>) exprs[2];
+
+		particles = !parseResult.hasTag("without particles");
+		ambient = parseResult.hasTag("ambient");
 		return true;
 	}
 	
 	@Override
 	@Nullable
-	protected PotionEffect[] get(Event e) {
+	protected SkriptPotionEffect[] get(Event e) {
 		PotionEffectType potionEffectType = this.potionEffectType.getSingle(e);
 		if (potionEffectType == null)
-			return null;
+			return new SkriptPotionEffect[0];
 
-		int tier = 0;
-		if (this.tier != null) {
-			Number n = this.tier.getSingle(e);
+		int amplifier = 0;
+		if (this.amplifier != null) {
+			Number n = this.amplifier.getSingle(e);
 			if (n != null)
-				tier = n.intValue() - 1;
+				amplifier = n.intValue() - 1;
 		}
 
-		int ticks = PotionEffectUtils.DEFAULT_DURATION_TICKS;
-		if (this.timespan != null) {
-			Timespan timespan = this.timespan.getSingle(e);
+		int duration = PotionUtils.DEFAULT_DURATION_TICKS;
+		if (this.duration != null) {
+			Timespan timespan = this.duration.getSingle(e);
 			if (timespan != null)
-				ticks = (int) timespan.getTicks_i();
+				duration = (int) timespan.getTicks_i();
 		}
 
-		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles)};
+		return new SkriptPotionEffect[]{new SkriptPotionEffect(potionEffectType).duration(duration).amplifier(amplifier).ambient(ambient).particles(particles)};
 	}
 	
 	@Override
@@ -109,25 +108,23 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	}
 	
 	@Override
-	public Class<? extends PotionEffect> getReturnType() {
-		return PotionEffect.class;
+	public Class<? extends SkriptPotionEffect> getReturnType() {
+		return SkriptPotionEffect.class;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		StringBuilder builder = new StringBuilder();
 		if (ambient)
 			builder.append("ambient ");
-		builder.append("potion of ").append(potionEffectType.toString(e, debug));
-		if (tier != null) {
-			String t = tier.toString(e, debug);
-			builder.append(" of tier/amp ").append(t);
-		}
+		builder.append("potion effect of ").append(potionEffectType.toString(e, debug));
+		if (amplifier != null)
+			builder.append(" ").append(amplifier.toString(e, debug));
 		if (!particles)
 			builder.append(" without particles");
 		builder.append(" for ");
-		if (timespan != null)
-			builder.append(timespan.toString(e, debug));
+		if (duration != null)
+			builder.append(duration.toString(e, debug));
 		else
 			builder.append("15 seconds");
 		return builder.toString();

@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.effects;
+package org.skriptlang.skript.potion.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -26,9 +26,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.potion.util.PotionUtils;
+import org.skriptlang.skript.potion.util.SkriptPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
@@ -37,25 +38,25 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Potion Effects")
 @Description("Apply potion effects to/from entities.")
 @Examples({
-		"apply swiftness 2 to the player",
-		"on join:",
-		"\tapply potion of strength of tier {strength.%player%} to the player for 999 days",
-		"apply potion effects of player's tool to player"
+	"apply swiftness 2 to the player",
+	"on join:",
+	"\tapply potion of strength of tier {strength::%player's uuid%} to the player for 999 days",
+	"apply potion effects of player's tool to player"
 })
-@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (total rework)")
-public class EffPotion extends Effect {
+@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (syntax changes)")
+public class EffApplyPotionEffect extends Effect {
 
 	static {
 		// While allowing the user to specify the timespan here is repetitive as you can do it in ExprPotionEffect,
 		// it allows syntax like "apply haste 3 to the player for 5 seconds" to work
-		Skript.registerEffect(EffPotion.class,
-				"apply %potioneffects% to %livingentities% [for %-timespan%]",
-				"effect %livingentities% with %potioneffects% [for %-timespan%]"
+		Skript.registerEffect(EffApplyPotionEffect.class,
+			"apply %potioneffects% to %livingentities% [for %-timespan%]",
+			"effect %livingentities% with %potioneffects% [for %-timespan%]"
 		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<PotionEffect> potionEffects;
+	private Expression<SkriptPotionEffect> potionEffects;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	@Nullable
@@ -65,34 +66,34 @@ public class EffPotion extends Effect {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean first = matchedPattern == 0;
-		potionEffects = (Expression<PotionEffect>) exprs[first ? 0 : 1];
+		potionEffects = (Expression<SkriptPotionEffect>) exprs[first ? 0 : 1];
 		entities = (Expression<LivingEntity>) exprs[first ? 1 : 0];
 		duration = (Expression<Timespan>) exprs[2];
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event e) {
-		PotionEffect[] potionEffects = this.potionEffects.getArray(e);
+		SkriptPotionEffect[] potionEffects = this.potionEffects.getArray(e);
 
-		// Change duration for some backwards compatibility with older Skript versions
 		if (duration != null) {
 			Timespan timespan = duration.getSingle(e);
 			if (timespan != null) {
 				int ticks = (int) timespan.getTicks_i();
-				for (int i = 0; i < potionEffects.length; i++)
-					potionEffects[i] = potionEffects[i].withDuration(ticks);
+				for (SkriptPotionEffect potionEffect : potionEffects)
+					potionEffect.duration(ticks);
 			}
 		}
 
 		for (LivingEntity livingEntity : entities.getArray(e)) {
-			PotionEffectUtils.addEffects(livingEntity, potionEffects);
+			for (PotionEffect potionEffect : PotionUtils.convertSkriptPotionEffects(potionEffects))
+				livingEntity.addPotionEffect(potionEffect);
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "apply " + potionEffects.toString(e, debug) + " to " + entities.toString(e, debug);
 	}
-	
+
 }

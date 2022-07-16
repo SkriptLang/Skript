@@ -1,0 +1,49 @@
+test "potion effects":
+
+	# poison tests
+
+	spawn a chicken at spawn of world "world"
+	set {_chicken} to the last spawned chicken
+	poison {_chicken} for 1 second #EffPoison
+	assert {_chicken} is poisoned with "The chicken isn't poisoned, but it should be" #CondIsPoisoned
+	unpoison {_chicken} #EffPoison
+	assert {_chicken} is not poisoned with "The chicken is poisoned, but it shouldn't be" #CondIsPoisoned
+	delete {_chicken}
+
+	# potion test 1
+
+	set {_potion} to potion effect of speed 2 for 10 seconds #ExprPotionEffect
+	spawn a chicken at spawn of world "world"
+	set {_chicken} to the last spawned chicken
+	apply {_potion} to {_chicken} #EffApplyPotionEffect
+	assert {_chicken} has potion effect speed with "The first chicken doesn't have speed, but it should" #CondHasPotion
+	clear the potion effects of {_chicken} #ExprPotionEffects
+	assert {_chicken} doesn't have potion effect speed with "The first chicken has speed, but it shouldn't" #CondHasPotion
+	delete {_chicken}
+
+	# potion test 2
+	spawn a chicken at spawn of world "world"
+	set {_chicken} to the last spawned chicken
+	effect {_chicken} with haste for 10 seconds
+	assert {_chicken} has potion effect haste with "The second chicken doesn't have speed, but it should" #CondHasPotion
+	remove haste from potion effects of {_chicken} #ExprPotionEffects
+	assert {_chicken} doesn't have potion effect haste with "The second chicken has speed, but it shouldn't" #CondHasPotion
+	delete {_chicken}
+
+	# potion test 3
+
+	spawn a chicken at spawn of world "world"
+	set {_chicken} to the last spawned chicken
+	set {_potion} to potion effect of speed 1 without particles for 10 minutes
+	add {_potion} to potion effects of {_chicken}
+	assert type of potion effects of {_chicken} contains speed with "the chicken should have had the speed potion type"
+	delete {_chicken}
+
+	# potion test 4 (items)
+
+	broadcast "starting items test"
+	set {_item} to potion of speed
+	assert type of potion effects of {_item} contains speed with "the item should have the speed potion effect type"
+
+	set {_item} to potion of slowness
+	assert type of potion effects of {_item} contains slowness with "the item should have the speed potion effect type"

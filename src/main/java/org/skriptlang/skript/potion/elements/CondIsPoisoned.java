@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.potion.elements;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
@@ -27,14 +27,13 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Poisoned")
 @Description("Checks whether an entity is poisoned.")
-@Examples({"player is poisoned:",
-		"	cure the player from poison",
-		"	message \"You have been cured!\""})
+@Examples({
+	"player is poisoned:",
+	"\tcure the player from poison",
+	"\tmessage \"You have been cured!\""
+})
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 	
@@ -43,7 +42,7 @@ public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 	}
 	
 	@Override
-	public boolean check(final LivingEntity e) {
+	public boolean check(LivingEntity e) {
 		return e.hasPotionEffect(PotionEffectType.POISON);
 	}
 	

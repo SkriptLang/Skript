@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.potion.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -47,10 +47,13 @@ public class CondHasPotion extends Condition {
 	static {
 		Skript.registerCondition(CondHasPotion.class,
 				"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
-				"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%");
+				"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%"
+		);
 	}
-	
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> livingEntities;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<PotionEffectType> potionEffects;
 
 	@Override
@@ -65,15 +68,16 @@ public class CondHasPotion extends Condition {
 	@Override
 	public boolean check(Event e) {
 		return livingEntities.check(e,
-				livingEntity -> potionEffects.check(e,
-					livingEntity::hasPotionEffect
-				), isNegated());
+			livingEntity -> potionEffects.check(e,
+				livingEntity::hasPotionEffect
+			), isNegated()
+		);
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, livingEntities,
-				"potion " + potionEffects.toString(e, debug));
+				"potion effects " + potionEffects.toString(e, debug));
 	}
 
 }

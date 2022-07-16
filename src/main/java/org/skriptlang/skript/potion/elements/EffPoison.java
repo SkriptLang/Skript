@@ -16,14 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.effects;
-
-import ch.njol.skript.util.PotionEffectUtils;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+package org.skriptlang.skript.potion.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -35,25 +28,31 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.potion.util.PotionUtils;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Poison/Cure")
-@Description("Poison or cure a creature.")
-@Examples({"poison the player",
+@Description("Poison or cure an entity. If the entity is already poisoned, the duration may be overwritten.")
+@Examples({
+		"poison the player",
 		"poison the victim for 20 seconds",
-		"cure the player from poison"})
+		"cure the player from poison"
+})
 @Since("1.3.2")
 public class EffPoison extends Effect {
+
 	static {
 		Skript.registerEffect(EffPoison.class,
 				"poison %livingentities% [for %-timespan%]",
 				"(cure|unpoison) %livingentities% [(from|of) poison]");
 	}
 	
-	@SuppressWarnings("null")
-	private Expression<LivingEntity> entites;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<Timespan> duration;
 	
@@ -61,8 +60,8 @@ public class EffPoison extends Effect {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		entites = (Expression<LivingEntity>) exprs[0];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		entities = (Expression<LivingEntity>) exprs[0];
 		if (matchedPattern == 0)
 			duration = (Expression<Timespan>) exprs[1];
 		cure = matchedPattern == 1;
@@ -70,29 +69,28 @@ public class EffPoison extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "poison " + entites.toString(e, debug);
-	}
-	
-	@Override
-	protected void execute(final Event e) {
-		for (final LivingEntity le : entites.getArray(e)) {
-			if (!cure) {
-				Timespan dur;
-				int d = (int) (duration != null && (dur = duration.getSingle(e)) != null ? 
-						(dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks_i()) : PotionEffectUtils.DEFAULT_DURATION_TICKS);
-				if (le.hasPotionEffect(PotionEffectType.POISON)) {
-					for (final PotionEffect pe : le.getActivePotionEffects()) {
-						if (pe.getType() != PotionEffectType.POISON)
-							continue;
-						d += pe.getDuration();
-					}
-				}
-				le.addPotionEffect(new PotionEffect(PotionEffectType.POISON, d, 0), true);
-			} else {
+	protected void execute(Event e) {
+		if (cure) {
+			for (LivingEntity le : entities.getArray(e))
 				le.removePotionEffect(PotionEffectType.POISON);
+		} else {
+			int duration = PotionUtils.DEFAULT_DURATION_TICKS;
+			if (this.duration != null) {
+				Timespan timespan = this.duration.getSingle(e);
+				if (timespan != null)
+					duration = (int) timespan.getTicks_i();
 			}
+			PotionEffect poisonEffect = new PotionEffect(PotionEffectType.POISON, duration, 0);
+			for (LivingEntity livingEntity : entities.getArray(e))
+				livingEntity.addPotionEffect(poisonEffect);
 		}
+	}
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return (cure ? "cure" : "poison")
+				+ " " + entities.toString(e, debug)
+				+ (duration != null ? " for " + duration.toString(e, debug) : "");
 	}
 	
 }

@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.util.PotionEffectUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -365,20 +363,5 @@ public class DefaultConverters {
 			});
 		}
 
-		// PotionEffectType -> PotionEffect
-		Converters.registerConverter(PotionEffectType.class, PotionEffect.class,
-			potionEffectType -> new PotionEffect(potionEffectType, PotionEffectUtils.DEFAULT_DURATION_TICKS, 0, false, true)
-		);
-
-		// EnchantmentOffer - EnchantmentType
-		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, new Converter<EnchantmentOffer, EnchantmentType>() {
-			@Nullable
-			@Override
-			public EnchantmentType convert(EnchantmentOffer eo) {
-				return new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel());
-			}
-		});
-
-		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 	}
 }

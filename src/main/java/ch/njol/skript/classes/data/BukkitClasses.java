@@ -67,8 +67,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -98,7 +96,6 @@ import ch.njol.skript.util.DamageCauseUtils;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.EnumUtils;
 import ch.njol.skript.util.InventoryActions;
-import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
@@ -1067,139 +1064,6 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Biome.class)));
-		
-		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
-			.user("potion ?effects?")
-			.name("Potion Effect")
-			.description("A potion effect, including the potion effect type, tier and duration.")
-			.usage("speed of tier 1 for 10 seconds")
-			.since("2.5.2")
-			.parser(new Parser<PotionEffect>() {
-				
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-				
-				@Override
-				public String toString(PotionEffect potionEffect, int flags) {
-					return PotionEffectUtils.toString(potionEffect);
-				}
-				
-				@Override
-				public String toVariableNameString(PotionEffect o) {
-					return "potion_effect:" + o.getType().getName();
-				}
-
-			})
-			.serializer(new Serializer<PotionEffect>() {
-				@Override
-				public Fields serialize(PotionEffect o) {
-					Fields fields = new Fields();
-					fields.putObject("type", o.getType().getName());
-					fields.putPrimitive("amplifier", o.getAmplifier());
-					fields.putPrimitive("duration", o.getDuration());
-					fields.putPrimitive("particles", o.hasParticles());
-					fields.putPrimitive("ambient", o.isAmbient());
-					return fields;
-				}
-				
-				@Override
-				public void deserialize(PotionEffect o, Fields f) {
-					assert false;
-				}
-				
-				@Override
-				protected PotionEffect deserialize(Fields fields) throws StreamCorruptedException {
-					String typeName = fields.getObject("type", String.class);
-					assert typeName != null;
-					PotionEffectType type = PotionEffectType.getByName(typeName);
-					if (type == null)
-						throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
-					int amplifier = fields.getPrimitive("amplifier", int.class);
-					int duration = fields.getPrimitive("duration", int.class);
-					boolean particles = fields.getPrimitive("particles", boolean.class);
-					boolean ambient = fields.getPrimitive("ambient", boolean.class);
-					return new PotionEffect(type, duration, amplifier, ambient, particles);
-				}
-				
-				@Override
-				public boolean mustSyncDeserialization() {
-					return false;
-				}
-				
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
-		
-		Classes.registerClass(new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
-				.user("potion( ?effect)? ?types?") // "type" had to be made non-optional to prevent clashing with potion effects
-				.name("Potion Effect Type")
-				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-				.usage(StringUtils.join(PotionEffectUtils.getNames(), ", "))
-				.examples("apply swiftness 5 to the player",
-						"apply potion of speed 2 to the player for 60 seconds",
-						"remove invisibility from the victim")
-				.since("")
-				.parser(new Parser<PotionEffectType>() {
-					@Override
-					@Nullable
-					public PotionEffectType parse(final String s, final ParseContext context) {
-						return PotionEffectUtils.parseType(s);
-					}
-					
-					@Override
-					public String toString(final PotionEffectType p, final int flags) {
-						return PotionEffectUtils.toString(p, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(final PotionEffectType p) {
-						return "" + p.getName();
-					}
-				})
-				.serializer(new Serializer<PotionEffectType>() {
-					@Override
-					public Fields serialize(final PotionEffectType o) {
-						final Fields f = new Fields();
-						f.putObject("name", o.getName());
-						return f;
-					}
-					
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-					
-					@Override
-					public void deserialize(final PotionEffectType o, final Fields f) {
-						assert false;
-					}
-					
-					@Override
-					protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
-						final String name = fields.getObject("name", String.class);
-						assert name != null;
-						final PotionEffectType t = PotionEffectType.getByName(name);
-						if (t == null)
-							throw new StreamCorruptedException("Invalid PotionEffectType " + name);
-						return t;
-					}
-					
-					// return o.getName();
-					@Override
-					@Nullable
-					public PotionEffectType deserialize(final String s) {
-						return PotionEffectType.getByName(s);
-					}
-					
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
 		
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
 		Classes.registerClass(new ClassInfo<>(DamageCause.class, "damagecause")
