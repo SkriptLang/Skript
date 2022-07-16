@@ -72,8 +72,15 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 		setExpr((Expression<? extends Date>) exprs[0]);
 		customFormat = (Expression<? extends String>) exprs[1];
 
-		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
-			String customFormatValue = ((Literal<String>) customFormat).getSingle();
+		boolean isSimpleString = customFormat instanceof VariableString && ((VariableString) customFormat).isSimple();
+		if (customFormat instanceof Literal || isSimpleString) {
+			String customFormatValue;
+			if (isSimpleString) {
+				customFormatValue = ((VariableString) customFormat).toString(null);
+			} else {
+				customFormatValue = ((Literal<String>) customFormat).getSingle();
+			}
+
 			if (customFormatValue != null) {
 				try {
 					format = new SimpleDateFormat(customFormatValue);
@@ -123,7 +130,8 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : DEFAULT_FORMAT.toPattern());
+		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug)
+			: (format != null ? format.toPattern() : DEFAULT_FORMAT.toPattern()));
 	}
 
 }
