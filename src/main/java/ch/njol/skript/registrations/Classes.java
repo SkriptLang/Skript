@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -280,8 +281,8 @@ public abstract class Classes {
 	 * <p>
 	 * This method can be called even while Skript is loading.
 	 * 
-	 * @param c The exact class to get the class info for
-	 * @return The class info for the given class of null if no info was found.
+	 * @param c The exact class to get the class info for.
+	 * @return The class info for the given class or null if no info was found.
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
@@ -334,7 +335,7 @@ public abstract class Classes {
 	@Nullable
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
-		name = "" + name.toLowerCase();
+		name = "" + name.toLowerCase(Locale.ENGLISH);
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			final Pattern[] uip = ci.getUserInputPatterns();
 			if (uip == null)

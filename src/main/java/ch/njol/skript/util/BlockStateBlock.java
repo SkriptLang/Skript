@@ -20,13 +20,13 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
 import com.destroystokyo.paper.block.BlockSoundGroup;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.SoundGroup;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -57,7 +57,6 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class BlockStateBlock implements Block {
 
-	private static final boolean IS_RUNNING_1_13 = Skript.isRunningMinecraft(1, 13);
 	private static final boolean ISPASSABLE_METHOD_EXISTS = Skript.methodExists(Block.class, "isPassable");
 
 	final BlockState state;
@@ -101,10 +100,6 @@ public class BlockStateBlock implements Block {
 	@Override
 	public byte getData() {
 		return state.getRawData();
-	}
-
-	public void setData(byte data) throws Throwable {
-		MagicBlockCompat.setRawDataMethod.invokeExact(state, data);
 	}
 
 	@Override
@@ -205,6 +200,11 @@ public class BlockStateBlock implements Block {
 	@Override
 	public Biome getBiome() {
 		return state.getBlock().getBiome();
+	}
+
+	@Override
+	public @NotNull Biome getComputedBiome() {
+		return state.getBlock().getComputedBiome();
 	}
 
 	@Override
@@ -398,10 +398,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setType(Material type, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -416,19 +412,11 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public BlockData getBlockData() {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		return state.getBlockData();
 	}
 
 	@Override
 	public void setBlockData(BlockData data) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -443,10 +431,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setBlockData(BlockData data, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -481,6 +465,11 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public @NotNull SoundGroup getBlockSoundGroup() {
+		return state.getBlock().getBlockSoundGroup();
+	}
+
+	@Override
 	public String getTranslationKey() {
 		return state.getBlock().getTranslationKey();
 	}
@@ -508,6 +497,11 @@ public class BlockStateBlock implements Block {
 	@Override
 	public @NotNull VoxelShape getCollisionShape() {
 		return state.getBlock().getCollisionShape();
+	}
+
+	@Override
+	public boolean canPlace(@NotNull BlockData data) {
+		return state.getBlock().canPlace(data);
 	}
 
 	@Override
