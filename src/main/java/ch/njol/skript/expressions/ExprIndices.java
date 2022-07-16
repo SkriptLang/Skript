@@ -54,13 +54,13 @@ import java.util.Map.Entry;
 		"set {_descending-indices::*} to sorted indices of {_leader-board::*} in descending order",
 		"broadcast \"%{_descending-indices::*}%\" #result is fourth, third, second, first"
 })
-@Since("2.4 (indices), INSERT VERSION (sorting)")
+@Since("2.4 (indices), 2.6.1 (sorting)")
 public class ExprIndices extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprIndices.class, String.class, ExpressionType.COMBINED,
-				"[the] (indexes|indices) of %~objects%",
-				"[the] %~objects%'[s] (indexes|indices)",
+				"[(the|all [[of] the])] (indexes|indices) of %~objects%",
+				"%~objects%'[s] (indexes|indices)",
 				"[sorted] (indices|indexes) of %~objects% in (ascending|1¦descending) order",
 				"[sorted] %~objects%'[s] (indices|indexes) in (ascending|1¦descending) order"
 		);
