@@ -111,7 +111,8 @@ skript command:
 			next page: <gray>Seite %s von %s. Tippe <gold>/skript update changes %s<gray> für die nächste Seite (Tipp: benutze die Pfeil-Hoch-Taste)
 	info:
 		aliases: Die Aliase von Skript finden Sie hier: <aqua>https://github.com/SkriptLang/skript-aliases
-		documentation: Die Dokumentation von Skript finden Sie hier: <aqua>https://skriptlang.github.io/Skript
+		documentation: Die Dokumentation von Skript finden Sie hier: <aqua>https://docs.skriptlang.org/
+		tutorials: Die Tutorials von Skript finden Sie hier: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skript Version: <aqua>%s
 		server: Server Version: <aqua>%s
 		addons: Installierte Skript Addons: <aqua>%s
