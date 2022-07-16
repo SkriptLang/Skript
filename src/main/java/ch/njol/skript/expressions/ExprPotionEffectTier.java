@@ -56,7 +56,8 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected @Nullable Number[] get(Event event) {
+	@Nullable
+	protected Number[] get(Event event) {
 		PotionEffectType type = typeExpr.getSingle(event);
 		LivingEntity entity = entityExpr.getSingle(event);
 		if (type == null || entity == null)
