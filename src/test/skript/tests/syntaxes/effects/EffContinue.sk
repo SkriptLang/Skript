@@ -1,0 +1,11 @@
+test "continue effect":
+	loop 10 times:
+		if loop-value is equal to 5:
+			continue
+		assert loop-value is not 5 with "continue in loop failed"
+	set {_i} to 0
+	while {_i} is smaller than 10:
+		increase {_i} by 1
+		if {_i} is equal to 5:
+			continue
+		assert {_i} is not 5 with "continue in while failed"
