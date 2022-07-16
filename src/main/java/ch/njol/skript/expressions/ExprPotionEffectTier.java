@@ -81,4 +81,5 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "tier of " + typeExpr.toString(e, debug) + " of " + entityExpr.toString(e, debug);
 	}
+
 }
