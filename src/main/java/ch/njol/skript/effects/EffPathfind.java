@@ -72,7 +72,7 @@ public class EffPathfind extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
-		int speed = this.speed != null ? this.speed.getSingle(event).intValue() : 1;
+		double speed = this.speed != null ? this.speed.getSingle(event).doubleValue() : 1;
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (!(entity instanceof Mob))
 				continue;
