@@ -33,17 +33,17 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("All Statistics")
-@Description("Returns the list of all known statistics.")
+@Description("An expression to obtain all statistic names.")
 @Examples({
 	"command /statistics:",
-		"\ttrigger:",
-			"\t\t\tsend all statistic names"
+	"\ttrigger:",
+	"\t\t\tsend all statistic names"
 })
 @Since("INSERT VERSION")
 public class ExprAllStatistics extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprAllStatistics.class, String.class, ExpressionType.SIMPLE, "all statistic(s| names)");
+		Skript.registerExpression(ExprAllStatistics.class, String.class, ExpressionType.SIMPLE, "(all [[of] the]|the) statistic(s| names)");
 	}
 
 	@Override
@@ -53,12 +53,11 @@ public class ExprAllStatistics extends SimpleExpression<String> {
 
 	@Override
 	public String[] get(Event e) {
-		int length = Statistic.values().length;
-		String[] stats = new String[length];
+		Statistic[] statistics = Statistic.values();
+		String[] stats = new String[statistics.length];
 		int i = 0;
-		for (Statistic s : Statistic.values())
+		for (Statistic s : statistics)
 			stats[i++] = s.name();
-
 		return stats;
 	}
 

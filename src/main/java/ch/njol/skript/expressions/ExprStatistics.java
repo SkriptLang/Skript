@@ -55,25 +55,25 @@ import java.util.ArrayList;
 })
 @Examples({
 	"# Examples:",
-	"# \t/statistics Notch MINE_BLOCK sand itemtype",
-	"# \t/statistics Notch KILL_ENTITY zombie entity",
-	"# \t/statistics Notch CHEST_OPENED",
+	"# \t/statistics AwesomePlayerName MINE_BLOCK sand itemtype",
+	"# \t/statistics AwesomePlayerName KILL_ENTITY zombie entity",
+	"# \t/statistics AwesomePlayerName CHEST_OPENED",
 	"command /statistics <offlineplayer> <string> [<text>] [<text>]:",
-		"\tusage: Usage: /statistics <player> <statistic = string> [kind e.g. cow, stone] [type = entity/itemtype]",
-		"\ttrigger:",
-			"\t\tif arg-3 is set:",
-				"\t\t\tif arg-4 = \"entity\":",
-					"\t\t\t\tset {_kind} to arg-3 parsed as entitytype",
-				"\t\t\telse if arg-4 = \"itemtype\":",
-					"\t\t\t\tset {_kind} to arg-3 parsed as itemtype",
-				"\t\t\telse:",
-					"\t\t\t\tsend \"You need to specify type: entity/itemtype\"",
-					"\t\t\t\tstop",
-				"",
-				"\t\t\tif {_kind} is set:",
-					"\t\t\t\tsend statistic value arg-2 of type {_kind} of arg-1 to player",
-			"\t\telse:",
-				"\t\t\tsend statistic value arg-2 of arg-1 to player",
+	"\tusage: Usage: /statistics <player> <statistic = string> [kind e.g. cow, stone] [type = entity/itemtype]",
+	"\ttrigger:",
+	"\t\tif arg-3 is set:",
+	"\t\t\tif arg-4 = \"entity\":",
+	"\t\t\t\tset {_kind} to arg-3 parsed as entitytype",
+	"\t\t\telse if arg-4 = \"itemtype\":",
+	"\t\t\t\tset {_kind} to arg-3 parsed as itemtype",
+	"\t\t\telse:",
+	"\t\t\t\tsend \"You need to specify type: entity/itemtype\"",
+	"\t\t\t\tstop",
+	"",
+	"\t\t\tif {_kind} is set:",
+	"\t\t\t\tsend statistic value arg-2 of type {_kind} of arg-1 to player",
+	"\t\telse:",
+	"\t\t\tsend statistic value arg-2 of arg-1 to player",
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.15+ (for offlineplayers)")
@@ -227,11 +227,11 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	private void applyStatistic(OfflinePlayer p, Statistic stat, Object type, int value, ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-			setStatistic(p ,stat, type, value);
+			setStatistic(p, stat, type, value);
 		else if (mode == ChangeMode.ADD)
-			incrementStatistic(p ,stat, type, value);
+			incrementStatistic(p, stat, type, value);
 		else
-			decrementStatistic(p ,stat, type, value);
+			decrementStatistic(p, stat, type, value);
 	}
 
 	private void incrementStatistic(OfflinePlayer p, Statistic stat, Object type, int value) {
@@ -241,7 +241,6 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			p.incrementStatistic(stat, (EntityType) type, value);
 		else if (type == null)
 			p.incrementStatistic(stat, value);
-
 		return;
 	}
 
@@ -252,7 +251,6 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			p.decrementStatistic(stat, (EntityType) type, value);
 		else if (type == null)
 			p.decrementStatistic(stat, value);
-
 		return;
 	}
 
@@ -263,7 +261,6 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			p.setStatistic(stat, (EntityType) type, value);
 		else if (type == null)
 			p.setStatistic(stat, value);
-
 		return;
 	}
 	

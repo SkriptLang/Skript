@@ -69,21 +69,21 @@ public class EvtStatisticChange extends SkriptEvent {
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getPreviousValue();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getNewValue() - e.getPreviousValue();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getNewValue();
 			}
-		}, 1);
+		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, EntityData.class, new Getter<EntityData, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
@@ -91,14 +91,14 @@ public class EvtStatisticChange extends SkriptEvent {
 				Class<? extends Entity> clazz = e.getEntityType() != null ? e.getEntityType().getEntityClass() : null;
 				return clazz == null ? null : EntityData.fromClass(clazz);
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, ItemStack.class, new Getter<ItemStack, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
 			public ItemStack get(PlayerStatisticIncrementEvent e) {
 				return e.getMaterial() == null ? null : new ItemStack(e.getMaterial());
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 	}
 
 	@Nullable
