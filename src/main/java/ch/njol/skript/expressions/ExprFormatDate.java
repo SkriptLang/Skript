@@ -52,7 +52,7 @@ import ch.njol.util.Kleenean;
 @Since("2.2-dev31, INSERT VERSION (support variables in format)")
 public class ExprFormatDate extends PropertyExpression<Date, String> {
 	
-	private static final String defaultFormat = "yyyy-MM-dd HH:mm:ss z";
+	private static final SimpleDateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 	
 	static {
 		Skript.registerExpression(ExprFormatDate.class, String.class, ExpressionType.PROPERTY,
@@ -73,7 +73,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 		customFormat = (Expression<? extends String>) exprs[1];
 
 		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
-			String customFormatValue = customFormat.getSingle(null);
+			String customFormatValue = ((Literal<String>) customFormat).getSingle();
 			if (customFormatValue != null) {
 				try {
 					format = new SimpleDateFormat(customFormatValue);
@@ -83,7 +83,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 				}
 			}
 		} else if (customFormat == null) {
-			format = new SimpleDateFormat(defaultFormat);
+			format = DEFAULT_FORMAT;
 		}
 
 		return true;
@@ -123,7 +123,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : defaultFormat);
+		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : DEFAULT_FORMAT.toPattern());
 	}
 
 }
