@@ -41,8 +41,9 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprPotionEffectTier extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprPotionEffectTier.class, Number.class, ExpressionType.SIMPLE,
-			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% of %livingentity%");
+		Skript.registerExpression(ExprPotionEffectTier.class, Number.class, ExpressionType.COMBINED,
+			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% (of|for) %livingentity%"
+		);
 	}
 
 	private Expression<PotionEffectType> typeExpr;
