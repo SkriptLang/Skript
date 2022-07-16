@@ -23,7 +23,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -33,6 +32,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -52,7 +52,6 @@ import org.eclipse.jdt.annotation.Nullable;
 	"spawn a baby cow at player",
 	"set age of last spawned entity to -1200 # in ticks = 60 seconds"
 })
-@RequiredPlugins("Minecraft 1.13+")
 @Since("INSERT VERSION")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
@@ -65,7 +64,13 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		setExpr(exprs[0]);
+		if (isMax && Entity.class.isAssignableFrom(getExpr().getReturnType())) {
+			Skript.error("Cannot use 'max age' expression with entities, use the just the 'age' expression instead");
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -135,7 +140,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 		return (isMax ? "maximum " : "") + "age";
 	}
 
-	private void setAge(Object obj, int value) {
+	private static void setAge(Object obj, int value) {
 		if (obj instanceof Block) {
 			Block block = (Block) obj;
 			BlockData bd = block.getBlockData();
