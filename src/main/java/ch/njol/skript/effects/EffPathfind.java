@@ -18,6 +18,12 @@
  */
 package ch.njol.skript.effects;
 
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -25,20 +31,17 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Pathfind")
 @Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
 	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
-@Examples({"make all creepers pathfind towards player",
+@Examples({
+	"make all creepers pathfind towards player",
 	"make all cows stop pathfinding",
-	"make event-entity pathfind towards player"})
+	"make event-entity pathfind towards player"
+})
 @Since("INSERT VERSION")
 public class EffPathfind extends Effect {
 
@@ -49,18 +52,17 @@ public class EffPathfind extends Effect {
 				"make %livingentities% stop (pathfinding|moving)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
-
-	@Nullable
-	private Expression<?> target;
 
 	@Nullable
 	private Expression<Number> speed;
 
+	@Nullable
+	private Expression<?> target;
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		target = matchedPattern == 0 ? exprs[1] : null;
 		speed = matchedPattern == 0 ? (Expression<Number>) exprs[2] : null;
@@ -68,32 +70,30 @@ public class EffPathfind extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Object target = this.target != null ? this.target.getSingle(e) : null;
-		Number speed = this.speed != null ? this.speed.getSingle(e) : null;
-		for (LivingEntity entity : entities.getArray(e)) {
-			if (entity instanceof Mob) {
-				if (target instanceof LivingEntity) {
-					((Mob) entity).getPathfinder().moveTo((LivingEntity) target, speed != null ? speed.intValue() : 1);
-				} else if (target instanceof Location) {
-					((Mob) entity).getPathfinder().moveTo((Location) target, speed != null ? speed.intValue() : 1);
-				} else if (this.target == null) {
-					((Mob) entity).getPathfinder().stopPathfinding();
-				}
+	protected void execute(Event event) {
+		Object target = this.target != null ? this.target.getSingle(event) : null;
+		int speed = this.speed != null ? this.speed.getSingle(event).intValue() : 1;
+		for (LivingEntity entity : entities.getArray(event)) {
+			if (!(entity instanceof Mob))
+				continue;
+			if (target instanceof LivingEntity) {
+				((Mob) entity).getPathfinder().moveTo((LivingEntity) target, speed);
+			} else if (target instanceof Location) {
+				((Mob) entity).getPathfinder().moveTo((Location) target, speed);
+			} else if (this.target == null) {
+				((Mob) entity).getPathfinder().stopPathfinding();
 			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		if (target == null) {
+		if (target == null)
 			return "make " + entities.toString(e, debug) + " stop pathfinding";
-		}
 
 		String repr = "make " + entities.toString(e, debug) + " pathfind towards " + target.toString(e, debug);
-		if (speed != null) {
+		if (speed != null)
 			repr += " at speed " + speed.toString(e, debug);
-		}
 		return repr;
 	}
 
