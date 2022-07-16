@@ -35,7 +35,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Potion Effect Tier")
-@Description("Returns the tier of an entities potion effect.")
+@Description("An expression to obtain the amplifier of a potion effect applied to an entity.")
 @Examples("if the amplifier of haste of player >= 3:")
 @Since("INSERT VERSION")
 public class ExprPotionEffectTier extends SimpleExpression<Number> {
