@@ -18,35 +18,16 @@
  */
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BiomeUtils;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DamageCauseUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.EnumUtils;
-import ch.njol.skript.util.InventoryActions;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
+import java.io.StreamCorruptedException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -92,15 +73,35 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.StreamCorruptedException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumSerializer;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BiomeUtils;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DamageCauseUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.EnumUtils;
+import ch.njol.skript.util.InventoryActions;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
 
 /**
  * @author Peter Güttinger
@@ -283,78 +284,76 @@ public class BukkitClasses {
 						}
 					}
 				}));
-		
-		if (Skript.classExists("org.bukkit.block.data.BlockData")) {
-			Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-				.user("block ?datas?")
-				.name("Block Data")
-				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-					"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-					"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-					"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-					"The 'minecraft:' namespace is optional, as well as are underscores.")
-				.examples("set block at player to campfire[lit=false]",
-					"set target block of player to oak stairs[facing=north;waterlogged=true]",
-					"set block at player to grass_block[snowy=true]",
-					"set loop-block to minecraft:chest[facing=north]",
-					"set block above player to oak_log[axis=y]",
-					"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-				.after("itemtype")
-				.requiredPlugins("Minecraft 1.13+")
-				.since("2.5")
-				.parser(new Parser<BlockData>() {
-					@Nullable
-					@Override
-					public BlockData parse(String s, ParseContext context) {
-						return BlockUtils.createBlockData(s);
+
+		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
+			.user("block ?datas?")
+			.name("Block Data")
+			.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
+				"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
+				"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
+				"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
+				"The 'minecraft:' namespace is optional, as well as are underscores.")
+			.examples("set block at player to campfire[lit=false]",
+				"set target block of player to oak stairs[facing=north;waterlogged=true]",
+				"set block at player to grass_block[snowy=true]",
+				"set loop-block to minecraft:chest[facing=north]",
+				"set block above player to oak_log[axis=y]",
+				"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
+			.after("itemtype")
+			.requiredPlugins("Minecraft 1.13+")
+			.since("2.5")
+			.parser(new Parser<BlockData>() {
+				@Nullable
+				@Override
+				public BlockData parse(String s, ParseContext context) {
+					return BlockUtils.createBlockData(s);
+				}
+
+				@Override
+				public String toString(BlockData o, int flags) {
+					return o.getAsString().replace(",", ";");
+				}
+
+				@Override
+				public String toVariableNameString(BlockData o) {
+					return "blockdata:" + o.getAsString();
+				}
+			})
+			.serializer(new Serializer<BlockData>() {
+				@Override
+				public Fields serialize(BlockData o) {
+					Fields f = new Fields();
+					f.putObject("blockdata", o.getAsString());
+					return f;
+				}
+
+				@Override
+				public void deserialize(BlockData o, Fields f) {
+					assert false;
+				}
+
+				@Override
+				protected BlockData deserialize(Fields f) throws StreamCorruptedException {
+					String data = f.getObject("blockdata", String.class);
+					assert data != null;
+					try {
+						return Bukkit.createBlockData(data);
+					} catch (IllegalArgumentException ex) {
+						throw new StreamCorruptedException("Invalid block data: " + data);
 					}
-					
-					@Override
-					public String toString(BlockData o, int flags) {
-						return o.getAsString().replace(",", ";");
-					}
-					
-					@Override
-					public String toVariableNameString(BlockData o) {
-						return "blockdata:" + o.getAsString();
-					}
-				})
-				.serializer(new Serializer<BlockData>() {
-					@Override
-					public Fields serialize(BlockData o) {
-						Fields f = new Fields();
-						f.putObject("blockdata", o.getAsString());
-						return f;
-					}
-					
-					@Override
-					public void deserialize(BlockData o, Fields f) {
-						assert false;
-					}
-					
-					@Override
-					protected BlockData deserialize(Fields f) throws StreamCorruptedException {
-						String data = f.getObject("blockdata", String.class);
-						assert data != null;
-						try {
-							return Bukkit.createBlockData(data);
-						} catch (IllegalArgumentException ex) {
-							throw new StreamCorruptedException("Invalid block data: " + data);
-						}
-					}
-					
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-					
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
-				}));
-		}
-		
+				}
+
+				@Override
+				public boolean mustSyncDeserialization() {
+					return true;
+				}
+
+				@Override
+				protected boolean canBeInstantiated() {
+					return false;
+				}
+			}));
+
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
 				.name("Location")
@@ -733,6 +732,8 @@ public class BukkitClasses {
 					@Nullable
 					public Player parse(String s, ParseContext context) {
 						if (context == ParseContext.COMMAND) {
+							if (s.isEmpty())
+								return null;
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getPlayer(UUID.fromString(s));
 							List<Player> ps = Bukkit.matchPlayer(s);
@@ -1624,37 +1625,36 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Status.class)));
-		
-		if (Skript.classExists("org.bukkit.SoundCategory")) {
-			EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
-			Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
-					.user("sound ?categor(y|ies)")
-					.name("Sound Category")
-					.description("The category of a sound, they are used for sound options of Minecraft. " +
-							"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
-					.usage(soundCategories.getAllNames())
-					.since("2.4")
-					.requiredPlugins("Minecraft 1.11 or newer")
-					.parser(new Parser<SoundCategory>() {
-						@Override
-						@Nullable
-						public SoundCategory parse(final String s, final ParseContext context) {
-							return soundCategories.parse(s);
-						}
-						
-						@Override
-						public String toString(SoundCategory state, int flags) {
-							return soundCategories.toString(state, flags);
-						}
-						
-						@SuppressWarnings("null")
-						@Override
-						public String toVariableNameString(SoundCategory category) {
-							return category.name();
-						}
-					})
-					.serializer(new EnumSerializer<>(SoundCategory.class)));
-		}
+
+		EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
+		Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
+				.user("sound ?categor(y|ies)")
+				.name("Sound Category")
+				.description("The category of a sound, they are used for sound options of Minecraft. " +
+						"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
+				.usage(soundCategories.getAllNames())
+				.since("2.4")
+				.requiredPlugins("Minecraft 1.11 or newer")
+				.parser(new Parser<SoundCategory>() {
+					@Override
+					@Nullable
+					public SoundCategory parse(final String s, final ParseContext context) {
+						return soundCategories.parse(s);
+					}
+
+					@Override
+					public String toString(SoundCategory state, int flags) {
+						return soundCategories.toString(state, flags);
+					}
+
+					@SuppressWarnings("null")
+					@Override
+					public String toVariableNameString(SoundCategory category) {
+						return category.name();
+					}
+				})
+				.serializer(new EnumSerializer<>(SoundCategory.class)));
+
 		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
 			EnumUtils<Gene> genes = new EnumUtils<>(Gene.class, "genes");
 			Classes.registerClass(new ClassInfo<>(Gene.class, "gene")
@@ -1739,34 +1739,32 @@ public class BukkitClasses {
 					.serializer(new EnumSerializer<>(Cat.Type.class)));
 		}
 
-		if (Skript.classExists("org.bukkit.GameRule")) {
-			Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
-				.user("gamerules?")
-				.name("Gamerule")
-				.description("A gamerule")
-				.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
-				.since("2.5")
-				.requiredPlugins("Minecraft 1.13 or newer")
-				.parser(new Parser<GameRule>() {
-					@Override
-					@Nullable
-					public GameRule parse(final String input, final ParseContext context) {
-						return GameRule.getByName(input);
-					}
-					
-					@Override
-					public String toString(GameRule o, int flags) {
-						return o.getName();
-					}
-					
-					@Override
-					public String toVariableNameString(GameRule o) {
-						return o.getName();
-					}
-				})
-			);
-		}
-		
+		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
+			.user("gamerules?")
+			.name("Gamerule")
+			.description("A gamerule")
+			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
+			.since("2.5")
+			.requiredPlugins("Minecraft 1.13 or newer")
+			.parser(new Parser<GameRule>() {
+				@Override
+				@Nullable
+				public GameRule parse(final String input, final ParseContext context) {
+					return GameRule.getByName(input);
+				}
+
+				@Override
+				public String toString(GameRule o, int flags) {
+					return o.getName();
+				}
+
+				@Override
+				public String toVariableNameString(GameRule o) {
+					return o.getName();
+				}
+			})
+		);
+
 // 		Temporarily disabled until bugs are fixed
 //		if (Skript.classExists("org.bukkit.persistence.PersistentDataHolder")) {
 //			Classes.registerClass(new ClassInfo<>(PersistentDataHolder.class, "persistentdataholder")
@@ -1786,32 +1784,31 @@ public class BukkitClasses {
 //					.since("2.5"));
 //		}
 
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
-			Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
-				.name("Enchantment Offer")
-				.description("The enchantmentoffer in an enchant prepare event.")
-				.examples("on enchant prepare:",
-					"\tset enchant offer 1 to sharpness 1",
-					"\tset the cost of enchant offer 1 to 10 levels")
-				.since("2.5")
-				.parser(new Parser<EnchantmentOffer>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
+		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
+			.user("enchant[ment][ ]offers?")
+			.name("Enchantment Offer")
+			.description("The enchantmentoffer in an enchant prepare event.")
+			.examples("on enchant prepare:",
+				"\tset enchant offer 1 to sharpness 1",
+				"\tset the cost of enchant offer 1 to 10 levels")
+			.since("2.5")
+			.parser(new Parser<EnchantmentOffer>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
 
-					@Override
-					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
-					}
-	
-					@Override
-					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-					}
-				}));
-		}
+				@Override
+				public String toString(EnchantmentOffer eo, int flags) {
+					return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+				}
+
+				@Override
+				public String toVariableNameString(EnchantmentOffer eo) {
+					return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+				}
+			}));
+
 		EnumUtils<Attribute> attributes = new EnumUtils<>(Attribute.class, "attribute types");
 		Classes.registerClass(new ClassInfo<>(Attribute.class, "attributetype")
 				.user("attribute ?types?")

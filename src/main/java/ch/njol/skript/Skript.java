@@ -19,9 +19,7 @@
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.BurgerHelper;
-import ch.njol.skript.bukkitutil.Workarounds;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Converter;
@@ -90,6 +88,8 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -115,6 +115,7 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -355,8 +356,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		getAddonInstance();
 		
-		Workarounds.init();
-		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
 		try {
@@ -465,9 +464,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			assert updater != null;
 			updater.updateCheck(console);
 		}
-		
-		BukkitUnsafe.initialize(); // Needed for aliases
-		
+
 		try {
 			Aliases.load(); // Loaded before anything that might use them
 		} catch (StackOverflowError e) {
@@ -527,24 +524,26 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Load hooks from Skript jar
 				try {
 					try (JarFile jar = new JarFile(getFile())) {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
+						for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
 							if (e.getName().startsWith("ch/njol/skript/hooks/") && e.getName().endsWith("Hook.class") && StringUtils.count("" + e.getName(), '/') <= 5) {
 								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 								try {
-									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
+									Class<?> hook = Class.forName(c, true, getClassLoader());
+									if (Hook.class.isAssignableFrom(hook) && !Modifier.isAbstract(hook.getModifiers()) && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 										hook.getDeclaredConstructor().setAccessible(true);
 										hook.getDeclaredConstructor().newInstance();
 									}
-								} catch (final ClassNotFoundException ex) {
+								} catch (ClassNotFoundException ex) {
 									Skript.exception(ex, "Cannot load class " + c);
-								} catch (final ExceptionInInitializerError err) {
+								} catch (ExceptionInInitializerError err) {
 									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
+								} catch (Exception ex) {
+									Skript.exception(ex, "Exception initializing hook: " + c);
 								}
 							}
 						}
 					}
-				} catch (final Exception e) {
+				} catch (IOException e) {
 					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
@@ -646,7 +645,11 @@ public final class Skript extends JavaPlugin implements Listener {
 								Skript.exception(e, "Failed to write test results.");
 							}
 							info("Testing done, shutting down the server.");
-							Bukkit.getServer().shutdown();
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
+
 						}
 
 						return;
@@ -656,128 +659,57 @@ public final class Skript extends JavaPlugin implements Listener {
 				final long vld = System.currentTimeMillis() - vls;
 				if (logNormal())
 					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
-				
-				Metrics metrics = new Metrics(Skript.this);
-				
-				metrics.addCustomChart(new Metrics.SimplePie("pluginLanguage") {
-					
-					@Override
-					public String getValue() {
-						return Language.getName();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("effectCommands") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.enableEffectCommands.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("uuidsWithPlayers") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.usePlayerUUIDsInVariableNames.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("playerVariableFix") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.enablePlayerVariableFix.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("logVerbosity") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.verbosity.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("pluginPriority") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("logPlayerCommands") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.logPlayerCommands.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("maxTargetDistance") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.maxTargetBlockDistance.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("softApiExceptions") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.apiSoftExceptions.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("timingsStatus") {
-					
-					@Override
-					public String getValue() {
-						if (!Skript.classExists("co.aikar.timings.Timings"))
-							return "unsupported";
-						else
-							return "" + SkriptConfig.enableTimings.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("parseLinks") {
-					
-					@Override
-					public String getValue() {
-						return "" + ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH);
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("colorResetCodes") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.colorResetCodes.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("functionsWithNulls") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.executeFunctionsWithMissingParams.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("buildFlavor") {
-					
-					@Override
-					public String getValue() {
-						if (updater != null) {
-							return updater.getCurrentRelease().flavor;
-						}
-						return "unknown";
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("updateCheckerEnabled") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.checkForNewVersion.value();
-					}
-				});
-				metrics.addCustomChart(new Metrics.SimplePie("releaseChannel") {
-					
-					@Override
-					public String getValue() {
-						return "" + SkriptConfig.releaseChannel.value();
-					}
-				});
-				
+
+				// Enable metrics and register custom charts
+				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID
+				metrics.addCustomChart(new SimplePie("pluginLanguage", Language::getName));
+				metrics.addCustomChart(new SimplePie("effectCommands", () ->
+					SkriptConfig.enableEffectCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("uuidsWithPlayers", () ->
+					SkriptConfig.usePlayerUUIDsInVariableNames.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("playerVariableFix", () ->
+					SkriptConfig.enablePlayerVariableFix.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("logVerbosity", () ->
+					SkriptConfig.verbosity.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
+				));
+				metrics.addCustomChart(new SimplePie("pluginPriority", () ->
+					SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
+				));
+				metrics.addCustomChart(new SimplePie("logPlayerCommands", () ->
+					SkriptConfig.logPlayerCommands.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("maxTargetDistance", () ->
+					SkriptConfig.maxTargetBlockDistance.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("softApiExceptions", () ->
+					SkriptConfig.apiSoftExceptions.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("timingsStatus", () -> {
+					if (!Skript.classExists("co.aikar.timings.Timings"))
+						return "unsupported";
+					return SkriptConfig.enableTimings.value().toString();
+				}));
+				metrics.addCustomChart(new SimplePie("parseLinks", () ->
+					ChatMessages.linkParseMode.name().toLowerCase(Locale.ENGLISH)
+				));
+				metrics.addCustomChart(new SimplePie("colorResetCodes", () ->
+					SkriptConfig.colorResetCodes.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("functionsWithNulls", () ->
+					SkriptConfig.executeFunctionsWithMissingParams.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("buildFlavor", () -> {
+					if (updater != null)
+						return updater.getCurrentRelease().flavor;
+					return "unknown";
+				}));
+				metrics.addCustomChart(new SimplePie("updateCheckerEnabled", () ->
+					SkriptConfig.checkForNewVersion.value().toString()
+				));
+				metrics.addCustomChart(new SimplePie("releaseChannel", SkriptConfig.releaseChannel::value));
 				Skript.metrics = metrics;
 				
 				/*
@@ -1090,7 +1022,8 @@ public final class Skript extends JavaPlugin implements Listener {
 
 			try {
 				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
-				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
+				// 1.19 mapping is u and 1.18 is v
+				String isRunningMethod = Skript.isRunningMinecraft(1, 19) ? "u" : Skript.isRunningMinecraft(1, 18) ? "v" :"isRunning";
 				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
@@ -1593,6 +1526,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static EmptyStacktraceException exception(@Nullable Throwable cause, final @Nullable Thread thread, final @Nullable TriggerItem item, final String... info) {
 		errored = true;
+
+		// Don't send full exception message again, when caught exception (likely) comes from this method
+		if (cause instanceof EmptyStacktraceException) {
+			return new EmptyStacktraceException();
+		}
+
 		// First error: gather plugin package information
 		if (!checkedPlugins) { 
 			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
