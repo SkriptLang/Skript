@@ -464,9 +464,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		assert types.length > 0;
 		if (type == Player.class) {
 			if (worlds == null && types.length == 1 && types[0] instanceof PlayerData && ((PlayerData) types[0]).op == 0)
-				return (E[]) PlayerUtils.getOnlinePlayers().toArray(new Player[0]);
+				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
 			final List<Player> list = new ArrayList<>();
-			for (final Player p : PlayerUtils.getOnlinePlayers()) {
+			for (final Player p : Bukkit.getOnlinePlayers()) {
 				if (worlds != null && !CollectionUtils.contains(worlds, p.getWorld()))
 					continue;
 				for (final EntityData<?> t : types) {

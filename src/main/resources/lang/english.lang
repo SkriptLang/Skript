@@ -111,7 +111,8 @@ skript command:
 			next page: <grey>page %s of %s. Type <gold>/skript update changes %s<gray> for the next page (hint: use the up arrow key)
 	info:
 		aliases: Skript's aliases can be found here: <aqua>https://github.com/SkriptLang/skript-aliases
-		documentation: Skript's documentation can be found here: <aqua>https://skriptlang.github.io/Skript
+		documentation: Skript's documentation can be found here: <aqua>https://docs.skriptlang.org/
+		tutorials: Skript's tutorials can be found here: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skript Version: <aqua>%s
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s

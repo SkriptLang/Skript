@@ -61,6 +61,9 @@ public class ExprRespawnLocation extends SimpleExpression<Location> {
 	@Override
 	@Nullable
 	protected Location[] get(Event event) {
+		if (!(event instanceof PlayerRespawnEvent))
+			return null;
+
 		return CollectionUtils.array(((PlayerRespawnEvent)event).getRespawnLocation());
 	}
 
@@ -89,6 +92,9 @@ public class ExprRespawnLocation extends SimpleExpression<Location> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		if (!(event instanceof PlayerRespawnEvent))
+			return;
+
 		if (delta != null) ((PlayerRespawnEvent)event).setRespawnLocation((Location)delta[0]);
 	}
 	
