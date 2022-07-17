@@ -61,16 +61,18 @@ final class VariablesMap {
 
 					// Skip leading zeroes (except for the last if all 0's)
 					if (!afterDecimalPoint) {
-						if (c1 == '0')
+						if (c1 == '0') {
 							while (i < i2 - 1 && s1.charAt(i) == '0') {
 								i++;
 								z1++;
 							}
-						if (c2 == '0')
+						}
+						if (c2 == '0') {
 							while (j < j2 - 1 && s2.charAt(j) == '0') {
 								j++;
 								z2++;
 							}
+						}
 					}
 					// Keep in mind that c1 and c2 may not have the right value (e.g. s1.charAt(i)) for the rest of this block
 
@@ -101,9 +103,8 @@ final class VariablesMap {
 					}
 
 					// Different length numbers (1.99 > 1.9)
-					if (afterDecimalPoint && i2 - i != j2 - j) {
+					if (afterDecimalPoint && i2 - i != j2 - j)
 						return ((i2 - i) - (j2 - j)) * isPositive;
-					}
 
 					// If the numbers are equal, but either has leading zeroes,
 					//  more leading zeroes is a lesser number (01 < 1)
