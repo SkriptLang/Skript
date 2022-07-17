@@ -41,7 +41,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description({
 	"The facing or opposite facing of an entity or block, i.e. exactly north, south, east, west, up or down",
 	"unlike <a href='/expressions.html#ExprDirection'>direction</a> which is the exact direction, e.g. '0.5 south and 0.7 east'",
-	"NOTE: Changing the opposite facing has the same result of changing the actual facing."
+	"NOTE: Changing the opposite facing has the same result of changing the actual facing.",
+	"NOTE: Facing of entities cannot be changed, use <a href='/effects.html#EffTeleport'>teleport</a> effect instead."
 })
 @Examples({
 	"# Makes a bridge",
@@ -69,7 +70,6 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	@Override
 	@Nullable
-	@SuppressWarnings("deprecation")
 	public Direction convert(Object o) {
 		if (o instanceof Block) {
 			BlockData data = ((Block) o).getBlockData();
@@ -79,7 +79,8 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 			}
 			return null;
 		} else if (o instanceof LivingEntity) {
-			BlockFace facing = opposite ? Direction.getFacing(((LivingEntity) o).getLocation(), horizontal).getOppositeFace() : Direction.getFacing(((LivingEntity) o).getLocation(), horizontal);
+			BlockFace originalFacing = Direction.getFacing(((LivingEntity) o).getLocation(), horizontal);
+			BlockFace facing = opposite ? originalFacing.getOppositeFace() : originalFacing;
 			return new Direction(facing, 1);
 		}
 		assert false;
@@ -107,7 +108,6 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		assert mode == ChangeMode.SET;
 		assert delta != null;
