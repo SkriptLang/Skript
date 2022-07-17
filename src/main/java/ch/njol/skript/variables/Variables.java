@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -215,6 +216,8 @@ public abstract class Variables {
 				return false;
 			}
 		} finally {
+			SkriptLogger.setNode(null);
+
 			// make sure to put the loaded variables into the variables map
 			final int n = onStoragesLoaded();
 			if (n != 0) {
@@ -242,9 +245,6 @@ public abstract class Variables {
 	 */
 	final static VariablesMap variables = new VariablesMap();
 
-	/**
-	 * Not to be accessed outside of Bukkit's main thread!
-	 */
 	private final static Map<Event, VariablesMap> localVariables = new ConcurrentHashMap<>();
 	
 	/**
@@ -267,12 +267,33 @@ public abstract class Variables {
 	
 	/**
 	 * Sets local variables associated with given event.
+	 * If the given map is null, local variables for this event will be <b>removed</b> if they are present!
 	 * Warning: this can overwrite local variables!
 	 * @param event Event.
 	 * @param map New local variables.
 	 */
-	public static void setLocalVariables(Event event, Object map) {
-		localVariables.put(event, (VariablesMap) map);
+	public static void setLocalVariables(Event event, @Nullable Object map) {
+		if (map != null) {
+			localVariables.put(event, (VariablesMap) map);
+		} else {
+			removeLocals(event);
+		}
+	}
+
+	/**
+	 * Creates a copy of the VariablesMap for local variables in an event.
+	 * @param event The event to copy local variables from.
+	 * @return A VariablesMap copy for the local variables in an event.
+	 */
+	@Nullable
+	public static Object copyLocalVariables(Event event) {
+		VariablesMap from = localVariables.get(event);
+		if (from == null)
+			return null;
+		VariablesMap copy = new VariablesMap();
+		copy.hashMap.putAll(from.hashMap);
+		copy.treeMap.putAll(from.treeMap);
+		return copy;
 	}
 	
 	/**
@@ -466,17 +487,21 @@ public abstract class Variables {
 		} finally {
 			variablesLock.writeLock().unlock();
 		}
-		
-		for (final VariablesStorage s : storages) {
-			if (s.accept(name)) {
-				if (s != source) {
-					final Value v = serialize(value);
-					s.save(name, v != null ? v.type : null, v != null ? v.data : null);
-					if (value != null)
-						source.save(name, null, null);
+
+		try {
+			for (final VariablesStorage s : storages) {
+				if (s.accept(name)) {
+					if (s != source) {
+						final Value v = serialize(value);
+						s.save(name, v != null ? v.type : null, v != null ? v.data : null);
+						if (value != null)
+							source.save(name, null, null);
+					}
+					return true;
 				}
-				return true;
 			}
+		} catch (Exception e) {
+			Skript.exception(e, "Error saving variable named " + name);
 		}
 		return false;
 	}
@@ -516,40 +541,42 @@ public abstract class Variables {
 		}
 	}
 	
-	public static SerializedVariable serialize(final String name, final @Nullable Object value) {
+	public static SerializedVariable serialize(String name, @Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
-		final SerializedVariable.Value var = serialize(value);
+		SerializedVariable.Value var;
+		try {
+			var = serialize(value);
+		} catch (Exception e) {
+			throw Skript.exception(e, "Error saving variable named " + name);
+		}
 		return new SerializedVariable(name, var);
 	}
 	
-	public static SerializedVariable.@Nullable Value serialize(final @Nullable Object value) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
 		return Classes.serialize(value);
 	}
 
-	private static void saveVariableChange(final String name, final @Nullable Object value) {
+	private static void saveVariableChange(String name, @Nullable Object value) {
 		saveQueue.add(serialize(name, value));
 	}
 	
-	final static BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
+	static final BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
 	
 	static volatile boolean closed = false;
 	
-	private final static Thread saveThread = Skript.newThread(new Runnable() {
-		@Override
-		public void run() {
-			while (!closed) {
-				try {
-					// Save one variable change
-					SerializedVariable v = saveQueue.take();
-					for (VariablesStorage s : storages) {
-						if (s.accept(v.name)) {
-							s.save(v);
-							break;
-						}
+	private static final Thread saveThread = Skript.newThread(() -> {
+		while (!closed) {
+			try {
+				// Save one variable change
+				SerializedVariable v = saveQueue.take();
+				for (VariablesStorage s : storages) {
+					if (s.accept(v.name)) {
+						s.save(v);
+						break;
 					}
-				} catch (final InterruptedException e) {}
-			}
+				}
+			} catch (final InterruptedException ignored) {}
 		}
 	}, "Skript variable save thread");
 	

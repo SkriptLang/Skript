@@ -48,37 +48,23 @@ import ch.njol.util.coll.CollectionUtils;
 		"add 1 to the data value of the clicked block",
 		"reset data value of block at player"})
 @Since("1.2")
-public class ExprDurability extends SimplePropertyExpression<Object, Number> {
-	
-	private static final boolean LEGACY_BLOCK = !Skript.isRunningMinecraft(1, 13);
-	
+public class ExprDurability extends SimplePropertyExpression<Object, Long> {
+
 	static {
-		register(ExprDurability.class, Number.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
+		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
 	}
 	
 	@Override
 	@Nullable
-	public Number convert(final Object o) {
+	public Long convert(final Object o) {
 		if (o instanceof Slot) {
 			final ItemStack i = ((Slot) o).getItem();
-			return i == null ? null : ItemUtils.getDamage(i);
+			return i == null ? null : (long) ItemUtils.getDamage(i);
 		} else if (o instanceof ItemType) {
 			ItemStack item = ((ItemType) o).getRandom();
-			return item != null ? ItemUtils.getDamage(item) : null;
-		} else if (LEGACY_BLOCK && o instanceof Block) {
-			return ((Block) o).getData();
+			return (long) ItemUtils.getDamage(item);
 		}
 		return null;
-	}
-	
-	@Override
-	public String getPropertyName() {
-		return "data";
-	}
-	
-	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
 	}
 	
 	@Override
@@ -108,8 +94,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Number> {
 				itemStack = ((ItemType) o).getRandom();
 			else if (o instanceof Slot)
 				itemStack = ((Slot) o).getItem();
-			else if (LEGACY_BLOCK)
-				block = (Block) o;
 			else
 				return;
 			
@@ -147,5 +131,15 @@ public class ExprDurability extends SimplePropertyExpression<Object, Number> {
 			}
 		}
 	}
-	
+
+	@Override
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
+	}
+
+	@Override
+	public String getPropertyName() {
+		return "data";
+	}
+
 }

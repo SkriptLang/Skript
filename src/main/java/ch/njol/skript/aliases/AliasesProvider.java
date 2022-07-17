@@ -95,11 +95,11 @@ public class AliasesProvider {
 		
 		@Nullable
 		public String insertId(@Nullable String inserted) {
-			if (id == null) // Inserting to nothing
-				return inserted;
-			if (inserted == null)
+			if (inserted == null) // Nothing to insert
 				return id;
 			inserted = inserted.substring(0, inserted.length() - 1); // Strip out -
+			if (id == null) // Inserting to nothing
+				return inserted;
 			
 			String id = this.id;
 			assert id != null;
@@ -306,7 +306,7 @@ public class AliasesProvider {
 			MaterialName materialName = new MaterialName(data.type, name.singular, name.plural, name.gender);
 			aliasesMap.addAlias(new AliasesMap.AliasData(data, materialName, id, related));
 		}
-		 
+
 		// Check if there is item type with this name already, create otherwise
 		ItemType type = aliases.get(name.singular);
 		if (type == null)
@@ -315,11 +315,16 @@ public class AliasesProvider {
 			type = new ItemType();
 			aliases.put(name.singular, type); // Singular form
 			aliases.put(name.plural, type); // Plural form
+			type.addAll(datas);
+		} else { // There is already an item type with this name, we need to *only* add new data
+			newDataLoop: for (ItemData newData : datas) {
+				for (ItemData existingData : type.getTypes()) {
+					if (newData == existingData || newData.matchAlias(existingData).isAtLeast(MatchQuality.EXACT)) // Don't add this data, the item type already contains it!
+						continue newDataLoop;
+				}
+				type.add(newData);
+			}
 		}
-		
-		// Add item datas we got earlier to the type
-		assert datas != null;
-		type.addAll(datas);
 	}
 	
 	public void addVariationGroup(String name, VariationGroup group) {

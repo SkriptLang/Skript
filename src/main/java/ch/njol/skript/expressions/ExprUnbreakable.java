@@ -45,8 +45,6 @@ import ch.njol.util.Kleenean;
 @Since("2.2-dev13b")
 public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 
-	private static final boolean USE_DEPRECATED_METHOD = !Skript.methodExists(ItemMeta.class, "setUnbreakable", boolean.class);
-	
 	@Nullable
 	private static final MethodHandle setUnbreakableMethod;
 	
@@ -76,16 +74,7 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 			ItemType clone = itemType.clone();
 
 			ItemMeta meta = clone.getItemMeta();
-			if (USE_DEPRECATED_METHOD) {
-				assert setUnbreakableMethod != null;
-				try {
-					setUnbreakableMethod.invoke(true);
-				} catch (Throwable e1) {
-					Skript.exception(e1);
-				}
-			} else {
-				meta.setUnbreakable(true);
-			}
+			meta.setUnbreakable(true);
 			clone.setItemMeta(meta);
 
 			return clone;

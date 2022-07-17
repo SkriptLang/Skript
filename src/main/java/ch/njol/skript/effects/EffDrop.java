@@ -18,17 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Item;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -38,72 +27,69 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Drop")
 @Description("Drops one or more items.")
 @Examples({"on death of creeper:",
 		"	drop 1 TNT"})
 @Since("1.0")
 public class EffDrop extends Effect {
+
 	static {
-		Skript.registerEffect(EffDrop.class, "drop %itemtypes/experiences% [%directions% %locations%]",
-				"drop %itemtypes/experiences% [%directions% %locations%] without velocity");
+		Skript.registerEffect(EffDrop.class, "drop %itemtypes/experiences% [%directions% %locations%] [(1¦without velocity)]");
 	}
-	
+
 	@Nullable
 	public static Entity lastSpawned = null;
-	
-	@SuppressWarnings("null")
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> drops;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-	
-	private boolean useVelocity = true;
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	private boolean useVelocity;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		drops = exprs[0];
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
-		if (matchedPattern == 1) useVelocity = false;
+		useVelocity = parseResult.mark == 0;
 		return true;
 	}
-	
+
 	@Override
-	public void execute(final Event e) {
-		final Object[] os = drops.getArray(e);
-		if (e instanceof EntityDeathEvent && locations.isSingle() && ((EntityDeathEvent) e).getEntity().getLocation().equals(locations.getSingle(e)) && !Delay.isDelayed(e)) {
-			for (final Object o : os) {
-				if (o instanceof Experience) {
-					((EntityDeathEvent) e).setDroppedExp(((EntityDeathEvent) e).getDroppedExp() + ((Experience) o).getXP());
-				} else {
-					((ItemType) o).addTo(((EntityDeathEvent) e).getDrops());
-				}
-			}
-			return;
-		}
-		for (final Location l : locations.getArray(e)) {
-			final Location itemDropLoc = l.clone().subtract(0.5, 0.5, 0.5); // dropItemNaturally adds 0.15 to 0.85 randomly to all coordinates
+	public void execute(Event e) {
+		Object[] os = drops.getArray(e);
+		for (Location l : locations.getArray(e)) {
+			Location itemDropLoc = l.clone().subtract(0.5, 0.5, 0.5); // dropItemNaturally adds 0.15 to 0.85 randomly to all coordinates
 			for (Object o : os) {
 				if (o instanceof Experience) {
-					final ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
+					ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
 					orb.setExperience(((Experience) o).getXP());
-					EffSpawn.lastSpawned = orb;
+					EffSecSpawn.lastSpawned = orb;
 				} else {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
-					for (final ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (is.getType() != Material.AIR) {
+					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
+						if (!isAir(is.getType()) && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {
-								final Item item = l.getWorld().dropItem(l, is);
+								Item item = l.getWorld().dropItem(l, is);
 								item.teleport(l);
 								item.setVelocity(new Vector(0, 0, 0));
 								lastSpawned = item;
@@ -114,10 +100,25 @@ public class EffDrop extends Effect {
 			}
 		}
 	}
-	
+
+	// Only 1.15 and versions after have Material#isAir method
+	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
+	// Version 1.14 have multiple air types but no Material#isAir method
+	private static final boolean OTHER_AIR_EXISTS = Skript.isRunningMinecraft(1, 14);
+
+	private static boolean isAir(Material type) {
+		if (IS_AIR_EXISTS) {
+			return type.isAir();
+		} else if (OTHER_AIR_EXISTS) { 
+			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+		} 
+		// All versions prior to 1.14 only have 1 air type
+		return type == Material.AIR;
+	}
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "drop " + drops.toString(e, debug) + " " + locations.toString(e, debug);
 	}
-	
+
 }

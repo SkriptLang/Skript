@@ -44,7 +44,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."})
 @Examples({"on server list ping:",
 		"	set the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
-		"	set the version string to \"<light green>Version: <orange>%minecraft version%\""})
+		"	set the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
@@ -71,6 +71,8 @@ public class ExprVersionString extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String[] get(Event e) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return null;
 		return CollectionUtils.array(((PaperServerListPingEvent) e).getVersion());
 	}
 
@@ -89,6 +91,9 @@ public class ExprVersionString extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		((PaperServerListPingEvent) e).setVersion(((String) delta[0]));
 	}
 

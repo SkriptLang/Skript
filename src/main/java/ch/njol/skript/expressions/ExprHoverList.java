@@ -52,9 +52,9 @@ import ch.njol.util.coll.CollectionUtils;
 		"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."})
 @Examples({"on server list ping:",
 		"\tclear the hover list",
-		"\tadd \"<light green>Welcome to the <orange>Minecraft <light green>server!\" to the hover list",
+		"\tadd \"&aWelcome to the &6Minecraft &aserver!\" to the hover list",
 		"\tadd \"\" to the hover list # A blank line",
-		"\tadd \"<light red>There are <orange>%online players count% <light red>online players!\" to the hover list"})
+		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
@@ -83,6 +83,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String[] get(Event e) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return null;
+
 		return ((PaperServerListPingEvent) e).getPlayerSample().stream()
 				.map(PlayerProfile::getName)
 				.toArray(String[]::new);
@@ -109,6 +112,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		List<PlayerProfile> values = new ArrayList<>();
 		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET) {
 			for (Object o : delta) {

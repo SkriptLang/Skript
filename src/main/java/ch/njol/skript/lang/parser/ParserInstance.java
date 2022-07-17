@@ -18,6 +18,16 @@
  */
 package ch.njol.skript.lang.parser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
@@ -27,15 +37,6 @@ import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 public class ParserInstance {
 	
@@ -127,6 +128,15 @@ public class ParserInstance {
 		return false;
 	}
 
+	@SafeVarargs
+	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
+		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
+			if (isCurrentSection(sectionClass))
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * @return the outermost section which is an instance of the given class.
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
@@ -135,7 +145,8 @@ public class ParserInstance {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		for (TriggerSection triggerSection : currentSections) {
+		for (int i = currentSections.size(); i-- > 0;) {
+			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
 				return (T) triggerSection;
 		}
@@ -231,16 +242,41 @@ public class ParserInstance {
 		setCurrentEvents(null);
 		hasDelayBefore = Kleenean.FALSE;
 	}
-	
+
+	/**
+	 * This method checks whether <i>at least one</i> of the current event classes
+	 * is covered by the argument event class (i.e. equal to the class or a subclass of it).
+	 * <br>
+	 * Using this method in an event-specific syntax element requires a runtime check, for example <br>
+	 * {@code if (!(e instanceof BlockBreakEvent)) return null;}
+	 * <br>
+	 * This check is required because there can be more than 1 event class at parse-time, but this method
+	 * only checks if one of them matches the argument class.
+	 *
+	 * <br><br>
+	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
+	 */
 	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
 		return CollectionUtils.containsSuperclass(currentEvents, event);
 	}
-	
+
+	/**
+	 * Same as {@link #isCurrentEvent(Class)}, but allows for plural argument input.
+	 * <br>
+	 * This means that this method will return whether any of the current event classes is covered
+	 * by any of the argument classes.
+	 * <br>
+	 * Using this method in an event-specific syntax element {@link #isCurrentEvent(Class) requires a runtime check},
+	 * you can use {@link CollectionUtils#isAnyInstanceOf(Object, Class[])} for this, for example: <br>
+	 * {@code if (!CollectionUtils.isAnyInstanceOf(e, BlockBreakEvent.class, BlockPlaceEvent.class)) return null;}
+	 *
+	 * @see #isCurrentEvent(Class)
+	 */
 	@SafeVarargs
 	public final boolean isCurrentEvent(Class<? extends Event>... events) {
 		return CollectionUtils.containsAnySuperclass(currentEvents, events);
 	}
-	
+
 	/*
 	 * Addon data
 	 */

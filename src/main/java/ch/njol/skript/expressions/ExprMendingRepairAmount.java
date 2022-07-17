@@ -43,10 +43,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on item mend:",
 		"\tset the mending repair amount to 100"})
 @Since("2.5.1")
-public class ExprMendingRepairAmount extends SimpleExpression<Number> {
+public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprMendingRepairAmount.class, Number.class, ExpressionType.SIMPLE, "[the] [mending] repair amount");
+		Skript.registerExpression(ExprMendingRepairAmount.class, Long.class, ExpressionType.SIMPLE, "[the] [mending] repair amount");
 	}
 
 	@Override
@@ -59,8 +59,11 @@ public class ExprMendingRepairAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected Number[] get(final Event e) {
-		return new Number[]{((PlayerItemMendEvent) e).getRepairAmount()};
+	protected Long[] get(final Event e) {
+		if (!(e instanceof PlayerItemMendEvent))
+			return null;
+
+		return new Long[]{(long) ((PlayerItemMendEvent) e).getRepairAmount()};
 	}
 
 	@Nullable
@@ -79,6 +82,9 @@ public class ExprMendingRepairAmount extends SimpleExpression<Number> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PlayerItemMendEvent))
+			return;
+
 		PlayerItemMendEvent e = (PlayerItemMendEvent) event;
 		int newLevel = delta != null ? ((Number) delta[0]).intValue() : 0;
 		switch (mode) {
@@ -107,8 +113,8 @@ public class ExprMendingRepairAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

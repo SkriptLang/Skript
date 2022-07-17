@@ -374,7 +374,7 @@ public class FlatFileStorage extends VariablesStorage {
 							return;
 						}
 					}
-					final File tempFile = new File(Skript.getInstance().getDataFolder(), "variables.csv.temp");
+					File tempFile = new File(file.getParentFile(), file.getName() + ".temp");
 					PrintWriter pw = null;
 					try {
 						pw = new PrintWriter(tempFile, "UTF-8");
@@ -423,24 +423,29 @@ public class FlatFileStorage extends VariablesStorage {
 	 * @param map
 	 */
 	@SuppressWarnings("unchecked")
-	private final void save(final PrintWriter pw, final String parent, final TreeMap<String, Object> map) {
-		outer: for (final Entry<String, Object> e : map.entrySet()) {
-			final Object val = e.getValue();
+	private void save(PrintWriter pw, String parent, TreeMap<String, Object> map) {
+		outer: for (Entry<String, Object> e : map.entrySet()) {
+			Object val = e.getValue();
 			if (val == null)
 				continue;
 			if (val instanceof TreeMap) {
 				save(pw, parent + e.getKey() + Variable.SEPARATOR, (TreeMap<String, Object>) val);
 			} else {
-				final String name = (e.getKey() == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + e.getKey());
-				for (final VariablesStorage s : Variables.storages) {
-					if (s.accept(name)) {
-						if (s == this) {
-							final SerializedVariable.Value value = Classes.serialize(val);
-							if (value != null)
-								writeCSV(pw, name, value.type, encode(value.data));
+				String name = e.getKey() == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + e.getKey();
+
+				try {
+					for (VariablesStorage s : Variables.storages) {
+						if (s.accept(name)) {
+							if (s == this) {
+								SerializedVariable.Value value = Classes.serialize(val);
+								if (value != null)
+									writeCSV(pw, name, value.type, encode(value.data));
+							}
+							continue outer;
 						}
-						continue outer;
 					}
+				} catch (Exception ex) {
+					Skript.exception(ex, "Error saving variable named " + name);
 				}
 			}
 		}

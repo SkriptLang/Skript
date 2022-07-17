@@ -18,30 +18,18 @@
  */
 package ch.njol.skript;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Locale;
-
-import ch.njol.skript.hooks.VaultHook;
-import ch.njol.skript.hooks.regions.GriefPreventionHook;
-import ch.njol.skript.hooks.regions.PreciousStonesHook;
-import ch.njol.skript.hooks.regions.ResidenceHook;
-import ch.njol.skript.hooks.regions.WorldGuardHook;
-import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.hooks.Hook;
+import ch.njol.skript.hooks.VaultHook;
+import ch.njol.skript.hooks.regions.GriefPreventionHook;
+import ch.njol.skript.hooks.regions.PreciousStonesHook;
+import ch.njol.skript.hooks.regions.ResidenceHook;
+import ch.njol.skript.hooks.regions.WorldGuardHook;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.SkriptLogger;
@@ -53,7 +41,19 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
-import ch.njol.util.Setter;
+import org.bukkit.event.EventPriority;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
@@ -61,109 +61,88 @@ import ch.njol.util.Setter;
  * @author Peter Güttinger
  */
 @SuppressWarnings("unused")
-public abstract class SkriptConfig {
-	private SkriptConfig() {}
-	
+public class SkriptConfig {
+
 	@Nullable
 	static Config mainConfig;
-	static Collection<Config> configs = new ArrayList<Config>();
+	static Collection<Config> configs = new ArrayList<>();
 	
-	final static Option<String> version = new Option<String>("version", Skript.getVersion().toString())
+	static final Option<String> version = new Option<>("version", Skript.getVersion().toString())
 			.optional(true);
 	
-	public final static Option<String> language = new Option<String>("language", "english")
+	public static final Option<String> language = new Option<>("language", "english")
 			.optional(true)
-			.setter(new Setter<String>() {
-				@Override
-				public void set(final String s) {
-					if (!Language.load(s)) {
-						Skript.error("No language file found for '" + s + "'!");
-					}
+			.setter(s -> {
+				if (!Language.load(s)) {
+					Skript.error("No language file found for '" + s + "'!");
 				}
 			});
 	
-	final static Option<Boolean> checkForNewVersion = new Option<Boolean>("check for new version", false)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					SkriptUpdater updater = Skript.getInstance().getUpdater();
-					if (updater != null)
-						updater.setEnabled(t);
-				}
+	static final Option<Boolean> checkForNewVersion = new Option<>("check for new version", false)
+			.setter(t -> {
+				SkriptUpdater updater = Skript.getInstance().getUpdater();
+				if (updater != null)
+					updater.setEnabled(t);
 			});
-	final static Option<Timespan> updateCheckInterval = new Option<Timespan>("update check interval", new Timespan(12 * 60 * 60 * 1000))
-			.setter(new Setter<Timespan>() {
-				@Override
-				public void set(final Timespan t) {
-					SkriptUpdater updater = Skript.getInstance().getUpdater();
-					if (updater != null)
-						updater.setCheckFrequency(t.getTicks_i());
-				}
+	static final Option<Timespan> updateCheckInterval = new Option<>("update check interval", new Timespan(12 * 60 * 60 * 1000))
+			.setter(t -> {
+				SkriptUpdater updater = Skript.getInstance().getUpdater();
+				if (updater != null)
+					updater.setCheckFrequency(t.getTicks_i());
 			});
-	final static Option<Integer> updaterDownloadTries = new Option<Integer>("updater download tries", 7)
+	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
-	final static Option<String> releaseChannel = new Option<String>("release channel", "none")
-			.setter(new Setter<String>() {
-
-				@Override
-				public void set(String t) {
-					ReleaseChannel channel;
-					if (t.equals("alpha")) { // Everything goes in alpha channel
+	static final Option<String> releaseChannel = new Option<>("release channel", "none")
+			.setter(t -> {
+				ReleaseChannel channel;
+				switch (t) {
+					case "alpha":  // Everything goes in alpha channel
 						channel = new ReleaseChannel((name) -> true, t);
-					} else if (t.equals("beta")) {
+						break;
+					case "beta":
 						channel = new ReleaseChannel((name) -> !name.contains("alpha"), t);
-					} else if (t.equals("stable")) {
+						break;
+					case "stable":
 						channel = new ReleaseChannel((name) -> !name.contains("alpha") && !name.contains("beta"), t);
-					} else if (t.equals("none")) {
+						break;
+					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
-					} else {
+						break;
+					default:
 						channel = new ReleaseChannel((name) -> false, t);
 						Skript.error("Unknown release channel '" + t + "'.");
+						break;
+				}
+				SkriptUpdater updater = Skript.getInstance().getUpdater();
+				if (updater != null) {
+					if (updater.getCurrentRelease().flavor.contains("spigot") && !t.equals("stable")) {
+						Skript.error("Only stable Skript versions are uploaded to Spigot resources.");
 					}
-					SkriptUpdater updater = Skript.getInstance().getUpdater();
-					if (updater != null) {
-						if (updater.getCurrentRelease().flavor.contains("spigot") && !t.equals("stable")) {
-							Skript.error("Only stable Skript versions are uploaded to Spigot resources.");
-						}
-						updater.setReleaseChannel(channel);
-					}
+					updater.setReleaseChannel(channel);
 				}
 			});
-	
-	// Legacy updater options. They have no effect
-	@Deprecated
-	final static Option<Boolean> automaticallyDownloadNewVersion = new Option<Boolean>("automatically download new version", false)
-			.optional(true);
-	@Deprecated
-	final static Option<Boolean> updateToPrereleases = new Option<Boolean>("update to pre-releases", true)
-			.optional(true);
-	
-	public final static Option<Boolean> enableEffectCommands = new Option<Boolean>("enable effect commands", false);
-	public final static Option<String> effectCommandToken = new Option<String>("effect command token", "!");
-	public final static Option<Boolean> allowOpsToUseEffectCommands = new Option<Boolean>("allow ops to use effect commands", false);
+
+	public static final Option<Boolean> enableEffectCommands = new Option<>("enable effect commands", false);
+	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
+	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
 	
 	// everything handled by Variables
-	public final static OptionSection databases = new OptionSection("databases");
+	public static final OptionSection databases = new OptionSection("databases");
 	
-	public final static Option<Boolean> usePlayerUUIDsInVariableNames = new Option<Boolean>("use player UUIDs in variable names", false); // TODO change to true later (as well as in the default config)
-	public final static Option<Boolean> enablePlayerVariableFix = new Option<Boolean>("player variable fix", true);
+	public static final Option<Boolean> usePlayerUUIDsInVariableNames = new Option<>("use player UUIDs in variable names", false); // TODO change to true later (as well as in the default config)
+	public static final Option<Boolean> enablePlayerVariableFix = new Option<>("player variable fix", true);
 	
 	@SuppressWarnings("null")
-	private final static DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-	private final static Option<DateFormat> dateFormat = new Option<DateFormat>("date format", shortDateFormat, new Converter<String, DateFormat>() {
-		@Override
-		@Nullable
-		public DateFormat convert(final String s) {
-			try {
-				if (s.equalsIgnoreCase("default"))
-					return null;
-				return new SimpleDateFormat(s);
-			} catch (final IllegalArgumentException e) {
-				Skript.error("'" + s + "' is not a valid date format. Please refer to https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html for instructions on the format.");
-			}
-			return null;
+	private static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+	private static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
+		try {
+			if (s.equalsIgnoreCase("default"))
+				return null;
+			return new SimpleDateFormat(s);
+		} catch (final IllegalArgumentException e) {
+			Skript.error("'" + s + "' is not a valid date format. Please refer to https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html for instructions on the format.");
 		}
+		return null;
 	});
 	
 	public static String formatDate(final long timestamp) {
@@ -173,132 +152,99 @@ public abstract class SkriptConfig {
 		}
 	}
 	
-	final static Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
+	static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
 	
-	public final static Option<EventPriority> defaultEventPriority = new Option<EventPriority>("plugin priority", EventPriority.NORMAL, new Converter<String, EventPriority>() {
-		@Override
-		@Nullable
-		public EventPriority convert(final String s) {
-			try {
-				return EventPriority.valueOf(s.toUpperCase(Locale.ENGLISH));
-			} catch (final IllegalArgumentException e) {
-				Skript.error("The plugin priority has to be one of lowest, low, normal, high, or highest.");
-				return null;
-			}
+	public static final Option<EventPriority> defaultEventPriority = new Option<>("plugin priority", EventPriority.NORMAL, s -> {
+		try {
+			return EventPriority.valueOf(s.toUpperCase(Locale.ENGLISH));
+		} catch (final IllegalArgumentException e) {
+			Skript.error("The plugin priority has to be one of lowest, low, normal, high, or highest.");
+			return null;
 		}
 	});
-
-	public final static Option<Boolean> logPlayerCommands = new Option<Boolean>("log player commands", false);
+  
+	public static final Option<Boolean> logPlayerCommands = new Option<Boolean>("log player commands", false);
 	
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles
 	 */
-	public final static Option<Integer> numberAccuracy = new Option<Integer>("number accuracy", 2);
+	public static final Option<Integer> numberAccuracy = new Option<>("number accuracy", 2);
 	
-	public final static Option<Integer> maxTargetBlockDistance = new Option<Integer>("maximum target block distance", 100);
+	public static final Option<Integer> maxTargetBlockDistance = new Option<>("maximum target block distance", 100);
 	
-	public final static Option<Boolean> caseSensitive = new Option<Boolean>("case sensitive", false);
-	public final static Option<Boolean> allowFunctionsBeforeDefs = new Option<Boolean>("allow function calls before definations", false)
+	public static final Option<Boolean> caseSensitive = new Option<>("case sensitive", false);
+	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
 			.optional(true);
-	
-	public final static Option<Boolean> disableVariableConflictWarnings = new Option<Boolean>("disable variable conflict warnings", false);
-	public final static Option<Boolean> disableObjectCannotBeSavedWarnings = new Option<Boolean>("disable variable will not be saved warnings", false);
-	public final static Option<Boolean> disableMissingAndOrWarnings = new Option<Boolean>("disable variable missing and/or warnings", false);
-	public final static Option<Boolean> disableVariableStartingWithExpressionWarnings = new Option<Boolean>("disable starting a variable's name with an expression warnings", false)
-			.setter(new Setter<Boolean>() {
 
-				@Override
-				public void set(Boolean t) {
-					VariableString.disableVariableStartingWithExpressionWarnings = t;
-				}
-			});
+	public static final Option<Boolean> disableObjectCannotBeSavedWarnings = new Option<>("disable variable will not be saved warnings", false);
+	public static final Option<Boolean> disableMissingAndOrWarnings = new Option<>("disable variable missing and/or warnings", false);
+	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
+		new Option<>("disable starting a variable's name with an expression warnings", false);
 	
 	@Deprecated
-	public final static Option<Boolean> enableScriptCaching = new Option<Boolean>("enable script caching", false)
+	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
 	
-	public final static Option<Boolean> keepConfigsLoaded = new Option<Boolean>("keep configs loaded", false)
+	public static final Option<Boolean> keepConfigsLoaded = new Option<>("keep configs loaded", false)
 			.optional(true);
 	
-	public final static Option<Boolean> addonSafetyChecks = new Option<Boolean>("addon safety checks", false)
+	public static final Option<Boolean> addonSafetyChecks = new Option<>("addon safety checks", false)
 			.optional(true);
 	
-	public final static Option<Boolean> apiSoftExceptions = new Option<Boolean>("soft api exceptions", false);
+	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
 	
-	public final static Option<Boolean> enableTimings = new Option<Boolean>("enable timings", false)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					if (Skript.classExists("co.aikar.timings.Timings")) { // Check for Paper server
-						if (t)
-							Skript.info("Timings support enabled!");
-						SkriptTimings.setEnabled(t); // Config option will be used
-					} else { // Not running Paper
-						if (t) // Warn the server admin that timings won't work
-							Skript.warning("Timings cannot be enabled! You are running Bukkit/Spigot, but Paper is required.");
-						SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
-					}
+	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
+			.setter(t -> {
+				if (Skript.classExists("co.aikar.timings.Timings")) { // Check for Paper server
+					if (t)
+						Skript.info("Timings support enabled!");
+					SkriptTimings.setEnabled(t); // Config option will be used
+				} else { // Not running Paper
+					if (t) // Warn the server admin that timings won't work
+						Skript.warning("Timings cannot be enabled! You are running Bukkit/Spigot, but Paper is required.");
+					SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
 				}
-				
 			});
 	
-	public final static Option<String> parseLinks = new Option<String>("parse links in chat messages", "disabled")
-			.setter(new Setter<String>() {
-
-				@Override
-				public void set(String t) {
-					try {
-						switch (t) {
-							case "false":
-							case "disabled":
-								ChatMessages.linkParseMode = LinkParseMode.DISABLED;
-								break;
-							case "true":
-							case "lenient":
-								ChatMessages.linkParseMode = LinkParseMode.LENIENT;
-								break;
-							case "strict":
-								ChatMessages.linkParseMode = LinkParseMode.STRICT;
-								break;
-							default:
-								ChatMessages.linkParseMode = LinkParseMode.DISABLED;
-								Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
-						}
-					} catch (Error e) {
-						// Ignore it, we're on unsupported server platform and class loading failed
+	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
+			.setter(t -> {
+				try {
+					switch (t) {
+						case "false":
+						case "disabled":
+							ChatMessages.linkParseMode = LinkParseMode.DISABLED;
+							break;
+						case "true":
+						case "lenient":
+							ChatMessages.linkParseMode = LinkParseMode.LENIENT;
+							break;
+						case "strict":
+							ChatMessages.linkParseMode = LinkParseMode.STRICT;
+							break;
+						default:
+							ChatMessages.linkParseMode = LinkParseMode.DISABLED;
+							Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
 					}
+				} catch (Error e) {
+					// Ignore it, we're on unsupported server platform and class loading failed
 				}
-				
 			});
 
-	public final static Option<Boolean> caseInsensitiveVariables = new Option<Boolean>("case-insensitive variables", true)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					Variables.caseInsensitiveVariables = t;
-				}
-				
-			})
+	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
+			.setter(t -> Variables.caseInsensitiveVariables = t)
 			.optional(true);
 	
-	public final static Option<Boolean> colorResetCodes = new Option<Boolean>("color codes reset formatting", true)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					try {
-						ChatMessages.colorResetCodes = t;
-					} catch (Error e) {
-						// Ignore it, we're on unsupported server platform and class loading failed
-					}
+	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
+			.setter(t -> {
+				try {
+					ChatMessages.colorResetCodes = t;
+				} catch (Error e) {
+					// Ignore it, we're on unsupported server platform and class loading failed
 				}
-				
 			});
 
-	public final static Option<String> scriptLoaderThreadSize = new Option<>("script loader thread size", "0")
+	public static final Option<String> scriptLoaderThreadSize = new Option<>("script loader thread size", "0")
 			.setter(s -> {
 				int asyncLoaderSize;
 				
@@ -317,61 +263,66 @@ public abstract class SkriptConfig {
 			})
 			.optional(true);
 	
-	public final static Option<Boolean> allowUnsafePlatforms = new Option<Boolean>("allow unsafe platforms", false)
+	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
-	public final static Option<Boolean> keepLastUsageDates = new Option<Boolean>("keep command last usage dates", false)
+	public static final Option<Boolean> keepLastUsageDates = new Option<>("keep command last usage dates", false)
 			.optional(true);
 	
-	public final static Option<Boolean> loadDefaultAliases = new Option<Boolean>("load default aliases", true)
+	public static final Option<Boolean> loadDefaultAliases = new Option<>("load default aliases", true)
 			.optional(true);
 
-	public final static Option<Boolean> executeFunctionsWithMissingParams = new Option<Boolean>("execute functions with missing parameters", true)
+	public static final Option<Boolean> executeFunctionsWithMissingParams = new Option<>("execute functions with missing parameters", true)
 			.optional(true)
-			.setter(new Setter<Boolean>() {
-
-				@Override
-				public void set(Boolean t) {
-					Function.executeWithNulls = t;
-				}
-				
-			});
+			.setter(t -> Function.executeWithNulls = t);
 
 	public final static Option<Boolean> disableHookVault = new Option<>("disable hooks.vault", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(VaultHook.class);
-			}
+			userDisableHooks(VaultHook.class, value);
 		});
 	public final static Option<Boolean> disableHookGriefPrevention = new Option<>("disable hooks.regions.grief prevention", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(GriefPreventionHook.class);
-			}
+			userDisableHooks(GriefPreventionHook.class, value);
 		});
 	public final static Option<Boolean> disableHookPreciousStones = new Option<>("disable hooks.regions.precious stones", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(PreciousStonesHook.class);
-			}
+			userDisableHooks(PreciousStonesHook.class, value);
 		});
 	public final static Option<Boolean> disableHookResidence = new Option<>("disable hooks.regions.residence", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(ResidenceHook.class);
-			}
+			userDisableHooks(ResidenceHook.class, value);
 		});
 	public final static Option<Boolean> disableHookWorldGuard = new Option<>("disable hooks.regions.worldguard", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(WorldGuardHook.class);
-			}
+			userDisableHooks(WorldGuardHook.class, value);
 		});
+	/**
+	 * Disables the specified hook depending on the option value, or gives an error if this isn't allowed at this time.
+	 */
+	private static void userDisableHooks(Class<? extends Hook<?>> hookClass, boolean value) {
+		if (Skript.isFinishedLoadingHooks()) {
+			Skript.error("Hooks cannot be disabled once the server has started. " +
+				"Please restart the server to disable the hooks.");
+			return;
+		}
+		if (value) {
+			Skript.disableHookRegistration(hookClass);
+		}
+	}
+
+	public final static Option<Pattern> playerNameRegexPattern = new Option<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{1,16}"), s -> {
+		try {
+			return Pattern.compile(s);
+		} catch (PatternSyntaxException e) {
+			Skript.error("Invalid player name regex pattern: " + e.getMessage());
+			return null;
+		}
+	}).optional(true);
 
 	/**
 	 * This should only be used in special cases
@@ -481,5 +432,5 @@ public abstract class SkriptConfig {
 		}
 		return true;
 	}
-	
+
 }

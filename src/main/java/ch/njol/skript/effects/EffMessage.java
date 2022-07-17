@@ -18,13 +18,13 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.MessageComponent;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -46,7 +46,6 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
@@ -110,7 +109,7 @@ public class EffMessage extends Effect {
 
 		CommandSender[] commandSenders = recipients.getArray(e);
 
-		for (Expression<?> message : messages) {
+		for (Expression<?> message : getMessages()) {
 
 			Object[] messageArray = null;
 			List<MessageComponent> messageComponents = null;
@@ -135,7 +134,8 @@ public class EffMessage extends Effect {
 						}
 					} else { // It is just a string, no idea if it comes from a trusted source -> don't parse anything
 						for (Object object : messageArray) {
-							sendMessage((Player) receiver, sender, new TextComponent(toString(object)));
+							List<MessageComponent> components = ChatMessages.fromParsedString(toString(object));
+							sendMessage((Player) receiver, sender, BungeeConverter.convert(components));
 						}
 					}
 				} else { // Not a player, send plain text with legacy formatting
@@ -152,6 +152,13 @@ public class EffMessage extends Effect {
 			receiver.spigot().sendMessage(sender.getUniqueId(), components);
 		else
 			receiver.spigot().sendMessage(components);
+	}
+
+	private Expression<?>[] getMessages() {
+		if (messageExpr instanceof ExpressionList && !messageExpr.getAnd()) {
+			return new Expression[] {CollectionUtils.getRandom(messages)};
+		}
+		return messages;
 	}
 
 	private String toString(Object object) {

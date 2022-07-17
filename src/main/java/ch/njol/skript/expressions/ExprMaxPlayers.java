@@ -43,10 +43,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on server list ping:",
 		"	set the max players count to (online players count + 1)"})
 @Since("2.3")
-public class ExprMaxPlayers extends SimpleExpression<Number> {
+public class ExprMaxPlayers extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprMaxPlayers.class, Number.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprMaxPlayers.class, Long.class, ExpressionType.PROPERTY,
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] player[s] [(count|amount|number|size)]",
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] (count|amount|number|size) of players");
 	}
@@ -69,11 +69,14 @@ public class ExprMaxPlayers extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	public Number[] get(Event e) {
+	public Long[] get(Event e) {
+		if (!isReal && !(e instanceof ServerListPingEvent))
+			return null;
+
 		if (isReal)
-			return CollectionUtils.array(Bukkit.getMaxPlayers());
+			return CollectionUtils.array((long) Bukkit.getMaxPlayers());
 		else
-			return CollectionUtils.array(((ServerListPingEvent) e).getMaxPlayers());
+			return CollectionUtils.array((long) ((ServerListPingEvent) e).getMaxPlayers());
 	}
 
 	@Override
@@ -99,6 +102,9 @@ public class ExprMaxPlayers extends SimpleExpression<Number> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof ServerListPingEvent))
+			return;
+
 		ServerListPingEvent event = (ServerListPingEvent) e;
 		switch (mode) {
 			case SET:
@@ -122,8 +128,8 @@ public class ExprMaxPlayers extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override

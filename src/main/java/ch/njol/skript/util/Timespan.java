@@ -19,6 +19,7 @@
 package ch.njol.skript.util;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -42,16 +43,19 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private final static Noun m_minute = new Noun("time.minute");
 	private final static Noun m_hour = new Noun("time.hour");
 	private final static Noun m_day = new Noun("time.day");
-	final static Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day};
-	final static long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L};
+	private final static Noun m_week = new Noun("time.week");
+	private final static Noun m_month = new Noun("time.month");
+	private final static Noun m_year = new Noun("time.year");
+	final static Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day, m_week, m_month, m_year};
+	final static long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L,  1000L * 60L * 60L * 24L * 7L,  1000L * 60L * 60L * 24L * 30L,  1000L * 60L * 60L * 24L * 365L};
 	final static HashMap<String, Long> parseValues = new HashMap<>();
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
 			public void onLanguageChange() {
 				for (int i = 0; i < names.length; i++) {
-					parseValues.put(names[i].getSingular().toLowerCase(), times[i]);
-					parseValues.put(names[i].getPlural().toLowerCase(), times[i]);
+					parseValues.put(names[i].getSingular().toLowerCase(Locale.ENGLISH), times[i]);
+					parseValues.put(names[i].getPlural().toLowerCase(Locale.ENGLISH), times[i]);
 				}
 			}
 		});
@@ -72,8 +76,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			for (int i = 0; i < ss.length; i++) {
 				t += times[offset + i] * Utils.parseLong("" + ss[i]);	
 			}
-		} else {
-			final String[] subs = s.toLowerCase().split("\\s+");
+		} else { // <number> minutes/seconds/.. etc
+			final String[] subs = s.toLowerCase(Locale.ENGLISH).split("\\s+");
 			for (int i = 0; i < subs.length; i++) {
 				String sub = subs[i];
 				
@@ -89,7 +93,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 						return null;
 					amount = 1;
 					sub = subs[++i];
-				} else if (sub.matches("^\\d+(.\\d+)?$")) {
+				} else if (sub.matches("^\\d+(\\.\\d+)?$")) {
 					if (i == subs.length - 1)
 						return null;
 					try {
@@ -113,8 +117,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 				
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
-				
-				final Long d = parseValues.get(sub.toLowerCase());
+
+				final Long d = parseValues.get(sub.toLowerCase(Locale.ENGLISH));
 				if (d == null)
 					return null;
 				
