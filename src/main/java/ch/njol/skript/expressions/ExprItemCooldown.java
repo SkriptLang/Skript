@@ -58,7 +58,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	private Expression<ItemType> itemtypes;
 	
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[1];
 		itemtypes = (Expression<ItemType>) exprs[0];
@@ -66,7 +66,6 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	}
 	
 	@Override
-	@SuppressWarnings("null")
 	protected Timespan[] get(Event e) {
 		Player[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
