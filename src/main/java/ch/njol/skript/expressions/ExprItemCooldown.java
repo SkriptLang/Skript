@@ -38,7 +38,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Item Cooldown")
-@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 tick</code> will remove the cooldown.")
+@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 ticks</code> will remove the cooldown.")
 @Examples({
 	"on right click using stick:" +
 	"\tset item cooldown of player's tool for player to 1 minute",
