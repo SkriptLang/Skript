@@ -1775,6 +1775,7 @@ spawn reasons:
 	infection: infection, infected
 	jockey: jockey
 	lightning: lightning
+	metamorphosis: metamorphosis
 	mount: mount
 	natural: natural
 	nether_portal: nether portal
@@ -1789,6 +1790,7 @@ spawn reasons:
 	slime_split: slime split
 	spawner: mob spawner, creature spawner, spawner
 	spawner_egg: spawn egg
+	spell: spell
 	trap: trap
 	village_defense: village defense, golem defense, iron golem defense
 	village_invasion: village invasion, village invading
