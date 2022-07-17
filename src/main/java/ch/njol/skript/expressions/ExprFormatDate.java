@@ -70,7 +70,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Date>) exprs[0]);
-		customFormat = (Expression<? extends String>) exprs[1];
+		customFormat = (Expression<String>) exprs[1];
 
 		boolean isSimpleString = customFormat instanceof VariableString && ((VariableString) customFormat).isSimple();
 		if (customFormat instanceof Literal || isSimpleString) {
