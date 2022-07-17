@@ -49,7 +49,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"# Get the block's face you're looking at",
 	"on right click:",
-		"\tsend \"You're looking at %opposite facing of player% side of %type of targeted block%.\""
+	"\tsend \"You're looking at %opposite facing of player% side of %type of targeted block%.\""
 })
 @Since("1.4, INSERT VERSION (opposite)")
 public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
