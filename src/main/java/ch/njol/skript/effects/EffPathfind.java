@@ -36,11 +36,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Pathfind")
 @Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
-	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
+	"If the pathfinding target is another entity, the entities may or may not continuously follow the target. This is a Paper Spigot exclusive."})
 @Examples({
 	"make all creepers pathfind towards player",
 	"make all cows stop pathfinding",
-	"make event-entity pathfind towards player"
+	"make event-entity pathfind towards player at speed 1"
 })
 @Since("INSERT VERSION")
 public class EffPathfind extends Effect {
@@ -72,7 +72,7 @@ public class EffPathfind extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
-		double speed = this.speed != null ? this.speed.getSingle(event).doubleValue() : 1;
+		double speed = this.speed != null ? this.speed.getOptionalSingle(event).orElse(1).doubleValue() : 1;
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (!(entity instanceof Mob))
 				continue;
@@ -87,13 +87,12 @@ public class EffPathfind extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (target == null)
-			return "make " + entities.toString(e, debug) + " stop pathfinding";
-
-		String repr = "make " + entities.toString(e, debug) + " pathfind towards " + target.toString(e, debug);
+			return "make " + entities.toString(event, debug) + " stop pathfinding";
+		String repr = "make " + entities.toString(event, debug) + " pathfind towards " + target.toString(event, debug);
 		if (speed != null)
-			repr += " at speed " + speed.toString(e, debug);
+			repr += " at speed " + speed.toString(event, debug);
 		return repr;
 	}
 
