@@ -64,7 +64,6 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	private boolean isMax = false;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
@@ -94,15 +93,15 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null || delta[0] == null)
+		if (delta == null)
 			return;
 
+		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inv : getExpr().getArray(e)) {
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
-				int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
-				int change = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
-				int newValue = Math.max((change + value), 0);
+				int originalValue = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
+				int newValue = Math.max((originalValue + value), 0);
 
 				if (isMax)
 					aInv.setMaximumRepairCost(newValue);
