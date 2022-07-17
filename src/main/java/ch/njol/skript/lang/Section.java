@@ -97,17 +97,18 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 *
-	 * This method differs from {@link #loadCode(SectionNode)} in that it
-	 * is meant for code that will be executed in a different event.
+	 * This method differs from {@link #loadCode(SectionNode, String, Class[])} in
+	 * that it supports throwing an error if section has delay.
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
+	 * @param allowDelay Should delay cause an error.
 	 * @param events The event(s) during the section's execution.
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
 	@SafeVarargs
-	protected final Trigger loadCode(SectionNode sectionNode, String name, Class<? extends Event>... events) {
+	protected final Trigger loadCode(SectionNode sectionNode, String name, boolean allowDelay, Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		String previousName = parser.getCurrentEventName();
@@ -123,6 +124,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
 
+		if(!allowDelay && parser.getHasDelayBefore() != Kleenean.FALSE) {
+			Skript.error("Delays can't be used within section \"" + name + "\".");
+		}
+
 		//noinspection ConstantConditions - We are resetting it to what it was
 		parser.setCurrentEvent(previousName, previousEvents);
 		parser.setCurrentSkriptEvent(previousSkriptEvent);
@@ -131,6 +136,24 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		Config script = parser.getCurrentScript();
 		return new Trigger(script != null ? script.getFile() : null, name, skriptEvent, triggerItems);
+	}
+
+	/**
+	 * Loads the code in the given {@link SectionNode},
+	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
+	 *
+	 * This method differs from {@link #loadCode(SectionNode)} in that it
+	 * is meant for code that will be executed in a different event.
+	 *
+	 * @param sectionNode The section node to load.
+	 * @param name The name of the event(s) being used.
+	 * @param events The event(s) during the section's execution.
+	 * @return A trigger containing the loaded section. This should be stored and used
+	 * to run the section one or more times.
+	 */
+	@SafeVarargs
+	protected final Trigger loadCode(SectionNode sectionNode, String name, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, true, events);
 	}
 
 	/**
