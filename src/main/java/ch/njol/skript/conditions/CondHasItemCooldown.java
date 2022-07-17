@@ -32,6 +32,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Item Cooldown")
 @Description("Check whether a cooldown is active on the specified material for a specific player.")
@@ -42,14 +43,15 @@ public class CondHasItemCooldown extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
-			"%players% (has|have) [([an] item|a)] cooldown (on|for) %itemtypes%",
-			"%players% (doesn't|does not|do not|don't) have [([an] item|a)] cooldown (on|for) %itemtypes%");
+			"%players% (has|have) ([([an] item|a)] cooldown (on|for) %itemtypes%|%itemtypes% on cooldown)",
+			"%players% (doesn't|does not|do not|don't) have ([([an] item|a)] cooldown (on|for) %itemtypes%|%itemtypes% on cooldown)");
 	}
 
 	private Expression<HumanEntity> players;
 	private Expression<ItemType> itemtypes;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<HumanEntity>) exprs[0];
 		itemtypes = (Expression<ItemType>) exprs[1];
@@ -67,8 +69,8 @@ public class CondHasItemCooldown extends Condition {
 	}
 	
 	@Override
-	public String toString(Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, players, "item cooldown on " + itemtypes.toString(e, debug));
+	public String toString(@Nullable Event e, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, players, itemtypes.toString(e, debug) + " on cooldown");
 	}
 
 }

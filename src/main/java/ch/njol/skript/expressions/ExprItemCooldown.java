@@ -88,24 +88,17 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case RESET:
-			case REMOVE:
-			case DELETE:
-			case ADD:
-				return CollectionUtils.array(Timespan.class);
-			default:
-				return null;
-		} 
+		if (mode == ChangeMode.REMOVE_ALL)
+			return null;
+		return CollectionUtils.array(Timespan.class);
 	}
 
 	@Override
-	public void change(Event e, Object[] delta, ChangeMode mode) {
-		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && (delta == null || !(delta[0] instanceof Timespan)))
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
 			return;
 		
-		int timespan = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
+		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(e);
 		ItemType[] itemtypes = this.itemtypes.getArray(e);
 
@@ -119,13 +112,13 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 					case RESET:
 					case DELETE:
 					case SET:
-						p.setCooldown(mat, timespan);
+						p.setCooldown(mat, ticks);
 						break;
 					case REMOVE:
-						p.setCooldown(mat, Math.max(p.getCooldown(mat) - timespan, 0));
+						p.setCooldown(mat, Math.max(p.getCooldown(mat) - ticks, 0));
 						break;
 					case ADD:
-						p.setCooldown(mat, p.getCooldown(mat) + timespan);
+						p.setCooldown(mat, p.getCooldown(mat) + ticks);
 						break;
 				}
 			}
