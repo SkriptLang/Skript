@@ -64,7 +64,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	private SimpleDateFormat format;
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<? extends String> customFormat;
+	private Expression<String> customFormat;
 
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
