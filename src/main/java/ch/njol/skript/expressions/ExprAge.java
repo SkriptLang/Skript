@@ -59,7 +59,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 		register(ExprAge.class, Integer.class, "[:max[imum]] age", "blocks/entities");
 	}
 
-	private boolean isMax = false;
+	private boolean isMax;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
