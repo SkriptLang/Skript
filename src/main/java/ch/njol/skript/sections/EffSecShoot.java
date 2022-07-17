@@ -131,7 +131,7 @@ public class EffSecShoot extends EffectSection {
 		direction = (Expression<Direction>) exprs[3];
 
 		if (sectionNode != null) {
-			trigger = loadCode(sectionNode, "shoot", ShootEvent.class);
+			trigger = loadCode(sectionNode, "shoot", false, ShootEvent.class);
 		}
 
 		return true;
@@ -145,56 +145,61 @@ public class EffSecShoot extends EffectSection {
 
 		Object localVars = Variables.copyLocalVariables(e);
 
-		Consumer<? extends Entity> consumer;
+		Consumer<? extends Entity> consumer = null;
 		if (trigger != null) {
 			consumer = o -> {
 				lastSpawned = o;
 				ShootEvent shootEvent = new ShootEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(shootEvent, localVars);
-				trigger.execute(shootEvent);
-				Variables.setLocalVariables(e, localVars); // Carry over variable changes to the rest of the main trigger
+				trigger.execute(shootEvent, false);
+				// Carry over variable changes to the rest of the main trigger
+				Variables.setLocalVariables(e, Variables.copyLocalVariables(shootEvent));
+				// Delete variables for shootEvent
+				Variables.removeLocals(shootEvent);
 			};
-		} else {
-			consumer = null;
 		}
 
-		Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
-		if (v != null) {
-			Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
-			if (dir != null) {
-				for (Object shooter : shooters.getArray(e)) {
-					for (EntityData<?> d : types.getArray(e)) {
-						if (shooter instanceof LivingEntity) {
-							Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
-							Class<? extends Entity> type = d.getType();
-							if (Fireball.class.isAssignableFrom(type)) {// fireballs explode in the shooter's face by default
-								Fireball projectile = (Fireball) d.spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), (Consumer) consumer);
-								projectile.setShooter((ProjectileSource) shooter);
-								projectile.setVelocity(vel);
-								lastSpawned = projectile;
-							} else if (Projectile.class.isAssignableFrom(type)) {
-								Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
-								set(projectile, d);
-								projectile.setShooter((ProjectileSource) shooter);
-								projectile.setVelocity(vel);
-								lastSpawned = projectile;
-							} else {
-								Location loc = ((LivingEntity) shooter).getLocation();
-								loc.setY(loc.getY() + ((LivingEntity) shooter).getEyeHeight() / 2);
-								Entity projectile = d.spawn(loc, (Consumer) consumer);
-								if (projectile != null)
-									projectile.setVelocity(vel);
-								lastSpawned = projectile;
-							}
-						} else {
-							Vector vel = dir.getDirection((Location) shooter).multiply(v.doubleValue());
-							Entity projectile = d.spawn((Location) shooter, (Consumer) consumer);
-							if (projectile != null)
-								projectile.setVelocity(vel);
+		double doubleVelocity = velocity != null ? velocity.getSingle(e).doubleValue() : DEFAULT_SPEED;
+
+		Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
+
+		assert velocity != null;
+		assert dir != null;
+		for (Object shooter : shooters.getArray(e)) {
+			for (EntityData<?> d : types.getArray(e)) {
+				if (shooter instanceof LivingEntity) {
+					Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(doubleVelocity);
+					Class<? extends Entity> type = d.getType();
+					if (Fireball.class.isAssignableFrom(type)) {// fireballs explode in the shooter's face by default
+						Fireball projectile = (Fireball) d.spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), (Consumer) consumer);
+						if(projectile != null){
+							projectile.setShooter((ProjectileSource) shooter);
+							projectile.setVelocity(vel);
 							lastSpawned = projectile;
 						}
+					} else if (Projectile.class.isAssignableFrom(type)) {
+						Projectile projectile = (Projectile) d.spawn(((LivingEntity) shooter).getEyeLocation(), (Consumer) consumer);
+						if (projectile != null){
+							set(projectile, d);
+							projectile.setShooter((ProjectileSource) shooter);
+							projectile.setVelocity(vel);
+							lastSpawned = projectile;
+						}
+					} else {
+						Location loc = ((LivingEntity) shooter).getLocation();
+						loc.setY(loc.getY() + ((LivingEntity) shooter).getEyeHeight() / 2);
+						Entity projectile = d.spawn(loc, (Consumer) consumer);
+						if (projectile != null)
+							projectile.setVelocity(vel);
+						lastSpawned = projectile;
 					}
+				} else {
+					Vector vel = dir.getDirection((Location) shooter).multiply(doubleVelocity);
+					Entity projectile = d.spawn((Location) shooter, (Consumer) consumer);
+					if (projectile != null)
+						projectile.setVelocity(vel);
+					lastSpawned = projectile;
 				}
 			}
 		}

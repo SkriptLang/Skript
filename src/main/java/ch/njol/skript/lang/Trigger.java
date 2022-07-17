@@ -46,30 +46,28 @@ public class Trigger extends TriggerSection {
 		this.event = event;
 		this.debugLabel = "unknown trigger";
 	}
-	
+
+	/**
+	 * Executes this trigger for certain event.
+	 * @param e Event.
+	 * @param removeLocals Should local variables be deleted after execution.
+	 * @return false if an exception occurred
+	 */
+	public boolean execute(final Event e, boolean removeLocals) {
+		boolean success = TriggerItem.walk(this, e);
+		// Clear local variables
+		if(removeLocals)
+			Variables.removeLocals(e);
+		return success;
+	}
+
 	/**
 	 * Executes this trigger for certain event.
 	 * @param e Event.
 	 * @return false if an exception occurred
 	 */
 	public boolean execute(final Event e) {
-		boolean success = TriggerItem.walk(this, e);
-		// Clear local variables
-		Variables.removeLocals(e);
-		/*
-		 * Local variables can be used in delayed effects by backing reference
-		 * of VariablesMap up. Basically:
-		 * 
-		 * Object localVars = Variables.removeLocals(e);
-		 * 
-		 * ... and when you want to continue execution:
-		 * 
-		 * Variables.setLocalVariables(e, localVars);
-		 * 
-		 * See Delay effect for reference.
-		 */
-		
-		return success;
+		return execute(e, true);
 	}
 	
 	@Override
