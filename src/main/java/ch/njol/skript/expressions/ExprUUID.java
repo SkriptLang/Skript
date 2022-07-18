@@ -49,27 +49,24 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 		"		set {uuid::%name of player%} to uuid of player"})
 @Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs)")
 public class ExprUUID extends SimplePropertyExpression<Object, String> {
-	private final static boolean offlineUUIDSupported = Skript.methodExists(OfflinePlayer.class, "getUniqueId");
+
 	static {
-		register(ExprUUID.class, String.class, "UUID", (offlineUUIDSupported ? "offlineplayers" : "players") + "/worlds/entities");
+		register(ExprUUID.class, String.class, "UUID", "offlineplayers/worlds/entities");
 	}
-	
+
 	@Override
 	@Nullable
 	public String convert(final Object o) {
 		if (o instanceof OfflinePlayer) {
-			if (offlineUUIDSupported) {
-				try {
-					return ((OfflinePlayer) o).getUniqueId().toString();
-				} catch (UnsupportedOperationException e) {
-					// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
-					// They will throw this exception... and somehow server may freeze when this happens
-					Skript.warning("A script tried to get uuid of an offline player, which was faked by another plugin (probably ProtocolLib).");
-					e.printStackTrace();
-					return null;
-				}
-			} else
-				return ((Player) o).getUniqueId().toString();
+			try {
+				return ((OfflinePlayer) o).getUniqueId().toString();
+			} catch (UnsupportedOperationException e) {
+				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
+				// They will throw this exception... and somehow server may freeze when this happens
+				Skript.warning("A script tried to get uuid of an offline player, which was faked by another plugin (probably ProtocolLib).");
+				e.printStackTrace();
+				return null;
+			}
 		} else if (o instanceof Entity) {
 			return ((Entity)o).getUniqueId().toString();
 		} else if (o instanceof World) {
