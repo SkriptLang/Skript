@@ -18,29 +18,6 @@
  */
 package ch.njol.skript.util;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.*;
-import ch.njol.util.coll.CollectionUtils;
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +28,30 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffTeleport;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.LanguageChangeListener;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.Callback;
+import ch.njol.util.Checker;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Utility class.
@@ -88,44 +89,12 @@ public abstract class Utils {
 		return "" + b.toString();
 	}
 	
-	
+	@SuppressWarnings("unchecked")
 	public static <T> boolean isEither(@Nullable T compared, @Nullable T... types) {
 		return CollectionUtils.contains(types, compared);
 	}
 	
-	/**
-	 * Gets an entity's target.
-	 * 
-	 * @param entity The entity to get the target of
-	 * @param type Can be null for any entity
-	 * @return The entity's target
-	 */
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public static <T extends Entity> T getTarget(final LivingEntity entity, @Nullable final EntityData<T> type) {
-		if (entity instanceof Creature) {
-			return ((Creature) entity).getTarget() == null || type != null && !type.isInstance(((Creature) entity).getTarget()) ? null : (T) ((Creature) entity).getTarget();
-		}
-		T target = null;
-		double targetDistanceSquared = 0;
-		final double radiusSquared = 1;
-		final Vector l = entity.getEyeLocation().toVector(), n = entity.getLocation().getDirection().normalize();
-		final double cos45 = Math.cos(Math.PI / 4);
-		for (final T other : type == null ? (List<T>) entity.getWorld().getEntities() : entity.getWorld().getEntitiesByClass(type.getType())) {
-			if (other == null || other == entity || type != null && !type.isInstance(other))
-				continue;
-			if (target == null || targetDistanceSquared > other.getLocation().distanceSquared(entity.getLocation())) {
-				final Vector t = other.getLocation().add(0, 1, 0).toVector().subtract(l);
-				if (n.clone().crossProduct(t).lengthSquared() < radiusSquared && t.normalize().dot(n) >= cos45) {
-					target = other;
-					targetDistanceSquared = target.getLocation().distanceSquared(entity.getLocation());
-				}
-			}
-		}
-		return target;
-	}
-	
-	public static Pair<String, Integer> getAmount(final String s) {
+	public static Pair<String, Integer> getAmount(String s) {
 		if (s.matches("\\d+ of .+")) {
 			return new Pair<>(s.split(" ", 3)[2], Utils.parseInt("" + s.split(" ", 2)[0]));
 		} else if (s.matches("\\d+ .+")) {

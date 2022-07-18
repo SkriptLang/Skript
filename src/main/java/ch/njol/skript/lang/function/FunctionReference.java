@@ -29,6 +29,7 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -84,7 +85,7 @@ public class FunctionReference<T> {
 	 * of the function signature.
 	 */
 	@Nullable
-	private final Class<? extends T>[] returnTypes;
+	final Class<? extends T>[] returnTypes;
 	
 	/**
 	 * Node for {@link #validateFunction(boolean)} to use for logging.
@@ -147,7 +148,7 @@ public class FunctionReference<T> {
 				}
 				return false;
 			}
-			if (!CollectionUtils.containsAnySuperclass(returnTypes, rt.getC())) {
+			if (!Converters.converterExists(rt.getC(), returnTypes)) {
 				if (first) {
 					Skript.error("The returned value of the function '" + functionName + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
@@ -218,6 +219,16 @@ public class FunctionReference<T> {
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
 								+ " Please note that storing the value in a variable and then using that variable as parameter will suppress this error, but it still won't work.");
 						}
+					} else {
+						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+							+ " These will continue to use the old version of the function until Skript restarts.");
+						function = previousFunction;
+					}
+					return false;
+				} else if (p.single && !e.isSingle()) {
+					if (first) {
+						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
+							+ "but a single argument was expected");
 					} else {
 						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
 							+ " These will continue to use the old version of the function until Skript restarts.");

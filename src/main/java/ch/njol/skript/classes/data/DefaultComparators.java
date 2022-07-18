@@ -34,6 +34,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
@@ -206,20 +207,18 @@ public class DefaultComparators {
 		});
 		
 		// Block - BlockData
-		if (Skript.classExists("org.bukkit.block.data.BlockData")) {
-			Comparators.registerComparator(Block.class, BlockData.class, new Comparator<Block, BlockData>() {
-				@Override
-				public Relation compare(Block block, BlockData data) {
-					return Relation.get(block.getBlockData().matches(data));
-				}
+		Comparators.registerComparator(Block.class, BlockData.class, new Comparator<Block, BlockData>() {
+			@Override
+			public Relation compare(Block block, BlockData data) {
+				return Relation.get(block.getBlockData().matches(data));
+			}
 
-				@Override
-				public boolean supportsOrdering() {
-					return false;
-				}
-			});
-		}
-		
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override
@@ -493,10 +492,8 @@ public class DefaultComparators {
 						return Relation.get(t.equals(lava));
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
-				}
-				if (Skript.fieldExists(DamageCause.class, "HOT_FLOOR")
-						&& dc.equals(DamageCause.HOT_FLOOR)) {
-					return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
+					case HOT_FLOOR:
+						return Relation.get(t.isOfType(Material.MAGMA_BLOCK));
 				}
 
 				return Relation.NOT_EQUAL;
@@ -572,36 +569,47 @@ public class DefaultComparators {
 		});
 
 		// EnchantmentOffer Comparators
-		if (Skript.isRunningMinecraft(1, 11)) {
-			// EnchantmentOffer - EnchantmentType
-			Comparators.registerComparator(EnchantmentOffer.class, EnchantmentType.class, new Comparator<EnchantmentOffer, EnchantmentType>() {
-				@Override
-				public Relation compare(EnchantmentOffer eo, EnchantmentType et) {
-					return Relation.get(eo.getEnchantment() == et.getType() && eo.getEnchantmentLevel() == et.getLevel());
-				}
+		// EnchantmentOffer - EnchantmentType
+		Comparators.registerComparator(EnchantmentOffer.class, EnchantmentType.class, new Comparator<EnchantmentOffer, EnchantmentType>() {
+			@Override
+			public Relation compare(EnchantmentOffer eo, EnchantmentType et) {
+				return Relation.get(eo.getEnchantment() == et.getType() && eo.getEnchantmentLevel() == et.getLevel());
+			}
 
-				@Override
-				public boolean supportsOrdering() {
-					return false;
-				}
-			});
-			// EnchantmentOffer - Experience
-			Comparators.registerComparator(EnchantmentOffer.class, Experience.class, new Comparator<EnchantmentOffer, Experience>() {
-				@Override
-				public Relation compare(EnchantmentOffer eo, Experience exp) {
-					return Relation.get(eo.getCost() == exp.getXP());
-				}
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+		// EnchantmentOffer - Experience
+		Comparators.registerComparator(EnchantmentOffer.class, Experience.class, new Comparator<EnchantmentOffer, Experience>() {
+			@Override
+			public Relation compare(EnchantmentOffer eo, Experience exp) {
+				return Relation.get(eo.getCost() == exp.getXP());
+			}
 
-				@Override public boolean supportsOrdering() {
-					return false;
-				}
-			});
-		}
+			@Override public boolean supportsOrdering() {
+				return false;
+			}
+		});
 
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override
 			public Relation compare(Inventory inventory, InventoryType inventoryType) {
 				return Relation.get(inventory.getType() == inventoryType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// World - WeatherType
+		Comparators.registerComparator(World.class, WeatherType.class, new Comparator<World, WeatherType>() {
+			@Override
+			public Relation compare(World world, WeatherType weatherType) {
+				return Relation.get(WeatherType.fromWorld(world) == weatherType);
 			}
 
 			@Override

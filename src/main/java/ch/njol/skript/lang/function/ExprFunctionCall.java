@@ -18,54 +18,55 @@
  */
 package ch.njol.skript.lang.function;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
-	private final FunctionReference<T> function;
-	
-	public ExprFunctionCall(final FunctionReference<T> function) {
+	private final FunctionReference<?> function;
+	private final Class<? extends T>[] returnTypes;
+	private final Class<T> returnType;
+
+	@SuppressWarnings("unchecked")
+	public ExprFunctionCall(FunctionReference<T> function) {
 		this.function = function;
+		this.returnTypes = function.returnTypes;
+		this.returnType = (Class<T>) Utils.getSuperType(returnTypes);
 	}
-	
+
 	@Override
 	@Nullable
-	protected T[] get(final Event e) {
-		T[] returnValue = function.execute(e);
+	protected T[] get(Event e) {
+		Object[] returnValue = function.execute(e);
 		function.resetReturnValue();
-		return returnValue;
+		return Converters.convertArray(returnValue, returnTypes, returnType);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return function.isSingle();
 	}
-	
+
 	@Override
 	public Class<? extends T> getReturnType() {
-		Class<? extends T> type = function.getReturnType();
-		assert type != null : "validateFunction() let invalid reference pass";
-		return type;
+		return returnType;
 	}
-	
+
 	@Override
-	public String toString(@Nullable final Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return function.toString(e, debug);
 	}
-	
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		assert false;
 		return false;
 	}
-	
+
 }

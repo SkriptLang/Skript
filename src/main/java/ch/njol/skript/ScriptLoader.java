@@ -587,7 +587,7 @@ public class ScriptLoader {
 		if (config == null) { // Something bad happened, hopefully got logged to console
 			return new ScriptInfo();
 		}
-		
+
 		// When something is parsed, it goes there to be loaded later
 		List<ScriptCommand> commands = new ArrayList<>();
 		List<ParsedEventData> events = new ArrayList<>();
@@ -879,17 +879,20 @@ public class ScriptLoader {
 		File[] files = directory.listFiles(scriptFilter);
 		Arrays.sort(files);
 		
+		List<Config> loadedDirectories = new ArrayList<>(files.length);
 		List<Config> loadedFiles = new ArrayList<>(files.length);
 		for (File file : files) {
 			if (file.isDirectory()) {
-				loadedFiles.addAll(loadStructures(file));
+				loadedDirectories.addAll(loadStructures(file));
 			} else {
 				Config cfg = loadStructure(file);
 				if (cfg != null)
 					loadedFiles.add(cfg);
 			}
 		}
-		return loadedFiles;
+
+		loadedDirectories.addAll(loadedFiles);
+		return loadedDirectories;
 	}
 	
 	/**

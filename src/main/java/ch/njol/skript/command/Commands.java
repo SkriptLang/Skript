@@ -47,7 +47,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
@@ -69,7 +68,6 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -78,7 +76,6 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.Variables;
-import ch.njol.util.Callback;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 
@@ -192,49 +189,7 @@ public abstract class Commands {
 			}
 		}
 	};
-	
-	
-	@Nullable
-	private final static Listener pre1_3chatListener = Skript.classExists("org.bukkit.event.player.AsyncPlayerChatEvent") ? null : new Listener() {
-		@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-		public void onPlayerChat(final PlayerChatEvent e) {
-			if (!SkriptConfig.enableEffectCommands.value() || !e.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
-				return;
-			if (handleEffectCommand(e.getPlayer(), e.getMessage()))
-				e.setCancelled(true);
-		}
-	};
-	@Nullable
-	private final static Listener post1_3chatListener = !Skript.classExists("org.bukkit.event.player.AsyncPlayerChatEvent") ? null : new Listener() {
-		@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-		public void onPlayerChat(final AsyncPlayerChatEvent e) {
-			if (!SkriptConfig.enableEffectCommands.value() || !e.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
-				return;
-			if (!e.isAsynchronous()) {
-				if (handleEffectCommand(e.getPlayer(), e.getMessage()))
-					e.setCancelled(true);
-			} else {
-				final Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						return handleEffectCommand(e.getPlayer(), e.getMessage());
-					}
-				});
-				try {
-					while (true) {
-						try {
-							if (f.get())
-								e.setCancelled(true);
-							break;
-						} catch (final InterruptedException e1) {}
-					}
-				} catch (final ExecutionException e1) {
-					Skript.exception(e1);
-				}
-			}
-		}
-	};
-	
+
 	/**
 	 * @param sender
 	 * @param command full command string without the slash
@@ -312,7 +267,7 @@ public abstract class Commands {
 	
 	@SuppressWarnings("null")
 	private final static Pattern commandPattern = Pattern.compile("(?i)^command /?(\\S+)\\s*(\\s+(.+))?$"),
-			argumentPattern = Pattern.compile("<\\s*(?:(.+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>");
+			argumentPattern = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>");
 	
 	@Nullable
 	public static ScriptCommand loadCommand(final SectionNode node) {
@@ -559,15 +514,38 @@ public abstract class Commands {
 	public static void registerListeners() {
 		if (!registeredListeners) {
 			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
-			
-			Listener post13Listener = post1_3chatListener;
-			Listener pre13Listener = pre1_3chatListener;
-			if (post13Listener != null) {
-				Bukkit.getPluginManager().registerEvents(post13Listener, Skript.getInstance());
-			} else {
-				assert pre13Listener != null;
-				Bukkit.getPluginManager().registerEvents(pre13Listener, Skript.getInstance());
-			}
+
+			Bukkit.getPluginManager().registerEvents(new Listener() {
+				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+				public void onPlayerChat(final AsyncPlayerChatEvent e) {
+					if (!SkriptConfig.enableEffectCommands.value() || !e.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+						return;
+					if (!e.isAsynchronous()) {
+						if (handleEffectCommand(e.getPlayer(), e.getMessage()))
+							e.setCancelled(true);
+					} else {
+						final Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), new Callable<Boolean>() {
+							@Override
+							public Boolean call() throws Exception {
+								return handleEffectCommand(e.getPlayer(), e.getMessage());
+							}
+						});
+						try {
+							while (true) {
+								try {
+									if (f.get())
+										e.setCancelled(true);
+									break;
+								} catch (final InterruptedException e1) {
+								}
+							}
+						} catch (final ExecutionException e1) {
+							Skript.exception(e1);
+						}
+					}
+				}
+			}, Skript.getInstance());
+
 			registeredListeners = true;
 		}
 	}

@@ -27,6 +27,7 @@ allprojects {
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
+	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -77,8 +78,11 @@ tasks.withType(ShadowJar) {
 	]
 	dependencies {
 		include(dependency('io.papermc:paperlib'))
+		include(dependency('org.bstats:bstats-bukkit'))
+		include(dependency('org.bstats:bstats-base'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
+	relocate 'org.bstats', 'ch.njol.skript.bstats'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -89,7 +93,6 @@ tasks.withType(ShadowJar) {
 	from 'skript-aliases', {
 		into 'aliases-english' // Change this if we get aliases in other languages
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 processResources {
@@ -229,7 +232,6 @@ task githubRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 task spigotResources(type: ProcessResources) {
@@ -265,7 +267,6 @@ task spigotRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }
 
 task nightlyResources(type: ProcessResources) {
@@ -297,5 +298,4 @@ task nightlyRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-	from 'skript-worldguard6/build/classes/java/main'
 }

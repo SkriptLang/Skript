@@ -209,15 +209,15 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	private final <T extends SyntaxElement> T parse(final Iterator<? extends SyntaxElementInfo<? extends T>> source) {
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			while (source.hasNext()) {
-				final SyntaxElementInfo<? extends T> info = source.next();
+				SyntaxElementInfo<? extends T> info = source.next();
 				patternsLoop: for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
 						ParseResult res;
 						try {
@@ -228,12 +228,12 @@ public class SkriptParser {
 						if (res != null) {
 							int x = -1;
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {
-								final int x2 = nextUnescaped(pattern, '%', x + 1);
+								int x2 = nextUnescaped(pattern, '%', x + 1);
 								if (res.exprs[j] == null) {
-									final String name = pattern.substring(x + 1, x2);
+									String name = pattern.substring(x + 1, x2);
 									if (!name.startsWith("-")) {
-										final ExprInfo vi = getExprInfo(name);
-										final DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
+										ExprInfo vi = getExprInfo(name);
+										DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
 										if (expr == null)
 											throw new SkriptAPIException("The class '" + vi.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + vi.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[i] + "]");
 										if (!(expr instanceof Literal) && (vi.flagMask & PARSE_EXPRESSIONS) == 0)
@@ -251,15 +251,13 @@ public class SkriptParser {
 								}
 								x = x2;
 							}
-							final T t = info.c.newInstance();
+							T t = info.c.newInstance();
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (final InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}
@@ -369,15 +367,20 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (allowUnparsedLiteral && types[0] == Object.class) {
+			if (types[0] == Object.class) {
+				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
+					log.printError();
+					return null;
+				}
 				log.clear();
-				LogEntry e = log.getError();
+				final LogEntry e = log.getError();
 				return (Literal<? extends T>) new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
 			for (final Class<? extends T> c : types) {
 				log.clear();
 				assert c != null;
-				T t = Classes.parse(expr, c, context);
+				final T t = Classes.parse(expr, c, context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false);
@@ -563,14 +566,20 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (allowUnparsedLiteral && vi.classes[0].getC() == Object.class) {
+			if (vi.classes[0].getC() == Object.class) {
+				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
+					log.printError();
+					return null;
+				}
 				log.clear();
-				LogEntry e = log.getError();
+				final LogEntry e = log.getError();
 				return new UnparsedLiteral(expr, e != null && (error == null || e.quality > error.quality) ? e : error);
 			}
-			for (ClassInfo<?> ci : vi.classes) {
+			for (final ClassInfo<?> ci : vi.classes) {
 				log.clear();
-				Object t = Classes.parse(expr, ci.getC(), context);
+				assert ci.getC() != null;
+				final Object t = Classes.parse(expr, ci.getC(), context);
 				if (t != null) {
 					log.printLog();
 					return new SimpleLiteral<>(t, false, new UnparsedLiteral(expr));
@@ -613,7 +622,7 @@ public class SkriptParser {
 		final boolean isObject = types.length == 1 && types[0] == Object.class;
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			final Expression<? extends T> r = parseSingleExpr(false, null, types);
+			final Expression<? extends T> r = parseSingleExpr(true, null, types);
 			if (r != null) {
 				log.printLog();
 				return r;
@@ -739,7 +748,7 @@ public class SkriptParser {
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			// Attempt to parse a single expression
-			final Expression<?> r = parseSingleExpr(false, null, vi);
+			final Expression<?> r = parseSingleExpr(true, null, vi);
 			if (r != null) {
 				log.printLog();
 				return r;
