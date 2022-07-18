@@ -38,7 +38,7 @@ import java.util.Arrays;
 @Name("Loaded Plugins")
 @Description("An expression to obtain a list of the names of the server's loaded plugins.")
 @Examples({
-	"if the plugins list contains \"Vault\":",
+	"if the loaded plugins contains \"Vault\":",
 	"\tbroadcast \"This server uses Vault plugin!\"",
 	"",
 	"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"
