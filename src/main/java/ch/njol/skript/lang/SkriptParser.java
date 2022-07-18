@@ -237,7 +237,7 @@ public class SkriptParser {
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {
 								int x2 = nextUnescaped(pattern, '%', x + 1);
 								if (res.exprs[j] == null) {
-									final String name = pattern.substring(x + 1, x2);
+									String name = pattern.substring(x + 1, x2);
 									if (!name.startsWith("-")) {
 										ExprInfo vi = getExprInfo(name);
 										DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
