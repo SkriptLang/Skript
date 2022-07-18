@@ -90,6 +90,7 @@ public abstract class SQLStorage extends VariablesStorage {
 		this.tableName = tableName;
 	}
 
+	@Nullable
 	public abstract Object initialize(SectionNode config);
 
 	/**
