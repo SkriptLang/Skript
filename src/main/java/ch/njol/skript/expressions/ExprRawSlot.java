@@ -60,8 +60,7 @@ public class ExprRawSlot extends SimpleExpression<Number> {
 	public Number[] get(Event e) {
 		if (!(e instanceof InventoryClickEvent))
 			return null;
-
-		return new Number[] { ((InventoryClickEvent) e).getRawSlot() };
+		return new Number[] {((InventoryClickEvent) e).getRawSlot()};
 	}
 
 	@Override
