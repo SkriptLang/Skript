@@ -44,8 +44,7 @@ import ch.njol.util.Kleenean;
 public class CondHasScoreboardTag extends Condition {
 	
 	static {
-		if (Skript.isRunningMinecraft(1, 11))
-			PropertyCondition.register(CondHasScoreboardTag.class, PropertyType.HAVE, "[the] score[ ]board tag[s] %strings%", "entities");
+		PropertyCondition.register(CondHasScoreboardTag.class, PropertyType.HAVE, "[the] score[ ]board tag[s] %strings%", "entities");
 	}
 	
 	@SuppressWarnings("null")
