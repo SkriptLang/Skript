@@ -44,7 +44,7 @@ import ch.njol.util.Kleenean;
 	"make event-entity pathfind towards player at speed 1"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Paper Spigot")
+@RequiredPlugins("Paper 1.13+")
 public class EffPathfind extends Effect {
 
 	static {
