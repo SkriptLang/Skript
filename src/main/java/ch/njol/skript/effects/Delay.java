@@ -18,15 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
-
-import ch.njol.skript.sections.EffSecSpawn;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -42,6 +33,13 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 @Name("Delay")
 @Description("Delays the script's execution by a given timespan. Please note that delays are not persistent, e.g. trying to create a tempban script with <code>ban player → wait 7 days → unban player</code> will not work if you restart your server anytime within these 7 days. You also have to be careful even when using small delays!")
@@ -63,11 +61,6 @@ public class Delay extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (getParser().isCurrentSection(EffSecSpawn.class)) {
-			Skript.error("Delays can't be used within spawn effect sections");
-			return false;
-		}
-
 		getParser().setHasDelayBefore(Kleenean.TRUE);
 
 		duration = (Expression<Timespan>) exprs[0];

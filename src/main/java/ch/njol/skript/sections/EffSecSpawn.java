@@ -44,6 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // TODO this won't show up in the docs, sections don't have a tab. We should create a tab for them,
 //  and maybe add EffectSections to the effects page as well
@@ -120,7 +121,17 @@ public class EffSecSpawn extends EffectSection {
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
 
 		if (sectionNode != null) {
-			trigger = loadCode(sectionNode, "spawn", SpawnEvent.class);
+			AtomicBoolean delayed = new AtomicBoolean(false);
+			trigger = loadCode(
+				sectionNode,
+				"spawn",
+				() -> delayed.set(getParser().getHasDelayBefore().isTrue()),
+				SpawnEvent.class
+			);
+			if (delayed.get()) {
+				Skript.error("Delays can't be used within Spawn Effect Sections");
+				return false;
+			}
 		}
 
 		return true;
@@ -141,8 +152,9 @@ public class EffSecSpawn extends EffectSection {
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, localVars);
-				trigger.execute(spawnEvent);
-				Variables.setLocalVariables(e, localVars); // Carry over variable changes to the rest of the main trigger
+				trigger.execute(spawnEvent, () -> {
+					Variables.setLocalVariables(e, Variables.copyLocalVariables(spawnEvent)); // Carry over variable changes to the rest of the main trigger
+				});
 			};
 		} else {
 			consumer = null;

@@ -48,27 +48,41 @@ public class Trigger extends TriggerSection {
 	}
 	
 	/**
-	 * Executes this trigger for certain event.
-	 * @param e Event.
-	 * @return false if an exception occurred
+	 * Executes this trigger for a certain event.
+	 * @param e The event to execute this Trigger with.
+	 * @return false if an exception occurred.
 	 */
-	public boolean execute(final Event e) {
+	public boolean execute(Event e) {
+		return execute(e, null);
+	}
+
+	/**
+	 * Executes this trigger for a certain event.
+	 * @param e The event ot execute this Trigger with.
+	 * @param afterExecution A Runnable to execute after {@link TriggerItem#walk(TriggerItem, Event)} has finished.
+	 * @return false if an exception occurred.
+	 */
+	public boolean execute(Event e, @Nullable Runnable afterExecution) {
 		boolean success = TriggerItem.walk(this, e);
+
+		if (afterExecution != null)
+			afterExecution.run();
+
 		// Clear local variables
 		Variables.removeLocals(e);
 		/*
 		 * Local variables can be used in delayed effects by backing reference
 		 * of VariablesMap up. Basically:
-		 * 
+		 *
 		 * Object localVars = Variables.removeLocals(e);
-		 * 
+		 *
 		 * ... and when you want to continue execution:
-		 * 
+		 *
 		 * Variables.setLocalVariables(e, localVars);
-		 * 
+		 *
 		 * See Delay effect for reference.
 		 */
-		
+
 		return success;
 	}
 	
