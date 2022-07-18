@@ -35,17 +35,17 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Loop Iteration")
-@Description("Returns the loop's current iteration count (for both normal and while loop).")
+@Description("Returns the loop's current iteration count (for both normal and while loops).")
 @Examples({
 	"while player is online:",
-		"\tgive player 1 stone",
-		"\twait 5 ticks",
-		"\tif loop-counter > 30:",
-			"\t\tstop loop",
+	"\tgive player 1 stone",
+	"\twait 5 ticks",
+	"\tif loop-counter > 30:",
+	"\t\tstop loop",
 	"",
 	"loop {top-balances::*}:",
-		"\tif loop-iteration <= 10:",
-		"\t\tbroadcast \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+	"\tif loop-iteration <= 10:",
+	"\t\tbroadcast \"##%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("INSERT VERSION")
 public class ExprLoopIteration extends SimpleExpression<Long> {
@@ -98,7 +98,7 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 
 	@Override
 	protected Long[] get(Event e) {
-		return new Long[] { loop.getLoopCounter(e) };
+		return new Long[]{loop.getLoopCounter(e)};
 	}
 
 	@Override
