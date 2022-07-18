@@ -53,14 +53,15 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {
-		register(ExprBed.class, Location.class, "[(:(safe|valid)|:(unsafe|invalid))] bed[s] [location[s]]", "offlineplayers");
+		register(ExprBed.class, Location.class, "[(safe:(safe|valid)|(unsafe|invalid))] bed[s] [location[s]]", "offlineplayers");
 	}
 
-	private boolean isSafe = false; // default behavior is unsafe as used to be
+	private boolean isSafe;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isSafe = parseResult.hasTag("safe") || parseResult.hasTag("valid");
+		isSafe = parseResult.hasTag("safe");
 		setExpr((Expression<? extends OfflinePlayer>) exprs[0]);
 		return true;
 	}
@@ -89,7 +90,7 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 		Location loc = delta == null ? null : (Location) delta[0];
 		for (OfflinePlayer p : getExpr().getArray(e)) {
 			if (p.isOnline()) // double check
-				((Player) p).setBedSpawnLocation(loc, !isSafe);
+				p.getPlayer().setBedSpawnLocation(loc, !isSafe); // won't throw NPE due to the isOnline check
 		}
 	}
 	
