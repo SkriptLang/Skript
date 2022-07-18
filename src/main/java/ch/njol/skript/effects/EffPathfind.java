@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Pathfind")
 @Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
-	"If the pathfinding target is another entity, the entities may or may not continuously follow the target. This is a Paper Spigot exclusive."})
+	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
 @Examples({
 	"make all creepers pathfind towards player",
 	"make all cows stop pathfinding",
