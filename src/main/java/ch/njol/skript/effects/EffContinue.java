@@ -67,7 +67,7 @@ public class EffContinue extends Effect {
 		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
 		
 		if (currentLoops.isEmpty()) {
-			Skript.error("'Continue' effect may only be used in while loops and regular loops");
+			Skript.error("The 'continue' effect may only be used in while and regular loops");
 			return false;
 		}
 		
