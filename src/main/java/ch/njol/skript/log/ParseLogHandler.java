@@ -74,13 +74,19 @@ public class ParseLogHandler extends LogHandler {
 	 * Prints the retained log
 	 */
 	public void printLog() {
+		printLog(true);
+	}
+
+	public void printLog(boolean includeErrors) {
 		printedErrorOrLog = true;
 		stop();
-		SkriptLogger.logAll(log);
+		for (LogEntry logEntry : log)
+			if (includeErrors || logEntry.getLevel().intValue() < Level.SEVERE.intValue())
+				SkriptLogger.log(logEntry);
 		if (error != null)
 			error.discarded("not printed");
 	}
-	
+
 	public void printError() {
 		printError(null);
 	}
