@@ -614,7 +614,7 @@ public class SimpleEvents {
 				"\tevent-item is set # result item",
 				"\tchance of 5%:",
 				"\t\tset repair cost to repair cost * 50%",
-				"\t\tsend \"You're are LUCKY! You got 50% discount.\" to player")
+				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
 			.since("INSERT VERSION");
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
