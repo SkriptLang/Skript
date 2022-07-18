@@ -59,7 +59,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprProtocolVersion extends SimpleExpression<Long> {
 
 	static {
-		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [(sent|required|fake)] protocol version [number]");
+		Skript.registerExpression(ExprProtocolVersion.class, Long.class, ExpressionType.SIMPLE, "[the] [server] [(sent|required|fake)] protocol version [number]");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -79,6 +79,9 @@ public class ExprProtocolVersion extends SimpleExpression<Long> {
 	@Override
 	@Nullable
 	public Long[] get(Event e) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return null;
+
 		return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getProtocolVersion());
 	}
 
@@ -97,6 +100,9 @@ public class ExprProtocolVersion extends SimpleExpression<Long> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		((PaperServerListPingEvent) e).setProtocolVersion(((Number) delta[0]).intValue());
 	}
 

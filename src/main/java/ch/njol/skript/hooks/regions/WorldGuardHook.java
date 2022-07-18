@@ -60,17 +60,7 @@ public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 	
 	@Override
 	protected boolean init() {
-		if (!Skript.classExists("com.sk89q.worldguard.WorldGuard")) { // Assume WorldGuard 6
-			try {
-				Class<?> oldHook = Class.forName("ch.njol.skript.module.worldguard6.WorldGuard6Hook", true, getClass().getClassLoader());
-				oldHook.getDeclaredConstructor().newInstance();
-				return true;
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				Skript.error("An error occurred while trying to enable support for WorldGuard 6. WorldGuard region support has been disabled!");
-			}
-			return false;
-		} else if (!Skript.classExists("com.sk89q.worldedit.math.BlockVector3")) {
+		if (!Skript.classExists("com.sk89q.worldedit.math.BlockVector3")) {
 			Skript.error("WorldEdit you're using is not compatible with Skript. Disabling WorldGuard support!");
 			return false;
 		}
