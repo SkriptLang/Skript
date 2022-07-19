@@ -67,9 +67,15 @@ public class Signature<T> {
 	/**
 	 * The class path for the origin of this signature.
 	 */
+	@Nullable
 	final String originClassPath;
 
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single, @Nullable String originClassPath) {
+	public Signature(String script,
+					 String name,
+					 Parameter<?>[] parameters,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
@@ -80,8 +86,8 @@ public class Signature<T> {
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
-		this(script, name, parameters, returnType, single, "");
+	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, returnType, single, null);
 	}
 	
 	public String getName() {
