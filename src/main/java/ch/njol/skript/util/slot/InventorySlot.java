@@ -40,11 +40,9 @@ public class InventorySlot extends SlotWithIndex {
 
 	private final Inventory invi;
 	private final int index;
+	private final int rawIndex;
 
-	@Nullable
-	private final Integer rawIndex;
-
-	public InventorySlot(final Inventory invi, final int index, final int rawIndex) {
+	public InventorySlot(Inventory invi, int index, int rawIndex) {
 		assert invi != null;
 		assert index >= 0;
 		this.invi = invi;
@@ -52,12 +50,11 @@ public class InventorySlot extends SlotWithIndex {
 		this.rawIndex = rawIndex;
 	}
 
-	public InventorySlot(final Inventory invi, final int index) {
+	public InventorySlot(Inventory invi, int index) {
 		assert invi != null;
 		assert index >= 0;
 		this.invi = invi;
-		this.index = index;
-		rawIndex = null;
+		this.index = rawIndex = index;
 	}
 
 	public Inventory getInventory() {
@@ -71,7 +68,7 @@ public class InventorySlot extends SlotWithIndex {
 
 	@Override
 	public int getRawIndex() {
-		return rawIndex != null ? rawIndex.intValue() : index;
+		return rawIndex;
 	}
 
 	@Override
