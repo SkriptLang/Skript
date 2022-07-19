@@ -18,7 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -29,25 +34,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-
 @Name("Bed")
 @Description({
-	"The bed location of a player, " +
+	"Returns the bed location of a player, " +
 	"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed however, " +
-	"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore.",
-	"Note that when using unsafe/invalid bed location syntax that will not affect the returned value, it only affects when setting it."
+	"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore " +
+	"and that's the default behavior of this expression otherwise you will need to be specific i.e. <code>safe bed location</code>.",
+	"",
+	"NOTE: Offline players can not have their bed location changed, only online players."
 })
 @Examples({
 	"if bed of player exists:",
 	"\tteleport player the the player's bed",
 	"else:",
-	"\tteleport the player to the world's spawn point"
+	"\tteleport the player to the world's spawn point",
+	"",
+	"set the bed location of player to spawn location of world(\"world\") # unsafe/invalid bed location",
+	"set the safe bed location of player to spawn location of world(\"world\") # safe/valid bed location"
 })
 @Since("2.0, INSERT VERSION (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
@@ -75,22 +78,16 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
-			if (!Player.class.isAssignableFrom(getExpr().getReturnType())) {
-				Skript.error("Bed location of offline players cannot be set/deleted.");
-				return null;
-			}
-			return CollectionUtils.array(Location.class);
-		}
-		return null;
+		return mode == ChangeMode.SET || mode == ChangeMode.DELETE ? CollectionUtils.array(Location.class) : null;
 	}
 	
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Location loc = delta == null ? null : (Location) delta[0];
 		for (OfflinePlayer p : getExpr().getArray(e)) {
-			if (p.isOnline()) // double check
-				p.getPlayer().setBedSpawnLocation(loc, !isSafe); // won't throw NPE due to the isOnline check
+			Player op = p.getPlayer();
+			if (op != null) // is online
+				p.getPlayer().setBedSpawnLocation(loc, !isSafe);
 		}
 	}
 	
