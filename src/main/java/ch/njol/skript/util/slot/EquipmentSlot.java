@@ -193,6 +193,11 @@ public class EquipmentSlot extends SlotWithIndex {
 	}
 
 	@Override
+	public int getRawIndex() {
+		return getIndex();
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (slotToString) // Slot to string
 			return "the " + slot.name().toLowerCase(Locale.ENGLISH) + " of " + Classes.toString(e.getHolder()); // TODO localise?
