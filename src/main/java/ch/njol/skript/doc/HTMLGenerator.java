@@ -306,7 +306,8 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						// exclude sections that are EffectSecion from isDocsPage, they are added by the effects block above
+						if ((EffectSection.class.isAssignableFrom(info.c) && isDocsPage) || info.c.getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Section"));
 					}
