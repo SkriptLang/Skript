@@ -42,7 +42,7 @@ public class InventorySlot extends SlotWithIndex {
 	private final int index;
 
 	@Nullable
-	private final Number rawIndex;
+	private final Integer rawIndex;
 
 	public InventorySlot(final Inventory invi, final int index, final int rawIndex) {
 		assert invi != null;
