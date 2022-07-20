@@ -1,0 +1,5 @@
+function functionCallConversion() :: item:
+	return stone named "abc"
+
+test "function call conversion":
+	assert name of functionCallConversion() is "abc" with "Name of item from function call failed"
