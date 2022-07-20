@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -86,7 +87,7 @@ public class EffTeleport extends Effect {
 		boolean delayed = Delay.isDelayed(e);
 		
 		Location loc = location.getSingle(e);
-		if (loc == null || loc.getWorld() == null)
+		if (loc == null)
 			return next;
 
 		Entity[] entityArray = entities.getArray(e); // We have to fetch this before possible async execution to avoid async local variable access.
@@ -107,7 +108,7 @@ public class EffTeleport extends Effect {
 
 		if (!isAsync) {
 			for (Entity entity : entityArray) {
-				entity.teleport(loc);
+				EntityUtils.teleport(entity, loc);
 			}
 			return next;
 		}
@@ -119,7 +120,7 @@ public class EffTeleport extends Effect {
 		PaperLib.getChunkAtAsync(loc).thenAccept(chunk -> {
 			// The following is now on the main thread
 			for (Entity entity : entityArray) {
-				entity.teleport(loc);
+				EntityUtils.teleport(entity, loc);
 			}
 
 			// Re-set local variables
