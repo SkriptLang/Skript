@@ -39,8 +39,7 @@ public interface BlockCompat {
 	/**
 	 * Instance of BlockCompat for current Minecraft version.
 	 */
-	static final BlockCompat INSTANCE = Skript.isRunningMinecraft(1, 13)
-			? new NewBlockCompat() : new MagicBlockCompat();
+	BlockCompat INSTANCE = new NewBlockCompat();
 	
 	static final BlockSetter SETTER = INSTANCE.getSetter();
 	

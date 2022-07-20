@@ -118,7 +118,7 @@ public abstract class Functions {
 		assert definition != null;
 		Matcher m = functionPattern.matcher(definition);
 		if (!m.matches()) // We have checks when loading the signature, but matches() must be called anyway
-			return error(INVALID_FUNCTION_DEFINITION);
+			return null; // don't error, already done in signature loading
 		String name = "" + m.group(1);
 		
 		Namespace namespace = globalFunctions.get(name);
