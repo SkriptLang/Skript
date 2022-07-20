@@ -65,6 +65,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -142,7 +143,35 @@ public class ScriptLoader {
 	 * All loaded scripts.
 	 */
 	@SuppressWarnings("null")
-	private static final Set<Script> loadedScripts = Collections.synchronizedSet(new HashSet<>());
+	private static final Set<Script> loadedScripts = Collections.synchronizedSortedSet(new TreeSet<>(new Comparator<Script>() {
+		@Override
+		public int compare(Script s1, Script s2) {
+			File f1 = s1.getConfig().getFile();
+			File f2 = s2.getConfig().getFile();
+			if (f1 == null || f2 == null)
+				throw new IllegalArgumentException("Scripts will null config files cannot be sorted.");
+
+			File f1Parent = f1.getParentFile();
+			File f2Parent = f2.getParentFile();
+
+			if (isSubDir(f1Parent, f2Parent))
+				return -1;
+
+			if (isSubDir(f2Parent, f1Parent))
+				return 1;
+
+			return f1.compareTo(f2);
+		}
+
+		private boolean isSubDir(File directory, File subDir) {
+			for (File parentDir = directory.getParentFile(); parentDir != null; parentDir = parentDir.getParentFile()) {
+				if (subDir.equals(parentDir)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}));
 	
 	/**
 	 * Filter for loaded scripts and folders.
@@ -826,9 +855,6 @@ public class ScriptLoader {
 	 * @return Info on the loaded Scripts.
 	 */
 	public static CompletableFuture<ScriptInfo> reloadScripts(Set<Script> scripts, OpenCloseable openCloseable) {
-		if (scripts.size() == loadedScripts.size()) // If we are reloading all scripts, we need to make a copy of the list just in case!
-			scripts = new HashSet<>(scripts);
-
 		unloadScripts(scripts);
 
 		List<Config> configs = new ArrayList<>();
@@ -918,18 +944,32 @@ public class ScriptLoader {
 	 * Other Utility Methods
 	 */
 
+	/**
+	 * @return An unmodifiable set containing a snapshot of the currently loaded scripts.
+	 * Any changes to loaded scripts will not be reflected in the returned set.
+	 */
 	public static Set<Script> getLoadedScripts() {
-		return Collections.unmodifiableSet(loadedScripts);
+		return Collections.unmodifiableSet(new HashSet<>(loadedScripts));
 	}
 
+	/**
+	 * @return An unmodifiable set containing a snapshot of the currently disabled scripts.
+	 * Any changes to disabled scripts will not be reflected in the returned set.
+	 */
 	public static Set<File> getDisabledScripts() {
-		return Collections.unmodifiableSet(disabledScripts);
+		return Collections.unmodifiableSet(new HashSet<>(disabledScripts));
 	}
 
+	/**
+	 * @return A FileFilter defining the naming conditions of a loaded script.
+	 */
 	public static FileFilter getLoadedScriptsFilter() {
 		return loadedScriptFilter;
 	}
 
+	/**
+	 * @return A FileFilter defining the naming conditions of a disabled script.
+	 */
 	public static FileFilter getDisabledScriptsFilter() {
 		return disabledScriptFilter;
 	}
