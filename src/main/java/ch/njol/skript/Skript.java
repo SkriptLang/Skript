@@ -454,7 +454,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptConfig.load();
 
 		// Mostly used to handle generating hooks docs
-//		Documentation.setDocsTemplateFound(new File(Documentation.getDocsDirectoryPath()).exists());
 		Documentation.setDocsTemplateFound(Documentation.getDocsTemplateDirectory().exists());
 		Documentation.setGenerateUnsafeDocs("true".equals(Documentation.FORCE_HOOKS_SYSTEM_PROPERTY) && Documentation.isDocsTemplateFound());
 		
