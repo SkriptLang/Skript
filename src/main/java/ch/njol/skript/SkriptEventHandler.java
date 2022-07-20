@@ -40,6 +40,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.RegisteredListener;
+import org.bukkit.plugin.SimplePluginManager;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ScriptLoader.ScriptInfo;
@@ -48,6 +50,7 @@ import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.util.NonNullPair;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -62,7 +65,6 @@ public abstract class SkriptEventHandler {
 	public static class PriorityListener implements Listener {
 
 		public final EventPriority priority;
-		public final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
 
 		@Nullable
 		private Event lastEvent;
@@ -227,8 +229,6 @@ public abstract class SkriptEventHandler {
 		selfRegisteredTriggers.clear();
 	}
 
-	private static final Set<HandlerList> handlerListsRegisteredTo  = new HashSet<>();
-
 	/**
 	 * Registers event handlers for all events which currently loaded
 	 * triggers are using.
@@ -245,12 +245,11 @@ public abstract class SkriptEventHandler {
 			PriorityListener listener = listeners[priority.ordinal()];
 			EventExecutor executor = listener.executor;
 
-			Set<Class<? extends Event>> registeredEvents = listener.registeredEvents;
+			HandlerList handlerList = getHandlerList(e);
 
 			// PlayerInteractEntityEvent has a subclass we need for armor stands
 			if (e.equals(PlayerInteractEntityEvent.class)) {
-				if (!registeredEvents.contains(e)) {
-					registeredEvents.add(e);
+				if (!isEventRegistered(handlerList, priority)) {
 					Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
 					Bukkit.getPluginManager().registerEvent(PlayerInteractAtEntityEvent.class, listener, priority, executor, Skript.getInstance());
 				}
@@ -260,21 +259,37 @@ public abstract class SkriptEventHandler {
 				continue; // Ignore, registered above
 			}
 
-			HandlerList handlerList;
-
-			try {
-				Method getHandlerListMethod = e.getMethod("getHandlerList");
-				handlerList = (HandlerList) getHandlerListMethod.invoke(e);
-			} catch (Exception exception) {
-				handlerList = null;
-			}
-
-			if (handlerList != null && !handlerListsRegisteredTo.contains(handlerList)) { // Check if event is registered
+			if (!isEventRegistered(handlerList, priority)) { // Check if event is registered
 				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
-				registeredEvents.add(e);
-				handlerListsRegisteredTo.add(handlerList);
 			}
 		}
+	}
+
+	@NotNull
+	private static HandlerList getHandlerList(Class<? extends Event> e){
+		HandlerList handlerList = null;
+		try {
+			Method method = Bukkit.getPluginManager().getClass().getDeclaredMethod("getEventListeners", Class.class);
+			assert method != null;
+			method.setAccessible(true);
+			handlerList = (HandlerList) method.invoke(Bukkit.getPluginManager(), e);
+		} catch (Exception ex) {
+			if(Skript.logVeryHigh()){
+				Skript.info("Failed to get HandlerList for event " + e.getName() + " (" + e + ")");
+				ex.printStackTrace();
+			}
+		}
+		assert handlerList != null;
+		return handlerList;
+	}
+
+	private static boolean isEventRegistered(HandlerList handlerList, EventPriority priority){
+		for (RegisteredListener rl : handlerList.getRegisteredListeners()) {
+			Listener l = rl.getListener();
+			if(rl.getPlugin() == Skript.getInstance() && l instanceof PriorityListener && ((PriorityListener) l).priority == priority)
+				return true;
+		}
+		return false;
 	}
 
 	/**
