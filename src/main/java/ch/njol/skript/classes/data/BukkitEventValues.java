@@ -1212,14 +1212,14 @@ public final class BukkitEventValues {
 			public Location get(PlayerMoveEvent e) {
 				return e.getFrom();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
 			@Nullable
 			public Location get(PlayerMoveEvent e) {
 				return e.getTo();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		//EntityMoveEvent
 		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
@@ -1228,14 +1228,14 @@ public final class BukkitEventValues {
 				public Location get(EntityMoveEvent e) {
 					return e.getFrom();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
 				@Override
 				@Nullable
 				public Location get(EntityMoveEvent e) {
 					return e.getTo();
 				}
-			}, 1);
+			}, EventValues.TIME_FUTURE);
 		}
 		//PlayerToggleFlightEvent
 		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, new Getter<Player, PlayerToggleFlightEvent>() {
