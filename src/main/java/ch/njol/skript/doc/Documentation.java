@@ -57,8 +57,20 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
 
+	private static final Pattern CP_PARSE_MARKS_PATTERN = Pattern.compile("(?<=[(|])[-0-9]+?¦");
+	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
+	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
+	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
+
 	private static boolean docsTemplateFound;
 	private static boolean generateUnsafeDocs;
+	private static final File docsTemplateDirectory = new File(Skript.getInstance().getDataFolder() + File.separator + "doc-templates");
+	private static final File docsDirectory = new File(Skript.getInstance().getDataFolder() + File.separator + "docs");
+
+	/**
+	 * Force register hooks even if their plugins are not present in the server
+	 */
+	public static final String FORCE_HOOKS_SYSTEM_PROPERTY = System.getProperty(("skript.forceregisterhooks"));
 
 	public static boolean isDocsTemplateFound() {
 		return docsTemplateFound;
@@ -68,13 +80,8 @@ public class Documentation {
 		Documentation.docsTemplateFound = docsTemplateFound;
 	}
 
-	private static final Pattern CP_PARSE_MARKS_PATTERN = Pattern.compile("(?<=[(|])[-0-9]+?¦");
-	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
-	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
-	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
-
 	/**
-	 * Checks if system properties have 'skript.forceregisterhooks' set to true and docs template folder is found
+	 * Checks if server java args have {@link Documentation#FORCE_HOOKS_SYSTEM_PROPERTY} property set to true and docs template folder is found
 	 */
 	public static boolean canGenerateUnsafeDocs() {
 		return generateUnsafeDocs;
@@ -82,6 +89,14 @@ public class Documentation {
 
 	public static void setGenerateUnsafeDocs(boolean generateUnsafeDocs) {
 		Documentation.generateUnsafeDocs = generateUnsafeDocs;
+	}
+
+	public static File getDocsTemplateDirectory() {
+		return docsTemplateDirectory;
+	}
+
+	public static File getDocsDirectory() {
+		return docsDirectory;
 	}
 
 	public static void generate() {

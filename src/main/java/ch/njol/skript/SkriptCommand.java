@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.util.OpenCloseable;
 import org.bukkit.Bukkit;
@@ -78,9 +79,9 @@ public class SkriptCommand implements CommandExecutor {
 			.add("download")
 		).add("info"
 		).add("help");
-	
+
 	static {
-		if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists()) {
+		if (Documentation.getDocsTemplateDirectory().exists()) {
 			skriptCommandHelp.add("gen-docs");
 		}
 		if (TestMode.DEV_MODE) { // Add command to run individual tests
@@ -354,12 +355,12 @@ public class SkriptCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("help")) {
 				skriptCommandHelp.showHelp(sender);
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
-				File templateDir = new File(Skript.getInstance().getDataFolder() + "/doc-templates/");
+				File templateDir = Documentation.getDocsTemplateDirectory();
 				if (!templateDir.exists()) {
 					Skript.info(sender, "Documentation templates not found. Cannot generate docs!");
 					return true;
 				}
-				File outputDir = new File(Skript.getInstance().getDataFolder() + "/docs");
+				File outputDir = Documentation.getDocsDirectory();
 				outputDir.mkdirs();
 				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
 				Skript.info(sender, "Generating docs...");
