@@ -18,13 +18,6 @@
  */
 package ch.njol.skript.registrations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Comparator.ComparatorInfo;
@@ -32,6 +25,12 @@ import ch.njol.skript.classes.Comparator.Relation;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.InverseComparator;
 import ch.njol.util.Pair;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Peter Güttinger
@@ -120,27 +119,41 @@ public class Comparators {
 		Converter<? super S, ?> c2;
 		
 		// single conversion
-		for (ComparatorInfo<?, ?> info : comparators) {
-			for (boolean first : trueFalse) {
+		for (boolean first : trueFalse) {
+			for (ComparatorInfo<?, ?> info : comparators) {
+				// Loop 1: We are checking if the first comparator type is assignable from the first argument
+				// Loop 2: We are checking if the second comparator type is assignable from the first argument
 				if (info.getType(first).isAssignableFrom(f)) {
+					// Loop 1: Attempt to convert the second argument to the second comparator type
+					// Loop 2: Attempt to convert the second argument to the first comparator type
 					c2 = Converters.getConverter(s, info.getType(!first));
 					if (c2 != null) {
+						// If this is the second loop, we are reversing the arguments (and an InverseComparator is needed)
 						return first ? new ConvertedComparator<F, S>(info.c, c2) : new InverseComparator<>(new ConvertedComparator<S, F>(c2, info.c));
 					}
 				}
-				if (info.getType(first).isAssignableFrom(s)) {
-					c1 = Converters.getConverter(f, info.getType(!first));
+				// Loop 1: We are checking if the second comparator type is assignable from the second argument
+				// Loop 2: We are checking if the first comparator type is assignable from the second argument
+				if (info.getType(!first).isAssignableFrom(s)) {
+					// Loop 1: Attempt to convert the first argument to the first comparator type
+					// Loop 2: Attempt to convert the first argument to the second comparator type
+					c1 = Converters.getConverter(f, info.getType(first));
 					if (c1 != null) {
-						return !first ? new ConvertedComparator<F, S>(c1, info.c) : new InverseComparator<>(new ConvertedComparator<S, F>(info.c, c1));
+						// If this is the second loop, we are reversing the arguments (and an InverseComparator is needed)
+						return first ? new ConvertedComparator<F, S>(c1, info.c) : new InverseComparator<>(new ConvertedComparator<S, F>(info.c, c1));
 					}
 				}
 			}
 		}
-		
+
 		// double conversion
-		for (ComparatorInfo<?, ?> info : comparators) {
-			for (boolean first : trueFalse) {
+		for (boolean first : trueFalse) {
+			for (ComparatorInfo<?, ?> info : comparators) {
+				// Loop 1: Attempt to convert the first argument to the first comparator type
+				// Loop 2: Attempt to convert the first argument to the second comparator type
 				c1 = Converters.getConverter(f, info.getType(first));
+				// Loop 1: Attempt to convert the second argument to the second comparator type
+				// Loop 2: Attempt to convert the second argument to the first comparator type
 				c2 = Converters.getConverter(s, info.getType(!first));
 				if (c1 != null && c2 != null) {
 					return first ? new ConvertedComparator<F, S>(c1, info.c, c2) : new InverseComparator<>(new ConvertedComparator<S, F>(c2, info.c, c1));
