@@ -18,14 +18,6 @@
  */
 package ch.njol.skript.lang.function;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import ch.njol.skript.lang.UnparsedLiteral;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -33,11 +25,20 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Reference to a Skript function.
@@ -84,7 +85,7 @@ public class FunctionReference<T> {
 	 * of the function signature.
 	 */
 	@Nullable
-	private final Class<? extends T>[] returnTypes;
+	final Class<? extends T>[] returnTypes;
 	
 	/**
 	 * Node for {@link #validateFunction(boolean)} to use for logging.
@@ -147,7 +148,7 @@ public class FunctionReference<T> {
 				}
 				return false;
 			}
-			if (!CollectionUtils.containsAnySuperclass(returnTypes, rt.getC())) {
+			if (!Converters.converterExists(rt.getC(), returnTypes)) {
 				if (first) {
 					Skript.error("The returned value of the function '" + functionName + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
@@ -224,6 +225,16 @@ public class FunctionReference<T> {
 						function = previousFunction;
 					}
 					return false;
+				} else if (p.single && !e.isSingle()) {
+					if (first) {
+						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
+							+ "but a single argument was expected");
+					} else {
+						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+							+ " These will continue to use the old version of the function until Skript restarts.");
+						function = previousFunction;
+					}
+					return false;
 				}
 				parameters[i] = e;
 			} finally {
@@ -274,7 +285,7 @@ public class FunctionReference<T> {
 				params[0][i] = Classes.clone(params[0][i]);
 			}
 		} else { // Use parameters in normal way
-			for (int i = 0; i < params.length; i++) {
+			for (int i = 0; i < parameters.length; i++) {
 				Object[] array = parameters[i].getArray(e);
 				params[i] = Arrays.copyOf(array, array.length);
 				// Don't allow mutating across function boundary; same hack is applied to variables

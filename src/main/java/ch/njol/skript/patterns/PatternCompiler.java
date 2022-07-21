@@ -45,8 +45,14 @@ public class PatternCompiler {
 	 */
 	public static SkriptPattern compile(String pattern) {
 		AtomicInteger atomicInteger = new AtomicInteger(0);
-		PatternElement first = compile(pattern, atomicInteger);
-		return new SkriptPattern(first, atomicInteger.get());
+		try {
+			PatternElement first = compile(pattern, atomicInteger);
+			return new SkriptPattern(first, atomicInteger.get());
+		} catch (MalformedPatternException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw new MalformedPatternException(pattern, "caught exception while compiling pattern", e);
+		}
 	}
 
 	/**

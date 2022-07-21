@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"",
 		"if all players have potion effects speed and haste:",
 		"\tbroadcast \"You are ready to MINE!\""})
-@Since("INSERT VERSION")
+@Since("2.6.1")
 public class CondHasPotion extends Condition {
 
 	static {
