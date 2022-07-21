@@ -69,9 +69,6 @@ public class EnchantmentUtils {
 		if (Skript.isRunningMinecraft(1, 11)) {
 			ENCHANTMENTS.put(Enchantment.BINDING_CURSE, "binding_curse");
 			ENCHANTMENTS.put(Enchantment.VANISHING_CURSE, "vanishing_curse");
-		}
-		
-		if (Skript.isRunningMinecraft(1, 12)) {
 			ENCHANTMENTS.put(Enchantment.SWEEPING_EDGE, "sweeping_edge");
 		}
 	}
