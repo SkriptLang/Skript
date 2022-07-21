@@ -60,8 +60,8 @@ public class EffStopSound extends Effect {
 						"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
 			} else {
 				Skript.registerEffect(EffStopSound.class,
-						"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-						"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
+						"stop sound[s] %strings% [(from playing to|for) %players%]",
+						"stop playing sound[s] %strings% [(to|for) %players%]");
 			}
 		}
 	}
