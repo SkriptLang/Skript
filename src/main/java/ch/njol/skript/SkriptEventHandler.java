@@ -247,6 +247,9 @@ public abstract class SkriptEventHandler {
 
 			HandlerList handlerList = getHandlerList(e);
 
+			if(handlerList == null)
+				Skript.exception("Could not get HandlerList of event " + e.getName());
+
 			// PlayerInteractEntityEvent has a subclass we need for armor stands
 			if (e.equals(PlayerInteractEntityEvent.class)) {
 				if (!isEventRegistered(handlerList, priority)) {
@@ -265,28 +268,42 @@ public abstract class SkriptEventHandler {
 		}
 	}
 
-	@NotNull
-	private static HandlerList getHandlerList(Class<? extends Event> e){
-		HandlerList handlerList = null;
+	@Nullable
+	private static HandlerList getHandlerList(Class<? extends Event> e) {
 		try {
-			Method method = Bukkit.getPluginManager().getClass().getDeclaredMethod("getEventListeners", Class.class);
-			assert method != null;
+			Method method = getRegistrationClass(e).getDeclaredMethod("getHandlerList");
 			method.setAccessible(true);
-			handlerList = (HandlerList) method.invoke(Bukkit.getPluginManager(), e);
+			return (HandlerList) method.invoke(null);
 		} catch (Exception ex) {
-			if(Skript.logVeryHigh()){
-				Skript.info("Failed to get HandlerList for event " + e.getName() + " (" + e + ")");
-				ex.printStackTrace();
-			}
+			Skript.exception(ex, "Failed to get HandlerList for event " + e.getName());
+			return null;
 		}
-		assert handlerList != null;
-		return handlerList;
 	}
 
-	private static boolean isEventRegistered(HandlerList handlerList, EventPriority priority){
+	@Nullable
+	private static Class<? extends Event> getRegistrationClass(Class<? extends Event> clazz) {
+		try {
+			clazz.getDeclaredMethod("getHandlerList");
+			return clazz;
+		} catch (NoSuchMethodException e) {
+			if (clazz.getSuperclass() != null
+				&& !clazz.getSuperclass().equals(Event.class)
+				&& Event.class.isAssignableFrom(clazz.getSuperclass())) {
+				return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
+			} else {
+				Skript.exception("Unable to find handler list for event " + clazz.getName());
+				return null;
+			}
+		}
+	}
+
+	private static boolean isEventRegistered(@Nullable HandlerList handlerList, EventPriority priority) {
+		if(handlerList == null)
+			return false;
+
 		for (RegisteredListener rl : handlerList.getRegisteredListeners()) {
 			Listener l = rl.getListener();
-			if(rl.getPlugin() == Skript.getInstance() && l instanceof PriorityListener && ((PriorityListener) l).priority == priority)
+			if (rl.getPlugin() == Skript.getInstance() && l instanceof PriorityListener && ((PriorityListener) l).priority == priority)
 				return true;
 		}
 		return false;
