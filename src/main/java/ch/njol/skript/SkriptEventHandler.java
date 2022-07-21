@@ -41,7 +41,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
-import org.bukkit.plugin.SimplePluginManager;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ScriptLoader.ScriptInfo;
@@ -50,7 +49,6 @@ import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.util.NonNullPair;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -126,10 +124,12 @@ public abstract class SkriptEventHandler {
 
 			logEventStart(e);
 		}
+		
+		boolean isCancelled = e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass());
+		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY) || e instanceof ServerCommandEvent;
+		boolean isCommandEmpty = (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled());
 
-		if (e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass()) &&
-			!(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY)
-			|| e instanceof ServerCommandEvent && (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled())) {
+		if (isCancelled && isResultDeny && isCommandEmpty) {
 			if (Skript.logVeryHigh())
 				Skript.info(" -x- was cancelled");
 			return;
@@ -261,9 +261,8 @@ public abstract class SkriptEventHandler {
 			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class))
 				continue; // Ignore, registered above
 
-			if (!isEventRegistered(handlerList, priority)) { // Check if event is registered
+			if (!isEventRegistered(handlerList, priority)) // Check if event is registered
 				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
-			}
 		}
 	}
 
