@@ -1017,14 +1017,14 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, new Getter<ItemStack, PrepareAnvilEvent>() {
 			@Override
 			@Nullable
-			public ItemStack get(final PrepareAnvilEvent e) {
+			public ItemStack get(PrepareAnvilEvent e) {
 				return e.getResult();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, new Getter<Inventory, PrepareAnvilEvent>() {
 			@Override
 			@Nullable
-			public Inventory get(final PrepareAnvilEvent e) {
+			public Inventory get(PrepareAnvilEvent e) {
 				return e.getInventory();
 			}
 		}, EventValues.TIME_NOW);
@@ -1033,7 +1033,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
 				@Override
 				@Nullable
-				public Inventory get(final AnvilDamagedEvent e) {
+				public Inventory get(AnvilDamagedEvent e) {
 					return e.getInventory();
 				}
 			}, EventValues.TIME_NOW);

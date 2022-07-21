@@ -609,7 +609,7 @@ public class SimpleEvents {
 				.since("2.5.1");
 		}
 		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
-			.description("Called when an item is put in a slot for repair by an anvil. Please not that this event is called multiple times in a single item slot move.")
+			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
 			.examples("on anvil prepare:",
 				"\tevent-item is set # result item",
 				"\tchance of 5%:",
@@ -622,7 +622,7 @@ public class SimpleEvents {
 					 		 "Note: this does not include anvil damage from falling.")
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
-					"\t\tcancel the event")
+					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
 	}
