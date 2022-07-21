@@ -19,14 +19,15 @@
 package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.classes.Converter;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,9 +51,18 @@ public final class Comparators {
 	public static final java.util.Comparator<Object> JAVA_COMPARATOR = (o1, o2) -> compare(o1, o2).getRelation();
 
 	/**
-	 * A collection containing information for all registered comparators.
+	 * A List containing information for all registered comparators.
 	 */
-	private static final Collection<ComparatorInfo<?, ?>> COMPARATORS = new ArrayList<>();
+	private static final List<ComparatorInfo<?, ?>> COMPARATORS = new ArrayList<>();
+
+	/**
+	 * @return An unmodifiable list containing all registered {@link ComparatorInfo}s.
+	 * Please note that this does not include any special Comparators resolved by Skript during runtime.
+	 * This method ONLY returns Comparators explicitly registered during registration.
+	 */
+	public static List<ComparatorInfo<?, ?>> getComparatorInfo() {
+		return Collections.unmodifiableList(COMPARATORS);
+	}
 
 	/**
 	 * A map for quickly accessing comparators that have already been resolved.
@@ -90,7 +100,7 @@ public final class Comparators {
 		if (first == null || second == null)
 			return Relation.NOT_EQUAL;
 
-		Comparator<Type1, Type2> comparator = (Comparator<Type1, Type2>) getComparator(first.getClass(), second.getClass());
+		Comparator<Type1, Type2> comparator = getComparator((Class<Type1>) first.getClass(), (Class<Type2>) second.getClass());
 		if (comparator == null)
 			return Relation.NOT_EQUAL;
 
@@ -108,15 +118,16 @@ public final class Comparators {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <Type1, Type2> Comparator<Type1, Type2> getComparator(Class<Type1> firstType, Class<Type2> secondType) {
-		Pair<Class<?>, Class<?>> p = new Pair<>(firstType, secondType);
+		Pair<Class<?>, Class<?>> typePair = new Pair<>(firstType, secondType);
 
-		if (QUICK_ACCESS_COMPARATORS.containsKey(p))
-			return (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(p);
+		Comparator<Type1, Type2> comparator = (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(typePair);
 
-		Comparator<Type1, Type2> comp = getComparator_i(firstType, secondType);
-		QUICK_ACCESS_COMPARATORS.put(p, comp);
+		if (comparator == null) {
+			comparator = getComparator_i(firstType, secondType);
+			QUICK_ACCESS_COMPARATORS.put(typePair, comparator);
+		}
 
-		return comp;
+		return comparator;
 	}
 
 	/**
