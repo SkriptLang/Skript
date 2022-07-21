@@ -53,7 +53,7 @@ public class ExprRawString extends SimpleExpression<String> {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> expr;
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<String>[] messages;
+	private Expression<? extends String>[] messages;
 
 	@Override
 	@SuppressWarnings("unchecked")
