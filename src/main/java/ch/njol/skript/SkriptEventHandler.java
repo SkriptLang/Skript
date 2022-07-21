@@ -232,7 +232,7 @@ public abstract class SkriptEventHandler {
 	 * Registers event handlers for all events which currently loaded
 	 * triggers are using.
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"ThrowableNotThrown"})
 	static void registerBukkitEvents() {
 		for (NonNullPair<Class<? extends Event>, Trigger> pair : triggers) {
 			assert pair.getFirst() != null;
@@ -265,10 +265,11 @@ public abstract class SkriptEventHandler {
 		}
 	}
 
+	@SuppressWarnings("ThrowableNotThrown")
 	@Nullable
 	private static HandlerList getHandlerList(Class<? extends Event> e) {
 		try {
-			Method method = getRegistrationClass(e).getDeclaredMethod("getHandlerList");
+			Method method = getHandlerListMethod(e);
 			method.setAccessible(true);
 			return (HandlerList) method.invoke(null);
 		} catch (Exception ex) {
@@ -277,27 +278,21 @@ public abstract class SkriptEventHandler {
 		}
 	}
 
-	@Nullable
-	private static Class<? extends Event> getRegistrationClass(Class<? extends Event> clazz) {
+	private static Method getHandlerListMethod(Class<? extends Event> clazz) {
 		try {
-			clazz.getDeclaredMethod("getHandlerList");
-			return clazz;
+			return clazz.getDeclaredMethod("getHandlerList");
 		} catch (NoSuchMethodException e) {
 			if (clazz.getSuperclass() != null
 				&& !clazz.getSuperclass().equals(Event.class)
 				&& Event.class.isAssignableFrom(clazz.getSuperclass())) {
-				return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
+				return getHandlerListMethod(clazz.getSuperclass().asSubclass(Event.class));
 			} else {
-				Skript.exception("Unable to find handler list for event " + clazz.getName());
-				return null;
+				throw new RuntimeException("No getHandlerList method found");
 			}
 		}
 	}
 
-	private static boolean isEventRegistered(@Nullable HandlerList handlerList, EventPriority priority) {
-		if (handlerList == null)
-			return false;
-
+	private static boolean isEventRegistered(HandlerList handlerList, EventPriority priority) {
 		for (RegisteredListener rl : handlerList.getRegisteredListeners()) {
 			Listener l = rl.getListener();
 			if (rl.getPlugin() == Skript.getInstance() && l instanceof PriorityListener && ((PriorityListener) l).priority == priority)
