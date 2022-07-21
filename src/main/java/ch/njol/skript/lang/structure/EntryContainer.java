@@ -67,15 +67,17 @@ public class EntryContainer {
 	/**
 	 * A method for obtaining a non-null, typed entry value.
 	 * This method should ONLY be called if there is no way the entry could return null.
-	 * In general, this means that the entry has a default value. This is because even
+	 * In general, this means that the entry has a default value (and 'useDefaultValue' is true). This is because even
 	 *  though an entry may be required, parsing errors may occur that mean no value can be returned.
+	 * It can also mean that the entry data is simple enough such that it will never return a null value.
 	 * @param key The key associated with the entry.
 	 * @param expectedType The class representing the expected type of the entry's value.
+	 * @param useDefaultValue Whether the default value should be used if parsing failed.
 	 * @return The entry's value.
 	 * @throws RuntimeException If the entry's value is null, or if it is not of the expected type.
 	 */
-	public <T> T get(String key, Class<T> expectedType) {
-		T parsed = getOptional(key, expectedType);
+	public <T> T get(String key, Class<T> expectedType, boolean useDefaultValue) {
+		T parsed = getOptional(key, expectedType, useDefaultValue);
 		if (parsed == null)
 			throw new RuntimeException("Null value for asserted non-null value");
 		return parsed;
@@ -84,14 +86,16 @@ public class EntryContainer {
 	/**
 	 * A method for obtaining a non-null entry value with an unknown type.
 	 * This method should ONLY be called if there is no way the entry could return null.
-	 * In general, this means that the entry has a default value. This is because even
+	 * In general, this means that the entry has a default value (and 'useDefaultValue' is true). This is because even
 	 *  though an entry may be required, parsing errors may occur that mean no value can be returned.
+	 * It can also mean that the entry data is simple enough such that it will never return a null value.
 	 * @param key The key associated with the entry.
+	 * @param useDefaultValue Whether the default value should be used if parsing failed.
 	 * @return The entry's value.
 	 * @throws RuntimeException If the entry's value is null.
 	 */
-	public Object get(String key) {
-		Object parsed = getOptional(key);
+	public Object get(String key, boolean useDefaultValue) {
+		Object parsed = getOptional(key, useDefaultValue);
 		if (parsed == null)
 			throw new RuntimeException("Null value for asserted non-null value");
 		return parsed;
@@ -101,13 +105,14 @@ public class EntryContainer {
 	 * A method for obtaining a nullable, typed entry value.
 	 * @param key The key associated with the entry.
 	 * @param expectedType The class representing the expected type of the entry's value.
+	 * @param useDefaultValue Whether the default value should be used if parsing failed.
 	 * @return The entry's value. May be null if the entry is missing or a parsing error occurred.
 	 * @throws RuntimeException If the entry's value is not of the expected type.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T getOptional(String key, Class<T> expectedType) {
-		Object parsed = getOptional(key);
+	public <T> T getOptional(String key, Class<T> expectedType, boolean useDefaultValue) {
+		Object parsed = getOptional(key, useDefaultValue);
 		if (parsed == null)
 			return null;
 		if (!expectedType.isInstance(parsed))
@@ -118,10 +123,11 @@ public class EntryContainer {
 	/**
 	 * A method for obtaining a nullable entry value with an unknown type.
 	 * @param key The key associated with the entry.
+	 * @param useDefaultValue Whether the default value should be used if parsing failed.
 	 * @return The entry's value. May be null if the entry is missing or a parsing error occurred.
 	 */
 	@Nullable
-	public Object getOptional(String key) {
+	public Object getOptional(String key, boolean useDefaultValue) {
 		if (entryValidator == null || handledNodes == null)
 			return null;
 
@@ -143,6 +149,8 @@ public class EntryContainer {
 		Node oldNode = SkriptLogger.getNode();
 		SkriptLogger.setNode(node);
 		Object value = entryData.getValue(node);
+		if (value == null && useDefaultValue)
+			value = entryData.getDefaultValue();
 		SkriptLogger.setNode(oldNode);
 
 		return value;
