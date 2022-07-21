@@ -25,13 +25,12 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.structure.EntryContainer;
-import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Signature;
+import ch.njol.skript.lang.script.Script;
+import ch.njol.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,8 +64,8 @@ public class StructFunction extends Structure {
 	private Signature<?> signature;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-		this.node = entryContainer.getSource();
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		this.node = getEntryContainer().getSource();
 		return true;
 	}
 

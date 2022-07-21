@@ -142,12 +142,9 @@ public class StructCommand extends Structure {
 
 	@Nullable
 	private ScriptCommand scriptCommand;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private EntryContainer entryContainer;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-		this.entryContainer = entryContainer;
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
@@ -155,6 +152,8 @@ public class StructCommand extends Structure {
 	@SuppressWarnings("unchecked")
 	public boolean load() {
 		getParser().setCurrentEvent("command", CommandEvent.class);
+
+		EntryContainer entryContainer = getEntryContainer();
 
 		String fullCommand = entryContainer.getSource().getKey();
 		assert fullCommand != null;

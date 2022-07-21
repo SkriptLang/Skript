@@ -526,6 +526,7 @@ public class ScriptLoader {
 							Structure structure = pair.getSecond();
 
 							getParser().setCurrentScript(script);
+							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 
 							try {
 								if (!structure.preLoad())
@@ -538,6 +539,7 @@ public class ScriptLoader {
 						});
 
 					getParser().setCurrentScript(null);
+					SkriptLogger.setNode(null);
 
 					// TODO in the future, Structure#load should be split across multiple threads if parallel loading is enabled.
 					// However, this is not possible right now as reworks in multiple areas will be needed.
@@ -546,6 +548,7 @@ public class ScriptLoader {
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						script.getStructures().removeIf(structure -> {
+							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.load();
 							} catch (Exception e) {
@@ -557,10 +560,12 @@ public class ScriptLoader {
 					}
 
 					getParser().setCurrentScript(null);
+					SkriptLogger.setNode(null);
 
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						script.getStructures().removeIf(structure -> {
+							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.postLoad();
 							} catch (Exception e) {
@@ -572,12 +577,14 @@ public class ScriptLoader {
 					}
 
 					getParser().setCurrentScript(null);
+					SkriptLogger.setNode(null);
 
 					return scriptInfo;
 				} catch (Exception e) {
 					// Something went wrong, we need to make sure the exception is printed
 					throw Skript.exception(e);
 				} finally {
+					getParser().setCurrentScript(null);
 					SkriptLogger.setNode(null);
 
 					openCloseable.close();

@@ -30,7 +30,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -69,9 +68,9 @@ public class StructVariables extends Structure {
 	private final List<NonNullPair<String, Object>> variables = new ArrayList<>();
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		// TODO allow to make these override existing variables
-		SectionNode node = entryContainer.getSource();
+		SectionNode node = getEntryContainer().getSource();
 		node.convertToEntries(0, "=");
 		for (Node n : node) {
 			if (!(n instanceof EntryNode)) {

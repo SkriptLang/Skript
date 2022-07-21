@@ -87,6 +87,19 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	}
 
+	@Nullable
+	private EntryContainer entryContainer = null;
+
+	/**
+	 * @return An EntryContainer containing this Structure's {@link StructureEntryData} and {@link Node} parse results.
+	 * Please note that this Structure <b>MUST</b> have been initialized for this to work.
+	 */
+	public final EntryContainer getEntryContainer() {
+		if (entryContainer == null)
+			throw new IllegalStateException("This Structure hasn't been initialized!");
+		return entryContainer;
+	}
+
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		StructureData structureData = getParser().getData(StructureData.class);
@@ -100,22 +113,18 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			List<Node> unhandledNodes = new ArrayList<>();
 			for (Node node : structureData.sectionNode) // All nodes are unhandled
 				unhandledNodes.add(node);
-			return init(
-				literals, matchedPattern, parseResult,
-				new EntryContainer(structureData.sectionNode, null, null, unhandledNodes)
-			);
+			entryContainer = new EntryContainer(structureData.sectionNode, null, null, unhandledNodes);
+			return init(literals, matchedPattern, parseResult);
 		}
 
 		NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
 		if (validated == null)
 			return false;
-		return init(
-			literals, matchedPattern, parseResult,
-			new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond())
-		);
+		entryContainer = new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond());
+		return init(literals, matchedPattern, parseResult);
 	}
 
-	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);
+	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
 
 	/**
 	 * The first phase of Structure loading.
