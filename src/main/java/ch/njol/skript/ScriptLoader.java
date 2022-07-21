@@ -53,7 +53,6 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.ExceptionUtils;
@@ -68,6 +67,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.File;
 import java.io.FileFilter;

@@ -26,7 +26,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 
 /**
  * Converts data from type to another.

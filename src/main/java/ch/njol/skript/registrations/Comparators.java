@@ -29,7 +29,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Comparator.ComparatorInfo;
 import ch.njol.skript.classes.Comparator.Relation;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.classes.InverseComparator;
 import ch.njol.util.Pair;
 

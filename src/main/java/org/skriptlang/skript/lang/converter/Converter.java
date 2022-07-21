@@ -18,6 +18,8 @@
  */
 package org.skriptlang.skript.lang.converter;
 
+import ch.njol.skript.lang.Debuggable;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -27,7 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * @param <To> The type to convert to.
  */
 @FunctionalInterface
-public interface Converter<From, To> {
+public interface Converter<From, To> extends Debuggable {
 
 	/**
 	 * Disallow other converters from being chained to this.
@@ -53,5 +55,10 @@ public interface Converter<From, To> {
 	 * @return The converted object.
 	 */
 	@Nullable To convert(From from);
+
+	@Override
+	default String toString(@Nullable Event e, boolean debug) {
+		return this.toString();
+	}
 
 }

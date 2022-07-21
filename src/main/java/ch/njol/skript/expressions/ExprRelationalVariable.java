@@ -44,7 +44,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.PersistentDataUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -126,7 +126,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 			}
 		}
 		try {
-			return Converters.convertArray(values.toArray(), types, superType);
+			return Converters.convert(values.toArray(), types, superType);
 		} catch (ClassCastException ex) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

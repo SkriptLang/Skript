@@ -18,6 +18,7 @@
  */
 package org.skriptlang.skript.lang.converter;
 
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 final class ChainedConverter<From, Middle, To> implements Converter<From, To> {
@@ -37,6 +38,11 @@ final class ChainedConverter<From, Middle, To> implements Converter<From, To> {
 		if (middle == null)
 			return null;
 		return second.convert(middle);
+	}
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return first.toString(e, debug) + " -> " + second.toString(e, debug);
 	}
 
 	@Override

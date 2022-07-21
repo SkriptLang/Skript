@@ -20,7 +20,7 @@ package ch.njol.skript.util;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * Used to get a specific value from instances of some type.
