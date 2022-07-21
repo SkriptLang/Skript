@@ -34,7 +34,9 @@ import ch.njol.skript.registrations.Converters;
  * @param <F> The accepted type of objects to convert <b>f</b>rom
  * @param <T> The type to convert <b>t</b>o
  * @see Converters#registerConverter(Class, Class, Converter)
+ * @deprecated Use {@link org.skriptlang.skript.lang.converter.Converter}
  */
+@Deprecated
 public interface Converter<F, T> {
 	
 	/**
