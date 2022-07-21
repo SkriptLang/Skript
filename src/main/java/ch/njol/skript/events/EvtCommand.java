@@ -59,6 +59,9 @@ public class EvtCommand extends SkriptEvent { // TODO condition to check whether
 	@SuppressWarnings("null")
 	@Override
 	public boolean check(final Event e) {
+		if (e instanceof ServerCommandEvent && ((ServerCommandEvent) e).getCommand().isEmpty())
+			return false;
+
 		if (command == null)
 			return true;
 		final String message;

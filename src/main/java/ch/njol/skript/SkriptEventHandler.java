@@ -126,10 +126,9 @@ public abstract class SkriptEventHandler {
 		}
 		
 		boolean isCancelled = e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass());
-		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY) || e instanceof ServerCommandEvent;
-		boolean isCommandEmpty = (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled());
+		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY);
 
-		if (isCancelled && isResultDeny && isCommandEmpty) {
+		if (isCancelled && isResultDeny) {
 			if (Skript.logVeryHigh())
 				Skript.info(" -x- was cancelled");
 			return;
