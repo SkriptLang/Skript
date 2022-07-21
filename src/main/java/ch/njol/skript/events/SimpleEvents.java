@@ -626,4 +626,5 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 		}
 	}
+
 }
