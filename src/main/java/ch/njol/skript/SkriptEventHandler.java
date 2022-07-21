@@ -232,7 +232,6 @@ public abstract class SkriptEventHandler {
 	 * Registers event handlers for all events which currently loaded
 	 * triggers are using.
 	 */
-	@SuppressWarnings({"ThrowableNotThrown"})
 	static void registerBukkitEvents() {
 		for (NonNullPair<Class<? extends Event>, Trigger> pair : triggers) {
 			assert pair.getFirst() != null;
@@ -247,7 +246,7 @@ public abstract class SkriptEventHandler {
 			HandlerList handlerList = getHandlerList(e);
 
 			if (handlerList == null)
-				Skript.exception("Could not get HandlerList of event " + e.getName());
+				continue;
 
 			// PlayerInteractEntityEvent has a subclass we need for armor stands
 			if (e.equals(PlayerInteractEntityEvent.class)) {
