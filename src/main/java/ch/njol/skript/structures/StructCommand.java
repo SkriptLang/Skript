@@ -34,7 +34,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
@@ -293,8 +293,7 @@ public class StructCommand extends Structure {
 			//noinspection ConstantConditions
 			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, usage,
 				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
-				executableBy, ScriptLoader.loadItems(entryContainer.get("trigger", SectionNode.class)));
-			scriptCommand.trigger.setLineNumber(node.getLine());
+				executableBy, entryContainer.get("trigger", SectionNode.class));
 		} finally {
 			Commands.currentArguments = null;
 		}

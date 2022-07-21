@@ -23,7 +23,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
@@ -347,7 +347,7 @@ public abstract class Commands {
 	/**
 	 * copied from CraftBukkit (org.bukkit.craftbukkit.help.CommandAliasHelpTopic)
 	 */
-	public static class CommandAliasHelpTopic extends HelpTopic {
+	public static final class CommandAliasHelpTopic extends HelpTopic {
 		
 		private final String aliasFor;
 		private final HelpMap helpMap;

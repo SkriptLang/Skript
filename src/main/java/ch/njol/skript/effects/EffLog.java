@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
 
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 

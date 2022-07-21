@@ -20,14 +20,13 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ScriptAliases;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;

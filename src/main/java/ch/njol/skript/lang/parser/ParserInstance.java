@@ -21,7 +21,7 @@ package ch.njol.skript.lang.parser;
 import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
@@ -45,7 +45,7 @@ import java.util.function.Function;
 public class ParserInstance {
 	
 	private static final ThreadLocal<ParserInstance> parserInstances = ThreadLocal.withInitial(ParserInstance::new);
-	
+
 	/**
 	 * @return The {@link ParserInstance} for this thread.
 	 */
@@ -68,7 +68,7 @@ public class ParserInstance {
 	// Event
 	@Nullable
 	private String currentEventName;
-	private Class<? extends Event>[] currentEvents;
+	private Class<? extends Event>[] currentEvents = CollectionUtils.array(ContextlessEvent.class);
 	@Nullable
 	private SkriptEvent currentSkriptEvent;
 	
@@ -97,9 +97,6 @@ public class ParserInstance {
 		return currentScript;
 	}
 
-	// Just for the deprecated method so that we don't bother creating empty maps
-	private static final HashMap<String, String> DUMMY_MAP = new HashMap<>(0);
-
 	/**
 	 * Deprecated. Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
 	 */
@@ -107,10 +104,10 @@ public class ParserInstance {
 	public HashMap<String, String> getCurrentOptions() {
 		Script script = getCurrentScript();
 		if (script == null)
-			return DUMMY_MAP;
+			return new HashMap<>(0);
 		HashMap<String, String> options = StructOptions.getOptions(script);
 		if (options == null)
-			return DUMMY_MAP;
+			return new HashMap<>(0);
 		return options;
 	}
 
@@ -255,8 +252,15 @@ public class ParserInstance {
 	public void setNode(@Nullable Node node) {
 		this.node = node == null || node.getParent() == null ? null : node;
 	}
-	
+
+	/**
+	 * @param currentScript The new Script to mark as the current Script.
+	 * Please note that this method will do nothing if the current Script is the same as the new Script.
+	 */
 	public void setCurrentScript(@Nullable Script currentScript) {
+		if (currentScript == this.currentScript) // Do nothing as it's the same script
+			return;
+
 		Script previous = this.currentScript;
 		this.currentScript = currentScript;
 		getDataInstances().forEach(data -> data.onCurrentScriptChange(previous, currentScript));

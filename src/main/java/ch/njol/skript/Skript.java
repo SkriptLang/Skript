@@ -39,7 +39,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
@@ -1434,9 +1434,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static Collection<SkriptEventInfo<?>> getEvents() {
 		// Only used in documentation generation, so generating a new list each time is fine
-		return structures.stream()
+		return (Collection<SkriptEventInfo<?>>) (Collection<?>) structures.stream()
 			.filter(info -> info instanceof SkriptEventInfo)
-			.map(info -> (SkriptEventInfo<?>) info)
 			.collect(Collectors.toList());
 	}
 

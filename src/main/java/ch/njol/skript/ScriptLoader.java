@@ -23,7 +23,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
@@ -188,8 +188,8 @@ public class ScriptLoader {
 	 */
 	@Nullable
 	public static Script getScript(File file) {
-		if (file.isDirectory())
-			throw new IllegalArgumentException("A directory was provided.");
+		if (!file.isFile())
+			throw new IllegalArgumentException("Something other than a file was provided.");
 		for (Script script : loadedScripts) {
 			if (file.equals(script.getConfig().getFile()))
 				return script;
@@ -204,7 +204,10 @@ public class ScriptLoader {
 	 * 	Empty if no scripts were found.
 	 */
 	public static Set<Script> getScripts(File directory) {
+		if (!directory.isDirectory())
+			throw new IllegalArgumentException("Something other than a directory was provided.");
 		Set<Script> scripts = new HashSet<>();
+		//noinspection ConstantConditions - If listFiles still manages to return null, we should probably let the exception print
 		for (File file : directory.listFiles(loadedScriptFilter)) {
 			if (file.isDirectory()) {
 				scripts.addAll(getScripts(file));
@@ -520,9 +523,10 @@ public class ScriptLoader {
 						.sorted(Comparator.comparing(pair -> pair.getSecond().getPriority()))
 						.forEach(pair -> {
 							Script script = pair.getFirst();
-							if (getParser().getCurrentScript() != script)
-								getParser().setCurrentScript(script);
 							Structure structure = pair.getSecond();
+
+							getParser().setCurrentScript(script);
+
 							try {
 								if (!structure.preLoad())
 									script.getStructures().remove(structure);
@@ -531,8 +535,9 @@ public class ScriptLoader {
 								Skript.exception(e, "An error occurred while trying to load a Structure.");
 								script.getStructures().remove(structure);
 							}
-
 						});
+
+					getParser().setCurrentScript(null);
 
 					// TODO in the future, Structure#load should be split across multiple threads if parallel loading is enabled.
 					// However, this is not possible right now as reworks in multiple areas will be needed.
@@ -551,6 +556,8 @@ public class ScriptLoader {
 						});
 					}
 
+					getParser().setCurrentScript(null);
+
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						script.getStructures().removeIf(structure -> {
@@ -563,6 +570,8 @@ public class ScriptLoader {
 							}
 						});
 					}
+
+					getParser().setCurrentScript(null);
 
 					return scriptInfo;
 				} catch (Exception e) {
@@ -611,19 +620,19 @@ public class ScriptLoader {
 					}
 
 					SectionNode node = ((SectionNode) cnode);
-					String event = node.getKey();
-					if (event == null)
+					String line = node.getKey();
+					if (line == null)
 						continue;
 
-					if (!SkriptParser.validateLine(event))
+					if (!SkriptParser.validateLine(line))
 						continue;
 
 					if (Skript.logVeryHigh() && !Skript.debug())
-						Skript.info("loading trigger '" + event + "'");
+						Skript.info("loading trigger '" + line + "'");
 
-					event = replaceOptions(event);
+					line = replaceOptions(line);
 
-					Structure structure = Structure.parse(event, node, "can't understand this event: '" + node.getKey() + "'");
+					Structure structure = Structure.parse(line, node, "Can't understand this structure: " + line);
 
 					if (structure == null)
 						continue;

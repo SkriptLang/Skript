@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang;
+package ch.njol.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import ch.njol.skript.lang.structure.Structure;
@@ -90,12 +90,6 @@ public final class Script {
 		suppressedWarnings.remove(warning);
 	}
 
-	public enum ScriptWarning {
-		VARIABLE_SAVE, // Variable cannot be saved (the ClassInfo is not serializable)
-		MISSING_CONJUNCTION, // Missing "and" or "or"
-		VARIABLE_STARTS_WITH_EXPRESSION // Variable starts with an Expression
-	}
-
 	// Script Data
 
 	private final Map<Class<?>, Object> scriptData = new ConcurrentHashMap<>(5);
@@ -152,27 +146,6 @@ public final class Script {
 	 */
 	public void removeEventHandler(ScriptEventHandler eventHandler) {
 		eventHandlers.remove(eventHandler);
-	}
-
-	/**
-	 * A ScriptEventHandler is used for listening to and performing actions for different Script events.
-	 */
-	public static abstract class ScriptEventHandler {
-
-		/**
-		 * Called when this Script is loaded.
-		 * @param oldScript The Script that was just unloaded.
-		 *                  Null if there wasn't a Script unloaded.
-		 */
-		public void onLoad(@Nullable Script oldScript) { }
-
-		/**
-		 * Called when this Script is unloaded.
-		 * @param newScript The Script that will be loaded after this one is unloaded.
-		 *                  Null if there won't be a Script loaded.
-		 */
-		public void onUnload(@Nullable Script newScript) { }
-
 	}
 
 }

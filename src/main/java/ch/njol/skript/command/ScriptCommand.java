@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.command;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,7 +32,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.script.Script;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -58,7 +59,6 @@ import ch.njol.skript.command.Commands.CommandAliasHelpTopic;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -101,7 +101,7 @@ public class ScriptCommand implements TabExecutor {
 	private final Expression<String> cooldownStorage;
 	final String usage;
 
-	public final Trigger trigger;
+	private final Trigger trigger;
 
 	private final String pattern;
 	private final List<Argument<?>> arguments;
@@ -124,14 +124,14 @@ public class ScriptCommand implements TabExecutor {
 	 * @param aliases /alias1, /alias2, ...
 	 * @param permission permission or null if none
 	 * @param permissionMessage message to display if the player doesn't have the given permission
-	 * @param items trigger to execute
+	 * @param node the node to parse and load into a Trigger
 	 */
 	public ScriptCommand(final Script script, final String name, final String pattern, final List<Argument<?>> arguments,
 						 final String description, final String usage, final List<String> aliases,
 						 final String permission, @Nullable final VariableString permissionMessage, @Nullable final Timespan cooldown,
 						 @Nullable final VariableString cooldownMessage, final String cooldownBypass,
-						 @Nullable VariableString cooldownStorage, final int executableBy, final List<TriggerItem> items) {
-		Validate.notNull(name, pattern, arguments, description, usage, aliases, items);
+						 @Nullable VariableString cooldownStorage, final int executableBy, final SectionNode node) {
+		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
 		this.name = name;
 		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
@@ -163,7 +163,8 @@ public class ScriptCommand implements TabExecutor {
 		this.pattern = pattern;
 		this.arguments = arguments;
 
-		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), items);
+		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
+		trigger.setLineNumber(node.getLine());
 
 		bukkitCommand = setupBukkitCommand();
 	}

@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.lang.Script;
+import ch.njol.skript.lang.script.Script;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ScriptLoader;
