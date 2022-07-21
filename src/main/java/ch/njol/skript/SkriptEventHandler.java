@@ -247,7 +247,7 @@ public abstract class SkriptEventHandler {
 
 			HandlerList handlerList = getHandlerList(e);
 
-			if(handlerList == null)
+			if (handlerList == null)
 				Skript.exception("Could not get HandlerList of event " + e.getName());
 
 			// PlayerInteractEntityEvent has a subclass we need for armor stands
@@ -258,9 +258,8 @@ public abstract class SkriptEventHandler {
 				}
 				continue;
 			}
-			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class)) {
+			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class))
 				continue; // Ignore, registered above
-			}
 
 			if (!isEventRegistered(handlerList, priority)) { // Check if event is registered
 				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
@@ -298,7 +297,7 @@ public abstract class SkriptEventHandler {
 	}
 
 	private static boolean isEventRegistered(@Nullable HandlerList handlerList, EventPriority priority) {
-		if(handlerList == null)
+		if (handlerList == null)
 			return false;
 
 		for (RegisteredListener rl : handlerList.getRegisteredListeners()) {
