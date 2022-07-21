@@ -711,17 +711,20 @@ public class ScriptLoader {
 		assert files != null;
 		Arrays.sort(files);
 		
+		List<Config> loadedDirectories = new ArrayList<>(files.length);
 		List<Config> loadedFiles = new ArrayList<>(files.length);
 		for (File file : files) {
 			if (file.isDirectory()) {
-				loadedFiles.addAll(loadStructures(file));
+				loadedDirectories.addAll(loadStructures(file));
 			} else {
 				Config cfg = loadStructure(file);
 				if (cfg != null)
 					loadedFiles.add(cfg);
 			}
 		}
-		return loadedFiles;
+
+		loadedDirectories.addAll(loadedFiles);
+		return loadedDirectories;
 	}
 	
 	/**
