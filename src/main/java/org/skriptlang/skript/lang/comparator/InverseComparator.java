@@ -16,34 +16,38 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.classes;
+package org.skriptlang.skript.lang.comparator;
 
 /**
- * @author Peter Güttinger
- * @deprecated This class is no longer exposed in newer versions. It should not be used or referenced.
+ * Similar to {@link Comparator}, but {@link Comparator#compare(Object, Object)} arguments are switched.
+ * If necessary, the resulting {@link Relation} is switched
  */
-@Deprecated
-public class InverseComparator<T1, T2> implements Comparator<T1, T2> {
+final class InverseComparator<Type1, Type2> implements Comparator<Type1, Type2> {
 
-	private final Comparator<? super T2, ? super T1> comp;
+	private final Comparator<? super Type2, ? super Type1> comparator;
 
-	public InverseComparator(final Comparator<? super T2, ? super T1> c) {
-		comp = c;
+	public InverseComparator(Comparator<? super Type2, ? super Type1> comparator) {
+		this.comparator = comparator;
 	}
 
 	@Override
-	public Relation compare(final T1 o1, final T2 o2) {
-		return comp.compare(o2, o1).getSwitched();
+	public Relation compare(final Type1 o1, final Type2 o2) {
+		return comparator.compare(o2, o1).getSwitched();
 	}
 
 	@Override
 	public boolean supportsOrdering() {
-		return comp.supportsOrdering();
+		return comparator.supportsOrdering();
+	}
+
+	@Override
+	public boolean supportsInversion() {
+		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "InverseComparator(" + comp + ")";
+		return "InverseComparator(" + comparator + ")";
 	}
 
 }

@@ -16,34 +16,24 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.classes;
+package org.skriptlang.skript.lang.comparator;
 
 /**
- * @author Peter Güttinger
- * @deprecated This class is no longer exposed in newer versions. It should not be used or referenced.
+ * Holds information about a comparator.
+ *
+ * @param <Type1> The first type for comparison.
+ * @param <Type2> The second type for comparison.
  */
-@Deprecated
-public class InverseComparator<T1, T2> implements Comparator<T1, T2> {
+final class ComparatorInfo<Type1, Type2> {
 
-	private final Comparator<? super T2, ? super T1> comp;
+	final Class<Type1> firstType;
+	final Class<Type2> secondType;
+	final Comparator<Type1, Type2> comparator;
 
-	public InverseComparator(final Comparator<? super T2, ? super T1> c) {
-		comp = c;
-	}
-
-	@Override
-	public Relation compare(final T1 o1, final T2 o2) {
-		return comp.compare(o2, o1).getSwitched();
-	}
-
-	@Override
-	public boolean supportsOrdering() {
-		return comp.supportsOrdering();
-	}
-
-	@Override
-	public String toString() {
-		return "InverseComparator(" + comp + ")";
+	public ComparatorInfo(Class<Type1> firstType, Class<Type2> secondType, Comparator<Type1, Type2> comparator) {
+		this.firstType = firstType;
+		this.secondType = secondType;
+		this.comparator = comparator;
 	}
 
 }

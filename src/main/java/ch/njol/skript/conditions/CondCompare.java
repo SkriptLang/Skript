@@ -22,8 +22,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -39,7 +39,7 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
@@ -137,7 +137,7 @@ public class CondCompare extends Condition {
 		final Comparator comp = this.comp;
 		if (comp != null) {
 			if (third == null) {
-				if (!relation.isEqualOrInverse() && !comp.supportsOrdering()) {
+				if (!relation.is(Relation.EQUAL, Relation.NOT_EQUAL) && !comp.supportsOrdering()) {
 					Skript.error("Can't test " + f(first) + " for being '" + relation + "' " + f(second), ErrorQuality.NOT_AN_EXPRESSION);
 					return false;
 				}

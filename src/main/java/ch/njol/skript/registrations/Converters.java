@@ -287,9 +287,10 @@ public abstract class Converters {
 	 * @return the converter or null if none exist
 	 */
 	@Nullable
-	public static <F, T> Converter<? super F, ? extends T> getConverter(final Class<F> from, final Class<T> to) {
+	@SuppressWarnings("unchecked")
+	public static <F, T> Converter<F, T> getConverter(final Class<F> from, final Class<T> to) {
 		ConverterInfo<? super F, ? extends T> info = getConverterInfo(from, to);
-		return info != null ? info.converter : null;
+		return info != null ? (Converter<F, T>) info.converter : null;
 	}
 	
 	/**
