@@ -179,26 +179,13 @@ public class StructureEntryValidator {
 
 		/**
 		 * Adds a new {@link KeyValueStructureEntryData} to this validator that returns the raw, unhandled String value.
-		 * @param key The key of the entry.
-		 * @return The builder instance.
-		 * @see #addEntry(String, String)
-		 * @see #addEntry(String, boolean) 
-		 */
-		public StructureEntryValidatorBuilder addEntry(String key) {
-			return addEntry(key, false);
-		}
-
-		/**
-		 * Adds a new {@link KeyValueStructureEntryData} to this validator that returns the raw, unhandled String value.
 		 * The added entry is optional and will use the provided default value as a backup.
 		 * @param key The key of the entry.
 		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
 		 * @return The builder instance.
-		 * @see #addEntry(String)
-		 * @see #addEntry(String, boolean) 
 		 */
-		public StructureEntryValidatorBuilder addEntry(String key, String defaultValue) {
-			entryData.add(new KeyValueStructureEntryData<String>(key, defaultValue) {
+		public StructureEntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
+			entryData.add(new KeyValueStructureEntryData<String>(key, defaultValue, optional) {
 				@Override
 				protected String getValue(String value) {
 					return value;
@@ -210,40 +197,6 @@ public class StructureEntryValidator {
 				}
 			});
 			return this;
-		}
-
-		/**
-		 * Adds a new {@link KeyValueStructureEntryData} to this validator that returns the raw, unhandled String value.
-		 * If the added entry is optional, the value obtained by this key will be null.
-		 * @param key The key of the entry.
-		 * @param optional Whether this entry should be optional.
-		 * @return The builder instance.
-		 * @see #addEntry(String) 
-		 * @see #addEntry(String, String) 
-		 */
-		public StructureEntryValidatorBuilder addEntry(String key, boolean optional) {
-			entryData.add(new KeyValueStructureEntryData<String>(key, optional) {
-				@Override
-				protected String getValue(String value) {
-					return value;
-				}
-
-				@Override
-				public String getSeparator() {
-					return entrySeparator;
-				}
-			});
-			return this;
-		}
-
-		/**
-		 * Adds a new, required {@link SectionStructureEntryData} to this validator.
-		 * @param key The key of the section entry.
-		 * @return The builder instance.
-		 * @see #addSection(String, boolean) 
-		 */
-		public StructureEntryValidatorBuilder addSection(String key) {
-			return addSection(key, false);
 		}
 
 		/**
@@ -251,10 +204,9 @@ public class StructureEntryValidator {
 		 * @param key The key of the section entry.
 		 * @param optional Whether this section entry should be optional.
 		 * @return The builder instance.
-		 * @see #addSection(String) 
 		 */
 		public StructureEntryValidatorBuilder addSection(String key, boolean optional) {
-			entryData.add(new SectionStructureEntryData(key, optional));
+			entryData.add(new SectionStructureEntryData(key, null, optional));
 			return this;
 		}
 

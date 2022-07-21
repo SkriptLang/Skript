@@ -43,32 +43,11 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, Class<? extends Event>... events) {
-		super(key);
-		this.stringMode = StringMode.MESSAGE;
-		this.events = events;
-	}
-
-	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, Class<? extends Event>... events) {
-		super(key, defaultValue);
-		this.stringMode = StringMode.MESSAGE;
-		this.events = events;
-	}
-
-	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public VariableStringStructureEntryData(String key, boolean optional, Class<? extends Event>... events) {
-		super(key, optional);
+	public VariableStringStructureEntryData(
+		String key, @Nullable VariableString defaultValue, boolean optional,
+		Class<? extends Event>... events)
+	{
+		super(key, defaultValue, optional);
 		this.stringMode = StringMode.MESSAGE;
 		this.events = events;
 	}
@@ -80,34 +59,11 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(String key, StringMode stringMode, Class<? extends Event>... events) {
-		super(key);
-		this.stringMode = stringMode;
-		this.events = events;
-	}
-
-	/**
-	 * @param stringMode Sets <i>how</i> to parse the string (e.g. as a variable, message, etc.).
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public VariableStringStructureEntryData(String key, @Nullable VariableString defaultValue, StringMode stringMode, Class<? extends Event>... events) {
-		super(key, defaultValue);
-		this.stringMode = stringMode;
-		this.events = events;
-	}
-
-	/**
-	 * @param stringMode Sets <i>how</i> to parse the string (e.g. as a variable, message, etc.).
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public VariableStringStructureEntryData(String key, boolean optional, StringMode stringMode, Class<? extends Event>... events) {
-		super(key, optional);
+	public VariableStringStructureEntryData(
+		String key, @Nullable VariableString defaultValue, boolean optional,
+		StringMode stringMode, Class<? extends Event>... events)
+	{
+		super(key, defaultValue, optional);
 		this.stringMode = stringMode;
 		this.events = events;
 	}
@@ -123,8 +79,19 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 		parser.setCurrentEvents(events);
 		parser.setHasDelayBefore(Kleenean.FALSE);
 
-		// Double up quotations
-		value = value.replace("\"", "\"\"");
+		// Double up quotations outside of expressions
+		if (stringMode != StringMode.VARIABLE_NAME) {
+			StringBuilder fixed = new StringBuilder();
+			boolean inExpression = false;
+			for (char c : value.toCharArray()) {
+				if (c == '%') // If we are entering an expression, quotes should NOT be doubled
+					inExpression = !inExpression;
+				if (!inExpression && c == '"')
+					fixed.append('"');
+				fixed.append(c);
+			}
+			value = fixed.toString();
+		}
 
 		VariableString variableString = VariableString.newInstance(value, stringMode);
 

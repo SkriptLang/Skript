@@ -29,16 +29,8 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public class SectionStructureEntryData extends StructureEntryData<SectionNode> {
 
-	public SectionStructureEntryData(String key) {
-		super(key);
-	}
-
-	public SectionStructureEntryData(String key, boolean optional) {
-		super(key, optional);
-	}
-
-	public SectionStructureEntryData(String key, @Nullable SectionNode defaultValue) {
-		super(key, defaultValue);
+	public SectionStructureEntryData(String key, @Nullable SectionNode defaultValue, boolean optional) {
+		super(key, defaultValue, optional);
 	}
 
 	/**

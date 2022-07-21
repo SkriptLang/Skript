@@ -509,6 +509,7 @@ public class ScriptLoader {
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
 			.thenApply(unused -> {
 				try {
+					// TODO when calling loading methods, we need to ensure that SkriptLogger#setNode is being updated properly.
 					openCloseable.open();
 
 					scripts.stream()

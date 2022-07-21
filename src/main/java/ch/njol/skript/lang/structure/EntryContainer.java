@@ -20,6 +20,7 @@ package ch.njol.skript.lang.structure;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.log.SkriptLogger;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
@@ -65,6 +66,9 @@ public class EntryContainer {
 
 	/**
 	 * A method for obtaining a non-null, typed entry value.
+	 * This method should ONLY be called if there is no way the entry could return null.
+	 * In general, this means that the entry has a default value. This is because even
+	 *  though an entry may be required, parsing errors may occur that mean no value can be returned.
 	 * @param key The key associated with the entry.
 	 * @param expectedType The class representing the expected type of the entry's value.
 	 * @return The entry's value.
@@ -79,6 +83,9 @@ public class EntryContainer {
 
 	/**
 	 * A method for obtaining a non-null entry value with an unknown type.
+	 * This method should ONLY be called if there is no way the entry could return null.
+	 * In general, this means that the entry has a default value. This is because even
+	 *  though an entry may be required, parsing errors may occur that mean no value can be returned.
 	 * @param key The key associated with the entry.
 	 * @return The entry's value.
 	 * @throws RuntimeException If the entry's value is null.
@@ -94,7 +101,7 @@ public class EntryContainer {
 	 * A method for obtaining a nullable, typed entry value.
 	 * @param key The key associated with the entry.
 	 * @param expectedType The class representing the expected type of the entry's value.
-	 * @return The entry's value.
+	 * @return The entry's value. May be null if the entry is missing or a parsing error occurred.
 	 * @throws RuntimeException If the entry's value is not of the expected type.
 	 */
 	@Nullable
@@ -111,7 +118,7 @@ public class EntryContainer {
 	/**
 	 * A method for obtaining a nullable entry value with an unknown type.
 	 * @param key The key associated with the entry.
-	 * @return The entry's value.
+	 * @return The entry's value. May be null if the entry is missing or a parsing error occurred.
 	 */
 	@Nullable
 	public Object getOptional(String key) {
@@ -132,7 +139,13 @@ public class EntryContainer {
 		if (node == null)
 			return entryData.getDefaultValue();
 
-		return entryData.getValue(node);
+		// Update SkriptLogger node for parsing
+		Node oldNode = SkriptLogger.getNode();
+		SkriptLogger.setNode(node);
+		Object value = entryData.getValue(node);
+		SkriptLogger.setNode(oldNode);
+
+		return value;
 	}
 
 }

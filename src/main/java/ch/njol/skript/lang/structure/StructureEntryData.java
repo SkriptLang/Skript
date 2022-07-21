@@ -49,19 +49,7 @@ public abstract class StructureEntryData<T> {
 	private final T defaultValue;
 	private final boolean optional;
 
-	public StructureEntryData(String key) {
-		this(key, null, false);
-	}
-
-	public StructureEntryData(String key, T defaultValue) {
-		this(key, defaultValue, true);
-	}
-
-	public StructureEntryData(String key, boolean optional) {
-		this(key, null, optional);
-	}
-
-	private StructureEntryData(String key, @Nullable T defaultValue, boolean optional) {
+	public StructureEntryData(String key, @Nullable T defaultValue, boolean optional) {
 		this.key = key;
 		this.defaultValue = defaultValue;
 		this.optional = optional;

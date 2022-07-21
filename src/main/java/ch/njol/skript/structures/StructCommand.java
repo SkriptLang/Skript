@@ -93,11 +93,11 @@ public class StructCommand extends Structure {
 		Skript.registerStructure(
 			StructCommand.class,
 			StructureEntryValidator.builder()
-				.addEntry("usage", true)
-				.addEntry("description", "")
-				.addEntry("permission", "")
-				.addEntryData(new VariableStringStructureEntryData("permission message", true, CommandEvent.class))
-				.addEntryData(new KeyValueStructureEntryData<List<String>>("aliases", new ArrayList<>()) {
+				.addEntry("usage", null, true)
+				.addEntry("description", "", true)
+				.addEntry("permission", "", true)
+				.addEntryData(new VariableStringStructureEntryData("permission message", null, true, CommandEvent.class))
+				.addEntryData(new KeyValueStructureEntryData<List<String>>("aliases", new ArrayList<>(), true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
 
 					@Override
@@ -111,7 +111,7 @@ public class StructCommand extends Structure {
 						return aliases;
 					}
 				})
-				.addEntryData(new KeyValueStructureEntryData<Integer>("executable by", ScriptCommand.CONSOLE | ScriptCommand.PLAYERS) {
+				.addEntryData(new KeyValueStructureEntryData<Integer>("executable by", ScriptCommand.CONSOLE | ScriptCommand.PLAYERS, true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
 
 					@Override
@@ -130,10 +130,10 @@ public class StructCommand extends Structure {
 						return executableBy;
 					}
 				})
-				.addEntryData(new LiteralStructureEntryData<>("cooldown", true, Timespan.class))
-				.addEntryData(new VariableStringStructureEntryData("cooldown message", true, CommandEvent.class))
-				.addEntry("cooldown bypass", true)
-				.addEntryData(new VariableStringStructureEntryData("cooldown storage", true, StringMode.VARIABLE_NAME, CommandEvent.class))
+				.addEntryData(new LiteralStructureEntryData<>("cooldown", null, true, Timespan.class))
+				.addEntryData(new VariableStringStructureEntryData("cooldown message", null, true, CommandEvent.class))
+				.addEntry("cooldown bypass", null,true)
+				.addEntryData(new VariableStringStructureEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
 				.build(),
 			"command <.+>"

@@ -44,30 +44,11 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public TriggerStructureEntryData(String key, Class<? extends Event>... events) {
-		super(key);
-		this.events = events;
-	}
-
-	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public TriggerStructureEntryData(String key, Trigger defaultValue, Class<? extends Event>... events) {
-		super(key, defaultValue);
-		this.events = events;
-	}
-
-	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public TriggerStructureEntryData(String key, boolean optional, Class<? extends Event>... events) {
-		super(key, optional);
+	public TriggerStructureEntryData(
+		String key, @Nullable Trigger defaultValue, boolean optional,
+		Class<? extends Event>... events)
+	{
+		super(key, defaultValue, optional);
 		this.events = events;
 	}
 

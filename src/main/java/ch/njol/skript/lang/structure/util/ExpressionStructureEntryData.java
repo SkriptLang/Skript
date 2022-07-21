@@ -43,34 +43,11 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public ExpressionStructureEntryData(String key, Class<T> returnType, Class<? extends Event>... events) {
-		super(key);
-		this.returnType = returnType;
-		this.events = events;
-	}
-
-	/**
-	 * @param returnType The expected return type of the matched expression.
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public ExpressionStructureEntryData(String key, @Nullable Expression<T> defaultValue, Class<T> returnType, Class<? extends Event>... events) {
-		super(key, defaultValue);
-		this.returnType = returnType;
-		this.events = events;
-	}
-
-	/**
-	 * @param returnType The expected return type of the matched expression.
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public ExpressionStructureEntryData(String key, boolean optional, Class<T> returnType, Class<? extends Event>... events) {
-		super(key, optional);
+	public ExpressionStructureEntryData(
+		String key, @Nullable Expression<T> defaultValue, boolean optional,
+		Class<T> returnType, Class<? extends Event>... events)
+	{
+		super(key, defaultValue, optional);
 		this.returnType = returnType;
 		this.events = events;
 	}

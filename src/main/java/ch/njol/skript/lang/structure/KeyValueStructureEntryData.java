@@ -32,16 +32,8 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public abstract class KeyValueStructureEntryData<T> extends StructureEntryData<T> {
 
-	public KeyValueStructureEntryData(String key) {
-		super(key);
-	}
-
-	public KeyValueStructureEntryData(String key, @Nullable T defaultValue) {
-		super(key, defaultValue);
-	}
-
-	public KeyValueStructureEntryData(String key, boolean optional) {
-		super(key, optional);
+	public KeyValueStructureEntryData(String key, @Nullable T defaultValue, boolean optional) {
+		super(key, defaultValue, optional);
 	}
 
 	/**
