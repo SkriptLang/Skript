@@ -25,7 +25,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.SkriptColor;
 
 public class WolfData extends EntityData<Wolf> {
 
