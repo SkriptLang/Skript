@@ -62,7 +62,7 @@ public abstract class SkriptEvent extends Structure {
 	private Trigger trigger;
 
 	@Override
-	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer container) {
+	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		String expr = parseResult.expr;
 		if (StringUtils.startsWithIgnoreCase(expr, "on "))
 			expr = expr.substring("on ".length());

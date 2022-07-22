@@ -38,6 +38,9 @@ public class EntryContainer {
 	private final Map<String, Node> handledNodes;
 	private final List<Node> unhandledNodes;
 
+	// Whether this Structure has finished initializing (before preLoad() is called)
+	boolean completedInit = false;
+
 	EntryContainer(
 		SectionNode source, @Nullable StructureEntryValidator entryValidator, @Nullable Map<String, Node> handledNodes, List<Node> unhandledNodes
 	) {
@@ -128,6 +131,11 @@ public class EntryContainer {
 	 */
 	@Nullable
 	public Object getOptional(String key, boolean useDefaultValue) {
+		if (!completedInit)
+			throw new IllegalStateException(
+				"An EntryContainer may only be accessed when a Structure has completed initialization."
+			);
+
 		if (entryValidator == null || handledNodes == null)
 			return null;
 

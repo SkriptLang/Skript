@@ -108,19 +108,22 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 		StructureEntryValidator entryValidator = structureInfo.entryValidator;
+
 		if (entryValidator == null) { // No validation necessary, the structure itself will handle it
 			List<Node> unhandledNodes = new ArrayList<>();
 			for (Node node : structureData.sectionNode) // All nodes are unhandled
 				unhandledNodes.add(node);
 			entryContainer = new EntryContainer(structureData.sectionNode, null, null, unhandledNodes);
-			return init(literals, matchedPattern, parseResult, entryContainer);
+		} else { // Okay, now it's time for validation
+			NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
+			if (validated == null)
+				return false;
+			entryContainer = new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond());
 		}
 
-		NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
-		if (validated == null)
-			return false;
-		entryContainer = new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond());
-		return init(literals, matchedPattern, parseResult, entryContainer);
+		boolean success = init(literals, matchedPattern, parseResult, entryContainer);
+		entryContainer.completedInit = true;
+		return success;
 	}
 
 	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);
