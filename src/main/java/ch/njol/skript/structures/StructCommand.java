@@ -144,7 +144,7 @@ public class StructCommand extends Structure {
 	private ScriptCommand scriptCommand;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		return true;
 	}
 

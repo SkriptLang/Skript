@@ -53,7 +53,6 @@ public abstract class SkriptEvent extends Structure {
 	public static final Priority PRIORITY = new Priority(600);
 
 	private String expr;
-	private SectionNode node;
 	@Nullable
 	protected EventPriority eventPriority;
 	private SkriptEventInfo<?> skriptEventInfo;
@@ -64,8 +63,6 @@ public abstract class SkriptEvent extends Structure {
 
 	@Override
 	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer container) {
-		this.node = container.getSource();
-
 		String expr = parseResult.expr;
 		if (StringUtils.startsWithIgnoreCase(expr, "on "))
 			expr = expr.substring("on ".length());
@@ -113,7 +110,8 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		if (Skript.debug() || node.debug())
+		SectionNode source = getEntryContainer().getSource();
+		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 
 		Class<? extends Event>[] eventClasses = getEventClasses();
@@ -122,7 +120,7 @@ public abstract class SkriptEvent extends Structure {
 			getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), eventClasses);
 			getParser().setCurrentSkriptEvent(this);
 
-			items = ScriptLoader.loadItems(node);
+			items = ScriptLoader.loadItems(source);
 		} finally {
 			getParser().deleteCurrentEvent();
 			getParser().deleteCurrentSkriptEvent();
@@ -145,8 +143,9 @@ public abstract class SkriptEvent extends Structure {
 		try {
 			assert items != null; // This method will only be called if 'load' was successful, meaning 'items' will be set
 			trigger = new Trigger(script, expr, this, items);
-			trigger.setLineNumber(node.getLine()); // Set line number for debugging
-			trigger.setDebugLabel(script + ": line " + node.getLine());
+			int lineNumber = getEntryContainer().getSource().getLine();
+			trigger.setLineNumber(lineNumber); // Set line number for debugging
+			trigger.setDebugLabel(script + ": line " + lineNumber);
 		} finally {
 			getParser().deleteCurrentEvent();
 		}

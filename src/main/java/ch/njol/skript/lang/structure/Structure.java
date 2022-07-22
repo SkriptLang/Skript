@@ -54,7 +54,6 @@ import java.util.Map;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link StructureEntryData}.
  */
-// TODO STRUCTURE make sure options work everywhere
 // TODO STRUCTURE add Structures to docs
 public abstract class Structure implements SyntaxElement, Debuggable {
 
@@ -114,17 +113,17 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			for (Node node : structureData.sectionNode) // All nodes are unhandled
 				unhandledNodes.add(node);
 			entryContainer = new EntryContainer(structureData.sectionNode, null, null, unhandledNodes);
-			return init(literals, matchedPattern, parseResult);
+			return init(literals, matchedPattern, parseResult, entryContainer);
 		}
 
 		NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
 		if (validated == null)
 			return false;
 		entryContainer = new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond());
-		return init(literals, matchedPattern, parseResult);
+		return init(literals, matchedPattern, parseResult, entryContainer);
 	}
 
-	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
+	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);
 
 	/**
 	 * The first phase of Structure loading.

@@ -19,7 +19,6 @@
 package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -30,6 +29,7 @@ import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.script.Script;
+import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -58,14 +58,11 @@ public class StructFunction extends Structure {
 		Skript.registerStructure(StructFunction.class, "function <.+>");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private SectionNode node;
 	@Nullable
 	private Signature<?> signature;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		this.node = getEntryContainer().getSource();
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		return true;
 	}
 
@@ -74,7 +71,7 @@ public class StructFunction extends Structure {
 		Script script = getParser().getCurrentScript();
 		if (script == null)
 			throw new IllegalStateException("Current script is null during function loading");
-		signature = Functions.loadSignature(script.getConfig().getFileName(), node);
+		signature = Functions.loadSignature(script.getConfig().getFileName(), getEntryContainer().getSource());
 		return true;
 	}
 
@@ -83,7 +80,7 @@ public class StructFunction extends Structure {
 		getParser().setCurrentEvent("function", FunctionEvent.class);
 
 		//noinspection ConstantConditions - current script won't be null
-		Functions.loadFunction(getParser().getCurrentScript(), node);
+		Functions.loadFunction(getParser().getCurrentScript(), getEntryContainer().getSource());
 
 		getParser().deleteCurrentEvent();
 

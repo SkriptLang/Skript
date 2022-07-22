@@ -29,6 +29,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.script.Script;
+import ch.njol.skript.lang.structure.EntryContainer;
 import ch.njol.skript.lang.structure.Structure;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -68,8 +69,8 @@ public class StructOptions extends Structure {
 	}
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		SectionNode node = getEntryContainer().getSource();
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
 
 		Script currentScript = getParser().getCurrentScript();
