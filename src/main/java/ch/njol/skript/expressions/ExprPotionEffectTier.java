@@ -42,7 +42,7 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprPotionEffectTier.class, Number.class, ExpressionType.COMBINED,
-			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% (of|for) %livingentity%"
+			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% (of|for|on) %livingentity%"
 		);
 	}
 
