@@ -16,46 +16,48 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.structure.util;
+package org.skriptlang.skript.lang.structure.util;
 
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.structure.SectionStructureEntryData;
+import org.skriptlang.skript.lang.structure.StructureEntryData;
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * A type of {@link KeyValueStructureEntryData} designed to parse its value as an {@link Expression}.
+ * An entry data class designed to take a {@link SectionNode} and parse it into a Trigger.
+ * Events specified during construction *should* be used when the Trigger is executed.
+ * @see SectionStructureEntryData
  */
-public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<Expression<? extends T>> {
+public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 
-	private final Class<T> returnType;
-	
 	private final Class<? extends Event>[] events;
 
 	/**
-	 * @param returnType The expected return type of the matched expression.
 	 * @param events Events to be present during parsing and Trigger execution.
 	 *               This allows the usage of event-restricted syntax and event-values.
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public ExpressionStructureEntryData(
-		String key, @Nullable Expression<T> defaultValue, boolean optional,
-		Class<T> returnType, Class<? extends Event>... events)
+	public TriggerStructureEntryData(
+		String key, @Nullable Trigger defaultValue, boolean optional,
+		Class<? extends Event>... events)
 	{
 		super(key, defaultValue, optional);
-		this.returnType = returnType;
 		this.events = events;
 	}
 
-	@Override
 	@Nullable
-	@SuppressWarnings("unchecked")
-	protected Expression<? extends T> getValue(String value) {
+	@Override
+	public Trigger getValue(Node node) {
+		assert node instanceof SectionNode;
+
 		ParserInstance parser = ParserInstance.get();
 
 		Class<? extends Event>[] oldEvents = parser.getCurrentEvents();
@@ -64,12 +66,25 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 		parser.setCurrentEvents(events);
 		parser.setHasDelayBefore(Kleenean.FALSE);
 
-		Expression<? extends T> expression = new SkriptParser(value, SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT).parseExpression(returnType);
+		Trigger trigger = new Trigger(
+			parser.getCurrentScript(), "structure entry with key: " + getKey(), new SimpleEvent(), ScriptLoader.loadItems((SectionNode) node)
+		);
 
 		parser.setCurrentEvents(oldEvents);
 		parser.setHasDelayBefore(oldHasDelayBefore);
 
-		return expression;
+		return trigger;
+	}
+
+	@Override
+	public boolean canCreateWith(Node node) {
+		if (!(node instanceof SectionNode))
+			return false;
+		String key = node.getKey();
+		if (key == null)
+			return false;
+		key = ScriptLoader.replaceOptions(key);
+		return getKey().equalsIgnoreCase(key);
 	}
 
 }

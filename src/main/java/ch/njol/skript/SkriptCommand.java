@@ -21,7 +21,7 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.HTMLGenerator;
-import ch.njol.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;

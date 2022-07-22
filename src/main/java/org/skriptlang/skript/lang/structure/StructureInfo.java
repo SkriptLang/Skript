@@ -16,29 +16,27 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.script;
+package org.skriptlang.skript.lang.structure;
 
+import ch.njol.skript.lang.SyntaxElementInfo;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * A ScriptEventHandler is used for listening to and performing actions for different Script events.
+ * Special {@link SyntaxElementInfo} for {@link Structure}s that may contain information such as the {@link StructureEntryValidator}.
  */
-public abstract class ScriptEventHandler {
+public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 
-	/**
-	 * Called when this Script is loaded.
-	 *
-	 * @param oldScript The Script that was just unloaded.
-	 *                  Null if there wasn't a Script unloaded.
-	 */
-	public void onLoad(@Nullable Script oldScript) { }
+	@Nullable
+	public final StructureEntryValidator entryValidator;
 
-	/**
-	 * Called when this Script is unloaded.
-	 *
-	 * @param newScript The Script that will be loaded after this one is unloaded.
-	 *                  Null if there won't be a Script loaded.
-	 */
-	public void onUnload(@Nullable Script newScript) { }
+	public StructureInfo(String[] patterns, Class<E> c, String originClassPath) throws IllegalArgumentException {
+		super(patterns, c, originClassPath);
+		entryValidator = null;
+	}
+
+	public StructureInfo(String[] patterns, Class<E> c, String originClassPath, StructureEntryValidator entryValidator) throws IllegalArgumentException {
+		super(patterns, c, originClassPath);
+		this.entryValidator = entryValidator;
+	}
 
 }

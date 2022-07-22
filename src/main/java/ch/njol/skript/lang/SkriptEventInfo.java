@@ -20,7 +20,7 @@ package ch.njol.skript.lang;
 
 import java.util.Locale;
 
-import ch.njol.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;

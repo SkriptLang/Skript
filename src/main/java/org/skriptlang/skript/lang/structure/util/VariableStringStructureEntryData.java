@@ -16,11 +16,11 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.structure.util;
+package org.skriptlang.skript.lang.structure.util;
 
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.structure.KeyValueStructureEntryData;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;

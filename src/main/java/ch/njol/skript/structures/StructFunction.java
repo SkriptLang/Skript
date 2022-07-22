@@ -28,9 +28,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Signature;
-import ch.njol.skript.lang.script.Script;
-import ch.njol.skript.lang.structure.EntryContainer;
-import ch.njol.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.EntryContainer;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

@@ -16,10 +16,10 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.structure.util;
+package org.skriptlang.skript.lang.structure.util;
 
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.structure.KeyValueStructureEntryData;
 import ch.njol.skript.registrations.Classes;
 import org.eclipse.jdt.annotation.Nullable;
 

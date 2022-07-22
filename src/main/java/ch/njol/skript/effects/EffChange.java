@@ -21,8 +21,8 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 import java.util.logging.Level;
 
-import ch.njol.skript.lang.script.Script;
-import ch.njol.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 

@@ -20,7 +20,7 @@ package ch.njol.skript.lang;
 
 import java.io.File;
 
-import ch.njol.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.util.SkriptColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;

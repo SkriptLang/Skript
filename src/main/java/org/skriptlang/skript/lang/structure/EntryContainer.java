@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.structure;
+package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;

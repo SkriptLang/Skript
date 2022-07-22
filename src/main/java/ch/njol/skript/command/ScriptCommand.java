@@ -34,7 +34,7 @@ import java.util.UUID;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;

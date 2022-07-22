@@ -16,10 +16,10 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.script;
+package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
-import ch.njol.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;

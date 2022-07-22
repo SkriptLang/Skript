@@ -16,17 +16,29 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang.script;
+package org.skriptlang.skript.lang.script;
+
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * An enum containing {@link Script} warnings that can be suppressed.
+ * A ScriptEventHandler is used for listening to and performing actions for different Script events.
  */
-public enum ScriptWarning {
+public abstract class ScriptEventHandler {
 
-	VARIABLE_SAVE, // Variable cannot be saved (the ClassInfo is not serializable)
+	/**
+	 * Called when this Script is loaded.
+	 *
+	 * @param oldScript The Script that was just unloaded.
+	 *                  Null if there wasn't a Script unloaded.
+	 */
+	public void onLoad(@Nullable Script oldScript) { }
 
-	MISSING_CONJUNCTION, // Missing "and" or "or"
-
-	VARIABLE_STARTS_WITH_EXPRESSION // Variable starts with an Expression
+	/**
+	 * Called when this Script is unloaded.
+	 *
+	 * @param newScript The Script that will be loaded after this one is unloaded.
+	 *                  Null if there won't be a Script loaded.
+	 */
+	public void onUnload(@Nullable Script newScript) { }
 
 }
