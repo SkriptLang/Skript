@@ -548,7 +548,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Object d : delta) {
 							for (Entry<String, Object> i : o.entrySet()) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
+								if (Relation.EQUAL.implies(Comparators.compare(i.getValue(), d))) {
 									String key = i.getKey();
 									if (key == null)
 										continue; // This is NOT a part of list variable
@@ -569,7 +569,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Entry<String, Object> i : o.entrySet()) {
 							for (Object d : delta) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
+								if (Relation.EQUAL.implies(Comparators.compare(i.getValue(), d)))
 									rem.add(i.getKey());
 							}
 						}

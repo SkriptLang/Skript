@@ -22,11 +22,13 @@ package ch.njol.skript.classes;
  * Used to compare two objects of a different or the same type.
  * @deprecated Use {@link org.skriptlang.skript.lang.comparator.Comparators}
  */
+@Deprecated
 public interface Comparator<T1, T2> {
 
 	/**
 	 * represents a relation between two objects.
 	 */
+	@Deprecated
 	public static enum Relation {
 		EQUAL, NOT_EQUAL, GREATER, GREATER_OR_EQUAL, SMALLER, SMALLER_OR_EQUAL;
 
@@ -186,6 +188,7 @@ public interface Comparator<T1, T2> {
 	 * @param <T1> see {@link Comparator}
 	 * @param <T2> dito
 	 */
+	@Deprecated
 	public static class ComparatorInfo<T1, T2> {
 
 		public Class<T1> c1;

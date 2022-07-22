@@ -77,7 +77,7 @@ public class CondIsOfType extends Condition {
 							} else if (o2 instanceof EntityData && o1 instanceof Entity) {
 								return ((EntityData<?>) o2).isInstance((Entity) o1);
 							} else if (o2 instanceof ItemType && o1 instanceof Entity) {
-								return Relation.EQUAL.is(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity((Entity) o1), (ItemType) o2));
+								return Relation.EQUAL.implies(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity((Entity) o1), (ItemType) o2));
 							} else {
 								return false;
 							}

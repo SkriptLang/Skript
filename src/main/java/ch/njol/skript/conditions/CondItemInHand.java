@@ -83,7 +83,7 @@ public class CondItemInHand extends Condition {
 							if (equipment == null)
 								return false; // No equipment -> no item in hand
 							ItemType handItem = new ItemType(offTool ? equipment.getItemInOffHand() : equipment.getItemInMainHand());
-							return Comparators.compare(handItem, itemType).is(Relation.EQUAL);
+							return Comparators.compare(handItem, itemType).implies(Relation.EQUAL);
 						}), isNegated());
 	}
 	

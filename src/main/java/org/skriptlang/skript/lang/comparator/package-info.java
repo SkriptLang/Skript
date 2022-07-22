@@ -16,38 +16,8 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
 package org.skriptlang.skript.lang.comparator;
 
-/**
- * Similar to {@link Comparator}, but {@link Comparator#compare(Object, Object)} arguments are switched.
- * If necessary, the resulting {@link Relation} is switched
- */
-final class InverseComparator<Type1, Type2> implements Comparator<Type1, Type2> {
-
-	private final Comparator<Type2, Type1> comparator;
-
-	InverseComparator(Comparator<Type2, Type1> comparator) {
-		this.comparator = comparator;
-	}
-
-	@Override
-	public Relation compare(Type1 o1, Type2 o2) {
-		return comparator.compare(o2, o1).getSwitched();
-	}
-
-	@Override
-	public boolean supportsOrdering() {
-		return comparator.supportsOrdering();
-	}
-
-	@Override
-	public boolean supportsInversion() {
-		return false;
-	}
-
-	@Override
-	public String toString() {
-		return "InverseComparator{" + comparator + "}";
-	}
-
-}
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;

@@ -224,7 +224,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 							int sizeBefore = varMap.size();
 							if (varMap != null) {
 								for (Object value : delta)
-									varMap.entrySet().removeIf(entry -> Relation.EQUAL.is(Comparators.compare(entry.getValue(), value)));
+									varMap.entrySet().removeIf(entry -> Relation.EQUAL.implies(Comparators.compare(entry.getValue(), value)));
 								if (sizeBefore != varMap.size()) // It changed so we should set it
 									PersistentDataUtils.setListMap(varName, varMap, holder);
 							}

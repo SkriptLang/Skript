@@ -30,7 +30,7 @@ public final class ComparatorInfo<Type1, Type2> {
 	final Class<Type2> secondType;
 	final Comparator<Type1, Type2> comparator;
 
-	public ComparatorInfo(Class<Type1> firstType, Class<Type2> secondType, Comparator<Type1, Type2> comparator) {
+	ComparatorInfo(Class<Type1> firstType, Class<Type2> secondType, Comparator<Type1, Type2> comparator) {
 		this.firstType = firstType;
 		this.secondType = secondType;
 		this.comparator = comparator;
@@ -55,6 +55,11 @@ public final class ComparatorInfo<Type1, Type2> {
 	 */
 	public Comparator<Type1, Type2> getComparator() {
 		return comparator;
+	}
+
+	@Override
+	public String toString() {
+		return "ComparatorInfo{first=" + firstType + ",second=" + secondType + ",comparator=" + comparator + "}";
 	}
 
 }

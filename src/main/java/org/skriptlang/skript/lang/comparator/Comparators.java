@@ -19,9 +19,9 @@
 package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.registrations.Converters;
-import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Comparators are used to provide Skript with specific instructions for comparing two objects.
@@ -53,14 +54,17 @@ public final class Comparators {
 	/**
 	 * A List containing information for all registered comparators.
 	 */
-	private static final List<ComparatorInfo<?, ?>> COMPARATORS = new ArrayList<>();
+	private static final List<ComparatorInfo<?, ?>> COMPARATORS = Collections.synchronizedList(new ArrayList<>());
 
 	/**
-	 * @return An unmodifiable list containing all registered {@link ComparatorInfo}s.
+	 * @return An unmodifiable, synchronized list containing all registered {@link ComparatorInfo}s.
+	 * When traversing this list, please refer to {@link Collections#synchronizedList(List)} to ensure that
+	 *  the list is properly traversed due to its synchronized status.
 	 * Please note that this does not include any special Comparators resolved by Skript during runtime.
 	 * This method ONLY returns Comparators explicitly registered during registration.
+	 * Thus, it is recommended to use {@link #getComparator(Class, Class)} if possible.
 	 */
-	public static List<ComparatorInfo<?, ?>> getComparatorInfo() {
+	public static List<ComparatorInfo<?, ?>> getComparatorInfos() {
 		return Collections.unmodifiableList(COMPARATORS);
 	}
 
@@ -68,7 +72,7 @@ public final class Comparators {
 	 * A map for quickly accessing comparators that have already been resolved.
 	 * This is useful for skipping complex lookups that may require conversion and inversion.
 	 */
-	private static final Map<Pair<Class<?>, Class<?>>, Comparator<?, ?>> QUICK_ACCESS_COMPARATORS = new HashMap<>();
+	private static final Map<Integer, Comparator<?, ?>> QUICK_ACCESS_COMPARATORS = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * Registers a new Comparator with Skript's collection of Comparators.
@@ -85,6 +89,14 @@ public final class Comparators {
 
 		if (firstType == Object.class && secondType == Object.class)
 			throw new IllegalArgumentException("It is not possible to add a comparator between objects");
+
+		for (ComparatorInfo<?, ?> info : COMPARATORS) {
+			if (info.firstType == firstType && info.secondType == secondType) {
+				throw new SkriptAPIException(
+					"A Comparator comparing '" + firstType + "' and '" + secondType + " already exists!"
+				);
+			}
+		}
 
 		COMPARATORS.add(new ComparatorInfo<>(firstType, secondType, comparator));
 	}
@@ -118,13 +130,16 @@ public final class Comparators {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <Type1, Type2> Comparator<Type1, Type2> getComparator(Class<Type1> firstType, Class<Type2> secondType) {
-		Pair<Class<?>, Class<?>> typePair = new Pair<>(firstType, secondType);
+		if (Skript.isAcceptRegistrations())
+			throw new SkriptAPIException("Comparators cannot be retrieved until Skript has finished registrations.");
 
-		Comparator<Type1, Type2> comparator = (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(typePair);
+		int hash = Objects.hash(firstType, secondType);
+
+		Comparator<Type1, Type2> comparator = (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(hash);
 
 		if (comparator == null) {
 			comparator = getComparator_i(firstType, secondType);
-			QUICK_ACCESS_COMPARATORS.put(typePair, comparator);
+			QUICK_ACCESS_COMPARATORS.put(hash, comparator);
 		}
 
 		return comparator;
@@ -151,7 +166,14 @@ public final class Comparators {
 		Class<Type2> secondType
 	) {
 		
-		// Look for a perfect match
+		// Look for an exact match
+		for (ComparatorInfo<?, ?> info : COMPARATORS) {
+			if (info.firstType == firstType && info.secondType == secondType) {
+				return (Comparator<Type1, Type2>) info.comparator;
+			}
+		}
+
+		// Look for a basically perfect match
 		for (ComparatorInfo<?, ?> info : COMPARATORS) {
 			if (info.firstType.isAssignableFrom(firstType) && info.secondType.isAssignableFrom(secondType)) {
 				return (Comparator<Type1, Type2>) info.comparator;
@@ -170,13 +192,13 @@ public final class Comparators {
 			ComparatorInfo<CType1, CType2> info = (ComparatorInfo<CType1, CType2>) unknownInfo;
 
 			if (info.firstType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the second comparator type
-				Converter<Type2, CType2> sc2 = Converters.getConverter(secondType, info.secondType);
+				Converter<Type2, CType2> sc2 = (Converter<Type2, CType2>) Converters.getConverter(secondType, info.secondType);
 				if (sc2 != null)
 					return new ConvertedComparator<>(null, info.comparator, sc2);
 			}
 
 			if (info.secondType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the first comparator type
-				Converter<Type1, CType1> fc1 = Converters.getConverter(firstType, info.firstType);
+				Converter<Type1, CType1> fc1 = (Converter<Type1, CType1>) Converters.getConverter(firstType, info.firstType);
 				if (fc1 != null)
 					return new ConvertedComparator<>(fc1, info.comparator, null);
 			}
@@ -191,13 +213,13 @@ public final class Comparators {
 			ComparatorInfo<CType1, CType2> info = (ComparatorInfo<CType1, CType2>) unknownInfo;
 
 			if (info.secondType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the first comparator type
-				Converter<Type2, CType1> sc1 = Converters.getConverter(secondType, info.firstType);
+				Converter<Type2, CType1> sc1 = (Converter<Type2, CType1>) Converters.getConverter(secondType, info.firstType);
 				if (sc1 != null)
 					return new InverseComparator<>(new ConvertedComparator<>(sc1, info.comparator, null));
 			}
 
 			if (info.firstType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the second comparator type
-				Converter<Type1, CType2> fc2 = Converters.getConverter(firstType, info.secondType);
+				Converter<Type1, CType2> fc2 = (Converter<Type1, CType2>) Converters.getConverter(firstType, info.secondType);
 				if (fc2 != null)
 					new InverseComparator<>(new ConvertedComparator<>(null, info.comparator, fc2));
 			}
@@ -208,8 +230,8 @@ public final class Comparators {
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
 			ComparatorInfo<CType1, CType2> info = (ComparatorInfo<CType1, CType2>) unknownInfo;
 
-			Converter<Type1, CType1> c1 = Converters.getConverter(firstType, info.firstType);
-			Converter<Type2, CType2> c2 = Converters.getConverter(secondType, info.secondType);
+			Converter<Type1, CType1> c1 = (Converter<Type1, CType1>) Converters.getConverter(firstType, info.firstType);
+			Converter<Type2, CType2> c2 = (Converter<Type2, CType2>) Converters.getConverter(secondType, info.secondType);
 			if (c1 != null && c2 != null)
 				return new ConvertedComparator<>(c1, info.comparator, c2);
 
@@ -222,8 +244,8 @@ public final class Comparators {
 
 			ComparatorInfo<CType1, CType2> info = (ComparatorInfo<CType1, CType2>) unknownInfo;
 
-			Converter<Type1, CType2> c1 = Converters.getConverter(firstType, info.secondType);
-			Converter<Type2, CType1> c2 = Converters.getConverter(secondType, info.firstType);
+			Converter<Type1, CType2> c1 = (Converter<Type1, CType2>) Converters.getConverter(firstType, info.secondType);
+			Converter<Type2, CType1> c2 = (Converter<Type2, CType1>) Converters.getConverter(secondType, info.firstType);
 			if (c1 != null && c2 != null)
 				return new InverseComparator<>(new ConvertedComparator<>(c2, info.comparator, c1));
 

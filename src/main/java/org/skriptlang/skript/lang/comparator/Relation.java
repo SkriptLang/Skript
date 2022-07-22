@@ -23,7 +23,18 @@ package org.skriptlang.skript.lang.comparator;
  */
 public enum Relation {
 
-	EQUAL, NOT_EQUAL, GREATER, GREATER_OR_EQUAL, SMALLER, SMALLER_OR_EQUAL;
+	EQUAL("equal to"),
+	NOT_EQUAL("not equal to"),
+	GREATER("greater than"),
+	GREATER_OR_EQUAL("greater than or equal to"),
+	SMALLER("smaller than"),
+	SMALLER_OR_EQUAL("smaller than or equal to");
+
+	private final String toString;
+
+	Relation(String toString) {
+		this.toString = toString;
+	}
 
 	/**
 	 * @param b The boolean to get a Relation from.
@@ -58,9 +69,9 @@ public enum Relation {
 	 * then this Relation fulfils <code>X rel Y</code> as well.
 	 *
 	 * @param other The Relation to compare with.
-	 * @return Whether this Relation is part of the given Relation, e.g. <code>GREATER_OR_EQUAL.is(EQUAL)</code> returns true.
+	 * @return Whether this Relation is part of the given Relation, e.g. <code>GREATER_OR_EQUAL.implies(EQUAL)</code> returns true.
 	 */
-	public boolean is(Relation other) {
+	public boolean implies(Relation other) {
 		if (other == this)
 			return true;
 		switch (this) {
@@ -81,11 +92,11 @@ public enum Relation {
 
 	/**
 	 * @param others The Relations to compare with.
-	 * @return True if {@link #is(Relation)} is true for any of the provided Relations.
+	 * @return True if {@link #implies(Relation)} is true for any of the provided Relations.
 	 */
-	public boolean is(Relation... others) {
+	public boolean implies(Relation... others) {
 		for (Relation other : others) {
-			if (is(other))
+			if (implies(other))
 				return true;
 		}
 		return false;
@@ -96,22 +107,7 @@ public enum Relation {
 	 */
 	@Override
 	public String toString() {
-		switch (this) {
-			case EQUAL:
-				return "equal to";
-			case NOT_EQUAL:
-				return "not equal to";
-			case GREATER:
-				return "greater than";
-			case GREATER_OR_EQUAL:
-				return "greater than or equal to";
-			case SMALLER:
-				return "smaller than";
-			case SMALLER_OR_EQUAL:
-				return "smaller than or equal to";
-			default:
-				throw new IllegalStateException("Unexpected value: " + this);
-		}
+		return toString;
 	}
 
 	/**

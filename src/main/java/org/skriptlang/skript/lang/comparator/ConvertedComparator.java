@@ -40,7 +40,7 @@ final class ConvertedComparator<Type1, Type2, CType1, CType2> implements Compara
 	@Nullable
 	private final Converter<Type2, CType2> secondConverter;
 
-	public ConvertedComparator(
+	ConvertedComparator(
 		@Nullable Converter<Type1, CType1> firstConverter,
 		Comparator<CType1, CType2> c,
 		@Nullable Converter<Type2, CType2> secondConverter
