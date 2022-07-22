@@ -33,9 +33,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import ch.njol.skript.tests.TestResults;
 import ch.njol.util.NonNullPair;
 
@@ -58,6 +61,7 @@ public class PlatformMain {
 		Path envsRoot = Paths.get(args[3]);
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
+		boolean genDocs = "true".equals(args[5]);
 		
 		// Load environments
 		List<Environment> envs;
@@ -80,14 +84,26 @@ public class PlatformMain {
 		Set<String> allTests = new HashSet<>();
 		Map<String, List<NonNullPair<Environment, String>>> failures = new HashMap<>();
 		
+		boolean docsFailed = false;
 		// Run tests and collect the results
 		envs.sort(Comparator.comparing(Environment::getName));
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, "-Xmx1G");
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, "-Xmx5G");
+			if (results == null) {
+				if (devMode) {
+					// Nothing to report, it's the dev mode environment.
+					System.exit(0);
+					return;
+				}
+				System.err.println("The test environment '" + env.getName() + "' failed to produce test results.");
+				System.exit(3);
+				return;
+			}
 			
 			// Collect results
+			docsFailed = results.docsFailed();
 			allTests.addAll(results.getSucceeded());
 			allTests.addAll(results.getFailed().keySet());
 			for (Map.Entry<String, String> fail : results.getFailed().entrySet()) {
@@ -97,7 +113,19 @@ public class PlatformMain {
 						.add(new NonNullPair<>(env, error));
 			}
 		}
-		
+
+		if (docsFailed) {
+			System.err.println("Documentation templates not found. Cannot generate docs!");
+			System.exit(2);
+			return;
+		}
+
+		// Task was to generate docs, no test results other than docsFailed.
+		if (genDocs) {
+			System.exit(0);
+			return;
+		}
+
 		// Sort results in alphabetical order
 		List<String> succeeded = allTests.stream().filter(name -> !failures.containsKey(name)).collect(Collectors.toList());
 		Collections.sort(succeeded);
@@ -105,9 +133,10 @@ public class PlatformMain {
 		Collections.sort(failNames);
 		
 		// All succeeded tests in a single line
+		System.out.printf("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25));
 		System.out.println("Tested environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		System.out.println("Succeeded: " + String.join(", ", succeeded));
+		System.out.println("\nSucceeded: " + String.join(", ", succeeded));
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
 			System.err.println("Failed:");
 			for (String failed : failNames) {
@@ -119,5 +148,7 @@ public class PlatformMain {
 			}
 			System.exit(failNames.size()); // Error code to indicate how many tests failed
 		}
+		System.out.printf("%n%s", StringUtils.repeat("-", 60));
 	}
+
 }
