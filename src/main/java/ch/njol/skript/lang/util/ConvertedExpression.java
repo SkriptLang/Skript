@@ -95,7 +95,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public String toString(final @Nullable Event e, final boolean debug) {
 		if (debug && e == null)
 			return "(" + source.toString(e, debug) + " >> " + conv + ": "
-				+ converterInfo.toString(e, true) + ")";
+				+ converterInfo + ")";
 		return source.toString(e, debug);
 	}
 	

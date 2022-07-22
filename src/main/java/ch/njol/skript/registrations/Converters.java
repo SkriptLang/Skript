@@ -39,7 +39,7 @@ public abstract class Converters {
 		return org.skriptlang.skript.lang.converter.Converters.getConverterInfo().stream()
 			.map(unknownInfo -> {
 				org.skriptlang.skript.lang.converter.ConverterInfo<F, T> info = (org.skriptlang.skript.lang.converter.ConverterInfo<F, T>) unknownInfo;
-				return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlag());
+				return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlags());
 			})
 			.collect(Collectors.toList());
 	}
@@ -101,7 +101,10 @@ public abstract class Converters {
 	 */
 	@Nullable
 	public static <T> T[] convertArray(final @Nullable Object[] o, final Class<T> to) {
-		return org.skriptlang.skript.lang.converter.Converters.convert(o, to);
+		T[] converted = org.skriptlang.skript.lang.converter.Converters.convert(o, to);
+		if (converted.length == 0) // no longer nullable with new converter classes
+			return null;
+		return converted;
 	}
 	
 	/**
@@ -186,7 +189,7 @@ public abstract class Converters {
 			org.skriptlang.skript.lang.converter.Converters.getConverterInfo(from, to);
 		if (info == null)
 			return null;
-		return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlag());
+		return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlags());
 	}
 	
 	/**

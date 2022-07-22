@@ -477,7 +477,7 @@ public abstract class Classes {
 				return t;
 			}
 			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
-				if (context == ParseContext.COMMAND && (conv.getFlag() & Converter.NO_COMMAND_ARGUMENTS) != 0)
+				if (context == ParseContext.COMMAND && (conv.getFlags() & Converter.NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();

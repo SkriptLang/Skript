@@ -18,30 +18,24 @@
  */
 package org.skriptlang.skript.lang.converter;
 
-import ch.njol.skript.lang.Debuggable;
-import ch.njol.skript.registrations.Classes;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * Holds information about a {@link Converter}.
  *
  * @param <From> The type to convert from.
  * @param <To> The type to convert to.
  */
-
-public final class ConverterInfo<From, To> implements Debuggable {
+public final class ConverterInfo<From, To> {
 
 	final Class<From> from;
 	final Class<To> to;
 	final Converter<From, To> converter;
-	final int flag;
+	final int flags;
 
-	public ConverterInfo(Class<From> from, Class<To> to, Converter<From, To> converter, int flag) {
+	public ConverterInfo(Class<From> from, Class<To> to, Converter<From, To> converter, int flags) {
 		this.from = from;
 		this.to = to;
 		this.converter = converter;
-		this.flag = flag;
+		this.flags = flags;
 	}
 
 	public Class<From> getFrom() {
@@ -56,20 +50,13 @@ public final class ConverterInfo<From, To> implements Debuggable {
 		return converter;
 	}
 
-	public int getFlag() {
-		return flag;
-	}
-
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (debug)
-			return converter.toString(e, true);
-		return toString();
+	public int getFlags() {
+		return flags;
 	}
 
 	@Override
 	public String toString() {
-		return Classes.getExactClassName(from) + " to " + Classes.getExactClassName(to);
+		return "ConverterInfo{from=" + from + ",to=" + to + ",converter=" + converter + ",flag=" + flags + "}";
 	}
 
 }

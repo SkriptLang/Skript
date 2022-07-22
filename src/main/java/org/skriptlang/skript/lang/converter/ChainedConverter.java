@@ -18,15 +18,32 @@
  */
 package org.skriptlang.skript.lang.converter;
 
-import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+/**
+ * A Chained Converter is very similar to a regular {@link Converter}.
+ * They are used when it is not possible to directly convert from Type A to Type B.
+ * Instead, a "middle man" is used that makes it possible to convert from Type A to Type B.
+ * What this means is that Type A is converted to the "middle man" type.
+ * Then, that "middle man" type is converted to Type B.
+ *
+ * Of course, multiple Chained Converters can be chained together to provide far more conversion possibilities.
+ * In these cases, you might have, for example, another "middle man" between
+ *  this Chained Converter's Type A and "middle man"
+ *
+ * By using conversion chains, Skript can convert an object into a different type that seemingly has no relation.
+ *
+ * @param <From> The type to convert from.
+ * @param <Middle> A middle type that is needed for converting 'from' to 'to'.
+ *                'from' will be converted to this type, and then this type will be converted to 'to'.
+ * @param <To> The type to convert to.
+ */
 final class ChainedConverter<From, Middle, To> implements Converter<From, To> {
 
 	private final Converter<From, Middle> first;
 	private final Converter<Middle, To> second;
 
-	public ChainedConverter(Converter<From, Middle> first, Converter<Middle, To> second) {
+	ChainedConverter(Converter<From, Middle> first, Converter<Middle, To> second) {
 		this.first = first;
 		this.second = second;
 	}
@@ -38,11 +55,6 @@ final class ChainedConverter<From, Middle, To> implements Converter<From, To> {
 		if (middle == null)
 			return null;
 		return second.convert(middle);
-	}
-
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " -> " + second.toString(e, debug);
 	}
 
 	@Override
