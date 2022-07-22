@@ -18,68 +18,67 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.classes.Changer.ChangeMode;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
-import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Time Played")
 @Description("The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
 	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.")
-@Examples({"set {_t} to time played of player",
+@Examples({
+	"set {_t} to time played of player",
 	"if player's time played is greater than 10 minutes:",
 	"\tgive player a diamond sword",
-	"set player's time played to 0 seconds"})
+	"",
+	"set player's time played to 0 seconds"
+})
+@RequiredPlugins("MC 1.16+ (offline players)")
 @Since("2.5")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
 
+	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
+
 	static {
-		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
-	}
-	
-	@SuppressWarnings({"unchecked", "null"})
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<Player>) exprs[0]);
-		return true;
+		register(ExprTimePlayed.class, Timespan.class, "time played", IS_OFFLINE_SUPPORTED ? "offlineplayers" : "players");
 	}
 	
 	@Nullable
 	@Override
 	public Timespan convert(OfflinePlayer offlinePlayer) {
-		return Timespan.fromTicks_i(offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
+		return getTimePlayed(offlinePlayer);
 	}
 	
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
 			return CollectionUtils.array(Timespan.class);
-		} else {
-			return null;
-		}
+
+		return null;
 	}
 	
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta == null)
+			return;
+
 		long ticks = ((Timespan) delta[0]).getTicks_i();
 		for (OfflinePlayer offlinePlayer : getExpr().getArray(e)) {
-			long playerTicks = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
+			if (!IS_OFFLINE_SUPPORTED && !offlinePlayer.isOnline())
+				continue;
+
+			long playerTicks = getTimePlayed(offlinePlayer).getTicks_i();
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -88,7 +87,10 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 					ticks = playerTicks - ticks;
 					break;
 			}
-			offlinePlayer.setStatistic(Statistic.PLAY_ONE_MINUTE, (int) ticks);
+			if (IS_OFFLINE_SUPPORTED)
+				offlinePlayer.setStatistic(Statistic.PLAY_ONE_MINUTE, (int) ticks);
+			else if (offlinePlayer.isOnline())
+				offlinePlayer.getPlayer().setStatistic(Statistic.PLAY_ONE_MINUTE, (int) ticks); // No NPE due to isOnline check
 		}
 	}
 	
@@ -100,6 +102,16 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	@Override
 	protected String getPropertyName() {
 		return "time played";
+	}
+
+	private static Timespan getTimePlayed(Object player) {
+		OfflinePlayer op = (OfflinePlayer) player;
+		if (IS_OFFLINE_SUPPORTED)
+			return Timespan.fromTicks_i(op.getStatistic(Statistic.PLAY_ONE_MINUTE));
+		else if (op.isOnline())
+			return Timespan.fromTicks_i(op.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
+
+		return null;
 	}
 	
 }
