@@ -195,6 +195,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // Register different Skript testing tasks
+createTestTask('legacyTest', 'src/test/skript/environments/legacy', false, latestJava, false)
 createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false)
 createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false)
 createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false)
