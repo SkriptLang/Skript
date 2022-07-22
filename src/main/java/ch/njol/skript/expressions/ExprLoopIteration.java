@@ -63,9 +63,8 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		loopNumber = -1;
-		if (exprs[0] != null) {
+		if (exprs[0] != null)
 			loopNumber = ((Literal<Number>) exprs[0]).getSingle().intValue();
-		}
 
 		int i = 1;
 		LoopSection loop = null;
