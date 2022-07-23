@@ -30,24 +30,25 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface Converter<From, To> {
 
 	/**
-	 * Disallow other converters from being chained to this.
+	 * A Converter flag declaring that this Converter may be chained in any way with another Converter.
+	 */
+	int ALL_CHAINING = 0;
+
+	/**
+	 * A Converter flag declaring that another Converter cannot be chained to this Converter.
+	 * This means that this Converter may only be
 	 */
 	int NO_LEFT_CHAINING = 1;
 
 	/**
-	 * Disallow chaining this with other converters.
+	 * A Converter flag declaring this Converter cannot be chained to another Converter.
 	 */
 	int NO_RIGHT_CHAINING = 2;
 
 	/**
-	 * Disallow all chaining.
+	 * A Converter flag declaring that this Converter cannot be chained in any way with another Converter.
 	 */
 	int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
-
-	/**
-	 * Disallow using a converter for parsing command arguments.
-	 */
-	int NO_COMMAND_ARGUMENTS = 4;
 
 	/**
 	 * Converts an object using this Converter.

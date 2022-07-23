@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
@@ -67,10 +68,10 @@ public class DefaultConverters {
 			Player online = p.getPlayer();
 			assert online != null;
 			return online.getInventory();
-		}, Converter.NO_COMMAND_ARGUMENTS);
+		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// OfflinePlayer - Player
-		Converters.registerConverter(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer, Converter.NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// CommandSender - Player
 		Converters.registerConverter(CommandSender.class, Player.class, s -> {
@@ -101,26 +102,26 @@ public class DefaultConverters {
 			if (b.getState() instanceof InventoryHolder)
 				return ((InventoryHolder) b.getState()).getInventory();
 			return null;
-		}, Converter.NO_COMMAND_ARGUMENTS);
+		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 		
 		// Entity - Inventory
 		Converters.registerConverter(Entity.class, Inventory.class, e -> {
 			if (e instanceof InventoryHolder)
 				return ((InventoryHolder) e).getInventory();
 			return null;
-		}, Converter.NO_COMMAND_ARGUMENTS);
+		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 		
 		// Block - ItemType
-		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Converter.NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Block - Location
-		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Converter.NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 		
 		// Entity - Location
-		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Converter.NO_COMMAND_ARGUMENTS);
+		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Entity - EntityData
-		Converters.registerConverter(Entity.class, EntityData.class, EntityData::fromEntity, Converter.NO_COMMAND_ARGUMENTS | Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Entity.class, EntityData.class, EntityData::fromEntity, Commands.CONVERTER_NO_COMMAND_ARGUMENTS | Converter.NO_RIGHT_CHAINING);
 
 		// EntityData - EntityType
 		Converters.registerConverter(EntityData.class, EntityType.class, data -> new EntityType(data, -1));
@@ -145,7 +146,7 @@ public class DefaultConverters {
 			if (s instanceof InventoryHolder)
 				return (InventoryHolder) s;
 			return null;
-		}, Converter.NO_RIGHT_CHAINING | Converter.NO_COMMAND_ARGUMENTS);
+		}, Converter.NO_RIGHT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 		Converters.registerConverter(InventoryHolder.class, Block.class, holder -> {
 			if (holder instanceof BlockState)
 				return new BlockInventoryHolder((BlockState) holder);

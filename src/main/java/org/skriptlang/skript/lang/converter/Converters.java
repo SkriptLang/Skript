@@ -69,7 +69,7 @@ public final class Converters {
 	 * @param converter A Converter for converting objects of type 'from' to type 'to'.
 	 */
 	public static <From, To> void registerConverter(Class<From> from, Class<To> to, Converter<From, To> converter) {
-		registerConverter(from, to, converter, 0);
+		registerConverter(from, to, converter, Converter.ALL_CHAINING);
 	}
 
 	/**
@@ -77,12 +77,12 @@ public final class Converters {
 	 * @param from The type to convert from.
 	 * @param to The type to convert to.
 	 * @param converter A Converter for converting objects of type 'from' to type 'to'.
-	 * @param flag A flag to set for the Converter. Flags can be found under {@link Converter}.
+	 * @param flags Flags to set for the Converter. Flags can be found under {@link Converter}.
 	 */
-	public static <From, To> void registerConverter(Class<From> from, Class<To> to, Converter<From, To> converter, int flag) {
+	public static <From, To> void registerConverter(Class<From> from, Class<To> to, Converter<From, To> converter, int flags) {
 		Skript.checkAcceptRegistrations();
 
-		ConverterInfo<From, To> info = new ConverterInfo<>(from, to, converter, flag);
+		ConverterInfo<From, To> info = new ConverterInfo<>(from, to, converter, flags);
 
 		if (exactConverterExists(from, to)) {
 			throw new SkriptAPIException(
@@ -98,7 +98,7 @@ public final class Converters {
 	 * It allows {@link ChainedConverter}s to be created so that Skript may do more complex conversions
 	 *  involving multiple converters.
 	 */
-	// TODO Find a better way of doing this that doesn't require a method to be called
+	// TODO Find a better way of doing this that doesn't require a method to be called (probably requires better Registration API)
 	// REMIND how to manage overriding of converters? - shouldn't actually matter
 	@SuppressWarnings("unchecked")
 	public static <From, Middle, To> void createChainedConverters() {

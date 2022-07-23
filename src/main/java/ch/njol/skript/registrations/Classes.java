@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.command.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -477,7 +478,7 @@ public abstract class Classes {
 				return t;
 			}
 			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
-				if (context == ParseContext.COMMAND && (conv.getFlags() & Converter.NO_COMMAND_ARGUMENTS) != 0)
+				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();
