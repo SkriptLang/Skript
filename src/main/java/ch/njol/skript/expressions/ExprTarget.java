@@ -50,8 +50,8 @@ import ch.njol.util.coll.CollectionUtils;
 	" entity they are attacking/following (if any).")
 @Examples({
 	"on entity target:",
-	"\tif entity's target is a player:",
-	"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
+		"\tif entity's target is a player:",
+			"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
 	"",
 	"reset target of entity # Makes the entity target-less",
 	"delete targeted entity of player # for players it will delete the target",
