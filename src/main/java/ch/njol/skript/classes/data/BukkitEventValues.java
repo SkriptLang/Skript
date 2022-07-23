@@ -37,6 +37,7 @@ import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -1231,13 +1232,38 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new Getter<Location, PlayerTeleportEvent>() {
+		//PlayerMoveEvent
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
 			@Nullable
-			public Location get(final PlayerTeleportEvent e) {
+			public Location get(PlayerMoveEvent e) {
 				return e.getFrom();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			@Nullable
+			public Location get(PlayerMoveEvent e) {
+				return e.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		//EntityMoveEvent
+		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getFrom();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getTo();
+				}
+			}, EventValues.TIME_FUTURE);
+		}
 		//PlayerToggleFlightEvent
 		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, new Getter<Player, PlayerToggleFlightEvent>() {
 			@Override
