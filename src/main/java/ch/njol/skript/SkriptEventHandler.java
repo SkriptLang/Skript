@@ -96,7 +96,7 @@ public abstract class SkriptEventHandler {
 		HandlerList eventHandlerList = getHandlerList(event);
 
 		return new ArrayList<>(triggers).stream()
-			.filter(pair -> eventHandlerList == getHandlerList(pair.getFirst()))
+			.filter(pair -> pair.getFirst().isAssignableFrom(event) && eventHandlerList == getHandlerList(pair.getFirst()))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}
