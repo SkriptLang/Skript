@@ -1120,12 +1120,12 @@ public class ScriptLoader {
 				if (stmt == null)
 					continue;
 				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
-				if (requiredTime > 0) {
+				if (true || requiredTime > 0) {
 					long timeTaken = System.currentTimeMillis() - start;
 					if (timeTaken > requiredTime)
 						Skript.warning(
-							"The line '" + expr + "' took a long time to parse (" + new Timespan(timeTaken) + ")."
-								+ " Please avoid using long lines and/or use parentheses to create clearer instructions."
+							"The current line took a long time to parse (" + new Timespan(timeTaken) + ")."
+								+ " Avoid using long lines and use parentheses to create clearer instructions."
 						);
 				}
 
