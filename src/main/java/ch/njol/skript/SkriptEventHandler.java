@@ -264,8 +264,8 @@ public abstract class SkriptEventHandler {
 
 	private static final Map<Class<? extends Event>, Method> handlerListMethods = Collections.synchronizedMap(new HashMap<>());
 
-	@SuppressWarnings("ThrowableNotThrown")
 	@Nullable
+	@SuppressWarnings("ThrowableNotThrown")
 	private static HandlerList getHandlerList(Class<? extends Event> eventClass) {
 		try {
 			Method method = getHandlerListMethod(eventClass);
