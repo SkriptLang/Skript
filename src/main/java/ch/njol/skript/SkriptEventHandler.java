@@ -18,14 +18,12 @@
  */
 package ch.njol.skript;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import ch.njol.skript.ScriptLoader.ScriptInfo;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.util.NonNullPair;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -38,17 +36,20 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.util.NonNullPair;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Peter Güttinger
@@ -261,29 +262,51 @@ public abstract class SkriptEventHandler {
 		}
 	}
 
+	private static final Map<Class<? extends Event>, Method> handlerListMethods = Collections.synchronizedMap(new HashMap<>());
+
 	@SuppressWarnings("ThrowableNotThrown")
 	@Nullable
-	private static HandlerList getHandlerList(Class<? extends Event> e) {
+	private static HandlerList getHandlerList(Class<? extends Event> eventClass) {
 		try {
-			Method method = getHandlerListMethod(e);
+			Method method = getHandlerListMethod(eventClass);
 			method.setAccessible(true);
 			return (HandlerList) method.invoke(null);
 		} catch (Exception ex) {
-			Skript.exception(ex, "Failed to get HandlerList for event " + e.getName());
+			Skript.exception(ex, "Failed to get HandlerList for event " + eventClass.getName());
 			return null;
 		}
 	}
 
-	private static Method getHandlerListMethod(Class<? extends Event> clazz) {
+	private static Method getHandlerListMethod(Class<? extends Event> eventClass) {
+		Method method;
+
+		synchronized (handlerListMethods) {
+			method = handlerListMethods.get(eventClass);
+			if (method == null) {
+				method = getHandlerListMethod_i(eventClass);
+				if (method != null)
+					method.setAccessible(true);
+				handlerListMethods.put(eventClass, method);
+			}
+		}
+
+		if (method == null)
+			throw new RuntimeException("No getHandlerList method found");
+
+		return method;
+	}
+
+	@Nullable
+	private static Method getHandlerListMethod_i(Class<? extends Event> eventClass) {
 		try {
-			return clazz.getDeclaredMethod("getHandlerList");
+			return eventClass.getDeclaredMethod("getHandlerList");
 		} catch (NoSuchMethodException e) {
-			if (clazz.getSuperclass() != null
-				&& !clazz.getSuperclass().equals(Event.class)
-				&& Event.class.isAssignableFrom(clazz.getSuperclass())) {
-				return getHandlerListMethod(clazz.getSuperclass().asSubclass(Event.class));
+			if (eventClass.getSuperclass() != null
+				&& !eventClass.getSuperclass().equals(Event.class)
+				&& Event.class.isAssignableFrom(eventClass.getSuperclass())) {
+				return getHandlerListMethod(eventClass.getSuperclass().asSubclass(Event.class));
 			} else {
-				throw new RuntimeException("No getHandlerList method found");
+				return null;
 			}
 		}
 	}
