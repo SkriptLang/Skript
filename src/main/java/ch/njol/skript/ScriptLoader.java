@@ -1120,7 +1120,7 @@ public class ScriptLoader {
 				if (stmt == null)
 					continue;
 				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
-				if (true || requiredTime > 0) {
+				if (requiredTime > 0) {
 					long timeTaken = System.currentTimeMillis() - start;
 					if (timeTaken > requiredTime)
 						Skript.warning(
