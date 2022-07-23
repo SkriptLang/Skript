@@ -5,14 +5,10 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.time.LocalTime
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '7.0.0'
+	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'com.github.hierynomus.license' version '0.16.1'
 	id 'maven-publish'
 	id 'java'
-}
-
-tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs += ["-source", "1.8", "-target", "1.8"]
 }
 
 allprojects {
@@ -26,7 +22,7 @@ allprojects {
 }
 
 dependencies {
-	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.6'
+	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.7'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
@@ -140,7 +136,7 @@ license {
 }
 
 // Task to check that test scripts are named correctly
-tasks.create('testNaming') {
+tasks.register('testNaming') {
 	doLast {
 		// Regression tests
 		for (def file : project.file('src/test/skript/tests/regressions').listFiles()) {
@@ -162,41 +158,53 @@ tasks.create('testNaming') {
 	}
 }
 
-// Create a test task with given name, environments dir/file and is it development mode task
-void createTestTask(String name, String environments, boolean devMode) {
-	tasks.create(name) {
-		// Compile Skript and check test naming
+// Create a test task with given name, environments dir/file, dev mode and java version.
+void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs) {
+	tasks.register(name, JavaExec) {
 		dependsOn jar, testNaming
-		doFirst {
-			if (devMode) {
-				standardInput = System.in
-			}
-			javaexec {
-				group = 'execution'
-				classpath = files([
-					'build' + File.separator + 'libs' + File.separator + 'Skript.jar',
-					project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
-					sourceSets.main.runtimeClasspath
-				])
-				main = 'ch.njol.skript.tests.platform.PlatformMain'
-				args = [
-					'test_runners',
-					'src/test/skript/tests',
-					'src/test/resources/runner_data',
-					environments,
-					devMode
-				]
-			}
+		javaLauncher = javaToolchains.launcherFor {
+	        languageVersion = JavaLanguageVersion.of(javaVersion)
+	    }
+		if (devMode) {
+			standardInput = System.in
 		}
+		group = 'execution'
+		classpath = files([
+			'build' + File.separator + 'libs' + File.separator + 'Skript.jar',
+			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
+			sourceSets.main.runtimeClasspath
+		])
+		main = 'ch.njol.skript.tests.platform.PlatformMain'
+		args = [
+			'test_runners',
+			'src/test/skript/tests',
+			'src/test/resources/runner_data',
+			environments,
+			devMode,
+			genDocs
+		]
 	}
 }
 
+def latestEnv = 'java17/paper-1.19.json'
+def latestJava = 17
+def oldestJava = 8
+
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ["-source", "" + oldestJava, "-target", "" + oldestJava]
+}
+
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/main/paper-1.18.2.json', false)
-createTestTask('skriptTest', 'src/test/skript/environments/main', false)
-createTestTask('skriptTestFull', 'src/test/skript/environments/', false)
-createTestTask('skriptTestDev', 'src/test/skript/environments/main/' + (project.property('testEnv') == null
-	? 'paper-1.17.json' : project.property('testEnv') + '.json'), true)
+createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false)
+createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false)
+createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false)
+createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
+	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
+	? latestJava : project.property('testEnvJavaVersion')), false)
+tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
+createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
+	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
+	? latestJava : project.property('testEnvJavaVersion')), true)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
