@@ -64,12 +64,7 @@ public abstract class SkriptEventHandler {
 
 		public final EventPriority priority;
 
-		@Nullable
-		private Event lastEvent;
 		public final EventExecutor executor = (listener, event) -> {
-			if (lastEvent == event) // an event is received multiple times if multiple superclasses of it are registered
-				return;
-			lastEvent = event;
 			check(event, ((PriorityListener) listener).priority);
 		};
 
