@@ -61,18 +61,18 @@ only used to provide compatibility with old WorldGuard versions.
 
 ### Testing
 Skript has some tests written in Skript. Running them requires a Minecraft
-server, but our build script can fetch it for you. Running tests is easy:
+server, but our build script will create one for you. Running the tests is easy:
 
 ```
-./gradlew (quickTest|skriptTest|skriptTestFull)
+./gradlew (quickTest|skriptTest|skriptTestJava8|skriptTestJava17)
 ```
 
-<code>quickTest</code> runs the test suite on newest supported server.
-<code>skriptTest</code> additionally runs the tests on oldest supported
-server, and on 1.12 (pre-flattening). <code>skriptTestFull</code> runs
-tests on **ALL** supported versions, some of which do not work on Java 9+.
+<code>quickTest</code> runs the test suite on newest supported server version.
+<code>skriptTestJava17</code> (1.17+) runs the tests on the latest supported Java version.
+<code>skriptTestJava8</code> (1.13-1.16) runs the tests on the oldest supported Java version.
+<code>skriptTest</code> runs both skriptTestJava8 and skriptTestJava17
 
-By running tests, you agree to Mojang's End User License Agreement.
+By running the tests, you agree to Mojang's End User License Agreement.
 
 ### Importing to Eclipse
 With new Eclipse versions, there is integrated Gradle support, and it actually works now.
