@@ -65,7 +65,7 @@ public class TestTracker {
 	}
 	
 	public static TestResults collectResults() {
-		TestResults results = new TestResults(getSucceededTests(), getFailedTests());
+		TestResults results = new TestResults(getSucceededTests(), getFailedTests(), TestMode.docsFailed);
 		startedTests.clear();
 		failedTests.clear();
 		return results;

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -682,7 +683,7 @@ public class AliasesParser {
 				Skript.warning(m_empty_alias.toString());
 			} else {
 				// Intern id to save some memory
-				id = id.toLowerCase().intern();
+				id = id.toLowerCase(Locale.ENGLISH).intern();
 				assert id != null;
 				try {
 					// Create singular and plural forms of the alias
