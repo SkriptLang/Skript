@@ -1,4 +1,4 @@
-test "spawn section" when minecraft version is not "1.9.4":
+test "spawn section":
 	set {_before} to 5
 	spawn a pig at spawn of "world":
 

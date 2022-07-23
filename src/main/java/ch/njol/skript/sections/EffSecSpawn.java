@@ -46,8 +46,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO this won't show up in the docs, sections don't have a tab. We should create a tab for them,
-//  and maybe add EffectSections to the effects page as well
 @Name("Spawn")
 @Description({
 	"Spawn a creature. This can be used as an effect and as a section.",
@@ -129,7 +127,7 @@ public class EffSecSpawn extends EffectSection {
 				SpawnEvent.class
 			);
 			if (delayed.get()) {
-				Skript.error("Delays can't be used within Spawn Effect Sections");
+				Skript.error("Delays can't be used within a Spawn Effect Section");
 				return false;
 			}
 		}
