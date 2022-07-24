@@ -19,8 +19,8 @@
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
-import org.skriptlang.skript.lang.structure.Structure;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A Script is a container for the raw structure of a user's script.
@@ -118,23 +118,20 @@ public final class Script {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T extends ScriptData> T getData(Class<T> dataType) {
-		return (T) scriptData.get(dataType);
+	public <Type extends ScriptData> Type getData(Class<Type> dataType) {
+		return (Type) scriptData.get(dataType);
 	}
 
 	/**
 	 * A method that always obtains ScriptData matching the specified data type.
-	 * By using the mapping function, it will also add ScriptData of the provided type if it is not already present.
+	 * By using the mapping supplier, it will also add ScriptData of the provided type if it is not already present.
 	 * @param dataType The class representing the ScriptData to obtain.
-	 * @param mappingFunction A function to add ScriptData if ScriptData matching the provided class is not already present.
+	 * @param mapper A supplier to create ScriptData of the provided type if such ScriptData is not already present.
 	 * @return Existing ScriptData found matching the provided class, or new data provided by the mapping function.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends ScriptData> T getData(Class<T> dataType, Function<Class<T>, T> mappingFunction) {
-		return (T) scriptData.computeIfAbsent(
-			dataType,
-			(Function<? super Class<? extends ScriptData>, ? extends ScriptData>) mappingFunction
-		);
+	public <Value extends ScriptData> Value getData(Class<? extends Value> dataType, Supplier<Value> mapper) {
+		return (Value) scriptData.computeIfAbsent(dataType, clazz -> mapper.get());
 	}
 
 	// Script Events
