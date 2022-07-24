@@ -39,7 +39,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.ExpressionType;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
@@ -47,9 +46,6 @@ import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureEntryValidator;
-import org.skriptlang.skript.lang.structure.StructureInfo;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -112,6 +108,10 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.structure.StructureEntryValidator;
+import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -638,13 +638,26 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 					if (TestMode.ENABLED) { // Ignore late init (scripts, etc.) in test mode
+						if (TestMode.GEN_DOCS) {
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
+							String results = new Gson().toJson(TestTracker.collectResults());
+							try {
+								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
+							}
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
+							return;
+						}
 						if (TestMode.DEV_MODE) { // Run tests NOW!
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
 						} else {
 							info("Running all tests from " + TestMode.TEST_DIR);
 
 							// Treat parse errors as fatal testing failure
-							@SuppressWarnings("null")
 							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
 							try {
 								errorCounter.start();
@@ -679,7 +692,6 @@ public final class Skript extends JavaPlugin implements Listener {
 							}, 5);
 
 						}
-
 						return;
 					}
 				}, 100);

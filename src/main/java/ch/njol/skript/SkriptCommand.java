@@ -21,7 +21,6 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.HTMLGenerator;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -42,6 +41,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -80,7 +80,7 @@ public class SkriptCommand implements CommandExecutor {
 	
 	static {
 		// Add command to generate documentation
-		if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
+		if (TestMode.GEN_DOCS || new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
 			SKRIPT_COMMAND_HELP.add("gen-docs");
 
 		// Add command to run individual tests
@@ -385,7 +385,8 @@ public class SkriptCommand implements CommandExecutor {
 			else if (args[0].equalsIgnoreCase("gen-docs")) {
 				File templateDir = new File(Skript.getInstance().getDataFolder() + "/doc-templates/");
 				if (!templateDir.exists()) {
-					Skript.info(sender, "Documentation templates not found. Cannot generate docs!");
+					Skript.error(sender, "Cannot generate docs! Documentation templates not found at 'plugins/Skript/doc-templates/'");
+					TestMode.docsFailed = true;
 					return true;
 				}
 				File outputDir = new File(Skript.getInstance().getDataFolder() + "/docs");
@@ -410,6 +411,7 @@ public class SkriptCommand implements CommandExecutor {
 					).toFile();
 					TestMode.lastTestFile = scriptFile;
 				}
+
 				if (!scriptFile.exists()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
@@ -420,6 +422,7 @@ public class SkriptCommand implements CommandExecutor {
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 							Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
+							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 							// Get results and show them
 							String[] lines = TestTracker.collectResults().createReport().split("\n");
