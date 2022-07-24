@@ -38,10 +38,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("An expression to obtain the amplifier of a potion effect applied to an entity.")
 @Examples("if the amplifier of haste of player >= 3:")
 @Since("INSERT VERSION")
-public class ExprPotionEffectTier extends SimpleExpression<Number> {
+public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 
 	static {
-		Skript.registerExpression(ExprPotionEffectTier.class, Number.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprPotionEffectTier.class, Integer.class, ExpressionType.COMBINED,
 			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% (of|for|on) %livingentity%"
 		);
 	}
@@ -50,6 +50,7 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 	private Expression<LivingEntity> entityExpr;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		typeExpr = (Expression<PotionEffectType>) exprs[0];
 		entityExpr = (Expression<LivingEntity>) exprs[1];
@@ -58,13 +59,13 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event event) {
+	protected Integer[] get(Event event) {
 		PotionEffectType type = typeExpr.getSingle(event);
 		LivingEntity entity = entityExpr.getSingle(event);
 		if (type == null || entity == null)
-			return new Number[0];
+			return new Integer[0];
 		PotionEffect effect = entity.getPotionEffect(type);
-		return new Number[]{effect == null ? 0 : effect.getAmplifier() + 1};
+		return new Integer[]{effect == null ? 0 : effect.getAmplifier() + 1};
 	}
 
 	@Override
@@ -73,8 +74,8 @@ public class ExprPotionEffectTier extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
