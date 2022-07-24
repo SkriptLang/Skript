@@ -527,6 +527,7 @@ public class ScriptLoader {
 							Structure structure = pair.getSecond();
 
 							getParser().setCurrentScript(script);
+							getParser().setCurrentStructure(structure);
 							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 
 							try {
@@ -549,6 +550,7 @@ public class ScriptLoader {
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						script.getStructures().removeIf(structure -> {
+							getParser().setCurrentStructure(structure);
 							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.load();
@@ -566,6 +568,7 @@ public class ScriptLoader {
 					for (Script script : scripts) {
 						getParser().setCurrentScript(script);
 						script.getStructures().removeIf(structure -> {
+							getParser().setCurrentStructure(structure);
 							SkriptLogger.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.postLoad();
@@ -578,6 +581,7 @@ public class ScriptLoader {
 					}
 
 					getParser().setCurrentScript(null);
+					getParser().setCurrentStructure(null);
 					SkriptLogger.setNode(null);
 
 					return scriptInfo;
@@ -586,6 +590,7 @@ public class ScriptLoader {
 					throw Skript.exception(e);
 				} finally {
 					getParser().setCurrentScript(null);
+					getParser().setCurrentStructure(null);
 					SkriptLogger.setNode(null);
 
 					openCloseable.close();
@@ -606,11 +611,7 @@ public class ScriptLoader {
 
 		// Track what is loaded
 		ScriptInfo scriptInfo = new ScriptInfo();
-		getParser().setScriptInfo(scriptInfo);
 		scriptInfo.files = 1; // Loading one script
-
-		List<Structure> structures = getParser().getCurrentStructures();
-		structures.clear();
 
 		Config config = script.getConfig();
 
@@ -646,7 +647,6 @@ public class ScriptLoader {
 						continue;
 
 					script.getStructures().add(structure);
-					structures.add(structure);
 
 					scriptInfo.structures++;
 				}

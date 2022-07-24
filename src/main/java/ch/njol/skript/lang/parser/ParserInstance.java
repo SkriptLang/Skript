@@ -18,14 +18,11 @@
  */
 package ch.njol.skript.lang.parser;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
-import org.skriptlang.skript.lang.structure.Structure;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions;
@@ -35,6 +32,8 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,215 +41,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class ParserInstance {
+public final class ParserInstance {
 	
-	private static final ThreadLocal<ParserInstance> parserInstances = ThreadLocal.withInitial(ParserInstance::new);
+	private static final ThreadLocal<ParserInstance> PARSER_INSTANCES = ThreadLocal.withInitial(ParserInstance::new);
 
 	/**
 	 * @return The {@link ParserInstance} for this thread.
 	 */
 	// TODO maybe make a one-thread cache (e.g. Pair<Thread, ParserInstance>) if it's better for performance (test)
 	public static ParserInstance get() {
-		return parserInstances.get();
+		return PARSER_INSTANCES.get();
 	}
-	
-	// Logging
-	private final HandlerList handlers = new HandlerList();
-	@Nullable
-	private Node node;
-	
-	// Script
-	@Nullable
-	private Script currentScript;
-	private ScriptInfo scriptInfo;
-	private final List<Structure> currentStructures = new ArrayList<>();
 
-	// Event
+	// Script API
+
 	@Nullable
-	private String currentEventName;
-	private Class<? extends Event>[] currentEvents = CollectionUtils.array(ContextlessEvent.class);
-	@Nullable
-	private SkriptEvent currentSkriptEvent;
-	
-	// Sections
-	private List<TriggerSection> currentSections = new ArrayList<>();
-	private Kleenean hasDelayBefore = Kleenean.FALSE;
-	private String indentation = "";
-	
-	// Getters
+	private Script currentScript = null;
+
 	/**
-	 * You probably shouldn't use this method.
-	 *
-	 * @return The {@link HandlerList} containing all active log handlers.
+	 * @return The Script currently being handled by this ParserInstance.
 	 */
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-	
-	@Nullable
-	public Node getNode() {
-		return node;
-	}
-	
 	@Nullable
 	public Script getCurrentScript() {
 		return currentScript;
-	}
-
-	/**
-	 * Deprecated. Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
-	 */
-	@Deprecated
-	public HashMap<String, String> getCurrentOptions() {
-		Script script = getCurrentScript();
-		if (script == null)
-			return new HashMap<>(0);
-		HashMap<String, String> options = StructOptions.getOptions(script);
-		if (options == null)
-			return new HashMap<>(0);
-		return options;
-	}
-
-	public ScriptInfo getScriptInfo() {
-		return scriptInfo;
-	}
-
-	/**
-	 * @return All currently loaded structures.
-	 */
-	public List<Structure> getCurrentStructures() {
-		return currentStructures;
-	}
-
-	/**
-	 * @return The {@link #getCurrentStructures()} that are an instance of the given Structure class
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends Structure> List<T> getCurrentStructures(Class<? extends T> structureClass) {
-		List<T> list = new ArrayList<>();
-		for (Structure structure : currentStructures) {
-			if (structureClass.isInstance(structure))
-				list.add((T) structure);
-		}
-		return list;
-	}
-
-	/**
-	 * @return Whether {@link #getCurrentStructures()} contains an instance of the given Structure class.
-	 */
-	public final boolean isCurrentStructure(Class<? extends Structure> structureClass) {
-		for (Structure structure : currentStructures) {
-			if (structureClass.isInstance(structure))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return Whether {@link #getCurrentStructures()} contains an instance of one of the given Structure classes.
-	 */
-	@SafeVarargs
-	public final boolean isCurrentStructure(Class<? extends Structure>... structureClasses) {
-		for (Class<? extends Structure> structureClass : structureClasses) {
-			if (isCurrentStructure(structureClass))
-				return true;
-		}
-		return false;
-	}
-
-	@Nullable
-	public String getCurrentEventName() {
-		return currentEventName;
-	}
-
-	public Class<? extends Event>[] getCurrentEvents() {
-		return currentEvents;
-	}
-	
-	@Nullable
-	public SkriptEvent getCurrentSkriptEvent() {
-		return currentSkriptEvent;
-	}
-	
-	public List<TriggerSection> getCurrentSections() {
-		return currentSections;
-	}
-
-	/**
-	 * @return Whether {@link #getCurrentSections()} contains
-	 * a section instance of the given class (or subclass).
-	 */
-	public final boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
-		for (TriggerSection triggerSection : currentSections) {
-			if (sectionClass.isInstance(triggerSection))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return Whether {@link #getCurrentSections()} contains
-	 * a section instance of one of the given classes (or subclasses).
-	 */
-	@SafeVarargs
-	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
-		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
-			if (isCurrentSection(sectionClass))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return The outermost section which is an instance of the given class.
-	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
-	 * @see #getCurrentSections()
-	 */
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		for (int i = currentSections.size(); i-- > 0;) {
-			TriggerSection triggerSection = currentSections.get(i);
-			if (sectionClass.isInstance(triggerSection))
-				return (T) triggerSection;
-		}
-		return null;
-	}
-
-	/**
-	 * @return a {@link List} of current sections that are an instance of the given class.
-	 * Modifications to the returned list are not saved.
-	 * @see #getCurrentSections()
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
-		List<T> list = new ArrayList<>();
-		for (TriggerSection triggerSection : currentSections) {
-			if (sectionClass.isInstance(triggerSection))
-				list.add((T) triggerSection);
-		}
-		return list;
-	}
-	
-	/**
-	 * @return whether this trigger has had delays before.
-	 * Any syntax elements that modify event-values, should use this
-	 * (or the {@link Kleenean} provided to in
-	 * {@link ch.njol.skript.lang.SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)})
-	 * to make sure the event can't be modified when it has passed.
-	 */
-	public Kleenean getHasDelayBefore() {
-		return hasDelayBefore;
-	}
-	
-	public String getIndentation() {
-		return indentation;
-	}
-	
-	// Setters
-	public void setNode(@Nullable Node node) {
-		this.node = node == null || node.getParent() == null ? null : node;
 	}
 
 	/**
@@ -272,12 +85,59 @@ public class ParserInstance {
 			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.onLoad(previous));
 	}
 
-	public void setScriptInfo(ScriptInfo scriptInfo) {
-		this.scriptInfo = scriptInfo;
+	// Structure API
+
+	@Nullable
+	private Structure currentStructure = null;
+
+	/**
+	 * Updates the Structure currently being handled by this ParserInstance.
+	 * @param structure The new Structure to be handled.
+	 */
+	public void setCurrentStructure(@Nullable Structure structure) {
+		currentStructure = structure;
 	}
+
+	/**
+	 * @return The Structure currently being handled by this ParserInstance.
+	 */
+	@Nullable
+	public Structure getCurrentStructure() {
+		return currentStructure;
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentStructure()} is an instance of the given Structure class.
+	 */
+	public boolean isCurrentStructure(Class<? extends Structure> structureClass) {
+		return structureClass.isInstance(currentStructure);
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentStructure()} is an instance of one of the given Structure classes.
+	 */
+	@SafeVarargs
+	public final boolean isCurrentStructure(Class<? extends Structure>... structureClasses) {
+		for (Class<? extends Structure> structureClass : structureClasses) {
+			if (isCurrentStructure(structureClass))
+				return true;
+		}
+		return false;
+	}
+
+	// Event API
+
+	@Nullable
+	private String currentEventName;
+	private Class<? extends Event>[] currentEvents = CollectionUtils.array(ContextlessEvent.class);
 
 	public void setCurrentEventName(@Nullable String currentEventName) {
 		this.currentEventName = currentEventName;
+	}
+
+	@Nullable
+	public String getCurrentEventName() {
+		return currentEventName;
 	}
 
 	/**
@@ -290,46 +150,23 @@ public class ParserInstance {
 		this.currentEvents = currentEvents;
 		getDataInstances().forEach(data -> data.onCurrentEventsChange(currentEvents));
 	}
-	
-	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		this.currentSkriptEvent = currentSkriptEvent;
-	}
-	
-	public void deleteCurrentSkriptEvent() {
-		this.currentSkriptEvent = null;
-	}
-	
-	public void setCurrentSections(List<TriggerSection> currentSections) {
-		this.currentSections = currentSections;
-	}
-	
-	/**
-	 * This method should be called to indicate that
-	 * the trigger will (possibly) be delayed from this point on.
-	 *
-	 * @see ch.njol.skript.util.AsyncEffect
-	 */
-	public void setHasDelayBefore(Kleenean hasDelayBefore) {
-		this.hasDelayBefore = hasDelayBefore;
-	}
-	
-	public void setIndentation(String indentation) {
-		this.indentation = indentation;
-	}
-	
-	// Other
+
 	@SafeVarargs
 	public final void setCurrentEvent(String name, Class<? extends Event>... events) {
 		Validate.isTrue(events.length != 0, "'events' may not be empty!");
 		currentEventName = name;
 		setCurrentEvents(events);
-		hasDelayBefore = Kleenean.FALSE;
+		setHasDelayBefore(Kleenean.FALSE);
 	}
-	
+
 	public void deleteCurrentEvent() {
 		currentEventName = null;
 		setCurrentEvents(CollectionUtils.array(ContextlessEvent.class));
-		hasDelayBefore = Kleenean.FALSE;
+		setHasDelayBefore(Kleenean.FALSE);
+	}
+
+	public Class<? extends Event>[] getCurrentEvents() {
+		return currentEvents;
 	}
 
 	/**
@@ -366,9 +203,144 @@ public class ParserInstance {
 		return CollectionUtils.containsAnySuperclass(currentEvents, events);
 	}
 
-	/*
-	 * Addon data
+	// Section API
+
+	private List<TriggerSection> currentSections = new ArrayList<>();
+
+	/**
+	 * Updates the list of sections currently being handled by this ParserInstance.
+	 * @param currentSections A new list of sections to handle.
 	 */
+	public void setCurrentSections(List<TriggerSection> currentSections) {
+		this.currentSections = currentSections;
+	}
+
+	/**
+	 * @return A list of all sections this ParserInstance is currently within.
+	 */
+	public List<TriggerSection> getCurrentSections() {
+		return currentSections;
+	}
+
+	/**
+	 * @return The outermost section which is an instance of the given class.
+	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
+	 * @see #getCurrentSections()
+	 */
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
+		for (int i = currentSections.size(); i-- > 0;) {
+			TriggerSection triggerSection = currentSections.get(i);
+			if (sectionClass.isInstance(triggerSection))
+				return (T) triggerSection;
+		}
+		return null;
+	}
+
+	/**
+	 * @return a {@link List} of current sections that are an instance of the given class.
+	 * Modifications to the returned list are not saved.
+	 * @see #getCurrentSections()
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
+		List<T> list = new ArrayList<>();
+		for (TriggerSection triggerSection : currentSections) {
+			if (sectionClass.isInstance(triggerSection))
+				list.add((T) triggerSection);
+		}
+		return list;
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentSections()} contains
+	 * a section instance of the given class (or subclass).
+	 */
+	public boolean isCurrentSection(Class<? extends TriggerSection> sectionClass) {
+		for (TriggerSection triggerSection : currentSections) {
+			if (sectionClass.isInstance(triggerSection))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return Whether {@link #getCurrentSections()} contains
+	 * a section instance of one of the given classes (or subclasses).
+	 */
+	@SafeVarargs
+	public final boolean isCurrentSection(Class<? extends TriggerSection>... sectionClasses) {
+		for (Class<? extends TriggerSection> sectionClass : sectionClasses) {
+			if (isCurrentSection(sectionClass))
+				return true;
+		}
+		return false;
+	}
+
+	// Delay API
+
+	private Kleenean hasDelayBefore = Kleenean.FALSE;
+
+	/**
+	 * This method should be called to indicate that
+	 * the trigger will (possibly) be delayed from this point on.
+	 *
+	 * @see ch.njol.skript.util.AsyncEffect
+	 */
+	public void setHasDelayBefore(Kleenean hasDelayBefore) {
+		this.hasDelayBefore = hasDelayBefore;
+	}
+
+	/**
+	 * @return whether this trigger has had delays before.
+	 * Any syntax elements that modify event-values, should use this
+	 * (or the {@link Kleenean} provided to in
+	 * {@link ch.njol.skript.lang.SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)})
+	 * to make sure the event can't be modified when it has passed.
+	 */
+	public Kleenean getHasDelayBefore() {
+		return hasDelayBefore;
+	}
+
+	// Miscellaneous
+
+	private final HandlerList handlers = new HandlerList();
+
+	/**
+	 * You probably shouldn't use this method.
+	 *
+	 * @return The {@link HandlerList} containing all active log handlers.
+	 */
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	@Nullable
+	private Node node;
+
+	public void setNode(@Nullable Node node) {
+		this.node = node == null || node.getParent() == null ? null : node;
+	}
+
+	@Nullable
+	public Node getNode() {
+		return node;
+	}
+
+	private String indentation = "";
+
+	public void setIndentation(String indentation) {
+		this.indentation = indentation;
+	}
+	
+	public String getIndentation() {
+		return indentation;
+	}
+
+	// ParserInstance Data API
+
 	/**
 	 * An abstract class for addons that want to add data bound to a ParserInstance.
 	 * Extending classes may listen to the events {@link #onCurrentScriptChange(Script, Script)}
@@ -441,6 +413,49 @@ public class ParserInstance {
 				dataList.add(data);
 		}
 		return dataList;
+	}
+
+	// Deprecated API
+
+	/**
+	 * @deprecated Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
+	 */
+	@Deprecated
+	public HashMap<String, String> getCurrentOptions() {
+		Script script = getCurrentScript();
+		if (script == null)
+			return new HashMap<>(0);
+		HashMap<String, String> options = StructOptions.getOptions(script);
+		if (options == null)
+			return new HashMap<>(0);
+		return options;
+	}
+
+	/**
+	 * @deprecated Use {@link #getCurrentStructure()}
+	 */
+	@Nullable
+	@Deprecated
+	public SkriptEvent getCurrentSkriptEvent() {
+		if (currentStructure instanceof SkriptEvent)
+			return (SkriptEvent) currentStructure;
+		return null;
+	}
+
+	/**
+	 * @deprecated Use {@link #setCurrentStructure(Structure)}.
+	 */
+	@Deprecated
+	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
+		setCurrentStructure(currentSkriptEvent);
+	}
+
+	/**
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null'.
+	 */
+	@Deprecated
+	public void deleteCurrentSkriptEvent() {
+		setCurrentStructure(null);
 	}
 	
 }

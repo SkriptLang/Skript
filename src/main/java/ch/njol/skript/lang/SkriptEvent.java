@@ -118,12 +118,10 @@ public abstract class SkriptEvent extends Structure {
 
 		try {
 			getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), eventClasses);
-			getParser().setCurrentSkriptEvent(this);
 
 			items = ScriptLoader.loadItems(source);
 		} finally {
 			getParser().deleteCurrentEvent();
-			getParser().deleteCurrentSkriptEvent();
 		}
 
 		return true;
@@ -136,7 +134,6 @@ public abstract class SkriptEvent extends Structure {
 	@Override
 	public boolean postLoad() {
 		getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), getEventClasses());
-		getParser().setCurrentSkriptEvent(this);
 
 		Script script = getParser().getCurrentScript();
 
@@ -157,7 +154,6 @@ public abstract class SkriptEvent extends Structure {
 		}
 
 		getParser().deleteCurrentEvent();
-		getParser().deleteCurrentSkriptEvent();
 
 		return true;
 	}
