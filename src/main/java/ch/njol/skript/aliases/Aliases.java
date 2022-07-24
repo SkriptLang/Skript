@@ -610,7 +610,7 @@ public abstract class Aliases {
 	 * @return The obtained aliases, or null if the script has no custom aliases.
 	 */
 	@Nullable
-	private static ScriptAliases getScriptAliases(@Nullable Script script) {
+	public static ScriptAliases getScriptAliases(@Nullable Script script) {
 		if (script == null) // It's easier to handle this here in the event that ParserInstance#getCurrentScript is null
 			return null;
 		return script.getData(ScriptAliases.class);

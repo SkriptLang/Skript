@@ -29,6 +29,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 import ch.njol.util.StringUtils;
@@ -150,7 +151,7 @@ public class StructOptions extends Structure {
 		return replaced;
 	}
 
-	private static final class OptionsData {
+	private static final class OptionsData implements ScriptData {
 
 		public final HashMap<String, String> options = new HashMap<>(15);
 

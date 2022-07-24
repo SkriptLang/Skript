@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * A Script is a container for the raw structure of a user's script.
@@ -69,14 +70,6 @@ public final class Script {
 	private final Set<ScriptWarning> suppressedWarnings = new HashSet<>(ScriptWarning.values().length);
 
 	/**
-	 * @param warning The warning to check.
-	 * @return Whether this script suppresses the provided warning.
-	 */
-	public boolean suppressesWarning(ScriptWarning warning) {
-		return suppressedWarnings.contains(warning);
-	}
-
-	/**
 	 * @param warning Suppresses the provided warning for this script.
 	 */
 	public void suppressWarning(ScriptWarning warning) {
@@ -90,9 +83,33 @@ public final class Script {
 		suppressedWarnings.remove(warning);
 	}
 
+	/**
+	 * @param warning The warning to check.
+	 * @return Whether this script suppresses the provided warning.
+	 */
+	public boolean suppressesWarning(ScriptWarning warning) {
+		return suppressedWarnings.contains(warning);
+	}
+
 	// Script Data
 
-	private final Map<Class<?>, Object> scriptData = new ConcurrentHashMap<>(5);
+	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new ConcurrentHashMap<>(5);
+
+	/**
+	 * Adds new ScriptData to this Script's data map.
+	 * @param data The data to add.
+	 */
+	public void addData(ScriptData data) {
+		scriptData.put(data.getClass(), data);
+	}
+
+	/**
+	 * Removes the ScriptData matching the specified data type.
+	 * @param dataType The type of the data to remove.
+	 */
+	public void removeData(Class<? extends ScriptData> dataType) {
+		scriptData.remove(dataType);
+	}
 
 	/**
 	 * A method to obtain ScriptData matching the specified data type.
@@ -101,36 +118,28 @@ public final class Script {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T getData(Class<T> dataType) {
+	public <T extends ScriptData> T getData(Class<T> dataType) {
 		return (T) scriptData.get(dataType);
 	}
 
 	/**
-	 * Adds new ScriptData to this Script's data map.
-	 * @param data The data to add.
+	 * A method that always obtains ScriptData matching the specified data type.
+	 * By using the mapping function, it will also add ScriptData of the provided type if it is not already present.
+	 * @param dataType The class representing the ScriptData to obtain.
+	 * @param mappingFunction A function to add ScriptData if ScriptData matching the provided class is not already present.
+	 * @return Existing ScriptData found matching the provided class, or new data provided by the mapping function.
 	 */
-	public void addData(Object data) {
-		scriptData.put(data.getClass(), data);
-	}
-
-	/**
-	 * Removes the ScriptData matching the specified data type.
-	 * @param dataType The type of the data to remove.
-	 */
-	public void removeData(Class<?> dataType) {
-		scriptData.remove(dataType);
+	@SuppressWarnings("unchecked")
+	public <T extends ScriptData> T getData(Class<T> dataType, Function<Class<T>, T> mappingFunction) {
+		return (T) scriptData.computeIfAbsent(
+			dataType,
+			(Function<? super Class<? extends ScriptData>, ? extends ScriptData>) mappingFunction
+		);
 	}
 
 	// Script Events
 
 	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>(5);
-
-	/**
-	 * @return An unmodifiable set of all event handlers.
-	 */
-	public Set<ScriptEventHandler> getEventHandlers() {
-		return Collections.unmodifiableSet(eventHandlers);
-	}
 
 	/**
 	 * Adds the provided event handler to this Script.
@@ -146,6 +155,13 @@ public final class Script {
 	 */
 	public void removeEventHandler(ScriptEventHandler eventHandler) {
 		eventHandlers.remove(eventHandler);
+	}
+
+	/**
+	 * @return An unmodifiable set of all event handlers.
+	 */
+	public Set<ScriptEventHandler> getEventHandlers() {
+		return Collections.unmodifiableSet(eventHandlers);
 	}
 
 }

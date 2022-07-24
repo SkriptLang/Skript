@@ -19,10 +19,12 @@
 package ch.njol.skript.aliases;
 
 
+import org.skriptlang.skript.lang.script.ScriptData;
+
 /**
  * Per-script aliases provider and parser container.
  */
-public class ScriptAliases {
+public class ScriptAliases implements ScriptData {
 	
 	/**
 	 * Aliases provider.
