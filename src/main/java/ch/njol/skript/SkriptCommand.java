@@ -138,8 +138,11 @@ public class SkriptCommand implements CommandExecutor {
 
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
-						.thenAccept(unused ->
-							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts"));
+						.thenAccept(info -> {
+							if (info.files == 0)
+								Skript.warning(Skript.m_no_scripts.toString());
+							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
+						});
 				}
 
 				else if (args[1].equalsIgnoreCase("scripts")) {
@@ -147,8 +150,11 @@ public class SkriptCommand implements CommandExecutor {
 
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
-						.thenAccept(unused ->
-							reloaded(sender, logHandler, timingLogHandler, "scripts"));
+						.thenAccept(info -> {
+							if (info.files == 0)
+								Skript.warning(Skript.m_no_scripts.toString());
+							reloaded(sender, logHandler, timingLogHandler, "scripts");
+						});
 				}
 
 				else if (args[1].equalsIgnoreCase("config")) {
