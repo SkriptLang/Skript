@@ -49,9 +49,8 @@ public abstract class KeyValueStructureEntryData<T> extends StructureEntryData<T
 		assert node instanceof SimpleNode;
 		String key = node.getKey();
 		if (key == null)
-			return null;
-		T value = getValue(ScriptLoader.replaceOptions(key).substring(getKey().length() + getSeparator().length()));
-		return value;
+			throw new IllegalArgumentException("StructureEntryData#getValue() called with invalid node.");
+		return getValue(ScriptLoader.replaceOptions(key).substring(getKey().length() + getSeparator().length()));
 	}
 
 	/**

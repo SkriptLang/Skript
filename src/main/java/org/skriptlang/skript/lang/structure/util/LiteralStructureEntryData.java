@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * This entry makes use of {@link Classes#parse(String, Class, ParseContext)}
  *  to parse the user's input using registered {@link ch.njol.skript.classes.ClassInfo}s
  *  and {@link ch.njol.skript.classes.Converter}s.
+ * This data <b>CAN</b> return null if the user's input is unable to be parsed as the expected type.
  */
 public class LiteralStructureEntryData<T> extends KeyValueStructureEntryData<T> {
 

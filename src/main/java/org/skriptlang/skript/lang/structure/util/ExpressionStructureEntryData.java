@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A type of {@link KeyValueStructureEntryData} designed to parse its value as an {@link Expression}.
+ * This data <b>CAN</b> return null if expression parsing fails.
  */
 public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<Expression<? extends T>> {
 

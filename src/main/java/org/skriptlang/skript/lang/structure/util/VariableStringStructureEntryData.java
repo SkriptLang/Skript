@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * A type of {@link KeyValueStructureEntryData} designed to parse its value as a {@link VariableString}.
  * The {@link StringMode} may be specified during construction.
  * Constructors without a StringMode parameter assume {@link StringMode#MESSAGE}.
+ * This data <b>CAN</b> return null if string parsing fails (e.g. the user formatted their string wrong).
  */
 public class VariableStringStructureEntryData extends KeyValueStructureEntryData<VariableString> {
 

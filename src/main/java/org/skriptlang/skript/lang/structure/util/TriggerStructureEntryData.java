@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An entry data class designed to take a {@link SectionNode} and parse it into a Trigger.
  * Events specified during construction *should* be used when the Trigger is executed.
+ * This data will <b>NEVER</b> return null.
  * @see SectionStructureEntryData
  */
 public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
