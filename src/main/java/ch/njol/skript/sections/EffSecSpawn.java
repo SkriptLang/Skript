@@ -123,7 +123,7 @@ public class EffSecSpawn extends EffectSection {
 			trigger = loadCode(
 				sectionNode,
 				"spawn",
-				() -> delayed.set(getParser().getHasDelayBefore().isTrue()),
+				() -> delayed.set(!getParser().getHasDelayBefore().isFalse()),
 				SpawnEvent.class
 			);
 			if (delayed.get()) {
@@ -150,9 +150,9 @@ public class EffSecSpawn extends EffectSection {
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, localVars);
-				trigger.execute(spawnEvent, () -> {
-					Variables.setLocalVariables(e, Variables.copyLocalVariables(spawnEvent)); // Carry over variable changes to the rest of the main trigger
-				});
+				TriggerItem.walk(trigger, spawnEvent);
+				Variables.setLocalVariables(e, Variables.copyLocalVariables(spawnEvent));
+				Variables.removeLocals(spawnEvent); // Clear them since we didn't do it after Trigger execution
 			};
 		} else {
 			consumer = null;

@@ -92,7 +92,7 @@ public class Delay extends Effect {
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				if (Skript.debug())
-					Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1000000000. + "s");
+					Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				// Re-set local variables
 				if (localVars != null)
@@ -125,13 +125,14 @@ public class Delay extends Effect {
 		return "wait for " + duration.toString(e, debug) + (e == null ? "" : "...");
 	}
 
-	private static final Set<Event> delayed = Collections.newSetFromMap(new WeakHashMap<>());
+	private static final Set<Event> delayed =
+		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
 	public static boolean isDelayed(Event e) {
 		return delayed.contains(e);
 	}
 
-	public static void addDelayedEvent(Event event){
+	public static void addDelayedEvent(Event event) {
 		delayed.add(event);
 	}
 
