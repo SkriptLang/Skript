@@ -18,15 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
@@ -44,6 +35,14 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Target")
 @Description("For players this is the entity at the crosshair, while for mobs and experience orbs it represents the" +
@@ -62,15 +61,15 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"[the] target[[ed] %-*entitydata%] [of %livingentities%]",
-				"%livingentities%'[s] target[[ed] %-*entitydata%]");
+			"[the] target[[ed] %-*entitydata%] [of %livingentities%]",
+			"%livingentities%'[s] target[[ed] %-*entitydata%]");
 	}
 	
 	@Nullable
 	private EntityData<?> type;
 	
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		type = exprs[matchedPattern] == null ? null : (EntityData<?>) exprs[matchedPattern].getSingle(null);
 		setExpr((Expression<? extends LivingEntity>) exprs[1 - matchedPattern]);
@@ -112,7 +111,8 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			case SET:
 			case RESET:
 			case DELETE:
-				LivingEntity target = delta == null ? null : (LivingEntity) delta[0]; // null will make the entity target-less (reset target) but for players it will remove them
+				// null will make the entity target-less (reset target) but for players it will remove them
+				LivingEntity target = delta == null ? null : (LivingEntity) delta[0];
 				for (LivingEntity entity : getExpr().getArray(e)) {
 					if (getTime() >= 0 && e instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
 						((EntityTargetEvent) e).setTarget(target);
@@ -120,7 +120,9 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 						if (entity instanceof Creature) {
 							((Creature) entity).setTarget(target);
 						} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-							removeTarget(Utils.getTarget(entity, type));
+							Entity ent = Utils.getTarget(entity, type);
+							if (ent != null && !(ent instanceof OfflinePlayer))
+								ent.remove();
 						}
 					}
 				}
