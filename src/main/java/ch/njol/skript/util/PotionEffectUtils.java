@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.bukkit.entity.LivingEntity;
@@ -75,7 +76,7 @@ public abstract class PotionEffectUtils {
 					final String[] ls = Language.getList("potions." + t.getName());
 					names[t.getId()] = ls[0];
 					for (final String l : ls) {
-						types.put(l.toLowerCase(), t);
+						types.put(l.toLowerCase(Locale.ENGLISH), t);
 					}
 				}
 			}
@@ -84,7 +85,7 @@ public abstract class PotionEffectUtils {
 	
 	@Nullable
 	public static PotionEffectType parseType(final String s) {
-		return types.get(s.toLowerCase());
+		return types.get(s.toLowerCase(Locale.ENGLISH));
 	}
 	
 	// This is a stupid bandaid to fix comparison issues when converting potion datas

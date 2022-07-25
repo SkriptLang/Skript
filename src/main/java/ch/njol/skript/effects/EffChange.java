@@ -216,15 +216,17 @@ public class EffChange extends Effect {
 						return false;
 					}
 					log.clear();
+					log.stop();
 					final Class<?>[] r = new Class[rs.length];
 					for (int i = 0; i < rs.length; i++)
 						r[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
-					if (rs.length == 1 && rs[0] == Object.class)
+					if (r.length == 1 && r[0] == Object.class)
 						Skript.error("Can't understand this expression: " + changer, ErrorQuality.NOT_AN_EXPRESSION);
 					else if (mode == ChangeMode.SET)
 						Skript.error(what + " can't be set to " + changer + " because the latter is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
 					else
 						Skript.error(changer + " can't be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
+					log.printError();
 					return false;
 				}
 				log.printLog();
@@ -270,12 +272,11 @@ public class EffChange extends Effect {
 	
 	@Override
 	protected void execute(Event e) {
-		Expression<?> changer = this.changer;
 		Object[] delta = changer == null ? null : changer.getArray(e);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
-			if (changed.acceptChange(ChangeMode.DELETE) != null)
+			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
 				changed.change(e, null, ChangeMode.DELETE);
 			return;
 		}

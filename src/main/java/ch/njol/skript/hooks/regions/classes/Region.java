@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.hooks.regions.classes;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -36,7 +26,17 @@ import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @author Peter Güttinger
@@ -75,19 +75,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 						if (!VariableString.isQuotedCorrectly(s, quoted))
 							return null;
 						s = VariableString.unquote(s, quoted);
-						Region r = null;
-						for (final World w : Bukkit.getWorlds()) {
-							@SuppressWarnings("null")
-							final Region r2 = RegionsPlugin.getRegion(w, s);
-							if (r2 == null)
-								continue;
-							if (r != null) {
-								Skript.error("Multiple regions with the name '" + s + "' exist.");
-								return null;
-							}
-							r = r2;
-						}
-						return r;
+						return Region.parse(s, true);
 					}
 					
 					@Override
@@ -99,18 +87,36 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 					public String toVariableNameString(final Region r) {
 						return r.toString();
 					}
-					
-					@Override
-					public String getVariableNamePattern() {
-						return ".*";
-					}
-				})
+                })
 				.serializer(new YggdrasilSerializer<Region>() {
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
 				}));
+		Converters.registerConverter(String.class, Region.class, s -> Region.parse(s, false));
+	}
+
+	@Nullable
+	private static Region parse(String s, boolean error) {
+		Region r = null;
+		for (World w : Bukkit.getWorlds()) {
+			Region r2 = RegionsPlugin.getRegion(w, s);
+			if (r2 == null)
+				continue;
+			if (r != null) {
+				if (error)
+					Skript.error("Multiple regions with the name '" + s + "' exist");
+				return null;
+			}
+			r = r2;
+		}
+		if (r == null) {
+			if (error)
+				Skript.error("Region '" + s + "' could not be found");
+			return null;
+		}
+		return r;
 	}
 	
 	public abstract boolean contains(Location l);

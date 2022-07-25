@@ -46,17 +46,13 @@ import ch.njol.util.Math2;
 public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	
 	static {
-		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-])speed", "players");
+		register(ExprSpeed.class, Number.class, "(0¦walk[ing]|1¦fl(y[ing]|ight))[( |-)]speed", "players");
 	}
 	
 	private boolean walk;
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!Skript.isRunningMinecraft(1, 4)) {
-			Skript.error("fly and walk speed can only be used in Minecraft 1.4 and newer");
-			return false;
-		}
 		super.init(exprs, matchedPattern, isDelayed, parseResult);
 		walk = parseResult.mark == 0;
 		return true;

@@ -138,7 +138,7 @@ public class MessageComponent {
 			
 			@SuppressWarnings("null")
 			Action() {
-				spigotName = this.name().toUpperCase();
+				spigotName = this.name().toUpperCase(Locale.ENGLISH);
 			}
 		}
 		
