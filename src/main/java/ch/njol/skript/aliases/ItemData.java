@@ -81,9 +81,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	static final MaterialRegistry materialRegistry;
 	
-	private static final boolean SPAWN_EGG_META_EXISTS = Skript.classExists("org.bukkit.inventory.meta.SpawnEggMeta");
-	private static final boolean HAS_NEW_SKULL_META_METHODS = Skript.methodExists(SkullMeta.class, "getOwningPlayer");
-	
 	// Load or create material registry
 	static {
 		Gson gson = new GsonBuilder().registerTypeAdapterFactory(EnumTypeAdapter.factory).serializeNulls().create();
@@ -119,8 +116,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
+	 *
+	 * @deprecated before 1.13 is no longer supported
 	 */
-	public static final boolean itemDataValues = !Skript.isRunningMinecraft(1, 13);
+	@Deprecated
+	public static final boolean itemDataValues = false;
 	
 	/**
 	 * ItemStack, which is used for everything but serialization.
@@ -341,16 +341,12 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			return MatchQuality.DIFFERENT;
 		}
 		BlockValues values = blockValues;
-		if (!itemDataValues) {
-			// Items (held in inventories) don't have block values
-			// If this is an item, given item must not have them either
-			if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
-				return MatchQuality.SAME_MATERIAL;
-			}
-		} else if (itemFlags != 0 && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
-			return MatchQuality.DIFFERENT; // On 1.12 and below, items may share a material but have a different data value (ex: white wool vs red wool)
+		// Items (held in inventories) don't have block values
+		// If this is an item, given item must not have them either
+		if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
+			return MatchQuality.SAME_MATERIAL;
 		}
-		
+
 		/*
 		 * Initially, expect exact match. Lower expectations as new differences
 		 * between items are discovered.
@@ -460,35 +456,16 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			PotionData theirPotion = ((PotionMeta) second).getBasePotionData();
 			return !Objects.equals(ourPotion, theirPotion) ? MatchQuality.SAME_MATERIAL : quality;
 		}
-		
-		// Only check spawn egg data on 1.12 and below. See issue #3167
-		if (!MaterialRegistry.newMaterials && SPAWN_EGG_META_EXISTS && second instanceof SpawnEggMeta) {
-			if (!(first instanceof SpawnEggMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a spawn egg, first is clearly not
-			}
-			// Compare spawn egg spawned type
-			EntityType ourSpawnedType = ((SpawnEggMeta) first).getSpawnedType();
-			EntityType theirSpawnedType = ((SpawnEggMeta) second).getSpawnedType();
-			return !Objects.equals(ourSpawnedType, theirSpawnedType) ? MatchQuality.SAME_MATERIAL : quality;
-		}
-		
+
 		// Skull owner
 		if (second instanceof SkullMeta) {
 			if (!(first instanceof SkullMeta)) {
 				return MatchQuality.DIFFERENT; // Second is a skull, first is clearly not
 			}
 			// Compare skull owners
-			if (HAS_NEW_SKULL_META_METHODS) {
-				OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
-				OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
-				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-			} else { // Use old methods
-				@SuppressWarnings("deprecation")
-				String ourOwner = ((SkullMeta) first).getOwner();
-				@SuppressWarnings("deprecation")
-				String theirOwner = ((SkullMeta) second).getOwner();
-				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-			}
+			OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
+			OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
+			return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
 		}
 		
 		return quality;
@@ -649,10 +626,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			meta.setDisplayName(null); // Clear display name
 			data.stack.setItemMeta(meta);
 		}
-		if (!itemDataValues) {
-			ItemUtils.setDamage(data.stack, 0); // Set to undamaged
-		}
-		
+		ItemUtils.setDamage(data.stack, 0); // Set to undamaged
+
 		data.type = type;
 		data.blockValues = blockValues;
 		data.itemForm = itemForm;

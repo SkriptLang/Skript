@@ -18,6 +18,18 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.List;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
@@ -32,7 +44,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
@@ -64,7 +75,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			"[the] target[[ed] %-*entitydata%] [of %livingentities%]",
 			"%livingentities%'[s] target[[ed] %-*entitydata%]");
 	}
-	
+
 	@Nullable
 	private EntityData<?> type;
 	
@@ -75,7 +86,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		setExpr((Expression<? extends LivingEntity>) exprs[1 - matchedPattern]);
 		return true;
 	}
-	
+
 	@Override
 	protected Entity[] get(Event e, LivingEntity[] source) {
 		return get(source, new Converter<LivingEntity, Entity>() {
@@ -83,16 +94,16 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			@Nullable
 			public Entity convert(LivingEntity en) {
 				if (getTime() >= 0 && e instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					Entity t = ((EntityTargetEvent) e).getTarget();
-					if (t == null || type != null && !type.isInstance(t))
+					Entity target = ((EntityTargetEvent) e).getTarget();
+					if (target == null || type != null && !type.isInstance(target))
 						return null;
-					return t;
+					return target;
 				}
-				return Utils.getTarget(en, type);
+				return getTarget(en, type);
 			}
 		});
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -104,7 +115,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		}
 		return super.acceptChange(mode);
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
@@ -117,8 +128,8 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 					if (getTime() >= 0 && e instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
 						((EntityTargetEvent) e).setTarget(target);
 					} else {
-						if (entity instanceof Creature) {
-							((Creature) entity).setTarget(target);
+						if (entity instanceof Mob) {
+							((Mob) entity).setTarget(target);
 						} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
 							Entity ent = Utils.getTarget(entity, type);
 							if (ent != null && !(ent instanceof OfflinePlayer))
@@ -130,7 +141,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			default:
 				super.change(e, delta, mode);
 		}
-	}
+    }
 
 	@Override
 	public boolean setTime(int time) {
@@ -153,5 +164,40 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		if (e != null && !(e instanceof OfflinePlayer))
 			e.remove();
 	}
+
+	/**
+	 * Gets an entity's target.
+	 * 
+	 * @param entity The entity to get the target of
+	 * @param type Can be null for any entity
+	 * @return The entity's target
+	 */
+	// TODO Switch this over to RayTraceResults 1.13+ when 1.12 support is dropped.
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public static <T extends Entity> T getTarget(LivingEntity entity, @Nullable EntityData<T> type) {
+		if (entity instanceof Mob)
+			return ((Mob) entity).getTarget() == null || type != null && !type.isInstance(((Mob) entity).getTarget()) ? null : (T) ((Mob) entity).getTarget();
+
+		Vector direction = entity.getLocation().getDirection().normalize();
+		Vector eye = entity.getEyeLocation().toVector();
+		double cos45 = Math.cos(Math.PI / 4);
+		double targetDistanceSquared = 0;
+		double radiusSquared = 1;
+		T target = null;
+
+		for (T other : type == null ? (List<T>) entity.getWorld().getEntities() : entity.getWorld().getEntitiesByClass(type.getType())) {
+			if (other == null || other == entity || type != null && !type.isInstance(other))
+				continue;
+
+			if (target == null || targetDistanceSquared > other.getLocation().distanceSquared(entity.getLocation())) {
+				Vector t = other.getLocation().add(0, 1, 0).toVector().subtract(eye);
+				if (direction.clone().crossProduct(t).lengthSquared() < radiusSquared && t.normalize().dot(direction) >= cos45) {
+					target = other;
+					targetDistanceSquared = target.getLocation().distanceSquared(entity.getLocation());
+				}
+			}
+		}
+		return target;
 
 }
