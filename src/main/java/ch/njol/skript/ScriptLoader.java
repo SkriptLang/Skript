@@ -484,7 +484,7 @@ public class ScriptLoader {
 	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 * @return Info on the loaded scripts.
 	 */
-	public static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
+	private static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
@@ -1053,23 +1053,27 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated No longer supported.
+	 * @deprecated Use <b>{@link #getLoadedScripts()}.size()</b>.
 	 */
 	@Deprecated
 	public static int loadedScripts() {
-		return 0;
+		return getLoadedScripts().size();
 	}
 
 	/**
-	 * @deprecated No longer supported.
+	 * @deprecated Use <b>{@link #getLoadedScripts()}</b> and <b>{@link Script#getStructures()}.size()</b>.
+	 * Please note that a Structure may have multiple triggers, and this is only an estimate.
 	 */
 	@Deprecated
 	public static int loadedTriggers() {
-		return 0;
+		int loaded = 0;
+		for (Script script : getLoadedScripts())
+			loaded += script.getStructures().size();
+		return loaded;
 	}
 
 	/**
-	 * @see #loadScripts(File, OpenCloseable)
+	 * @deprecated Use {@link #loadScripts(File, OpenCloseable)}
 	 */
 	@Deprecated
 	static void loadScripts() {
@@ -1078,7 +1082,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #loadScripts(List, OpenCloseable)
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo loadScripts(List<Config> configs) {
@@ -1086,7 +1090,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #loadScripts(List, OpenCloseable)
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
 	 * @see RetainingLogHandler
 	 */
 	@Deprecated
@@ -1100,7 +1104,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #loadScripts(List, OpenCloseable)
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo loadScripts(Config... configs) {
@@ -1108,7 +1112,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #reloadScript(File, OpenCloseable)
+	 * @deprecated Use {@link #reloadScript(Script, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo reloadScript(File script) {
@@ -1116,7 +1120,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see #reloadScripts(File, OpenCloseable)
+	 * @deprecated Use {@link #reloadScripts(Set, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo reloadScripts(File folder) {
@@ -1124,7 +1128,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#getHasDelayBefore()
+	 * @deprecated Use {@link ParserInstance#getHasDelayBefore()}.
 	 */
 	@Deprecated
 	public static Kleenean getHasDelayBefore() {
@@ -1132,7 +1136,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#setHasDelayBefore(Kleenean)
+	 * @deprecated Use {@link ParserInstance#setHasDelayBefore(Kleenean)}.
 	 */
 	@Deprecated
 	public static void setHasDelayBefore(Kleenean hasDelayBefore) {
@@ -1140,7 +1144,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#getCurrentScript()
+	 * @deprecated Use {@link ParserInstance#getCurrentScript()}.
 	 */
 	@Nullable
 	@Deprecated
@@ -1157,7 +1161,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#getCurrentSections()
+	 * @deprecated Use {@link ParserInstance#getCurrentSections()}.
 	 */
 	@Deprecated
 	public static List<TriggerSection> getCurrentSections() {
@@ -1165,7 +1169,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#setCurrentSections(List)
+	 * @deprecated Use {@link ParserInstance#setCurrentSections(List)}.
 	 */
 	@Deprecated
 	public static void setCurrentSections(List<TriggerSection> currentSections) {
@@ -1173,7 +1177,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#getCurrentSections(Class)
+	 * @deprecated Use {@link ParserInstance#getCurrentSections(Class)}.
 	 */
 	@Deprecated
 	public static List<SecLoop> getCurrentLoops() {
@@ -1181,13 +1185,13 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * Never use this method, it has no effect.
+	 * @deprecated Never use this method, it has no effect.
 	 */
 	@Deprecated
 	public static void setCurrentLoops(List<SecLoop> currentLoops) { }
 
 	/**
-	 * @see ParserInstance#getCurrentEventName()
+	 * @deprecated Use {@link ParserInstance#getCurrentEventName()}.
 	 */
 	@Nullable
 	@Deprecated
@@ -1196,7 +1200,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#setCurrentEvent(String, Class[])
+	 * @deprecated Use {@link ParserInstance#setCurrentEvent(String, Class[])}.
 	 */
 	@SafeVarargs
 	@Deprecated
@@ -1209,7 +1213,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#deleteCurrentEvent()
+	 * @deprecated Use {@link ParserInstance#deleteCurrentEvent()}.
 	 */
 	@Deprecated
 	public static void deleteCurrentEvent() {
@@ -1217,7 +1221,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#isCurrentEvent(Class)
+	 * @deprecated Use {@link ParserInstance#isCurrentEvent(Class)}
 	 */
 	@Deprecated
 	public static boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
@@ -1225,7 +1229,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#isCurrentEvent(Class[])
+	 * @deprecated Use {@link ParserInstance#isCurrentEvent(Class[])}.
 	 */
 	@SafeVarargs
 	@Deprecated
@@ -1234,7 +1238,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @see ParserInstance#getCurrentEvents()
+	 * @deprecated Use {@link ParserInstance#getCurrentEvents()}.
 	 */
 	@Nullable
 	@Deprecated
@@ -1243,7 +1247,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * This method has no functionality, it just returns its input.
+	 * @deprecated This method has no functionality, it just returns its input.
 	 */
 	@Deprecated
 	public static Config loadStructure(Config config) {
