@@ -34,7 +34,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 @Name("Locally Suppress Warning")
 @Description("Suppresses target warnings from the current script.")
 @Examples({
-	"locally suppress conflict warnings",
+	"locally suppress missing conjunction warnings",
 	"suppress the variable save warnings"
 })
 @Since("2.3")
@@ -52,7 +52,11 @@ public class EffSuppressWarnings extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		mark = parseResult.mark;
-		getParser().getCurrentScript().suppressWarning(ScriptWarning.values()[mark - 2]);
+		if (mark == 1) {
+			Skript.warning("Variable conflict warnings no longer need suppression, as they have been removed altogether");
+		} else {
+			getParser().getCurrentScript().suppressWarning(ScriptWarning.values()[mark - 2]);
+		}
 		return true;
 	}
 
