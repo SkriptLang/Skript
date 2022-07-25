@@ -57,12 +57,7 @@ public class ExprScript extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		Script script = getParser().getCurrentScript();
-		if (script == null) {
-			assert false;
-			return false;
-		}
-		String name = script.getConfig().getFileName();
+		String name = getParser().getCurrentScript().getConfig().getFileName();
 		if (name.contains("."))
 			name = name.substring(0, name.lastIndexOf('.'));
 		this.name = name;

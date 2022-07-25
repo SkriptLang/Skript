@@ -180,7 +180,8 @@ public class Variable<T> implements Expression<T> {
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
-		Script currentScript = ParserInstance.get().getCurrentScript();
+		ParserInstance parser = ParserInstance.get();
+		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 		if (currentScript != null
 				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
 				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)

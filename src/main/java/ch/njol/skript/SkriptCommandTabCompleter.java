@@ -26,11 +26,11 @@ import org.bukkit.command.TabCompleter;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class SkriptCommandTabCompleter implements TabCompleter {
 
@@ -55,12 +55,11 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			String fs = File.separator;
 
 			boolean enable = args[0].equalsIgnoreCase("enable");
-			
-			try {
-				// Live update, this will get all old and new (even not loaded) scripts
-				// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-				Files.walk(scripts.toPath())
-					.map(Path::toFile)
+
+			// Live update, this will get all old and new (even not loaded) scripts
+			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
+			try (Stream<Path> files = Files.walk(scripts.toPath())) {
+				files.map(Path::toFile)
 					.forEach(f -> {
 						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(f))
 							return;
@@ -91,9 +90,9 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 
 						options.add(fileString);
 					});
-			// TODO handle file permissions
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				//noinspection ThrowableNotThrown
+				Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
 			}
 			
 			// These will be added even if there are incomplete script arg

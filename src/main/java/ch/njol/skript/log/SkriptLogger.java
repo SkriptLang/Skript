@@ -135,12 +135,18 @@ public abstract class SkriptLogger {
 	}
 
 	public static void setNode(@Nullable Node node) {
-		ParserInstance.get().setNode(node);
+		ParserInstance parser = ParserInstance.get();
+		if (parser.isActive()) {
+			if (node == null)
+				node = parser.getCurrentScript().getConfig().getMainNode();
+			parser.setNode(node);
+		}
 	}
 	
 	@Nullable
 	public static Node getNode() {
-		return ParserInstance.get().getNode();
+		ParserInstance parser = ParserInstance.get();
+		return parser.isActive() ? parser.getNode() : null;
 	}
 	
 	/**

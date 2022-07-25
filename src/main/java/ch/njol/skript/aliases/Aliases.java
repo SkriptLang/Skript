@@ -64,7 +64,7 @@ public abstract class Aliases {
 	@Nullable
 	private static ItemType getAlias_i(final String s) {
 		// Check script aliases first
-		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
+		ScriptAliases aliases = getScriptAliases();
 		if (aliases != null) {
 			return aliases.provider.getAlias(s); // Delegates to global provider if needed
 		}
@@ -172,7 +172,7 @@ public abstract class Aliases {
 	@Nullable
 	private static MaterialName getMaterialNameData(ItemData type) {
 		// Check script aliases first
-		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
+		ScriptAliases aliases = getScriptAliases();
 		if (aliases != null) {
 			return aliases.provider.getMaterialName(type);
 		}
@@ -512,7 +512,7 @@ public abstract class Aliases {
 	 */
 	@Nullable
 	public static String getMinecraftId(ItemData data) {
-		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
+		ScriptAliases aliases = getScriptAliases();
 		if (aliases != null) {
 			return aliases.provider.getMinecraftId(data);
 		}
@@ -527,7 +527,7 @@ public abstract class Aliases {
 	 */
 	@Nullable
 	public static EntityData<?> getRelatedEntity(ItemData data) {
-		ScriptAliases aliases = getScriptAliases(ParserInstance.get().getCurrentScript());
+		ScriptAliases aliases = getScriptAliases();
 		if (aliases != null) {
 			return aliases.provider.getRelatedEntity(data);
 		}
@@ -605,14 +605,24 @@ public abstract class Aliases {
 	}
 
 	/**
-	 * Internal method for easy obtaining of per-script aliases.
+	 * Internal method for obtaining ScriptAliases. Checks {@link ParserInstance#isActive()}.
+	 * @return The obtained aliases, or null if the script has no custom aliases.
+	 */
+	@Nullable
+	private static ScriptAliases getScriptAliases() {
+		ParserInstance parser = ParserInstance.get();
+		if (parser.isActive())
+			return getScriptAliases(parser.getCurrentScript());
+		return null;
+	}
+
+	/**
+	 * Method for obtaining the ScriptAliases instance of a {@link Script}.
 	 * @param script The script to obtain aliases from.
 	 * @return The obtained aliases, or null if the script has no custom aliases.
 	 */
 	@Nullable
-	public static ScriptAliases getScriptAliases(@Nullable Script script) {
-		if (script == null) // It's easier to handle this here in the event that ParserInstance#getCurrentScript is null
-			return null;
+	public static ScriptAliases getScriptAliases(Script script) {
 		return script.getData(ScriptAliases.class);
 	}
 

@@ -74,6 +74,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The main class for loading, unloading and reloading scripts.
@@ -240,14 +241,13 @@ public class ScriptLoader {
 	 */
 	static void updateDisabledScripts(Path path) {
 		disabledScripts.clear();
-		try {
-			// TODO handle AccessDeniedException
-			Files.walk(path)
-				.map(Path::toFile)
+		try (Stream<Path> files = Files.walk(path)) {
+			files.map(Path::toFile)
 				.filter(disabledScriptFilter::accept)
 				.forEach(disabledScripts::add);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
 		}
 	}
 	
@@ -513,8 +513,11 @@ public class ScriptLoader {
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
 			.thenApply(unused -> {
 				try {
-					// TODO when calling loading methods, we need to ensure that SkriptLogger#setNode is being updated properly.
 					openCloseable.open();
+
+					// TODO in the future this won't work when parallel loading is fixed
+					// It does now though so let's avoid calling getParser() a bunch.
+					ParserInstance parser = getParser();
 
 					scripts.stream()
 						.flatMap(script -> { // Flatten each entry down to a stream of Config-Structure pairs
@@ -526,9 +529,8 @@ public class ScriptLoader {
 							Script script = pair.getFirst();
 							Structure structure = pair.getSecond();
 
-							getParser().setCurrentScript(script);
-							getParser().setCurrentStructure(structure);
-							SkriptLogger.setNode(structure.getEntryContainer().getSource());
+							parser.setActive(script);
+							parser.setCurrentStructure(structure);
 
 							try {
 								if (!structure.preLoad())
@@ -540,18 +542,17 @@ public class ScriptLoader {
 							}
 						});
 
-					getParser().setCurrentScript(null);
-					SkriptLogger.setNode(null);
+					parser.setInactive();
 
 					// TODO in the future, Structure#load should be split across multiple threads if parallel loading is enabled.
 					// However, this is not possible right now as reworks in multiple areas will be needed.
 					// For example, the "Commands" class still uses a static list for currentArguments that is cleared between loads.
 					// Until these reworks happen, limiting main loading to asynchronous (not parallel) is the only choice we have.
 					for (Script script : scripts) {
-						getParser().setCurrentScript(script);
+						parser.setActive(script);
 						script.getStructures().removeIf(structure -> {
-							getParser().setCurrentStructure(structure);
-							SkriptLogger.setNode(structure.getEntryContainer().getSource());
+							parser.setCurrentStructure(structure);
+							parser.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.load();
 							} catch (Exception e) {
@@ -562,14 +563,13 @@ public class ScriptLoader {
 						});
 					}
 
-					getParser().setCurrentScript(null);
-					SkriptLogger.setNode(null);
+					parser.setInactive();
 
 					for (Script script : scripts) {
-						getParser().setCurrentScript(script);
+						parser.setActive(script);
 						script.getStructures().removeIf(structure -> {
-							getParser().setCurrentStructure(structure);
-							SkriptLogger.setNode(structure.getEntryContainer().getSource());
+							parser.setCurrentStructure(structure);
+							parser.setNode(structure.getEntryContainer().getSource());
 							try {
 								return !structure.postLoad();
 							} catch (Exception e) {
@@ -580,18 +580,12 @@ public class ScriptLoader {
 						});
 					}
 
-					getParser().setCurrentScript(null);
-					getParser().setCurrentStructure(null);
-					SkriptLogger.setNode(null);
-
 					return scriptInfo;
 				} catch (Exception e) {
 					// Something went wrong, we need to make sure the exception is printed
 					throw Skript.exception(e);
 				} finally {
-					getParser().setCurrentScript(null);
-					getParser().setCurrentStructure(null);
-					SkriptLogger.setNode(null);
+					getParser().setInactive();
 
 					openCloseable.close();
 				}
@@ -614,12 +608,11 @@ public class ScriptLoader {
 		scriptInfo.files = 1; // Loading one script
 
 		Config config = script.getConfig();
+		getParser().setActive(script);
 
 		try {
 			if (SkriptConfig.keepConfigsLoaded.value())
 				SkriptConfig.configs.add(config);
-
-			getParser().setCurrentScript(script);
 			
 			try (CountingLogHandler ignored = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
 				for (Node cnode : config.getMainNode()) {
@@ -653,14 +646,12 @@ public class ScriptLoader {
 				
 				if (Skript.logHigh())
 					Skript.info("loaded " + scriptInfo.structures + " structure" + (scriptInfo.structures == 1 ? "" : "s") + " from '" + config.getFileName() + "'");
-				
-				getParser().setCurrentScript(null);
 			}
 		} catch (Exception e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load " + config.getFileName());
 		} finally {
-			SkriptLogger.setNode(null);
+			getParser().setInactive();
 		}
 		
 		// In always sync task, enable stuff
@@ -811,11 +802,12 @@ public class ScriptLoader {
 		scripts = new HashSet<>(scripts); // Don't modify the list we were provided with
 
 		for (Script script : scripts) {
-			parser.setCurrentScript(script);
+			parser.setActive(script);
 			for (Structure structure : script.getStructures())
 				structure.unload();
-			parser.setCurrentScript(null);
 		}
+
+		parser.setInactive();
 
 		for (Script script : scripts) {
 			List<Structure> structures = script.getStructures();
@@ -823,24 +815,16 @@ public class ScriptLoader {
 			info.files++;
 			info.structures += structures.size();
 
-			parser.setCurrentScript(script);
+			parser.setActive(script);
 			for (Structure structure : script.getStructures())
 				structure.postUnload();
 			structures.clear();
-			parser.setCurrentScript(null);
+			parser.setInactive();
 
 			loadedScripts.remove(script); // We just unloaded it, so...
 			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;
 			disabledScripts.add(new File(scriptFile.getParentFile(), DISABLED_SCRIPT_PREFIX + scriptFile.getName()));
-
-			// If unloading, our caller will do this immediately after we return
-			// However, if reloading, new version of this script is first loaded
-
-			//noinspection ConstantConditions - getPath should never return null
-			String name = Skript.getInstance().getDataFolder().toPath().toAbsolutePath()
-				.resolve(Skript.SCRIPTSFOLDER).relativize(script.getConfig().getPath().toAbsolutePath()).toString();
-			assert name != null;
 		}
 
 		return info;
@@ -900,10 +884,10 @@ public class ScriptLoader {
 	 */
 	// TODO this system should eventually be replaced with a more generalized "node processing" system
 	public static String replaceOptions(String s) {
-		Script script = getParser().getCurrentScript();
-		if (script == null)
+		ParserInstance parser = getParser();
+		if (!parser.isActive()) // getCurrentScript() is not safe to use
 			return s;
-		return StructOptions.replaceOptions(script, s);
+		return StructOptions.replaceOptions(parser.getCurrentScript(), s);
 	}
 	
 	/**
@@ -1161,17 +1145,15 @@ public class ScriptLoader {
 	@Nullable
 	@Deprecated
 	public static Config getCurrentScript() {
-		Script script = getParser().getCurrentScript();
-		return script != null ? script.getConfig() : null;
+		return getParser().isActive() ? getParser().getCurrentScript().getConfig() : null;
 	}
 
 	/**
-	 * @see ParserInstance#setCurrentScript(Script)
+	 * @deprecated Addons should no longer be modifying this.
 	 */
 	@Deprecated
 	public static void setCurrentScript(@Nullable Config currentScript) {
-		//noinspection ConstantConditions - getFile should never return null
-		getParser().setCurrentScript(currentScript != null ? getScript(currentScript.getFile()) : null);
+		getParser().setCurrentScript(currentScript);
 	}
 
 	/**

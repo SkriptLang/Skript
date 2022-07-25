@@ -27,11 +27,10 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.structure.EntryContainer;
-import org.skriptlang.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.structure.EntryContainer;
+import org.skriptlang.skript.lang.structure.Structure;
 
 @Name("Aliases")
 @Description("Used for registering custom aliases for a script.")
@@ -55,9 +54,7 @@ public class StructAliases extends Structure {
 		node.convertToEntries(0, "=");
 
 		// Initialize and load script aliases
-		Script currentScript = getParser().getCurrentScript();
-		assert currentScript != null;
-		Aliases.createScriptAliases(currentScript).parser.load(node);
+		Aliases.createScriptAliases(getParser().getCurrentScript()).parser.load(node);
 
 		return true;
 	}
@@ -70,7 +67,6 @@ public class StructAliases extends Structure {
 	@Override
 	public void unload() {
 		// Unload aliases when this Script is unloaded
-		//noinspection ConstantConditions - current script won't be null
 		Aliases.clearScriptAliases(getParser().getCurrentScript());
 	}
 

@@ -713,7 +713,8 @@ public class SkriptParser {
 				return ts.get(0);
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				Script currentScript = getParser().getCurrentScript();
+				ParserInstance parser = getParser();
+				Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 				if (currentScript == null || !currentScript.suppressesWarning(ScriptWarning.MISSING_CONJUNCTION))
 					Skript.warning(MISSING_AND_OR + ": " + expr);
 			}
@@ -844,7 +845,8 @@ public class SkriptParser {
 			}
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				Script currentScript = getParser().getCurrentScript();
+				ParserInstance parser = getParser();
+				Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 				if (currentScript == null || !currentScript.suppressesWarning(ScriptWarning.MISSING_CONJUNCTION))
 					Skript.warning(MISSING_AND_OR + ": " + expr);
 			}
@@ -945,7 +947,8 @@ public class SkriptParser {
 //			}
 //			@SuppressWarnings("null")
 
-			Script currentScript = getParser().getCurrentScript();
+			ParserInstance parser = getParser();
+			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
 					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {

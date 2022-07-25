@@ -28,11 +28,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Signature;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.structure.EntryContainer;
-import org.skriptlang.skript.lang.structure.Structure;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.structure.EntryContainer;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -68,21 +68,18 @@ public class StructFunction extends Structure {
 
 	@Override
 	public boolean preLoad() {
-		Script script = getParser().getCurrentScript();
-		if (script == null)
-			throw new IllegalStateException("Current script is null during function loading");
-		signature = Functions.loadSignature(script.getConfig().getFileName(), getEntryContainer().getSource());
+		signature = Functions.loadSignature(getParser().getCurrentScript().getConfig().getFileName(), getEntryContainer().getSource());
 		return true;
 	}
 
 	@Override
 	public boolean load() {
-		getParser().setCurrentEvent("function", FunctionEvent.class);
+		ParserInstance parser = getParser();
+		parser.setCurrentEvent("function", FunctionEvent.class);
 
-		//noinspection ConstantConditions - current script won't be null
-		Functions.loadFunction(getParser().getCurrentScript(), getEntryContainer().getSource());
+		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource());
 
-		getParser().deleteCurrentEvent();
+		parser.deleteCurrentEvent();
 
 		validateFunctions.set(true);
 

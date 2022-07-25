@@ -58,7 +58,7 @@ public class CondScriptLoaded extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
 		currentScript = getParser().getCurrentScript();
-		if (currentScript == null && scripts == null) {
+		if (scripts == null) {
 			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
 			return false;
 		}

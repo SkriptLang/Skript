@@ -74,11 +74,9 @@ public class StructOptions extends Structure {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
 
-		Script currentScript = getParser().getCurrentScript();
-		assert currentScript != null;
 		OptionsData optionsData = new OptionsData();
 		loadOptions(node, "", optionsData.options);
-		currentScript.addData(optionsData);
+		getParser().getCurrentScript().addData(optionsData);
 
 		return true;
 	}
@@ -102,7 +100,6 @@ public class StructOptions extends Structure {
 
 	@Override
 	public void unload() {
-		//noinspection ConstantConditions - current script won't be null
 		getParser().getCurrentScript().removeData(OptionsData.class);
 	}
 

@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.lang.parser;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptEvent;
@@ -53,36 +56,76 @@ public final class ParserInstance {
 		return PARSER_INSTANCES.get();
 	}
 
+	private boolean isActive = false;
+
+	/**
+	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
+	 * You probably don't need to use this method!
+	 */
+	public void setInactive() {
+		this.isActive = false;
+		setCurrentScript((Script) null);
+		setCurrentStructure(null);
+		deleteCurrentEvent();
+		getCurrentSections().clear();
+		setNode_i(null);
+	}
+
+	/**
+	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
+	 * You probably don't need to use this method!
+	 */
+	public void setActive(Script script) {
+		this.isActive = true;
+		setCurrentScript(script);
+		setNode(script.getConfig().getMainNode());
+	}
+
+	/**
+	 * @return Whether this ParserInstance is currently active.
+	 * An active ParserInstance may be loading, parsing, or unloading scripts.
+	 * Please note that some methods may be unavailable if this method returns <code>false</code>.
+	 * You should consult the documentation of the method you are calling.
+	 */
+	public boolean isActive() {
+		return isActive;
+	}
+
 	// Script API
 
 	@Nullable
 	private Script currentScript = null;
 
 	/**
-	 * @return The Script currently being handled by this ParserInstance.
-	 */
-	@Nullable
-	public Script getCurrentScript() {
-		return currentScript;
-	}
-
-	/**
+	 * Internal method for updating the current script. Allows null parameter.
 	 * @param currentScript The new Script to mark as the current Script.
 	 * Please note that this method will do nothing if the current Script is the same as the new Script.
 	 */
-	public void setCurrentScript(@Nullable Script currentScript) {
+	private void setCurrentScript(@Nullable Script currentScript) {
 		if (currentScript == this.currentScript) // Do nothing as it's the same script
 			return;
 
 		Script previous = this.currentScript;
 		this.currentScript = currentScript;
-		getDataInstances().forEach(data -> data.onCurrentScriptChange(previous, currentScript));
+		getDataInstances().forEach(
+			data -> data.onCurrentScriptChange(currentScript != null ? currentScript.getConfig() : null)
+		);
 
 		// "Script" events
 		if (previous != null)
-			previous.getEventHandlers().forEach(eventHandler -> eventHandler.onUnload(currentScript));
+			previous.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeInactive(currentScript));
 		if (currentScript != null)
-			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.onLoad(previous));
+			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeActive(previous));
+	}
+
+	/**
+	 * @return The Script currently being handled by this ParserInstance.
+	 * @throws SkriptAPIException If this ParserInstance is not {@link #isActive()}.
+	 */
+	public Script getCurrentScript() {
+		if (currentScript == null)
+			throw new SkriptAPIException("This ParserInstance is not currently parsing/loading something!");
+		return currentScript;
 	}
 
 	// Structure API
@@ -320,12 +363,17 @@ public final class ParserInstance {
 	@Nullable
 	private Node node;
 
-	public void setNode(@Nullable Node node) {
+	public void setNode(Node node) {
+		setNode_i(node);
+	}
+
+	private void setNode_i(@Nullable Node node) {
 		this.node = node == null || node.getParent() == null ? null : node;
 	}
 
-	@Nullable
 	public Node getNode() {
+		if (node == null)
+			throw new SkriptAPIException("This ParserInstance is not active!");
 		return node;
 	}
 
@@ -343,8 +391,7 @@ public final class ParserInstance {
 
 	/**
 	 * An abstract class for addons that want to add data bound to a ParserInstance.
-	 * Extending classes may listen to the events {@link #onCurrentScriptChange(Script, Script)}
-	 * and {@link #onCurrentEventsChange(Class[])}.
+	 * Extending classes may listen to the events like {@link #onCurrentEventsChange(Class[])}.
 	 * It is recommended you make a constructor with a {@link ParserInstance} parameter that
 	 * sends that parser instance upwards in a super call, so you can use
 	 * {@code ParserInstance.registerData(MyData.class, MyData::new)}
@@ -361,7 +408,11 @@ public final class ParserInstance {
 			return parserInstance;
 		}
 
-		public void onCurrentScriptChange(@Nullable Script oldScript, @Nullable Script newScript) { }
+		/**
+		 * @deprecated See {@link org.skriptlang.skript.lang.script.ScriptEventHandler}.
+		 */
+		@Deprecated
+		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event>[] currentEvents) { }
 		
@@ -422,10 +473,9 @@ public final class ParserInstance {
 	 */
 	@Deprecated
 	public HashMap<String, String> getCurrentOptions() {
-		Script script = getCurrentScript();
-		if (script == null)
+		if (!isActive())
 			return new HashMap<>(0);
-		HashMap<String, String> options = StructOptions.getOptions(script);
+		HashMap<String, String> options = StructOptions.getOptions(getCurrentScript());
 		if (options == null)
 			return new HashMap<>(0);
 		return options;
@@ -437,8 +487,9 @@ public final class ParserInstance {
 	@Nullable
 	@Deprecated
 	public SkriptEvent getCurrentSkriptEvent() {
-		if (currentStructure instanceof SkriptEvent)
-			return (SkriptEvent) currentStructure;
+		Structure structure = getCurrentStructure();
+		if (structure instanceof SkriptEvent)
+			return (SkriptEvent) structure;
 		return null;
 	}
 
@@ -456,6 +507,19 @@ public final class ParserInstance {
 	@Deprecated
 	public void deleteCurrentSkriptEvent() {
 		setCurrentStructure(null);
+	}
+
+	/**
+	 * @deprecated Addons should no longer be modifying this.
+	 */
+	@Deprecated
+	public void setCurrentScript(@Nullable Config currentScript) {
+		if (currentScript == null)
+			return;
+		//noinspection ConstantConditions - shouldn't be null
+		Script script = ScriptLoader.getScript(currentScript.getFile());
+		if (script != null)
+			setActive(script);
 	}
 	
 }

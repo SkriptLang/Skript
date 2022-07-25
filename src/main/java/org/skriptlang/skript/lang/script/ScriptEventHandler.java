@@ -18,27 +18,29 @@
  */
 package org.skriptlang.skript.lang.script;
 
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A ScriptEventHandler is used for listening to and performing actions for different Script events.
+ * @see Script#addEventHandler(ScriptEventHandler) 
  */
 public abstract class ScriptEventHandler {
 
 	/**
-	 * Called when this Script is loaded.
+	 * Called when this Script is made active in a {@link ParserInstance}.
 	 *
-	 * @param oldScript The Script that was just unloaded.
-	 *                  Null if there wasn't a Script unloaded.
+	 * @param oldScript The Script that was just made inactive.
+	 *                  Null if the {@link ParserInstance} handling this Script was not {@link ParserInstance#isActive()}.
 	 */
-	public void onLoad(@Nullable Script oldScript) { }
+	public void whenMadeActive(@Nullable Script oldScript) { }
 
 	/**
-	 * Called when this Script is unloaded.
+	 * Called when this Script is made inactive in a {@link ParserInstance}.
 	 *
-	 * @param newScript The Script that will be loaded after this one is unloaded.
-	 *                  Null if there won't be a Script loaded.
+	 * @param newScript The Script that will be made active after this one is completely inactive.
+	 *                  Null if the {@link ParserInstance} handling this Script will be not {@link ParserInstance#isActive()}.
 	 */
-	public void onUnload(@Nullable Script newScript) { }
+	public void whenMadeInactive(@Nullable Script newScript) { }
 
 }
