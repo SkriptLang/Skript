@@ -48,17 +48,17 @@ import ch.njol.util.StringUtils;
 
 @Name("Argument")
 @Description({
-		"Usable in script commands and command events. Holds the value of an argument given to the command, " +
-		"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is used like \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
-		"One can also use the type of the argument instead of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
-		"Please note that specifying the argument type is only supported in script commands."
+	"Usable in script commands and command events. Holds the value of an argument given to the command, " +
+	"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is used like \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
+	"One can also use the type of the argument instead of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
+	"Please note that specifying the argument type is only supported in script commands."
 })
 @Examples({
-		"give the item-argument to the player-argument",
-		"damage the player-argument by the number-argument",
-		"give a diamond pickaxe to the argument",
-		"add argument 1 to argument 2",
-		"heal the last argument"
+	"give the item-argument to the player-argument",
+	"damage the player-argument by the number-argument",
+	"give a diamond pickaxe to the argument",
+	"add argument 1 to argument 2",
+	"heal the last argument"
 })
 @Since("1.0, INSERT VERSION (support for command events)")
 public class ExprArgument extends SimpleExpression<Object> {
@@ -68,7 +68,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 				"[the] last arg[ument]", // LAST
 				"[the] arg[ument](-| )<(\\d+)>", // ORDINAL
 				"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]", // ORDINAL
-				"[the] arg[ument][(1¦s)]", // SINGLE OR ALL
+				"[(all [[of] the]|the)] arg[ument][(1:s)]", // SINGLE OR ALL
 				"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
 				"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
 		);
@@ -221,35 +221,39 @@ public class ExprArgument extends SimpleExpression<Object> {
 		String fullCommand;
 		if (e instanceof PlayerCommandPreprocessEvent) {
 			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else { // It's a ServerCommandEvent then
+		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
 			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
+		} else {
+			return new Object[0];
 		}
+
+		String[] arguments;
 		int firstSpace = fullCommand.indexOf(' ');
 		if (firstSpace != -1) {
 			fullCommand = fullCommand.substring(firstSpace + 1);
+			arguments = fullCommand.split(" ");
+		} else { // No arguments, just the command
+			return new String[0];
 		}
-		String[] arguments = fullCommand.split(" ");
 
 		switch (what) {
 			case LAST:
-				if (arguments.length > 0) {
+				if (arguments.length > 0)
 					return new String[]{arguments[arguments.length - 1]};
-				}
 				break;
 			case ORDINAL:
-				if (arguments.length >= ordinal) {
+				if (arguments.length >= ordinal)
 					return new String[]{arguments[ordinal - 1]};
-				}
 				break;
 			case SINGLE:
-				if (arguments.length == 1) {
+				if (arguments.length == 1)
 					return new String[]{arguments[arguments.length - 1]};
-				}
 				break;
 			case ALL:
 				return arguments;
 		}
-		return null;
+
+		return new Object[0];
 	}
 
 	@Override
