@@ -47,6 +47,9 @@ function destroyOre(source: block) :: blocks:
 command /oreexample:
     permission: skript.example.ore
     trigger:
-        send "Destroying all connected ore."
-        set {_found::*} to destroyOre(player's target block)
-        send "Destroyed %size of {_found::*}% connected ores!"
+        if player's target block is any ore:
+            send "Destroying all connected ore."
+            set {_found::*} to destroyOre(player's target block)
+            send "Destroyed %size of {_found::*}% connected ores!"
+        else:
+            send "<red>You must be looking at an ore block!"
