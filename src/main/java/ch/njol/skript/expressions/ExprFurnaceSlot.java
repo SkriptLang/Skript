@@ -45,32 +45,32 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Furnace Slot")
 @Description({
-		"A slot of a furnace, i.e. either the ore, fuel or result slot.",
-		"Remember to use '<a href='#ExprBlock'>block</a>' and not 'furnace', as 'furnace' is not an existing expression.",
-		"Note that 'the result' and 'the result slot' refer to separate things. 'the result' is the product in a smelt event"
-		+ " and 'the result slot' is the output slot of a furnace (where 'the result' will end up).",
-		"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in "
-		+ " the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
-		"Note that if values other than 'the result' are changed, event values may not accurately reflect the actual items in a furnace."
-		+ " Thus you may wish to use the event block in this case (e.g. 'the fuel slot of the event-block') to get accurate values if needed."
+	"A slot of a furnace, i.e. either the ore, fuel or result slot.",
+	"Remember to use '<a href='#ExprBlock'>block</a>' and not <code>furnace</code>, as <code>furnace</code> is not an existing expression.",
+	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event"
+	+ " and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
+	"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in "
+	+ " the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
+	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace."
+	+ " Thus you may wish to use the event block in this case (e.g. <code>the fuel slot of the event-block</code>) to get accurate values if needed."
 })
 @Examples({
-		"set the fuel slot of the clicked block to a lava bucket",
-		"set the block's ore slot to 64 iron ore",
-		"give the result of the block to the player",
-		"clear the result slot of the block"
+	"set the fuel slot of the clicked block to a lava bucket",
+	"set the block's ore slot to 64 iron ore",
+	"give the result of the block to the player",
+	"clear the result slot of the block"
 })
 @Events({"smelt", "fuel burn"})
 @Since("1.0, INSERT VERSION (syntax rework)")
 public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 
-	private final static int ORE = 0, FUEL = 1, RESULT = 2;
+	private static final int ORE = 0, FUEL = 1, RESULT = 2;
 	
 	static {
 		Skript.registerExpression(ExprFurnaceSlot.class, Slot.class, ExpressionType.PROPERTY,
-				"[the] (0¦ore slot|1¦fuel slot|2¦result [(5¦slot)])",
-				"[the] (0¦ore|1¦fuel|2¦result) slot[s] of %blocks%",
-				"%blocks%'[s] (0¦ore|1¦fuel|2¦result) slot[s]"
+				"[the] (0:ore slot|1:fuel slot|2:result [(5:slot)])",
+				"[the] (0:ore|1:fuel|2:result) slot[s] of %blocks%",
+				"%blocks%'[s] (0:ore|1:fuel|2:result) slot[s]"
 		);
 	}
 
