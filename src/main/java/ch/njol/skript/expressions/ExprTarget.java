@@ -18,18 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.List;
-
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
@@ -47,13 +35,16 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 @Name("Target")
 @Description("For players this is the entity at the crosshair, while for mobs and experience orbs it represents the" +
@@ -78,7 +69,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Nullable
 	private EntityData<?> type;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
@@ -141,7 +132,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			default:
 				super.change(e, delta, mode);
 		}
-    }
+	}
 
 	@Override
 	public boolean setTime(int time) {
@@ -167,9 +158,9 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	/**
 	 * Gets an entity's target.
-	 * 
+	 *
 	 * @param entity The entity to get the target of
-	 * @param type Can be null for any entity
+	 * @param type   Can be null for any entity
 	 * @return The entity's target
 	 */
 	// TODO Switch this over to RayTraceResults 1.13+ when 1.12 support is dropped.
@@ -200,4 +191,5 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		}
 		return target;
 
+	}
 }
