@@ -127,7 +127,7 @@ public class WolfData extends EntityData<Wolf> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (entityData instanceof WolfData) {
 			WolfData wolfData = (WolfData) entityData;
-			return (angry == 0 || wolfData.angry == angry) && (tamed == 0 || wolfData.tamed == tamed) && (collarColor == null && wolfData.collarColor == null ? true : wolfData.collarColor == collarColor);
+			return (angry == 0 || wolfData.angry == angry) && (tamed == 0 || wolfData.tamed == tamed) && (wolfData.collarColor == collarColor);
 		}
 		return false;
 	}
