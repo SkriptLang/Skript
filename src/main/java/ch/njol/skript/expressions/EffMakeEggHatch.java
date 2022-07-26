@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t# EGGS FOR DAYZ!",
 	"\tmake the egg hatch"
 })
+@Events("Egg Throw")
 @Since("INSERT VERSION")
 public class EffMakeEggHatch extends Effect {
 
@@ -61,8 +63,12 @@ public class EffMakeEggHatch extends Effect {
 
 	@Override
 	protected void execute(Event e) {
-		if (e instanceof PlayerEggThrowEvent)
-			((PlayerEggThrowEvent) e).setHatching(!not);
+		if (e instanceof PlayerEggThrowEvent) {
+			PlayerEggThrowEvent event = (PlayerEggThrowEvent) e;
+			event.setHatching(!not);
+			if (!not && event.getNumHatches() == 0) // Make it hatch something!
+				event.setNumHatches((byte) 1);
+		}
 	}
 
 	@Override

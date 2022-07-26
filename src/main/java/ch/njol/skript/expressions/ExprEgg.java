@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("The Egg")
 @Description("The egg thrown in a Player Egg Throw event.")
 @Examples("spawn an egg at the egg")
+@Events("Egg Throw")
 @Since("INSERT VERSION")
 public class ExprEgg extends EventValueExpression<Egg> {
 

@@ -20,6 +20,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tif an entity won't hatch:",
 	"\t\tsend \"Better luck next time!\" to the player"
 })
+@Events("Egg Throw")
 @Since("INSERT VERSION")
 public class CondWillHatch extends Condition {
 

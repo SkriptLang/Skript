@@ -256,10 +256,10 @@ public class SimpleEvents {
 		.description("Called when a player fills a bucket.")
 				.examples("on player filling a bucket:")
 				.since("1.0");
-		Skript.registerEvent("Throwing of an Egg", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
+		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
 				.description(
 					"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases."
-					+ "However, this event allows modification of properties like the hatched mob and the number of hatched mobs."
+					+ " However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
 				)
 				.examples("on throw of an egg:")
 				.since("1.0");

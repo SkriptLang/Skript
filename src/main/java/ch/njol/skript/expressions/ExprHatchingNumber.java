@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -39,17 +40,17 @@ import org.eclipse.jdt.annotation.Nullable;
 	"The number of entities that will be hatched in a Player Egg Throw event.",
 	"Please note that no more than 127 entities can be hatched at once."
 })
-@Events({
+@Examples({
 	"on player egg throw:",
 	"\tset the hatching number to 10"
 })
+@Events("Egg Throw")
 @Since("INSERT VERSION")
 public class ExprHatchingNumber extends SimpleExpression<Byte> {
 
 	static {
 		Skript.registerExpression(ExprHatchingNumber.class, Byte.class, ExpressionType.SIMPLE,
-			"[the] hatching number",
-			"[the] number of entities to hatch"
+			"[the] hatching number"
 		);
 	}
 
@@ -73,7 +74,7 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
 			return CollectionUtils.array(Number.class);
 		return null;
 	}
@@ -83,8 +84,17 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 		//noinspection ConstantConditions
 		if (!(e instanceof PlayerEggThrowEvent) || delta == null)
 			return;
+
 		assert delta[0] != null;
-		((PlayerEggThrowEvent) e).setNumHatches((byte) Math.min(Math.max(0, ((Number) delta[0]).intValue()), 127));
+
+		int value = ((Number) delta[0]).intValue();
+		if (mode != ChangeMode.SET) {
+			if (mode == ChangeMode.REMOVE)
+				value *= -1;
+			value = ((int) ((PlayerEggThrowEvent) e).getNumHatches()) + value;
+		}
+
+		((PlayerEggThrowEvent) e).setNumHatches((byte) Math.min(Math.max(0, value), 127));
 	}
 
 	@Override
