@@ -13,7 +13,7 @@ test "attributes 1":
 	delete movement speed attribute of {_m}
 	assert movement speed attribute of {_m} is 0 with "attribute delete failed"
 
-test "attributes 2" when minecraft version is not "1.9.4":
+test "attributes 2" when minecraft version is "1.11.2":
 	# Test the Reset ChangeMode only on versions that have it
 	spawn cow at location(0, 65, 0, world "world")
 	set {_m} to last spawned cow
