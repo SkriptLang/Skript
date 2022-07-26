@@ -18,28 +18,29 @@
  */
 package ch.njol.skript.aliases;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUnsafe;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.block.BlockCompat;
+import ch.njol.skript.bukkitutil.block.BlockValues;
+import ch.njol.skript.entity.EntityData;
+import com.google.gson.Gson;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.BlockValues;
-import ch.njol.skript.entity.EntityData;
-
 /**
  * Provides aliases on Bukkit/Spigot platform.
  */
 public class AliasesProvider {
+
+	private static final boolean IS_RUNNING_JSON_LEGACY = !Skript.isRunningMinecraft(1, 12);
 	
 	/**
 	 * When an alias is not found, it will requested from this provider.
@@ -204,9 +205,13 @@ public class AliasesProvider {
 		
 		if (tags.isEmpty()) // No real tags to apply
 			return flags;
-		
+
 		// Apply random tags using JSON
+
 		String json = gson.toJson(tags);
+		if (IS_RUNNING_JSON_LEGACY) // Older versions don't expect quotes
+			json = json.replace("\"", "");
+
 		assert json != null;
 		BukkitUnsafe.modifyItemStack(stack, json);
 		flags |= ItemFlags.CHANGED_TAGS;
