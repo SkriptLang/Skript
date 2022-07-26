@@ -67,7 +67,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 				"[the] arg[ument][s]",
 				"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", "[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]");
 
-		ExprLoopValue.registerLoopValueHandler(ExprArgument.class, (source, type) -> type.equals("argument"));
+		ExprLoopValue.registerLoopValueHandler(ExprArgument.class, (source, type) -> type.equalsIgnoreCase("argument"));
 	}
 	
 	@SuppressWarnings("null")

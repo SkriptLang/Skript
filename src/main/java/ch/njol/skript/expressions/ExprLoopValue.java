@@ -105,7 +105,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			//noinspection deprecation
 			if (
 				(typeAsClass != null && typeAsClass.isAssignableFrom(loopedExpression.getReturnType())) // loop-integer
-				|| type.equals("value") // loop-value
+				|| type.equalsIgnoreCase("value") // loop-value
 				|| loopedExpression.isLoopOf(type) // loop-argument
 				|| isLoopOf(loopedExpression, type)
 			) {
@@ -130,7 +130,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 
 		if (loop == null) {
-			Skript.error("There's no loop that matches 'loop-" + parser.regexes.get(0).group() + "'", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("There's no loop that matches 'loop-" + parser.regexes.get(0).group() + "'");
 			return false;
 		}
 
