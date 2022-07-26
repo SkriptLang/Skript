@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -45,15 +46,18 @@ public class EffFireworkLaunch extends Effect {
 		Skript.registerEffect(EffFireworkLaunch.class, "(launch|deploy) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
 	}
 
-	@SuppressWarnings("null")
+	@Nullable
+	public static Entity lastSpawned = null;
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<FireworkEffect> effects;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> lifetime;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		effects = (Expression<FireworkEffect>) exprs[0];
 		locations = (Expression<Location>) exprs[1];
@@ -72,6 +76,7 @@ public class EffFireworkLaunch extends Effect {
 			meta.addEffects(effects.getArray(e));
 			meta.setPower(power.intValue());
 			firework.setFireworkMeta(meta);
+			lastSpawned = firework;
 		}
 	}
 	
