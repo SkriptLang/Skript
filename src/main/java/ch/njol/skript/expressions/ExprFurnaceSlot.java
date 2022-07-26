@@ -68,7 +68,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	
 	static {
 		Skript.registerExpression(ExprFurnaceSlot.class, Slot.class, ExpressionType.PROPERTY,
-				"[the] (0:ore slot|1:fuel slot|2:result [(5:slot)])",
+				"[the] (0:ore slot|1:fuel slot|2:result [5:slot])",
 				"[the] (0:ore|1:fuel|2:result) slot[s] of %blocks%",
 				"%blocks%'[s] (0:ore|1:fuel|2:result) slot[s]"
 		);
@@ -76,9 +76,9 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 
 	@Nullable
 	private Expression<Block> blocks;
-	boolean isEvent;
-	boolean isResultSlot;
-	int slot;
+	private boolean isEvent;
+	private boolean isResultSlot;
+	private int slot;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -145,8 +145,8 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	}
 
 	@Override
-	public Class<Slot> getReturnType() {
-		return Slot.class;
+	public Class<? extends Slot> getReturnType() {
+		return InventorySlot.class;
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 		
 		private final Event event;
 		
-		public FurnaceEventSlot(final Event e, final FurnaceInventory furnaceInventory) {
+		public FurnaceEventSlot(Event e, FurnaceInventory furnaceInventory) {
 			super(furnaceInventory, slot);
 			this.event = e;
 		}
