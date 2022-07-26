@@ -604,6 +604,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// Initialize ItemStack
 		this.stack = new ItemStack(type);
 		stack.setItemMeta(meta); // Just set meta to it
+		blockValues = BlockCompat.INSTANCE.getBlockValues(stack); // Reset block values
 	}
 	
 	/**
