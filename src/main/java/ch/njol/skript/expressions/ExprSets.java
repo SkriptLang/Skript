@@ -63,6 +63,13 @@ public class ExprSets extends SimpleExpression<Object> {
 				"[(all [[of] the]|the|every)] item(s|[ ]types)", "[(all [[of] the]|the)] items of type[s] %itemtypes%",
 				"[(all [[of] the]|the|every)] block(s|[ ]types)", "[(all [[of] the]|the)] blocks of type[s] %itemtypes%",
 				"([all [[of] the]] colo[u]rs|(the|every) colo[u]r)");
+
+		ExprLoopValue.registerLoopValueHandler(ExprSets.class, (source, type) -> {
+			int pattern = source.pattern;
+			return (pattern == 4 && (type.equalsIgnoreCase("color") || type.equalsIgnoreCase("colour")))
+			|| (pattern >= 2 && type.equalsIgnoreCase("block"))
+			|| (pattern < 2 && type.equalsIgnoreCase("item"));
+		});
 	}
 
 	@Nullable
@@ -180,11 +187,6 @@ public class ExprSets extends SimpleExpression<Object> {
 	@Override
 	public boolean isSingle() {
 		return false;
-	}
-	
-	@Override
-	public boolean isLoopOf(String s) {
-		return pattern == 4 && (s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour"))|| pattern >= 2 && s.equalsIgnoreCase("block") || pattern < 2 && s.equalsIgnoreCase("item");
 	}
 	
 }

@@ -54,6 +54,8 @@ import ch.njol.util.Kleenean;
 public class ExprItemsIn extends SimpleExpression<Slot> {
 	static {
 		Skript.registerExpression(ExprItemsIn.class, Slot.class, ExpressionType.PROPERTY, "[(all [[of] the]|the)] items ([with]in|of|contained in|out of) (|1¦inventor(y|ies)) %inventories%");
+
+		ExprLoopValue.registerLoopValueHandler(ExprItemsIn.class, (source, type) -> type.equalsIgnoreCase("item"));
 	}
 	
 	@SuppressWarnings("null")
@@ -123,11 +125,6 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 				throw new UnsupportedOperationException();
 			}
 		};
-	}
-	
-	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("item");
 	}
 	
 	@Override

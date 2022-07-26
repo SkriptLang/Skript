@@ -662,11 +662,6 @@ public class VariableString implements Expression<String> {
 	}
 	
 	@Override
-	public boolean isLoopOf(String s) {
-		return false;
-	}
-	
-	@Override
 	public Expression<?> getSource() {
 		return this;
 	}

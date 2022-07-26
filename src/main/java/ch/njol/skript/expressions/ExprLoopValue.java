@@ -19,7 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Converter.ConverterInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -41,83 +41,107 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Used to access a loop's current value.
- * <p>
- * TODO expression to get the current # of execution (e.g. loop-index/number/count/etc (not number though));
- * 
- * @author Peter Güttinger
- */
-@Name("Loop value")
-@Description("The currently looped value.")
-@Examples({"# countdown:",
-		"loop 10 times:",
-		"	message \"%11 - loop-number%\"",
-		"	wait a second",
-		"# generate a 10x10 floor made of randomly coloured wool below the player:",
-		"loop blocks from the block below the player to the block 10 east of the block below the player:",
-		"	loop blocks from the loop-block to the block 10 north of the loop-block:",
-		"		set loop-block-2 to any wool"})
+@Name("Loop Value")
+@Description("The value currently being looped.")
+@Examples({
+	"# Countdown",
+	"loop 10 times:",
+	"\tmessage \"%11 - loop-number%\"",
+	"\twait a second",
+	"# Generate a 10x10 floor made of randomly coloured wool below the player",
+	"loop blocks from the block below the player to the block 10 east of the block below the player:",
+	"\tloop blocks from the loop-block to the block 10 north of the loop-block:",
+	"\t\tset loop-block-2 to any wool"
+})
 @Since("1.0")
 public class ExprLoopValue extends SimpleExpression<Object> {
+
 	static {
-		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, "[the] loop-<.+>");
+		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE,
+			"[the] loop-<.+>"
+		);
 	}
+
+	private static final Pattern LOOP_VALUE_NAME_PATTERN = Pattern.compile("^(.+)-(\\d+)$");
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private String name;
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SecLoop loop;
 	
-	// whether this loops a variable
-	boolean isVariableLoop = false;
-	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
-	boolean isIndex = false;
+	// Whether we are looping a variable
+	private boolean isVariableLoop = false;
+	// Whether we should return the index of the variable instead of the value
+	private boolean isIndex = false;
 	
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		name = parser.expr;
-		String s = "" + parser.regexes.get(0).group();
-		int i = -1;
-		Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(s);
-		if (m.matches()) {
-			s = "" + m.group(1);
-			i = Utils.parseInt("" + m.group(2));
+
+		String type = parser.regexes.get(0).group();
+
+		int loopValue = -1;
+		Matcher matcher = LOOP_VALUE_NAME_PATTERN.matcher(type);
+		if (matcher.matches()) {
+			type = matcher.group(1);
+			loopValue = Utils.parseInt("" + matcher.group(2));
 		}
-		Class<?> c = Classes.getClassFromUserInput(s);
-		int j = 1;
+		Class<?> typeAsClass = Classes.getClassFromUserInput(type);
+
+		int currentLoopValue = 1;
 		SecLoop loop = null;
 
-		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equals(s) || l.getLoopedExpression().isLoopOf(s)) {
-				if (j < i) {
-					j++;
+		for (SecLoop secLoop : getParser().getCurrentSections(SecLoop.class)) {
+
+			Expression<?> loopedExpression = secLoop.getLoopedExpression();
+
+			//noinspection deprecation
+			if (
+				(typeAsClass != null && typeAsClass.isAssignableFrom(loopedExpression.getReturnType())) // loop-integer
+				|| type.equals("value") // loop-value
+				|| loopedExpression.isLoopOf(type) // loop-argument
+				|| isLoopOf(loopedExpression, type)
+			) {
+				if (currentLoopValue < loopValue) { // Move onto the next one (ex: this is 'loop-value-1', but we want 'loop-value-2')
+					currentLoopValue++;
 					continue;
 				}
-				if (loop != null) {
-					Skript.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify which loop's value you want.", ErrorQuality.SEMANTIC_ERROR);
+
+				if (loop != null) { // The user was not specific enough - we can't determine which to use
+					Skript.error(
+						"There are multiple loops that match loop-" + type + "."
+						+ " Use loop-" + type + "-1/2/3/etc. to specify which loop's value you want."
+					);
 					return false;
 				}
-				loop = l;
-				if (j == i)
+
+				loop = secLoop;
+				if (currentLoopValue == loopValue) // We found the right one
 					break;
 			}
+
 		}
+
 		if (loop == null) {
-			Skript.error("There's no loop that matches 'loop-" + s + "'", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("There's no loop that matches 'loop-" + parser.regexes.get(0).group() + "'", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
+
 		if (loop.getLoopedExpression() instanceof Variable) {
 			isVariableLoop = true;
-			if (((Variable<?>) loop.getLoopedExpression()).isIndexLoop(s))
+			if (((Variable<?>) loop.getLoopedExpression()).isIndexLoop(type))
 				isIndex = true;
 		}
+
 		this.loop = loop;
+
 		return true;
 	}
 	
@@ -125,28 +149,23 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	public boolean isSingle() {
 		return true;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	protected <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(Class<R>... to) {
 		if (isVariableLoop && !isIndex) {
 			Class<R> superType = (Class<R>) Utils.getSuperType(to);
 			return new ConvertedExpression<>(this, superType,
-					new ConverterInfo<>(Object.class, superType, new Converter<Object, R>() {
-				@Override
-				@Nullable
-				public R convert(Object o) {
-					return Converters.convert(o, to);
-				}
-			}, 0));
+				new ConverterInfo<>(Object.class, superType, o -> Converters.convert(o, to), 0)
+			);
 		} else {
 			return super.getConvertedExpr(to);
 		}
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		if (isIndex)
 			return String.class;
 		return loop.getLoopedExpression().getReturnType();
@@ -154,33 +173,64 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	protected Object[] get(Event e) {
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+
 			if (current == null)
-				return null;
+				return new Object[0];
+
 			if (isIndex)
-				return new String[] {current.getKey()};
+				return new String[]{current.getKey()};
+
 			Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 			one[0] = current.getValue();
 			return one;
 		}
+
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 		one[0] = loop.getCurrent(e);
 		return one;
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public String toString(@Nullable Event e, boolean debug) {
 		if (e == null)
 			return name;
+
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
 			if (current == null)
 				return Classes.getDebugMessage(null);
 			return isIndex ? "\"" + current.getKey() + "\"" : Classes.getDebugMessage(current.getValue());
 		}
+
 		return Classes.getDebugMessage(loop.getCurrent(e));
+	}
+
+	private static final Map<Class<? extends Expression<?>>, LoopValueHandler<?>> LOOP_VALUE_HANDLERS = new ConcurrentHashMap<>();
+
+	@SuppressWarnings("unchecked")
+	public static <Type extends Expression<?>> boolean isLoopOf(Type source, String type) {
+		LoopValueHandler<Type> loopValueHandler = (LoopValueHandler<Type>) LOOP_VALUE_HANDLERS.get(source.getClass());
+		if (loopValueHandler == null)
+			return false;
+		return loopValueHandler.isLoopOf(source, type);
+	}
+
+	public static <Type extends Expression<?>> void registerLoopValueHandler(Class<Type> source, LoopValueHandler<Type> loopValueHandler) {
+		if (LOOP_VALUE_HANDLERS.containsKey(source))
+			throw new SkriptAPIException("A loop value handler is already registered for: " + source);
+		LOOP_VALUE_HANDLERS.put(source, loopValueHandler);
+	}
+
+	@FunctionalInterface
+	public interface LoopValueHandler<T> {
+
+		boolean isLoopOf(T source, String type);
+
 	}
 	
 }

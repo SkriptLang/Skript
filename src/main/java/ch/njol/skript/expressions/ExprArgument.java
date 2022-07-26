@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import java.util.List;
 import java.util.regex.MatchResult;
 
+import ch.njol.skript.expressions.ExprLoopValue.LoopValueHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -58,12 +59,15 @@ import ch.njol.util.StringUtils;
 		"heal the last argument"})
 @Since("1.0")
 public class ExprArgument extends SimpleExpression<Object> {
+
 	static {
 		Skript.registerExpression(ExprArgument.class, Object.class, ExpressionType.SIMPLE,
 				"[the] last arg[ument][s]",
 				"[the] arg[ument][s](-| )<(\\d+)>", "[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]",
 				"[the] arg[ument][s]",
 				"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", "[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]");
+
+		ExprLoopValue.registerLoopValueHandler(ExprArgument.class, (source, type) -> type.equals("argument"));
 	}
 	
 	@SuppressWarnings("null")
@@ -181,11 +185,6 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@Override
 	public boolean isSingle() {
 		return arg.isSingle();
-	}
-	
-	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("argument");
 	}
 	
 }

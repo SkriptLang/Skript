@@ -58,6 +58,8 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	
 	static {
 		Skript.registerExpression(ExprIdOf.class, Long.class, ExpressionType.PROPERTY, "[the] id(1¦s|) of %itemtype%", "%itemtype%'[s] id(1¦s|)");
+
+		ExprLoopValue.registerLoopValueHandler(ExprIdOf.class, (source, type) -> type.equalsIgnoreCase("id"));
 	}
 	
 	@Nullable
@@ -229,11 +231,6 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	@Override
 	public Class<Long> getReturnType() {
 		return Long.class;
-	}
-	
-	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("id");
 	}
 	
 }

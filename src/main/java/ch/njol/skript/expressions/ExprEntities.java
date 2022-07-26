@@ -69,6 +69,24 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
 				"[(all [[of] the]|the)] %*entitydatas% (within|[with]in radius) %number% [(block[s]|met(er|re)[s])] (of|around) %location%",
 				"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%");
+
+		ExprLoopValue.registerLoopValueHandler(ExprEntities.class, (source, type) -> {
+			if (!(source.types instanceof Literal<?>))
+				return false;
+			try (LogHandler ignored = new BlockingLogHandler().start()) {
+				EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(type);
+				if (d != null) {
+					//noinspection unchecked
+					for (EntityData<?> t : ((Literal<EntityData<?>>) source.types).getAll()) {
+						assert t != null;
+						if (!d.isSupertypeOf(t))
+							return false;
+					}
+					return true;
+				}
+			}
+			return false;
+		});
 	}
 
 	@SuppressWarnings("null")
@@ -110,25 +128,6 @@ public class ExprEntities extends SimpleExpression<Entity> {
 		if (types instanceof Literal && ((Literal<EntityData<?>>) types).getAll().length == 1)
 			returnType = ((Literal<EntityData<?>>) types).getSingle().getType();
 		return true;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public boolean isLoopOf(String s) {
-		if (!(types instanceof Literal<?>))
-			return false;
-		try (LogHandler ignored = new BlockingLogHandler().start()) {
-			EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(s);
-			if (d != null) {
-				for (EntityData<?> t : ((Literal<EntityData<?>>) types).getAll()) {
-					assert t != null;
-					if (!d.isSupertypeOf(t))
-						return false;
-				}
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override

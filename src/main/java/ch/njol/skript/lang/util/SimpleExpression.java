@@ -310,11 +310,6 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return false;
-	}
-	
-	@Override
 	@Nullable
 	public Iterator<? extends T> iterator(final Event e) {
 		return new ArrayIterator<>(getArray(e));

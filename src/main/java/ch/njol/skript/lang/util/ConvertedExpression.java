@@ -210,11 +210,6 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return false;// A loop does not convert the expression to loop
-	}
-	
-	@Override
 	@Nullable
 	public Iterator<T> iterator(final Event e) {
 		final Iterator<? extends F> iter = source.iterator(e);

@@ -28,6 +28,7 @@ import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.expressions.ExprLoopValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -67,6 +68,15 @@ import java.util.TreeMap;
  * @author Peter Güttinger
  */
 public class Variable<T> implements Expression<T> {
+
+	static {
+		ExprLoopValue.registerLoopValueHandler(Variable.class, (source, type) ->
+			type.equalsIgnoreCase("var")
+			|| type.equalsIgnoreCase("variable")
+			|| type.equalsIgnoreCase("value")
+			|| type.equalsIgnoreCase("index")
+		);
+	}
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
@@ -684,11 +694,6 @@ public class Variable<T> implements Expression<T> {
 		T[] one = (T[]) Array.newInstance(superType, 1);
 		one[0] = o;
 		return one;
-	}
-
-	@Override
-	public boolean isLoopOf(String s) {
-		return s.equalsIgnoreCase("var") || s.equalsIgnoreCase("variable") || s.equalsIgnoreCase("value") || s.equalsIgnoreCase("index");
 	}
 
 	public boolean isIndexLoop(String s) {

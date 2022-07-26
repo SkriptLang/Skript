@@ -61,6 +61,20 @@ public class ExprFilter extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprFilter.class, Object.class, ExpressionType.COMBINED,
 				"%objects% (where|that match) \\[<.+>\\]");
+
+		ExprLoopValue.registerLoopValueHandler(ExprFilter.class, (source, type) -> {
+			for (ExprInput<?> child : source.children) { // if they used player input, let's assume loop-player is valid
+				//noinspection ConstantConditions
+				if (child.getClassInfo() == null || child.getClassInfo().getUserInputPatterns() == null)
+					continue;
+
+				for (Pattern pattern : child.getClassInfo().getUserInputPatterns()) {
+					if (pattern.matcher(type).matches())
+						return true;
+				}
+			}
+			return ExprLoopValue.isLoopOf(source.objects, type); // Nothing matched, so we'll rely on the object expression's logic
+		});
 	}
 
 	private Object current;
@@ -136,20 +150,6 @@ public class ExprFilter extends SimpleExpression<Object> {
 	@Override
 	public String toString(Event e, boolean debug) {
 		return String.format("%s where [%s]", objects.toString(e, debug), rawCond);
-	}
-
-	@Override
-	public boolean isLoopOf(String s) {
-		for (ExprInput<?> child : children) { // if they used player input, let's assume loop-player is valid
-			if (child.getClassInfo() == null || child.getClassInfo().getUserInputPatterns() == null)
-				continue;
-
-			for (Pattern pattern : child.getClassInfo().getUserInputPatterns()) {
-				if (pattern.matcher(s).matches())
-					return true;
-			}
-		}
-		return objects.isLoopOf(s); // nothing matched, so we'll rely on the object expression's logic
 	}
 
 	@Name("Filter Input")

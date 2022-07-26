@@ -232,11 +232,6 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return false;
-	}
-	
-	@Override
 	public Expression<?> getSource() {
 		final UnparsedLiteral s = source;
 		return s == null ? this : s;

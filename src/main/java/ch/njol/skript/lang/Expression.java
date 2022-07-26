@@ -24,6 +24,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.conditions.CondIsSet;
+import ch.njol.skript.expressions.ExprLoopValue.LoopValueHandler;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
@@ -234,8 +235,12 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * 
 	 * @param s The entered string
 	 * @return Whether this loop matches the given string
+	 * @deprecated Use {@link ch.njol.skript.expressions.ExprLoopValue#registerLoopValueHandler(Class, LoopValueHandler)}.
 	 */
-	public boolean isLoopOf(String s);
+	@Deprecated
+	default boolean isLoopOf(String s) {
+		return false;
+	}
 	
 	/**
 	 * Returns the original expression that was parsed, i.e. without any conversions done.

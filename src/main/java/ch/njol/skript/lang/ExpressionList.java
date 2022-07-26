@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
+import ch.njol.skript.expressions.ExprLoopValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.util.Utils;
@@ -39,6 +40,16 @@ import java.util.NoSuchElementException;
  * A list of expressions.
  */
 public class ExpressionList<T> implements Expression<T> {
+
+	static {
+		ExprLoopValue.registerLoopValueHandler(ExpressionList.class, (source, type) -> {
+			for (Expression<?> expr : source.expressions) {
+				if (ExprLoopValue.isLoopOf(expr, type))
+					return true;
+			}
+			return false;
+		});
+	}
 
 	protected final Expression<? extends T>[] expressions;
 	protected boolean and;
@@ -249,14 +260,6 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public boolean isDefault() {
-		return false;
-	}
-
-	@Override
-	public boolean isLoopOf(String s) {
-		for (Expression<?> e : expressions)
-			if (e.isLoopOf(s))
-				return true;
 		return false;
 	}
 

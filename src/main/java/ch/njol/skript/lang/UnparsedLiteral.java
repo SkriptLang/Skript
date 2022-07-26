@@ -343,11 +343,6 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		throw invalidAccessException();
-	}
-	
-	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		throw invalidAccessException();
 	}

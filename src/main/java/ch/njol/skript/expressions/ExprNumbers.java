@@ -55,6 +55,10 @@ public class ExprNumbers extends SimpleExpression<Number> {
 	static {
 		Skript.registerExpression(ExprNumbers.class, Number.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the)] (numbers|1¦integers|2¦decimals) (between|from) %number% (and|to) %number%");
+
+		ExprLoopValue.registerLoopValueHandler(ExprNumbers.class, (source, type) ->
+			source.mode == 1 && (type.equalsIgnoreCase("integer") || type.equalsIgnoreCase("int"))
+		);
 	}
 	
 	@SuppressWarnings("null")
@@ -174,11 +178,6 @@ public class ExprNumbers extends SimpleExpression<Number> {
 				}
 			};
 		}
-	}
-	
-	@Override
-	public boolean isLoopOf(final String s) {
-		return mode == 1 && (s.equalsIgnoreCase("integer") || s.equalsIgnoreCase("int"));
 	}
 	
 	@Override
