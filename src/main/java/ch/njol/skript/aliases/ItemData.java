@@ -142,7 +142,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 * allow comparing it against other blocks.
 	 */
 	@Nullable
-	transient BlockValues blockValues;
+	BlockValues blockValues;
 	
 	/**
 	 * Whether this represents an item (that definitely cannot have
@@ -604,7 +604,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// Initialize ItemStack
 		this.stack = new ItemStack(type);
 		stack.setItemMeta(meta); // Just set meta to it
-		blockValues = BlockCompat.INSTANCE.getBlockValues(stack); // Reset block values
 	}
 	
 	/**
