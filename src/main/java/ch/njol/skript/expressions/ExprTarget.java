@@ -155,7 +155,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	 * Gets an entity's target.
 	 *
 	 * @param entity The entity to get the target of
-	 * @param type   Can be null for any entity
+	 * @param type The exact EntityData to find. Can be null for any entity.
 	 * @return The entity's target
 	 */
 	// TODO Switch this over to RayTraceResults 1.13+ when 1.12 support is dropped.
