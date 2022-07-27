@@ -51,8 +51,8 @@ import java.util.List;
 	" entity they are attacking/following (if any).")
 @Examples({
 	"on entity target:",
-		"\tif entity's target is a player:",
-			"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
+	"\tif entity's target is a player:",
+	"\t\tsend \"You're being followed by an %entity%!\" to target of entity",
 	"",
 	"reset target of entity # Makes the entity target-less",
 	"delete targeted entity of player # for players it will delete the target",
@@ -151,11 +151,6 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		return Classes.getDebugMessage(getAll(e)); // TODO for players it will return null (need to getTarget)
 	}
 
-	private void removeTarget(@Nullable Entity e) {
-		if (e != null && !(e instanceof OfflinePlayer))
-			e.remove();
-	}
-
 	/**
 	 * Gets an entity's target.
 	 *
@@ -164,8 +159,8 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	 * @return The entity's target
 	 */
 	// TODO Switch this over to RayTraceResults 1.13+ when 1.12 support is dropped.
-	@SuppressWarnings("unchecked")
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public static <T extends Entity> T getTarget(LivingEntity entity, @Nullable EntityData<T> type) {
 		if (entity instanceof Mob)
 			return ((Mob) entity).getTarget() == null || type != null && !type.isInstance(((Mob) entity).getTarget()) ? null : (T) ((Mob) entity).getTarget();
@@ -190,6 +185,6 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			}
 		}
 		return target;
-
 	}
+
 }
