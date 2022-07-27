@@ -1,6 +1,11 @@
 name: Java 8 CI (MC 1.13-1.16)
 
-on: [push, pull_request]
+on:
+    push:
+        branches:
+            - main
+            - 'dev/**'
+    pull_request:
 
 jobs:
     build:
@@ -27,4 +32,4 @@ jobs:
               if: success()
               with:
                   name: skript-nightly
-                  path: build/libs/Skript-nightly.jar
+                  path: build/libs/*
