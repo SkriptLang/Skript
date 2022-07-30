@@ -768,7 +768,7 @@ td ul {
     }
 
     img#theme-switch {
-        width: 40px;
+        width: 45px;
     }
 
     #global-navigation>li {
@@ -1019,7 +1019,7 @@ pre code { /* override styling for code blocks */
     bottom: 30px;
     text-align: right;
     display: inline-block;
-    width: 50px;
+    width: 60px;
 }
 
 #theme-switch:hover {
