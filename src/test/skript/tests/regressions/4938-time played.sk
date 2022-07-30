@@ -1,3 +1,3 @@
 test "time played":
 	set {_time} to time played of "Notch" parsed as offlineplayer
-	assert {_time} is equal to 0 seconds with "Notch hacked your server and built a dirt house on your server"
+	assert {_time} is equal to 0 seconds with "Notch hacked your server and built a dirt house on your server (time: %{_time}%)"
