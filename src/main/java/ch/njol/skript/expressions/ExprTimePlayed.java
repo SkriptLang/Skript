@@ -110,7 +110,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 		else if (offlinePlayer.isOnline())
 			return Timespan.fromTicks_i(offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
 
-		return null;
+		return new Timespan(0);
 	}
 	
 }
