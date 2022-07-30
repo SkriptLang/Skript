@@ -50,7 +50,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
 
 	static {
-		register(ExprTimePlayed.class, Timespan.class, "time played", IS_OFFLINE_SUPPORTED ? "offlineplayers" : "players");
+		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
 	}
 	
 	@Nullable
