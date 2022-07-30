@@ -78,6 +78,7 @@ code. Contributors should also see the dedicated
   - And that is the only place where snake_case is acceptable
 * Use prefixes where their use has been already estabilished (such as ExprSomeRandomThing)
   - Otherwise, use postfixes (such as LoopSection)
+* Event objects in syntax elements should be named `e`
   
 ## Comments
 * Prefer to comment *why* you're doing things instead of how you're doing them
