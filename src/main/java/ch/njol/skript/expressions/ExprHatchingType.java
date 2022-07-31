@@ -46,11 +46,11 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Events("Egg Throw")
 @Since("INSERT VERSION")
-@SuppressWarnings("rawtypes")
-public class ExprHatchingType extends SimpleExpression<EntityData> {
+public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 
 	static {
-		Skript.registerExpression(ExprHatchingType.class, EntityData.class, ExpressionType.SIMPLE,
+		//noinspection unchecked
+		Skript.registerExpression(ExprHatchingType.class, (Class<EntityData<?>>) (Class<?>) EntityData.class, ExpressionType.SIMPLE,
 			"[the] hatching entity [type]"
 		);
 	}
@@ -66,7 +66,7 @@ public class ExprHatchingType extends SimpleExpression<EntityData> {
 
 	@Override
 	@Nullable
-	protected EntityData[] get(Event e) {
+	protected EntityData<?>[] get(Event e) {
 		if (!(e instanceof PlayerEggThrowEvent))
 			return new EntityData[0];
 		return new EntityData[]{EntityUtils.toSkriptEntityData(((PlayerEggThrowEvent) e).getHatchingType())};
@@ -85,7 +85,7 @@ public class ExprHatchingType extends SimpleExpression<EntityData> {
 		if (!(e instanceof PlayerEggThrowEvent))
 			return;
 		//noinspection ConstantConditions
-		EntityType entityType = delta != null ? EntityUtils.toBukkitEntityType((EntityData) delta[0]) : EntityType.CHICKEN;
+		EntityType entityType = delta != null ? EntityUtils.toBukkitEntityType((EntityData<?>) delta[0]) : EntityType.CHICKEN;
 		if (!entityType.isSpawnable())
 			return;
 		((PlayerEggThrowEvent) e).setHatchingType(entityType);
@@ -97,8 +97,9 @@ public class ExprHatchingType extends SimpleExpression<EntityData> {
 	}
 
 	@Override
-	public Class<? extends EntityData> getReturnType() {
-		return EntityData.class;
+	public Class<? extends EntityData<?>> getReturnType() {
+		//noinspection unchecked
+		return (Class<EntityData<?>>) (Class<?>) EntityData.class;
 	}
 
 	@Override
