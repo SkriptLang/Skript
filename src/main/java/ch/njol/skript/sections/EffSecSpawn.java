@@ -120,12 +120,8 @@ public class EffSecSpawn extends EffectSection {
 
 		if (sectionNode != null) {
 			AtomicBoolean delayed = new AtomicBoolean(false);
-			trigger = loadCode(
-				sectionNode,
-				"spawn",
-				() -> delayed.set(!getParser().getHasDelayBefore().isFalse()),
-				SpawnEvent.class
-			);
+			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
+			trigger = loadCode(sectionNode, "spawn", afterLoading, SpawnEvent.class);
 			if (delayed.get()) {
 				Skript.error("Delays can't be used within a Spawn Effect Section");
 				return false;
@@ -152,7 +148,8 @@ public class EffSecSpawn extends EffectSection {
 				Variables.setLocalVariables(spawnEvent, localVars);
 				TriggerItem.walk(trigger, spawnEvent);
 				Variables.setLocalVariables(e, Variables.copyLocalVariables(spawnEvent));
-				Variables.removeLocals(spawnEvent); // Clear them since we didn't do it after Trigger execution
+				// Clear spawnEvent's local variables as it won't be done automatically
+				Variables.removeLocals(spawnEvent);
 			};
 		} else {
 			consumer = null;

@@ -81,7 +81,7 @@ public class Delay extends Effect {
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			delayed.add(e);
+			addDelayedEvent(e);
 
 			Timespan duration = this.duration.getSingle(e);
 			if (duration == null)
@@ -125,15 +125,24 @@ public class Delay extends Effect {
 		return "wait for " + duration.toString(e, debug) + (e == null ? "" : "...");
 	}
 
-	private static final Set<Event> delayed =
+	private static final Set<Event> DELAYED =
 		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
-	public static boolean isDelayed(Event e) {
-		return delayed.contains(e);
+	/**
+	 * The main method for checking if the execution of {@link TriggerItem}s has been delayed.
+	 * @param event The event to check for a delay.
+	 * @return Whether {@link TriggerItem} execution has been delayed.
+	 */
+	public static boolean isDelayed(Event event) {
+		return DELAYED.contains(event);
 	}
 
+	/**
+	 * The main method for marking the execution of {@link TriggerItem}s as delayed.
+	 * @param event The event to make as delayed.
+	 */
 	public static void addDelayedEvent(Event event) {
-		delayed.add(event);
+		DELAYED.add(event);
 	}
 
 }
