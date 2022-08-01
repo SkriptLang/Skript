@@ -56,9 +56,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 				"[the] %attributetype% [(1¦(total|final|modified))] attribute [value] of %entities%",
 				"%entities%'[s] %attributetype% [(1¦(total|final|modified))] attribute [value]");
 	}
-	
-	private static final boolean DEFAULTVALUE_EXISTS = Skript.isRunningMinecraft(1, 11);
-	
+
 	@Nullable
 	private Expression<Attribute> attributes;
 	private boolean withModifiers;
@@ -85,7 +83,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || (mode == ChangeMode.RESET && !DEFAULTVALUE_EXISTS) || withModifiers)
+		if (mode == ChangeMode.REMOVE_ALL || withModifiers)
 			return null;
 		return CollectionUtils.array(Number.class);
 	}

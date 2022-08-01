@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.util.OpenCloseable;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -44,12 +42,14 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.tests.runner.SkriptTestEvent;
 import ch.njol.skript.tests.runner.TestMode;
 import ch.njol.skript.tests.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -80,12 +80,10 @@ public class SkriptCommand implements CommandExecutor {
 		).add("help");
 	
 	static {
-		if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists()) {
+		if (TestMode.GEN_DOCS || new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
 			skriptCommandHelp.add("gen-docs");
-		}
-		if (TestMode.DEV_MODE) { // Add command to run individual tests
+		if (TestMode.DEV_MODE) // Add command to run individual tests
 			skriptCommandHelp.add("test");
-		}
 	}
 	
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
@@ -184,7 +182,7 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("enable")) {
-				if (args[1].equals("all")) {
+				if (args[1].equalsIgnoreCase("all")) {
 					try {
 						info(sender, "enable.all.enabling");
 						File[] files = toggleScripts(new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER), true).toArray(new File[0]);
@@ -264,7 +262,7 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("disable")) {
-				if (args[1].equals("all")) {
+				if (args[1].equalsIgnoreCase("all")) {
 					ScriptLoader.disableScripts();
 					try {
 						toggleScripts(new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER), false);
@@ -318,7 +316,7 @@ public class SkriptCommand implements CommandExecutor {
 					Skript.info(sender, "" + SkriptUpdater.m_internal_error);
 					return true;
 				}
-				if (args[1].equals("check")) {
+				if (args[1].equalsIgnoreCase("check")) {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
@@ -328,6 +326,7 @@ public class SkriptCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
 				info(sender, "info.documentation");
+				info(sender, "info.tutorials");
 				info(sender, "info.server", Bukkit.getVersion());
 				info(sender, "info.version", Skript.getVersion());
 				info(sender, "info.addons", Skript.getAddons().isEmpty() ? "None" : "");
@@ -355,7 +354,8 @@ public class SkriptCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
 				File templateDir = new File(Skript.getInstance().getDataFolder() + "/doc-templates/");
 				if (!templateDir.exists()) {
-					Skript.info(sender, "Documentation templates not found. Cannot generate docs!");
+					Skript.error(sender, "Cannot generate docs! Documentation templates not found at 'plugins/Skript/doc-templates/'");
+					TestMode.docsFailed = true;
 					return true;
 				}
 				File outputDir = new File(Skript.getInstance().getDataFolder() + "/docs");
@@ -378,7 +378,7 @@ public class SkriptCommand implements CommandExecutor {
 					TestMode.lastTestFile = script;
 				}
 				if (!script.exists()) {
-					Skript.error(sender, "Test script doesn't exist!");
+					Skript.info(sender, "Test script doesn't exist!");
 					return true;
 				}
 				
@@ -389,7 +389,7 @@ public class SkriptCommand implements CommandExecutor {
 							// Code should run on server thread
 							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 								Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
-								// ScriptLoader.disableScripts(); // Clean state for next test
+								ScriptLoader.disableScripts(); // Clean state for next test
 								
 								// Get results and show them
 								String[] lines = TestTracker.collectResults().createReport().split("\n");

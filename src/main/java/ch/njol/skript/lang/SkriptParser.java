@@ -21,7 +21,6 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
@@ -46,7 +45,6 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ScriptOptions;
-import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
@@ -64,13 +62,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -211,15 +209,15 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	private final <T extends SyntaxElement> T parse(final Iterator<? extends SyntaxElementInfo<? extends T>> source) {
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			while (source.hasNext()) {
-				final SyntaxElementInfo<? extends T> info = source.next();
+				SyntaxElementInfo<? extends T> info = source.next();
 				patternsLoop: for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
-						final String pattern = info.patterns[i];
+						String pattern = info.patterns[i];
 						assert pattern != null;
 						ParseResult res;
 						try {
@@ -230,12 +228,12 @@ public class SkriptParser {
 						if (res != null) {
 							int x = -1;
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {
-								final int x2 = nextUnescaped(pattern, '%', x + 1);
+								int x2 = nextUnescaped(pattern, '%', x + 1);
 								if (res.exprs[j] == null) {
-									final String name = pattern.substring(x + 1, x2);
+									String name = pattern.substring(x + 1, x2);
 									if (!name.startsWith("-")) {
-										final ExprInfo vi = getExprInfo(name);
-										final DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
+										ExprInfo vi = getExprInfo(name);
+										DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
 										if (expr == null)
 											throw new SkriptAPIException("The class '" + vi.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + vi.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[i] + "]");
 										if (!(expr instanceof Literal) && (vi.flagMask & PARSE_EXPRESSIONS) == 0)
@@ -253,15 +251,13 @@ public class SkriptParser {
 								}
 								x = x2;
 							}
-							final T t = info.c.newInstance();
+							T t = info.c.newInstance();
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
 						}
-					} catch (final InstantiationException e) {
-						assert false;
-					} catch (final IllegalAccessException e) {
+					} catch (final InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}
@@ -340,7 +336,7 @@ public class SkriptParser {
 			log.clear();
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				final Expression<?> e;
-				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1 && (types[0] == Object.class || CollectionUtils.contains(types, String.class))) {
+				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 					e = VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 				} else {
 					e = (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
@@ -372,7 +368,8 @@ public class SkriptParser {
 				return null;
 			}
 			if (types[0] == Object.class) {
-				if (!allowUnparsedLiteral) {
+				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
 					log.printError();
 					return null;
 				}
@@ -517,7 +514,7 @@ public class SkriptParser {
 			log.clear();
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				final Expression<?> e;
-				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1 && (types[0] == Object.class || CollectionUtils.contains(types, String.class))) {
+				if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 					e = VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 				} else {
 					e = (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
@@ -570,7 +567,8 @@ public class SkriptParser {
 				return null;
 			}
 			if (vi.classes[0].getC() == Object.class) {
-				if (!allowUnparsedLiteral) {
+				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
 					log.printError();
 					return null;
 				}
@@ -624,31 +622,7 @@ public class SkriptParser {
 		final boolean isObject = types.length == 1 && types[0] == Object.class;
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			//Mirre
-			if (isObject){
-				if ((flags & PARSE_LITERALS) != 0) {
-					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-					if (getParser().getCurrentScript() != null) {
-						Config cs = getParser().getCurrentScript();
-						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
-					}
-					if (!p.suppressMissingAndOrWarnings) {
-						p.suppressMissingAndOrWarnings = suppressMissingAndOrWarnings;
-						// If we suppress warnings here, we suppress them in parser what we created too
-					}
-					for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-						final Expression<?> e = p.parseExpression(c);
-						if (e != null) {
-							log.printLog();
-							return (Expression<? extends T>) e;
-						}
-						log.clear();
-					}
-				}
-			}
-			//Mirre
-			final Expression<? extends T> r = parseSingleExpr(false, null, types);
+			final Expression<? extends T> r = parseSingleExpr(true, null, types);
 			if (r != null) {
 				log.printLog();
 				return r;
@@ -731,7 +705,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1)
 				return ts.get(0);
@@ -773,31 +747,8 @@ public class SkriptParser {
 		final boolean isObject = vi.classes.length == 1 && vi.classes[0].getC() == Object.class;
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			//Mirre
-			if (isObject){
-				if ((flags & PARSE_LITERALS) != 0) {
-					// Hack as items use '..., ... and ...' for enchantments. Numbers and times are parsed beforehand as they use the same (deprecated) id[:data] syntax.
-					final SkriptParser p = new SkriptParser(expr, PARSE_LITERALS, context);
-					p.suppressMissingAndOrWarnings = suppressMissingAndOrWarnings; // If we suppress warnings here, we suppress them in parser what we created too
-					if (getParser().getCurrentScript() != null) {
-						Config cs = getParser().getCurrentScript();
-						p.suppressMissingAndOrWarnings = ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction");
-					}
-					for (final Class<?> c : new Class[] {Number.class, Time.class, ItemType.class, ItemStack.class}) {
-						@SuppressWarnings("unchecked")
-						final Expression<?> e = p.parseExpression(c);
-						if (e != null) {
-							log.printLog();
-							return e;
-						}
-						log.clear();
-					}
-				}
-			}
-			//Mirre
-			
 			// Attempt to parse a single expression
-			final Expression<?> r = parseSingleExpr(false, null, vi);
+			final Expression<?> r = parseSingleExpr(true, null, vi);
 			if (r != null) {
 				log.printLog();
 				return r;
@@ -889,7 +840,7 @@ public class SkriptParser {
 				return null;
 			}
 
-			log.clearError();
+			log.printLog(false);
 			
 			if (ts.size() == 1) {
 				return ts.get(0);
@@ -1055,7 +1006,7 @@ public class SkriptParser {
 
 				String priorityString = split[split.length - 1];
 				try {
-					priority = EventPriority.valueOf(priorityString.toUpperCase());
+					priority = EventPriority.valueOf(priorityString.toUpperCase(Locale.ENGLISH));
 				} catch (IllegalArgumentException e) { // Priority doesn't exist
 					log.printErrors("The priority " + priorityString + " doesn't exist");
 					return null;
