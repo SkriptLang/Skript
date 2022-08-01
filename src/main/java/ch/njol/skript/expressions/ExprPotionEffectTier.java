@@ -86,8 +86,8 @@ public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "tier of " + typeExpr.toString(e, debug) + " of " + entityExpr.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "potion tier of " + typeExpr.toString(event, debug) + " of " + entityExpr.toString(event, debug);
 	}
 
 }
