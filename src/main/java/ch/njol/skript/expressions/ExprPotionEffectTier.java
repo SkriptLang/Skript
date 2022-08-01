@@ -34,6 +34,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Name("Potion Effect Tier")
 @Description("An expression to obtain the amplifier of a potion effect applied to an entity.")
 @Examples("if the amplifier of haste of player >= 3:")
@@ -42,7 +45,7 @@ public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 
 	static {
 		Skript.registerExpression(ExprPotionEffectTier.class, Integer.class, ExpressionType.COMBINED,
-			"[the] [potion] (tier|amplifier|level) of %potioneffecttype% (of|for|on) %livingentity%"
+			"[the] [potion] (tier|amplifier|level) of %potioneffecttypes% (of|for|on) %livingentities%"
 		);
 	}
 
@@ -60,12 +63,16 @@ public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 	@Override
 	@Nullable
 	protected Integer[] get(Event event) {
-		PotionEffectType type = typeExpr.getSingle(event);
-		LivingEntity entity = entityExpr.getSingle(event);
-		if (type == null || entity == null)
-			return new Integer[0];
-		PotionEffect effect = entity.getPotionEffect(type);
-		return new Integer[]{effect == null ? 0 : effect.getAmplifier() + 1};
+		PotionEffectType[] types = typeExpr.getArray(event);
+		LivingEntity[] entities = entityExpr.getArray(event);
+		List<Integer> result = new ArrayList<>();
+		for (LivingEntity entity : entities) {
+			for (PotionEffectType type : types) {
+				PotionEffect effect = entity.getPotionEffect(type);
+				result.add(effect == null ? 0 : effect.getAmplifier() + 1);
+			}
+		}
+		return result.toArray(new Integer[0]);
 	}
 
 	@Override
