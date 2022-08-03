@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The type of the entity that will be hatched in a Player Egg Throw event.")
 @Examples({
 	"on player egg throw:",
-	"\tset the hatching entity type to a primed tnt"
+		"\tset the hatching entity type to a primed tnt"
 })
 @Events("Egg Throw")
 @Since("INSERT VERSION")
@@ -51,7 +51,7 @@ public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 	static {
 		//noinspection unchecked
 		Skript.registerExpression(ExprHatchingType.class, (Class<EntityData<?>>) (Class<?>) EntityData.class, ExpressionType.SIMPLE,
-			"[the] hatching entity [type]"
+				"[the] hatching entity [type]"
 		);
 	}
 
@@ -66,10 +66,10 @@ public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 
 	@Override
 	@Nullable
-	protected EntityData<?>[] get(Event e) {
-		if (!(e instanceof PlayerEggThrowEvent))
+	protected EntityData<?>[] get(Event event) {
+		if (!(event instanceof PlayerEggThrowEvent))
 			return new EntityData[0];
-		return new EntityData[]{EntityUtils.toSkriptEntityData(((PlayerEggThrowEvent) e).getHatchingType())};
+		return new EntityData[]{EntityUtils.toSkriptEntityData(((PlayerEggThrowEvent) event).getHatchingType())};
 	}
 
 	@Override
@@ -81,14 +81,14 @@ public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(e instanceof PlayerEggThrowEvent))
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PlayerEggThrowEvent))
 			return;
 		//noinspection ConstantConditions
 		EntityType entityType = delta != null ? EntityUtils.toBukkitEntityType((EntityData<?>) delta[0]) : EntityType.CHICKEN;
 		if (!entityType.isSpawnable())
 			return;
-		((PlayerEggThrowEvent) e).setHatchingType(entityType);
+		((PlayerEggThrowEvent) event).setHatchingType(entityType);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the hatching entity type";
 	}
 

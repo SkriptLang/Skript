@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprEgg extends EventValueExpression<Egg> {
 
 	static {
-		Skript.registerExpression(ExprEgg.class, Egg.class, ExpressionType.SIMPLE, "[the] egg");
+		Skript.registerExpression(ExprEgg.class, Egg.class, ExpressionType.SIMPLE, "[the] [thrown] egg");
 	}
 
 	public ExprEgg() {

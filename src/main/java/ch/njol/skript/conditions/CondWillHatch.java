@@ -45,7 +45,7 @@ public class CondWillHatch extends Condition {
 
 	static {
 		Skript.registerCondition(CondWillHatch.class,
-			"[the] egg (:will|will not|won't) hatch"
+				"[the] egg (:will|will not|won't) hatch"
 		);
 	}
 
@@ -60,14 +60,14 @@ public class CondWillHatch extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		if (!(e instanceof PlayerEggThrowEvent))
+	public boolean check(Event event) {
+		if (!(event instanceof PlayerEggThrowEvent))
 			return false;
-		return ((PlayerEggThrowEvent) e).isHatching() ^ isNegated();
+		return ((PlayerEggThrowEvent) event).isHatching() ^ isNegated();
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the egg " + (isNegated() ? "will" : "will not") + " hatch";
 	}
 

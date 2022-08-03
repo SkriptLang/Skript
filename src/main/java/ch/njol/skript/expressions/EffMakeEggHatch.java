@@ -36,8 +36,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Makes the egg hatch in a Player Egg Throw event.")
 @Examples({
 	"on player egg throw:",
-	"\t# EGGS FOR DAYZ!",
-	"\tmake the egg hatch"
+		"\t# EGGS FOR DAYZ!",
+		"\tmake the egg hatch"
 })
 @Events("Egg Throw")
 @Since("INSERT VERSION")
@@ -45,7 +45,7 @@ public class EffMakeEggHatch extends Effect {
 
 	static {
 		Skript.registerEffect(EffMakeEggHatch.class,
-			"make [the] egg [:not] hatch"
+				"make [the] egg [:not] hatch"
 		);
 	}
 
@@ -72,7 +72,7 @@ public class EffMakeEggHatch extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "make the egg " + (not ? "not " : "") + "hatch";
 	}
 

@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({
 	"on player egg throw:",
-	"\tset the hatching number to 10"
+		"\tset the hatching number to 10"
 })
 @Events("Egg Throw")
 @Since("INSERT VERSION")
@@ -50,7 +50,7 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 
 	static {
 		Skript.registerExpression(ExprHatchingNumber.class, Byte.class, ExpressionType.SIMPLE,
-			"[the] hatching number"
+				"[the] hatching number"
 		);
 	}
 
@@ -65,10 +65,10 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 
 	@Override
 	@Nullable
-	protected Byte[] get(Event e) {
-		if (!(e instanceof PlayerEggThrowEvent))
+	protected Byte[] get(Event event) {
+		if (!(event instanceof PlayerEggThrowEvent))
 			return new Byte[0];
-		return new Byte[]{((PlayerEggThrowEvent) e).getNumHatches()};
+		return new Byte[]{((PlayerEggThrowEvent) event).getNumHatches()};
 	}
 
 	@Override
@@ -80,9 +80,9 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		//noinspection ConstantConditions
-		if (!(e instanceof PlayerEggThrowEvent) || delta == null)
+		if (!(event instanceof PlayerEggThrowEvent) || delta == null)
 			return;
 
 		assert delta[0] != null;
@@ -91,10 +91,10 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 		if (mode != ChangeMode.SET) {
 			if (mode == ChangeMode.REMOVE)
 				value *= -1;
-			value = ((int) ((PlayerEggThrowEvent) e).getNumHatches()) + value;
+			value = ((int) ((PlayerEggThrowEvent) event).getNumHatches()) + value;
 		}
 
-		((PlayerEggThrowEvent) e).setNumHatches((byte) Math.min(Math.max(0, value), 127));
+		((PlayerEggThrowEvent) event).setNumHatches((byte) Math.min(Math.max(0, value), 127));
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the hatching number";
 	}
 
