@@ -122,9 +122,9 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 						if (entity instanceof Mob) {
 							((Mob) entity).setTarget(target);
 						} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-							Entity ent = getTarget(entity, type);
-							if (ent != null && !(ent instanceof OfflinePlayer))
-								ent.remove();
+							Entity entity = getTarget(this.entity, type);
+							if (entity != null && !(entity instanceof OfflinePlayer))
+								entity.remove();
 						}
 					}
 				}
