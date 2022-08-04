@@ -76,19 +76,19 @@ public class Delay extends Effect {
 
 	@Override
 	@Nullable
-	protected TriggerItem walk(Event e) {
-		debug(e, true);
+	protected TriggerItem walk(Event event) {
+		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			addDelayedEvent(e);
+			addDelayedEvent(event);
 
-			Timespan duration = this.duration.getSingle(e);
+			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(e);
+			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				if (Skript.debug())
@@ -96,9 +96,9 @@ public class Delay extends Effect {
 
 				// Re-set local variables
 				if (localVars != null)
-					Variables.setLocalVariables(e, localVars);
+					Variables.setLocalVariables(event, localVars);
 
-				Object timing = null;
+				Object timing = null; // Timings reference must be kept so that it can be stopped after TriggerItem execution
 				if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
 					Trigger trigger = getTrigger();
 					if (trigger != null) {
@@ -106,8 +106,8 @@ public class Delay extends Effect {
 					}
 				}
 
-				TriggerItem.walk(next, e);
-				Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+				TriggerItem.walk(next, event);
+				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
 			}, Math.max(duration.getTicks_i(), 1)); // Minimum delay is one tick, less than it is useless!
@@ -116,13 +116,13 @@ public class Delay extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "wait for " + duration.toString(e, debug) + (e == null ? "" : "...");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "wait for " + duration.toString(event, debug) + (event == null ? "" : "...");
 	}
 
 	private static final Set<Event> DELAYED =

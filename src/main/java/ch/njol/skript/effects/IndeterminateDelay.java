@@ -34,18 +34,18 @@ public class IndeterminateDelay extends Delay {
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, true);
+	protected TriggerItem walk(final Event event) {
+		debug(event, true);
 		final long start = Skript.debug() ? System.nanoTime() : 0;
 		final TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			Delay.addDelayedEvent(e);
-			final Timespan d = duration.getSingle(e);
+			Delay.addDelayedEvent(event);
+			final Timespan d = duration.getSingle(event);
 			if (d == null)
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(e);
+			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -55,9 +55,9 @@ public class IndeterminateDelay extends Delay {
 					
 					// Re-set local variables
 					if (localVars != null)
-						Variables.setLocalVariables(e, localVars);
+						Variables.setLocalVariables(event, localVars);
 					
-					TriggerItem.walk(next, e);
+					TriggerItem.walk(next, event);
 				}
 			}, d.getTicks_i());
 		}
@@ -65,7 +65,7 @@ public class IndeterminateDelay extends Delay {
 	}
 	
 	@Override
-	public String toString(@Nullable final Event e, final boolean debug) {
+	public String toString(@Nullable final Event event, final boolean debug) {
 		return "wait for operation to finish";
 	}
 	

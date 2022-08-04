@@ -134,10 +134,10 @@ public class EffSecSpawn extends EffectSection {
 	@Override
 	@Nullable
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	protected TriggerItem walk(Event e) {
+	protected TriggerItem walk(Event event) {
 		lastSpawned = null;
 
-		Object localVars = Variables.copyLocalVariables(e);
+		Object localVars = Variables.copyLocalVariables(event);
 
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
@@ -147,7 +147,7 @@ public class EffSecSpawn extends EffectSection {
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, localVars);
 				TriggerItem.walk(trigger, spawnEvent);
-				Variables.setLocalVariables(e, Variables.copyLocalVariables(spawnEvent));
+				Variables.setLocalVariables(event, Variables.copyLocalVariables(spawnEvent));
 				// Clear spawnEvent's local variables as it won't be done automatically
 				Variables.removeLocals(spawnEvent);
 			};
@@ -155,10 +155,10 @@ public class EffSecSpawn extends EffectSection {
 			consumer = null;
 		}
 
-		Number a = amount != null ? amount.getSingle(e) : 1;
+		Number a = amount != null ? amount.getSingle(event) : 1;
 		if (a != null) {
-			EntityType[] ts = types.getArray(e);
-			for (Location l : locations.getArray(e)) {
+			EntityType[] ts = types.getArray(event);
+			for (Location l : locations.getArray(event)) {
 				for (EntityType type : ts) {
 					for (int i = 0; i < a.doubleValue() * type.getAmount(); i++) {
 						if (consumer != null)
@@ -170,12 +170,12 @@ public class EffSecSpawn extends EffectSection {
 			}
 		}
 
-		return super.walk(e, false);
+		return super.walk(event, false);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "spawn " + (amount != null ? amount.toString(e, debug) + " of " : "") + types.toString(e, debug) + " " + locations.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "spawn " + (amount != null ? amount.toString(event, debug) + " of " : "") + types.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }
