@@ -24,7 +24,7 @@ allprojects {
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.7'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19.1-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.600'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
@@ -186,7 +186,7 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 	}
 }
 
-def latestEnv = 'java17/paper-1.19.json'
+def latestEnv = 'java17/paper-1.19.1.json'
 def latestJava = 17
 def oldestJava = 8
 

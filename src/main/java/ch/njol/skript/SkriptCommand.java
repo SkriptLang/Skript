@@ -360,7 +360,13 @@ public class SkriptCommand implements CommandExecutor {
 				info(sender, "info.documentation");
 				info(sender, "info.tutorials");
 				info(sender, "info.server", Bukkit.getVersion());
-				info(sender, "info.version", Skript.getVersion());
+
+				SkriptUpdater updater = Skript.getInstance().getUpdater();
+				if (updater != null) {
+					info(sender, "info.version", Skript.getVersion() + " (" + updater.getCurrentRelease().flavor + ")");
+				} else {
+					info(sender, "info.version", Skript.getVersion());
+				}
 
 				Collection<SkriptAddon> addons = Skript.getAddons();
 				info(sender, "info.addons", addons.isEmpty() ? "None" : "");
