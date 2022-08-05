@@ -136,12 +136,13 @@ public final class SkriptAddon {
 			return this;
 		}
 
-		try (JarFile jar = new JarFile(file)) {
-			if (entryCache == null)
+		if (entryCache == null) {
+			try (JarFile jar = new JarFile(file)) {
 				entryCache = jar.stream().toArray(JarEntry[]::new);
-		} catch (IOException e) {
-			Skript.exception(e, "Failed to load classes for addon: " + plugin.getName());
-			return this;
+			} catch (IOException e) {
+				Skript.exception(e, "Failed to load classes for addon: " + plugin.getName());
+				return this;
+			}
 		}
 
 		List<String> classNames = new ArrayList<>();
