@@ -49,6 +49,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\tsend \"The Anvil Repair Sale is active!\" to player",
 
 	"on inventory click:",
+	"\ttype of event-inventory is anvil inventory",
 	"\tthe player has the permission \"anvil.repair.max.bypass\"",
 	"\tset the max repair cost of the event-inventory to 99999"
 })
@@ -62,6 +63,7 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	private boolean isMax = false;
+	private static final int DEFAULT_MAX_VALUE = 40;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -82,6 +84,11 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
+			case RESET:
+				if (!isMax) {
+					Skript.error("Repair cost cannot be reset");
+					return null;
+				}
 			case ADD:
 			case REMOVE:
 			case SET:
@@ -93,14 +100,14 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
+		if (mode != ChangeMode.RESET && delta == null)
 			return;
 
-		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
+		int value = (mode == ChangeMode.RESET && isMax) ? DEFAULT_MAX_VALUE : ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inv : getExpr().getArray(e)) {
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
-				int originalValue = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
+				int originalValue = (mode == ChangeMode.SET || mode == ChangeMode.RESET) ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
 				int newValue = Math.max((originalValue + value), 0);
 
 				if (isMax)
