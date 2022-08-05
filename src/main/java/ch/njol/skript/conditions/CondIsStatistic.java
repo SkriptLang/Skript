@@ -39,7 +39,7 @@ import org.bukkit.Statistic;
 public class CondIsStatistic extends PropertyCondition<Statistic> {
 	
 	static {
-		register(CondIsStatistic.class, PropertyType.BE, "[a] [valid] statistic[s] [name[s]]", "%strings%");
+		register(CondIsStatistic.class, PropertyType.BE, "[a] [valid] statistic[s] [name[s]]", "strings");
 	}
 
 	@Override
