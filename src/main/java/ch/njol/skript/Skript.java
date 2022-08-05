@@ -42,8 +42,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -519,7 +517,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				assert Bukkit.getWorlds().get(0).getFullTime() == tick;
 
 				// Load hooks from Skript jar
-				getAddonInstance().loadClasses(hook -> {
+				getAddonInstance().loadClasses("ch.njol.skript.hooks", false, false, hook -> {
 					//noinspection unchecked - We made sure that it's a valid hook
 					if (Hook.class.isAssignableFrom(hook) && !hook.isInterface() && !Modifier.isAbstract(hook.getModifiers()) && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 						try {
@@ -530,7 +528,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							Skript.exception(ex, "Failed to load hook class " + hook);
 						}
 					}
-				}, false, "ch.njol.skript.hooks", false);
+				});
 				finishedLoadingHooks = true;
 				
 				if (TestMode.ENABLED) {

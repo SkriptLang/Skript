@@ -52,12 +52,12 @@ public abstract class Module {
 	/**
 	 * Loads syntax elements for this module.
 	 * @param loader The SkriptAddon to load syntax with.
-	 * @param packageName The location of syntax elements (ex: "elements")
+	 * @param subPackageName The location of syntax elements (ex: "elements")
 	 *                    Elements should **not** be contained within the main module package.
 	 *                    They should be within a subpackage of the package containing the Module class.
 	 */
-	public final void loadSyntax(SkriptAddon loader, String packageName) {
-		loader.loadClasses(getClass().getPackage().getName() + "." + packageName);
+	public void loadSyntax(SkriptAddon loader, String subPackageName) {
+		loader.loadClasses(getClass().getPackage().getName() + "." + subPackageName);
 	}
 
 }

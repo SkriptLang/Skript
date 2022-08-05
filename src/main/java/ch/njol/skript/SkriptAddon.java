@@ -90,14 +90,13 @@ public final class SkriptAddon {
 	 * @return This SkriptAddon.
 	 */
 	public SkriptAddon loadClasses(String basePackage, String... subPackages) {
-		return loadClasses(null, true, basePackage, true, subPackages);
+		return loadClasses(basePackage, true, true, null, subPackages);
 	}
 
-	@Nullable
 	private JarEntry @Nullable [] entryCache;
 
 	/**
-	 * This method resets the cache of jar entries used in {@link #loadClasses(Consumer, boolean, String, boolean, String...)}.
+	 * This method resets the cache of jar entries used in {@link #loadClasses(String, boolean, boolean, Consumer, String...)}.
 	 * This method is meant for internal use, so you <i>probably</i> don't need it!
 	 * However, if you need loadClasses to load the same class multiple times, you <b>should</b> use this method.
 	 *
@@ -109,25 +108,27 @@ public final class SkriptAddon {
 
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
-	 *
+	 * <p>
 	 * Please note that if you need to load the same class multiple times,
 	 * you should call {@link #resetEntryCache()} each time you call this method.
 	 *
-	 * @param withClass A consumer that will run with each found class.
-	 * @param initialize Whether classes found in the package search should be initialized.
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
-	 * @param recursive Whether to recursively search through the subpackages provided.
+	 * @param initialize  Whether classes found in the package search should be initialized.
+	 * @param recursive   Whether to recursively search through the subpackages provided.
+	 * @param withClass   A consumer that will run with each found class.
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
 	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
 	 * @return This SkriptAddon
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
-	public SkriptAddon loadClasses(@Nullable Consumer<Class<?>> withClass, boolean initialize, String basePackage, boolean recursive, String... subPackages) {
+	public SkriptAddon loadClasses(String basePackage, boolean initialize, boolean recursive, @Nullable Consumer<Class<?>> withClass, String... subPackages) {
 		for (int i = 0; i < subPackages.length; i++)
 			subPackages[i] = subPackages[i].replace('.', '/') + "/";
 		basePackage = basePackage.replace('.', '/') + "/";
 
-		int depth = !recursive ? StringUtils.count(basePackage, '/') + 1 : 0;
+		// Used for tracking valid classes if a non-recursive search is done
+		// Depth is the measure of how "deep" from the head package of 'basePackage' a class is
+		int initialDepth = !recursive ? StringUtils.count(basePackage, '/') + 1 : 0;
 
 		File file = getFile();
 		if (file == null) {
@@ -136,44 +137,59 @@ public final class SkriptAddon {
 		}
 
 		try (JarFile jar = new JarFile(file)) {
-			List<String> classNames = new ArrayList<>();
-			boolean hasWithClass = withClass != null;
 			if (entryCache == null)
 				entryCache = jar.stream().toArray(JarEntry[]::new);
-			for (int i = 0; i < entryCache.length; i++) {
-				JarEntry e = entryCache[i];
-				if (e == null) // This entry has already been loaded before
-					continue;
-				String name = e.getName();
-				if (name.startsWith(basePackage) && name.endsWith(".class") && (recursive || StringUtils.count(name, '/') <= depth)) {
-					boolean load = subPackages.length == 0;
+		} catch (IOException e) {
+			Skript.exception(e, "Failed to load classes for addon: " + plugin.getName());
+			return this;
+		}
+
+		List<String> classNames = new ArrayList<>();
+		for (int i = 0; i < entryCache.length; i++) {
+			JarEntry e = entryCache[i];
+			if (e == null) // This entry has already been loaded before
+				continue;
+
+			String name = e.getName();
+			if (name.startsWith(basePackage) && name.endsWith(".class")) {
+				boolean load = subPackages.length == 0;
+
+				if (load) { // No subpackages provided
+					load = recursive || StringUtils.count(name, '/') <= initialDepth;
+				} else {
 					for (String subPackage : subPackages) {
-						if (e.getName().startsWith(subPackage, basePackage.length())) {
+						if (
+							// We also need to account for subpackage depths when not doing a recursive search
+							(recursive || StringUtils.count(name, '/') <= initialDepth + StringUtils.count(subPackage, '/'))
+							&& name.startsWith(subPackage, basePackage.length())
+						) {
 							load = true;
 							break;
 						}
 					}
-					if (load) {
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-						entryCache[i] = null; // Remove this item from the entry cache as this method will only load it once
-					}
+				}
+
+				if (load) {
+					classNames.add(name.replace('/', '.').substring(0, name.length() - ".class".length()));
+					entryCache[i] = null; // Remove this item from the entry cache as this method will only load it once
 				}
 			}
-			classNames.sort(String::compareToIgnoreCase);
-			for (String c : classNames) {
-				try {
-					Class<?> clazz = Class.forName(c, initialize, plugin.getClass().getClassLoader());
-					if (hasWithClass)
-						withClass.accept(clazz);
-				} catch (ClassNotFoundException ex) {
-					Skript.exception(ex, "Cannot load class " + c);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), this + "'s class " + c + " generated an exception while loading");
-				}
-			}
-		} catch (IOException e) {
-			Skript.exception(e, "Failed to load classes for addon: " + plugin.getName());
 		}
+
+		classNames.sort(String::compareToIgnoreCase);
+
+		for (String className : classNames) {
+			try {
+				Class<?> clazz = Class.forName(className, initialize, plugin.getClass().getClassLoader());
+				if (withClass != null)
+					withClass.accept(clazz);
+			} catch (ClassNotFoundException ex) {
+				Skript.exception(ex, "Cannot load class " + className);
+			} catch (ExceptionInInitializerError err) {
+				Skript.exception(err.getCause(), this + "'s class " + className + " generated an exception while loading");
+			}
+		}
+
 		return this;
 	}
 
@@ -189,15 +205,15 @@ public final class SkriptAddon {
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
 	public SkriptAddon loadModules(String basePackage, String... subPackages) {
-		return loadClasses(c -> {
+		return loadClasses(basePackage, false, false, c -> {
 			if (Module.class.isAssignableFrom(c) && !c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
 				try {
 					((Module) c.getConstructor().newInstance()).register(this);
 				} catch (Exception e) {
-					Skript.exception(e, "Failed to load registration " + c);
+					Skript.exception(e, "Failed to load module " + c);
 				}
 			}
-		}, false, basePackage, false, subPackages);
+		}, subPackages);
 	}
 	
 	@Nullable
@@ -213,7 +229,7 @@ public final class SkriptAddon {
 	 */
 	public SkriptAddon setLanguageFileDirectory(String directory) {
 		if (languageFileDirectory != null)
-			throw new IllegalStateException();
+			throw new IllegalStateException("The language file directory may only be set once.");
 		directory = "" + directory.replace('\\', '/');
 		if (directory.endsWith("/"))
 			directory = "" + directory.substring(0, directory.length() - 1);
@@ -224,7 +240,7 @@ public final class SkriptAddon {
 
 	/**
 	 * @return The language file directory set for this addon.
-	 * It must first be set using {@link #setLanguageFileDirectory(String)}.
+	 * Null if not yet set using {@link #setLanguageFileDirectory(String)}.
 	 */
 	@Nullable
 	public String getLanguageFileDirectory() {
