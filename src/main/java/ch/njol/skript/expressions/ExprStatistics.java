@@ -83,8 +83,8 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprStatistics.class, Long.class, ExpressionType.COMBINED,
-			"statistic[s] [value[s]] [of] %strings% [of type %-entitydata/itemtype%] of " + PLAYER_PATTERN, // 'of type' to not conflict with `of %offlineplayers%`
-			PLAYER_PATTERN + "'[s] statistic[s] [value[s]] [of] %strings% [of type %-entitydata/itemtype%]");
+			"statistic[s] %strings% [for %-entitydata/itemtype%] of " + PLAYER_PATTERN,
+			PLAYER_PATTERN + "'[s] statistic[s] %strings% [for %-entitydata/itemtype%]");
 	}
 
 	private Expression<String> statistics;
@@ -115,7 +115,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 						}
 					}
 				} else {
-					unknownStat = statistics.getSingle(null);
+					unknownStat = ((Literal<String>) statistics).getSingle();
 					Statistic.valueOf(unknownStat);
 				}
 			} catch (Exception e) {
@@ -180,6 +180,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			case REMOVE:
 			case ADD:
 			case RESET:
+			case DELETE:
 				return CollectionUtils.array(Number.class);
 			default:
 				return null;
@@ -188,7 +189,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
+		if ((mode != ChangeMode.RESET && mode != ChangeMode.DELETE) && delta == null)
 			return;
 
 		OfflinePlayer[] players = this.players.getArray(e);
@@ -198,10 +199,10 @@ public class ExprStatistics extends SimpleExpression<Long> {
 		if (ofType instanceof ItemType)
 			ofType = ((ItemType) ofType).getMaterial();
 
-		if (ofType instanceof EntityData<?>)
-			ofType = EntityUtils.toBukkitEntityType((EntityData) ofType);
+		if (ofType instanceof EntityData)
+			ofType = EntityUtils.toBukkitEntityType((EntityData<?>) ofType);
 
-		int value = mode == ChangeMode.RESET ? 0 : ((Long) delta[0]).intValue();
+		int value = (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) ? 0 : ((Long) delta[0]).intValue();
 
 		applyStatistic(players, statistics, ofType, value, mode);
 	}
@@ -212,7 +213,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			players.toString(e, debug) : "") + " of " + players.toString(e, debug);
 	}
 
-	private void applyStatistic(OfflinePlayer[] players, String[] statistics, Object ofType, int value, ChangeMode mode) {
+	private static void applyStatistic(OfflinePlayer[] players, String[] statistics, @Nullable Object ofType, int value, ChangeMode mode) {
 		for (OfflinePlayer p : players) {
 			for (String s : statistics) {
 				try {
@@ -225,43 +226,44 @@ public class ExprStatistics extends SimpleExpression<Long> {
 		}
 	}
 
-	private void applyStatistic(OfflinePlayer p, Statistic stat, Object type, int value, ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
+	private static void applyStatistic(OfflinePlayer p, Statistic stat, Object type, int value, ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			setStatistic(p, stat, type, value);
-		else if (mode == ChangeMode.ADD)
+		} else if (mode == ChangeMode.ADD) {
 			incrementStatistic(p, stat, type, value);
-		else
+		} else {
 			decrementStatistic(p, stat, type, value);
+		}
 	}
 
-	private void incrementStatistic(OfflinePlayer p, Statistic stat, Object type, int value) {
-		if (type instanceof Material)
+	private static void incrementStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
+		if (type instanceof Material) {
 			p.incrementStatistic(stat, (Material) type, value);
-		else if (type instanceof EntityType)
+		} else if (type instanceof EntityType) {
 			p.incrementStatistic(stat, (EntityType) type, value);
-		else if (type == null)
+		} else {
 			p.incrementStatistic(stat, value);
-		return;
+		}
 	}
 
-	private void decrementStatistic(OfflinePlayer p, Statistic stat, Object type, int value) {
-		if (type instanceof Material)
+	private static void decrementStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
+		if (type instanceof Material) {
 			p.decrementStatistic(stat, (Material) type, value);
-		else if (type instanceof EntityType)
+		} else if (type instanceof EntityType) {
 			p.decrementStatistic(stat, (EntityType) type, value);
-		else if (type == null)
+		} else {
 			p.decrementStatistic(stat, value);
-		return;
+		}
 	}
 
-	private void setStatistic(OfflinePlayer p, Statistic stat, Object type, int value) {
-		if (type instanceof Material)
+	private static void setStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
+		if (type instanceof Material) {
 			p.setStatistic(stat, (Material) type, value);
-		else if (type instanceof EntityType)
+		} else if (type instanceof EntityType) {
 			p.setStatistic(stat, (EntityType) type, value);
-		else if (type == null)
+		} else {
 			p.setStatistic(stat, value);
-		return;
+		}
 	}
-	
+
 }

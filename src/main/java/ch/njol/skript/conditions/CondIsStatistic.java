@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -42,43 +43,25 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\t\tsend \"No :(\""
 })
 @Since("INSERT VERSION")
-public class CondIsStatistic extends Condition {
+public class CondIsStatistic extends PropertyCondition<Statistic> {
 	
 	static {
-		Skript.registerCondition(CondIsStatistic.class,
-			"%strings% (is|are) [a] [valid] statistic[s] [name[s]]",
-			"%strings% (isn't|is not|aren't|are not) [a] [valid] statistic[s] [name[s]]");
+		register(CondIsStatistic.class, PropertyType.BE, "[a] [valid] statistic[s] [name[s]]", "%strings%");
 	}
-	
-	@SuppressWarnings("null")
-	private Expression<String> statistic;
-	
+
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		statistic = (Expression<String>) exprs[0];
-		setNegated(matchedPattern == 1);
+	public boolean check(Statistic statistic) {
+		try {
+			Statistic.valueOf(statistic.name());
+		} catch (IllegalArgumentException ex) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	@Override
-	public boolean check(Event e) {
-		return statistic.check(e,
-			stat -> {
-				try {
-					Statistic.valueOf(stat.toUpperCase());
-				} catch (IllegalArgumentException ex) {
-					return false;
-				}
-				return true;
-			}, isNegated()
-		);
-	}
-	
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return statistic.toString(e, debug) + (statistic.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") +
-			(statistic.isSingle() ? "a valid statistic" : "valid statistics");
+	protected String getPropertyName() {
+		return "statistic";
 	}
 
 }
