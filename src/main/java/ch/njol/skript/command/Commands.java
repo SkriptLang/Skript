@@ -124,19 +124,6 @@ public abstract class Commands {
 		}
 	}
 	
-	private final static SectionValidator commandStructure = new SectionValidator()
-			.addEntry("usage", true)
-			.addEntry("description", true)
-			.addEntry("permission", true)
-			.addEntry("permission message", true)
-			.addEntry("cooldown", true)
-			.addEntry("cooldown message", true)
-			.addEntry("cooldown bypass", true)
-			.addEntry("cooldown storage", true)
-			.addEntry("aliases", true)
-			.addEntry("executable by", true)
-			.addSection("trigger", false);
-	
 	@Nullable
 	public static List<Argument<?>> currentArguments = null;
 	
@@ -145,11 +132,11 @@ public abstract class Commands {
 	@SuppressWarnings("null")
 	private final static Pattern unescape = Pattern.compile("\\\\[" + Pattern.quote("(|)<>%\\") + "]");
 	
-	public static String escape(final String s) {
+	public static String escape(String s) {
 		return "" + escape.matcher(s).replaceAll("\\\\$0");
 	}
 	
-	public static String unescape(final String s) {
+	public static String unescape(String s) {
 		return "" + unescape.matcher(s).replaceAll("$0");
 	}
 	

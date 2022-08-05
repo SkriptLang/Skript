@@ -46,7 +46,7 @@ public class StructureEntryValidator {
 		return new StructureEntryValidatorBuilder();
 	}
 
-	final List<StructureEntryData<?>> entryData;
+	private final List<StructureEntryData<?>> entryData;
 	private final boolean allowUnknownEntries, allowUnknownSections;
 
 	private StructureEntryValidator(List<StructureEntryData<?>> entryData, boolean allowUnknownEntries, boolean allowUnknownSections) {
@@ -128,6 +128,7 @@ public class StructureEntryValidator {
 
 		if (!ok) // We printed an error at some point
 			return null;
+
 		return new NonNullPair<>(handledNodes, unhandledNodes);
 	}
 

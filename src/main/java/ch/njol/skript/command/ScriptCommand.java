@@ -126,11 +126,13 @@ public class ScriptCommand implements TabExecutor {
 	 * @param permissionMessage message to display if the player doesn't have the given permission
 	 * @param node the node to parse and load into a Trigger
 	 */
-	public ScriptCommand(final Script script, final String name, final String pattern, final List<Argument<?>> arguments,
-						 final String description, final String usage, final List<String> aliases,
-						 final String permission, @Nullable final VariableString permissionMessage, @Nullable final Timespan cooldown,
-						 @Nullable final VariableString cooldownMessage, final String cooldownBypass,
-						 @Nullable VariableString cooldownStorage, final int executableBy, final SectionNode node) {
+	public ScriptCommand(
+		Script script, String name, String pattern, List<Argument<?>> arguments,
+		String description, String usage, List<String> aliases,
+		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
+		@Nullable VariableString cooldownMessage, String cooldownBypass,
+		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
+	) {
 		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
 		this.name = name;
 		label = "" + name.toLowerCase(Locale.ENGLISH);

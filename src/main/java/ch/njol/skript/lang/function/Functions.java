@@ -342,9 +342,8 @@ public abstract class Functions {
 		}
 
 		for (FunctionReference<?> ref : signature.calls) {
-			if (!signature.script.equals(ref.script)) {
+			if (!signature.script.equals(ref.script))
 				toValidate.add(ref);
-			}
 		}
 	}
 

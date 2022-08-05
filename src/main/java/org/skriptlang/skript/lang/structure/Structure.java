@@ -207,6 +207,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
+
 		private SectionNode sectionNode;
 		@Nullable
 		private StructureInfo<? extends Structure> structureInfo;
@@ -219,6 +220,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		public StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
 		}
+
 	}
 
 }

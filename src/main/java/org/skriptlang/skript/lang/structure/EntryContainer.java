@@ -140,7 +140,7 @@ public class EntryContainer {
 			return null;
 
 		StructureEntryData<?> entryData = null;
-		for (StructureEntryData<?> data : entryValidator.entryData) {
+		for (StructureEntryData<?> data : entryValidator.getEntryData()) {
 			if (data.getKey().equals(key)) {
 				entryData = data;
 				break;

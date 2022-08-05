@@ -459,7 +459,9 @@ public class SkriptCommand implements CommandExecutor {
 		String script = StringUtils.join(args, " ", 1, args.length);
 		File f = getScriptFromName(script);
 		if (f == null) {
-			Skript.error(sender, (script.endsWith("/") || script.endsWith("\\") ? m_invalid_folder : m_invalid_script).toString(script));
+			// Always allow '/' and '\' regardless of OS
+			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
+			Skript.error(sender, (directory ? m_invalid_folder : m_invalid_script).toString(script));
 			return null;
 		}
 		return f;
@@ -467,7 +469,7 @@ public class SkriptCommand implements CommandExecutor {
 	
 	@Nullable
 	public static File getScriptFromName(String script) {
-		if (script.endsWith("/") || script.endsWith("\\")) {
+		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
 			int dot = script.lastIndexOf('.');

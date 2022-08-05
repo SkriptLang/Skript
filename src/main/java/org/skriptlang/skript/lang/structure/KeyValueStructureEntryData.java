@@ -43,8 +43,8 @@ public abstract class KeyValueStructureEntryData<T> extends StructureEntryData<T
 	 * @param node A {@link SimpleNode} to obtain (and possibly convert) the value of.
 	 * @return The value obtained from the provided {@link SimpleNode}.
 	 */
-	@Nullable
 	@Override
+	@Nullable
 	public final T getValue(Node node) {
 		assert node instanceof SimpleNode;
 		String key = node.getKey();

@@ -232,7 +232,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return v;
 	}
 	
-	public final static Message
+	public static final Message
 		m_invalid_reload = new Message("skript.invalid reload"),
 		m_finished_loading = new Message("skript.finished loading"),
 		m_no_errors = new Message("skript.no errors"),
@@ -419,16 +419,16 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + File.separator)) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
 						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang/")
+							&& e.getName().startsWith("lang" + File.separator)
 							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+							&& !e.getName().endsWith(File.separator + "default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())

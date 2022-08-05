@@ -167,9 +167,8 @@ public class ScriptLoader {
 
 		private boolean isSubDir(File directory, File subDir) {
 			for (File parentDir = directory.getParentFile(); parentDir != null; parentDir = parentDir.getParentFile()) {
-				if (subDir.equals(parentDir)) {
+				if (subDir.equals(parentDir))
 					return true;
-				}
 			}
 			return false;
 		}
