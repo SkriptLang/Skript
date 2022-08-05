@@ -328,8 +328,6 @@ public class Variable<T> implements Expression<T> {
 		return l.toArray();
 	}
 
-	private final static boolean uuidSupported = Skript.methodExists(OfflinePlayer.class, "getUniqueId");
-
 	/*
 	 * Workaround for player variables when a player has left and rejoined
 	 * because the player object inside the variable will be a (kinda) dead variable
@@ -339,7 +337,7 @@ public class Variable<T> implements Expression<T> {
 		if(SkriptConfig.enablePlayerVariableFix.value() && t != null && t instanceof Player){
 			Player p = (Player) t;
 			if(!p.isValid() && p.isOnline()){
-				Player player = uuidSupported ? Bukkit.getPlayer(p.getUniqueId()) : Bukkit.getPlayerExact(p.getName());
+				Player player = Bukkit.getPlayer(p.getUniqueId());
 				Variables.setVariable(key, player, event, local);
 				return player;
 			}
