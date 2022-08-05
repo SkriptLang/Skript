@@ -66,7 +66,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 		isMax = parseResult.hasTag("max");
 		setExpr(exprs[0]);
 		if (isMax && Entity.class.isAssignableFrom(getExpr().getReturnType())) {
-			Skript.error("Cannot use 'max age' expression with entities, use the just the 'age' expression instead");
+			Skript.error("Cannot use 'max age' expression with entities, use just the 'age' expression instead");
 			return false;
 		}
 
