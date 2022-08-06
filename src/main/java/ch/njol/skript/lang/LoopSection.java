@@ -34,7 +34,7 @@ public abstract class LoopSection extends Section implements SyntaxElement, Debu
 
 	/**
 	 * @param event The event where the loop is used to return its loop iterations
-	 * @return The loop iterations number
+	 * @return The loop iteration number
 	 */
 	public abstract long getLoopCounter(Event event);
 
