@@ -55,7 +55,6 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 	public String convert(Inventory inv) {
 		if (!(inv instanceof AnvilInventory))
 			return null;
-
 		return ((AnvilInventory) inv).getRenameText();
 	}
 
