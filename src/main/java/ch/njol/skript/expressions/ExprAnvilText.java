@@ -31,7 +31,7 @@ import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Text Input")
-@Description("Returns the name to be applied to the repaired item.")
+@Description("An expression to get the name to be applied to an item in an anvil inventory.")
 @Examples({
 		"on inventory click:",
 		"\ttype of event-inventory is anvil inventory",
