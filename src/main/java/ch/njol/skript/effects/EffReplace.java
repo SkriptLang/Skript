@@ -62,8 +62,8 @@ public class EffReplace extends Effect {
 
 	static {
 		Skript.registerEffect(EffReplace.class,
-				"replace (all:(all|every)|:first|) %strings% in %strings% with %string% [(case:with case sensitivity)]",
-				"replace (all:(all|every)|:first|) %strings% with %string% in %strings% [(case:with case sensitivity)]",
+				"replace (all:(all|every)|:[the] first|) %strings% in %strings% with %string% [(case:with case sensitivity)]",
+				"replace (all:(all|every)|:[the] first|) %strings% with %string% in %strings% [(case:with case sensitivity)]",
 				"regex:(replace [using] regex|regex replace) %strings% in %strings% with %string%",
 				"regex:(replace [using] regex|regex replace) %strings% with %string% in %strings%",
 				"replace (all|every|) %itemtypes% in %inventories% with %itemtype%",
