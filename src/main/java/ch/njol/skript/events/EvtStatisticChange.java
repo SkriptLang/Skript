@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class EvtStatisticChange extends SkriptEvent {
+
 	static {
 		Skript.registerEvent("Statistic Change", EvtStatisticChange.class, PlayerStatisticIncrementEvent.class,
 				"[player] statistic[s] (change|increase) [of %string%]")
