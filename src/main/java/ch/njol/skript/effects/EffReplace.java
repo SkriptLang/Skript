@@ -37,8 +37,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Replace")
 @Description("Replaces all occurrences of a given text/regex with another text. Please note that you can only change " +
@@ -67,7 +70,7 @@ public class EffReplace extends Effect {
 				"replace (all|every|) %itemtypes% with %itemtype% in %inventories%");
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> haystack, needles, replacement;
 	private boolean replaceString;
 	private boolean replaceRegex;
@@ -79,12 +82,12 @@ public class EffReplace extends Effect {
 	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		haystack =  exprs[1 + matchedPattern % 2];
-		replaceString = matchedPattern < 2;
+		replaceString = matchedPattern < 4;
 		replaceFirst = parseResult.hasTag("first");
 		replaceRegex = parseResult.hasTag("regex");
 		replaceItems = matchedPattern == 4 || matchedPattern == 5;
 		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
-			Skript.error(haystack + " cannot be changed and can thus not have parts replaced.");
+			Skript.error(haystack + " cannot be changed and can thus not have parts replaced");
 			return false;
 		}
 		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {
@@ -103,7 +106,7 @@ public class EffReplace extends Effect {
 		Object replacement = this.replacement.getSingle(e);
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
-		if (replaceString || replaceRegex) {
+		if (replaceString) {
 			if (replaceFirst) {
 				for (int x = 0; x < haystack.length; x++) {
 					for (Object n : needles) {
@@ -112,12 +115,17 @@ public class EffReplace extends Effect {
 					}
 				}
 			} else if (replaceRegex) {
+				List<Pattern> patterns = new ArrayList<>(needles.length);
+				for (Object n : needles) {
+					assert n != null;
+					try {
+						patterns.add(Pattern.compile((String) n));
+					} catch (Exception ignored) {}
+				}
 				for (int x = 0; x < haystack.length; x++) {
-					for (Object n : needles) {
-						assert n != null;
-						try {
-							haystack[x] = ((String) haystack[x]).replaceAll((String) n, (String) replacement);
-						} catch (Exception ignored) {}
+					for (Pattern p : patterns) {
+						assert p != null;
+						haystack[x] = p.matcher((String) haystack[x]).replaceAll((String) replacement);
 					}
 				}
 			} else {
