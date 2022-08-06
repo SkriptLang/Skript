@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Name("Crafting Inventory Slots")
-@Description("Represents the slots/items in the crafting inventory such as the result item and matrix of the items.")
+@Description("Represents the items in a crafting inventory, such as the items within the crafting grid and the result item.")
 @Examples({
 	"on craft:",
 	"\tif crafting result item is paper:",
