@@ -164,4 +164,5 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "crafting " + (isMatrix ? "matrix" : "result") + " slot of " + invis.toString(e, debug);
 	}
+
 }
