@@ -152,7 +152,7 @@ public class EffReplace extends Effect {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(e, debug)
 			+ " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
-			+ "(case sensitive: " + caseSensitive + ")";
+			+ (caseSensitive ? " with case sensitivity" : "");
 	}
 	
 }
