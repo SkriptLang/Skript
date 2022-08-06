@@ -121,10 +121,10 @@ public class EvtStatisticChange extends SkriptEvent {
 	}
 	
 	@Override
-	public boolean check(Event e) {
+	public boolean check(Event event) {
 		// TIME_SINCE_REST is called too many times therefore we will not make it trigger unless specified
-		return (statistic == null && ((PlayerStatisticIncrementEvent) e).getStatistic() != Statistic.TIME_SINCE_REST) ||
-			((PlayerStatisticIncrementEvent) e).getStatistic() == statistic;
+		return (statistic == null && ((PlayerStatisticIncrementEvent) event).getStatistic() != Statistic.TIME_SINCE_REST) ||
+			((PlayerStatisticIncrementEvent) event).getStatistic() == statistic;
 	}
 	
 	@Override
