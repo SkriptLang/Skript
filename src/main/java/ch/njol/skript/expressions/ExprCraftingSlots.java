@@ -103,7 +103,6 @@ public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(ItemStack[].class);
-
 		return null;
 	}
 
