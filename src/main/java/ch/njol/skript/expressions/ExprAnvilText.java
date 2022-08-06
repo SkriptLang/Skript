@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({
 		"on inventory click:",
 		"\ttype of event-inventory is anvil inventory",
-		"\tif anvil input text = \"FREE OP\":",
+		"\tif the anvil input text of the event-inventory is \"FREE OP\":",
 		"\t\tban player"
 })
 @Since("INSERT VERSION")
