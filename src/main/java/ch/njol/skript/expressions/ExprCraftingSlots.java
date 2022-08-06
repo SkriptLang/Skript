@@ -50,7 +50,7 @@ import java.util.List;
 	"\t\tset the crafting matrix to air, air, air, paper, diamond, paper, air, air and air",
 	"on preparing crafting:",
 	"\tset crafting result item to wood"
-	})
+})
 @Since("INSERT VERSION")
 public class ExprCraftingSlots extends SimpleExpression<ItemStack> {
 	
