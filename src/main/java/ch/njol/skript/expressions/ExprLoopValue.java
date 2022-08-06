@@ -46,7 +46,6 @@ import java.util.regex.Pattern;
 
 /**
  * Used to access a loop's current value.
- * @author Peter Güttinger
  */
 @Name("Loop value")
 @Description("Returns the currently looped value.")
