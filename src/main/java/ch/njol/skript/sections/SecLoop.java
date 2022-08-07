@@ -145,8 +145,8 @@ public class SecLoop extends LoopSection {
 	}
 
 	@Override
-	public long getLoopCounter(Event e) {
-		return currentLoopCounter.getOrDefault(e, 1L);
+	public long getLoopCounter(Event event) {
+		return currentLoopCounter.getOrDefault(event, 1L);
 	}
 
 }
