@@ -99,14 +99,14 @@ public class SecWhile extends LoopSection {
 	}
 
 	@Override
-	public void exit(Event e) {
+	public void exit(Event event) {
 		ranDoWhile = false;
-		currentLoopCounter.remove(e);
+		currentLoopCounter.remove(event);
 	}
 
 	@Override
-	public long getLoopCounter(Event e) {
-		return currentLoopCounter.getOrDefault(e, 1L);
+	public long getLoopCounter(Event event) {
+		return currentLoopCounter.getOrDefault(event, 1L);
 	}
 
 }

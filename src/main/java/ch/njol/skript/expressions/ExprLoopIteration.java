@@ -96,8 +96,8 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 	}
 
 	@Override
-	protected Long[] get(Event e) {
-		return new Long[]{loop.getLoopCounter(e)};
+	protected Long[] get(Event event) {
+		return new Long[]{loop.getLoopCounter(event)};
 	}
 
 	@Override
