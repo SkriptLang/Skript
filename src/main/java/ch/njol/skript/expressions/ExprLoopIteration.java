@@ -111,7 +111,7 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "loop-iteration" + (loopNumber != -1 ? ("-" + loopNumber) : "");
 	}
 
