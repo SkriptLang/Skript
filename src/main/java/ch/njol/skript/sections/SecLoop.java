@@ -138,10 +138,10 @@ public class SecLoop extends LoopSection {
 	}
 
 	@Override
-	public void exit(Event e) {
-		current.remove(e);
-		currentIter.remove(e);
-		currentLoopCounter.remove(e);
+	public void exit(Event event) {
+		current.remove(event);
+		currentIter.remove(event);
+		currentLoopCounter.remove(event);
 	}
 
 	@Override
