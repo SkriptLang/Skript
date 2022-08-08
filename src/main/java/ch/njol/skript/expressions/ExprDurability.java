@@ -21,7 +21,6 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
@@ -71,26 +70,25 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	@Nullable
-	public Long convert(final Object o) {
+	public Long convert(Object o) {
+		ItemStack itemStack = null;
 		if (o instanceof Slot) {
-			final ItemStack i = ((Slot) o).getItem();
-			if (i != null) {
-				long damage = ItemUtils.getDamage(i);
-				return durability ? i.getType().getMaxDurability() - damage : damage;
-			}
+			itemStack = ((Slot) o).getItem();
 		} else if (o instanceof ItemType) {
-			ItemStack item = ((ItemType) o).getRandom();
-			long damage = ItemUtils.getDamage(item);
-			return durability ? item.getType().getMaxDurability() - damage : damage;
+			itemStack = ((ItemType) o).getRandom();
 		} else if (LEGACY_BLOCK && o instanceof Block) {
 			return (long) ((Block) o).getData();
 		}
-		return null;
+		if (itemStack == null) {
+			return null;
+		}
+		long damage = ItemUtils.getDamage(itemStack);
+		return durability ? itemStack.getType().getMaxDurability() - damage : damage;
 	}
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
 			case ADD:
 			case SET:
@@ -104,10 +102,10 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
 		final Object[] os = getExpr().getArray(e);
-		for (final Object o : os) {
+		for (Object o : os) {
 			ItemStack itemStack = null;
 			Block block = null;
 
@@ -145,9 +143,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 				itemStack != null &&
 				mode != ChangeMode.RESET &&
 				mode != ChangeMode.DELETE) {
-				Bukkit.broadcastMessage(changeValue + "");
 				changeValue = itemStack.getType().getMaxDurability() - changeValue;
-				Bukkit.broadcastMessage(changeValue + "");
 			}
 			if (o instanceof ItemType && itemStack != null) {
 				ItemUtils.setDamage(itemStack,changeValue);
