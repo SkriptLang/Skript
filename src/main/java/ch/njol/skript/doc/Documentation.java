@@ -207,7 +207,7 @@ public class Documentation {
 		return cleanPatterns(patterns, true);
 	}
 
-	protected static String cleanPatterns(final String patterns, boolean escapeHTML) {
+	protected static String cleanPatterns(String patterns, boolean escapeHTML) {
 
 		String cleanedPatterns = escapeHTML ? escapeHTML(patterns) : patterns;
 
