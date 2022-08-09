@@ -70,7 +70,7 @@ public class Documentation {
 	/**
 	 * Force register hooks even if their plugins are not present in the server
 	 */
-	public static final String FORCE_HOOKS_SYSTEM_PROPERTY = System.getProperty(("skript.forceregisterhooks"));
+	public static final String FORCE_HOOKS_SYSTEM_PROPERTY = System.getProperty("skript.forceregisterhooks");
 
 	public static boolean isDocsTemplateFound() {
 		return docsTemplateFound;
