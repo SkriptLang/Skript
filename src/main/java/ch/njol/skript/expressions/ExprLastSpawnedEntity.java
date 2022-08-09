@@ -152,7 +152,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 				word = "struck";
 				break;
 			case 4:
-				word = "firework";
+				word = "launched";
 				break;
 			default:
 				throw new IllegalStateException();
