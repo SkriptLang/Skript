@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.Event;
@@ -67,14 +68,20 @@ public class EffFireworkLaunch extends Effect {
 
 	@Override
 	protected void execute(Event e) {
-		Number power = lifetime.getSingle(e);
-		if (power == null)
-			power = 1;
+		FireworkEffect[] effects = this.effects.getArray(e);
+		Number powerExpr = lifetime.getSingle(e);
+		if (powerExpr == null)
+			powerExpr = 1;
+
+		int power = powerExpr.intValue();
 		for (Location location : locations.getArray(e)) {
-			Firework firework = location.getWorld().spawn(location, Firework.class);
+			World world = location.getWorld();
+			if (world == null)
+				continue;
+			Firework firework = world.spawn(location, Firework.class);
 			FireworkMeta meta = firework.getFireworkMeta();
-			meta.addEffects(effects.getArray(e));
-			meta.setPower(power.intValue());
+			meta.addEffects(effects);
+			meta.setPower(power);
 			firework.setFireworkMeta(meta);
 			lastSpawned = firework;
 		}
