@@ -21,13 +21,10 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -39,23 +36,19 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Data/Damage Value/Durability")
-@Description({"The data/damage value/durability of an item/block. Data values of blocks are only supported on 1.12.2 and below.",
-	"You usually don't need this expression as you can check and set items with aliases easily, ",
-	"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colours."})
-@Examples({"set damage value of player's tool to 10",
-	"set data value of target block of player to 3",
-	"add 1 to the data value of the clicked block",
-	"reset data value of block at player",
+@Name("Damage Value/Durability")
+@Description("The damage value/durability of an item.")
+@Examples({
+	"set damage value of player's tool to 10",
+	"reset the durability of {_item}",
 	"set durability of player's held item to 0"})
 @Since("1.2, INSERT VERSION (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
-	private static final boolean LEGACY_BLOCK = !Skript.isRunningMinecraft(1, 13);
 	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durability:durabilit(y|ies))", "itemtypes/blocks/slots");
+		register(ExprDurability.class, Long.class, "(damage[s] [value[s]]|durability:durabilit(y|ies))", "itemtypes/slots");
 	}
 
 	@Override
@@ -72,12 +65,9 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 			itemStack = ((Slot) o).getItem();
 		} else if (o instanceof ItemType) {
 			itemStack = ((ItemType) o).getRandom();
-		} else if (LEGACY_BLOCK && o instanceof Block) {
-			return (long) ((Block) o).getData();
 		}
-		if (itemStack == null) {
+		if (itemStack == null)
 			return null;
-		}
 		long damage = ItemUtils.getDamage(itemStack);
 		return durability ? itemStack.getType().getMaxDurability() - damage : damage;
 	}
@@ -103,23 +93,18 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 		final Object[] os = getExpr().getArray(e);
 		for (Object o : os) {
 			ItemStack itemStack = null;
-			Block block = null;
 
-			if (o instanceof ItemType)
+			if (o instanceof ItemType) {
 				itemStack = ((ItemType) o).getRandom();
-			else if (o instanceof Slot)
+			} else if (o instanceof Slot) {
 				itemStack = ((Slot) o).getItem();
-			else if (LEGACY_BLOCK)
-				block = (Block) o;
-			else
+			}
+			if (itemStack == null)
 				return;
 
-			int changeValue = block != null ? block.getData() : 0;
-			if (itemStack != null) {
-				changeValue = ItemUtils.getDamage(itemStack);
-				if (durability)
-					changeValue -= itemStack.getType().getMaxDurability();
-			}
+			int changeValue = ItemUtils.getDamage(itemStack);
+			if (durability)
+				changeValue -= itemStack.getType().getMaxDurability();
 
 			switch (mode) {
 				case REMOVE:
@@ -138,20 +123,16 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 				case REMOVE_ALL:
 					assert false;
 			}
-			if (durability && itemStack != null && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
+
+			if (durability && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
 				changeValue = itemStack.getType().getMaxDurability() - changeValue;
-			if (o instanceof ItemType && itemStack != null) {
-				ItemUtils.setDamage(itemStack,changeValue);
+
+			if (o instanceof ItemType) {
+				ItemUtils.setDamage(itemStack, changeValue);
 				((ItemType) o).setTo(new ItemType(itemStack));
-			} else if (o instanceof Slot) {
-				ItemUtils.setDamage(itemStack,changeValue);
-				((Slot) o).setItem(itemStack);
 			} else {
-				BlockState blockState = ((Block) o).getState();
-				try {
-					blockState.setRawData((byte) Math.max(0, changeValue));
-					blockState.update();
-				} catch (IllegalArgumentException | NullPointerException ignore) {} // Catch when a user sets the amount too high
+				ItemUtils.setDamage(itemStack, changeValue);
+				((Slot) o).setItem(itemStack);
 			}
 		}
 	}
@@ -163,7 +144,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	public String getPropertyName() {
-		return durability ? "durability" : "data";
+		return durability ? "durability" : "damage";
 	}
 
 }
