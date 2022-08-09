@@ -67,7 +67,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 			"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
 			"[the] [last[ly]] dropped (2:item)",
 			"[the] [last[ly]] (created|struck) (3:lightning)",
-			"[the] [last[ly]] launched (4:firework)");
+			"[the] [last[ly]] (launched|deployed) (4:firework)");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
