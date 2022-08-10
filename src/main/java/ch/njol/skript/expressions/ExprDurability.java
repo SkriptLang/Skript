@@ -41,7 +41,8 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({
 	"set damage value of player's tool to 10",
 	"reset the durability of {_item}",
-	"set durability of player's held item to 0"})
+	"set durability of player's held item to 0"
+})
 @Since("1.2, INSERT VERSION (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
@@ -90,7 +91,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 	@SuppressWarnings("null")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
-		final Object[] objects = getExpr().getArray(event);
+		Object[] objects = getExpr().getArray(event);
 		for (Object object : objects) {
 			ItemStack itemStack = null;
 
