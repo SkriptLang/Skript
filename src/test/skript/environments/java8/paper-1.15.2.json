@@ -12,6 +12,6 @@
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
 		"-Dcom.mojang.eula.agree=true",
-		"-jar", "paperclip.jar"
+		"-jar", "paperclip.jar", "--nogui"
 	]
 }

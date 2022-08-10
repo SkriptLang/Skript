@@ -34,8 +34,10 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -100,6 +102,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -1011,6 +1014,31 @@ public final class BukkitEventValues {
 				return e.getClickedInventory();
 			}
 		}, 0);
+		// PrepareAnvilEvent
+		EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, new Getter<ItemStack, PrepareAnvilEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(PrepareAnvilEvent e) {
+				return e.getResult();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, new Getter<Inventory, PrepareAnvilEvent>() {
+			@Override
+			@Nullable
+			public Inventory get(PrepareAnvilEvent e) {
+				return e.getInventory();
+			}
+		}, EventValues.TIME_NOW);
+		// AnvilDamagedEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, new Getter<Inventory, AnvilDamagedEvent>() {
+				@Override
+				@Nullable
+				public Inventory get(AnvilDamagedEvent e) {
+					return e.getInventory();
+				}
+			}, EventValues.TIME_NOW);
+		}
 		//BlockFertilizeEvent
 		EventValues.registerEventValue(BlockFertilizeEvent.class, Player.class, new Getter<Player, BlockFertilizeEvent>() {
 			@Nullable
@@ -1204,13 +1232,38 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new Getter<Location, PlayerTeleportEvent>() {
+		//PlayerMoveEvent
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
 			@Nullable
-			public Location get(final PlayerTeleportEvent e) {
+			public Location get(PlayerMoveEvent e) {
 				return e.getFrom();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			@Nullable
+			public Location get(PlayerMoveEvent e) {
+				return e.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		//EntityMoveEvent
+		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getFrom();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getTo();
+				}
+			}, EventValues.TIME_FUTURE);
+		}
 		//PlayerToggleFlightEvent
 		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, new Getter<Player, PlayerToggleFlightEvent>() {
 			@Override

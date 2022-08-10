@@ -204,6 +204,11 @@ player name regex pattern: [a-zA-Z0-9_]{1,16}
 # A regex pattern that is used to match player names.
 # This can be used if you are using Geyser, where some usernames are prefixed by a certain character.
 
+long parse time warning threshold: 0 seconds
+# This setting determines how long a statement can take to parse before Skript produces a warning
+#   stating that the statement has taken a long time to parse.
+# A value of 0 seconds means that this warning should be disabled.
+
 # ==== Variables ====
 
 databases:
