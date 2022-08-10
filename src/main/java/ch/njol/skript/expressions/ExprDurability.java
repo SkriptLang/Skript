@@ -59,12 +59,12 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	@Nullable
-	public Long convert(Object o) {
+	public Long convert(Object object) {
 		ItemStack itemStack = null;
-		if (o instanceof Slot) {
-			itemStack = ((Slot) o).getItem();
-		} else if (o instanceof ItemType) {
-			itemStack = ((ItemType) o).getRandom();
+		if (object instanceof Slot) {
+			itemStack = ((Slot) object).getItem();
+		} else if (object instanceof ItemType) {
+			itemStack = ((ItemType) object).getRandom();
 		}
 		if (itemStack == null)
 			return null;
@@ -88,16 +88,16 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
-		final Object[] os = getExpr().getArray(e);
-		for (Object o : os) {
+		final Object[] objects = getExpr().getArray(event);
+		for (Object object : objects) {
 			ItemStack itemStack = null;
 
-			if (o instanceof ItemType) {
-				itemStack = ((ItemType) o).getRandom();
-			} else if (o instanceof Slot) {
-				itemStack = ((Slot) o).getItem();
+			if (object instanceof ItemType) {
+				itemStack = ((ItemType) object).getRandom();
+			} else if (object instanceof Slot) {
+				itemStack = ((Slot) object).getItem();
 			}
 			if (itemStack == null)
 				return;
@@ -127,12 +127,12 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 			if (durability && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
 				changeValue = itemStack.getType().getMaxDurability() - changeValue;
 
-			if (o instanceof ItemType) {
+			if (object instanceof ItemType) {
 				ItemUtils.setDamage(itemStack, changeValue);
-				((ItemType) o).setTo(new ItemType(itemStack));
+				((ItemType) object).setTo(new ItemType(itemStack));
 			} else {
 				ItemUtils.setDamage(itemStack, changeValue);
-				((Slot) o).setItem(itemStack);
+				((Slot) object).setItem(itemStack);
 			}
 		}
 	}
