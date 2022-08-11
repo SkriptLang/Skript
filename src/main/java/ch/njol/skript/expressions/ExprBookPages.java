@@ -68,7 +68,7 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	@SuppressWarnings("null")
 	@Nullable
 	@Override
-	protected String[] get(Event e, ItemType[] source) {
+	protected String[] get(Event event, ItemType[] source) {
 		List<String> pages = new ArrayList<>();
 		for (ItemType itemType : source) {
 			ItemMeta meta = itemType.getItemMeta();
@@ -78,7 +78,7 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 			if (page == null) {
 				pages.addAll(bookMeta.getPages());
 			} else {
-				Number pageNumber = page.getSingle(e);
+				Number pageNumber = page.getSingle(event);
 				if (pageNumber == null)
 					continue;
 				int page = pageNumber.intValue();
@@ -106,51 +106,52 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		List<ItemType> itemTypes = new ArrayList<>(Arrays.asList(getExpr().getArray(e)));
-		Number pageNumber = page == null ? -1 : page.getSingle(e);
-		if (pageNumber == null) return;
-		int page = pageNumber.intValue();
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		ItemType[] itemTypes = getExpr().getArray(event);
+		int page = this.page == null ? -1 : this.page.getOptionalSingle(event).orElse(-1).intValue();
 		String[] newPages = delta == null ? null : new String[delta.length];
 		if (newPages != null)
 			for (int i = 0; i < delta.length; i++)
 				newPages[i] = delta[i] + "";
 		for (ItemType itemType : itemTypes) {
-			if (itemType == null) return;
+			if (itemType == null)
+				continue;
 			ItemMeta meta = itemType.getItemMeta();
-			if (!(meta instanceof BookMeta)) return;
+			if (!(meta instanceof BookMeta))
+				continue;
 			BookMeta bookMeta = (BookMeta) meta;
-			List<String> currentPages = new ArrayList<>(bookMeta.getPages());
+			List<String> pages = new ArrayList<>(bookMeta.getPages());
 			int pageCount = bookMeta.getPageCount();
 			switch (mode) {
 				case DELETE:
 				case RESET:
 					if (this.page == null) {
-						currentPages = Arrays.asList("");
+						pages = Arrays.asList("");
 					} else {
 						if (page <= 0 || page > pageCount)
-							return;
-						currentPages.remove(page - 1);
+							continue;
+						pages.remove(page - 1);
 					}
 					break;
 				case SET:
-					if (newPages.length == 0) return;
+					if (newPages.length == 0)
+						continue;
 					if (this.page == null) {
-						currentPages = Arrays.asList(newPages);
+						pages = Arrays.asList(newPages);
 					} else {
 						if (page <= 0)
-							return;
-						while (currentPages.size() < page) {
-							currentPages.add("");
+							continue;
+						while (pages.size() < page) {
+							pages.add("");
 						}
-						currentPages.set(page - 1, newPages[0]);
+						pages.set(page - 1, newPages[0]);
 					}
 					break;
 				case ADD:
-					currentPages.addAll(Arrays.asList(newPages));
+					pages.addAll(Arrays.asList(newPages));
 					break;
 			}
-			bookMeta.setPages(currentPages);
+			bookMeta.setPages(pages);
 			itemType.setItemMeta(bookMeta);
 		}
 	}
@@ -161,8 +162,8 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "book pages of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "book pages of " + getExpr().toString(event, debug);
 	}
 
 	@SuppressWarnings({"unchecked", "null"})
