@@ -17,6 +17,7 @@
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -24,16 +25,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-
-    
-        
-          
-    
-
-        
-    
-    @@ -30,36 +31,43 @@
-  
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -80,16 +71,6 @@ public class ExprBookPages extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Nullable
 	@Override
-
-    
-        
-          
-    
-
-        
-    
-    @@ -68,46 +76,109 @@ protected String[] get(Event e) {
-  
 	protected String[] get(Event e) {
 		ItemStack itemStack = book.getSingle(e).getRandom();
 		if (itemStack == null || !bookItem.isOfType(itemStack))
@@ -201,16 +182,6 @@ public class ExprBookPages extends SimpleExpression<String> {
 				book = (Expression<ItemType>) exprs[0];
 				page = (Expression<Number>) exprs[1];
 			}
-
-    
-          
-            
-    
-
-          
-    
-    
-  
 		}
 		return true;
 	}
