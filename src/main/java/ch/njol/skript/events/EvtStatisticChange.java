@@ -25,6 +25,7 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import ch.njol.util.StringUtils;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -32,11 +33,14 @@ import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EvtStatisticChange extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Statistic Change", EvtStatisticChange.class, PlayerStatisticIncrementEvent.class,
-				"[player] statistic[s] (change|increase) [of %string%]")
+				"[player] statistic[s] (change|increase) [of %strings%]")
 				.description("Called when a player statistic is incremented.",
 						"This event is not called for some high frequency statistics, e.g. movement based statistics.",
 						"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value."
@@ -65,21 +69,18 @@ public class EvtStatisticChange extends SkriptEvent {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
-			@Nullable
 			@Override
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getPreviousValue();
 			}
 		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
-			@Nullable
 			@Override
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getNewValue() - e.getPreviousValue();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
-			@Nullable
 			@Override
 			public Number get(PlayerStatisticIncrementEvent e) {
 				return e.getNewValue();
@@ -88,7 +89,7 @@ public class EvtStatisticChange extends SkriptEvent {
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, EntityData.class, new Getter<EntityData, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public EntityData get(PlayerStatisticIncrementEvent e) {
+			public EntityData<?> get(PlayerStatisticIncrementEvent e) {
 				Class<? extends Entity> clazz = e.getEntityType() != null ? e.getEntityType().getEntityClass() : null;
 				return clazz == null ? null : EntityData.fromClass(clazz);
 			}
@@ -102,34 +103,46 @@ public class EvtStatisticChange extends SkriptEvent {
 		}, EventValues.TIME_NOW);
 	}
 
-	@Nullable
-	private Statistic statistic;
+	private final List<Statistic> statistics = new ArrayList<>(0);
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
-		Literal<String> stat = (Literal<String>) args[0];
-		if (stat != null) {
+		if (args[0] == null)
+			return true;
+
+		String lastStatistic = null;
+		for (String statistic : ((Literal<String>) args[0]).getArray()) {
 			try {
-				statistic = Statistic.valueOf(stat.getSingle().toUpperCase());
+				lastStatistic = statistic.toUpperCase();
+				statistics.add(Statistic.valueOf(lastStatistic));
 			} catch (IllegalArgumentException ex) {
-				Skript.error("Unknown statistic name used in statistic change event");
+				Skript.error("Unknown statistic '" + lastStatistic + "' used in statistic change event");
 				return false;
 			}
 		}
+
 		return true;
 	}
 	
 	@Override
 	public boolean check(Event event) {
-		// TIME_SINCE_REST is called too many times therefore we will not make it trigger unless specified
-		return (statistic == null && ((PlayerStatisticIncrementEvent) event).getStatistic() != Statistic.TIME_SINCE_REST) ||
-			((PlayerStatisticIncrementEvent) event).getStatistic() == statistic;
+		Statistic statistic = ((PlayerStatisticIncrementEvent) event).getStatistic();
+
+		if (statistics.size() == 0)
+			return true;
+
+		for (Statistic stat : statistics) {
+			if (stat == statistic)
+				return true;
+		}
+
+		return false;
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "statistic increase" + (statistic != null ? " of " + statistic : "");
+		return "statistic increase" + (statistics.size() == 0 ? " of " + StringUtils.join(statistics, ", ") : "");
 	}
 	
 }

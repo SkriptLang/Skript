@@ -45,6 +45,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Name("Player Statistics")
 @Description({
@@ -128,15 +129,15 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	@Override
 	@Nullable
-	public Long[] get(Event e) {
-		OfflinePlayer[] players = this.players.getArray(e);
-		String[] statistics = this.statistics.getArray(e);
-		Object ofType = this.ofType != null ? this.ofType.getSingle(e) : null; // TODO support getArray()
+	public Long[] get(Event event) {
+		OfflinePlayer[] players = this.players.getArray(event);
+		String[] statistics = this.statistics.getArray(event);
+		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
 		if (players == null || statistics == null)
 			return null;
 
-		ArrayList<Long> result = new ArrayList<>(players.length * statistics.length);
+		List<Long> result = new ArrayList<>(players.length * statistics.length);
 
 		for (OfflinePlayer p : players) {
 			for (String s : statistics) {
@@ -188,13 +189,13 @@ public class ExprStatistics extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if ((mode != ChangeMode.RESET && mode != ChangeMode.DELETE) && delta == null)
 			return;
 
-		OfflinePlayer[] players = this.players.getArray(e);
-		String[] statistics = this.statistics.getArray(e);
-		Object ofType = this.ofType != null ? this.ofType.getSingle(e) : null; // TODO support getArray()
+		OfflinePlayer[] players = this.players.getArray(event);
+		String[] statistics = this.statistics.getArray(event);
+		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
 		if (ofType instanceof ItemType)
 			ofType = ((ItemType) ofType).getMaterial();
@@ -208,9 +209,9 @@ public class ExprStatistics extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "statistic " + statistics.toString(e, debug) + (ofType != null ? " of " +
-			players.toString(e, debug) : "") + " of " + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "statistic " + statistics.toString(event, debug) + (ofType != null ? " of " +
+			players.toString(event, debug) : "") + " of " + players.toString(event, debug);
 	}
 
 	private static void applyStatistic(OfflinePlayer[] players, String[] statistics, @Nullable Object ofType, int value, ChangeMode mode) {

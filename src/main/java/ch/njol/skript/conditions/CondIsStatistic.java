@@ -36,16 +36,16 @@ import org.bukkit.Statistic;
 	"\t\t\tsend \"No :(\""
 })
 @Since("INSERT VERSION")
-public class CondIsStatistic extends PropertyCondition<Statistic> {
+public class CondIsStatistic extends PropertyCondition<String> {
 	
 	static {
 		register(CondIsStatistic.class, PropertyType.BE, "[a] [valid] statistic[s] [name[s]]", "strings");
 	}
 
 	@Override
-	public boolean check(Statistic statistic) {
+	public boolean check(String statistic) {
 		try {
-			Statistic.valueOf(statistic.name());
+			Statistic.valueOf(statistic);
 		} catch (IllegalArgumentException ex) {
 			return false;
 		}
