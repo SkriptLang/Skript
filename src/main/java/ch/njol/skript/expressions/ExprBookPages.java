@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -51,42 +52,42 @@ import java.util.List;
 	"set page 1 of player's held item to \"Book writing\""
 })
 @Since("2.2-dev31, INSERT VERSION (changers)")
-public class ExprBookPages extends SimpleExpression<String> {
-
-	private static final ItemType bookItem = Aliases.javaItemType("book with text");
+public class ExprBookPages extends PropertyExpression<ItemType, String> {
 
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
-			"[all] [the] [book] (pages|content) of %itemtypes%",
+			"[(all [[of] the]|the)] [book] (pages|content) of %itemtypes%",
 			"%itemtypes%'[s] [book] (pages|content)",
 			"[book] page %number% of %itemtypes%",
 			"%itemtypes%'[s] [book] page %number%");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<ItemType> book;
 	@Nullable
 	private Expression<Number> page;
 
 	@SuppressWarnings("null")
 	@Nullable
 	@Override
-	protected String[] get(Event e) {
-		ItemStack itemStack = book.getSingle(e).getRandom();
-		if (itemStack == null || !bookItem.isOfType(itemStack))
-			return null;
-		List<String> pages = ((BookMeta) itemStack.getItemMeta()).getPages();
-		if (page != null) {
-			Number pageNumber = page.getSingle(e);
-			if (pageNumber == null)
-				return null;
-			int page = pageNumber.intValue();
-			if ((page) > pages.size() || page < 1)
-				return null;
-			return new String[]{pages.get(page - 1)};
-		} else {
-			return pages.toArray(new String[pages.size()]);
+	protected String[] get(Event e, ItemType[] source) {
+		List<String> pages = new ArrayList<>();
+		for (ItemType itemType : source) {
+			ItemMeta meta = itemType.getItemMeta();
+			if (!(meta instanceof BookMeta))
+				continue;
+			BookMeta bookMeta = (BookMeta) meta;
+			if (page == null) {
+				pages.addAll(bookMeta.getPages());
+			} else {
+				Number pageNumber = page.getSingle(e);
+				if (pageNumber == null)
+					continue;
+				int page = pageNumber.intValue();
+				if (page <= 0 || page > bookMeta.getPageCount())
+					continue;
+				pages.add(bookMeta.getPage(page));
+			}
 		}
+		return pages.toArray(new String[0]);
 	}
 
 	@Nullable
@@ -106,7 +107,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		List<ItemType> itemTypes = new ArrayList<>(Arrays.asList(book.getArray(e)));
+		List<ItemType> itemTypes = new ArrayList<>(Arrays.asList(getExpr().getArray(e)));
 		Number pageNumber = page == null ? -1 : page.getSingle(e);
 		if (pageNumber == null) return;
 		int page = pageNumber.intValue();
@@ -155,31 +156,26 @@ public class ExprBookPages extends SimpleExpression<String> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return page != null;
-	}
-
-	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "book pages of " + book.toString(e, debug);
+		return "book pages of " + getExpr().toString(e, debug);
 	}
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		if (matchedPattern == 0 || matchedPattern == 1) {
-			book = (Expression<ItemType>) exprs[0];
+			setExpr((Expression<ItemType>) exprs[0]);
 		} else {
 			if (matchedPattern == 2) {
 				page = (Expression<Number>) exprs[0];
-				book = (Expression<ItemType>) exprs[1];
+				setExpr((Expression<ItemType>) exprs[1]);
 			} else {
-				book = (Expression<ItemType>) exprs[0];
+				setExpr((Expression<ItemType>) exprs[0]);
 				page = (Expression<Number>) exprs[1];
 			}
 		}
