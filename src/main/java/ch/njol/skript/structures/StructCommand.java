@@ -96,6 +96,7 @@ public class StructCommand extends Structure {
 				.addEntry("usage", null, true)
 				.addEntry("description", "", true)
 				.addEntry("permission", "", true)
+				.addEntry("prefix", "skript", true)
 				.addEntryData(new VariableStringStructureEntryData("permission message", null, true, CommandEvent.class))
 				.addEntryData(new KeyValueStructureEntryData<List<String>>("aliases", new ArrayList<>(), true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
@@ -265,6 +266,10 @@ public class StructCommand extends Structure {
 		if (permissionMessage != null && permission.isEmpty())
 			Skript.warning("command /" + command + " has a permission message set, but not a permission");
 
+		String prefix = entryContainer.get("prefix", String.class, true);
+		if (prefix.contains(" "))
+			Skript.warning("The command prefix cannot contain a space, defaulting to 'skript'");
+
 		List<String> aliases = (List<String>) entryContainer.get("aliases", true);
 		int executableBy = (Integer) entryContainer.get("executable by", true);
 
@@ -289,7 +294,7 @@ public class StructCommand extends Structure {
 
 		Commands.currentArguments = currentArguments;
 		try {
-			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, usage,
+			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, prefix, usage,
 				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
 				executableBy, entryContainer.get("trigger", SectionNode.class, false));
 		} finally {

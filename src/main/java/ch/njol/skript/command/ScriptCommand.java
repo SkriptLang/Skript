@@ -93,6 +93,7 @@ public class ScriptCommand implements TabExecutor {
 	private String permission;
 	private final VariableString permissionMessage;
 	private final String description;
+	private final String prefix;
 	@Nullable
 	private final Timespan cooldown;
 	private final Expression<String> cooldownMessage;
@@ -115,7 +116,7 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Creates a new SkriptCommand.
-	 * 
+	 *
 	 * @param name /name
 	 * @param pattern
 	 * @param arguments the list of Arguments this command takes
@@ -128,7 +129,7 @@ public class ScriptCommand implements TabExecutor {
 	 */
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, String usage, List<String> aliases,
+		String description, String prefix, String usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -157,6 +158,7 @@ public class ScriptCommand implements TabExecutor {
 		this.aliases = aliases;
 		activeAliases = new ArrayList<>(aliases);
 
+		this.prefix = prefix.contains(" ") ? "skript" : prefix;
 		this.description = Utils.replaceEnglishChatStyles(description);
 		this.usage = Utils.replaceEnglishChatStyles(usage);
 
@@ -282,14 +284,14 @@ public class ScriptCommand implements TabExecutor {
 		} finally {
 			log.stop();
 		}
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# /" + name + " " + rest);
 		final long startTrigger = System.nanoTime();
-		
+
 		if (!trigger.execute(event))
 			sender.sendMessage(Commands.m_internal_error.toString());
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# " + name + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
 		return true;
@@ -303,7 +305,7 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Gets the arguments this command takes.
-	 * 
+	 *
 	 * @return The internal list of arguments. Do not modify it!
 	 */
 	public List<Argument<?>> getArguments() {
@@ -336,19 +338,19 @@ public class ScriptCommand implements TabExecutor {
 					aliases.add(lowerAlias);
 			}
 			bukkitCommand.setAliases(activeAliases);
-			commandMap.register("skript", bukkitCommand);
+			commandMap.register(prefix, bukkitCommand);
 		}
 	}
 
 	public void unregister(final SimpleCommandMap commandMap, final Map<String, Command> knownCommands, final @Nullable Set<String> aliases) {
 		synchronized (commandMap) {
 			knownCommands.remove(label);
-			knownCommands.remove("skript:" + label);
+			knownCommands.remove(prefix + ":" + label);
 			if (aliases != null)
 				aliases.removeAll(activeAliases);
 			for (final String alias : activeAliases) {
 				knownCommands.remove(alias);
-				knownCommands.remove("skript:" + alias);
+				knownCommands.remove(prefix + ":" + alias);
 			}
 			activeAliases = new ArrayList<>(this.aliases);
 			bukkitCommand.unregister(commandMap);
@@ -421,6 +423,10 @@ public class ScriptCommand implements TabExecutor {
 
 	public String getLabel() {
 		return label;
+	}
+
+	public String getPrefix() {
+		return prefix;
 	}
 
 	@Nullable
