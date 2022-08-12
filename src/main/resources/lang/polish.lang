@@ -10,7 +10,7 @@ none: <none>
 skript:
 	copyright: ~ stworzony przez & © Peter Güttinger aka Njol ~
 	prefix: <gray>[<gold>Skript<gray>] # nieużywany
-	quotes error: Nieprawidłowe użycie cudzysłowów ("). Jeśli chcesz użyć cudzysłowów w "tekście cytowanym", podwoić je: "".
+	quotes error: Nieprawidłowe użycie cudzysłowów ("). Jeśli chcesz użyć cudzysłowów w "tekście cytowanym", użyj: "".
 	brackets error: Nieprawidłowa ilość lub rozmieszczenie nawiasów. Upewnij się, że każdy nawias otwierający ma odpowiadający mu nawias zamykający.
 	invalid reload: Skript może być przeładowany tylko przez polecenie '/reload' Bukkita lub '/skript reload'.
 	no scripts: Nie znaleziono żadnych skryptów, może warto jakieś napisać ;)
@@ -23,7 +23,7 @@ skript command:
 	usage: użycie:
 	help:
 		description: Główne polecenie Skriptu
-		help: wpisując tę wiadomość pomocy. Użyj '/skript reload/enable/disable/update' aby uzyskać więcej informacji
+		help: aby otrzymać więcej pomocy komend, użyj '/skript reload/enable/disable/update' aby uzyskać więcej informacji
 		reload:
 			description: Przeładowuje konfigurację, wszystkie skrypty, wszystko, lub konkretny skrypt
 			all: Przeładowuje konfigurację, wszystkie konfiguracje aliasów i wszystkie skrypty
@@ -44,7 +44,7 @@ skript command:
 			check: Sprawdza, czy jest nowa wersja
 			changes: Wyświetla wszystkie zmiany od bieżącej wersji
 			download: Pobierz najnowszą wersję
-		info: Drukuje wiadomość z linkami do aliasów i dokumentacji Skryptu
+		info: Wyświetla wiadomość z linkami do aliasów i dokumentacji Skryptu
 		gen-docs: Generuje dokumentację przy użyciu doc-templates w folderze pluginów
 		test: Służy do uruchamiania testów Skript.
 
@@ -73,12 +73,12 @@ skript command:
 	enable:
 		all:
 			enabling: Włączenie wszystkich wyłączonych skryptów...
-			enabled: Udało się włączyć i sparsować wszystkie wcześniej wyłączone skrypty.
+			enabled: Udało się włączyć i załadować wszystkie wcześniej wyłączone skrypty.
 			error: Spotkano %s błędy¦¦s¦ podczas sprawdzania wyłączonych skryptów!
-			io error: Nie można załadować żadnych skryptów (niektóre skrypty mogły zostać już przemianowane i zostaną włączone po ponownym uruchomieniu serwera): %s
+			io error: Nie można załadować żadnych skryptów (niektóre skrypty mogły zostać już zmienione i zostaną włączone po ponownym uruchomieniu serwera): %s
 		single:
 			already enabled: <gold>%s<reset> jest już włączone! Użyj <gray>/<gold>skript <cyan>reload <red>%s<reset> aby przeładować go, jeśli został edytowany.
-			enabling: Właczanie <gold>%s<reset>...
+			enabling: Włączanie <gold>%s<reset>...
 			enabled: Pomyślnie włączone i przetworzone <gold>%s<reset>.
 			error: Napotkano %2$s bład¦¦s¦ podczas przetwarzania <gold>%1$s<red>!
 			io error: Nie można włączyć <gold>%s<red>: %s
@@ -86,7 +86,7 @@ skript command:
 			empty: <gold>%s<reset> nie zawiera żadnych wyłączonych skryptów.
 			enabling: Włączanie <gold>%2$s <reset>skryptu¦¦s¦ w <gold>%1$s<reset>...
 			enabled: Pomyślnie włączone i przetworzone <gold>%2$s<reset> wcześniej wyłączone skrypty w <gold>%1$s<reset>.
-			error: Napotkano %2$s bład¦¦s¦ podczas przetwarzania skryptów w <gold>%1$s<red>!
+			error: Napotkano %2$s błąd¦¦s¦ podczas przetwarzania skryptów w <gold>%1$s<red>!
 			io error: Błąd podczas włączania skryptów w <gold>%s<red> (niektóre skrypty mogą zostać włączone po ponownym uruchomieniu serwera): %s
 	disable:
 		all:
@@ -115,7 +115,7 @@ skript command:
 		tutorials: Tutoriale Skript można znaleźć tutaj: <aqua>https://docs.skriptlang.org/tutorials
 		version: Wersja Skript: <aqua>%s
 		server: Wersja serwera: <aqua>%s
-		addons: Installed Skript Addons: <aqua>%s
+		addons: Zainstalowane dodatki do Skript: <aqua>%s
 		dependencies: Zainstalowane zależności: <aqua>%s
 
 # -- Updater --
@@ -123,11 +123,11 @@ updater:
 	not started: Skript nie sprawdził jeszcze najnowszej wersji. Użyj <gold>/skript update check<reset> aby sprawdzić.
 	checking: Sprawdzanie czy jest najnowsza wersja Skript...
 	check in progress: Sprawdzanie nowej wersji jest obecnie w toku.
-	updater disabled: Aktualizator jest wyłączony, więc sprawdzenie najnowszej wersji Skript nie zostało wykonane.
+	updater disabled: Aktualizator jest wyłączony, więc sprawdzenie dostępności aktualizacji Skripta nie zostało wykonane.
 	check error: <red>Wystąpił błąd sprawdzania najnowszej wersji Skript:<light red> %s
 	running latest version: Obecnie używasz najnowszej stabilnej wersji Skript.
-	running latest version (beta): aktualnie masz włączoną <i>bete<r> wersji Skript, i żadnych nowych <i>stabilnych<r> wersja jest dostępna. Należy pamiętać, że aktualizację do nowszych wersji beta należy przeprowadzić ręcznie!
-	update available: Nowa wersja Skript jest dostępna: <gold>%s<reset> (obecnie prowadzisz <gold>%s<reset>)
+	running latest version (beta): aktualnie masz włączoną <i>bete<r> wersji Skript i nie jest dostępna żadna nowa <i>stabilna<r> wersja. Pamiętaj, że musisz ręcznie aktualizować do nowszych wersji beta!
+	update available: Nowa wersja Skript jest dostępna: <gold>%s<reset> (obecnie działa <gold>%s<reset>)
 	downloading: Pobieranie Skryptu <gold>%s<reset>...
 	download in progress: Obecnie trwa pobieranie najnowszej wersji programu Skript.
 	download error: <red>Wystąpił błąd przy pobieraniu najnowszej wersji Skript.:<light red> %s
@@ -143,15 +143,15 @@ commands:
 	executable by players: Ta komenda może być użyta tylko przez graczy
 	executable by console: To polecenie może być użyte tylko przez konsolę
 	correct usage: Prawidłowe użycie:
-	invalid argument: Nieważny argument <gray>'%s<gray>'<reset>. Dozwolone są:
+	invalid argument: Niepoprawny argument <gray>'%s<gray>'<reset>. Dozwolone są:
 	too many arguments: To polecenie może zaakceptować tylko jedno %2$s.
 	internal error: Podczas próby wykonania tego polecenia wystąpił wewnętrzny błąd.
-	no player starts with: Nie ma w sieci gracza, którego imię zaczyna się od '%s'
-	multiple players start with: W sieci jest kilku graczy, których nazwiska zaczynają się od '%s'
+	no player starts with: Nie ma obecnie gracza, którego nick zaczyna się na '%s'
+	multiple players start with: Na serwerze jest kilku graczy, których nick zaczynają się na '%s'
 
 # -- Hooks --
 hooks:
-	hooked: Udało się zahaczyć o %s
+	hooked: Udało się podpiąć do %s
 	error: Nie można było podłączyć się do %1$s. Może się to zdarzyć, jeśli Skript nie obsługuje zainstalowanej wersji %1$s
 
 # -- Aliases --
