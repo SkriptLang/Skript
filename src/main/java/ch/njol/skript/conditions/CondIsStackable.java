@@ -15,17 +15,20 @@ import ch.njol.skript.doc.Since;
 @Since("2.3")
 
 public class CondIsStackable extends PropertyCondition<ItemType> {
-	static {
-		register(CondIsStackable.class, "stackable", "itemtypes");
-	}
+    static {
+        
+        register(CondIsStackable.class, "stackable", "itemtypes");
+    }
 
-	@Override
-	public boolean check(ItemType item) {
-		return item.getMaterial().getMaxStackSize() > 1;
-	}
+    @Override
+    public boolean check(ItemType item) {
+        return item.getMaterial().getMaxStackSize() > 1;
+    }
 
-	@Override
-	protected String getPropertyName() { return "stackable";}
+    @Override
+    protected String getPropertyName() { 
+        return "stackable";
+    }
 }
 
 
