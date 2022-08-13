@@ -158,7 +158,7 @@ public class ScriptCommand implements TabExecutor {
 		this.aliases = aliases;
 		activeAliases = new ArrayList<>(aliases);
 
-		this.prefix = prefix.contains(" ") ? "skript" : prefix;
+		this.prefix = prefix;
 		this.description = Utils.replaceEnglishChatStyles(description);
 		this.usage = Utils.replaceEnglishChatStyles(usage);
 

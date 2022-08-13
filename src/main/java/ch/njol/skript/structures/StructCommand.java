@@ -267,8 +267,13 @@ public class StructCommand extends Structure {
 			Skript.warning("command /" + command + " has a permission message set, but not a permission");
 
 		String prefix = entryContainer.get("prefix", String.class, true);
-		if (prefix.contains(" "))
-			Skript.warning("The command prefix cannot contain a space, defaulting to 'skript'");
+		for (char c : prefix.toCharArray()) {
+			if (Character.isWhitespace(c)) {
+				Skript.warning("The command prefix cannot contain whitespaces, defaulting to 'skript'");
+				prefix = "skript";
+				break;
+			}
+		}
 
 		List<String> aliases = (List<String>) entryContainer.get("aliases", true);
 		int executableBy = (Integer) entryContainer.get("executable by", true);
