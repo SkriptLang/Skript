@@ -21,7 +21,6 @@ package ch.njol.skript.entity;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
