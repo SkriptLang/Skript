@@ -68,12 +68,12 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 
 		long ticks = ((Timespan) delta[0]).getTicks_i();
-		for (OfflinePlayer offlinePlayer : getExpr().getArray(e)) {
+		for (OfflinePlayer offlinePlayer : getExpr().getArray(event)) {
 			if (!IS_OFFLINE_SUPPORTED && !offlinePlayer.isOnline())
 				continue;
 
