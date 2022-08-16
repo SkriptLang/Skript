@@ -12,7 +12,7 @@ skript:
 	prefix: <gray>[<gold>Skript<gray>] # not used
 	quotes error: Utilisation incorrecte des guillemets ("). Si vous voulez utiliser des guillemets dans du texte "entre guillemets", doublez-les : "".
 	brackets error: Quantité ou emplacement des accolades incorrect. Assurez-vous que chaque accolade ouvrante corresponde à une accolade fermante.
-	invalid reload: Skript ne peut être rechargé qu'avec les commandes '/reload' de Bukkit ou '/skript reload' de Skript.
+	invalid reload: Skript ne peut être rechargé qu'avec la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.
 	no scripts: Aucun script n'a été trouvé, vous devriez peut-être en écrire quelques-uns ;)
 	no errors: Tous les scripts ont été chargés sans erreur.
 	scripts loaded: %s ¦script a été chargé¦scripts ont été chargés¦ avec un total de %s déclencheur¦¦s¦ et de %s commande¦¦s¦ en %s
@@ -73,20 +73,20 @@ skript command:
 	enable:
 		all:
 			enabling: Activation de tous les scripts désactivés...
-			enabled: Activation et analysation réussis de tous les scripts précédemment désactivés.
-			error: %s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analysation des scripts désactivés !
+			enabled: Activation et analyse réussies de tous les scripts précédemment désactivés.
+			error: %s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts désactivés !
 			io error: Impossible de charger les scripts (certains scripts ont peut-être déjà été renommés et seront activés au redémarrage du serveur) : %s
 		single:
 			already enabled: <gold>%s<reset> est déjà activé ! Utilisez <gray>/<gold>skript <cyan>reload <red>%s<reset> pour le recharger s'il a été modifié.
 			enabling: Activation de <gold>%s<reset>...
 			enabled: <gold>%s<reset> activé et analysé avec succès.
-			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analysation de <gold>%1$s<red> !
+			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse de <gold>%1$s<red> !
 			io error: Impossible d'activer <gold>%s<red>: %s
 		folder:
 			empty: <gold>%s<reset> ne contient aucun script désactivé.
 			enabling: Activation de <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>...
-			enabled: Activation et analysation réussis de <gold>%2$s<reset> script(s) précédemment désactivé(s) dans <gold>%1$s<reset>.
-			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analysation des scripts dans <gold>%1$s<red> !
+			enabled: Activation et analyse réussies de <gold>%2$s<reset> script(s) précédemment désactivé(s) dans <gold>%1$s<reset>.
+			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts dans <gold>%1$s<red> !
 			io error: Erreur lors de l'activation des scripts dans <gold>%s<red> (certains scripts pourraient être activés lors du redémarrage du serveur) : %s
 	disable:
 		all:
@@ -151,8 +151,8 @@ commands:
 
 # -- Hooks --
 hooks:
-	hooked: Connecté avec succès à %s
-	error: Impossible de se connecter à %1$s. Cela peut se produire si Skript ne prend pas en charge la version installée de %1$s
+	hooked: Liaison avec %s effectuée avec succès
+	error: Impossible d'effectuer la liaison avec %1$s. Cela peut se produire si Skript ne prend pas en charge la version installée de %1$s
 
 # -- Aliases --
 aliases:
@@ -160,17 +160,17 @@ aliases:
 	empty string: '' n'est pas un item type
 	invalid item type: '%s' n'est pas un item type
 	empty name: Un alias doit avoir un nom
-	brackets error: Utilisation incorrecte d'accolades
+	brackets error: Utilisation incorrecte des accolades
 	not enough brackets: La section commençant au caractère %s ('%s') doit être fermée
 	too many brackets: Le caractère %s ('%s') ferme une section inexistante
-	unknown variation: La variation %s n'a pas été défini avant
+	unknown variation: La variante %s n'a pas été définie avant
 	missing aliases: Les identifiants Minecraft suivants n'ont pas d'alias :
 	empty alias: L'alias n'a pas d'identifiant Minecraft ou de tags définis
 	invalid minecraft id: L'identifiant Minecraft %s est invalide
-	useless variation: La variation n'a pas d'identifiant Minecraft ou de balises spécifiés, elle est donc inutile
+	useless variation: La variante n'a pas d'identifiant Minecraft ou de balises spécifiés, elle est donc inutile
 	invalid tags: Les balises spécifiées ne sont pas définies dans un JSON valide
 	unexpected section: Les sections ne sont pas autorisées ici
-	invalid variation section: Une section devrait être une section de variation, mais %s n'est pas un nom de variation valide.
+	invalid variation section: Une section devrait être une section de variante, mais %s n'est pas un nom de variante valide.
 	outside section: Les alias doivent être placés dans des sections
 
 	# Other messages
