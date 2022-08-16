@@ -35,7 +35,7 @@ public class EventValues {
 
 	private EventValues() {}
 
-	private final static class EventValueInfo<E extends Event, T> {
+	private static class EventValueInfo<E extends Event, T> {
 
 		@Nullable
 		private final Class<? extends Event>[] excludes;
@@ -153,7 +153,23 @@ public class EventValues {
 	 * Registers an event value.
 	 * 
 	 * @param event the event.
-	 * @param c the type of the default value.
+	 * @param c the return type of the event value.
+	 * @param getter the getter to get the value.
+	 * @param time -1 if this is the value before the event, 1 if after, and 0 if it's the default or this value doesn't have distinct states.
+	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
+	 *            default to the default state in this case.
+	 * @deprecated usage of Getter has been marked for removal in favour of Converter. {@link EventValues#registerEventValue(Class, Class, Converter, int, String, Class...)}
+	 */
+	@Deprecated
+	public static <T, E extends Event> void registerEventValue(Class<E> event, Class<T> c, Getter<T, E> getter, int time) {
+		registerEventValue(event, c, (Converter<E, T>) getter, time);
+	}
+
+	/**
+	 * Registers an event value.
+	 * 
+	 * @param event the event.
+	 * @param c the return type of the event value.
 	 * @param converter the converter to get the value.
 	 * @param time -1 if this is the value before the event, 1 if after, and 0 if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
@@ -167,7 +183,7 @@ public class EventValues {
 	 * Same as {@link #registerEventValue(Class, Class, Getter, int)}
 	 * 
 	 * @param event the event.
-	 * @param c the type of the default value.
+	 * @param c the return type of the event value.
 	 * @param converter the converter to get the value.
 	 * @param time -1 if this is the value before the event, 1 if after, and 0 if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
