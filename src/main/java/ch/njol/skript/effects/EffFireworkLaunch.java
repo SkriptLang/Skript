@@ -67,14 +67,10 @@ public class EffFireworkLaunch extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		FireworkEffect[] effects = this.effects.getArray(e);
-		Number powerExpr = lifetime.getSingle(e);
-		if (powerExpr == null)
-			powerExpr = 1;
-
-		int power = powerExpr.intValue();
-		for (Location location : locations.getArray(e)) {
+	protected void execute(Event event) {
+		FireworkEffect[] effects = this.effects.getArray(event);
+		int power = lifetime.getOptionalSingle(event).orElse(1).intValue();
+		for (Location location : locations.getArray(event)) {
 			World world = location.getWorld();
 			if (world == null)
 				continue;
@@ -88,10 +84,10 @@ public class EffFireworkLaunch extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "Launch firework(s) " + effects.toString(e, debug) +
-				" at location(s) " + locations.toString(e, debug) +
-				" timed " + lifetime.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "Launch firework(s) " + effects.toString(event, debug) +
+				" at location(s) " + locations.toString(event, debug) +
+				" timed " + lifetime.toString(event, debug);
 	}
 
 }

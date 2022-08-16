@@ -93,7 +93,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		Entity en;
 		switch (from) {
 			case 0:
@@ -136,7 +136,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String word;
 		switch (from) {
 			case 0:
