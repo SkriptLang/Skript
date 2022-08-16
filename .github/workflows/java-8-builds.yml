@@ -3,7 +3,7 @@ name: Java 8 CI (MC 1.13-1.16)
 on:
     push:
         branches:
-            - main
+            - master
             - 'dev/**'
     pull_request:
 
