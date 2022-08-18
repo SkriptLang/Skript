@@ -108,7 +108,7 @@ skript command:
 			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
 			# invalid version: No changelog for the version <gold>%s<red> available
 			title: <bold><cyan>%s<reset> (%s)
-			next page: <grey>page %s sur %s. Utilisez <gold>/skript update changes %s<gray> pour la page suivante (astuce : utilisez la touche flèche haut)
+			next page: <grey>page %s sur %s. Utilisez <gold>/skript update changes %s<gray> pour la page suivante (astuce : utilisez la touche flèche du haut)
 	info:
 		aliases: Les alias de Skript se trouvent ici : <aqua>https://github.com/SkriptLang/skript-aliases<reset> (en anglais)
 		documentation: La documentation de Skript se trouve ici : <aqua>https://docs.skriptlang.org/<reset> (en anglais)
