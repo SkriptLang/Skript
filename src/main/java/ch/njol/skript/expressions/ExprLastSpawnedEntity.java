@@ -22,6 +22,7 @@ import java.lang.reflect.Array;
 
 import ch.njol.skript.effects.EffFireworkLaunch;
 import ch.njol.skript.sections.EffSecSpawn;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
@@ -77,17 +78,16 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (parseResult.mark == 2) { // It's just to make an extra expression for item only
+		from = parseResult.mark;
+		if (from == 2) { // It's just to make an extra expression for item only
 			type = EntityData.fromClass(Item.class);
-		} else if (parseResult.mark == 3) {
+		} else if (from == 3) {
 			type = EntityData.fromClass(LightningStrike.class);
-		} else if (parseResult.mark == 4) {
+		} else if (from == 4) {
 			type = EntityData.fromClass(Firework.class);
 		} else {
 			type = ((Literal<EntityData<?>>) exprs[0]).getSingle();
 		}
-
-		from = parseResult.mark;
 		return true;
 	}
 	
@@ -120,9 +120,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 		if (!type.isInstance(en))
 			return null;
 
-		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
-		one[0] = en;
-		return one;
+		return CollectionUtils.array(en);
 	}
 	
 	@Override
@@ -137,7 +135,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String word;
+		String word = "";
 		switch (from) {
 			case 0:
 				word = "spawned";
@@ -155,7 +153,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 				word = "launched";
 				break;
 			default:
-				throw new IllegalStateException();
+				assert false;
 		}
 		return "the last " + word + " " + type;
 	}
