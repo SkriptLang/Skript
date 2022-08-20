@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description({
 	"The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
 	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
-	"Using this expression on offline players on Minecraft 1.15 and below will return nothing <code>&lt;none&gt;</code>."
+	"Using this expression on offline players on Minecraft 1.14 and below will return nothing <code>&lt;none&gt;</code>."
 })
 @Examples({
 	"set {_t} to time played of player",
@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"set player's time played to 0 seconds"
 })
-@RequiredPlugins("MC 1.16+ (offline players)")
+@RequiredPlugins("MC 1.15+ (offline players)")
 @Since("2.5, INSERT VERSION (offline players)")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
 
