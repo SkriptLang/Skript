@@ -72,58 +72,35 @@ import java.util.List;
 	"\t\t\t\tstop",
 	"",
 	"\t\t\tif {_kind} is set:",
-	"\t\t\t\tsend statistic value arg-2 of type {_kind} of arg-1 to player",
+	"\t\t\t\tsend statistic arg-2 of type {_kind} of arg-1 to player",
 	"\t\telse:",
-	"\t\t\tsend statistic value arg-2 of arg-1 to player",
+	"\t\t\tsend statistic arg-2 of arg-1 to player",
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.15+ (for offlineplayers)")
 public class ExprStatistics extends SimpleExpression<Long> {
 
-	private static String PLAYER_PATTERN = Skript.isRunningMinecraft(1, 15) ? "%-offlineplayers%" : "%-players%";
+	private static final String PLAYER_PATTERN = Skript.isRunningMinecraft(1, 15) ? "%-offlineplayers%" : "%-players%";
 
 	static {
 		Skript.registerExpression(ExprStatistics.class, Long.class, ExpressionType.COMBINED,
-			"statistic[s] %strings% [for %-entitydata/itemtype%] of " + PLAYER_PATTERN,
-			PLAYER_PATTERN + "'[s] statistic[s] %strings% [for %-entitydata/itemtype%]");
+			"statistic[s] %statistics% [for %-entitydata/itemtype%] of " + PLAYER_PATTERN,
+			PLAYER_PATTERN + "'[s] statistic[s] %statistics% [for %-entitydata/itemtype%]");
 	}
 
-	private Expression<String> statistics;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<Statistic> statistics;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> ofType;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<OfflinePlayer> players;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		statistics = (Expression<String>) exprs[matchedPattern];
+		statistics = (Expression<Statistic>) exprs[matchedPattern];
 		ofType = exprs[matchedPattern + 1];
 		players = (Expression<OfflinePlayer>) exprs[matchedPattern == 0 ? 2 : 0];
-
-		String unknownStat = "";
-		if (statistics instanceof Literal || statistics instanceof ExpressionList || (statistics instanceof VariableString && ((VariableString) statistics).isSimple())) {
-			try {
-				if (statistics instanceof ExpressionList) {
-					for (Expression<?> exp : ((ExpressionList) statistics).getExpressions()) {
-						if (!(exp instanceof Literal || (exp instanceof VariableString && ((VariableString) exp).isSimple())))
-							continue;
-
-						for (Object s : exp.getArray(null)) {
-							if (!(s instanceof String))
-								continue;
-
-							unknownStat = (String) s;
-							Statistic.valueOf((String) s);
-						}
-					}
-				} else {
-					unknownStat = ((Literal<String>) statistics).getSingle();
-					Statistic.valueOf(unknownStat);
-				}
-			} catch (Exception e) {
-				Skript.error("Unknown statistic name: " + unknownStat);
-				return false;
-			}
-		}
 		return true;
 	}
 
@@ -131,7 +108,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 	@Nullable
 	public Long[] get(Event event) {
 		OfflinePlayer[] players = this.players.getArray(event);
-		String[] statistics = this.statistics.getArray(event);
+		Statistic[] statistics = this.statistics.getArray(event);
 		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
 		if (players == null || statistics == null)
@@ -140,21 +117,14 @@ public class ExprStatistics extends SimpleExpression<Long> {
 		List<Long> result = new ArrayList<>(players.length * statistics.length);
 
 		for (OfflinePlayer p : players) {
-			for (String s : statistics) {
-				Statistic stat;
-				try { // if it fails it won't stop others
-					stat = Statistic.valueOf(s);
-				} catch (IllegalArgumentException ex) {
-					continue;
-				}
-
+			for (Statistic statistic : statistics) {
 				try {
 					if (ofType instanceof ItemType)
-						result.add((long) p.getStatistic(stat, ((ItemType) ofType).getMaterial()));
+						result.add((long) p.getStatistic(statistic, ((ItemType) ofType).getMaterial()));
 					else if (ofType instanceof EntityData<?>)
-						result.add((long) p.getStatistic(stat, EntityUtils.toBukkitEntityType((EntityData) ofType)));
+						result.add((long) p.getStatistic(statistic, EntityUtils.toBukkitEntityType((EntityData) ofType)));
 					else
-						result.add((long) p.getStatistic(stat));
+						result.add((long) p.getStatistic(statistic));
 				} catch (IllegalArgumentException ex) {
 					return null;
 				}
@@ -194,7 +164,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			return;
 
 		OfflinePlayer[] players = this.players.getArray(event);
-		String[] statistics = this.statistics.getArray(event);
+		Statistic[] statistics = this.statistics.getArray(event);
 		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
 		if (ofType instanceof ItemType)
@@ -214,12 +184,11 @@ public class ExprStatistics extends SimpleExpression<Long> {
 			players.toString(event, debug) : "") + " of " + players.toString(event, debug);
 	}
 
-	private static void applyStatistic(OfflinePlayer[] players, String[] statistics, @Nullable Object ofType, int value, ChangeMode mode) {
+	private static void applyStatistic(OfflinePlayer[] players, Statistic[] statistics, @Nullable Object ofType, int value, ChangeMode mode) {
 		for (OfflinePlayer p : players) {
-			for (String s : statistics) {
+			for (Statistic statistic : statistics) {
 				try {
-					Statistic stat = Statistic.valueOf(s);
-					applyStatistic(p, stat, ofType, value, mode);
+					applyStatistic(p, statistic, ofType, value, mode);
 				} catch (IllegalArgumentException ex) {
 					return;
 				}

@@ -57,6 +57,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
+import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
@@ -102,9 +103,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author Peter Güttinger
- */
 public class BukkitClasses {
 
 	public BukkitClasses() {}
@@ -1839,5 +1837,37 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
+
+		Classes.registerClass(new ClassInfo<>(Statistic.class, "statistic")
+				.user("statistics?")
+				.name("Statistic")
+				.description("Represents a countable statistic, which is tracked by the server. Statistics are put into scripts by surrounding their name with double quotes, e.g. \"PLAY_ONE_MINUTE\", ")
+				.usage("<code>\"STATISTIC_NAME\"</code>, e.g. \"SLEEP_IN_BED\"")
+				.examples("")
+				.since("INSERT VERSION")
+				.after("string")
+				.defaultExpression(new EventValueExpression<>(Statistic.class))
+				.parser(new Parser<Statistic>() {
+					@Override
+					@Nullable
+					public Statistic parse(String s, ParseContext context) {
+						try {
+							return Statistic.valueOf(s.toUpperCase(Locale.ENGLISH));
+						} catch (Exception ex) {
+							return null;
+						}
+					}
+
+					@Override
+					public String toString(Statistic statistic, int flags) {
+						return "" + statistic;
+					}
+
+					@Override
+					public String toVariableNameString(Statistic statistic) {
+						return "" + statistic;
+					}
+				}));
+
 	}
 }

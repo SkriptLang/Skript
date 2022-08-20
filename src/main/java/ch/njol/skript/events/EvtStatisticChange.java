@@ -34,13 +34,15 @@ import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class EvtStatisticChange extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Statistic Change", EvtStatisticChange.class, PlayerStatisticIncrementEvent.class,
-				"[player] statistic[s] (change|increase) [of %strings%]")
+				"[player] statistic[s] (change|increase) [of %statistics%]")
 				.description("Called when a player statistic is incremented.",
 						"This event is not called for some high frequency statistics, e.g. movement based statistics.",
 						"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value."
@@ -104,24 +106,12 @@ public class EvtStatisticChange extends SkriptEvent {
 	}
 
 	private final List<Statistic> statistics = new ArrayList<>(0);
-	
+
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		if (args[0] == null)
 			return true;
-
-		String lastStatistic = null;
-		for (String statistic : ((Literal<String>) args[0]).getArray()) {
-			try {
-				lastStatistic = statistic.toUpperCase();
-				statistics.add(Statistic.valueOf(lastStatistic));
-			} catch (IllegalArgumentException ex) {
-				Skript.error("Unknown statistic '" + lastStatistic + "' used in statistic change event");
-				return false;
-			}
-		}
-
+		statistics.addAll(Arrays.asList((Statistic[]) args[0].getArray()));
 		return true;
 	}
 	

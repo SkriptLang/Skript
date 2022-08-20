@@ -22,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -52,6 +53,8 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.slot.Slot;
+
+import java.util.Locale;
 
 /**
  * @author Peter Güttinger
@@ -358,6 +361,20 @@ public class DefaultConverters {
 			});
 		}
 
+		// String - World
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
+
+		// String - Statistic
+		Converters.registerConverter(String.class, Statistic.class, new Converter<String, Statistic>() {
+			@Override
+			@Nullable
+			public Statistic convert(String statistic) {
+				try {
+					return Statistic.valueOf(statistic.toUpperCase(Locale.ENGLISH));
+				} catch (Exception ex) {
+					return null;
+				}
+			}
+		});
 	}
 }
