@@ -120,7 +120,9 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 		if (!type.isInstance(en))
 			return null;
 
-		return CollectionUtils.array(en);
+		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
+		one[0] = en;
+		return one;
 	}
 	
 	@Override
