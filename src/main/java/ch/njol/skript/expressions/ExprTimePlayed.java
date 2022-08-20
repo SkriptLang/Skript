@@ -34,8 +34,11 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Time Played")
-@Description("The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
-	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.")
+@Description({
+	"The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
+	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
+	"Using this expression on offline players on Minecraft 1.15 and below will return nothing <code>&lt;none&gt;</code>."
+})
 @Examples({
 	"set {_t} to time played of player",
 	"if player's time played is greater than 10 minutes:",
@@ -44,7 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set player's time played to 0 seconds"
 })
 @RequiredPlugins("MC 1.16+ (offline players)")
-@Since("2.5")
+@Since("2.5, INSERT VERSION (offline players)")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
 
 	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
@@ -77,7 +80,11 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 			if (!IS_OFFLINE_SUPPORTED && !offlinePlayer.isOnline())
 				continue;
 
-			long playerTicks = getTimePlayed(offlinePlayer).getTicks_i();
+			Timespan playerTimespan = getTimePlayed(offlinePlayer);
+			if (playerTimespan == null)
+				continue;
+
+			long playerTicks = playerTimespan.getTicks_i();
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -105,13 +112,14 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 		return "time played";
 	}
 
+	@Nullable
 	private Timespan getTimePlayed(OfflinePlayer offlinePlayer) {
 		if (IS_OFFLINE_SUPPORTED) {
 			return Timespan.fromTicks_i(offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
 		} else if (offlinePlayer.isOnline()) {
 			return Timespan.fromTicks_i(offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
 		}
-		return new Timespan(0);
+		return null;
 	}
 	
 }
