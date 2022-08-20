@@ -74,29 +74,6 @@ public class HTMLGenerator {
 	}
 
 	/**
-	 * Sort iterator of {@link SyntaxElementInfo} by name.
-	 * Elements with no name will be skipped with a console warning.
-	 *
-	 * @param it The {@link SyntaxElementInfo} iterator.
-	 * @return The sorted (by name) iterator.
-	 */
-	private static <T> Iterator<SyntaxElementInfo<? extends T>> sortedAnnotatedIterator(Iterator<SyntaxElementInfo<? extends T>> it) {
-		List<SyntaxElementInfo<? extends T>> list = new ArrayList<>();
-		while (it.hasNext()) {
-			SyntaxElementInfo<? extends T> item = it.next();
-			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generation process
-			if (item.c.getAnnotation(Name.class) == null && item.c.getAnnotation(NoDoc.class) == null) {
-				Skript.warning("Skipped generating '" + item.c + "' class due to missing Name annotation");
-				continue;
-			}
-			list.add(item);
-		}
-
-		list.sort(annotatedComparator);
-		return list.iterator();
-	}
-	
-	/**
 	 * Sorts annotated documentation entries alphabetically.
 	 */
 	private static final Comparator<? super SyntaxElementInfo<?>> annotatedComparator = (o1, o2) -> {
@@ -122,6 +99,29 @@ public class HTMLGenerator {
 
 		return name1.value().compareTo(name2.value());
 	};
+
+	/**
+	 * Sort iterator of {@link SyntaxElementInfo} by name.
+	 * Elements with no name will be skipped with a console warning.
+	 *
+	 * @param it The {@link SyntaxElementInfo} iterator.
+	 * @return The sorted (by name) iterator.
+	 */
+	private static <T> Iterator<SyntaxElementInfo<? extends T>> sortedAnnotatedIterator(Iterator<SyntaxElementInfo<? extends T>> it) {
+		List<SyntaxElementInfo<? extends T>> list = new ArrayList<>();
+		while (it.hasNext()) {
+			SyntaxElementInfo<? extends T> item = it.next();
+			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generation process
+			if (item.c.getAnnotation(Name.class) == null && item.c.getAnnotation(NoDoc.class) == null) {
+				Skript.warning("Skipped generating '" + item.c + "' class due to missing Name annotation");
+				continue;
+			}
+			list.add(item);
+		}
+
+		list.sort(annotatedComparator);
+		return list.iterator();
+	}
 	
 	/**
 	 * Sorts events alphabetically.
