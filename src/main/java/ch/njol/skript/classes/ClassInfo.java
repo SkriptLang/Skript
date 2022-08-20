@@ -402,6 +402,10 @@ public class ClassInfo<T> implements Debuggable {
 	public String getDocumentationID() {
 		return documentationId;
 	}
+
+	public boolean hasDocs() {
+		return getDocName() != null && !ClassInfo.NO_DOC.equals(getDocName());
+	}
 	
 	// === ORDERING ===
 	

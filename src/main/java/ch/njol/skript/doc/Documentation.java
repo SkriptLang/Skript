@@ -52,7 +52,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * TODO list special expressions for events and event values
  * TODO compare doc in code with changed one of the webserver and warn about differences?
  *
- * @author Peter Güttinger
  */
 @SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
@@ -61,42 +60,33 @@ public class Documentation {
 	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
 	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
 	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
-
-	private static boolean docsTemplateFound;
-	private static boolean generateUnsafeDocs;
-	private static final File docsTemplateDirectory = new File(Skript.getInstance().getDataFolder() + File.separator + "doc-templates");
-	private static final File docsDirectory = new File(Skript.getInstance().getDataFolder() + File.separator + "docs");
+	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder() + File.separator + "doc-templates");
+	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder() + File.separator + "docs");
 
 	/**
 	 * Force register hooks even if their plugins are not present in the server
 	 */
 	public static final String FORCE_HOOKS_SYSTEM_PROPERTY = System.getProperty("skript.forceregisterhooks");
 
-	public static boolean isDocsTemplateFound() {
-		return docsTemplateFound;
-	}
+	private static final boolean GENERATE_UNSAFE_DOCS = isDocsTemplateFound() && "true".equals(FORCE_HOOKS_SYSTEM_PROPERTY);
 
-	public static void setDocsTemplateFound(boolean docsTemplateFound) {
-		Documentation.docsTemplateFound = docsTemplateFound;
+	public static boolean isDocsTemplateFound() {
+		return getDocsTemplateDirectory().isDirectory();
 	}
 
 	/**
 	 * Checks if server java args have {@link Documentation#FORCE_HOOKS_SYSTEM_PROPERTY} property set to true and docs template folder is found
 	 */
 	public static boolean canGenerateUnsafeDocs() {
-		return generateUnsafeDocs;
-	}
-
-	public static void setGenerateUnsafeDocs(boolean generateUnsafeDocs) {
-		Documentation.generateUnsafeDocs = generateUnsafeDocs;
+		return GENERATE_UNSAFE_DOCS;
 	}
 
 	public static File getDocsTemplateDirectory() {
-		return docsTemplateDirectory;
+		return DOCS_TEMPLATE_DIRECTORY;
 	}
 
-	public static File getDocsDirectory() {
-		return docsDirectory;
+	public static File getDocsOutputDirectory() {
+		return DOCS_OUTPUT_DIRECTORY;
 	}
 
 	public static void generate() {
@@ -299,11 +289,11 @@ public class Documentation {
 						first = false;
 						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
 						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-						if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) { // equals method throws null error when doc name is null
+						if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
 							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
 						} else {
 							b.append(c);
-							if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC)
+							if (ci != null && ci.hasDocs())
 								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
 						}
 					}

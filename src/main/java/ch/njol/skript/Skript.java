@@ -453,10 +453,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
 
-		// Mostly used to handle generating hooks docs
-		Documentation.setDocsTemplateFound(Documentation.getDocsTemplateDirectory().exists());
-		Documentation.setGenerateUnsafeDocs("true".equals(Documentation.FORCE_HOOKS_SYSTEM_PROPERTY) && Documentation.isDocsTemplateFound());
-		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded

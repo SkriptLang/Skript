@@ -81,7 +81,7 @@ public class SkriptCommand implements CommandExecutor {
 		).add("help");
 
 	static {
-		if (Documentation.getDocsTemplateDirectory().exists()) {
+		if (Documentation.isDocsTemplateFound()) {
 			skriptCommandHelp.add("gen-docs");
 		}
 		if (TestMode.DEV_MODE) { // Add command to run individual tests
@@ -360,7 +360,7 @@ public class SkriptCommand implements CommandExecutor {
 					Skript.info(sender, "Documentation templates not found. Cannot generate docs!");
 					return true;
 				}
-				File outputDir = Documentation.getDocsDirectory();
+				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
 				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
 				Skript.info(sender, "Generating docs...");

@@ -57,14 +57,14 @@ import java.util.regex.Pattern;
  * 
  */
 public class HTMLGenerator {
-	
-	private final File template;
-	private final File output;
-	private final String skeleton;
 
 	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
 	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
+
+	private final File template;
+	private final File output;
+	private final String skeleton;
 
 	public HTMLGenerator(File templateDir, File outputDir) {
 		this.template = templateDir;
@@ -72,7 +72,14 @@ public class HTMLGenerator {
 		
 		this.skeleton = readFile(new File(template + "/template.html")); // Skeleton which contains every other page
 	}
-	
+
+	/**
+	 * Sort iterator of {@link SyntaxElementInfo} by name.
+	 * Elements with no name will be skipped with a console warning.
+	 *
+	 * @param it The {@link SyntaxElementInfo} iterator.
+	 * @return The sorted (by name) iterator.
+	 */
 	private static <T> Iterator<SyntaxElementInfo<? extends T>> sortedAnnotatedIterator(Iterator<SyntaxElementInfo<? extends T>> it) {
 		List<SyntaxElementInfo<? extends T>> list = new ArrayList<>();
 		while (it.hasNext()) {
@@ -276,7 +283,8 @@ public class HTMLGenerator {
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
 					}
-				} if (genType.equals("effects") || isDocsPage) {
+				}
+				if (genType.equals("effects") || isDocsPage) {
 					for (Iterator<SyntaxElementInfo<? extends Effect>> it = sortedAnnotatedIterator(Skript.getEffects().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Effect> info = it.next();
 						assert info != null;
@@ -294,7 +302,8 @@ public class HTMLGenerator {
 							generated.append(generateAnnotated(descTemp, info, generated.toString(), "EffectSection"));
 						}
 					}
-				} if (genType.equals("conditions") || isDocsPage) {
+				}
+				if (genType.equals("conditions") || isDocsPage) {
 					for (Iterator<SyntaxElementInfo<? extends Condition>> it = sortedAnnotatedIterator(Skript.getConditions().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Condition> info = it.next();
 						assert info != null;
@@ -302,16 +311,19 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
-				} if (genType.equals("sections") || isDocsPage) {
+				}
+				if (genType.equals("sections") || isDocsPage) {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						// exclude sections that are EffectSecion from isDocsPage, they are added by the effects block above
-						if ((EffectSection.class.isAssignableFrom(info.c) && isDocsPage) || info.c.getAnnotation(NoDoc.class) != null)
+						boolean isEffectSection = EffectSection.class.isAssignableFrom(info.c);
+						// exclude sections that are EffectSection from isDocsPage, they are added by the effects block above
+						if ((isEffectSection && isDocsPage) || info.c.getAnnotation(NoDoc.class) != null)
 							continue;
-						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Section"));
+						generated.append(generateAnnotated(descTemp, info, generated.toString(), (isEffectSection ? "Effect" : "") +  "Section"));
 					}
-				} if (genType.equals("events") || isDocsPage) {
+				}
+				if (genType.equals("events") || isDocsPage) {
 					List<SkriptEventInfo<?>> events = new ArrayList<>(Skript.getEvents());
 					events.sort(eventComparator);
 					for (SkriptEventInfo<?> info : events) {
@@ -320,16 +332,18 @@ public class HTMLGenerator {
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("classes") || isDocsPage) {
+				}
+				if (genType.equals("classes") || isDocsPage) {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
 					classes.sort(classInfoComparator);
 					for (ClassInfo<?> info : classes) {
-						if (ClassInfo.NO_DOC.equals(info.getDocName()) || info.getDocName() == null)
+						if (info.hasDocs())
 							continue;
 						assert info != null;
 						generated.append(generateClass(descTemp, info, generated.toString()));
 					}
-				} if (genType.equals("functions") || isDocsPage) {
+				}
+				if (genType.equals("functions") || isDocsPage) {
 					List<JavaFunction<?>> functions = new ArrayList<>(Functions.getJavaFunctions());
 					functions.sort(functionComparator);
 					for (JavaFunction<?> info : functions) {
@@ -847,7 +861,7 @@ public class HTMLGenerator {
 		if (returnType == null)
 			return handleIf(desc, "${if return-type}", false);
 
-		boolean noDoc = ClassInfo.NO_DOC.equals(returnType.getDocName()) || returnType.getDocName() == null;
+		boolean noDoc = returnType.hasDocs();
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 
