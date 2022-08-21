@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -151,7 +152,13 @@ public class EvtItem extends SkriptEvent {
 		} else if (e instanceof CraftItemEvent) {
 			is = ((CraftItemEvent) e).getRecipe().getResult();
 		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
-			is = ((PrepareItemCraftEvent) e).getRecipe().getResult();
+			PrepareItemCraftEvent event = (PrepareItemCraftEvent) e;
+			Recipe recipe = event.getRecipe();
+			if (recipe != null) {
+				is = recipe.getResult();
+			} else {
+				return false;
+			}
 		} else if (e instanceof EntityPickupItemEvent) {
 			is = ((EntityPickupItemEvent) e).getItem().getItemStack();
 		} else if (e instanceof PlayerPickupItemEvent) {
@@ -170,6 +177,10 @@ public class EvtItem extends SkriptEvent {
 			assert false;
 			return false;
 		}
+
+		if (is == null)
+			return false;
+
 		return types.check(e, new Checker<ItemType>() {
 			@Override
 			public boolean check(final ItemType t) {
