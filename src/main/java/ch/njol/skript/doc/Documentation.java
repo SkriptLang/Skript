@@ -60,25 +60,23 @@ public class Documentation {
 	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
 	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
 	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
-	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder() + File.separator + "doc-templates");
-	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder() + File.separator + "docs");
+	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "doc-templates");
+	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs");
 
 	/**
 	 * Force register hooks even if their plugins are not present in the server
 	 */
-	public static final String FORCE_HOOKS_SYSTEM_PROPERTY = System.getProperty("skript.forceregisterhooks");
-
-	private static final boolean GENERATE_UNSAFE_DOCS = isDocsTemplateFound() && "true".equals(FORCE_HOOKS_SYSTEM_PROPERTY);
+	public static final boolean FORCE_HOOKS_SYSTEM_PROPERTY = "true".equals(System.getProperty("skript.forceregisterhooks"));
 
 	public static boolean isDocsTemplateFound() {
 		return getDocsTemplateDirectory().isDirectory();
 	}
 
 	/**
-	 * Checks if server java args have {@link Documentation#FORCE_HOOKS_SYSTEM_PROPERTY} property set to true and docs template folder is found
+	 * Checks if server java args have 'skript.forceregisterhooks' property set to true and docs template folder is found
 	 */
 	public static boolean canGenerateUnsafeDocs() {
-		return GENERATE_UNSAFE_DOCS;
+		return isDocsTemplateFound() && FORCE_HOOKS_SYSTEM_PROPERTY;
 	}
 
 	public static File getDocsTemplateDirectory() {
