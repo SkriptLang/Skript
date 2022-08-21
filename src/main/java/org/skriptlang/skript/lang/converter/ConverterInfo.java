@@ -26,10 +26,10 @@ package org.skriptlang.skript.lang.converter;
  */
 public final class ConverterInfo<From, To> {
 
-	final Class<From> from;
-	final Class<To> to;
-	final Converter<From, To> converter;
-	final int flags;
+	private final Class<From> from;
+	private final Class<To> to;
+	private final Converter<From, To> converter;
+	private final int flags;
 
 	public ConverterInfo(Class<From> from, Class<To> to, Converter<From, To> converter, int flags) {
 		this.from = from;

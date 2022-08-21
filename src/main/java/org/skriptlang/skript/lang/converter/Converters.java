@@ -111,37 +111,37 @@ public final class Converters {
 
 				// chain info -> info2
 				if (
-					(unknownInfo1.flags & Converter.NO_RIGHT_CHAINING) == 0
-					&& (unknownInfo2.flags & Converter.NO_LEFT_CHAINING) == 0
-					&& unknownInfo2.from.isAssignableFrom(unknownInfo1.to)
-					&& !exactConverterExists(unknownInfo1.from, unknownInfo2.to)
+					(unknownInfo1.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
+					&& (unknownInfo2.getFlags() & Converter.NO_LEFT_CHAINING) == 0
+					&& unknownInfo2.getFrom().isAssignableFrom(unknownInfo1.getTo())
+					&& !exactConverterExists(unknownInfo1.getFrom(), unknownInfo2.getTo())
 				) {
 					ConverterInfo<From, Middle> info1 = (ConverterInfo<From, Middle>) unknownInfo1;
 					ConverterInfo<Middle, To> info2 = (ConverterInfo<Middle, To>) unknownInfo2;
 
 					CONVERTERS.add(new ConverterInfo<>(
-						info1.from,
-						info2.to,
-						new ChainedConverter<>(info1.converter, info2.converter),
-						info1.flags | info2.flags
+						info1.getFrom(),
+						info2.getTo(),
+						new ChainedConverter<>(info1.getConverter(), info2.getConverter()),
+						info1.getFlags() | info2.getFlags()
 					));
 				}
 
 				// chain info2 -> info
 				else if (
-					(unknownInfo1.flags & Converter.NO_LEFT_CHAINING) == 0
-					&& (unknownInfo2.flags & Converter.NO_RIGHT_CHAINING) == 0
-					&& unknownInfo1.from.isAssignableFrom(unknownInfo2.to)
-					&& !exactConverterExists(unknownInfo2.from, unknownInfo1.to)
+					(unknownInfo1.getFlags() & Converter.NO_LEFT_CHAINING) == 0
+					&& (unknownInfo2.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
+					&& unknownInfo1.getFrom().isAssignableFrom(unknownInfo2.getTo())
+					&& !exactConverterExists(unknownInfo2.getFrom(), unknownInfo1.getTo())
 				) {
 					ConverterInfo<Middle, To> info1 = (ConverterInfo<Middle, To>) unknownInfo1;
 					ConverterInfo<From, Middle> info2 = (ConverterInfo<From, Middle>) unknownInfo2;
 
 					CONVERTERS.add(new ConverterInfo<>(
-						info2.from,
-						info1.to,
-						new ChainedConverter<>(info2.converter, info1.converter),
-						info2.flags | info1.flags
+						info2.getFrom(),
+						info1.getTo(),
+						new ChainedConverter<>(info2.getConverter(), info1.getConverter()),
+						info2.getFlags() | info1.getFlags()
 					));
 				}
 
@@ -156,7 +156,7 @@ public final class Converters {
 	 */
 	private static boolean exactConverterExists(Class<?> from, Class<?> to) {
 		for (ConverterInfo<?, ?> info : CONVERTERS) {
-			if (from == info.from && to == info.to)
+			if (from == info.getFrom() && to == info.getTo())
 				return true;
 		}
 		return false;
@@ -215,7 +215,7 @@ public final class Converters {
 	@Nullable
 	public static <From, To> Converter<From, To> getConverter(Class<From> fromType, Class<To> toType) {
 		ConverterInfo<From, To> info = getConverterInfo(fromType, toType);
-		return info != null ? info.converter : null;
+		return info != null ? info.getConverter() : null;
 	}
 
 	/**
@@ -241,39 +241,39 @@ public final class Converters {
 	) {
 		// Check for an exact match
 		for (ConverterInfo<?, ?> info : CONVERTERS) {
-			if (fromType == info.from && toType == info.to)
+			if (fromType == info.getFrom() && toType == info.getTo())
 				return (ConverterInfo<From, To>) info;
 		}
 
 		// Check for an almost perfect match
 		for (ConverterInfo<?, ?> info : CONVERTERS) {
-			if (info.from.isAssignableFrom(fromType) && toType.isAssignableFrom(info.to))
+			if (info.getFrom().isAssignableFrom(fromType) && toType.isAssignableFrom(info.getTo()))
 				return (ConverterInfo<From, To>) info;
 		}
 
 		// Attempt to find converters that have either 'from' OR 'to' not exactly matching
 		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
-			if (unknownInfo.from.isAssignableFrom(fromType) && unknownInfo.to.isAssignableFrom(toType)) {
+			if (unknownInfo.getFrom().isAssignableFrom(fromType) && unknownInfo.getTo().isAssignableFrom(toType)) {
 				ConverterInfo<From, ParentType> info = (ConverterInfo<From, ParentType>) unknownInfo;
 
 				// 'to' doesn't exactly match and needs to be filtered
 				// Basically, this converter might convert 'From' into something that's shares a parent with 'To'
 				return new ConverterInfo<>(fromType, toType, fromObject -> {
-					Object converted = info.converter.convert(fromObject);
+					Object converted = info.getConverter().convert(fromObject);
 					if (toType.isInstance(converted))
 						return (To) converted;
 					return null;
 				}, 0);
 
-			} else if (fromType.isAssignableFrom(unknownInfo.from) && toType.isAssignableFrom(unknownInfo.to)) {
+			} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
 				ConverterInfo<SubType, To> info = (ConverterInfo<SubType, To>) unknownInfo;
 
 				// 'from' doesn't exactly match and needs to be filtered
 				// Basically, this converter will only convert certain 'From' objects
 				return new ConverterInfo<>(fromType, toType, fromObject -> {
-					if (!info.from.isInstance(fromType))
+					if (!info.getFrom().isInstance(fromType))
 						return null;
-					return info.converter.convert((SubType) fromObject);
+					return info.getConverter().convert((SubType) fromObject);
 				}, 0);
 
 			}
@@ -281,16 +281,16 @@ public final class Converters {
 
 		// At this point, accept both 'from' AND 'to' not exactly matching
 		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
-			if (fromType.isAssignableFrom(unknownInfo.from) && unknownInfo.to.isAssignableFrom(toType)) {
+			if (fromType.isAssignableFrom(unknownInfo.getFrom()) && unknownInfo.getTo().isAssignableFrom(toType)) {
 				ConverterInfo<SubType, ParentType> info = (ConverterInfo<SubType, ParentType>) unknownInfo;
 
 				// 'from' and 'to' both don't exactly match and need to be filtered
 				// Basically, this converter will only convert certain 'From' objects
 				//   and some conversion results will only share a parent with 'To'
 				return new ConverterInfo<>(fromType, toType, fromObject -> {
-					if (!info.from.isInstance(fromObject))
+					if (!info.getFrom().isInstance(fromObject))
 						return null;
-					Object converted = info.converter.convert((SubType) fromObject);
+					Object converted = info.getConverter().convert((SubType) fromObject);
 					if (toType.isInstance(converted))
 						return (To) converted;
 					return null;
