@@ -48,8 +48,8 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 
 	static {
 		Skript.registerExpression(ExprSpawn.class, Location.class, ExpressionType.PROPERTY,
-			"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
-			"%worlds%'[s] spawn[s] [(point|location)[s]]"
+				"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
+				"%worlds%'[s] spawn[s] [(point|location)[s]]"
 		);
 	}
 
