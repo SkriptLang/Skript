@@ -108,7 +108,7 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
 				int originalValue = (mode == ChangeMode.SET || mode == ChangeMode.RESET) ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
-				int newValue = Math.max((originalValue + value), 0);
+				int newValue = Math.max(originalValue + value, 0);
 
 				if (isMax)
 					aInv.setMaximumRepairCost(newValue);
