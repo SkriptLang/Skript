@@ -197,7 +197,7 @@ public class EvtClick extends SkriptEvent {
 				@Override
 				public boolean check(final Object o) {
 					if (entity != null) {
-						return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.implies(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
+						return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
 					} else {
 						return o instanceof EntityData ? false : ((ItemType) o).isOfType(block);
 					}

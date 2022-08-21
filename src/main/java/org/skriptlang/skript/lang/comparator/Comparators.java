@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.registrations.Converters;
+import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public final class Comparators {
 	 * A map for quickly accessing comparators that have already been resolved.
 	 * This is useful for skipping complex lookups that may require conversion and inversion.
 	 */
-	private static final Map<Integer, Comparator<?, ?>> QUICK_ACCESS_COMPARATORS = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Pair<Class<?>, Class<?>>, Comparator<?, ?>> QUICK_ACCESS_COMPARATORS = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * Registers a new Comparator with Skript's collection of Comparators.
@@ -132,17 +133,10 @@ public final class Comparators {
 	public static <Type1, Type2> Comparator<Type1, Type2> getComparator(Class<Type1> firstType, Class<Type2> secondType) {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Comparators cannot be retrieved until Skript has finished registrations.");
-
-		int hash = Objects.hash(firstType, secondType);
-
-		Comparator<Type1, Type2> comparator = (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(hash);
-
-		if (comparator == null) {
-			comparator = getComparator_i(firstType, secondType);
-			QUICK_ACCESS_COMPARATORS.put(hash, comparator);
-		}
-
-		return comparator;
+		return (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.computeIfAbsent(
+			new Pair<>(firstType, secondType),
+			k -> getComparator_i(firstType, secondType)
+		);
 	}
 
 	/**

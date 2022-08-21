@@ -69,9 +69,9 @@ public enum Relation {
 	 * then this Relation fulfils <code>X rel Y</code> as well.
 	 *
 	 * @param other The Relation to compare with.
-	 * @return Whether this Relation is part of the given Relation, e.g. <code>GREATER_OR_EQUAL.implies(EQUAL)</code> returns true.
+	 * @return Whether this Relation is part of the given Relation, e.g. <code>GREATER_OR_EQUAL.isImpliedBy(EQUAL)</code> returns true.
 	 */
-	public boolean implies(Relation other) {
+	public boolean isImpliedBy(Relation other) {
 		if (other == this)
 			return true;
 		switch (this) {
@@ -92,11 +92,11 @@ public enum Relation {
 
 	/**
 	 * @param others The Relations to compare with.
-	 * @return True if {@link #implies(Relation)} is true for any of the provided Relations.
+	 * @return True if {@link #isImpliedBy(Relation)} is true for any of the provided Relations.
 	 */
-	public boolean implies(Relation... others) {
+	public boolean isImpliedBy(Relation... others) {
 		for (Relation other : others) {
-			if (implies(other))
+			if (isImpliedBy(other))
 				return true;
 		}
 		return false;

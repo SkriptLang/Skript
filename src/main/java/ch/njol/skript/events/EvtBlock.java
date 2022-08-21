@@ -123,7 +123,7 @@ public class EvtBlock extends SkriptEvent {
 			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) e).getEntity());
 			return types.check(e, o -> {
 				if (o instanceof ItemType)
-					return Relation.EQUAL.implies(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
+					return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
 				return false;
 			});
 		} else {
