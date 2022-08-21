@@ -34,38 +34,38 @@ public class IndeterminateDelay extends Delay {
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event event) {
+	protected TriggerItem walk(Event event) {
 		debug(event, true);
-		final long start = Skript.debug() ? System.nanoTime() : 0;
-		final TriggerItem next = getNext();
+
+		long start = Skript.debug() ? System.nanoTime() : 0;
+		TriggerItem next = getNext();
+
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			Delay.addDelayedEvent(event);
-			final Timespan d = duration.getSingle(event);
-			if (d == null)
+			Timespan duration = this.duration.getSingle(event);
+			if (duration == null)
 				return null;
 			
 			// Back up local variables
 			Object localVars = Variables.removeLocals(event);
 			
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					if (Skript.debug())
-						Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1000000000. + "s");
-					
-					// Re-set local variables
-					if (localVars != null)
-						Variables.setLocalVariables(event, localVars);
-					
-					TriggerItem.walk(next, event);
-				}
-			}, d.getTicks_i());
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				if (Skript.debug())
+					Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1000000000. + "s");
+
+				// Re-set local variables
+				if (localVars != null)
+					Variables.setLocalVariables(event, localVars);
+
+				TriggerItem.walk(next, event);
+			}, duration.getTicks_i());
 		}
+
 		return null;
 	}
 	
 	@Override
-	public String toString(@Nullable final Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "wait for operation to finish";
 	}
 	
