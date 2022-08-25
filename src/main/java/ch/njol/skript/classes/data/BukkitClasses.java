@@ -715,7 +715,7 @@ public class BukkitClasses {
 				}));
 		
 		Classes.registerClass(new ClassInfo<>(Player.class, "player")
-				.user("player?")
+				.user("players?")
 				.name("Player")
 				.description("A player. Depending on whether a player is online or offline several actions can be performed with them, " +
 								"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
