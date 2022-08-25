@@ -58,10 +58,9 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprScoreboardTags extends SimpleExpression<String> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 11))
-			Skript.registerExpression(ExprScoreboardTags.class, String.class, ExpressionType.PROPERTY,
-					"[(all [[of] the]|the)] scoreboard tags of %entities%",
-					"%entities%'[s] scoreboard tags");
+		Skript.registerExpression(ExprScoreboardTags.class, String.class, ExpressionType.PROPERTY,
+			"[(all [[of] the]|the)] scoreboard tags of %entities%",
+			"%entities%'[s] scoreboard tags");
 	}
 
 	@SuppressWarnings("null")

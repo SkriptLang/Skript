@@ -45,12 +45,14 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.tests.runner.SkriptTestEvent;
 import ch.njol.skript.tests.runner.TestMode;
 import ch.njol.skript.tests.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -81,12 +83,10 @@ public class SkriptCommand implements CommandExecutor {
 		).add("help");
 
 	static {
-		if (Documentation.isDocsTemplateFound()) {
+		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {
 			skriptCommandHelp.add("gen-docs");
-		}
-		if (TestMode.DEV_MODE) { // Add command to run individual tests
+		if (TestMode.DEV_MODE) // Add command to run individual tests
 			skriptCommandHelp.add("test");
-		}
 	}
 	
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
@@ -331,7 +331,7 @@ public class SkriptCommand implements CommandExecutor {
 				info(sender, "info.documentation");
 				info(sender, "info.tutorials");
 				info(sender, "info.server", Bukkit.getVersion());
-				info(sender, "info.version", Skript.getVersion());
+				info(sender, "info.version", Skript.getVersion() + " (" + Skript.getInstance().getUpdater().getCurrentRelease().flavor + ")");
 				info(sender, "info.addons", Skript.getAddons().isEmpty() ? "None" : "");
 				for (SkriptAddon addon : Skript.getAddons()) {
 					PluginDescriptionFile desc = addon.plugin.getDescription();
@@ -357,7 +357,8 @@ public class SkriptCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
 				File templateDir = Documentation.getDocsTemplateDirectory();
 				if (!templateDir.exists()) {
-					Skript.info(sender, "Documentation templates not found. Cannot generate docs!");
+					Skript.error(sender, "Cannot generate docs! Documentation templates not found at 'plugins/Skript/doc-templates/'");
+					TestMode.docsFailed = true;
 					return true;
 				}
 				File outputDir = Documentation.getDocsOutputDirectory();
@@ -380,7 +381,7 @@ public class SkriptCommand implements CommandExecutor {
 					TestMode.lastTestFile = script;
 				}
 				if (!script.exists()) {
-					Skript.error(sender, "Test script doesn't exist!");
+					Skript.info(sender, "Test script doesn't exist!");
 					return true;
 				}
 				
@@ -391,7 +392,7 @@ public class SkriptCommand implements CommandExecutor {
 							// Code should run on server thread
 							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 								Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
-								// ScriptLoader.disableScripts(); // Clean state for next test
+								ScriptLoader.disableScripts(); // Clean state for next test
 								
 								// Get results and show them
 								String[] lines = TestTracker.collectResults().createReport().split("\n");

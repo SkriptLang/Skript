@@ -88,6 +88,19 @@ public class EvtMove extends SkriptEvent {
 	}
 
 	@Override
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public Class<? extends Event> [] getEventClasses() {
+		if (isPlayer) {
+			return new Class[] {PlayerMoveEvent.class};
+		} else if (HAS_ENTITY_MOVE) {
+			return new Class[] {EntityMoveEvent.class};
+		} else {
+			return null;
+		}
+	}
+
+	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return type + " move";
 	}

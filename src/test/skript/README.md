@@ -75,7 +75,7 @@ some syntaxes for test development are available.
 Use Gradle to launch a test development server:
 
 ```
-TERM=dumb ./gradlew skriptTestDev
+TERM=dumb ./gradlew clean skriptTestDev
 ```
 
 The server launched will be running at localhost:25565. You can use console

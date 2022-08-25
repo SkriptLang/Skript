@@ -769,19 +769,19 @@ entities:
 		pattern: wither skull((|1¦s)| projectile(|1¦s))
 	wolf:
 		name: wol¦f¦ves
-		pattern: <age> wol(f|1¦ves)
+		pattern: <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: <age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)
+		pattern: (<age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
-		pattern: (wild|untamed) <age> wol(f|1¦ves)
+		pattern: (wild|untamed) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	angry wolf:
 		name: angry wol¦f¦ves @an
-		pattern: (angry|aggressive) <age> wol(f|1¦ves)
+		pattern: (angry|aggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	peaceful wolf:
 		name: peaceful wol¦f¦ves
-		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves)
+		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
 		pattern: <age> zombie(|1¦s)|(4¦)zombie (kid(|1¦s)|child(|1¦ren))
