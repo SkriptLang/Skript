@@ -54,6 +54,9 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
     @Override
     public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
         switch (mode) {
+            case SET:
+                for (OfflinePlayer p : Bukkit.getOperators())
+                    p.setOp(false);
             case ADD:
                 for (Object p : delta)
                     ((OfflinePlayer) p).setOp(true);
@@ -63,25 +66,15 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
                 for (Object p : delta)
                     ((OfflinePlayer) p).setOp(false);
                 break;
-
             case DELETE:
             case RESET:
                 for (OfflinePlayer p : Bukkit.getOperators())
                     p.setOp(false);
                 break;
-
-            case SET:
-                for (OfflinePlayer p : Bukkit.getOperators())
-                    p.setOp(false);
-                for (Object p : delta)
-                    ((OfflinePlayer) p).setOp(true);
-                break;
             default:
                 assert false;
-
         }
     }
-
 
     @Override
     public boolean isSingle() {
