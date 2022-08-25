@@ -560,7 +560,7 @@ function getCookie(cname) {
 function setStorageItem(item, value, exdays) {
   const d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  localStorage.setItem(item, value + "; " + d.toUTCString());
+  localStorage.setItem(item, value + "; " + d.getTime());
 }
 
 /**
@@ -583,12 +583,12 @@ function getStorageItem(item, noExpireationCheck = false) {
     return null;
     
   if (!noExpireationCheck) {
-    result = result.split("; ")[0];
-    if (isStorageItemExpired(item)) {
+    if (isStorageItemExpired(result)) {
       removeStorageItem(item);
       return null;
     }
   }
+  result = result.split("; ")[0];
   return result;
 }
 
@@ -622,7 +622,7 @@ function getStorageItemExpiration(value) {
  * @returns whether expired or not
  */
 function isStorageItemExpired(value) {
-  let expires = value.split("; ")[1];
+  let expires = parseInt(value.split("; ")[1]);
   if (!expires) { // item with no expiration date
     return null;
   }
