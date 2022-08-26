@@ -18,8 +18,8 @@
  */
 package ch.njol.skript.registrations;
 
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
+import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.Converter.ConverterInfo;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
