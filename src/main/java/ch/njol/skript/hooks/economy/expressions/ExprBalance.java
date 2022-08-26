@@ -33,12 +33,14 @@ import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.economy.classes.Money;
 
 @Name("Money")
-@Description("How much virtual money a player has (can be changed). This expression requires Vault and a compatible economy plugin to be installed.")
-@Examples({"message \"You have %player's money%\" # the currency name will be added automatically",
-		"remove 20$ from the player's balance # replace '$' by whatever currency you use",
-		"add 200 to the player's account # or omit the currency altogether"})
-@Since("2.0, 2.5 (offline player support)")
-@RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
+@Description("How much virtual money a player has (can be changed).")
+@Examples({
+	"message \"You have %player's money%\" # the currency name will be added automatically",
+	"remove 20$ from the player's balance # replace '$' by whatever currency you use",
+	"add 200 to the player's account # or omit the currency altogether"
+})
+@Since("2.0, 2.5 (offline players)")
+@RequiredPlugins({"Vault", "an economy plugin that supports Vault"})
 public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> {
 
 	static {
@@ -46,11 +48,11 @@ public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> 
 	}
 	
 	@Override
-	public Money convert(OfflinePlayer p) {
+	public Money convert(OfflinePlayer player) {
 		try {
-			return new Money(VaultHook.economy.getBalance(p));
-		} catch (Exception e) {
-			return new Money(VaultHook.economy.getBalance(p.getName()));
+			return new Money(VaultHook.economy.getBalance(player));
+		} catch (Exception ex) {
+			return new Money(VaultHook.economy.getBalance(player.getName()));
 		}
 	}
 	
@@ -73,29 +75,29 @@ public class ExprBalance extends SimplePropertyExpression<OfflinePlayer, Money> 
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null) { // RESET/DELETE
-			for (OfflinePlayer p : getExpr().getArray(e))
+			for (OfflinePlayer p : getExpr().getArray(event))
 				VaultHook.economy.withdrawPlayer(p, VaultHook.economy.getBalance(p));
 			return;
 		}
 
-		double m = delta[0] instanceof Number ? ((Number) delta[0]).doubleValue() : ((Money) delta[0]).getAmount();
-		for (OfflinePlayer p : getExpr().getArray(e)) {
+		double money = delta[0] instanceof Number ? ((Number) delta[0]).doubleValue() : ((Money) delta[0]).getAmount();
+		for (OfflinePlayer player : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET:
-					double b = VaultHook.economy.getBalance(p);
-					if (b < m) {
-						VaultHook.economy.depositPlayer(p, m - b);
-					} else if (b > m) {
-						VaultHook.economy.withdrawPlayer(p, b - m);
+					double balance = VaultHook.economy.getBalance(player);
+					if (balance < money) {
+						VaultHook.economy.depositPlayer(player, money - balance);
+					} else if (balance > money) {
+						VaultHook.economy.withdrawPlayer(player, balance - money);
 					}
 					break;
 				case ADD:
-					VaultHook.economy.depositPlayer(p, m);
+					VaultHook.economy.depositPlayer(player, money);
 					break;
 				case REMOVE:
-					VaultHook.economy.withdrawPlayer(p, m);
+					VaultHook.economy.withdrawPlayer(player, money);
 					break;
 			}
 		}
