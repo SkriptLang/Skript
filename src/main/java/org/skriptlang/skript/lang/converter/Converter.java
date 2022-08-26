@@ -36,12 +36,13 @@ public interface Converter<From, To> {
 
 	/**
 	 * A Converter flag declaring that another Converter cannot be chained to this Converter.
-	 * This means that this Converter may only be
+	 * This means that this Converter must be the beginning of a chain.
 	 */
 	int NO_LEFT_CHAINING = 1;
 
 	/**
 	 * A Converter flag declaring this Converter cannot be chained to another Converter.
+	 * This means that this Converter must be the end of a chain.
 	 */
 	int NO_RIGHT_CHAINING = 2;
 

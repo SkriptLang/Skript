@@ -111,7 +111,8 @@ public final class Converters {
 
 				// chain info -> info2
 				if (
-					(unknownInfo1.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
+					unknownInfo2.getFrom() != Object.class // Object can only exist at the beginning of a chain
+					&& (unknownInfo1.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
 					&& (unknownInfo2.getFlags() & Converter.NO_LEFT_CHAINING) == 0
 					&& unknownInfo2.getFrom().isAssignableFrom(unknownInfo1.getTo())
 					&& !exactConverterExists(unknownInfo1.getFrom(), unknownInfo2.getTo())
@@ -129,7 +130,8 @@ public final class Converters {
 
 				// chain info2 -> info
 				else if (
-					(unknownInfo1.getFlags() & Converter.NO_LEFT_CHAINING) == 0
+					unknownInfo1.getFrom() != Object.class // Object can only exist at the beginning of a chain
+					&& (unknownInfo1.getFlags() & Converter.NO_LEFT_CHAINING) == 0
 					&& (unknownInfo2.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
 					&& unknownInfo1.getFrom().isAssignableFrom(unknownInfo2.getTo())
 					&& !exactConverterExists(unknownInfo2.getFrom(), unknownInfo1.getTo())
@@ -250,6 +252,11 @@ public final class Converters {
 			if (info.getFrom().isAssignableFrom(fromType) && toType.isAssignableFrom(info.getTo()))
 				return (ConverterInfo<From, To>) info;
 		}
+
+		// We don't want to create "maybe" converters for 'Object -> X' conversions
+		// Instead, we should just try and convert during runtime when we have a better idea of the fromType
+		if (fromType == Object.class)
+			return new ConverterInfo<>(fromType, toType, fromObject -> Converters.convert(fromObject, toType), 0);
 
 		// Attempt to find converters that have either 'from' OR 'to' not exactly matching
 		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
