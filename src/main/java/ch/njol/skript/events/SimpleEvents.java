@@ -625,7 +625,7 @@ public class SimpleEvents {
 					"\tchance of 50%:",
 					"\t\tcancel event",
 					"\t\tsend \"The trade was somehow denied!\" to player")
-				.since("2.6.3");
+				.since("INSERT VERSION");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
