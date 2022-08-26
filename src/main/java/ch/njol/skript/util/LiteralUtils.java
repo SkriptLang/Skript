@@ -40,7 +40,7 @@ public class LiteralUtils {
 	 * @param <T>  {@code expr}'s type
 	 * @return {@code expr} without {@link UnparsedLiteral} objects
 	 */
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	public static <T> Expression<T> defendExpression(Expression<?> expr) {
 		if (expr instanceof ExpressionList) {
 			Expression<?>[] oldExpressions = ((ExpressionList<?>) expr).getExpressions();
