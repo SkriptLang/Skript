@@ -35,7 +35,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("All Ops")
+@Name("All Operators")
 @Description("The list of operators on the server.")
 @Examples("set {_ops::*} to all ops")
 @Since("INSERT VERSION")
