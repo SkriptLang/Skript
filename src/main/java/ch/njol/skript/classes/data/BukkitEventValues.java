@@ -38,6 +38,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -1366,6 +1367,16 @@ public final class BukkitEventValues {
 				return evt.getEntity();
 			}
 		}, 0);
+		// PlayerTradeEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			EventValues.registerEventValue(PlayerTradeEvent.class, Entity.class, new Getter<Entity, PlayerTradeEvent>() {
+				@Override
+				@Nullable
+				public Entity get(PlayerTradeEvent e) {
+					return e.getVillager();
+				}
+			}, 0);
+		}
 		// PlayerChangedWorldEvent
 		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
 			@Nullable
