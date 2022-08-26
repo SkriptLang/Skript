@@ -89,36 +89,36 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	@Nullable
-	protected TriggerItem walk(Event e) {
-		Iterator<?> iter = currentIter.get(e);
+	protected TriggerItem walk(Event event) {
+		Iterator<?> iter = currentIter.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
+			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
-					currentIter.put(e, iter);
+					currentIter.put(event, iter);
 				else
 					iter = null;
 			}
 		}
 		if (iter == null || !iter.hasNext()) {
-			exit(e);
-			debug(e, false);
+			exit(event);
+			debug(event, false);
 			return actualNext;
 		} else {
-			current.put(e, iter.next());
-			currentLoopCounter.put(e, (currentLoopCounter.getOrDefault(e, 0L)) + 1);
-			return walk(e, true);
+			current.put(event, iter.next());
+			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			return walk(event, true);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "loop " + expr.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "loop " + expr.toString(event, debug);
 	}
 
 	@Nullable
-	public Object getCurrent(Event e) {
-		return current.get(e);
+	public Object getCurrent(Event event) {
+		return current.get(event);
 	}
 
 	public Expression<?> getLoopedExpression() {

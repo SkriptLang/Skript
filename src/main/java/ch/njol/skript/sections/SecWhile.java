@@ -70,14 +70,14 @@ public class SecWhile extends LoopSection {
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		if ((doWhile && !ranDoWhile) || condition.check(e)) {
+	protected TriggerItem walk(Event event) {
+		if ((doWhile && !ranDoWhile) || condition.check(event)) {
 			ranDoWhile = true;
-			currentLoopCounter.put(e, (currentLoopCounter.getOrDefault(e, 0L)) + 1);
-			return walk(e, true);
+			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			return walk(event, true);
 		} else {
-			exit(e);
-			debug(e, false);
+			exit(event);
+			debug(event, false);
 			return actualNext;
 		}
 	}
@@ -94,8 +94,8 @@ public class SecWhile extends LoopSection {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (doWhile ? "do " : "") + "while " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (doWhile ? "do " : "") + "while " + condition.toString(event, debug);
 	}
 
 	@Override
