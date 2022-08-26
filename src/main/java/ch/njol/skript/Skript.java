@@ -18,10 +18,65 @@
  */
 package ch.njol.skript;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Filter;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.gson.Gson;
+
 import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.BurgerHelper;
-import ch.njol.skript.bukkitutil.Workarounds;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Converter;
@@ -89,60 +144,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.gson.Gson;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.logging.Filter;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -357,8 +358,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		getAddonInstance();
 		
-		Workarounds.init();
-		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
 		try {
@@ -467,9 +466,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			assert updater != null;
 			updater.updateCheck(console);
 		}
-		
-		BukkitUnsafe.initialize(); // Needed for aliases
-		
+
 		try {
 			Aliases.load(); // Loaded before anything that might use them
 		} catch (StackOverflowError e) {
@@ -529,24 +526,26 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Load hooks from Skript jar
 				try {
 					try (JarFile jar = new JarFile(getFile())) {
-						for (final JarEntry e : new EnumerationIterable<>(jar.entries())) {
+						for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
 							if (e.getName().startsWith("ch/njol/skript/hooks/") && e.getName().endsWith("Hook.class") && StringUtils.count("" + e.getName(), '/') <= 5) {
 								final String c = e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length());
 								try {
-									final Class<?> hook = Class.forName(c, true, getClassLoader());
-									if (hook != null && Hook.class.isAssignableFrom(hook) && !hook.isInterface() && Hook.class != hook && isHookEnabled((Class<? extends Hook<?>>) hook)) {
+									Class<?> hook = Class.forName(c, true, getClassLoader());
+									if (Hook.class.isAssignableFrom(hook) && !Modifier.isAbstract(hook.getModifiers()) && isHookEnabled((Class<? extends Hook<?>>) hook)) {
 										hook.getDeclaredConstructor().setAccessible(true);
 										hook.getDeclaredConstructor().newInstance();
 									}
-								} catch (final ClassNotFoundException ex) {
+								} catch (ClassNotFoundException ex) {
 									Skript.exception(ex, "Cannot load class " + c);
-								} catch (final ExceptionInInitializerError err) {
+								} catch (ExceptionInInitializerError err) {
 									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
+								} catch (Exception ex) {
+									Skript.exception(ex, "Exception initializing hook: " + c);
 								}
 							}
 						}
 					}
-				} catch (final Exception e) {
+				} catch (IOException e) {
 					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
@@ -612,13 +611,26 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 					if (TestMode.ENABLED) { // Ignore late init (scripts, etc.) in test mode
+						if (TestMode.GEN_DOCS) {
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
+							String results = new Gson().toJson(TestTracker.collectResults());
+							try {
+								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
+							}
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
+							return;
+						}
 						if (TestMode.DEV_MODE) { // Run tests NOW!
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
 						} else {
 							info("Running all tests from " + TestMode.TEST_DIR);
 
 							// Treat parse errors as fatal testing failure
-							@SuppressWarnings("null")
 							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
 							try {
 								errorCounter.start();
@@ -648,9 +660,12 @@ public final class Skript extends JavaPlugin implements Listener {
 								Skript.exception(e, "Failed to write test results.");
 							}
 							info("Testing done, shutting down the server.");
-							Bukkit.getServer().shutdown();
-						}
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								Bukkit.getServer().shutdown();
+							}, 5);
 
+						}
 						return;
 					}
 				}, 100);
@@ -1525,6 +1540,12 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static EmptyStacktraceException exception(@Nullable Throwable cause, final @Nullable Thread thread, final @Nullable TriggerItem item, final String... info) {
 		errored = true;
+
+		// Don't send full exception message again, when caught exception (likely) comes from this method
+		if (cause instanceof EmptyStacktraceException) {
+			return new EmptyStacktraceException();
+		}
+
 		// First error: gather plugin package information
 		if (!checkedPlugins) { 
 			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
