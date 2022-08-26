@@ -61,7 +61,6 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
                 for (Object p : delta)
                     ((OfflinePlayer) p).setOp(true);
                 break;
-
             case REMOVE:
                 for (Object p : delta)
                     ((OfflinePlayer) p).setOp(false);
