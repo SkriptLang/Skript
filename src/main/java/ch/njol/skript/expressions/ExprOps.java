@@ -36,7 +36,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("All Ops")
-@Description("The list of operators on this server.")
+@Description("The list of operators on the server.")
 @Examples("set {_ops::*} to all ops")
 @Since("INSERT VERSION")
 
