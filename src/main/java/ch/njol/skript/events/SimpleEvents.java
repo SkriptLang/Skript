@@ -76,6 +76,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -625,6 +626,10 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
+		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "arrow pick[ ]up")
+				.description("Called when a player picks up an arrow")
+				.examples("on arrow pickup:")
+				.since("INSERT VERSION");
 	}
 
 }
