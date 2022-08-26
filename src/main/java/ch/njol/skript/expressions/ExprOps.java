@@ -41,6 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
+
 	static {
 		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] op[erator]s");
 	}
