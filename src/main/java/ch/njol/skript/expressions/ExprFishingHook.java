@@ -29,8 +29,10 @@ import ch.njol.skript.lang.ExpressionType;
 
 @Name("Fishing Hook")
 @Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
-@Examples({"on fishing:",
-	"\tteleport player to fishing hook"})
+@Examples({
+	"on fishing:",
+	"\tteleport player to fishing hook"
+})
 @Events("fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHook extends EventValueExpression<FishHook> {
@@ -44,7 +46,7 @@ public class ExprFishingHook extends EventValueExpression<FishHook> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the fishing hook";
 	}
 	

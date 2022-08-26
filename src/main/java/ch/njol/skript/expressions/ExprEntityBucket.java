@@ -41,31 +41,25 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
-	private static final boolean SUPPORTED = Skript.classExists("org.bukkit.event.player.PlayerBucketEntityEvent");
-
 	static {
-		if (SUPPORTED) {
-			Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.SIMPLE,
-				"[the] entity bucket",
-				"[the] bucket of [the] entity");
-		}
+		if (Skript.classExists("org.bukkit.event.player.PlayerBucketEntityEvent"))
+			Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.SIMPLE, "[the] entity bucket");
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerBucketEntityEvent.class)) {
-			Skript.error("The 'entity bucket' expression can only be used in bucket capture entity event.");
+			Skript.error("The 'entity bucket' expression can only be used in the bucket capture entity event");
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	protected @Nullable ItemStack[] get(Event e) {
-		if (!(e instanceof PlayerBucketEntityEvent))
-			return new ItemStack[0];
-		return new ItemStack[]{((PlayerBucketEntityEvent) e).getEntityBucket()};
+	protected @Nullable ItemStack[] get(Event event) {
+		if (!(event instanceof PlayerBucketEntityEvent))
+			return null;
+		return new ItemStack[]{((PlayerBucketEntityEvent) event).getEntityBucket()};
 	}
 
 	@Override
@@ -79,7 +73,7 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the entity bucket";
 	}
 

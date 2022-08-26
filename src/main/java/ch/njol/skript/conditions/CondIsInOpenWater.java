@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -27,40 +28,31 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.yaml.snakeyaml.introspector.Property;
 
-@Name("Fish hook is in Open Water")
-@Description("Check whether or not the fish hook is in open water.")
-@Examples({"on fish:",
-		"\tif fish hook is in open water:",
-		"\t\tsend \"You will catch a shark soon!\""})
+@Name("Is Fish Hook in Open Water")
+@Description("Checks whether or not the fish hook is in open water.")
+@Examples({
+	"on fish:",
+	"\tif fish hook is in open water:",
+	"\t\tsend \"You will catch a shark soon!\""
+})
 @Events("fishing")
 @Since("INSERT VERSION")
-public class CondIsInOpenWater extends Condition {
+public class CondIsInOpenWater extends PropertyCondition<FishHook> {
 	
 	static {
-		Skript.registerCondition(CondIsInOpenWater.class,
-				"%fishinghooks% (is|are) in open water",
-				"%fishinghooks% (isn't|is not|aren't|are not) in open water");
+		register(CondIsInOpenWater.class, PropertyType.BE, "in open water", "fishinghooks");
 	}
 
-	private Expression<FishHook> fishHook;
-	
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		fishHook = (Expression<FishHook>) exprs[0];
-		setNegated(matchedPattern == 1);
-		return true;
+	public boolean check(FishHook fishHook) {
+		return fishHook.isInOpenWater();
 	}
-	
+
 	@Override
-	public boolean check(Event e) {
-		return fishHook.check(e, FishHook::isInOpenWater, isNegated());
-	}
-	
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return fishHook.toString(e, debug) + " is" + (isNegated() ? "n't" : "") + " in open water";
+	protected String getPropertyName() {
+		return "in open water";
 	}
 	
 }

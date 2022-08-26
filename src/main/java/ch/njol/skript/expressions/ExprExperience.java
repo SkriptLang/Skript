@@ -52,6 +52,7 @@ import ch.njol.util.Kleenean;
 @Since("2.1, 2.5.3 (block break event), INSERT VERSION (fishing)")
 @Events({"experience spawn", "break / mine", "fishing"})
 public class ExprExperience extends SimpleExpression<Experience> {
+
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] (spawned|dropped|) [e]xp[erience] [orb[s]]");
 	}
@@ -67,13 +68,13 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	@Nullable
-	protected Experience[] get(Event e) {
-		if (e instanceof ExperienceSpawnEvent)
-			return new Experience[] {new Experience(((ExperienceSpawnEvent) e).getSpawnedXP())};
-		else if (e instanceof BlockBreakEvent)
-			return new Experience[] {new Experience(((BlockBreakEvent) e).getExpToDrop())};
-		else if (e instanceof PlayerFishEvent)
-			return new Experience[] {new Experience(((PlayerFishEvent) e).getExpToDrop())};
+	protected Experience[] get(Event event) {
+		if (event instanceof ExperienceSpawnEvent)
+			return new Experience[] {new Experience(((ExperienceSpawnEvent) event).getSpawnedXP())};
+		else if (event instanceof BlockBreakEvent)
+			return new Experience[] {new Experience(((BlockBreakEvent) event).getExpToDrop())};
+		else if (event instanceof PlayerFishEvent)
+			return new Experience[] {new Experience(((PlayerFishEvent) event).getExpToDrop())};
 		else
 			return new Experience[0];
 	}
@@ -96,30 +97,30 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int d;
-		if (e instanceof ExperienceSpawnEvent)
-			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		else if (e instanceof BlockBreakEvent)
-			d = ((BlockBreakEvent) e).getExpToDrop();
-		else if (e instanceof PlayerFishEvent)
-			d = ((PlayerFishEvent) e).getExpToDrop();
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int experience;
+		if (event instanceof ExperienceSpawnEvent)
+			experience = ((ExperienceSpawnEvent) event).getSpawnedXP();
+		else if (event instanceof BlockBreakEvent)
+			experience = ((BlockBreakEvent) event).getExpToDrop();
+		else if (event instanceof PlayerFishEvent)
+			experience = ((PlayerFishEvent) event).getExpToDrop();
 		else
 			return;
 		
 		if (delta != null)
-			for (Object o : delta) {
-				int v = o instanceof Experience ? ((Experience) o).getXP() : ((Number) o).intValue();
+			for (Object object : delta) {
+				int value = object instanceof Experience ? ((Experience) object).getXP() : ((Number) object).intValue();
 				switch (mode) {
 					case ADD:
-						d += v;
+						experience += value;
 						break;
 					case SET:
-						d = v;
+						experience = value;
 						break;
 					case REMOVE:
 					case REMOVE_ALL:
-						d -= v;
+						experience -= value;
 						break;
 					case RESET:
 					case DELETE:
@@ -128,15 +129,15 @@ public class ExprExperience extends SimpleExpression<Experience> {
 				}
 			}
 		else
-			d = 0;
+			experience = 0;
 		
-		d = Math.max(0, Math.round(d));
-		if (e instanceof ExperienceSpawnEvent)
-			((ExperienceSpawnEvent) e).setSpawnedXP(d);
-		else if (e instanceof PlayerFishEvent)
-			((PlayerFishEvent) e).setExpToDrop(d);
+		experience = Math.max(0, Math.round(experience));
+		if (event instanceof ExperienceSpawnEvent)
+			((ExperienceSpawnEvent) event).setSpawnedXP(experience);
+		else if (event instanceof PlayerFishEvent)
+			((PlayerFishEvent) event).setExpToDrop(experience);
 		else
-			((BlockBreakEvent) e).setExpToDrop(d);
+			((BlockBreakEvent) event).setExpToDrop(experience);
 	}
 	
 	@Override
@@ -150,7 +151,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the experience";
 	}
 	

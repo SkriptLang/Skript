@@ -45,18 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, Entity> {
 
 	static {
-		register(ExprFishingHookEntity.class, Entity.class, "hook[ed] entity", "fishinghook");
-	}
-
-	@Override
-	@SuppressWarnings({"null", "unchecked"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return "hooked entity";
+		register(ExprFishingHookEntity.class, Entity.class, "hook[ed] entity", "fishinghooks");
 	}
 
 	@Override
@@ -68,6 +57,11 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return Entity.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "hooked entity";
 	}
 
 	@Nullable
@@ -84,28 +78,29 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null || delta[0] == null) {
+		if (mode == ChangeMode.SET && delta == null)
 			return;
-		}
 
 		FishHook[] hooks = getExpr().getArray(e);
 		switch (mode) {
 			case SET:
-				for (FishHook fh : hooks)
-					fh.setHookedEntity((Entity) delta[0]);
+				for (FishHook fishHook : hooks)
+					fishHook.setHookedEntity((Entity) delta[0]);
 				break;
 			case DELETE:
-				for (FishHook fh : hooks) {
-					if (fh.getHookedEntity() != null && !(fh.getHookedEntity() instanceof Player))
-						fh.getHookedEntity().remove();
+				for (FishHook fishHook : hooks) {
+					if (fishHook.getHookedEntity() != null && !(fishHook.getHookedEntity() instanceof Player))
+						fishHook.getHookedEntity().remove();
 				}
 				break;
+			default:
+				assert false;
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "hooked entity of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hooked entity of " + getExpr().toString(event, debug);
 	}
 
 }

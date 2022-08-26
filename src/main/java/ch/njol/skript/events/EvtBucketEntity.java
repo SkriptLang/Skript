@@ -20,6 +20,7 @@ package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -48,11 +49,9 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class EvtBucketEntity extends SkriptEvent {
 
-	private static final boolean SUPPORTED = Skript.classExists("org.bukkit.event.player.PlayerBucketEntityEvent");
-
 	static {
-		if (SUPPORTED) {
-			Skript.registerEvent("Bucket Capture Entity", EvtBucketEntity.class, PlayerFishEvent.class, "[player] bucket captur(e|ing) [[of] %-entities%]");
+		if (Skript.classExists("org.bukkit.event.player.PlayerBucketEntityEvent")) {
+			Skript.registerEvent("Bucket Capture Entity", EvtBucketEntity.class, PlayerFishEvent.class, "[player] bucket captur(e|ing) [[of] %-entitydatas%]");
 
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<ItemStack, PlayerBucketEntityEvent>() {
 				@Override
@@ -76,29 +75,24 @@ public class EvtBucketEntity extends SkriptEvent {
 		}
 	}
 
-	@Nullable
-	private List<Entity> entities = new ArrayList<>();
+	private List<EntityData<?>> entities = new ArrayList<>(0);
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (!SUPPORTED) {
-			Skript.error("The 'bucket capture entity' event requires Minecraft 1.17 or newer.");
-			return false;
-		}
-
 		if (args[0] != null)
-			entities = Arrays.asList(((Literal<Entity>) args[0]).getAll());
+			entities = Arrays.asList(((Literal<EntityData<?>>) args[0]).getAll());
 
 		return true;
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return entities.isEmpty() || entities.contains(((PlayerBucketEntityEvent) e).getEntity());
+	public boolean check(Event event) {
+		return entities.isEmpty() || entities.contains(((PlayerBucketEntityEvent) event).getEntity());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "bucket capture" + (entities.isEmpty() ? "" : " of " + StringUtils.join(entities, ", ", " and "));
 	}
 
