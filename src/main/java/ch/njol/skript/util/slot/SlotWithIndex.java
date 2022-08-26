@@ -33,7 +33,9 @@ public abstract class SlotWithIndex extends Slot {
 	 * Gets the raw index of this slot.
 	 * @return Raw index of the slot.
 	 */
-	public abstract int getRawIndex();
+	public int getRawIndex() {
+		return getIndex();
+	}
 	
 	@Override
 	public boolean isSameSlot(Slot o) {
