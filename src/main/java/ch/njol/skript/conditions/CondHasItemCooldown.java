@@ -30,7 +30,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -47,13 +47,13 @@ public class CondHasItemCooldown extends Condition {
 			"%players% (doesn't|does not|do not|don't) have ([([an] item|a)] cooldown (on|for) %itemtypes%|%itemtypes% on cooldown)");
 	}
 
-	private Expression<HumanEntity> players;
+	private Expression<Player> players;
 	private Expression<ItemType> itemtypes;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		players = (Expression<HumanEntity>) exprs[0];
+		players = (Expression<Player>) exprs[0];
 		itemtypes = (Expression<ItemType>) exprs[1];
 		setNegated(matchedPattern == 1);
 		return true;

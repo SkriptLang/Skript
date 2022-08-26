@@ -37,6 +37,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Name("Item Cooldown")
 @Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 ticks</code> will remove the cooldown.")
 @Examples({
@@ -54,30 +57,42 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 			"%players%'[s] [item] cooldown for %itemtypes%");
 	}
 	
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Player> players;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> itemtypes;
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		players = (Expression<Player>) exprs[1];
-		itemtypes = (Expression<ItemType>) exprs[0];
+		players = (Expression<Player>) exprs[matchedPattern ^ 1];
+		itemtypes = (Expression<ItemType>) exprs[matchedPattern];
 		return true;
 	}
 	
 	@Override
-	protected Timespan[] get(Event e) {
-		Player[] players = this.players.getArray(e);
-		ItemType[] itemtypes = this.itemtypes.getArray(e);
-		if (players.length == 0 || itemtypes.length == 0)
-			return new Timespan[0];
+	protected Timespan[] get(Event event) {
+		Player[] players = this.players.getArray(event);
+		ItemType[] itemtypesArray = this.itemtypes.getArray(event);
+		if (players == null || itemtypesArray == null)
+			return null;
 
-		Timespan[] timespan = new Timespan[players.length * itemtypes.length];
+		List<ItemType> itemtypes = Arrays.stream(itemtypesArray)
+			.filter(it -> {
+				try {
+					it.getMaterial();
+					return true;
+				} catch (IllegalArgumentException ex) {
+					return false;
+				}
+			}).toList();
+
+		Timespan[] timespan = new Timespan[players.length * itemtypes.size()];
 		
 		int i = 0;
-		for (Player p : players) {
-			for (ItemType it : itemtypes) {
-				timespan[i] = Timespan.fromTicks_i(p.getCooldown(it.getMaterial()));
+		for (Player player : players) {
+			for (ItemType itemtype : itemtypes) {
+				timespan[i] = Timespan.fromTicks_i(player.getCooldown(itemtype.getMaterial()));
 				i++;
 			}
 		}
@@ -93,31 +108,40 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
 			return;
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
-		Player[] players = this.players.getArray(e);
-		ItemType[] itemtypes = this.itemtypes.getArray(e);
-
-		if (players.length == 0 || itemtypes.length == 0)
+		Player[] players = this.players.getArray(event);
+		ItemType[] itemtypesArray = this.itemtypes.getArray(event);
+		if (players == null || itemtypesArray == null)
 			return;
 
-		for (Player p : players) {
-			for (ItemType it : itemtypes) {
-				Material mat = it.getMaterial();
+		List<ItemType> itemtypes = Arrays.stream(itemtypesArray)
+			.filter(it -> {
+				try {
+					it.getMaterial();
+					return true;
+				} catch (IllegalArgumentException ex) {
+					return false;
+				}
+			}).toList();
+
+		for (Player player : players) {
+			for (ItemType itemtype : itemtypes) {
+				Material material = itemtype.getMaterial();
 				switch (mode) {
 					case RESET:
 					case DELETE:
 					case SET:
-						p.setCooldown(mat, ticks);
+						player.setCooldown(material, ticks);
 						break;
 					case REMOVE:
-						p.setCooldown(mat, Math.max(p.getCooldown(mat) - ticks, 0));
+						player.setCooldown(material, Math.max(player.getCooldown(material) - ticks, 0));
 						break;
 					case ADD:
-						p.setCooldown(mat, p.getCooldown(mat) + ticks);
+						player.setCooldown(material, player.getCooldown(material) + ticks);
 						break;
 				}
 			}
@@ -135,8 +159,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the cooldown of " + itemtypes.toString(e, debug) + " for " + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the cooldown of " + itemtypes.toString(event, debug) + " for " + players.toString(event, debug);
 	}
 
 }
