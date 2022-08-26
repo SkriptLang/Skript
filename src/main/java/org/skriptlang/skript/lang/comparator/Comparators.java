@@ -133,10 +133,18 @@ public final class Comparators {
 	public static <Type1, Type2> Comparator<Type1, Type2> getComparator(Class<Type1> firstType, Class<Type2> secondType) {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Comparators cannot be retrieved until Skript has finished registrations.");
-		return (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.computeIfAbsent(
-			new Pair<>(firstType, secondType),
-			k -> getComparator_i(firstType, secondType)
-		);
+
+		Pair<Class<?>, Class<?>> pair = new Pair<>(firstType, secondType);
+		Comparator<Type1, Type2> comparator;
+
+		if (QUICK_ACCESS_COMPARATORS.containsKey(pair)) {
+			comparator = (Comparator<Type1, Type2>) QUICK_ACCESS_COMPARATORS.get(pair);
+		} else { // Compute QUICK_ACCESS for provided types
+			comparator = getComparator_i(firstType, secondType);
+			QUICK_ACCESS_COMPARATORS.put(pair, comparator);
+		}
+
+		return comparator;
 	}
 
 	/**
