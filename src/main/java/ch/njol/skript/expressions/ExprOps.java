@@ -45,7 +45,7 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	
-	boolean nonOps;
+	private boolean nonOps;
 	List<Player> nonOpsList = new ArrayList<>();
 	
 	static {
