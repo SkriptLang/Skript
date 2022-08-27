@@ -1372,10 +1372,10 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerTradeEvent.class, Entity.class, new Getter<Entity, PlayerTradeEvent>() {
 				@Override
 				@Nullable
-				public Entity get(PlayerTradeEvent e) {
-					return e.getVillager();
+				public Entity get(PlayerTradeEvent event) {
+					return event.getVillager();
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 		}
 		// PlayerChangedWorldEvent
 		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
