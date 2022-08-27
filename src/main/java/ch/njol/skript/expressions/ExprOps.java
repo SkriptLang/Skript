@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("All Operators")
 @Description("The list of operators on the server.")
-@Examples("set {_ops::*} to all ops")
+@Examples("set {_ops::*} to all operators")
 @Since("INSERT VERSION")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	

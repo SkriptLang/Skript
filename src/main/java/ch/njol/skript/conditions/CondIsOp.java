@@ -27,7 +27,7 @@ import org.bukkit.OfflinePlayer;
 
 @Name("Is Operator")
 @Description("Checks whether a player is a server operator.")
-@Examples("player is an op")
+@Examples("player is an operator")
 @Since("INSERT VERSION")
 public class CondIsOp extends PropertyCondition<OfflinePlayer> {
 
