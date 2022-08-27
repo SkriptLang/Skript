@@ -32,8 +32,12 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("All Operators")
 @Description("The list of operators on the server.")
@@ -41,17 +45,29 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	
+	boolean nonOps;
+	List<Player> nonOpsList = new ArrayList<>();
+	
 	static {
-		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] op[erator]s");
+		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non-]op[erator]s");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (parseResult.hasTag("non-"))
+			nonOps = true;
 		return true;
 	}
 
 	@Override
 	protected OfflinePlayer[] get(Event event) {
+		if (nonOps) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				if (!p.isOp()) 
+					nonOpsList.add(p);
+			}
+			return nonOpsList.toArray(new Player[0]);
+		}
 		return Bukkit.getOperators().toArray(new OfflinePlayer[0]);
 	}
 
@@ -71,6 +87,8 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (nonOps)
+			return;
 		switch (mode) {
 			case SET:
 				for (OfflinePlayer p : Bukkit.getOperators())
