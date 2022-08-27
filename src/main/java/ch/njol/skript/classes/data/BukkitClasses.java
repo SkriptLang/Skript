@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -1836,5 +1837,34 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
+
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+			EnumUtils<MoonPhase> moonPhases = new EnumUtils<>(MoonPhase.class, "moon phases");
+			Classes.registerClass(new ClassInfo<>(MoonPhase.class, "moonphase")
+				.user("moon ?phases?")
+				.name("Moon Phase")
+				.description("Represents the phase of a moon.")
+				.defaultExpression(new EventValueExpression<>(MoonPhase.class))
+				.usage(moonPhases.getAllNames())
+				.since("INSERT VERSION")
+				.parser(new Parser<MoonPhase>() {
+					@Override
+					@Nullable
+					public MoonPhase parse(String input, ParseContext context) {
+						return moonPhases.parse(input);
+					}
+
+					@Override
+					public String toString(MoonPhase moonPhase, int flags) {
+						return moonPhases.toString(moonPhase, flags);
+					}
+
+					@Override
+					public String toVariableNameString(MoonPhase moonPhase) {
+						return toString(moonPhase, 0);
+					}
+				})
+				.serializer(new EnumSerializer<>(MoonPhase.class)));
+		}
 	}
 }
