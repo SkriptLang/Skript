@@ -30,19 +30,20 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Fire Ticks")
+@Name("Fire Time")
 @Description("How much time an entity will be burning for.")
-@Examples({"send \"You will stop burning in %fire time of player%"})
+@Examples({"send \"You will stop burning in %fire time of player%\""})
 @Since("INSERT VERSION")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprFireTicks.class, Timespan.class, "(burn[ing]|fire) (ticks|time)", "entities");
+		register(ExprFireTicks.class, Timespan.class, "(burn[ing]|fire) time", "entities");
 	}
 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
+		// here max is used to avoid an exception being thrown when the fire ticks are negative
 		return Timespan.fromTicks_i(Math.max(entity.getFireTicks(), 0));
 	}
 
