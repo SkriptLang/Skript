@@ -35,12 +35,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("All Ops")
-@Description("The list of operators on this server.")
+@Name("All Operators")
+@Description("The list of operators on the server.")
 @Examples("set {_ops::*} to all ops")
 @Since("INSERT VERSION")
-
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
+	
 	static {
 		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] op[erator]s");
 	}
@@ -51,7 +51,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	protected OfflinePlayer[] get(Event e) {
+	protected OfflinePlayer[] get(Event event) {
 		return Bukkit.getOperators().toArray(new OfflinePlayer[0]);
 	}
 
@@ -70,7 +70,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
 			case SET:
 				for (OfflinePlayer p : Bukkit.getOperators())
@@ -104,7 +104,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "all ops";
 	}
 }
