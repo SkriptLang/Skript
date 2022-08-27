@@ -1841,7 +1841,7 @@ public class BukkitClasses {
 		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
 			EnumUtils<MoonPhase> moonPhases = new EnumUtils<>(MoonPhase.class, "moon phases");
 			Classes.registerClass(new ClassInfo<>(MoonPhase.class, "moonphase")
-				.user("moon ?phases?")
+				.user("(lunar|moon) ?phases?")
 				.name("Moon Phase")
 				.description("Represents the phase of a moon.")
 				.usage(moonPhases.getAllNames())

@@ -41,7 +41,7 @@ public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 
 	static {
 		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
-			register(ExprMoonPhase.class, MoonPhase.class, "moon phase[s]", "worlds");
+			register(ExprMoonPhase.class, MoonPhase.class, "(lunar|moon) phase[s]", "worlds");
 	}
 
 	@Override
