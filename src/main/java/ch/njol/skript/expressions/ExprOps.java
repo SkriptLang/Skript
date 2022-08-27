@@ -54,8 +54,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (parseResult.hasTag("non-"))
-			nonOps = true;
+		nonOps = parseResult.hasTag("non-");
 		return true;
 	}
 
