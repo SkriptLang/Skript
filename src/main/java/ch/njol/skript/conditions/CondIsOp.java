@@ -37,7 +37,7 @@ public class CondIsOp extends PropertyCondition<OfflinePlayer> {
 
 	@Override
 	public boolean check(OfflinePlayer player) {
-		return  player.isOp();
+		return player.isOp();
 	}
 
 	@Override

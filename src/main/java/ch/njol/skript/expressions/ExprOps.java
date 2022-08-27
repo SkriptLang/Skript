@@ -46,7 +46,6 @@ import java.util.List;
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	
 	private boolean nonOps;
-	List<Player> nonOpsList = new ArrayList<>();
 	
 	static {
 		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non-]op[erator]s");
@@ -61,6 +60,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	@Override
 	protected OfflinePlayer[] get(Event event) {
 		if (nonOps) {
+			List<Player> nonOpsList = new ArrayList<>();
 			for (Player p : Bukkit.getOnlinePlayers()) {
 				if (!p.isOp()) 
 					nonOpsList.add(p);
@@ -73,6 +73,8 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (nonOps)
+			return null;
 		switch (mode) {
 			case ADD:
 			case SET:
