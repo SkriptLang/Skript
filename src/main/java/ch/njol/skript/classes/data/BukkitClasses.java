@@ -1844,9 +1844,9 @@ public class BukkitClasses {
 				.user("moon ?phases?")
 				.name("Moon Phase")
 				.description("Represents the phase of a moon.")
-				.defaultExpression(new EventValueExpression<>(MoonPhase.class))
 				.usage(moonPhases.getAllNames())
 				.since("INSERT VERSION")
+				.requiredPlugins("Paper")
 				.parser(new Parser<MoonPhase>() {
 					@Override
 					@Nullable
