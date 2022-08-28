@@ -65,9 +65,26 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	@Nullable
 	private Expression<Number> page;
 
-	@SuppressWarnings("null")
-	@Nullable
 	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		if (matchedPattern == 0 || matchedPattern == 1) {
+			setExpr((Expression<ItemType>) exprs[0]);
+		} else {
+			if (matchedPattern == 2) {
+				page = (Expression<Number>) exprs[0];
+				setExpr((Expression<ItemType>) exprs[1]);
+			} else {
+				setExpr((Expression<ItemType>) exprs[0]);
+				page = (Expression<Number>) exprs[1];
+			}
+		}
+		return true;
+	}
+
+	@Override
+	@Nullable
+	@SuppressWarnings("null")
 	protected String[] get(Event event, ItemType[] source) {
 		List<String> pages = new ArrayList<>();
 		for (ItemType itemType : source) {
@@ -90,8 +107,8 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 		return pages.toArray(new String[0]);
 	}
 
-	@Nullable
 	@Override
+	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
 			case SET:
@@ -164,22 +181,5 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "book pages of " + getExpr().toString(event, debug);
-	}
-
-	@SuppressWarnings({"unchecked", "null"})
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (matchedPattern == 0 || matchedPattern == 1) {
-			setExpr((Expression<ItemType>) exprs[0]);
-		} else {
-			if (matchedPattern == 2) {
-				page = (Expression<Number>) exprs[0];
-				setExpr((Expression<ItemType>) exprs[1]);
-			} else {
-				setExpr((Expression<ItemType>) exprs[0]);
-				page = (Expression<Number>) exprs[1];
-			}
-		}
-		return true;
 	}
 }
