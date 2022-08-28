@@ -20,7 +20,7 @@ package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
@@ -153,13 +153,14 @@ public class EntryContainer {
 		if (node == null)
 			return entryData.getDefaultValue();
 
-		// Update SkriptLogger node for parsing
-		Node oldNode = SkriptLogger.getNode();
-		SkriptLogger.setNode(node);
+		// Update ParserInstance node for parsing
+		ParserInstance parser = ParserInstance.get();
+		Node oldNode = parser.getNode();
+		parser.setNode(node);
 		Object value = entryData.getValue(node);
 		if (value == null && useDefaultValue)
 			value = entryData.getDefaultValue();
-		SkriptLogger.setNode(oldNode);
+		parser.setNode(oldNode);
 
 		return value;
 	}

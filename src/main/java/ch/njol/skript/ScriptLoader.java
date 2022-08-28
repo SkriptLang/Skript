@@ -23,6 +23,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
+import ch.njol.skript.log.SkriptLogger;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
@@ -35,7 +36,6 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.util.ExceptionUtils;
@@ -511,12 +511,12 @@ public class ScriptLoader {
 		
 		return CompletableFuture.allOf(scriptInfoFutures.toArray(new CompletableFuture[0]))
 			.thenApply(unused -> {
+				// TODO in the future this won't work when parallel loading is fixed
+				// It does now though so let's avoid calling getParser() a bunch.
+				ParserInstance parser = getParser();
+
 				try {
 					openCloseable.open();
-
-					// TODO in the future this won't work when parallel loading is fixed
-					// It does now though so let's avoid calling getParser() a bunch.
-					ParserInstance parser = getParser();
 
 					scripts.stream()
 						.flatMap(script -> { // Flatten each entry down to a stream of Config-Structure pairs
@@ -584,7 +584,7 @@ public class ScriptLoader {
 					// Something went wrong, we need to make sure the exception is printed
 					throw Skript.exception(e);
 				} finally {
-					getParser().setInactive();
+					parser.setInactive();
 
 					openCloseable.close();
 				}
@@ -607,7 +607,8 @@ public class ScriptLoader {
 		scriptInfo.files = 1; // Loading one script
 
 		Config config = script.getConfig();
-		getParser().setActive(script);
+		ParserInstance parser = getParser();
+		parser.setActive(script);
 
 		try {
 			if (SkriptConfig.keepConfigsLoaded.value())
@@ -650,7 +651,7 @@ public class ScriptLoader {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load " + config.getFileName());
 		} finally {
-			getParser().setInactive();
+			parser.setInactive();
 		}
 		
 		// In always sync task, enable stuff
@@ -893,18 +894,24 @@ public class ScriptLoader {
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
 	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
+		ParserInstance parser = getParser();
+
 		if (Skript.debug())
-			getParser().setIndentation(getParser().getIndentation() + "    ");
+			parser.setIndentation(parser.getIndentation() + "    ");
 		
 		ArrayList<TriggerItem> items = new ArrayList<>();
 
-		for (Node n : node) {
-			SkriptLogger.setNode(n);
-			if (n instanceof SimpleNode) {
-				String expr = replaceOptions("" + n.getKey());
-				if (!SkriptParser.validateLine(expr))
-					continue;
+		for (Node subNode : node) {
+			parser.setNode(subNode);
 
+			String subNodeKey = subNode.getKey();
+			if (subNodeKey == null)
+				throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
+			String expr = replaceOptions(subNodeKey);
+			if (!SkriptParser.validateLine(expr))
+				continue;
+
+			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
 				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
 				if (stmt == null)
@@ -919,22 +926,19 @@ public class ScriptLoader {
 						);
 				}
 
-				if (Skript.debug() || n.debug())
-					Skript.debug(SkriptColor.replaceColorChar(getParser().getIndentation() + stmt.toString(null, true)));
+				if (Skript.debug() || subNode.debug())
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + stmt.toString(null, true)));
 
 				items.add(stmt);
-			} else if (n instanceof SectionNode) {
-				String expr = replaceOptions("" + n.getKey());
-				if (!SkriptParser.validateLine(expr))
-					continue;
+			} else if (subNode instanceof SectionNode) {
 				TypeHints.enterScope(); // Begin conditional type hints
 
-				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) n, items);
+				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
 				if (section == null)
 					continue;
 
-				if (Skript.debug() || n.debug())
-					Skript.debug(SkriptColor.replaceColorChar(getParser().getIndentation() + section.toString(null, true)));
+				if (Skript.debug() || subNode.debug())
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
 
 				items.add(section);
 
@@ -945,11 +949,11 @@ public class ScriptLoader {
 		
 		for (int i = 0; i < items.size() - 1; i++)
 			items.get(i).setNext(items.get(i + 1));
-		
-		SkriptLogger.setNode(node);
+
+		parser.setNode(node);
 		
 		if (Skript.debug())
-			getParser().setIndentation("" + getParser().getIndentation().substring(0, getParser().getIndentation().length() - 4));
+			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
 		
 		return items;
 	}
@@ -1047,8 +1051,7 @@ public class ScriptLoader {
 	@Deprecated
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
 		unloadScripts(folder);
-		List<Config> configs = loadStructures(folder);
-		return loadScripts(configs, openCloseable);
+		return loadScripts(loadStructures(folder), openCloseable);
 	}
 
 	/**
@@ -1148,7 +1151,8 @@ public class ScriptLoader {
 	@Nullable
 	@Deprecated
 	public static Config getCurrentScript() {
-		return getParser().isActive() ? getParser().getCurrentScript().getConfig() : null;
+		ParserInstance parser = getParser();
+		return parser.isActive() ? parser.getCurrentScript().getConfig() : null;
 	}
 
 	/**
