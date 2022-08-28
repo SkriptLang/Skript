@@ -69,8 +69,8 @@ public class ExprSets extends SimpleExpression<Object> {
 	private Expression<ItemType> types;
 	private int pattern = -1;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (vars.length > 0)
 			types = (Expression<ItemType>) vars[0];
@@ -101,7 +101,7 @@ public class ExprSets extends SimpleExpression<Object> {
 	public Iterator<Object> iterator(Event event) {
 		if (pattern == 4)
 			return new ArrayIterator<>(SkriptColor.values());
-		if (pattern == 0 || pattern == 3)
+		if (pattern == 0 || pattern == 2)
 			return new Iterator<Object>() {
 				
 				private final Iterator<Material> iter = new ArrayIterator<>(Material.values());
@@ -160,7 +160,12 @@ public class ExprSets extends SimpleExpression<Object> {
 			}
 		});
 	}
-	
+
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
+
 	@Override
 	public Class<? extends Object> getReturnType() {
 		if (pattern == 4)
@@ -176,12 +181,7 @@ public class ExprSets extends SimpleExpression<Object> {
 			return "colours";
 		return (pattern < 2 ? "blocks" : "items") + (types != null ? " of type" + (types.isSingle() ? "" : "s") + " " + types.toString(event, debug) : "");
 	}
-	
-	@Override
-	public boolean isSingle() {
-		return false;
-	}
-	
+
 	@Override
 	public boolean isLoopOf(String s) {
 		return pattern == 4 && (s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour"))|| pattern >= 2 && s.equalsIgnoreCase("block") || pattern < 2 && s.equalsIgnoreCase("item");
