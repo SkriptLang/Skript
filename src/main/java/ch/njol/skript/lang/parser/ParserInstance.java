@@ -368,7 +368,7 @@ public final class ParserInstance {
 	}
 
 	private void setNode_i(@Nullable Node node) {
-		this.node = node == null || node.getParent() == null ? null : node;
+		this.node = node;
 	}
 
 	public Node getNode() {
