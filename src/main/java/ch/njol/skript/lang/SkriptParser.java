@@ -692,7 +692,7 @@ public class SkriptParser {
 						isLiteralList &= t instanceof Literal;
 						ts.add(t);
 						if (b != 0) {
-							final String d = expr.substring(pieces.get(b - 1)[1], x).trim();
+							final String d = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
 							if (!d.equals(",")) {
 								boolean or = !d.contains("nor") && d.endsWith("or");
 								if (and.isUnknown()) {
@@ -819,7 +819,7 @@ public class SkriptParser {
 						isLiteralList &= t instanceof Literal;
 						ts.add(t);
 						if (b != 0) {
-							final String d = expr.substring(pieces.get(b - 1)[1], x).trim();
+							final String d = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
 							if (!d.equals(",")) {
 								boolean or = !d.contains("nor") && d.endsWith("or");
 								if (and.isUnknown()) {
