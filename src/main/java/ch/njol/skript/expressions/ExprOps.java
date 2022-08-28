@@ -124,7 +124,9 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "all ops";
+		if (nonOps)
+				return "all non-operators";
+		return "all operators";
 	}
 
 }
