@@ -54,8 +54,8 @@ public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		Entity[] entities = getExpr().getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Entity[] entities = getExpr().getArray(event);
 		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		switch (mode) {
 			case REMOVE:
