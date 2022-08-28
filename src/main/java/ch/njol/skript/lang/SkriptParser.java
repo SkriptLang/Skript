@@ -50,6 +50,9 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
+import org.bukkit.event.EventPriority;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -225,7 +228,13 @@ public class SkriptParser {
 						try {
 							res = parse_i(pattern, 0, 0);
 						} catch (MalformedPatternException e) {
-							throw new RuntimeException("pattern compiling exception, element class: " + info.c.getName(), e);
+							String message = "pattern compiling exception, element class: " + info.c.getName();
+							try {
+								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.c);
+								message += " (provided by " + providingPlugin.getName() + ")";
+							} catch (IllegalArgumentException | IllegalStateException ignored) {}
+							throw new RuntimeException(message, e);
+
 						}
 						if (res != null) {
 							int x = -1;
