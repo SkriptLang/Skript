@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -64,17 +65,17 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player drops an item from their inventory.")
 				.examples("on drop:")
 				.since("<i>unknown</i> (before 2.1)");
-		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
-				.description("Called when a player crafts an item.")
-				.examples("on craft:")
-				.since("<i>unknown</i> (before 2.1)");
-		if (hasPrepareCraftEvent) {
+		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
 					.since("2.2-Fixes-V10");
 		}
+		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
+		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
+				.description("Called when a player crafts an item.")
+				.examples("on craft:")
+				.since("<i>unknown</i> (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
 					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %itemtypes%]")
@@ -151,7 +152,13 @@ public class EvtItem extends SkriptEvent {
 		} else if (e instanceof CraftItemEvent) {
 			is = ((CraftItemEvent) e).getRecipe().getResult();
 		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
-			is = ((PrepareItemCraftEvent) e).getRecipe().getResult();
+			PrepareItemCraftEvent event = (PrepareItemCraftEvent) e;
+			Recipe recipe = event.getRecipe();
+			if (recipe != null) {
+				is = recipe.getResult();
+			} else {
+				return false;
+			}
 		} else if (e instanceof EntityPickupItemEvent) {
 			is = ((EntityPickupItemEvent) e).getItem().getItemStack();
 		} else if (e instanceof PlayerPickupItemEvent) {
@@ -170,6 +177,10 @@ public class EvtItem extends SkriptEvent {
 			assert false;
 			return false;
 		}
+
+		if (is == null)
+			return false;
+
 		return types.check(e, new Checker<ItemType>() {
 			@Override
 			public boolean check(final ItemType t) {

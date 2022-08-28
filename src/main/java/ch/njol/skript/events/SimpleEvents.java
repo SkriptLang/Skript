@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -40,7 +41,6 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -59,6 +59,7 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -568,7 +569,7 @@ public class SimpleEvents {
 		.description("Called when a player successfully enchants an item.",
 			" To get the enchanted item, see the <a href='expressions.html#ExprEnchantEventsEnchantItem'>enchant item expression</a>")
 		.examples("on enchant:",
-			"\tif the clicked button is enchantment option 1:",
+			"\tif the clicked button is 1: # offer 1",
 			"\t\tset the applied enchantments to sharpness 10 and unbreaking 10")
 		.since("2.5");
 		Skript.registerEvent("Inventory Pickup", SimpleEvent.class, InventoryPickupItemEvent.class, "inventory pick[ ]up")
@@ -601,5 +602,23 @@ public class SimpleEvents {
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
 		}
+		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
+			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
+			.examples("on anvil prepare:",
+				"\tevent-item is set # result item",
+				"\tchance of 5%:",
+				"\t\tset repair cost to repair cost * 50%",
+				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
+			.since("INSERT VERSION");
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
+				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
+					 		 "Note: this does not include anvil damage from falling.")
+				.requiredPlugins("Paper")
+				.examples("on anvil damage:",
+					"\tcancel the event")
+				.since("INSERT VERSION");
+		}
 	}
+
 }
