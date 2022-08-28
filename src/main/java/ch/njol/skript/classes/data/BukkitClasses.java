@@ -1846,7 +1846,7 @@ public class BukkitClasses {
 				.description("Represents the phase of a moon.")
 				.usage(moonPhases.getAllNames())
 				.since("INSERT VERSION")
-				.requiredPlugins("Paper")
+				.requiredPlugins("Paper 1.16+")
 				.parser(new Parser<MoonPhase>() {
 					@Override
 					@Nullable

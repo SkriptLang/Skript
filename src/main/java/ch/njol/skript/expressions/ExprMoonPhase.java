@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tsend \"today's a full moon!\""
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Paper")
+@RequiredPlugins("Paper 1.16+")
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 
 	static {
