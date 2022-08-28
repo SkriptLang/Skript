@@ -88,7 +88,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (nonOps)
+		if (delta == null && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
 			return;
 		switch (mode) {
 			case SET:
