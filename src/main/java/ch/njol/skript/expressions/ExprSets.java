@@ -62,7 +62,7 @@ public class ExprSets extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the|every)] item(s|[ ]types)", "[(all [[of] the]|the)] items of type[s] %itemtypes%",
 				"[(all [[of] the]|the|every)] block(s|[ ]types)", "[(all [[of] the]|the)] blocks of type[s] %itemtypes%",
-				"([all [[of] the]] colo[u]rs|(the|every) colo[u]r)");
+				"[(all [[of] the]|the|every)] colo[u]rs)");
 	}
 
 	@Nullable
@@ -71,9 +71,9 @@ public class ExprSets extends SimpleExpression<Object> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (vars.length > 0)
-			types = (Expression<ItemType>) vars[0];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		if (exprs.length > 0)
+			types = (Expression<ItemType>) exprs[0];
 		pattern = matchedPattern;
 		if (types instanceof Literal) {
 			for (ItemType type : ((Literal<ItemType>) types).getAll())
@@ -103,31 +103,31 @@ public class ExprSets extends SimpleExpression<Object> {
 			return new ArrayIterator<>(SkriptColor.values());
 		if (pattern == 0 || pattern == 2)
 			return new Iterator<Object>() {
-				
+
 				private final Iterator<Material> iter = new ArrayIterator<>(Material.values());
-				
+
 				@Override
 				public boolean hasNext() {
 					return iter.hasNext();
 				}
-				
+
 				@Override
 				public ItemStack next() {
 					return new ItemStack(iter.next());
 				}
-				
+
 				@Override
 				public void remove() {}
-				
+
 			};
 		Iterator<ItemType> it = new ArrayIterator<>(types.getArray(event));
 		if (!it.hasNext())
 			return null;
 		Iterator<Object> iter;
 		iter = new Iterator<Object>() {
-			
+
 			Iterator<ItemStack> current = it.next().getAll().iterator();
-			
+
 			@Override
 			public boolean hasNext() {
 				while (!current.hasNext() && it.hasNext()) {
@@ -135,29 +135,26 @@ public class ExprSets extends SimpleExpression<Object> {
 				}
 				return current.hasNext();
 			}
-			
+
 			@Override
 			public ItemStack next() {
 				if (!hasNext())
 					throw new NoSuchElementException();
 				return current.next();
 			}
-			
+
 			@Override
 			public void remove() {}
-			
+
 		};
 
-		return new CheckedIterator<Object>(iter, new NullableChecker<Object>() {
-			@Override
-			public boolean check(@Nullable Object ob) {
-				if (ob == null)
+		return new CheckedIterator<>(iter, ob -> {
+			if (ob == null)
+				return false;
+			if (ob instanceof ItemStack)
+				if (!((ItemStack) ob).getType().isBlock())
 					return false;
-				if (ob instanceof ItemStack)
-					if (!((ItemStack) ob).getType().isBlock())
-						return false;
-				return true;
-			}
+			return true;
 		});
 	}
 
@@ -172,19 +169,19 @@ public class ExprSets extends SimpleExpression<Object> {
 			return Color.class;
 		return ItemStack.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (event == null)
-			return "sets of data. Pattern " + pattern;
 		if (pattern == 4)
-			return "colours";
-		return (pattern < 2 ? "blocks" : "items") + (types != null ? " of type" + (types.isSingle() ? "" : "s") + " " + types.toString(event, debug) : "");
+			return "all of the colors";
+		if (types != null)
+			return (pattern == 1 ? "items" : "blocks") + " of type " + types.toString(event, debug);
+		return "all of the " + (pattern == 0 ? "items" : "blocks");
 	}
 
 	@Override
 	public boolean isLoopOf(String s) {
-		return pattern == 4 && (s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour"))|| pattern >= 2 && s.equalsIgnoreCase("block") || pattern < 2 && s.equalsIgnoreCase("item");
+		return (pattern == 4 && s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour")) || (pattern >= 2 && s.equalsIgnoreCase("block")) || (pattern < 2 && s.equalsIgnoreCase("item"));
 	}
-	
+
 }
