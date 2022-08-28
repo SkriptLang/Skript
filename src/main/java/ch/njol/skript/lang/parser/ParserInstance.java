@@ -68,7 +68,7 @@ public final class ParserInstance {
 		setCurrentStructure(null);
 		deleteCurrentEvent();
 		getCurrentSections().clear();
-		setNode_i(null);
+		setNode(null);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public final class ParserInstance {
 	public void setActive(Script script) {
 		this.isActive = true;
 		setCurrentScript(script);
-		setNode(script.getConfig().getMainNode());
+		setNode(null);
 	}
 
 	/**
@@ -363,17 +363,20 @@ public final class ParserInstance {
 	@Nullable
 	private Node node;
 
-	public void setNode(Node node) {
-		setNode_i(node);
+	/**
+	 * @param node The node to mark as being handled. This is mainly used for logging.
+	 * Null means to mark it as no node currently being handled (that the ParserInstance is aware of).
+	 */
+	public void setNode(@Nullable Node node) {
+		this.node = (node == null || node.getParent() == null) ? null : node;
 	}
 
-	private void setNode_i(@Nullable Node node) {
-		this.node = node;
-	}
-
+	/**
+	 * @return The node currently marked as being handled. This is mainly used for logging.
+	 * Null indicates no node is currently being handled (that the ParserInstance is aware of).
+	 */
+	@Nullable
 	public Node getNode() {
-		if (node == null)
-			throw new SkriptAPIException("This ParserInstance is not active!");
 		return node;
 	}
 
