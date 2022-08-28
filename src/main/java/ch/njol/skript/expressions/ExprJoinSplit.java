@@ -51,8 +51,8 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	static {
 		Skript.registerExpression(ExprJoinSplit.class, String.class, ExpressionType.COMBINED,
 			"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %-string%]",
-			"split %string% (at|using|by) [[the] delimiter] %string%",
-			"%string% split (at|using|by) [[the] delimiter] %string%",
+			"split %string% (at|using|by) [[the] delimiter] %string% [case:with case sensitivity]",
+			"%string% split (at|using|by) [[the] delimiter] %string% [case:with case sensitivity]",
 			"regex split %string% (at|using|by) [[the] delimiter] %string%",
 			"regex %string% split (at|using|by) [[the] delimiter] %string%");
 	}
@@ -66,12 +66,12 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	@Nullable
 	private Expression<String> delimiter;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		join = matchedPattern == 0;
 		regex = matchedPattern >= 3;
-		caseSensitivity = SkriptConfig.caseSensitive.value();
+		caseSensitivity = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
 		strings = (Expression<String>) exprs[0];
 		delimiter = (Expression<String>) exprs[1];
 		return true;
@@ -79,9 +79,9 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		final String[] s = strings.getArray(e);
-		final String d = delimiter != null ? delimiter.getSingle(e) : "";
+	protected String[] get(Event event) {
+		final String[] s = strings.getArray(event);
+		final String d = delimiter != null ? delimiter.getSingle(event) : "";
 		if (s.length == 0 || d == null)
 			return new String[0];
 		if (join) {
