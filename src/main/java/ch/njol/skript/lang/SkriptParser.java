@@ -694,10 +694,11 @@ public class SkriptParser {
 						if (b != 0) {
 							final String d = expr.substring(pieces.get(b - 1)[1], x).trim();
 							if (!d.equals(",")) {
+								boolean or = !d.contains("nor") && d.endsWith("or");
 								if (and.isUnknown()) {
-									and = Kleenean.get(!d.equalsIgnoreCase("or")); // nor is and
+									and = Kleenean.get(!or); // nor is and
 								} else {
-									if (and != Kleenean.get(!d.equalsIgnoreCase("or"))) {
+									if (and != Kleenean.get(!or)) {
 										Skript.warning(MULTIPLE_AND_OR + " List: " + expr);
 										and = Kleenean.TRUE;
 									}
@@ -820,10 +821,11 @@ public class SkriptParser {
 						if (b != 0) {
 							final String d = expr.substring(pieces.get(b - 1)[1], x).trim();
 							if (!d.equals(",")) {
+								boolean or = !d.contains("nor") && d.endsWith("or");
 								if (and.isUnknown()) {
-									and = Kleenean.get(!d.equalsIgnoreCase("or")); // nor is and
+									and = Kleenean.get(!or); // nor is and
 								} else {
-									if (and != Kleenean.get(!d.equalsIgnoreCase("or"))) {
+									if (and != Kleenean.get(!or)) {
 										Skript.warning(MULTIPLE_AND_OR + " List: " + expr);
 										and = Kleenean.TRUE;
 									}
