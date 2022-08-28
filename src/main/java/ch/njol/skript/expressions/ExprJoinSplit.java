@@ -80,8 +80,8 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
-		final String[] s = strings.getArray(event);
-		final String d = delimiter != null ? delimiter.getSingle(event) : "";
+		String[] s = strings.getArray(event);
+		String d = delimiter != null ? delimiter.getSingle(event) : "";
 		if (s.length == 0 || d == null)
 			return new String[0];
 		if (join) {
@@ -102,8 +102,11 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return join ? "join " + strings.toString(e, debug) + (delimiter != null ? " with " + delimiter.toString(e, debug) : "") : ((regex ? "regex " : "") + "split " + strings.toString(e, debug) + (delimiter != null ? " at " + delimiter.toString(e, debug) : ""));
+	public String toString(@Nullable Event event, boolean debug) {
+		if (join)
+			return "join " + strings.toString(event, debug) + (delimiter != null ? " with " + delimiter.toString(event, debug) : "");
+		return (regex ? "regex " : "") + "split " + strings.toString(event, debug) + (delimiter != null ? " at " + delimiter.toString(event, debug) : "")
+			+ (regex ? "" : "(case sensitive: " + caseSensitivity + ")");
 	}
 
 }
