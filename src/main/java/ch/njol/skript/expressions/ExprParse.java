@@ -58,15 +58,17 @@ import ch.njol.util.NonNullPair;
 		"- You <i>have to</i> save the expression's value in a list variable, e.g. <code>set {parsed::*} to message parsed as \"...\"</code>.",
 		"- The list variable will contain the parsed values from all %types% in the pattern in order. If a type was plural, e.g. %items%, the variable's value at the respective index will be a list variable," +
 				" e.g. the values will be stored in {parsed::1::*}, not {parsed::1}."})
-@Examples({"set {var} to line 1 parsed as number",
-		"on chat:",
-		"\tset {var::*} to message parsed as \"buying %items% for %money%\"",
-		"\tif parse error is set:",
-		"\t\tmessage \"%parse error%\"",
-		"\telse if {var::*} is set:",
-		"\t\tcancel event",
-		"\t\tremove {var::2} from the player's balance",
-		"\t\tgive {var::1::*} to the player"})
+@Examples({
+	"set {var} to line 1 parsed as number",
+	"on chat:",
+	"\tset {var::*} to message parsed as \"buying %items% for %money%\"",
+	"\tif parse error is set:",
+	"\t\tmessage \"%parse error%\"",
+	"\telse if {var::*} is set:",
+	"\t\tcancel event",
+	"\t\tremove {var::2} from the player's balance",
+	"\t\tgive {var::1::*} to the player"
+})
 @Since("2.0")
 public class ExprParse extends SimpleExpression<Object> {
 
@@ -74,18 +76,18 @@ public class ExprParse extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprParse.class, Object.class, ExpressionType.COMBINED,
 			"%string% parsed as (%-*classinfo%|\"<.*>\")");
 	}
-	
+
 	@Nullable
 	static String lastError = null;
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> text;
-	
+
 	@Nullable
 	private String pattern;
-	@Nullable
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private boolean[] plurals;
-	
+
 	@Nullable
 	private ClassInfo<?> c;
 
@@ -99,12 +101,12 @@ public class ExprParse extends SimpleExpression<Object> {
 				Skript.error("Invalid amount and/or placement of double quotes in '" + pattern + "'");
 				return false;
 			}
-			
+
 			NonNullPair<String, boolean[]> p = SkriptParser.validatePattern(pattern);
 			if (p == null)
 				return false;
 			pattern = p.getFirst();
-			
+
 			// Escape '¦' and ':' (used for parser tags/marks)
 			StringBuilder b = new StringBuilder(pattern.length());
 			for (int i = 0; i < pattern.length(); i++) {
@@ -121,7 +123,7 @@ public class ExprParse extends SimpleExpression<Object> {
 				}
 			}
 			pattern = b.toString();
-			
+
 			this.pattern = pattern;
 			plurals = p.getSecond();
 		} else {
@@ -149,7 +151,7 @@ public class ExprParse extends SimpleExpression<Object> {
 		ParseLogHandler h = SkriptLogger.startParseLogHandler();
 		try {
 			lastError = null;
-			
+
 			if (c != null) {
 				Parser<?> p = c.getParser();
 				assert p != null; // checked in init()
@@ -163,19 +165,19 @@ public class ExprParse extends SimpleExpression<Object> {
 				assert pattern != null && plurals != null;
 				ParseResult r = SkriptParser.parse(t, pattern);
 				if (r != null) {
-					assert plurals.length == r.exprs.length;					
+					assert plurals.length == r.exprs.length;
 					int resultCount = 0;
 					for (int i = 0; i < r.exprs.length; i++) {
 						if (r.exprs[i] != null) // Ignore missing optional parts
 							resultCount++;
 					}
-					
+
 					Object[] os = new Object[resultCount];
 					for (int i = 0, slot = 0; i < r.exprs.length; i++) {
 						if (r.exprs[i] != null)
 							os[slot++] = plurals[i] ? r.exprs[i].getArray(null) : r.exprs[i].getSingle(null);
 					}
-					
+
 					return os;
 				}
 			}
@@ -195,20 +197,20 @@ public class ExprParse extends SimpleExpression<Object> {
 			h.printLog();
 		}
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return pattern == null;
 	}
-	
+
 	@Override
 	public Class<?> getReturnType() {
 		return c != null ? c.getC() : Object[].class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return text.toString(e, debug) + " parsed as " + (c != null ? c.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
 	}
-	
+
 }
