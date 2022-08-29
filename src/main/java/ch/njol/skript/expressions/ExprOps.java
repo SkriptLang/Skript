@@ -48,12 +48,12 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	private boolean nonOps;
 	
 	static {
-		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non-]op[erator]s");
+		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non[-| ]]op[erator]s");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		nonOps = parseResult.hasTag("non-");
+		nonOps = parseResult.hasTag("non");
 		return true;
 	}
 
@@ -61,9 +61,9 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	protected OfflinePlayer[] get(Event event) {
 		if (nonOps) {
 			List<Player> nonOpsList = new ArrayList<>();
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (!p.isOp()) 
-					nonOpsList.add(p);
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (!player.isOp()) 
+					nonOpsList.add(player);
 			}
 			return nonOpsList.toArray(new Player[0]);
 		}
@@ -92,20 +92,20 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 			return;
 		switch (mode) {
 			case SET:
-				for (OfflinePlayer p : Bukkit.getOperators())
-					p.setOp(false);
+				for (OfflinePlayer player : Bukkit.getOperators())
+					player.setOp(false);
 			case ADD:
-				for (Object p : delta)
-					((OfflinePlayer) p).setOp(true);
+				for (Object player : delta)
+					((OfflinePlayer) player).setOp(true);
 				break;
 			case REMOVE:
-				for (Object p : delta)
-					((OfflinePlayer) p).setOp(false);
+				for (Object player : delta)
+					((OfflinePlayer) player).setOp(false);
 				break;
 			case DELETE:
 			case RESET:
-				for (OfflinePlayer p : Bukkit.getOperators())
-					p.setOp(false);
+				for (OfflinePlayer player : Bukkit.getOperators())
+					player.setOp(false);
 				break;
 			default:
 				assert false;
