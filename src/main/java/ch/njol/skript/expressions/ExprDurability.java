@@ -99,7 +99,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 			int changeValue = ItemUtils.getDamage(itemStack);
 			if (durability)
-				changeValue -= itemStack.getType().getMaxDurability();
+				changeValue = itemStack.getType().getMaxDurability() - changeValue;
 
 			switch (mode) {
 				case REMOVE:
