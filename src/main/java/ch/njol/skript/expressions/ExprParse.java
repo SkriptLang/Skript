@@ -47,9 +47,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Parse")
 @Description({"Parses text as a given type, or as a given pattern.",
 		"This expression can be used in two different ways: One which parses the entire text as a single instance of a type, e.g. as a number, " +
@@ -63,15 +60,16 @@ import ch.njol.util.NonNullPair;
 				" e.g. the values will be stored in {parsed::1::*}, not {parsed::1}."})
 @Examples({"set {var} to line 1 parsed as number",
 		"on chat:",
-		"	set {var::*} to message parsed as \"buying %items% for %money%\"",
-		"	if parse error is set:",
-		"		message \"%parse error%\"",
-		"	else if {var::*} is set:",
-		"		cancel event",
-		"		remove {var::2} from the player's balance",
-		"		give {var::1::*} to the player"})
+		"\tset {var::*} to message parsed as \"buying %items% for %money%\"",
+		"\tif parse error is set:",
+		"\t\tmessage \"%parse error%\"",
+		"\telse if {var::*} is set:",
+		"\t\tcancel event",
+		"\t\tremove {var::2} from the player's balance",
+		"\t\tgive {var::1::*} to the player"})
 @Since("2.0")
 public class ExprParse extends SimpleExpression<Object> {
+
 	static {
 		Skript.registerExpression(ExprParse.class, Object.class, ExpressionType.COMBINED,
 			"%string% parsed as (%-*classinfo%|\"<.*>\")");
@@ -90,9 +88,9 @@ public class ExprParse extends SimpleExpression<Object> {
 	
 	@Nullable
 	private ClassInfo<?> c;
-	
-	@SuppressWarnings({"unchecked", "null"})
+
 	@Override
+	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		text = (Expression<String>) exprs[0];
 		if (exprs[1] == null) {
@@ -107,7 +105,7 @@ public class ExprParse extends SimpleExpression<Object> {
 				return false;
 			pattern = p.getFirst();
 			
-			// escape '¦'
+			// Escape '¦' and ':' (used for parser tags/marks)
 			StringBuilder b = new StringBuilder(pattern.length());
 			for (int i = 0; i < pattern.length(); i++) {
 				char c = pattern.charAt(i);
@@ -115,13 +113,14 @@ public class ExprParse extends SimpleExpression<Object> {
 					b.append(c);
 					b.append(pattern.charAt(i + 1));
 					i++;
-				} else if (c == '¦') {
-					b.append("\\¦");
+				} else if (c == '¦' || c == ':') {
+					b.append("\\");
+					b.append(c);
 				} else {
 					b.append(c);
 				}
 			}
-			pattern = "" + b.toString();
+			pattern = b.toString();
 			
 			this.pattern = pattern;
 			plurals = p.getSecond();
@@ -139,10 +138,10 @@ public class ExprParse extends SimpleExpression<Object> {
 		}
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
 	@Nullable
+	@SuppressWarnings("null")
 	protected Object[] get(Event e) {
 		String t = text.getSingle(e);
 		if (t == null)
