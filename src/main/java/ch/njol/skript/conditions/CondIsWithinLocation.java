@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.AABB;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
@@ -64,15 +65,10 @@ public class CondIsWithinLocation extends Condition {
 	public boolean check(Event event) {
 		Location one = loc1.getSingle(event);
 		Location two = loc2.getSingle(event);
-		if (one == null || two == null) return false;
-		return locsToCheck.check(event, loc -> (
-			isBetween(loc.getX(), one.getX(), two.getX())
-				&& isBetween(loc.getY(), one.getY(), two.getY())
-				&& isBetween(loc.getZ(), one.getZ(), two.getZ())), isNegated());
-	}
-
-	private boolean isBetween(double check, double num1, double num2) {
-		return check <= Math.max(num1, num2) && check >= Math.min(num1, num2);
+		if (one == null || two == null || one.getWorld() != two.getWorld())
+			return false;
+		AABB box = new AABB(one, two);
+		return locsToCheck.check(event, box::contains, isNegated());
 	}
 
 	@Override
