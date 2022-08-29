@@ -39,6 +39,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -1836,5 +1837,31 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
+
+		EnumUtils<Environment> environments = new EnumUtils<>(Environment.class, "environments");
+		Classes.registerClass(new ClassInfo<>(Environment.class, "environment")
+				.user("(world ?)?environments?")
+				.name("Environment Type")
+				.description("Represents the type of a world")
+				.usage(environments.getAllNames())
+				.since("INSERT VERSION")
+				.parser(new Parser<Environment>() {
+					@Override
+					@Nullable
+					public Environment parse(String input, ParseContext context) {
+						return environments.parse(input);
+					}
+
+					@Override
+					public String toString(Environment environment, int flags) {
+						return environments.toString(environment, flags);
+					}
+
+					@Override
+					public String toVariableNameString(Environment environment) {
+						return toString(environment, 0);
+					}
+				})
+				.serializer(new EnumSerializer<>(Environment.class)));
 	}
 }
