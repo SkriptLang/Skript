@@ -48,7 +48,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	private boolean nonOps;
 	
 	static {
-		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non[-| ]]op[erator]s");
+		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non(-| )]op[erator]s");
 	}
 
 	@Override
