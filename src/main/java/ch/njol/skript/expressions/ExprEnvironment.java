@@ -30,8 +30,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("World Environment")
 @Description("The environment of a world")
 @Examples({
-		"if environment of player's world is nether:",
-		"\tapply fire resistance to player for 10 minutes"
+	"if environment of player's world is nether:",
+	"\tapply fire resistance to player for 10 minutes"
 })
 @Since("INSERT VERSION")
 public class ExprEnvironment extends SimplePropertyExpression<World, Environment> {

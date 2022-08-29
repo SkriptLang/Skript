@@ -1858,7 +1858,7 @@ attribute types:
 
 # -- Environments --
 environments:
-	normal: overworld
+	normal: overworld, the overworld
 	nether: nether, the nether
 	the_end: end, the end
 

@@ -1841,8 +1841,8 @@ public class BukkitClasses {
 		EnumUtils<Environment> environments = new EnumUtils<>(Environment.class, "environments");
 		Classes.registerClass(new ClassInfo<>(Environment.class, "environment")
 				.user("(world ?)?environments?")
-				.name("Environment Type")
-				.description("Represents the type of a world")
+				.name("World Environment")
+				.description("Represents the environment of a world.")
 				.usage(environments.getAllNames())
 				.since("INSERT VERSION")
 				.parser(new Parser<Environment>() {
