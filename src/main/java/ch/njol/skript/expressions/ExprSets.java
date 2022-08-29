@@ -67,7 +67,7 @@ public class ExprSets extends SimpleExpression<Object> {
 
 	@Nullable
 	private Expression<ItemType> types;
-	private int pattern = -1;
+	private int pattern;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -130,9 +130,8 @@ public class ExprSets extends SimpleExpression<Object> {
 
 			@Override
 			public boolean hasNext() {
-				while (!current.hasNext() && it.hasNext()) {
+				while (!current.hasNext() && it.hasNext())
 					current = it.next().getAll().iterator();
-				}
 				return current.hasNext();
 			}
 
@@ -152,8 +151,7 @@ public class ExprSets extends SimpleExpression<Object> {
 			if (ob == null)
 				return false;
 			if (ob instanceof ItemStack)
-				if (!((ItemStack) ob).getType().isBlock())
-					return false;
+				return ((ItemStack) ob).getType().isBlock();
 			return true;
 		});
 	}
