@@ -62,8 +62,9 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 			"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
-	private boolean isMax = false;
 	private static final int DEFAULT_MAX_VALUE = 40;
+
+	private boolean isMax;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
