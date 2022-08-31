@@ -48,6 +48,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
@@ -157,6 +158,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
+				.backingValues(Arrays.stream(EntityType.values())
+					.map(EntityUtils::toSkriptEntityData)
+					.toArray(EntityData[]::new))
 				.parser(new Parser<EntityData>() {
 					@Override
 					public String toString(final EntityData d, final int flags) {

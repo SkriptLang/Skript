@@ -18,11 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.regex.Pattern;
 
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -50,31 +50,45 @@ import ch.njol.util.coll.iterator.IteratorIterable;
 @Name("Sets")
 @Description("Collection sets of items or blocks of a specific type or colours, useful for looping.")
 @Examples({
-		"loop items of type ore and log:",
-				"\tblock contains loop-item",
-				"\tmessage \"Theres at least one %loop-item% in this block\"",
-		"drop all blocks at the player # drops one of every block at the player"
+	"loop items of type ore and log:",
+	"\tblock contains loop-item",
+	"\tmessage \"Theres at least one %loop-item% in this block\"",
+	"drop all blocks at the player # drops one of every block at the player"
 })
-@Since("<i>unknown</i> (before 1.4.2), INSERT VERSION (colors)")
+@Since("<i>unknown</i> (before 1.4.2), INSERT VERSION (all types)")
 public class ExprSets extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the|every)] item(s|[ ]types)", "[(all [[of] the]|the)] items of type[s] %itemtypes%",
-				"[(all [[of] the]|the|every)] block(s|[ ]types)", "[(all [[of] the]|the)] blocks of type[s] %itemtypes%",
-				"([all [[of] the]] colo[u]rs|(the|every) colo[u]r)");
+			"[(all [[of] the]|the|every)] block(s|[ ]type[s])",
+			"[(all [[of] the]|the|every)] %*classinfo%",
+			"[(all [[of] the]|the|every)] items of type[s] %itemtypes%",
+			"[(all [[of] the]|the|every)] blocks of type[s] %itemtypes%");
 	}
 
 	@Nullable
-	private Expression<ItemType> types;
-	private int pattern = -1;
+	private ClassInfo<?> classInfo;
+	@Nullable
+	private Object[] values = null;
 
-	@SuppressWarnings("unchecked")
+	@Nullable
+	private Expression<ItemType> types;
+	private int pattern;
+
 	@Override
-	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (vars.length > 0)
-			types = (Expression<ItemType>) vars[0];
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		pattern = matchedPattern;
+		if (pattern == 1) {
+			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
+			values = classInfo.getBackingValues();
+			if (values == null) {
+				Skript.error("type '" + classInfo.getCodeName() + "' does not have backing values");
+				return false;
+			}
+		} else if (pattern > 1) {
+			types = (Expression<ItemType>) exprs[0];
+		}
 		if (types instanceof Literal) {
 			for (ItemType type : ((Literal<ItemType>) types).getAll())
 				type.setAll(true);
@@ -99,35 +113,38 @@ public class ExprSets extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	public Iterator<Object> iterator(Event event) {
-		if (pattern == 4)
-			return new ArrayIterator<>(SkriptColor.values());
-		if (pattern == 0 || pattern == 3)
+		if (classInfo != null)
+			return new ArrayIterator<>(classInfo.getBackingValues());
+
+		if (pattern == 0)
 			return new Iterator<Object>() {
-				
-				private final Iterator<Material> iter = new ArrayIterator<>(Material.values());
-				
+
+				private final Iterator<Material> iterator = new ArrayIterator<>(Arrays.stream(Material.values())
+					.filter(Material::isBlock)
+					.toArray(Material[]::new));
+
 				@Override
 				public boolean hasNext() {
-					return iter.hasNext();
+					return iterator.hasNext();
 				}
-				
+
 				@Override
-				public ItemStack next() {
-					return new ItemStack(iter.next());
+				public Object next() {
+					return new ItemStack(iterator.next());
 				}
-				
+
 				@Override
 				public void remove() {}
-				
 			};
+
 		Iterator<ItemType> it = new ArrayIterator<>(types.getArray(event));
 		if (!it.hasNext())
 			return null;
-		Iterator<Object> iter;
-		iter = new Iterator<Object>() {
-			
+
+		Iterator<Object> iter = new Iterator<Object>() {
+
 			Iterator<ItemStack> current = it.next().getAll().iterator();
-			
+
 			@Override
 			public boolean hasNext() {
 				while (!current.hasNext() && it.hasNext()) {
@@ -135,56 +152,50 @@ public class ExprSets extends SimpleExpression<Object> {
 				}
 				return current.hasNext();
 			}
-			
+
 			@Override
 			public ItemStack next() {
 				if (!hasNext())
 					throw new NoSuchElementException();
 				return current.next();
 			}
-			
+
 			@Override
 			public void remove() {}
-			
+
 		};
 
-		return new CheckedIterator<Object>(iter, new NullableChecker<Object>() {
-			@Override
-			public boolean check(@Nullable Object ob) {
-				if (ob == null)
-					return false;
-				if (ob instanceof ItemStack)
-					if (!((ItemStack) ob).getType().isBlock())
-						return false;
-				return true;
-			}
-		});
+		return new CheckedIterator<>(iter, Objects::nonNull);
 	}
-	
+
 	@Override
-	public Class<? extends Object> getReturnType() {
-		if (pattern == 4)
-			return Color.class;
-		return ItemStack.class;
+	public Class<?> getReturnType() {
+		return classInfo != null ? classInfo.getC() : ItemStack.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (event == null)
-			return "sets of data. Pattern " + pattern;
-		if (pattern == 4)
-			return "colours";
-		return (pattern < 2 ? "blocks" : "items") + (types != null ? " of type" + (types.isSingle() ? "" : "s") + " " + types.toString(event, debug) : "");
+		if (classInfo != null)
+			return "all of the " + Utils.toEnglishPlural(classInfo.getCodeName());
+		return "all of the " + (pattern == 2 ? "items" : "blocks") + (types != null ? " of type " + types.toString(event, debug) : "");
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isLoopOf(String s) {
-		return pattern == 4 && (s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour"))|| pattern >= 2 && s.equalsIgnoreCase("block") || pattern < 2 && s.equalsIgnoreCase("item");
+		s = s.toLowerCase();
+		if (classInfo != null) {
+			for (Pattern pattern : classInfo.getUserInputPatterns()) {
+				if (s.matches(pattern.toString()))
+					return true;
+			}
+			return false;
+		}
+		return (pattern == 2 && s.equals("item")) || (pattern == 0 || pattern == 3 && s.equals("block"));
 	}
-	
+
 }

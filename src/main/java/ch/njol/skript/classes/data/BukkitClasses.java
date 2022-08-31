@@ -983,7 +983,7 @@ public class BukkitClasses {
 				}).serializer(new EnumSerializer<>(GameMode.class)));
 		
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("item", "material")
+				.user("items?", "materials?")
 				.name("Item / Material")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
@@ -996,6 +996,9 @@ public class BukkitClasses {
 						"{_item} is a torch")
 				.since("1.0")
 				.after("number")
+				.backingValues(Arrays.stream(Material.values())
+					.map(ItemStack::new)
+					.toArray(ItemStack[]::new))
 				.parser(new Parser<ItemStack>() {
 					@Override
 					@Nullable
@@ -1143,6 +1146,7 @@ public class BukkitClasses {
 						"apply potion of speed 2 to the player for 60 seconds",
 						"remove invisibility from the victim")
 				.since("")
+				.backingValues(PotionEffectType.values())
 				.parser(new Parser<PotionEffectType>() {
 					@Override
 					@Nullable
@@ -1324,6 +1328,7 @@ public class BukkitClasses {
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype")
+				.backingValues(Enchantment.values())
 				.parser(new Parser<Enchantment>() {
 					@Override
 					@Nullable
@@ -1746,6 +1751,7 @@ public class BukkitClasses {
 			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
+			.backingValues(GameRule.values())
 			.parser(new Parser<GameRule>() {
 				@Override
 				@Nullable

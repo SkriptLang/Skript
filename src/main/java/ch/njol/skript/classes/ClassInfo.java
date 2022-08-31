@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.njol.skript.expressions.ExprSets;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +61,10 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Nullable
 	private Changer<? super T> changer = null;
-	
+
+	@Nullable
+	private T[] backingValues = null;
+
 	@Nullable
 	private Serializer<? super T> serializer = null;
 	@Nullable
@@ -162,7 +166,18 @@ public class ClassInfo<T> implements Debuggable {
 		this.defaultExpression = defaultExpression;
 		return this;
 	}
-	
+
+
+	/**
+	 * @param backingValues Used for the values returned in {@link ExprSets} expression. Usually used for Enums
+	 * @see ExprSets
+	 */
+	public ClassInfo<T> backingValues(T[] backingValues) {
+		assert this.backingValues == null;
+		this.backingValues = backingValues;
+		return this;
+	}
+
 	public ClassInfo<T> serializer(final Serializer<? super T> serializer) {
 		assert this.serializer == null;
 		if (serializeAs != null)
@@ -336,7 +351,11 @@ public class ClassInfo<T> implements Debuggable {
 	public Changer<? super T> getChanger() {
 		return changer;
 	}
-	
+
+	public T[] getBackingValues() {
+		return backingValues == null ? c.getEnumConstants() : backingValues;
+	}
+
 	@Nullable
 	public Serializer<? super T> getSerializer() {
 		return serializer;
