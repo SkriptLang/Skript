@@ -983,7 +983,7 @@ public class BukkitClasses {
 				}).serializer(new EnumSerializer<>(GameMode.class)));
 		
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("items?", "materials?")
+				.user("item", "material")
 				.name("Item / Material")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
