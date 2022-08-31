@@ -94,7 +94,7 @@ public class ExprHatchingNumber extends SimpleExpression<Byte> {
 			value = ((int) ((PlayerEggThrowEvent) event).getNumHatches()) + value;
 		}
 
-		((PlayerEggThrowEvent) event).setNumHatches((byte) Math.min(Math.max(0, value), 127));
+		((PlayerEggThrowEvent) event).setNumHatches((byte) Math.min(Math.max(0, value), Byte.MAX_VALUE));
 	}
 
 	@Override
