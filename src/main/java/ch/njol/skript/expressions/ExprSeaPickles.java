@@ -28,37 +28,38 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Pickles")
+@Name("Sea Pickles")
 @Description("An expression to obtain or modify data relating to the pickles of a sea pickle block.")
 @Examples({
 	"on block break:",
 	"\ttype of block is sea pickle",
-	"\tsend \"Wow! This stack of sea pickles contained %event-block's pickles% pickles!\"",
-	"\tsend \"It could've held a maximum of %event-block's maximum pickles% pickles!\"",
-	"\tsend \"It had to have held at least %event-block's minimum pickles% pickles!\"",
+	"\tsend \"Wow! This stack of sea pickles contained %event-block's sea pickle count% pickles!\"",
+	"\tsend \"It could've contained a maximum of %event-block's maximum sea pickle count% pickles!\"",
+	"\tsend \"It had to have contained at least %event-block's minimum sea pickle count% pickles!\"",
 	"\tcancel event",
-	"\tset event-block's pickles to event-block's maximum pickles",
+	"\tset event-block's sea pickle count to event-block's maximum sea pickle count",
 	"\tsend \"This bad boy is going to hold so many pickles now!!\""
 })
 @Since("INSERT VERSION")
-public class ExprPickles extends SimplePropertyExpression<Block, Long> {
+public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 
 	static {
-		register(ExprPickles.class, Long.class, "[:minimum|:maximum] pickles", "block");
+		register(ExprSeaPickles.class, Long.class, "[:(min|max)[imum]] [sea] pickle(s| (count|amount))", "blocks");
 	}
 
 	private boolean minimum, maximum;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		minimum = parseResult.hasTag("minimum");
-		maximum = parseResult.hasTag("maximum");
+		minimum = parseResult.hasTag("min");
+		maximum = parseResult.hasTag("max");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -79,8 +80,7 @@ public class ExprPickles extends SimplePropertyExpression<Block, Long> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (minimum || maximum)
 			return null;
 		switch (mode) {
@@ -96,7 +96,7 @@ public class ExprPickles extends SimplePropertyExpression<Block, Long> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
 			return;
 
@@ -120,20 +120,22 @@ public class ExprPickles extends SimplePropertyExpression<Block, Long> {
 				case REMOVE:
 					newPickles += pickleData.getPickles();
 				case SET:
-					newPickles = Math.max(pickleData.getMinimumPickles(), newPickles); // Ensure value isn't too low
-					newPickles = Math.min(pickleData.getMaximumPickles(), newPickles); // Ensure value isn't too high
+					if (newPickles != 0) { // 0 = delete pickles
+						newPickles = Math.max(pickleData.getMinimumPickles(), newPickles); // Ensure value isn't too low
+						newPickles = Math.min(pickleData.getMaximumPickles(), newPickles); // Ensure value isn't too high
+					}
 					break;
 				case RESET:
-				case DELETE:
-					newPickles = pickleData.getMinimumPickles();
-					break;
-				default:
-					assert false;
+					newPickles = pickleData.getMaximumPickles();
 			}
 
 			// Update the block data
-			pickleData.setPickles(newPickles);
-			block.setBlockData(pickleData);
+			if (newPickles != 0) {
+				pickleData.setPickles(newPickles);
+				block.setBlockData(pickleData);
+			} else { // We are removing the pickles :(
+				block.setType(pickleData.isWaterlogged() ? Material.WATER : Material.AIR);
+			}
 
 		}
 	}
@@ -145,7 +147,7 @@ public class ExprPickles extends SimplePropertyExpression<Block, Long> {
 
 	@Override
 	protected String getPropertyName() {
-		return (maximum ? "maximum " : minimum ? "minimum " : "") + "pickles";
+		return (maximum ? "maximum " : minimum ? "minimum " : "") + "sea pickle count";
 	}
 
 }
