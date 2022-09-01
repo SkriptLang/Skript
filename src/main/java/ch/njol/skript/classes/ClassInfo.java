@@ -64,7 +64,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Changer<? super T> changer = null;
 
 	@Nullable
-	private Supplier<T[]> backingValues = null;
+	private Supplier<T[]> supplier = null;
 
 	@Nullable
 	private Serializer<? super T> serializer = null;
@@ -173,9 +173,9 @@ public class ClassInfo<T> implements Debuggable {
 	 * @param backingValues Used for the values returned in {@link ExprSets} expression. Usually used for Enums
 	 * @see ExprSets
 	 */
-	public ClassInfo<T> backingValues(Supplier<T[]> backingValues) {
-		assert this.backingValues == null;
-		this.backingValues = backingValues;
+	public ClassInfo<T> supplier(Supplier<T[]> supplier) {
+		assert this.supplier == null;
+		this.supplier = supplier;
 		return this;
 	}
 
@@ -353,10 +353,10 @@ public class ClassInfo<T> implements Debuggable {
 		return changer;
 	}
 
-	public T[] getBackingValues() {
-		if (backingValues == null && c.isEnum())
-			backingValues = c::getEnumConstants;
-		return backingValues != null ? backingValues.get() : null;
+	public Supplier<T[]> getSupplier() {
+		if (supplier == null && c.isEnum())
+			supplier = c::getEnumConstants;
+		return supplier != null ? supplier : null;
 	}
 
 	@Nullable

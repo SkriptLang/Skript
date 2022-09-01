@@ -18,18 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.*;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.util.Utils;
-import org.bukkit.Material;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -39,169 +29,60 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NullableChecker;
-import ch.njol.util.coll.iterator.ArrayIterator;
-import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.IteratorIterable;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.function.Supplier;
 
 @Name("Sets")
-@Description("Collection sets of items or blocks of a specific type or colours, useful for looping.")
+@Description("Collection sets of all the values of a type, useful for looping.")
 @Examples({
-	"loop items of type ore and log:",
-	"\tblock contains loop-item",
-	"\tmessage \"Theres at least one %loop-item% in this block\"",
-	"drop all blocks at the player # drops one of every block at the player"
+	"loop all attribute types:",
+	"\tset loop-value attribute of player to 10",
+	"\tmessage \"Set attribute %loop-value% to 10!\""
 })
-@Since("<i>unknown</i> (before 1.4.2), INSERT VERSION (all types)")
+@Since("INSERT VERSION")
 public class ExprSets extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
-			"[(all [[of] the]|the|every)] block(s|[ ]type[s])",
-			"[(all [[of] the]|the|every)] %*classinfo%",
-			"[(all [[of] the]|the|every)] items of type[s] %itemtypes%",
-			"[(all [[of] the]|the|every)] blocks of type[s] %itemtypes%");
+			"[(all [[of] the]|the|every)] %*classinfo%");
 	}
 
-	@Nullable
 	private ClassInfo<?> classInfo;
-	@Nullable
-	private Object[] values = null;
-
-	@Nullable
-	private Expression<ItemType> types;
-	private int pattern;
+	private Supplier<?> supplier = null;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		pattern = matchedPattern;
-		if (pattern == 1) {
 			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
-			values = classInfo.getBackingValues();
-			if (values == null) {
-				Skript.error("type '" + classInfo.getCodeName() + "' does not have backing values");
+			supplier = classInfo.getSupplier();
+			if (supplier == null) {
+				Skript.error("You cannot get all " + classInfo.getName().getPlural());
 				return false;
 			}
-		} else if (pattern > 1) {
-			types = (Expression<ItemType>) exprs[0];
-		}
-		if (types instanceof Literal) {
-			for (ItemType type : ((Literal<ItemType>) types).getAll())
-				type.setAll(true);
-		}
 		return true;
 	}
 
-	private Object[] buffer = null;
-
 	@Override
 	protected Object[] get(Event event) {
-		if (buffer != null)
-			return buffer;
-		List<Object> elements = new ArrayList<>();
-		for (Object element : new IteratorIterable<>(iterator(event)))
-			elements.add(element);
-		if (types instanceof Literal)
-			return buffer = elements.toArray();
-		return elements.toArray();
-	}
-
-	@Override
-	@Nullable
-	public Iterator<Object> iterator(Event event) {
-		if (values != null)
-			return new ArrayIterator<>(values);
-
-		if (pattern == 0)
-			return new Iterator<Object>() {
-
-				private final Iterator<Material> iterator = new ArrayIterator<>(Arrays.stream(Material.values())
-					.filter(Material::isBlock)
-					.toArray(Material[]::new));
-
-				@Override
-				public boolean hasNext() {
-					return iterator.hasNext();
-				}
-
-				@Override
-				public Object next() {
-					return new ItemStack(iterator.next());
-				}
-
-				@Override
-				public void remove() {}
-			};
-
-		Iterator<ItemType> it = new ArrayIterator<>(types.getArray(event));
-		if (!it.hasNext())
-			return null;
-
-		Iterator<Object> iter = new Iterator<Object>() {
-
-			Iterator<ItemStack> current = it.next().getAll().iterator();
-
-			@Override
-			public boolean hasNext() {
-				while (!current.hasNext() && it.hasNext()) {
-					current = it.next().getAll().iterator();
-				}
-				return current.hasNext();
-			}
-
-			@Override
-			public ItemStack next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				return current.next();
-			}
-
-			@Override
-			public void remove() {}
-
-		};
-
-		return new CheckedIterator<>(iter, object -> {
-			if (object == null)
-				return false;
-			if (object instanceof ItemStack)
-				return pattern == 2 || ((ItemStack) object).getType().isBlock();
-			return false;
-		});
+		return (Object[]) supplier.get();
 	}
 
 	@Override
 	public Class<?> getReturnType() {
-		return classInfo != null ? classInfo.getC() : ItemStack.class;
+		return classInfo.getC();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (classInfo != null)
-			return "all of the " + Utils.toEnglishPlural(classInfo.getCodeName());
-		return "all of the " + (pattern == 2 ? "items" : "blocks") + (types != null ? " of type " + types.toString(event, debug) : "");
+		return "all of the " + classInfo.getName().getPlural();
 	}
 
 	@Override
 	public boolean isSingle() {
 		return false;
-	}
-
-	@Override
-	public boolean isLoopOf(String s) {
-		s = s.toLowerCase();
-		if (classInfo != null) {
-			for (Pattern pattern : classInfo.getUserInputPatterns()) {
-				if (s.matches(pattern.toString()))
-					return true;
-			}
-			return false;
-		}
-		return (pattern == 2 && s.equals("item")) || (pattern == 0 || pattern == 3 && s.equals("block"));
 	}
 
 }
