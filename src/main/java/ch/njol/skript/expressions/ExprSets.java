@@ -43,20 +43,20 @@ import java.util.function.Supplier;
 	"\tmessage \"Set attribute %loop-value% to 10!\""
 })
 @Since("INSERT VERSION")
-public class ExprSets extends SimpleExpression<Object> {
+public class ExprSets<T> extends SimpleExpression<T> {
 
 	static {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
 			"[(all [[of] the]|the|every)] %*classinfo%");
 	}
 
-	private ClassInfo<?> classInfo;
-	private Supplier<?> supplier = null;
+	private ClassInfo<T> classInfo;
+	private Supplier<T[]> supplier = null;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
+			classInfo = ((Literal<ClassInfo<T>>) exprs[0]).getSingle();
 			supplier = classInfo.getSupplier();
 			if (supplier == null) {
 				Skript.error("You cannot get all " + classInfo.getName().getPlural());
@@ -66,23 +66,23 @@ public class ExprSets extends SimpleExpression<Object> {
 	}
 
 	@Override
-	protected Object[] get(Event event) {
-		return (Object[]) supplier.get();
+	protected T[] get(Event event) {
+		return supplier.get();
 	}
 
 	@Override
-	public Class<?> getReturnType() {
+	public boolean isSingle() {
+		return false;
+	}
+
+	@Override
+	public Class<? extends T> getReturnType() {
 		return classInfo.getC();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "all of the " + classInfo.getName().getPlural();
-	}
-
-	@Override
-	public boolean isSingle() {
-		return false;
 	}
 
 }

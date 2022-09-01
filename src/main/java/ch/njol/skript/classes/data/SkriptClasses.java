@@ -199,7 +199,7 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
-				.supplier(() -> Arrays.stream(Material.values())
+				.supplier(Arrays.stream(Material.values())
 					.map(ItemType::new)
 					.toArray(ItemType[]::new))
 				.parser(new Parser<ItemType>() {

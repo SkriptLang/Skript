@@ -170,12 +170,22 @@ public class ClassInfo<T> implements Debuggable {
 
 
 	/**
-	 * @param backingValues Used for the values returned in {@link ExprSets} expression. Usually used for Enums
+	 * @param supplier Used for the values returned in {@link ExprSets} expression. Usually used for Enums
 	 * @see ExprSets
 	 */
 	public ClassInfo<T> supplier(Supplier<T[]> supplier) {
 		assert this.supplier == null;
 		this.supplier = supplier;
+		return this;
+	}
+
+	/**
+	 * @param values Used for the values returned in {@link ExprSets} expression. Usually used for Enums
+	 * @see ExprSets
+	 */
+	public ClassInfo<T> supplier(T[] values) {
+		assert this.supplier == null;
+		this.supplier = () -> values;
 		return this;
 	}
 
