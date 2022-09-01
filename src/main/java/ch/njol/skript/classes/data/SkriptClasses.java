@@ -86,7 +86,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
-				.backingValues(Classes.getClassInfos().toArray(new ClassInfo[0]))
+				.backingValues(() -> Classes.getClassInfos().toArray(new ClassInfo[0]))
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -199,7 +199,7 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
-				.backingValues(Arrays.stream(Material.values())
+				.backingValues(() -> Arrays.stream(Material.values())
 					.map(ItemType::new)
 					.toArray(ItemType[]::new))
 				.parser(new Parser<ItemType>() {
@@ -663,7 +663,7 @@ public class SkriptClasses {
 						"set the colour of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
-				.backingValues(SkriptColor.values())
+				.backingValues(() -> SkriptColor.values())
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable

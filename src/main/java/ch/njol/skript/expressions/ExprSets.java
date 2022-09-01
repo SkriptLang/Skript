@@ -113,8 +113,8 @@ public class ExprSets extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	public Iterator<Object> iterator(Event event) {
-		if (classInfo != null)
-			return new ArrayIterator<>(classInfo.getBackingValues());
+		if (values != null)
+			return new ArrayIterator<>(values);
 
 		if (pattern == 0)
 			return new Iterator<Object>() {
@@ -165,7 +165,13 @@ public class ExprSets extends SimpleExpression<Object> {
 
 		};
 
-		return new CheckedIterator<>(iter, Objects::nonNull);
+		return new CheckedIterator<>(iter, object -> {
+			if (object == null)
+				return false;
+			if (object instanceof ItemStack)
+				return pattern == 2 || ((ItemStack) object).getType().isBlock();
+			return false;
+		});
 	}
 
 	@Override

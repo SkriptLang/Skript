@@ -21,6 +21,7 @@ package ch.njol.skript.classes;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -63,7 +64,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Changer<? super T> changer = null;
 
 	@Nullable
-	private T[] backingValues = null;
+	private Supplier<T[]> backingValues = null;
 
 	@Nullable
 	private Serializer<? super T> serializer = null;
@@ -172,7 +173,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @param backingValues Used for the values returned in {@link ExprSets} expression. Usually used for Enums
 	 * @see ExprSets
 	 */
-	public ClassInfo<T> backingValues(T[] backingValues) {
+	public ClassInfo<T> backingValues(Supplier<T[]> backingValues) {
 		assert this.backingValues == null;
 		this.backingValues = backingValues;
 		return this;
@@ -353,7 +354,7 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	public T[] getBackingValues() {
-		return backingValues == null ? c.getEnumConstants() : backingValues;
+		return backingValues == null ? c.getEnumConstants() : backingValues.get();
 	}
 
 	@Nullable

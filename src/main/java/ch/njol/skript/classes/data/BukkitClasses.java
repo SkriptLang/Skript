@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -996,7 +997,7 @@ public class BukkitClasses {
 						"{_item} is a torch")
 				.since("1.0")
 				.after("number")
-				.backingValues(Arrays.stream(Material.values())
+				.backingValues(() -> Arrays.stream(Material.values())
 					.map(ItemStack::new)
 					.toArray(ItemStack[]::new))
 				.parser(new Parser<ItemStack>() {
@@ -1146,7 +1147,7 @@ public class BukkitClasses {
 						"apply potion of speed 2 to the player for 60 seconds",
 						"remove invisibility from the victim")
 				.since("")
-				.backingValues(PotionEffectType.values())
+				.backingValues(() -> PotionEffectType.values())
 				.parser(new Parser<PotionEffectType>() {
 					@Override
 					@Nullable
@@ -1328,7 +1329,7 @@ public class BukkitClasses {
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype")
-				.backingValues(Enchantment.values())
+				.backingValues(() -> Enchantment.values())
 				.parser(new Parser<Enchantment>() {
 					@Override
 					@Nullable
@@ -1751,7 +1752,7 @@ public class BukkitClasses {
 			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
-			.backingValues(GameRule.values())
+			.backingValues(() -> GameRule.values())
 			.parser(new Parser<GameRule>() {
 				@Override
 				@Nullable
