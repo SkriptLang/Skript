@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.function.Supplier;
 
 @Name("Sets")
-@Description("Collection sets of all the values of a type, useful for looping.")
+@Description("A list of all the values of a type; useful for looping.")
 @Examples({
 	"loop all attribute types:",
 	"\tset loop-value attribute of player to 10",
@@ -59,7 +59,7 @@ public class ExprSets<T> extends SimpleExpression<T> {
 			classInfo = ((Literal<ClassInfo<T>>) exprs[0]).getSingle();
 			supplier = classInfo.getSupplier();
 			if (supplier == null) {
-				Skript.error("You cannot get all " + classInfo.getName().getPlural());
+				Skript.error("You cannot get all values of type '" + classInfo.getName().getSingular() + "'");
 				return false;
 			}
 		return true;

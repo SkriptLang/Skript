@@ -170,8 +170,11 @@ public class ClassInfo<T> implements Debuggable {
 
 
 	/**
-	 * @param supplier Used for the values returned in {@link ExprSets} expression. Usually used for Enums
-	 * @see ExprSets
+	 * Used for dynamically getting all the possible values of a class
+	 *
+	 * @param supplier The supplier of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(T[])
 	 */
 	public ClassInfo<T> supplier(Supplier<T[]> supplier) {
 		assert this.supplier == null;
@@ -180,8 +183,11 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	/**
-	 * @param values Used for the values returned in {@link ExprSets} expression. Usually used for Enums
-	 * @see ExprSets
+	 * Used for getting all the possible constants of a class
+	 *
+	 * @param values The array of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Supplier)
 	 */
 	public ClassInfo<T> supplier(T[] values) {
 		assert this.supplier == null;
