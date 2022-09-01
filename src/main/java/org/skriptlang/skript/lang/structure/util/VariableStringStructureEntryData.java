@@ -46,11 +46,9 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	@SafeVarargs
 	public VariableStringStructureEntryData(
 		String key, @Nullable VariableString defaultValue, boolean optional,
-		Class<? extends Event>... events)
-	{
-		super(key, defaultValue, optional);
-		this.stringMode = StringMode.MESSAGE;
-		this.events = events;
+		Class<? extends Event>... events
+	) {
+		this(key, defaultValue, optional, StringMode.MESSAGE, events);
 	}
 
 	/**
@@ -62,8 +60,8 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	@SafeVarargs
 	public VariableStringStructureEntryData(
 		String key, @Nullable VariableString defaultValue, boolean optional,
-		StringMode stringMode, Class<? extends Event>... events)
-	{
+		StringMode stringMode, Class<? extends Event>... events
+	) {
 		super(key, defaultValue, optional);
 		this.stringMode = stringMode;
 		this.events = events;

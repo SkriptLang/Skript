@@ -48,8 +48,8 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	@SafeVarargs
 	public TriggerStructureEntryData(
 		String key, @Nullable Trigger defaultValue, boolean optional,
-		Class<? extends Event>... events)
-	{
+		Class<? extends Event>... events
+	) {
 		super(key, defaultValue, optional);
 		this.events = events;
 	}

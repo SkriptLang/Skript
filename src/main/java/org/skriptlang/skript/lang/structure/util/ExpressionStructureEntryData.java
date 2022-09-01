@@ -34,6 +34,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<Expression<? extends T>> {
 
 	private final Class<T> returnType;
+
+	private final int flags;
 	
 	private final Class<? extends Event>[] events;
 
@@ -46,10 +48,27 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 	@SafeVarargs
 	public ExpressionStructureEntryData(
 		String key, @Nullable Expression<T> defaultValue, boolean optional,
-		Class<T> returnType, Class<? extends Event>... events)
-	{
+		Class<T> returnType, Class<? extends Event>... events
+	) {
+		this(key, defaultValue, optional, returnType, SkriptParser.ALL_FLAGS, events);
+	}
+
+	/**
+	 * @param returnType The expected return type of the matched expression.
+	 * @param flags Parsing flags. See {@link SkriptParser#SkriptParser(String, int, ParseContext)}
+	 *              javadoc for more details.
+	 * @param events Events to be present during parsing and Trigger execution.
+	 *               This allows the usage of event-restricted syntax and event-values.
+	 * @see ParserInstance#setCurrentEvents(Class[])
+	 */
+	@SafeVarargs
+	public ExpressionStructureEntryData(
+		String key, @Nullable Expression<T> defaultValue, boolean optional,
+		Class<T> returnType, int flags, Class<? extends Event>... events
+	) {
 		super(key, defaultValue, optional);
 		this.returnType = returnType;
+		this.flags = flags;
 		this.events = events;
 	}
 
@@ -65,7 +84,7 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 		parser.setCurrentEvents(events);
 		parser.setHasDelayBefore(Kleenean.FALSE);
 
-		Expression<? extends T> expression = new SkriptParser(value, SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT).parseExpression(returnType);
+		Expression<? extends T> expression = new SkriptParser(value, flags, ParseContext.DEFAULT).parseExpression(returnType);
 
 		parser.setCurrentEvents(oldEvents);
 		parser.setHasDelayBefore(oldHasDelayBefore);
