@@ -354,7 +354,9 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	public T[] getBackingValues() {
-		return backingValues == null ? c.getEnumConstants() : backingValues.get();
+		if (backingValues == null && c.isEnum())
+			backingValues = c::getEnumConstants;
+		return backingValues != null ? backingValues.get() : null;
 	}
 
 	@Nullable
