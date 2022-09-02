@@ -1,0 +1,7 @@
+test "number conversion":
+	set {_i} to 3
+	set {_j} to 2
+	numberConversionFunction({_i} + {_j})
+
+function numberConversionFunction(i: integer):
+	assert {_i} is 5 with "Number conversion failed, value: %{_i}%"
