@@ -1,3 +1,4 @@
+
 /**
  *   This file is part of Skript.
  *
@@ -48,10 +49,10 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tsend \"This bad boy is going to hold so many pickles now!!\""
 })
 @Since("INSERT VERSION")
-public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
+public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		register(ExprSeaPickles.class, Long.class, "[:(min|max)[imum]] [sea] pickle(s| (count|amount))", "blocks");
+		register(ExprSeaPickles.class, Integer.class, "[:(min|max)[imum]] [sea] pickle(s| (count|amount))", "blocks");
 	}
 
 	private boolean minimum, maximum;
@@ -65,7 +66,7 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 
 	@Override
 	@Nullable
-	public Long convert(Block block) {
+	public Integer convert(Block block) {
 		BlockData blockData = block.getBlockData();
 		if (!(blockData instanceof SeaPickle))
 			return null;
@@ -73,10 +74,10 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 		SeaPickle pickleData = (SeaPickle) blockData;
 
 		if (maximum)
-			return (long) pickleData.getMaximumPickles();
+			return pickleData.getMaximumPickles();
 		if (minimum)
-			return (long) pickleData.getMinimumPickles();
-		return (long) pickleData.getPickles();
+			return pickleData.getMinimumPickles();
+		return pickleData.getPickles();
 	}
 
 	@Override
@@ -105,7 +106,6 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 			change *= -1;
 
 		for (Block block : getExpr().getArray(event)) {
-
 			// Obtain pickle data
 			BlockData blockData = block.getBlockData();
 			if (!(blockData instanceof SeaPickle))
@@ -126,7 +126,7 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 					}
 					break;
 				case RESET:
-					newPickles = pickleData.getMaximumPickles();
+					newPickles = pickleData.getMinimumPickles();
 			}
 
 			// Update the block data
@@ -136,13 +136,12 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Long> {
 			} else { // We are removing the pickles :(
 				block.setType(pickleData.isWaterlogged() ? Material.WATER : Material.AIR);
 			}
-
 		}
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
