@@ -466,9 +466,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
 			List<Player> list = new ArrayList<>();
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (!CollectionUtils.contains(worlds, p.getWorld()))
-					continue;
-				list.add(p);
+				if (CollectionUtils.contains(worlds, p.getWorld()))
+					list.add(p);
 			}
 			return (E[]) list.toArray(new Player[list.size()]);
 		}
