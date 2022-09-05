@@ -55,11 +55,11 @@ public class CondRespawnLocation extends Condition {
 
 	@Override
 	public boolean check(Event e) {
-		PlayerRespawnEvent event = (PlayerRespawnEvent) e;
-		if (bedSpawn)
-			return event.isBedSpawn() != isNegated();
-		else
-			return event.isAnchorSpawn() != isNegated();
+		if (e instanceof PlayerRespawnEvent) {
+			PlayerRespawnEvent event = (PlayerRespawnEvent) e;
+			return (bedSpawn ? event.isBedSpawn() : event.isAnchorSpawn()) != isNegated();
+		}
+		return false;
 	}
 
 	@Override
