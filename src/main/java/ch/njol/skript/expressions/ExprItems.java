@@ -99,7 +99,7 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 		if (!items && itemTypeExpr == null)
 			return new Iterator<ItemStack>() {
 
-				private final Iterator<ItemStack> iterator = new ArrayIterator<>(Arrays.stream(ALL_ITEMS)
+				private final Iterator<ItemStack> iterator = new ArrayIterator<>(Arrays.stream(ALL_ITEMS.clone())
 					.filter(itemStack -> itemStack.getType().isBlock())
 					.toArray(ItemStack[]::new));
 

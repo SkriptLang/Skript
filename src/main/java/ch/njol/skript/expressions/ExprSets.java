@@ -51,7 +51,8 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	}
 
 	private ClassInfo<T> classInfo;
-	private Supplier<T[]> supplier = null;
+	@Nullable
+	private Supplier<T[]> supplier;
 
 	@Override
 	@SuppressWarnings("unchecked")
