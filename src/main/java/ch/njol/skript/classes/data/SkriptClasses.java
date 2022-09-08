@@ -54,6 +54,7 @@ import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -86,7 +87,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
-				.supplier(() -> Classes.getClassInfos().toArray(new ClassInfo[0]))
+				.supplier(() -> new ArrayIterator<>(Classes.getClassInfos().toArray(new ClassInfo[0])))
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -199,9 +200,9 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
-				.supplier(Arrays.stream(Material.values())
+				.supplier(() -> Arrays.stream(Material.values())
 					.map(ItemType::new)
-					.toArray(ItemType[]::new))
+					.iterator())
 				.parser(new Parser<ItemType>() {
 					@Override
 					@Nullable
@@ -663,7 +664,7 @@ public class SkriptClasses {
 						"set the colour of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
-				.supplier(SkriptColor::values)
+				.supplier(() -> new ArrayIterator<>(SkriptColor.values()))
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable

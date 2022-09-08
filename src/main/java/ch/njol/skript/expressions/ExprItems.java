@@ -89,8 +89,7 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 		if (buffer != null)
 			return buffer;
 		List<ItemStack> items = new ArrayList<>();
-		for (ItemStack item : new IteratorIterable<>(iterator(event)))
-			items.add(item);
+		iterator(event).forEachRemaining(items::add);
 		if (itemTypeExpr instanceof Literal)
 			return buffer = items.toArray(new ItemStack[0]);
 		return items.toArray(new ItemStack[0]);

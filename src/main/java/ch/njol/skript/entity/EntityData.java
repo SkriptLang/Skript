@@ -158,9 +158,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
-				.supplier(Arrays.stream(EntityType.values())
+				.supplier(() -> Arrays.stream(EntityType.values())
 					.map(EntityUtils::toSkriptEntityData)
-					.toArray(EntityData[]::new))
+					.iterator())
 				.parser(new Parser<EntityData>() {
 					@Override
 					public String toString(final EntityData d, final int flags) {

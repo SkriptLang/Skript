@@ -20,12 +20,14 @@ package ch.njol.skript.classes;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import ch.njol.skript.expressions.ExprSets;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -64,7 +66,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Changer<? super T> changer = null;
 
 	@Nullable
-	private Supplier<T[]> supplier = null;
+	private Supplier<Iterator<T>> supplier = null;
 
 	@Nullable
 	private Serializer<? super T> serializer = null;
@@ -174,24 +176,10 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param supplier The supplier of the values
 	 * @return This ClassInfo object
-	 * @see ClassInfo#supplier(T[])
 	 */
-	public ClassInfo<T> supplier(Supplier<T[]> supplier) {
+	public ClassInfo<T> supplier(Supplier<Iterator<T>> supplier) {
 		assert this.supplier == null;
 		this.supplier = supplier;
-		return this;
-	}
-
-	/**
-	 * Used for getting all the possible constants of a class
-	 *
-	 * @param values The array of the values
-	 * @return This ClassInfo object
-	 * @see ClassInfo#supplier(Supplier)
-	 */
-	public ClassInfo<T> supplier(T[] values) {
-		assert this.supplier == null;
-		this.supplier = () -> values;
 		return this;
 	}
 
@@ -370,9 +358,9 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	@Nullable
-	public Supplier<T[]> getSupplier() {
+	public Supplier<Iterator<T>> getSupplier() {
 		if (supplier == null && c.isEnum())
-			supplier = c::getEnumConstants;
+			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
 		return supplier;
 	}
 

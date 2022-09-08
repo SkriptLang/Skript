@@ -33,6 +33,9 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Supplier;
 
 @Name("Sets")
@@ -51,7 +54,7 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	}
 
 	@Nullable
-	private Supplier<T[]> supplier;
+	private Supplier<Iterator<T>> supplier;
 	private ClassInfo<T> classInfo;
 
 	@Override
@@ -67,7 +70,17 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected T[] get(Event event) {
+		Iterator<T> iterator = supplier.get();
+		List<T> elements = new ArrayList<>();
+		iterator.forEachRemaining(elements::add);
+		return (T[]) elements.toArray(new Object[0]);
+	}
+
+	@Override
+	@Nullable
+	public Iterator<? extends T> iterator(Event e) {
 		return supplier.get();
 	}
 
