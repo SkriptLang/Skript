@@ -50,9 +50,9 @@ public class ExprSets<T> extends SimpleExpression<T> {
 			"[(all [[of] the]|the|every)] %*classinfo%");
 	}
 
-	private ClassInfo<T> classInfo;
 	@Nullable
 	private Supplier<T[]> supplier;
+	private ClassInfo<T> classInfo;
 
 	@Override
 	@SuppressWarnings("unchecked")

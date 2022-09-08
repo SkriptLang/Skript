@@ -27,7 +27,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
@@ -38,7 +38,11 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Name("Items")
 @Description("Items or blocks of a specific type, useful for looping.")
@@ -65,10 +69,11 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 	@Nullable
 	private Expression<ItemType> itemTypeExpr;
 	private boolean items;
+	private ItemStack[] buffer = null;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = matchedPattern == 2;
 		itemTypeExpr = matchedPattern == 0 ? null : (Expression<ItemType>) exprs[0];
 		if (itemTypeExpr instanceof Literal) {
@@ -90,8 +95,6 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 			return buffer = items.toArray(new ItemStack[0]);
 		return items.toArray(new ItemStack[0]);
 	}
-
-	private ItemStack[] buffer = null;
 
 	@Override
 	@Nullable

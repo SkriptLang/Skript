@@ -373,7 +373,7 @@ public class ClassInfo<T> implements Debuggable {
 	public Supplier<T[]> getSupplier() {
 		if (supplier == null && c.isEnum())
 			supplier = c::getEnumConstants;
-		return supplier != null ? supplier : null;
+		return supplier;
 	}
 
 	@Nullable
