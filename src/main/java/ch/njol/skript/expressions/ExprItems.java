@@ -32,7 +32,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.IteratorIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -55,7 +56,8 @@ import java.util.NoSuchElementException;
 @Since("<i>unknown</i> (before 1.4.2)")
 public class ExprItems extends SimpleExpression<ItemStack> {
 
-	private static final ItemStack[] ALL_ITEMS = Arrays.stream(Material.values())
+	private static final ItemStack[] ALL_BLOCKS = Arrays.stream(Material.values())
+		.filter(Material::isBlock)
 		.map(ItemStack::new)
 		.toArray(ItemStack[]::new);
 
@@ -99,59 +101,14 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 	@Nullable
 	public Iterator<ItemStack> iterator(Event event) {
 		if (!items && itemTypeExpr == null)
-			return new Iterator<ItemStack>() {
+			return new ArrayIterator<>(ALL_BLOCKS.clone());
 
-				private final Iterator<ItemStack> iterator = new ArrayIterator<>(Arrays.stream(ALL_ITEMS.clone())
-					.filter(itemStack -> itemStack.getType().isBlock())
-					.toArray(ItemStack[]::new));
-
-				@Override
-				public boolean hasNext() {
-					return iterator.hasNext();
-				}
-
-				@Override
-				public ItemStack next() {
-					return new ItemStack(iterator.next());
-				}
-
-				@Override
-				public void remove() {}
-			};
-
-		Iterator<ItemType> it = new ArrayIterator<>(itemTypeExpr.getArray(event));
-		if (!it.hasNext())
-			return null;
-
-		Iterator<ItemStack> iter = new Iterator<ItemStack>() {
-
-			Iterator<ItemStack> current = it.next().getAll().iterator();
-
-			@Override
-			public boolean hasNext() {
-				while (!current.hasNext() && it.hasNext()) {
-					current = it.next().getAll().iterator();
-				}
-				return current.hasNext();
-			}
-
-			@Override
-			public ItemStack next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				return current.next();
-			}
-
-			@Override
-			public void remove() {}
-
-		};
-
-		return new CheckedIterator<>(iter, object -> {
-			if (object == null)
-				return false;
-			return items || object.getType().isBlock();
-		});
+		Iterable<ItemStack> iterable = Iterables.concat(itemTypeExpr.stream(event).map(ItemType::getAll).toArray(Iterable[]::new));
+		if (items) {
+			return iterable.iterator();
+		} else {
+			return Iterables.filter(iterable, item -> item.getType().isBlock()).iterator();
+		}
 	}
 
 	@Override
