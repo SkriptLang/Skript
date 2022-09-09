@@ -59,7 +59,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class SkriptCommand implements CommandExecutor {
 	
 	private static final String CONFIG_NODE = "skript command";
-	
+	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
+
 	// TODO /skript scripts show/list - lists all enabled and/or disabled scripts in the scripts folder and/or subfolders (maybe add a pattern [using * and **])
 	// TODO document this command on the website
 	private static final CommandHelp skriptCommandHelp = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
@@ -83,13 +84,11 @@ public class SkriptCommand implements CommandExecutor {
 		).add("help");
 
 	static {
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound()) {
+		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
 			skriptCommandHelp.add("gen-docs");
 		if (TestMode.DEV_MODE) // Add command to run individual tests
 			skriptCommandHelp.add("test");
 	}
-	
-	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 	
 	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
