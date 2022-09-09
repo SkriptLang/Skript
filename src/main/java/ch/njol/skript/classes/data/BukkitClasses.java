@@ -1875,13 +1875,13 @@ public class BukkitClasses {
 					}
 
 					@Override
-					public String toString(FishHook o, int flags) {
-						return "fish hook " + o.toString();
+					public String toString(FishHook fg, int flags) {
+						return "fish hook";
 					}
 
 					@Override
-					public String toVariableNameString(FishHook o) {
-						return "fish hook " + o.toString();
+					public String toVariableNameString(FishHook fg) {
+						return "fish hook";
 					}
 				}));
 	}
