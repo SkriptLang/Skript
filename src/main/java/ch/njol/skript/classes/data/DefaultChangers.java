@@ -19,8 +19,10 @@
 package ch.njol.skript.classes.data;
 
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -30,6 +32,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -299,7 +302,16 @@ public class DefaultChangers {
 						assert delta != null;
 						Object o = delta[0];
 						if (o instanceof ItemType) {
-							((ItemType) delta[0]).getBlock().setBlock(block, true);
+							ItemType itemType = (ItemType) o;
+							itemType.getBlock().setBlock(block, true);
+							if (itemType.getItemMeta() instanceof SkullMeta) {
+								OfflinePlayer offlinePlayer = ((SkullMeta) itemType.getItemMeta()).getOwningPlayer();
+								if (offlinePlayer == null)
+									return;
+								Skull skull = (Skull) block.getState();
+								skull.setOwningPlayer(offlinePlayer);
+								skull.update();
+							}
 						} else if (o instanceof BlockData) {
 							block.setBlockData(((BlockData) o));
 						}
