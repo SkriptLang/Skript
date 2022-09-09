@@ -34,16 +34,15 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.iterator.ConsumingIterator;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.entry.EntryData;
+import org.skriptlang.skript.lang.entry.EntryValidator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Structures are the root element in every script. They are essentially the "headers".
@@ -52,7 +51,7 @@ import java.util.Map;
  *
  * Structures may also contain "entries" that hold values or sections of code.
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
- *  through registered {@link StructureEntryData}.
+ *  through registered {@link EntryData}.
  */
 // TODO STRUCTURE add Structures to docs
 public abstract class Structure implements SyntaxElement, Debuggable {
@@ -90,7 +89,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	private EntryContainer entryContainer = null;
 
 	/**
-	 * @return An EntryContainer containing this Structure's {@link StructureEntryData} and {@link Node} parse results.
+	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
 	 * Please note that this Structure <b>MUST</b> have been initialized for this to work.
 	 */
 	public final EntryContainer getEntryContainer() {
@@ -107,23 +106,18 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
-		StructureEntryValidator entryValidator = structureInfo.entryValidator;
+		EntryValidator entryValidator = structureInfo.entryValidator;
 
 		if (entryValidator == null) { // No validation necessary, the structure itself will handle it
-			List<Node> unhandledNodes = new ArrayList<>();
-			for (Node node : structureData.sectionNode) // All nodes are unhandled
-				unhandledNodes.add(node);
-			entryContainer = new EntryContainer(structureData.sectionNode, null, null, unhandledNodes);
+			entryContainer = EntryContainer.withoutValidator(structureData.sectionNode);
 		} else { // Okay, now it's time for validation
-			NonNullPair<Map<String, Node>, List<Node>> validated = entryValidator.validate(structureData.sectionNode);
-			if (validated == null)
+			EntryContainer entryContainer = entryValidator.validate(structureData.sectionNode);
+			if (entryContainer == null)
 				return false;
-			entryContainer = new EntryContainer(structureData.sectionNode, entryValidator, validated.getFirst(), validated.getSecond());
+			this.entryContainer = entryContainer;
 		}
 
-		boolean success = init(literals, matchedPattern, parseResult, entryContainer);
-		entryContainer.completedInit = true;
-		return success;
+		return init(literals, matchedPattern, parseResult, entryContainer);
 	}
 
 	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);

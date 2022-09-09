@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure;
+package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Node;
@@ -27,9 +27,9 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * A simple entry data class for handling {@link SectionNode}s.
  */
-public class SectionStructureEntryData extends StructureEntryData<SectionNode> {
+public class SectionEntryData extends EntryData<SectionNode> {
 
-	public SectionStructureEntryData(String key, @Nullable SectionNode defaultValue, boolean optional) {
+	public SectionEntryData(String key, @Nullable SectionNode defaultValue, boolean optional) {
 		super(key, defaultValue, optional);
 	}
 
@@ -49,7 +49,7 @@ public class SectionStructureEntryData extends StructureEntryData<SectionNode> {
 	/**
 	 * Checks whether the provided node can be used as the section for this entry data.
 	 * A check is done to verify that the node is a {@link SectionNode}, and that it also
-	 *  meets the requirements of {@link StructureEntryData#canCreateWith(Node)}.
+	 *  meets the requirements of {@link EntryData#canCreateWith(Node)}.
 	 * @param node The node to check.
 	 * @return Whether the provided {@link Node} works with this entry data.
 	 */

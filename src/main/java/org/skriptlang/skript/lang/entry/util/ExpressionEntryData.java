@@ -16,22 +16,22 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure.util;
+package org.skriptlang.skript.lang.entry.util;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * A type of {@link KeyValueStructureEntryData} designed to parse its value as an {@link Expression}.
+ * A type of {@link KeyValueEntryData} designed to parse its value as an {@link Expression}.
  * This data <b>CAN</b> return null if expression parsing fails.
  */
-public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<Expression<? extends T>> {
+public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? extends T>> {
 
 	private final Class<T> returnType;
 
@@ -46,7 +46,7 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public ExpressionStructureEntryData(
+	public ExpressionEntryData(
 		String key, @Nullable Expression<T> defaultValue, boolean optional,
 		Class<T> returnType, Class<? extends Event>... events
 	) {
@@ -62,7 +62,7 @@ public class ExpressionStructureEntryData<T> extends KeyValueStructureEntryData<
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public ExpressionStructureEntryData(
+	public ExpressionEntryData(
 		String key, @Nullable Expression<T> defaultValue, boolean optional,
 		Class<T> returnType, int flags, Class<? extends Event>... events
 	) {

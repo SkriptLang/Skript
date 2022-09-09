@@ -16,33 +16,31 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure;
+package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * An EntryContainer is a data container for {@link Structure}s used for obtaining values from {@link StructureEntryData}.
+ * An EntryContainer is a data container for obtaining the values of the entries of a {@link SectionNode}.
  */
 public class EntryContainer {
 
 	private final SectionNode source;
 	@Nullable
-	private final StructureEntryValidator entryValidator;
+	private final EntryValidator entryValidator;
 	@Nullable
 	private final Map<String, Node> handledNodes;
 	private final List<Node> unhandledNodes;
 
-	// Whether this Structure has finished initializing (before preLoad() is called)
-	boolean completedInit = false;
-
 	EntryContainer(
-		SectionNode source, @Nullable StructureEntryValidator entryValidator, @Nullable Map<String, Node> handledNodes, List<Node> unhandledNodes
+		SectionNode source, @Nullable EntryValidator entryValidator, @Nullable Map<String, Node> handledNodes, List<Node> unhandledNodes
 	) {
 		this.source = source;
 		this.entryValidator = entryValidator;
@@ -51,15 +49,27 @@ public class EntryContainer {
 	}
 
 	/**
-	 * @return The SectionNode containing the entries associated with the StructureEntryValidator (or parsed Structure as a whole)
+	 * Used for creating an EntryContainer when no {@link EntryValidator} exists.
+	 * @param source The SectionNode to create a container for.
+	 * @return An EntryContainer where <i>all</i> nodes will be {@link EntryContainer#getUnhandledNodes()}.
+	 */
+	public static EntryContainer withoutValidator(SectionNode source) {
+		List<Node> unhandledNodes = new ArrayList<>();
+		for (Node node : source) // All nodes are unhandled
+			unhandledNodes.add(node);
+		return new EntryContainer(source, null, null, unhandledNodes);
+	}
+
+	/**
+	 * @return The SectionNode containing the entries associated with this EntryValidator.
 	 */
 	public SectionNode getSource() {
 		return source;
 	}
 
 	/**
-	 * @return Any nodes unhandled by the StructureEntryValidator.
-	 * {@link StructureEntryValidator#allowsUnknownEntries()} or {@link StructureEntryValidator#allowsUnknownSections()} must be true
+	 * @return Any nodes unhandled by the EntryValidator.
+	 * {@link EntryValidator#allowsUnknownEntries()} or {@link EntryValidator#allowsUnknownSections()} must be true
 	 *   for this list to contain any values. The 'unhandled node' would represent any entry provided by the user that the validator
 	 *   is not explicitly aware of.
 	 */
@@ -131,16 +141,11 @@ public class EntryContainer {
 	 */
 	@Nullable
 	public Object getOptional(String key, boolean useDefaultValue) {
-		if (!completedInit)
-			throw new IllegalStateException(
-				"An EntryContainer may only be accessed when a Structure has completed initialization."
-			);
-
 		if (entryValidator == null || handledNodes == null)
 			return null;
 
-		StructureEntryData<?> entryData = null;
-		for (StructureEntryData<?> data : entryValidator.getEntryData()) {
+		EntryData<?> entryData = null;
+		for (EntryData<?> data : entryValidator.getEntryData()) {
 			if (data.getKey().equals(key)) {
 				entryData = data;
 				break;

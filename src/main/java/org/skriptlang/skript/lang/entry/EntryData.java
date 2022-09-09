@@ -16,40 +16,41 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure;
+package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * {@link Structure} entry data is used for defining the different entries of a Structure.
- * Take a look at the following Skript {@link Structure}:
+ * EntryData is used for defining the different entries of for a {@link SectionNode}.
+ * {@link org.skriptlang.skript.lang.structure.Structure}'s are a primary user of this system.
+ * Take a look at this example:
  * <pre>
- * command /example:
+ * command /example: # this is the SectionNode
  *   description: this is an example of an entry
  *   trigger: # this is also an example of an entry
  *     # code goes here (not entry data!)
  * </pre>
- * From the above, it can be seen that entry data is found at the <i>second</i> level
- *  of indentation of any script, or the <i>first</i> level of indentation of a {@link Structure}.
- * It can also be seen that {@link Structure} entries come in many different forms.
- * In fact, all {@link Structure} entries are based upon a {@link Node}.
- * This could be something like a {@link ch.njol.skript.config.SimpleNode} or {@link ch.njol.skript.config.SectionNode},
+ * From the above, it can be seen that EntryData is found at the level immediately after a {@link SectionNode}.
+ * It can also be seen that entries come in many forms.
+ * In fact, all entries are based upon a {@link Node}.
+ * This could be something like a {@link ch.njol.skript.config.SimpleNode} or {@link SectionNode},
  *  but it may also be something totally different.
  * Every entry data class must define a validator-type method for {@link Node}s, along with
  *  a method of obtaining a value from that {@link Node}.
  * Every entry data instance must contain some sort of key. This key is the main identifier
- *  of an entry data instance within a {@link StructureEntryValidator}.
+ *  of an entry data instance within a {@link EntryValidator}.
  * @param <T> The type of the value returned by this entry data.
  */
-public abstract class StructureEntryData<T> {
+public abstract class EntryData<T> {
 
 	private final String key;
 	@Nullable
 	private final T defaultValue;
 	private final boolean optional;
 
-	public StructureEntryData(String key, @Nullable T defaultValue, boolean optional) {
+	public EntryData(String key, @Nullable T defaultValue, boolean optional) {
 		this.key = key;
 		this.defaultValue = defaultValue;
 		this.optional = optional;
@@ -64,7 +65,7 @@ public abstract class StructureEntryData<T> {
 
 	/**
 	 * @return The default value of this entry node to be used if {@link #getValue(Node)} is null,
-	 *  or if the user does not include an entry for this entry data in their {@link Structure} definition.
+	 *  or if the user does not include an entry for this entry data within their {@link SectionNode}.
 	 */
 	@Nullable
 	public T getDefaultValue() {
@@ -72,7 +73,7 @@ public abstract class StructureEntryData<T> {
 	}
 
 	/**
-	 * @return Whether this entry data <b>must</b> be included in the definition of any {@link Structure} it is a part of.
+	 * @return Whether this entry data <b>must</b> be included within a {@link SectionNode}.
 	 */
 	public boolean isOptional() {
 		return optional;

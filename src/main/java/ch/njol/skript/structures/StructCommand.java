@@ -38,12 +38,12 @@ import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
-import org.skriptlang.skript.lang.structure.EntryContainer;
-import org.skriptlang.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureEntryValidator;
-import org.skriptlang.skript.lang.structure.util.LiteralStructureEntryData;
-import org.skriptlang.skript.lang.structure.util.VariableStringStructureEntryData;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.util.LiteralEntryData;
+import org.skriptlang.skript.lang.entry.util.VariableStringEntryData;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Timespan;
@@ -92,12 +92,12 @@ public class StructCommand extends Structure {
 	static {
 		Skript.registerStructure(
 			StructCommand.class,
-			StructureEntryValidator.builder()
+			EntryValidator.builder()
 				.addEntry("usage", null, true)
 				.addEntry("description", "", true)
 				.addEntry("permission", "", true)
-				.addEntryData(new VariableStringStructureEntryData("permission message", null, true, CommandEvent.class))
-				.addEntryData(new KeyValueStructureEntryData<List<String>>("aliases", new ArrayList<>(), true) {
+				.addEntryData(new VariableStringEntryData("permission message", null, true, CommandEvent.class))
+				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
 
 					@Override
@@ -111,7 +111,7 @@ public class StructCommand extends Structure {
 						return aliases;
 					}
 				})
-				.addEntryData(new KeyValueStructureEntryData<Integer>("executable by", ScriptCommand.CONSOLE | ScriptCommand.PLAYERS, true) {
+				.addEntryData(new KeyValueEntryData<Integer>("executable by", ScriptCommand.CONSOLE | ScriptCommand.PLAYERS, true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*|\\s+(and|or)\\s+");
 
 					@Override
@@ -130,10 +130,10 @@ public class StructCommand extends Structure {
 						return executableBy;
 					}
 				})
-				.addEntryData(new LiteralStructureEntryData<>("cooldown", null, true, Timespan.class))
-				.addEntryData(new VariableStringStructureEntryData("cooldown message", null, true, CommandEvent.class))
+				.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
+				.addEntryData(new VariableStringEntryData("cooldown message", null, true, CommandEvent.class))
 				.addEntry("cooldown bypass", null,true)
-				.addEntryData(new VariableStringStructureEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
+				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
 				.build(),
 			"command <.+>"

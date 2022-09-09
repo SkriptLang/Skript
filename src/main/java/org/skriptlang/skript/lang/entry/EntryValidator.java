@@ -16,13 +16,12 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure;
+package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
-import ch.njol.util.NonNullPair;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -32,33 +31,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A validator for {@link Structure} entries.
- * By providing the {@link SectionNode} of the {@link Structure} itself, the
- *  validator can determine whether all entries are present.
- * @see StructureEntryValidatorBuilder
+ * A validator for storing {@link EntryData}.
+ * It can be used to validate whether a {@link SectionNode} contains the required entries.
+ * This validation process will return an {@link EntryContainer} for accessing entry values.
+ * @see EntryValidatorBuilder
  */
-public class StructureEntryValidator {
+public class EntryValidator {
 
 	/**
-	 * @return A new entry validator builder to be used in {@link Structure} registration.
+	 * @return A builder to be used for creating an {@link EntryValidator}.
 	 */
-	public static StructureEntryValidatorBuilder builder() {
-		return new StructureEntryValidatorBuilder();
+	public static EntryValidatorBuilder builder() {
+		return new EntryValidatorBuilder();
 	}
 
-	private final List<StructureEntryData<?>> entryData;
+	private final List<EntryData<?>> entryData;
 	private final boolean allowUnknownEntries, allowUnknownSections;
 
-	private StructureEntryValidator(List<StructureEntryData<?>> entryData, boolean allowUnknownEntries, boolean allowUnknownSections) {
+	private EntryValidator(List<EntryData<?>> entryData, boolean allowUnknownEntries, boolean allowUnknownSections) {
 		this.entryData = entryData;
 		this.allowUnknownEntries = allowUnknownEntries;
 		this.allowUnknownSections = allowUnknownSections;
 	}
 
 	/**
-	 * @return An unmodifiable list containing all {@link StructureEntryData} of this validator.
+	 * @return An unmodifiable list containing all {@link EntryData} of this validator.
 	 */
-	public List<StructureEntryData<?>> getEntryData() {
+	public List<EntryData<?>> getEntryData() {
 		return Collections.unmodifiableList(entryData);
 	}
 
@@ -84,9 +83,8 @@ public class StructureEntryValidator {
 	 *         Will return null if the provided node couldn't be validated.
 	 */
 	@Nullable
-	public NonNullPair<Map<String, Node>, List<Node>> validate(SectionNode sectionNode) {
-
-		List<StructureEntryData<?>> entries = new ArrayList<>(entryData);
+	public EntryContainer validate(SectionNode sectionNode) {
+		List<EntryData<?>> entries = new ArrayList<>(entryData);
 		Map<String, Node> handledNodes = new HashMap<>();
 		List<Node> unhandledNodes = new ArrayList<>();
 
@@ -97,7 +95,7 @@ public class StructureEntryValidator {
 
 			// The first step is to determine if the node is present in the entry data list
 
-			for (StructureEntryData<?> data : entryData) {
+			for (EntryData<?> data : entryData) {
 				if (data.canCreateWith(node)) { // Determine if it's a match
 					handledNodes.put(data.getKey(), node); // This is a known node, mark it as such
 					entries.remove(data);
@@ -107,8 +105,9 @@ public class StructureEntryValidator {
 
 			// We found no matching entry data
 
-			if ((!allowUnknownEntries && node instanceof SimpleNode) ||
-				(!allowUnknownSections && node instanceof SectionNode)
+			if (
+				(!allowUnknownEntries && node instanceof SimpleNode)
+				|| (!allowUnknownSections && node instanceof SectionNode)
 			) {
 				ok = false; // Instead of terminating here, we should try and print all errors possible
 				Skript.error("Unexpected entry '" + node.getKey() + "'. Check whether it's spelled correctly or remove it");
@@ -119,7 +118,7 @@ public class StructureEntryValidator {
 
 		// Now we're going to check for missing entries that are *required*
 
-		for (StructureEntryData<?> entryData : entries) {
+		for (EntryData<?> entryData : entries) {
 			if (!entryData.isOptional()) {
 				Skript.error("Required entry '" + entryData.getKey() + "' is missing");
 				ok = false;
@@ -129,23 +128,23 @@ public class StructureEntryValidator {
 		if (!ok) // We printed an error at some point
 			return null;
 
-		return new NonNullPair<>(handledNodes, unhandledNodes);
+		return new EntryContainer(sectionNode, this, handledNodes, unhandledNodes);
 	}
 
 	/**
-	 * A utility builder for creating a validator to be used during {@link Structure} registration.
-	 * @see StructureEntryValidator#builder()
+	 * A utility builder for creating an entry validator that can be used to parse and validate a {@link SectionNode}.
+	 * @see EntryValidator#builder()
 	 */
-	public static class StructureEntryValidatorBuilder {
+	public static class EntryValidatorBuilder {
 
 		/**
-		 * The default separator used for all {@link KeyValueStructureEntryData}.
+		 * The default separator used for all {@link KeyValueEntryData}.
 		 */
 		public static final String DEFAULT_ENTRY_SEPARATOR = ": ";
 
-		private StructureEntryValidatorBuilder() { }
+		private EntryValidatorBuilder() { }
 
-		private final List<StructureEntryData<?>> entryData = new ArrayList<>();
+		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 		private boolean allowUnknownEntries, allowUnknownSections;
 
@@ -155,7 +154,7 @@ public class StructureEntryValidator {
 		 * @param separator The new separator for KeyValue entries.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder entrySeparator(String separator) {
+		public EntryValidatorBuilder entrySeparator(String separator) {
 			this.entrySeparator = separator;
 			return this;
 		}
@@ -164,7 +163,7 @@ public class StructureEntryValidator {
 		 * Sets that the validator should accept {@link SimpleNode}-based entries not declared in the entry data map.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder allowUnknownEntries() {
+		public EntryValidatorBuilder allowUnknownEntries() {
 			allowUnknownEntries = true;
 			return this;
 		}
@@ -173,20 +172,20 @@ public class StructureEntryValidator {
 		 * Sets that the validator should accept {@link SectionNode}-based entries not declared in the entry data map.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder allowUnknownSections() {
+		public EntryValidatorBuilder allowUnknownSections() {
 			allowUnknownSections = true;
 			return this;
 		}
 
 		/**
-		 * Adds a new {@link KeyValueStructureEntryData} to this validator that returns the raw, unhandled String value.
+		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled String value.
 		 * The added entry is optional and will use the provided default value as a backup.
 		 * @param key The key of the entry.
 		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
-			entryData.add(new KeyValueStructureEntryData<String>(key, defaultValue, optional) {
+		public EntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
+			entryData.add(new KeyValueEntryData<String>(key, defaultValue, optional) {
 				@Override
 				protected String getValue(String value) {
 					return value;
@@ -201,25 +200,25 @@ public class StructureEntryValidator {
 		}
 
 		/**
-		 * Adds a new, potentially optional {@link SectionStructureEntryData} to this validator.
+		 * Adds a new, potentially optional {@link SectionEntryData} to this validator.
 		 * @param key The key of the section entry.
 		 * @param optional Whether this section entry should be optional.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder addSection(String key, boolean optional) {
-			entryData.add(new SectionStructureEntryData(key, null, optional));
+		public EntryValidatorBuilder addSection(String key, boolean optional) {
+			entryData.add(new SectionEntryData(key, null, optional));
 			return this;
 		}
 
 		/**
-		 * A method to add custom {@link StructureEntryData} to a validator.
+		 * A method to add custom {@link EntryData} to a validator.
 		 * Custom entry data should be preferred when the default methods included in this builder are not expansive enough.
-		 * Please note that for custom {@link KeyValueStructureEntryData} implementations, the default entry separator
+		 * Please note that for custom {@link KeyValueEntryData} implementations, the default entry separator
 		 *  value of this builder will not be used. Instead, {@link #DEFAULT_ENTRY_SEPARATOR} will be used.
 		 * @param entryData The custom entry data to include in this validator.
 		 * @return The builder instance.
 		 */
-		public StructureEntryValidatorBuilder addEntryData(StructureEntryData<?> entryData) {
+		public EntryValidatorBuilder addEntryData(EntryData<?> entryData) {
 			this.entryData.add(entryData);
 			return this;
 		}
@@ -227,8 +226,8 @@ public class StructureEntryValidator {
 		/**
 		 * @return The final, built entry validator.
 		 */
-		public StructureEntryValidator build() {
-			return new StructureEntryValidator(entryData, allowUnknownEntries, allowUnknownSections);
+		public EntryValidator build() {
+			return new EntryValidator(entryData, allowUnknownEntries, allowUnknownSections);
 		}
 
 	}

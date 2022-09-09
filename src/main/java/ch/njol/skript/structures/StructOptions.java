@@ -30,7 +30,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
-import org.skriptlang.skript.lang.structure.EntryContainer;
+import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;

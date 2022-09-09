@@ -108,9 +108,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureEntryValidator;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
@@ -1434,7 +1434,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		structures.add(structureInfo);
 	}
 
-	public static <E extends Structure> void registerStructure(Class<E> c, StructureEntryValidator entryValidator, String... patterns) {
+	public static <E extends Structure> void registerStructure(Class<E> c, EntryValidator entryValidator, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, entryValidator);

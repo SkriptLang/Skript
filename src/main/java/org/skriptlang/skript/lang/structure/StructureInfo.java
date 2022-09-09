@@ -20,21 +20,22 @@ package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.lang.SyntaxElementInfo;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryValidator;
 
 /**
- * Special {@link SyntaxElementInfo} for {@link Structure}s that may contain information such as the {@link StructureEntryValidator}.
+ * Special {@link SyntaxElementInfo} for {@link Structure}s that may contain information such as the {@link EntryValidator}.
  */
 public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 
 	@Nullable
-	public final StructureEntryValidator entryValidator;
+	public final EntryValidator entryValidator;
 
 	public StructureInfo(String[] patterns, Class<E> c, String originClassPath) throws IllegalArgumentException {
 		super(patterns, c, originClassPath);
 		entryValidator = null;
 	}
 
-	public StructureInfo(String[] patterns, Class<E> c, String originClassPath, StructureEntryValidator entryValidator) throws IllegalArgumentException {
+	public StructureInfo(String[] patterns, Class<E> c, String originClassPath, EntryValidator entryValidator) throws IllegalArgumentException {
 		super(patterns, c, originClassPath);
 		this.entryValidator = entryValidator;
 	}

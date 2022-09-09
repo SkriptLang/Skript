@@ -16,15 +16,15 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure.util;
+package org.skriptlang.skript.lang.entry.util;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.structure.SectionStructureEntryData;
-import org.skriptlang.skript.lang.structure.StructureEntryData;
+import org.skriptlang.skript.lang.entry.EntryData;
+import org.skriptlang.skript.lang.entry.SectionEntryData;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -34,9 +34,9 @@ import org.jetbrains.annotations.Nullable;
  * An entry data class designed to take a {@link SectionNode} and parse it into a Trigger.
  * Events specified during construction *should* be used when the Trigger is executed.
  * This data will <b>NEVER</b> return null.
- * @see SectionStructureEntryData
+ * @see SectionEntryData
  */
-public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
+public class TriggerEntryData extends EntryData<Trigger> {
 
 	private final Class<? extends Event>[] events;
 
@@ -46,7 +46,7 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public TriggerStructureEntryData(
+	public TriggerEntryData(
 		String key, @Nullable Trigger defaultValue, boolean optional,
 		Class<? extends Event>... events
 	) {
@@ -68,7 +68,7 @@ public class TriggerStructureEntryData extends StructureEntryData<Trigger> {
 		parser.setHasDelayBefore(Kleenean.FALSE);
 
 		Trigger trigger = new Trigger(
-			parser.getCurrentScript(), "structure entry with key: " + getKey(), new SimpleEvent(), ScriptLoader.loadItems((SectionNode) node)
+			parser.getCurrentScript(), "entry with key: " + getKey(), new SimpleEvent(), ScriptLoader.loadItems((SectionNode) node)
 		);
 
 		parser.setCurrentEvents(oldEvents);

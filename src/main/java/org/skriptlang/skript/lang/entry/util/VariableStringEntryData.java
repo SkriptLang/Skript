@@ -16,23 +16,23 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.structure.util;
+package org.skriptlang.skript.lang.entry.util;
 
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.structure.KeyValueStructureEntryData;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * A type of {@link KeyValueStructureEntryData} designed to parse its value as a {@link VariableString}.
+ * A type of {@link KeyValueEntryData} designed to parse its value as a {@link VariableString}.
  * The {@link StringMode} may be specified during construction.
  * Constructors without a StringMode parameter assume {@link StringMode#MESSAGE}.
  * This data <b>CAN</b> return null if string parsing fails (e.g. the user formatted their string wrong).
  */
-public class VariableStringStructureEntryData extends KeyValueStructureEntryData<VariableString> {
+public class VariableStringEntryData extends KeyValueEntryData<VariableString> {
 
 	private final StringMode stringMode;
 
@@ -44,7 +44,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(
+	public VariableStringEntryData(
 		String key, @Nullable VariableString defaultValue, boolean optional,
 		Class<? extends Event>... events
 	) {
@@ -58,7 +58,7 @@ public class VariableStringStructureEntryData extends KeyValueStructureEntryData
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
-	public VariableStringStructureEntryData(
+	public VariableStringEntryData(
 		String key, @Nullable VariableString defaultValue, boolean optional,
 		StringMode stringMode, Class<? extends Event>... events
 	) {
