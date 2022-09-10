@@ -61,7 +61,7 @@ public class ParseTagPatternElement extends PatternElement {
 				}
 
 				if (inner instanceof ChoicePatternElement) {
-					// :(a|b)
+					// :(a|b) or :[a|b]
 					ChoicePatternElement choicePatternElement = (ChoicePatternElement) inner;
 					List<PatternElement> patternElements = choicePatternElement.getPatternElements();
 					for (int i = 0; i < patternElements.size(); i++) {
