@@ -307,7 +307,7 @@ public class DefaultChangers {
 							if (itemType.getItemMeta() instanceof SkullMeta) {
 								OfflinePlayer offlinePlayer = ((SkullMeta) itemType.getItemMeta()).getOwningPlayer();
 								if (offlinePlayer == null)
-									return;
+									continue;
 								Skull skull = (Skull) block.getState();
 								skull.setOwningPlayer(offlinePlayer);
 								skull.update();
