@@ -31,9 +31,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Name("Items")
 @Description("Items or blocks of a specific type, useful for looping.")
@@ -99,9 +96,12 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public Iterator<ItemStack> iterator(Event event) {
 		if (!items && itemTypeExpr == null)
-			return new ArrayIterator<>(ALL_BLOCKS.clone());
+			return Arrays.stream(ALL_BLOCKS)
+				.map(ItemStack::clone)
+				.iterator();
 
 		Iterable<ItemStack> iterable = Iterables.concat(itemTypeExpr.stream(event).map(ItemType::getAll).toArray(Iterable[]::new));
 		if (items) {
