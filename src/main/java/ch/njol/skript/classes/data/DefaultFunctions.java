@@ -474,6 +474,7 @@ public class DefaultFunctions {
 				public String[] executeSimple(Object[][] params) {
 					String string = (String) params[0][0];
 					Number times = (Number) params[1][0];
+					if (times.intValue() < 1) return new String[]{string};
 					return new String[] {string.repeat(times.intValue())};
 				}
 			}).description("Repeats a given string a given amount of times")
