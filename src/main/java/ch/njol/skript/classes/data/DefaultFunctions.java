@@ -465,6 +465,21 @@ public class DefaultFunctions {
 		}).description("Returns a RGB color from the given red, green and blue parameters.")
 			.examples("dye player's leggings rgb(120, 30, 45)")
 			.since("2.5");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("repeat", new Parameter[] {
+				new Parameter<>("string", DefaultClasses.STRING, true, null),
+				new Parameter<>("times", DefaultClasses.NUMBER, true, null)
+			}, DefaultClasses.STRING, true) {
+				@Override
+				public String[] executeSimple(Object[][] params) {
+					String string = (String) params[0][0];
+					Number times = (Number) params[1][0];
+					return new String[] {string.repeat(times.intValue())};
+				}
+			}).description("Repeats a given string a given amount of times")
+			.examples("send \"Hello, World%repeat(\"!\",10)%\"")
+			.since("INSERT VERSION");
+
 	}
 	
 }
