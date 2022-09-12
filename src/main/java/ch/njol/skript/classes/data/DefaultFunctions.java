@@ -468,14 +468,14 @@ public class DefaultFunctions {
 
 		Functions.registerFunction(new SimpleJavaFunction<String>("repeat", new Parameter[] {
 				new Parameter<>("string", DefaultClasses.STRING, true, null),
-				new Parameter<>("times", DefaultClasses.NUMBER, true, null)
+				new Parameter<>("count", DefaultClasses.NUMBER, true, null)
 			}, DefaultClasses.STRING, true) {
 				@Override
 				public String[] executeSimple(Object[][] params) {
 					String string = (String) params[0][0];
-					Number times = (Number) params[1][0];
-					if (times.intValue() < 1) return new String[]{string};
-					return new String[] {string.repeat(times.intValue())};
+					Number count = (Number) params[1][0];
+					if (count.intValue() < 0) return new String[]{string};
+					return new String[] {string.repeat(count.intValue())};
 				}
 			}).description("Repeats a given string a given amount of times")
 			.examples("send \"Hello, World%repeat(\"!\",10)%\"")
