@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -40,7 +41,6 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -59,6 +59,7 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -255,9 +256,11 @@ public class SimpleEvents {
 		.description("Called when a player fills a bucket.")
 				.examples("on player filling a bucket:")
 				.since("1.0");
-		Skript.registerEvent("Throwing of an Egg", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
-				.description("Called when a player throws an egg. You can just use the <a href='#shoot'>shoot event</a> in most cases, " +
-						"as this event is intended to support changing the hatched mob and its chance to hatch, but Skript does not yet support that.")
+		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
+				.description(
+						"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases." +
+						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
+				)
 				.examples("on throw of an egg:")
 				.since("1.0");
 		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
@@ -607,5 +610,23 @@ public class SimpleEvents {
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
 		}
+		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
+			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
+			.examples("on anvil prepare:",
+				"\tevent-item is set # result item",
+				"\tchance of 5%:",
+				"\t\tset repair cost to repair cost * 50%",
+				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
+			.since("INSERT VERSION");
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
+				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
+					 		 "Note: this does not include anvil damage from falling.")
+				.requiredPlugins("Paper")
+				.examples("on anvil damage:",
+					"\tcancel the event")
+				.since("INSERT VERSION");
+		}
 	}
+
 }
