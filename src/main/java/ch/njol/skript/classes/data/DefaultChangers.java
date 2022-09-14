@@ -32,6 +32,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
@@ -300,20 +301,21 @@ public class DefaultChangers {
 				switch (mode) {
 					case SET:
 						assert delta != null;
-						Object o = delta[0];
-						if (o instanceof ItemType) {
-							ItemType itemType = (ItemType) o;
+						Object object = delta[0];
+						if (object instanceof ItemType) {
+							ItemType itemType = (ItemType) object;
 							itemType.getBlock().setBlock(block, true);
-							if (itemType.getItemMeta() instanceof SkullMeta) {
-								OfflinePlayer offlinePlayer = ((SkullMeta) itemType.getItemMeta()).getOwningPlayer();
+							ItemMeta itemMeta = itemType.getItemMeta();
+							if (itemMeta instanceof SkullMeta) {
+								OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
 								if (offlinePlayer == null)
 									continue;
 								Skull skull = (Skull) block.getState();
 								skull.setOwningPlayer(offlinePlayer);
 								skull.update();
 							}
-						} else if (o instanceof BlockData) {
-							block.setBlockData(((BlockData) o));
+						} else if (object instanceof BlockData) {
+							block.setBlockData(((BlockData) object));
 						}
 						break;
 					case DELETE:
@@ -328,25 +330,25 @@ public class DefaultChangers {
 							break;
 						final Inventory invi = ((InventoryHolder) state).getInventory();
 						if (mode == ChangeMode.ADD) {
-							for (final Object d : delta) {
-								if (d instanceof Inventory) {
-									for (final ItemStack i : (Inventory) d) {
+							for (final Object obj : delta) {
+								if (obj instanceof Inventory) {
+									for (final ItemStack i : (Inventory) obj) {
 										if (i != null)
 											invi.addItem(i);
 									}
 								} else {
-									((ItemType) d).addTo(invi);
+									((ItemType) obj).addTo(invi);
 								}
 							}
 						} else {
-							for (final Object d : delta) {
-								if (d instanceof Inventory) {
-									invi.removeItem(((Inventory) d).getContents());
+							for (final Object obj : delta) {
+								if (obj instanceof Inventory) {
+									invi.removeItem(((Inventory) obj).getContents());
 								} else {
 									if (mode == ChangeMode.REMOVE)
-										((ItemType) d).removeFrom(invi);
+										((ItemType) obj).removeFrom(invi);
 									else
-										((ItemType) d).removeAll(invi);
+										((ItemType) obj).removeAll(invi);
 								}
 							}
 						}
