@@ -19,7 +19,6 @@
 package ch.njol.skript.classes.data;
 
 import java.util.Calendar;
-import java.util.Collections;
 
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.JavaFunction;
@@ -476,7 +475,7 @@ public class DefaultFunctions {
 					String string = (String) params[0][0];
 					int count = ((Number) params[1][0]).intValue();
 					if (count < 1) return new String[]{string};
-					return new String[] {String.join("", Collections.nCopies(count, string))};
+					return new String[] {StringUtils.multiply(string, count)};
 				}
 			}).description("Repeats a given string a given amount of times")
 			.examples("send \"Hello, World%repeat(\"!\",10)%\"")
