@@ -33,10 +33,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Within Location")
-@Description("Whether a location is within two other locations")
+@Description("Whether a location is within two other locations forming a cuboid.")
 @Examples({
 	"if player's location is within {_loc1} and {_loc2}:",
-	"\tsend \"You are in a PvP zone!\" to player"
+		"\tsend \"You are in a PvP zone!\" to player"
 })
 @Since("INSERT VERSION")
 public class CondIsWithinLocation extends Condition {
@@ -47,9 +47,7 @@ public class CondIsWithinLocation extends Condition {
 			"%locations% (isn't|is not|aren't|are not) within %location% and %location%");
 	}
 
-	private Expression<Location> locsToCheck;
-	private Expression<Location> loc1;
-	private Expression<Location> loc2;
+	private Expression<Location> locsToCheck, loc1, loc2;
 
 	@Override
 	@SuppressWarnings("unchecked")
