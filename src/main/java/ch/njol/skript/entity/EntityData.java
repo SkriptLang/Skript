@@ -41,6 +41,7 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
@@ -158,9 +159,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
-				.supplier(() -> Arrays.stream(EntityType.values())
-					.map(EntityUtils::toSkriptEntityData)
-					.iterator())
+				.supplier(() -> new ArrayIterator<>(infos.stream()
+					.map(info -> parse(info.codeName))
+					.toArray(EntityData[]::new)))
 				.parser(new Parser<EntityData>() {
 					@Override
 					public String toString(final EntityData d, final int flags) {

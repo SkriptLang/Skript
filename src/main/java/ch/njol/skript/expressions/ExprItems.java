@@ -34,7 +34,7 @@ import ch.njol.util.coll.iterator.ArrayIterator;
 import com.google.common.collect.Iterables;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
+import ch.njol.skript.aliases.ItemType;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -46,20 +46,20 @@ import java.util.List;
 @Description("Items or blocks of a specific type, useful for looping.")
 @Examples({
 	"loop items of type ore and log:",
-	"\tblock contains loop-item",
-	"\tmessage \"Theres at least one %loop-item% in this block\"",
-	"drop all blocks at the player # drops one of every block at the player"
+		"\tblock contains loop-item",
+		"\tmessage \"Theres at least one %loop-item% in this block\"",
+		"drop all blocks at the player # drops one of every block at the player"
 })
 @Since("<i>unknown</i> (before 1.4.2)")
-public class ExprItems extends SimpleExpression<ItemStack> {
+public class ExprItems extends SimpleExpression<ItemType> {
 
-	private static final ItemStack[] ALL_BLOCKS = Arrays.stream(Material.values())
+	private static final ItemType[] ALL_BLOCKS = Arrays.stream(Material.values())
 		.filter(Material::isBlock)
-		.map(ItemStack::new)
-		.toArray(ItemStack[]::new);
+		.map(ItemType::new)
+		.toArray(ItemType[]::new);
 
 	static {
-		Skript.registerExpression(ExprItems.class, ItemStack.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
 			"[(all [[of] the]|the|every)] block(s|[ ]type[s])",
 			"[(all [[of] the]|the|every)] blocks of type[s] %itemtypes%",
 			"[(all [[of] the]|the|every)] items of type[s] %itemtypes%");
@@ -68,7 +68,7 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 	@Nullable
 	private Expression<ItemType> itemTypeExpr;
 	private boolean items;
-	private ItemStack[] buffer = null;
+	private ItemType[] buffer = null;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -84,36 +84,36 @@ public class ExprItems extends SimpleExpression<ItemStack> {
 
 	@Override
 	@Nullable
-	protected ItemStack[] get(Event event) {
+	protected ItemType[] get(Event event) {
 		if (buffer != null)
 			return buffer;
-		List<ItemStack> items = new ArrayList<>();
+		List<ItemType> items = new ArrayList<>();
 		iterator(event).forEachRemaining(items::add);
 		if (itemTypeExpr instanceof Literal)
-			return buffer = items.toArray(new ItemStack[0]);
-		return items.toArray(new ItemStack[0]);
+			return buffer = items.toArray(new ItemType[0]);
+		return items.toArray(new ItemType[0]);
 	}
 
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public Iterator<ItemStack> iterator(Event event) {
+	public Iterator<ItemType> iterator(Event event) {
 		if (!items && itemTypeExpr == null)
 			return Arrays.stream(ALL_BLOCKS)
-				.map(ItemStack::clone)
+				.map(ItemType::clone)
 				.iterator();
 
-		Iterable<ItemStack> iterable = Iterables.concat(itemTypeExpr.stream(event).map(ItemType::getAll).toArray(Iterable[]::new));
+		Iterable<ItemType> iterable = Iterables.concat(itemTypeExpr.stream(event).map(ItemType::getAll).toArray(Iterable[]::new));
 		if (items) {
 			return iterable.iterator();
 		} else {
-			return Iterables.filter(iterable, item -> item.getType().isBlock()).iterator();
+			return Iterables.filter(iterable, item -> item.getMaterial().isBlock()).iterator();
 		}
 	}
 
 	@Override
-	public Class<? extends ItemStack> getReturnType() {
-		return ItemStack.class;
+	public Class<? extends ItemType> getReturnType() {
+		return ItemType.class;
 	}
 
 	@Override

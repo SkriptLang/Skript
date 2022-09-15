@@ -30,6 +30,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -42,8 +43,8 @@ import java.util.function.Supplier;
 @Description("A list of all the values of a type; useful for looping.")
 @Examples({
 	"loop all attribute types:",
-	"\tset loop-value attribute of player to 10",
-	"\tmessage \"Set attribute %loop-value% to 10!\""
+		"\tset loop-value attribute of player to 10",
+		"\tmessage \"Set attribute %loop-value% to 10!\""
 })
 @Since("INSERT VERSION")
 public class ExprSets<T> extends SimpleExpression<T> {
@@ -73,14 +74,13 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	@SuppressWarnings("unchecked")
 	protected T[] get(Event event) {
 		Iterator<T> iterator = supplier.get();
-		List<T> elements = new ArrayList<>();
-		iterator.forEachRemaining(elements::add);
+		List<T> elements = Lists.newArrayList(iterator);
 		return (T[]) elements.toArray(new Object[0]);
 	}
 
 	@Override
 	@Nullable
-	public Iterator<? extends T> iterator(Event e) {
+	public Iterator<? extends T> iterator(Event event) {
 		return supplier.get();
 	}
 
