@@ -296,7 +296,7 @@ public class DefaultChangers {
 		
 		@Override
 		public void change(final Block[] blocks, final @Nullable Object[] delta, final ChangeMode mode) {
-			for (final Block block : blocks) {
+			for (Block block : blocks) {
 				assert block != null;
 				switch (mode) {
 					case SET:
@@ -325,14 +325,14 @@ public class DefaultChangers {
 					case REMOVE:
 					case REMOVE_ALL:
 						assert delta != null;
-						final BlockState state = block.getState();
+						BlockState state = block.getState();
 						if (!(state instanceof InventoryHolder))
 							break;
-						final Inventory invi = ((InventoryHolder) state).getInventory();
+						Inventory invi = ((InventoryHolder) state).getInventory();
 						if (mode == ChangeMode.ADD) {
-							for (final Object obj : delta) {
+							for (Object obj : delta) {
 								if (obj instanceof Inventory) {
-									for (final ItemStack i : (Inventory) obj) {
+									for (ItemStack i : (Inventory) obj) {
 										if (i != null)
 											invi.addItem(i);
 									}
@@ -341,7 +341,7 @@ public class DefaultChangers {
 								}
 							}
 						} else {
-							for (final Object obj : delta) {
+							for (Object obj : delta) {
 								if (obj instanceof Inventory) {
 									invi.removeItem(((Inventory) obj).getContents());
 								} else {
