@@ -1861,6 +1861,7 @@ environments:
 	normal: overworld, the overworld
 	nether: nether, the nether
 	the_end: end, the end
+	custom: custom
 
 # -- Boolean --
 boolean:
