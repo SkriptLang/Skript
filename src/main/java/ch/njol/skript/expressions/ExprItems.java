@@ -30,17 +30,18 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.iterator.ArrayIterator;
+import ch.njol.util.coll.iterator.IteratorIterable;
 import com.google.common.collect.Iterables;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
-import ch.njol.skript.aliases.ItemType;
+import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 @Name("Items")
 @Description("Items or blocks of a specific type, useful for looping.")
@@ -103,11 +104,19 @@ public class ExprItems extends SimpleExpression<ItemType> {
 				.map(ItemType::clone)
 				.iterator();
 
-		Iterable<ItemType> iterable = Iterables.concat(itemTypeExpr.stream(event).map(ItemType::getAll).toArray(Iterable[]::new));
+		Iterable<ItemStack> itemStackIterable = Iterables.concat(itemTypeExpr.stream(event)
+			.map(ItemType::getAll)
+			.toArray(Iterable[]::new));
+
 		if (items) {
-			return iterable.iterator();
+			return StreamSupport.stream(itemStackIterable.spliterator(), false)
+				.map(ItemType::new)
+				.iterator();
 		} else {
-			return Iterables.filter(iterable, item -> item.getMaterial().isBlock()).iterator();
+			return StreamSupport.stream(itemStackIterable.spliterator(), false)
+				.filter(itemStack -> itemStack.getType().isBlock())
+				.map(ItemType::new)
+				.iterator();
 		}
 	}
 
