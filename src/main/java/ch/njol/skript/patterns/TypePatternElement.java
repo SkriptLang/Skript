@@ -108,7 +108,20 @@ public class TypePatternElement extends PatternElement {
 			newExprOffset = expr.length();
 		} else if (next instanceof LiteralPatternElement) {
 			nextLiteral = next.toString();
+
 			nextLiteralIsWhitespace = nextLiteral.trim().isEmpty();
+
+			if (!nextLiteralIsWhitespace) { // Don't do this for literal patterns that are *only* whitespace - they have their own special handling
+				// trim trailing whitespace - it can cause issues with optional patterns following the literal
+				int nextLength = nextLiteral.length();
+				for (int i = nextLength; i > 0; i--) {
+					if (!Character.isWhitespace(nextLiteral.charAt(i - 1))) {
+						if (i != nextLength)
+							nextLiteral = nextLiteral.substring(0, i);
+						break;
+					}
+				}
+			}
 
 			newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, matchResult.exprOffset, matchResult.parseContext);
 			if (newExprOffset == -1 && nextLiteralIsWhitespace) { // We need to tread more carefully here
@@ -171,6 +184,7 @@ public class TypePatternElement extends PatternElement {
 					newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, newExprOffset + 1, matchResult.parseContext);
 					if (newExprOffset == -1 && nextLiteralIsWhitespace) {
 						// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+						// So, from this point on, we're going to go character by character
 						nextLiteral = null;
 						newExprOffset = SkriptParser.next(expr, oldNewExprOffset, matchResult.parseContext);
 					}
