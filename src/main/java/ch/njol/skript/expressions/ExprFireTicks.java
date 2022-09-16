@@ -30,7 +30,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Fire Time")
+@Name("Entity Fire Burn Duration")
 @Description("How much time an entity will be burning for.")
 @Examples({"send \"You will stop burning in %fire time of player%\""})
 @Since("INSERT VERSION")
