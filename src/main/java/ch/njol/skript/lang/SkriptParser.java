@@ -1250,6 +1250,63 @@ public class SkriptParser {
 		return i + 1;
 	}
 
+	/**
+	 * Returns the next occurrence of the needle in the haystack.
+	 * Similar to {@link #next(String, int, ParseContext)}, this method skips
+	 * strings, variables and parentheses (unless <tt>context</tt> is {@link ParseContext#COMMAND}).
+	 *
+	 * @param haystack The string to search in.
+	 * @param needle The string to search for.
+	 * @param startIndex The index to start in within the haystack.
+	 * @return The next index representing the first character of the needle.
+	 * May return -1 if an invalid string, variable or bracket is found or if <tt>startIndex >= hatsack.length()</tt>.
+	 * @throws StringIndexOutOfBoundsException if <tt>startIndex < 0</tt>.
+	 */
+	public static int nextOccurrence(String haystack, String needle, int startIndex, ParseContext parseContext) {
+		if (startIndex < 0)
+			throw new StringIndexOutOfBoundsException(startIndex);
+		if (parseContext == ParseContext.COMMAND)
+			return haystack.indexOf(needle, startIndex);
+
+		int haystackLength = haystack.length();
+		if (startIndex >= haystackLength)
+			return -1;
+
+		char firstChar = needle.charAt(0);
+		boolean startsWithSpecialChar = firstChar == '"' || firstChar == '{' || firstChar == '(';
+
+		while (startIndex < haystackLength) {
+
+			char c = haystack.charAt(startIndex);
+
+			if (startsWithSpecialChar) { // Early check before special character handling
+				if (haystack.startsWith(needle, startIndex))
+					return startIndex;
+			}
+
+			if (c == '"') {
+				startIndex = nextQuote(haystack, startIndex + 1);
+				if (startIndex < 0)
+					return -1;
+			} else if (c == '{') {
+				startIndex = VariableString.nextVariableBracket(haystack, startIndex + 1);
+				if (startIndex < 0)
+					return -1;
+			} else if (c == '(') {
+				startIndex = next(haystack, startIndex, parseContext); // Use other function to skip to right after closing parentheses
+				if (startIndex < 0)
+					return -1;
+			}
+
+			if (haystack.startsWith(needle, startIndex))
+				return startIndex;
+
+			startIndex++;
+		}
+
+		return -1;
+	}
+
 	private static final Map<String, SkriptPattern> patterns = new HashMap<>();
 
 	@Nullable

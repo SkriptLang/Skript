@@ -100,19 +100,34 @@ public class TypePatternElement extends PatternElement {
 	@Nullable
 	public MatchResult match(String expr, MatchResult matchResult) {
 		int newExprOffset;
+
+		String nextLiteral = null;
+		boolean nextLiteralIsWhitespace = false;
+
 		if (next == null) {
 			newExprOffset = expr.length();
+		} else if (next instanceof LiteralPatternElement) {
+			nextLiteral = next.toString();
+			nextLiteralIsWhitespace = nextLiteral.trim().isEmpty();
+
+			newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, matchResult.exprOffset, matchResult.parseContext);
+			if (newExprOffset == -1 && nextLiteralIsWhitespace) { // We need to tread more carefully here
+				// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+				nextLiteral = null;
+				newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
+			}
 		} else {
 			newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
-			if (newExprOffset == -1)
-				return null;
 		}
+
+		if (newExprOffset == -1)
+			return null;
 
 		ExprInfo exprInfo = getExprInfo();
 
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
-			for (; newExprOffset != -1; newExprOffset = SkriptParser.next(expr, newExprOffset, matchResult.parseContext)) {
+			while (newExprOffset != -1) {
 				loopLogHandler.clear();
 
 				MatchResult matchResultCopy = matchResult.copy();
@@ -149,6 +164,18 @@ public class TypePatternElement extends PatternElement {
 					} finally {
 						expressionLogHandler.printError();
 					}
+				}
+
+				if (nextLiteral != null) {
+					int oldNewExprOffset = newExprOffset;
+					newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, newExprOffset + 1, matchResult.parseContext);
+					if (newExprOffset == -1 && nextLiteralIsWhitespace) {
+						// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+						nextLiteral = null;
+						newExprOffset = SkriptParser.next(expr, oldNewExprOffset, matchResult.parseContext);
+					}
+				} else {
+					newExprOffset = SkriptParser.next(expr, newExprOffset, matchResult.parseContext);
 				}
 			}
 		} finally {
