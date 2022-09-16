@@ -60,6 +60,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -1371,10 +1372,10 @@ public final class BukkitEventValues {
 		}, 0);
 		// PlayerTradeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
-			EventValues.registerEventValue(PlayerTradeEvent.class, Entity.class, new Getter<Entity, PlayerTradeEvent>() {
+			EventValues.registerEventValue(PlayerTradeEvent.class, AbstractVillager.class, new Getter<AbstractVillager, PlayerTradeEvent>() {
 				@Override
 				@Nullable
-				public Entity get(PlayerTradeEvent event) {
+				public AbstractVillager get(PlayerTradeEvent event) {
 					return event.getVillager();
 				}
 			}, EventValues.TIME_NOW);
