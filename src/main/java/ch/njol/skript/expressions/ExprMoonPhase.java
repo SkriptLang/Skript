@@ -33,7 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The current moon phase of a world")
 @Examples({
 	"if moon phase of player's world is full moon:",
-	"\tsend \"today's a full moon!\""
+		"\tsend \"today's a full moon!\""
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.16+")
