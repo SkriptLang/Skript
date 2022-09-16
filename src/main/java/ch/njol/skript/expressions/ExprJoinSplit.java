@@ -80,14 +80,14 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
-		String[] s = strings.getArray(event);
-		String d = delimiter != null ? delimiter.getSingle(event) : "";
-		if (s.length == 0 || d == null)
+		String[] strings = this.strings.getArray(event);
+		String delimiter = this.delimiter != null ? this.delimiter.getSingle(event) : "";
+		if (strings.length == 0 || delimiter == null)
 			return new String[0];
 		if (join) {
-			return new String[] {StringUtils.join(s, d)};
+			return new String[] {StringUtils.join(strings, delimiter)};
 		} else {
-			return s[0].split(regex ? d : (caseSensitivity ? "" : "(?i)") + Pattern.quote(d), -1);
+			return strings[0].split(regex ? delimiter : (caseSensitivity ? "" : "(?i)") + Pattern.quote(delimiter), -1);
 		}
 	}
 
