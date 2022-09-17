@@ -1,0 +1,6 @@
+test "time played":
+	set {_time} to time played of "Notch" parsed as offlineplayer
+	if running minecraft "1.15":
+		assert {_time} is equal to 0 seconds with "Notch hacked your server and built a dirt house on your server (time: %{_time}%)"
+	else:
+		assert {_time} is not set with "Played time of offline players are not supported but seems like Notch is a hacker! (time: %{_time}%)"
