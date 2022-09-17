@@ -45,11 +45,17 @@ public class LiteralPatternElement extends PatternElement {
 
 		int exprIndex = matchResult.exprOffset;
 		for (char c : literal) {
-			if (c == ' ') {
-				if (exprIndex == 0 || exprIndex == exprChars.length || (exprIndex > 0 && exprChars[exprIndex - 1] == ' '))
+			if (c == ' ') { // spaces have special handling to account for extraneous spaces within lines
+				// ignore patterns leading or ending with spaces (or if we have multiple leading spaces)
+				if (exprIndex == 0 || exprIndex == exprChars.length)
 					continue;
-				else if (exprChars[exprIndex] != ' ')
-					return null;
+				if (exprChars[exprIndex] == ' ') { // pattern is ' fly' and we were given ' fly'
+					exprIndex++;
+					continue;
+				}
+				if (exprChars[exprIndex - 1] == ' ') // pattern is ' fly' but we were given something like '  fly' or 'fly'
+					continue;
+				return null;
 			} else if (exprIndex == exprChars.length || Character.toLowerCase(c) != Character.toLowerCase(exprChars[exprIndex]))
 				return null;
 			exprIndex++;

@@ -1258,11 +1258,12 @@ public class SkriptParser {
 	 * @param haystack The string to search in.
 	 * @param needle The string to search for.
 	 * @param startIndex The index to start in within the haystack.
+	 * @param caseSensitive Whether this search will be case-sensitive.
 	 * @return The next index representing the first character of the needle.
 	 * May return -1 if an invalid string, variable or bracket is found or if <tt>startIndex >= hatsack.length()</tt>.
 	 * @throws StringIndexOutOfBoundsException if <tt>startIndex < 0</tt>.
 	 */
-	public static int nextOccurrence(String haystack, String needle, int startIndex, ParseContext parseContext) {
+	public static int nextOccurrence(String haystack, String needle, int startIndex, ParseContext parseContext, boolean caseSensitive) {
 		if (startIndex < 0)
 			throw new StringIndexOutOfBoundsException(startIndex);
 		if (parseContext == ParseContext.COMMAND)
@@ -1271,6 +1272,11 @@ public class SkriptParser {
 		int haystackLength = haystack.length();
 		if (startIndex >= haystackLength)
 			return -1;
+
+		if (!caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
 
 		char firstChar = needle.charAt(0);
 		boolean startsWithSpecialChar = firstChar == '"' || firstChar == '{' || firstChar == '(';
