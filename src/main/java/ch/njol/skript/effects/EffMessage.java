@@ -104,23 +104,23 @@ public class EffMessage extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Player sender = this.sender != null ? this.sender.getSingle(e) : null;
+	protected void execute(Event event) {
+		sendMessage(event, getMessages(), recipients.getArray(event), this.sender != null ? this.sender.getSingle(event) : null);
+	}
 
-		CommandSender[] commandSenders = recipients.getArray(e);
-
-		for (Expression<?> message : getMessages()) {
+	public static void sendMessage(Event event, Expression<?>[] messages, CommandSender[] receivers, @Nullable Player sender) {
+		for (Expression<?> message : messages) {
 
 			Object[] messageArray = null;
 			List<MessageComponent> messageComponents = null;
 
-			for (CommandSender receiver : commandSenders) {
+			for (CommandSender receiver : receivers) {
 				if (receiver instanceof Player && message instanceof VariableString) {
 					if (messageComponents == null)
-						messageComponents = ((VariableString) message).getMessageComponents(e);
+						messageComponents = ((VariableString) message).getMessageComponents(event);
 				} else {
 					if (messageArray == null)
-						messageArray = message.getArray(e);
+						messageArray = message.getArray(event);
 				}
 
 				if (receiver instanceof Player) { // Can use JSON formatting
@@ -147,7 +147,7 @@ public class EffMessage extends Effect {
 		}
 	}
 	
-	private void sendMessage(Player receiver, @Nullable Player sender, BaseComponent... components) {
+	private static void sendMessage(Player receiver, @Nullable Player sender, BaseComponent... components) {
 		if (SUPPORTS_SENDER && sender != null)
 			receiver.spigot().sendMessage(sender.getUniqueId(), components);
 		else
@@ -161,7 +161,7 @@ public class EffMessage extends Effect {
 		return messages;
 	}
 
-	private String toString(Object object) {
+	private static String toString(Object object) {
 		return object instanceof String ? (String) object : Classes.toString(object);
 	}
 

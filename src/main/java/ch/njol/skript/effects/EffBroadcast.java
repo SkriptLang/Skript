@@ -23,19 +23,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -76,33 +70,17 @@ public class EffBroadcast extends Effect {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
-	public void execute(Event e) {
+	public void execute(Event event) {
 		List<CommandSender> receivers = new ArrayList<>();
 		if (worlds == null) {
 			receivers.addAll(Bukkit.getOnlinePlayers());
 			receivers.add(Bukkit.getConsoleSender());
 		} else {
-			for (World world : worlds.getArray(e))
+			for (World world : worlds.getArray(event))
 				receivers.addAll(world.getPlayers());
 		}
 
-		for (Expression<?> message : getMessages()) {
-			if (message instanceof VariableString) {
-				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
-				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
-				for (Object realMessage : message.getArray(e)) {
-					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
-					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-				}
-			} else {
-				for (Object messageObject : message.getArray(e)) {
-					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
-					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
-				}
-			}
-		}
+		EffMessage.sendMessage(event, getMessages(), receivers.toArray(new CommandSender[0]), null);
 	}
 
 	private Expression<?>[] getMessages() {
