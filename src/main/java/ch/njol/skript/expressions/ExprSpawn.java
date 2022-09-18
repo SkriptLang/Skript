@@ -76,19 +76,20 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		//noinspection ConstantConditions
 		if (delta == null)
 			return;
 
 		Location originalLocation = (Location) delta[0];
 		assert originalLocation != null;
-		for (World world : getExpr().getArray(e)) {
+		for (World world : getExpr().getArray(event)) {
 			Location location = originalLocation.clone();
-			if (location.getWorld() == null) {
+			World locationWorld = location.getWorld();
+			if (locationWorld == null) {
 				location.setWorld(world);
 				world.setSpawnLocation(location);
-			} else if (location.getWorld().equals(world)) {
+			} else if (locationWorld.equals(world)) {
 				world.setSpawnLocation(location);
 			}
 		}
@@ -106,8 +107,8 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the spawn point of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the spawn point of " + getExpr().toString(event, debug);
 	}
 
 }
