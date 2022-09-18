@@ -79,39 +79,21 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
 	
-	static final MaterialRegistry materialRegistry;
+	static final MaterialRegistry materialRegistry = new MaterialRegistry();
 	
 	private static final boolean SPAWN_EGG_META_EXISTS = Skript.classExists("org.bukkit.inventory.meta.SpawnEggMeta");
 	private static final boolean HAS_NEW_SKULL_META_METHODS = Skript.methodExists(SkullMeta.class, "getOwningPlayer");
 	
 	// Load or create material registry
 	static {
-		Gson gson = new GsonBuilder().registerTypeAdapterFactory(EnumTypeAdapter.factory).serializeNulls().create();
 		Path materialsFile = Paths.get(Skript.getInstance().getDataFolder().getAbsolutePath(), "materials.json");
 		if (Files.exists(materialsFile)) {
-			String content = null;
 			try {
-				content = new String(Files.readAllBytes(materialsFile), StandardCharsets.UTF_8);
+				Files.delete(materialsFile);
 			} catch (IOException e) {
-				Skript.exception(e, "Loading material registry failed!");
+				Skript.exception(e, "Failed to remove legacy material registry!");
+				throw new RuntimeException(e);
 			}
-			if (content != null) {
-				String[] names = gson.fromJson(content, String[].class);
-				assert names != null;
-				materialRegistry = MaterialRegistry.load(names);
-			} else {
-				materialRegistry = new MaterialRegistry();
-			}
-		} else {
-			materialRegistry = new MaterialRegistry();
-		}
-		
-		// Always rewrite material registry, in case some updates got applied to it
-		String content = gson.toJson(materialRegistry.getMaterials());
-		try {
-			Files.write(materialsFile, content.getBytes(StandardCharsets.UTF_8));
-		} catch (IOException e) {
-			Skript.exception(e, "Saving material registry failed!");
 		}
 	}
 	
