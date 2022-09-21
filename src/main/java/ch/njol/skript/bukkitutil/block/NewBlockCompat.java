@@ -60,6 +60,8 @@ public class NewBlockCompat implements BlockCompat {
 		boolean isDefault;
 		
 		public NewBlockValues(Material type, BlockData data, boolean isDefault) {
+			if (type != data.getMaterial())
+				throw new IllegalArgumentException("'type' does not match material of 'data'");
 			this.type = type;
 			this.data = data;
 			this.isDefault = isDefault;
@@ -68,7 +70,7 @@ public class NewBlockCompat implements BlockCompat {
 		/**
 		 * For Serialization - INTERNAL USAGE ONLY!!
 		 */
-		public NewBlockValues() { }
+		private NewBlockValues() { }
 		
 		@Override
 		public boolean isDefault() {
