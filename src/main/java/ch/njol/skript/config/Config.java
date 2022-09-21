@@ -184,7 +184,11 @@ public class Config implements Comparable<Config> {
 	}
 	
 	public boolean setValues(final Config other, final String... excluded) {
-		return getMainNode().setValues(other.getMainNode(), excluded);
+		return setValues(other, false, excluded);
+	}
+
+	public boolean setValues(Config other, boolean countValues, String... excluded) {
+		return getMainNode().setValues(other.getMainNode(), countValues, excluded);
 	}
 	
 	@Nullable
