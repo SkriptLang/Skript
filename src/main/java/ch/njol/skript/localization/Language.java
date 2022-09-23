@@ -294,7 +294,7 @@ public class Language {
 		if (in == null)
 			return new HashMap<>();
 
-		try (in) {
+		try {
 			Config langConfig = new Config(in, name + ".lang", false, false, ":");
 
 			if (tryUpdate && !Skript.getVersion().toString().equals(langConfig.get("version"))) {
@@ -324,6 +324,10 @@ public class Language {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load the language file '" + name + ".lang': " + ExceptionUtils.toString(e));
 			return new HashMap<>();
+		} finally {
+			try {
+				in.close();
+			} catch (IOException ignored) { }
 		}
 	}
 
