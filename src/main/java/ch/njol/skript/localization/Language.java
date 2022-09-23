@@ -294,9 +294,8 @@ public class Language {
 		if (in == null)
 			return new HashMap<>();
 
-		try {
+		try (in) {
 			Config langConfig = new Config(in, name + ".lang", false, false, ":");
-			in.close();
 
 			if (tryUpdate && !Skript.getVersion().toString().equals(langConfig.get("version"))) {
 				String langFileName = "lang/" + name + ".lang";
