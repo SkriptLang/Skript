@@ -692,9 +692,9 @@ public class SkriptParser {
 						isLiteralList &= t instanceof Literal;
 						ts.add(t);
 						if (b != 0) {
-							final String d = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
-							if (!d.equals(",")) {
-								boolean or = !d.contains("nor") && d.endsWith("or");
+							String delimiter = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
+							if (!delimiter.equals(",")) {
+								boolean or = !delimiter.contains("nor") && delimiter.endsWith("or");
 								if (and.isUnknown()) {
 									and = Kleenean.get(!or); // nor is and
 								} else {
@@ -819,9 +819,9 @@ public class SkriptParser {
 						isLiteralList &= t instanceof Literal;
 						ts.add(t);
 						if (b != 0) {
-							final String d = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
-							if (!d.equals(",")) {
-								boolean or = !d.contains("nor") && d.endsWith("or");
+							String delimiter = expr.substring(pieces.get(b - 1)[1], x).trim().toLowerCase(Locale.ENGLISH);
+							if (!delimiter.equals(",")) {
+								boolean or = !delimiter.contains("nor") && delimiter.endsWith("or");
 								if (and.isUnknown()) {
 									and = Kleenean.get(!or); // nor is and
 								} else {
