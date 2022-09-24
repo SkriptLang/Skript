@@ -40,7 +40,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -85,11 +84,11 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Nullable
 	private String pattern;
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@Nullable
 	private boolean[] plurals;
 
 	@Nullable
-	private ClassInfo<?> c;
+	private ClassInfo<?> classInfo;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
@@ -127,14 +126,14 @@ public class ExprParse extends SimpleExpression<Object> {
 			this.pattern = pattern;
 			plurals = p.getSecond();
 		} else {
-			c = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
-			if (c.getC() == String.class) {
+			classInfo = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
+			if (classInfo.getC() == String.class) {
 				Skript.error("Parsing as text is useless as only things that are already text may be parsed");
 				return false;
 			}
-			Parser<?> p = c.getParser();
+			Parser<?> p = classInfo.getParser();
 			if (p == null || !p.canParse(ParseContext.COMMAND)) { // TODO special parse context?
-				Skript.error("Text cannot be parsed as " + c.getName().withIndefiniteArticle());
+				Skript.error("Text cannot be parsed as " + classInfo.getName().withIndefiniteArticle());
 				return false;
 			}
 		}
@@ -144,20 +143,20 @@ public class ExprParse extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	protected Object[] get(Event e) {
-		String t = text.getSingle(e);
+	protected Object[] get(Event event) {
+		String t = text.getSingle(event);
 		if (t == null)
 			return null;
 		ParseLogHandler h = SkriptLogger.startParseLogHandler();
 		try {
 			lastError = null;
 
-			if (c != null) {
-				Parser<?> p = c.getParser();
-				assert p != null; // checked in init()
-				Object o = p.parse(t, ParseContext.COMMAND);
+			if (classInfo != null) {
+				Parser<?> parser = classInfo.getParser();
+				assert parser != null; // checked in init()
+				Object o = parser.parse(t, ParseContext.COMMAND);
 				if (o != null) {
-					Object[] one = (Object[]) Array.newInstance(c.getC(), 1);
+					Object[] one = (Object[]) Array.newInstance(classInfo.getC(), 1);
 					one[0] = o;
 					return one;
 				}
@@ -185,8 +184,8 @@ public class ExprParse extends SimpleExpression<Object> {
 			if (err != null) {
 				lastError = err.toString();
 			} else {
-				if (c != null) {
-					lastError = t + " could not be parsed as " + c.getName().withIndefiniteArticle();
+				if (classInfo != null) {
+					lastError = t + " could not be parsed as " + classInfo.getName().withIndefiniteArticle();
 				} else {
 					lastError = t + " could not be parsed as \"" + pattern + "\"";
 				}
@@ -205,12 +204,12 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return c != null ? c.getC() : Object[].class;
+		return classInfo != null ? classInfo.getC() : Object[].class;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return text.toString(e, debug) + " parsed as " + (c != null ? c.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
+		return text.toString(e, debug) + " parsed as " + (classInfo != null ? classInfo.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
 	}
 
 }
