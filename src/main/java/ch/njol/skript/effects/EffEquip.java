@@ -56,32 +56,33 @@ import ch.njol.util.Kleenean;
 @Description("Equips an entity with some given armor. This will replace any armor that the entity is wearing.")
 @Examples({"equip player with diamond helmet",
 		"equip player with all diamond armor"})
-@Since("1.0")
+@Since("1.0, INSERT VERSION (multiple entities)")
 public class EffEquip extends Effect implements Testable {
+
 	static {
 		Skript.registerEffect(EffEquip.class,
-				"equip [%livingentity%] with %itemtypes%",
-				"make %livingentity% wear %itemtypes%");
+				"equip [%livingentities%] with %itemtypes%",
+				"make %livingentities% wear %itemtypes%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
 	@SuppressWarnings("null")
 	private Expression<ItemType> types;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		entities = (Expression<LivingEntity>) vars[0];
-		types = (Expression<ItemType>) vars[1];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		entities = (Expression<LivingEntity>) exprs[0];
+		types = (Expression<ItemType>) exprs[1];
 		return true;
 	}
-	
+
 	private static final boolean SUPPORTS_HORSES = Skript.classExists("org.bukkit.entity.Horse");
 	private static final boolean NEW_HORSES = Skript.classExists("org.bukkit.entity.AbstractHorse");
 	private static final boolean SUPPORTS_LLAMAS = Skript.classExists("org.bukkit.entity.Llama");
 	private static final boolean SUPPORTS_STEERABLE = Skript.classExists("org.bukkit.entity.Steerable");
-	
+
 	private static final ItemType HELMET = Aliases.javaItemType("helmet");
 	private static final ItemType CHESTPLATE = Aliases.javaItemType("chestplate");
 	private static final ItemType LEGGINGS = Aliases.javaItemType("leggings");
@@ -90,12 +91,12 @@ public class EffEquip extends Effect implements Testable {
 	private static final ItemType SADDLE = Aliases.javaItemType("saddle");
 	private static final ItemType CHEST = Aliases.javaItemType("chest");
 	private static final ItemType CARPET = Aliases.javaItemType("carpet");
-	
-	@SuppressWarnings("deprecation")
+
 	@Override
-	protected void execute(final Event e) {
-		final ItemType[] ts = types.getArray(e);
-		for (final LivingEntity en : entities.getArray(e)) {
+	@SuppressWarnings("deprecation")
+	protected void execute(Event event) {
+		ItemType[] ts = types.getArray(event);
+		for (LivingEntity en : entities.getArray(event)) {
 			if (SUPPORTS_STEERABLE && en instanceof Steerable) {
 				for (ItemType it : ts) {
 					if (SADDLE.isOfType(it.getMaterial())) {
@@ -103,7 +104,7 @@ public class EffEquip extends Effect implements Testable {
 					}
 				}
 			} else if (en instanceof Pig) {
-				for (final ItemType t : ts) {
+				for (ItemType t : ts) {
 					if (t.isOfType(Material.SADDLE)) {
 						((Pig) en).setSaddle(true);
 						break;
@@ -124,9 +125,9 @@ public class EffEquip extends Effect implements Testable {
 				continue;
 			} else if (NEW_HORSES && en instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
-				final Inventory invi = ((AbstractHorse) en).getInventory();
-				for (final ItemType t : ts) {
-					for (final ItemStack item : t.getAll()) {
+				Inventory invi = ((AbstractHorse) en).getInventory();
+				for (ItemType t : ts) {
+					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
 							invi.setItem(0, item); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
@@ -138,9 +139,9 @@ public class EffEquip extends Effect implements Testable {
 				}
 				continue;
 			} else if (SUPPORTS_HORSES && en instanceof Horse) {
-				final HorseInventory invi = ((Horse) en).getInventory();
-				for (final ItemType t : ts) {
-					for (final ItemStack item : t.getAll()) {
+				HorseInventory invi = ((Horse) en).getInventory();
+				for (ItemType t : ts) {
+					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
 							invi.setSaddle(item);
 						} else if (HORSE_ARMOR.isOfType(item)) {
@@ -155,8 +156,8 @@ public class EffEquip extends Effect implements Testable {
 			EntityEquipment equip = en.getEquipment();
 			if (equip == null)
 				continue;
-			for (final ItemType t : ts) {
-				for (final ItemStack item : t.getAll()) {
+			for (ItemType t : ts) {
+				for (ItemStack item : t.getAll()) {
 					// Blocks are visible in head slot, too
 					// TODO skulls; waiting for decoration aliases
 					if (HELMET.isOfType(item) || item.getType().isBlock())
@@ -176,9 +177,9 @@ public class EffEquip extends Effect implements Testable {
 				PlayerUtils.updateInventory((Player) en);
 		}
 	}
-	
+
 	@Override
-	public boolean test(final Event e) {
+	public boolean test(Event e) {
 //		final Iterable<Player> ps = players.getArray(e);
 //		for (final ItemType t : types.getArray(e)) {
 //			for (final Player p : ps) {
@@ -187,10 +188,10 @@ public class EffEquip extends Effect implements Testable {
 //		}
 		return false;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "equip " + entities.toString(e, debug) + " with " + types.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "equip " + entities.toString(event, debug) + " with " + types.toString(event, debug);
 	}
-	
+
 }
