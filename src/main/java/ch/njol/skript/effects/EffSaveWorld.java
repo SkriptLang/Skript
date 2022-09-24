@@ -45,7 +45,7 @@ import java.util.Arrays;
 public class EffSaveWorld extends Effect {
 
 	static {
-		Skript.registerEffect(EffSaveWorld.class, "save all worlds", "save [the] world[s] %worlds%");
+		Skript.registerEffect(EffSaveWorld.class, "save all worlds", "save [the] %worlds%");
 	}
 
 	@Nullable

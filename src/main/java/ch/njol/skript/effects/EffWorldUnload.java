@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffWorldUnload extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldUnload.class, "unload [the] world[s] %worlds% [and (save|!save:(do not|don't) save)]"
+		Skript.registerEffect(EffWorldUnload.class, "unload [the] %worlds% [and (save|1¦(do not|don't) save)]"
 		);
 	}
 
@@ -53,7 +53,7 @@ public class EffWorldUnload extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		world = (Expression<World>) exprs[0];
-		save = !parseResult.hasTag("!save");
+		save = parseResult.mark != 1;
 		return true;
 	}
 
