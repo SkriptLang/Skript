@@ -37,6 +37,7 @@ import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
@@ -1377,6 +1378,16 @@ public final class BukkitEventValues {
 				@Nullable
 				public AbstractVillager get(PlayerTradeEvent event) {
 					return event.getVillager();
+				}
+			}, EventValues.TIME_NOW);
+		}
+		// EntityJumpEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			EventValues.registerEventValue(EntityJumpEvent.class, LivingEntity.class, new Getter<LivingEntity, EntityJumpEvent>() {
+				@Override
+				@Nullable
+				public LivingEntity get(EntityJumpEvent event) {
+					return event.getEntity();
 				}
 			}, EventValues.TIME_NOW);
 		}
