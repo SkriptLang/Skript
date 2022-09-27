@@ -98,6 +98,8 @@ import org.bukkit.event.hanging.HangingEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -1383,6 +1385,46 @@ public final class BukkitEventValues {
 			@Nullable
 			public Egg get(PlayerEggThrowEvent event) {
 				return event.getEgg();
+			}
+		}, EventValues.TIME_NOW);
+
+
+		// BrewEvent
+		EventValues.registerEventValue(BrewEvent.class, Block.class, new Getter<Block, BrewEvent>() {
+			@Override
+			@Nullable
+			public Block get(BrewEvent event) {
+				return event.getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BrewEvent.class, Location.class, new Getter<Location, BrewEvent>() {
+			@Override
+			@Nullable
+			public Location get(BrewEvent event) {
+				return event.getBlock().getLocation();
+			}
+		}, EventValues.TIME_NOW);
+
+		// BrewingStandFuelEvent
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, Block.class, new Getter<Block, BrewingStandFuelEvent>() {
+			@Override
+			@Nullable
+			public Block get(BrewingStandFuelEvent event) {
+				return event.getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, Location.class, new Getter<Location, BrewingStandFuelEvent>() {
+			@Override
+			@Nullable
+			public Location get(BrewingStandFuelEvent event) {
+				return event.getBlock().getLocation();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, ItemStack.class, new Getter<ItemStack, BrewingStandFuelEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BrewingStandFuelEvent event) {
+				return event.getFuel();
 			}
 		}, EventValues.TIME_NOW);
 	}

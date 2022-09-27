@@ -54,6 +54,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
+import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -351,7 +353,7 @@ public class SimpleEvents {
 						"\tevent-projectile is arrow",
 						"\tdelete event-projectile")
 				.since("1.0");
-		
+
 		if(Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
 			Skript.registerEvent("Projectile Collide", SimpleEvent.class, ProjectileCollideEvent.class, "projectile collide")
 			.description("Called when a projectile collides with an entity.")
@@ -627,6 +629,16 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
+		Skript.registerEvent("Potion Brewing", SimpleEvent.class, BrewEvent.class, "[potion] brew[ing]")
+			.description("Called when the brewing of the contents inside the Brewing Stand is complete.")
+			.examples("on brewing event",
+				"\tcancel the event")
+			.since("INSERT VERSION");
+		Skript.registerEvent("Fuel Brewing", SimpleEvent.class, BrewingStandFuelEvent.class, "[potion] fuel brew[ing]")
+			.description("Called when an ItemStack is about to increase the fuel level of a brewing stand.")
+			.examples("on fuel brewing:",
+				"\tadd 10 to fuel power")
+			.since("INSERT VERSION");
 	}
 
 }
