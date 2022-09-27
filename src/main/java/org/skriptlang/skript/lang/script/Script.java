@@ -32,9 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * A Script is a container for the raw structure of a user's script.
- * It contains information for the script, such as custom data,
- *  suppressed warnings, and specific event handlers.
+ * Scripts are the primary container of all code.
+ * Every script is made up of one or more {@link Structure}s, which contain user-defined instructions and information.
+ * Every script also has its own internal information, such as
+ *  custom data, suppressed warnings, and associated event handlers.
  */
 public final class Script {
 

@@ -45,9 +45,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * Structures are the root element in every script. They are essentially the "headers".
+ * Structures are the root elements in every script. They are essentially the "headers".
  * Events and functions are both a type of Structure. However, each one has its own
- *  parsing requirements, order, and overall structure within.
+ *  parsing requirements, order, and defined structure within.
  *
  * Structures may also contain "entries" that hold values or sections of code.
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
