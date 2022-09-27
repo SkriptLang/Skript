@@ -108,6 +108,7 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
@@ -627,6 +628,16 @@ public class SimpleEvents {
 					"\tchance of 50%:",
 					"\t\tcancel event",
 					"\t\tsend \"The trade was somehow denied!\" to player")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
+				.description("Called when any entity has jumped.")
+				.requiredPlugins("Paper 1.15.2+")
+				.examples("on entity jump:",
+					"\tchance of 50%:",
+					"\t\tcancel event",
+					"\t\tsend \"Sorry, but the entity needs a break.\" to player")
 				.since("INSERT VERSION");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
