@@ -30,6 +30,9 @@ latest version of Skript.
 Please see our [contribution guidelines](https://github.com/SkriptLang/Skript/blob/master/.github/contributing.md)
 before reporting issues.
 
+## Help Us Test
+We have an [official Discord community](https://discord.gg/ZPsZAg6ygu) for testing Skript's new features and releases.
+
 ## A Note About Add-ons
 We don't support add-ons here, even though some of Skript developers have also
 developed their own add-ons.

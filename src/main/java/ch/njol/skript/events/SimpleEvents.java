@@ -108,6 +108,7 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.util.SimpleEvent;
@@ -256,9 +257,11 @@ public class SimpleEvents {
 		.description("Called when a player fills a bucket.")
 				.examples("on player filling a bucket:")
 				.since("1.0");
-		Skript.registerEvent("Throwing of an Egg", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
-				.description("Called when a player throws an egg. You can just use the <a href='#shoot'>shoot event</a> in most cases, " +
-						"as this event is intended to support changing the hatched mob and its chance to hatch, but Skript does not yet support that.")
+		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
+				.description(
+						"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases." +
+						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
+				)
 				.examples("on throw of an egg:")
 				.since("1.0");
 		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
@@ -616,6 +619,16 @@ public class SimpleEvents {
 				"\t\tset repair cost to repair cost * 50%",
 				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
 			.since("INSERT VERSION");
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
+				.description("Called when a player has traded with a villager.")
+				.requiredPlugins("Paper 1.16.5+")
+				.examples("on player trade:",
+					"\tchance of 50%:",
+					"\t\tcancel event",
+					"\t\tsend \"The trade was somehow denied!\" to player")
+				.since("INSERT VERSION");
+		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
