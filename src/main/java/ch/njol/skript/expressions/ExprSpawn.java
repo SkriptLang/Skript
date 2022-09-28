@@ -61,9 +61,9 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 	}
 
 	@Override
-	protected Location[] get(Event e, World[] source) {
-		if (getTime() == -1 && e instanceof SpawnChangeEvent && !Delay.isDelayed(e))
-			return new Location[] {((SpawnChangeEvent) e).getPreviousLocation()};
+	protected Location[] get(Event event, World[] source) {
+		if (getTime() == -1 && event instanceof SpawnChangeEvent && !Delay.isDelayed(event))
+			return new Location[] {((SpawnChangeEvent) event).getPreviousLocation()};
 		return get(source, World::getSpawnLocation);
 	}
 
