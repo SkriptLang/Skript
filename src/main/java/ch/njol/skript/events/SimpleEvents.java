@@ -632,7 +632,7 @@ public class SimpleEvents {
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
 			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
-				.description("Called when any entity has jumped.")
+				.description("Called when an entity jumps.")
 				.requiredPlugins("Paper 1.15.2+")
 				.examples("on entity jump:",
 					"\tif entity is a wither skeleton:",
