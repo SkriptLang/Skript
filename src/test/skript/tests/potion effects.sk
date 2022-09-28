@@ -41,9 +41,14 @@ test "potion effects":
 
 	# potion test 4 (items)
 
-	broadcast "starting items test"
 	set {_item} to potion of speed
-	assert type of potion effects of {_item} contains speed with "the item should have the speed potion effect type"
+	assert type of potion effects of {_item} contains speed with "the item should have the speed potion effect type (1)"
+	assert potion effects of {_item} contains (potion effect of speed 1 for 3 minutes) with "the item should have the speed potion effect type (2)"
 
-	set {_item} to potion of slowness
-	assert type of potion effects of {_item} contains slowness with "the item should have the speed potion effect type"
+	set {_item} to potion of strong slowness
+	assert type of potion effects of {_item} contains slowness with "the item should have the slowness potion effect type (1)"
+	assert potion effects of {_item} contains (potion effect of slowness 4 for 20 seconds) with "the item should have the slowness potion effect type (2)"
+
+	set {_item} to potion of extended turtle master
+	assert type of potion effects of {_item} contains slowness and resistance with "the item should have the slowness and resistance potion effect types (1) ('%type of potion effects of {_item}%')"
+	assert potion effects of {_item} contains (potion effect of slowness and potion effect of resistance) with "the item should have the slowness and resistance potion effect types (1) ('%potion effects of {_item}%')"

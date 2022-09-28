@@ -124,4 +124,19 @@ public class SkriptPotionEffect {
 		return builder.toString();
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof SkriptPotionEffect))
+			return false;
+		if (this == other)
+			return true;
+		SkriptPotionEffect otherPotion = (SkriptPotionEffect) other;
+		return this.potionEffectType.equals(otherPotion.potionEffectType)
+			&& this.duration == otherPotion.duration
+			&& this.amplifier == otherPotion.amplifier
+			&& this.ambient == otherPotion.ambient
+			&& this.particles == otherPotion.particles
+			&& this.icon == otherPotion.icon;
+	}
+
 }

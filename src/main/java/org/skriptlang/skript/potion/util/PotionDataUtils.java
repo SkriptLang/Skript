@@ -18,6 +18,7 @@
  */
 package org.skriptlang.skript.potion.util;
 
+import org.bukkit.ChatColor;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -52,8 +53,8 @@ public enum PotionDataUtils {
 	REGENERATION(PotionType.REGEN, false, false, 900, 0),
 	REGENERATION_LONG(PotionType.REGEN, true, false, 1800, 0),
 	REGENERATION_STRONG(PotionType.REGEN, false, true, 450, 1),
-	SLOW_FALLING("SLOW_FALLING", false, false, 1800, 0), // Added in 1.13
-	SLOW_FALLING_LONG("SLOW_FALLING", true, false, 4800, 0),
+	SLOW_FALLING(PotionType.SLOW_FALLING, false, false, 1800, 0),
+	SLOW_FALLING_LONG(PotionType.SLOW_FALLING, true, false, 4800, 0),
 	SLOWNESS(PotionType.SLOWNESS, false, false, 1800, 0),
 	SLOWNESS_LONG(PotionType.SLOWNESS, true, false, 4800, 0),
 	SLOWNESS_STRONG(PotionType.SLOWNESS, false, true, 400, 3),
@@ -63,16 +64,14 @@ public enum PotionDataUtils {
 	STRENGTH(PotionType.STRENGTH, false, false, 3600, 0),
 	STRENGTH_LONG(PotionType.STRENGTH, true, false, 9600, 0),
 	STRENGTH_STRONG(PotionType.STRENGTH, false, true, 1800, 1),
-	TURTLE_MASTER("TURTLE_MASTER", false, false, 0, 0), // Added in 1.13
-	TURTLE_MASTER_LONG("TURTLE_MASTER", true, false, 0, 0),
-	TURTLE_MASTER_STRONG("TURTLE_MASTER", false, true, 0, 0),
+	TURTLE_MASTER(PotionType.TURTLE_MASTER, false, false, 0, 0),
+	TURTLE_MASTER_LONG(PotionType.TURTLE_MASTER, true, false, 0, 0),
+	TURTLE_MASTER_STRONG(PotionType.TURTLE_MASTER, false, true, 0, 0),
 	WATER_BREATHING(PotionType.WATER_BREATHING, false, false, 3600, 0),
 	WATER_BREATHING_LONG(PotionType.WATER_BREATHING, true, false, 9600, 0),
 	WEAKNESS(PotionType.WEAKNESS, false, false, 1800, 0),
 	WEAKNESS_LONG(PotionType.WEAKNESS, false, false, 4800, 0);
-	
-	@Nullable
-	private String name;
+
 	@Nullable
 	private PotionType potionType;
 	private final boolean extended;
@@ -91,7 +90,6 @@ public enum PotionDataUtils {
 	PotionDataUtils(String potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
 		try {
 			this.potionType = PotionType.valueOf(potionType.toUpperCase(Locale.ENGLISH));
-			this.name = potionType;
 		} catch (IllegalArgumentException ignore) {
 			this.potionType = null;
 		}
@@ -112,7 +110,7 @@ public enum PotionDataUtils {
 		List<PotionEffect> potionEffects = new ArrayList<>();
 		for (PotionDataUtils value : PotionDataUtils.values()) {
 			if (value.potionType != null && potionData.getType() == value.potionType && potionData.isExtended() == value.extended && potionData.isUpgraded() == value.upgraded) {
-				if (value.name != null && value.name.equalsIgnoreCase("TURTLE_MASTER")) {
+				if (value.potionType == PotionType.TURTLE_MASTER) {
 					// Bukkit does not account for the fact that Turtle Master has 2 potion effects
 					int duration = value.extended ? 800 : 400;
 					int slowAmp = value.upgraded ? 5 : 3;
