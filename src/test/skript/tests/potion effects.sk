@@ -51,4 +51,4 @@ test "potion effects":
 
 	set {_item} to potion of extended turtle master
 	assert type of potion effects of {_item} contains slowness and resistance with "the item should have the slowness and resistance potion effect types (1) ('%type of potion effects of {_item}%')"
-	assert potion effects of {_item} contains (potion effect of slowness and potion effect of resistance) with "the item should have the slowness and resistance potion effect types (1) ('%potion effects of {_item}%')"
+	assert potion effects of {_item} contains (potion effect of slowness 4 for 40 seconds and potion effect of resistance 3 for 40 seconds) with "the item should have the slowness and resistance potion effect types (2) ('%potion effects of {_item}%')"

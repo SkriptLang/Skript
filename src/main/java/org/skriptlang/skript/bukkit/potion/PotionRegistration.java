@@ -43,7 +43,7 @@ public class PotionRegistration {
 	public void register(SkriptAddon addon) {
 
 		try {
-			addon.loadClasses("org.skriptlang.skript.potion.elements");
+			addon.loadClasses("org.skriptlang.skript.bukkit.potion.elements");
 		} catch (IOException e) {
 			Skript.exception(e, "An error occurred while trying to load potion elements.");
 		}
