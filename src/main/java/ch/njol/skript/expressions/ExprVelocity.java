@@ -51,6 +51,7 @@ public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 	}
 
 	@Override
+	@Nullable
 	@SuppressWarnings("null")
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET))
@@ -61,7 +62,7 @@ public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 	@Override
 	@SuppressWarnings("null")
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		assert delta != null;
+		assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET || delta != null;
 		for (final Entity entity : getExpr().getArray(e)) {
 			if (entity == null)
 				return;
