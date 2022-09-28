@@ -16,9 +16,8 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.potion.util;
+package org.skriptlang.skript.bukkit.potion.util;
 
-import org.bukkit.ChatColor;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;

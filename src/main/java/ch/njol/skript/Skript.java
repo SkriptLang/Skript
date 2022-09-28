@@ -142,7 +142,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import org.skriptlang.skript.potion.PotionRegistration;
+import org.skriptlang.skript.bukkit.potion.PotionRegistration;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 

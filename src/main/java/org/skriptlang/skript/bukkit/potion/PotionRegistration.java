@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.potion;
+package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
@@ -30,8 +30,8 @@ import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
-import org.skriptlang.skript.potion.util.PotionUtils;
-import org.skriptlang.skript.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
