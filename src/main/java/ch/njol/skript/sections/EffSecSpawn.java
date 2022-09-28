@@ -155,16 +155,19 @@ public class EffSecSpawn extends EffectSection {
 			consumer = null;
 		}
 
-		Number a = amount != null ? amount.getSingle(event) : 1;
-		if (a != null) {
-			EntityType[] ts = types.getArray(event);
-			for (Location l : locations.getArray(event)) {
-				for (EntityType type : ts) {
-					for (int i = 0; i < a.doubleValue() * type.getAmount(); i++) {
-						if (consumer != null)
-							type.data.spawn(l, (Consumer) consumer); // lastSpawned set within Consumer
-						else
-							lastSpawned = type.data.spawn(l);
+		Number numberAmount = amount != null ? amount.getSingle(event) : 1;
+		if (numberAmount != null) {
+			double amount = numberAmount.doubleValue();
+			EntityType[] types = this.types.getArray(event);
+			for (Location location : locations.getArray(event)) {
+				for (EntityType type : types) {
+					double typeAmount = amount * type.getAmount();
+					for (int i = 0; i < typeAmount; i++) {
+						if (consumer != null) {
+							type.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+						} else {
+							lastSpawned = type.data.spawn(location);
+						}
 					}
 				}
 			}
@@ -175,7 +178,8 @@ public class EffSecSpawn extends EffectSection {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "spawn " + (amount != null ? amount.toString(event, debug) + " of " : "") + types.toString(event, debug) + " " + locations.toString(event, debug);
+		return "spawn " + (amount != null ? amount.toString(event, debug) + " of " : "") +
+			types.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }

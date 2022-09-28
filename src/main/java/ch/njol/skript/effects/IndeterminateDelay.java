@@ -50,8 +50,7 @@ public class IndeterminateDelay extends Delay {
 			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-				if (Skript.debug())
-					Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1000000000. + "s");
+				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				// Re-set local variables
 				if (localVars != null)

@@ -137,7 +137,7 @@ public class Delay extends Effect {
 
 	/**
 	 * The main method for marking the execution of {@link TriggerItem}s as delayed.
-	 * @param event The event to make as delayed.
+	 * @param event The event to mark as delayed.
 	 */
 	public static void addDelayedEvent(Event event) {
 		DELAYED.add(event);
