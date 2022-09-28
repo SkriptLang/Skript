@@ -635,9 +635,8 @@ public class SimpleEvents {
 				.description("Called when any entity has jumped.")
 				.requiredPlugins("Paper 1.15.2+")
 				.examples("on entity jump:",
-					"\tchance of 50%:",
-					"\t\tcancel event",
-					"\t\tsend \"Sorry, but the entity needs a break.\" to player")
+					"\tif entity is a wither skeleton:",
+					"\t\tcancel event")
 				.since("INSERT VERSION");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
