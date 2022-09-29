@@ -20,7 +20,6 @@ package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.World;
@@ -35,7 +34,9 @@ public class EvtWorldSave extends SkriptEvent {
 	static {
 		Skript.registerEvent("World Save", EvtWorldSave.class, WorldSaveEvent.class, "world sav(e|ing) [of %-worlds%]")
 			.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
-			.examples("on world save of \"world\":", "\tbroadcast \"The world %event-world% has been saved\"")
+			.examples(
+				"on world save of \"world\":",
+				"\tbroadcast \"The world %event-world% has been saved\"")
 			.since("1.0, INSERT VERSION (defining worlds)");
 	}
 
@@ -53,7 +54,7 @@ public class EvtWorldSave extends SkriptEvent {
 	public boolean check(Event event) {
 		if (worlds == null)
 			return true;
-		return Arrays.asList(worlds).contains(((WorldSaveEvent) event).getWorld());
+		return Arrays.stream(worlds).anyMatch(world -> ((WorldSaveEvent) event).getWorld().equals(world));
 	}
 
 

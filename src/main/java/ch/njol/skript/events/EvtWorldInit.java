@@ -33,7 +33,8 @@ public class EvtWorldInit extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("World Init", EvtWorldInit.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
-			.description("Called when a world is initialised. As all default worlds are initialised before any scripts are loaded, this event is only called for newly created worlds.",
+			.description("Called when a world is initialised. As all default worlds are initialised before",
+				"any scripts are loaded, this event is only called for newly created worlds.",
 				"World management plugins might change the behaviour of this event though.")
 			.examples("on world init of \"world_the_end\":")
 			.since("1.0, INSERT VERSION (defining worlds)");
@@ -53,7 +54,7 @@ public class EvtWorldInit extends SkriptEvent {
 	public boolean check(Event event) {
 		if (worlds == null)
 			return true;
-		return (Arrays.asList(worlds).contains((((WorldInitEvent) event).getWorld())));
+		return Arrays.stream(worlds).anyMatch(world -> ((WorldInitEvent) event).getWorld().equals(world));
 	}
 
 

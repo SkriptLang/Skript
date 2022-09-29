@@ -25,27 +25,23 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
-
 @Name("Save World")
 @Description("Saves a world manually")
 @Examples({
-	"save all worlds",
-	"save the world \"world_nether\""
+	"save \"world_nether\"",
+	"save all worlds"
 })
 @Since("INSERT VERSION")
-public class EffSaveWorld extends Effect {
+public class EffWorldSave extends Effect {
 
 	static {
-		Skript.registerEffect(EffSaveWorld.class, "save %worlds%");
+		Skript.registerEffect(EffWorldSave.class, "save %worlds%");
 	}
 
 	private Expression<World> worlds;
@@ -58,7 +54,7 @@ public class EffSaveWorld extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "saving worlds " + worlds.toString(event, debug);
+		return "save world(s) " + worlds.toString(event, debug);
 	}
 
 	@Override

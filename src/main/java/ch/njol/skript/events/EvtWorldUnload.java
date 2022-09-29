@@ -34,7 +34,9 @@ public class EvtWorldUnload extends SkriptEvent {
 	static {
 		Skript.registerEvent("World Unload", EvtWorldUnload.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
 			.description("Called when a world is unloaded. This event will never be called if you don't have a world management plugin.")
-			.examples("on world unload:")
+			.examples(
+				"on world unload:",
+				"\tbroadcast \"the %event-world% has been unloaded!\"")
 			.since("1.0, INSERT VERSION (defining worlds)");
 	}
 
@@ -43,7 +45,8 @@ public class EvtWorldUnload extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null) worlds = ((Literal<World>) args[0]).getArray();
+		if (worlds != null)
+			worlds = ((Literal<World>) args[0]).getArray();
 		return true;
 	}
 
@@ -51,7 +54,7 @@ public class EvtWorldUnload extends SkriptEvent {
 	public boolean check(Event event) {
 		if (worlds == null)
 			return true;
-		return (Arrays.asList(worlds).contains((((WorldUnloadEvent) event).getWorld())));
+		return Arrays.stream(worlds).anyMatch(world -> ((WorldUnloadEvent) event).getWorld().equals(world));
 	}
 
 

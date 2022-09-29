@@ -34,7 +34,9 @@ public class EvtWorldLoad extends SkriptEvent {
 	static {
 		Skript.registerEvent("World Load", EvtWorldLoad.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
 			.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
-			.examples("on world load of \"world_nether\":")
+			.examples(
+				"on world load of \"world_nether\":",
+				"\tbroadcast \"The world %event-world% has been loaded!\"")
 			.since("1.0, INSERT VERSION (defining worlds)");
 	}
 
@@ -52,7 +54,7 @@ public class EvtWorldLoad extends SkriptEvent {
 	public boolean check(Event event) {
 		if (worlds == null)
 			return true;
-		return Arrays.asList(worlds).contains(((WorldLoadEvent) event).getWorld());
+		return Arrays.stream(worlds).anyMatch(world -> ((WorldLoadEvent) event).getWorld().equals(world));
 	}
 
 

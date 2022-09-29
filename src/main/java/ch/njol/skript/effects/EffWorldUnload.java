@@ -32,17 +32,20 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Arrays;
+
 @Name("Unload World")
 @Description({"Unload a world"})
 @Examples({
-	"unload the world \"world_nether\" and save",
-	"unload the world \"world_the_end\" and don't save"
+	"unload \"world_nether\" and save",
+	"unload \"world_the_end\" and don't save",
+	"unload all worlds"
 })
 @Since("INSERT VERSION")
 public class EffWorldUnload extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldUnload.class, "unload [the] %worlds% [and (save|1¦(do not|don't) save)]"
+		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (save|1¦(do not|don't) save)]"
 		);
 	}
 
@@ -51,7 +54,7 @@ public class EffWorldUnload extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		world = (Expression<World>) exprs[0];
+		worlds = (Expression<World>) exprs[0];
 		save = parseResult.mark != 1;
 		return true;
 	}
@@ -59,19 +62,11 @@ public class EffWorldUnload extends Effect {
 	@Override
 	protected void execute(Event event) {
 		World mainWorld = Bukkit.getWorlds().get(0);
-		if (world == mainWorld) {
-			if (Bukkit.getWorlds().size() > 1) {
-				mainWorld = Bukkit.getWorlds().get(1);
-			} else {
-				mainWorld = null;
+		Bukkit.broadcastMessage(mainWorld.toString());
+		for (World world : this.worlds.getArray(event)) {
+			if (mainWorld != null && world != mainWorld) {
+				world.getPlayers().forEach(player -> player.teleport(mainWorld.getSpawnLocation()));
 			}
-		}
-		for (World world : this.world.getArray(event)) {
-			if (mainWorld != null) {
-				World finalMainWorld = mainWorld;
-				world.getPlayers().forEach(player -> player.teleport(finalMainWorld.getSpawnLocation()));
-			}
-
 			Bukkit.unloadWorld(world, save);
 		}
 		return;
@@ -79,6 +74,6 @@ public class EffWorldUnload extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "unload world(s) " + world.toString(event, debug) + " " + (save ? "and saving" : "without saving");
+		return "unload world(s) " + worlds.toString(event, debug) + " " + (save ? "with saving" : "without saving");
 	}
 }
