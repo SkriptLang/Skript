@@ -45,8 +45,7 @@ import java.util.Arrays;
 public class EffWorldUnload extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (save|1¦(do not|don't) save)]"
-		);
+		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (save|1¦(do not|don't) save)]");
 	}
 
 	private boolean save;
