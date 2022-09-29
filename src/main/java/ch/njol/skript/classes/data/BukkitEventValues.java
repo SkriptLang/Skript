@@ -1381,16 +1381,6 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-		// EntityJumpEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
-			EventValues.registerEventValue(EntityJumpEvent.class, LivingEntity.class, new Getter<LivingEntity, EntityJumpEvent>() {
-				@Override
-				@Nullable
-				public LivingEntity get(EntityJumpEvent event) {
-					return event.getEntity();
-				}
-			}, EventValues.TIME_NOW);
-		}
 		// PlayerChangedWorldEvent
 		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
 			@Nullable
