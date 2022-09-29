@@ -32,7 +32,7 @@ import java.util.Arrays;
 public class EvtWorldLoad extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("World Load", EvtWorldLoad.class, WorldLoadEvent.class, "world load[ing] [of %worlds%]")
+		Skript.registerEvent("World Load", EvtWorldLoad.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
 			.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
 			.examples("on world load of \"world_nether\":")
 			.since("1.0, INSERT VERSION (defining worlds)");
@@ -43,19 +43,21 @@ public class EvtWorldLoad extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null) worlds = ((Literal<World>) args[0]).getArray();
+		if (worlds != null)
+			worlds = ((Literal<World>) args[0]).getArray();
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (worlds == null) return true;
-		return (Arrays.asList(worlds).contains((((WorldLoadEvent) event).getWorld())));
+		if (worlds == null)
+			return true;
+		return Arrays.asList(worlds).contains(((WorldLoadEvent) event).getWorld());
 	}
 
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "loading of world" + (worlds == null ? "" : " " + worlds);
 	}
 

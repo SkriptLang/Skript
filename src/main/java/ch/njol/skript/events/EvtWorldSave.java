@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class EvtWorldSave extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("World Save", EvtWorldSave.class, WorldSaveEvent.class, "world sav(e|ing) [of %worlds%]")
+		Skript.registerEvent("World Save", EvtWorldSave.class, WorldSaveEvent.class, "world sav(e|ing) [of %-worlds%]")
 			.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
 			.examples("on world save of \"world\":", "\tbroadcast \"The world %event-world% has been saved\"")
 			.since("1.0, INSERT VERSION (defining worlds)");
@@ -44,14 +44,16 @@ public class EvtWorldSave extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null) worlds = ((Literal<World>) args[0]).getArray();
+		if (worlds != null)
+			worlds = ((Literal<World>) args[0]).getArray();
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (worlds == null) return true;
-		return (Arrays.asList(worlds).contains((((WorldSaveEvent) event).getWorld())));
+		if (worlds == null)
+			return true;
+		return Arrays.asList(worlds).contains(((WorldSaveEvent) event).getWorld());
 	}
 
 

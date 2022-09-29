@@ -32,7 +32,7 @@ import java.util.Arrays;
 public class EvtWorldInit extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("World Init", EvtWorldInit.class, WorldInitEvent.class, "world init[ialization] [of %worlds%]")
+		Skript.registerEvent("World Init", EvtWorldInit.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
 			.description("Called when a world is initialised. As all default worlds are initialised before any scripts are loaded, this event is only called for newly created worlds.",
 				"World management plugins might change the behaviour of this event though.")
 			.examples("on world init of \"world_the_end\":")
@@ -44,19 +44,21 @@ public class EvtWorldInit extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null) worlds = ((Literal<World>) args[0]).getArray();
+		if (worlds != null)
+			worlds = ((Literal<World>) args[0]).getArray();
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (worlds == null) return true;
+		if (worlds == null)
+			return true;
 		return (Arrays.asList(worlds).contains((((WorldInitEvent) event).getWorld())));
 	}
 
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "initialization of world" + (worlds == null ? "" : " " + worlds);
 	}
 

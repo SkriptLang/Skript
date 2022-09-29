@@ -45,26 +45,25 @@ import java.util.Arrays;
 public class EffSaveWorld extends Effect {
 
 	static {
-		Skript.registerEffect(EffSaveWorld.class, "save all worlds", "save [the] %worlds%");
+		Skript.registerEffect(EffSaveWorld.class, "save %worlds%");
 	}
 
-	@Nullable
 	private Expression<World> worlds;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 1) worlds = (Expression<World>) exprs[0];
+		worlds = (Expression<World>) exprs[0];
 		return true;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "saving the world" + (worlds == null ? "" : " " + worlds.toString());
+	public String toString(@Nullable Event event, boolean debug) {
+		return "saving worlds " + worlds.toString(event, debug);
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (World world : (worlds != null ? Arrays.stream(worlds.getArray(event)).toList() : Bukkit.getWorlds())) {
+		for (World world : worlds.getArray(event)) {
 			world.save();
 		}
 		return;

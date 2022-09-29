@@ -47,8 +47,7 @@ public class EffWorldUnload extends Effect {
 	}
 
 	private boolean save;
-	@Nullable
-	private Expression<World> world;
+	private Expression<World> worlds;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -80,6 +79,6 @@ public class EffWorldUnload extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "unload the world " + world.toString(event, debug) + " " + (save ? "and saving" : "without saving");
+		return "unload world(s) " + world.toString(event, debug) + " " + (save ? "and saving" : "without saving");
 	}
 }

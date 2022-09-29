@@ -32,8 +32,8 @@ import java.util.Arrays;
 public class EvtWorldUnload extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("World Unload", EvtWorldUnload.class, WorldUnloadEvent.class, "world unload[ing] [of %worlds%]")
-			.description("Called when a world is unloaded. This event might never be called if you don't have a world management plugin.")
+		Skript.registerEvent("World Unload", EvtWorldUnload.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
+			.description("Called when a world is unloaded. This event will never be called if you don't have a world management plugin.")
 			.examples("on world unload:")
 			.since("1.0, INSERT VERSION (defining worlds)");
 	}
@@ -49,13 +49,14 @@ public class EvtWorldUnload extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (worlds == null) return true;
+		if (worlds == null)
+			return true;
 		return (Arrays.asList(worlds).contains((((WorldUnloadEvent) event).getWorld())));
 	}
 
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "unloading of world" + (worlds == null ? "" : " " + worlds);
 	}
 
