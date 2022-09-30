@@ -20,7 +20,11 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -70,9 +74,15 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
-			return null;
-		return CollectionUtils.array(Number.class);
+		switch (mode) {
+			case REMOVE:
+			case ADD:
+			case SET:
+			case RESET:
+			case DELETE:
+				return CollectionUtils.array(Number.class);
+		}
+		return null;
 	}
 
 	@Override
@@ -81,19 +91,20 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 			return;
 
 		int charge = 0;
+		int charges = ((Number) delta[0]).intValue();
 
 		for (Block block : getExpr().getArray(e)) {
 			if (block.getBlockData() instanceof RespawnAnchor) {
 				RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
 				switch (mode) {
 					case REMOVE:
-						charge = anchor.getCharges() - ((Number) delta[0]).intValue();
+						charge = anchor.getCharges() - charges;
 						break;
 					case ADD:
-						charge = anchor.getCharges() + ((Number) delta[0]).intValue();
+						charge = anchor.getCharges() + charges;
 						break;
 					case SET:
-						charge = ((Number) delta[0]).intValue();
+						charge = charges;
 					case RESET:
 					case DELETE:
 						assert false;
