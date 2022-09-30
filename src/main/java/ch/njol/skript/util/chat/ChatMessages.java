@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -593,5 +594,31 @@ public class ChatMessages {
 
 		assert plain != null;
 		return plain;
+	}
+
+	/**
+	 * Strips all styles from a string and adds them back in a new, modified string with styles.
+	 * @param colored Colored string to grab styles from.
+	 * @param uncolored Uncolored string to add styles in.
+	 * @return A new, modified string with styles.
+	 */
+
+	public static String addColorCodes(String colored, String uncolored) {
+		StringBuilder stringBuilder = new StringBuilder(uncolored);
+		Matcher matcher = Pattern.compile("(<?<=<)(.*?)(?=>)").matcher(colored);
+		int i = 0;
+		while (matcher.find()) {
+			stringBuilder.insert(colored.indexOf(matcher.group()) + i, matcher.group());
+			colored = colored.replaceFirst("(<?<=<)(.*?)(?=>)", "");
+			i = i + matcher.group().length();
+		}
+		matcher = Pattern.compile("[&§][0-9a-fk-orx]").matcher(colored);
+		i = 0;
+		while (matcher.find()) {
+			stringBuilder.insert(colored.indexOf(matcher.group()) + i, matcher.group());
+			colored = colored.replaceFirst("[&§][0-9a-fk-orx]", "");
+			i = i + 2;
+		}
+		return stringBuilder.toString();
 	}
 }
