@@ -45,8 +45,7 @@ public class EvtWorldInit extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null)
-			worlds = ((Literal<World>) args[0]).getArray();
+		worlds = ((Literal<World>) args[0]).getArray();
 		return true;
 	}
 
