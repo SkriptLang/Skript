@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import org.bukkit.Location;
 import org.bukkit.entity.*;
 
 /**
@@ -144,5 +145,18 @@ public class EntityUtils {
 	public static EntityData toSkriptEntityData(EntityType e) {
 		return SPAWNER_TYPES.inverse().get(e);
 	}
-	
+
+	/**
+	 * Teleports the given entity to the given location.
+	 * Teleports to the given location in the entity's world if the location's world is null.
+	 */
+	public static void teleport(Entity entity, Location location) {
+		if (location.getWorld() == null) {
+			location = location.clone();
+			location.setWorld(entity.getWorld());
+		}
+
+		entity.teleport(location);
+	}
+
 }

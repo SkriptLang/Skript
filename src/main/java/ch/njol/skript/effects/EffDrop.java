@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -85,7 +86,7 @@ public class EffDrop extends Effect {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (is.getType() != Material.AIR && is.getAmount() > 0) {
+						if (!ItemUtils.isAir(is.getType()) && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {

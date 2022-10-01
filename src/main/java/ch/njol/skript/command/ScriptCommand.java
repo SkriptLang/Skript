@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -131,7 +132,7 @@ public class ScriptCommand implements TabExecutor {
 						 @Nullable VariableString cooldownStorage, final int executableBy, final List<TriggerItem> items) {
 		Validate.notNull(name, pattern, arguments, description, usage, aliases, items);
 		this.name = name;
-		label = "" + name.toLowerCase();
+		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
 		if (permissionMessage == null) {
 			VariableString defaultMsg = VariableString.newInstance(Language.get("commands.no permission message"));
@@ -208,7 +209,7 @@ public class ScriptCommand implements TabExecutor {
 			}
 		}
 
-		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender);
+		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender, commandLabel, rest);
 
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
 			if (sender instanceof Player) {
@@ -321,7 +322,7 @@ public class ScriptCommand implements TabExecutor {
 				aliases.remove(label);
 			final Iterator<String> as = activeAliases.iterator();
 			while (as.hasNext()) {
-				final String lowerAlias = as.next().toLowerCase();
+				final String lowerAlias = as.next().toLowerCase(Locale.ENGLISH);
 				if (knownCommands.containsKey(lowerAlias) && (aliases == null || !aliases.contains(lowerAlias))) {
 					as.remove();
 					continue;

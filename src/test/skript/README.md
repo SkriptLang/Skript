@@ -54,22 +54,33 @@ Aside these things, pretty much anything goes.
 Test scripts have all normal Skript syntaxes available. In addition to that,
 some syntaxes for test development are available.
 
-* Test cases are events: <code>test "test name" [when \<condition\>]</code>
-  * Contents of tests are not parsed when conditions are not met
-* Assertions are available as effects: <code>assert \<condition\> with "failure message"</code>
-* Take a look at existing tests for examples; in particular,
+* Minecraft version condition <code>running [(1¦below)] minecraft %string%</code>
+  * Example: <code>if running minecraft "1.15":</code>
+* Event test cases: <code>test %string% [when <.+>]</code>
+  * Example: <code>test "test name" when running minecraft "1.18.1":</code>
+  * Contents of tests are not parsed when conditions are not met.
+  * Typically the condition isn't required.
+  * Required to start a test script.
+* Assertions are available as effects: <code>assert <.+> [(1¦to fail)] with %string%</code>
+  * Example: <code>assert {_entity} is a zombie with "failure message"</code> will error if it's not a zombie.
+  * If the tag `to fail` is defined, it will assume the condition is to fail. If it's successful the string is printed.
+* Take a look at existing tests for examples https://github.com/SkriptLang/Skript/tree/master/src/test/skript/tests
   <code>misc/dummy.sk</code> is useful for beginners
+* caseEquals Function. Returns boolean. Useful to check that all string values equal the same. Examples:
+	* <code>caseEquals("hi", "Hi") = false</code>
+	* <code>caseEquals("text", "text", "text") = true</code>
+	* <code>caseEquals({some list variable::*})</code>
 
 ## Test Development
 Use Gradle to launch a test development server:
 
 ```
-TERM=dumb ./gradlew skriptTestDev
+gradlew clean skriptTestDev --console=plain
 ```
 
 The server launched will be running at localhost:25565. You can use console
 as normal, though there is some lag due to Gradle. If you're having trouble,
-try without <code>TERM=dumb</code>.
+try without <code>--console=plain</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.
