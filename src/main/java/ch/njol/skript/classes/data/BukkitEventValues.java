@@ -238,6 +238,13 @@ public final class BukkitEventValues {
 				return e.getPlayer();
 			}
 		}, 0);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(final BlockPlaceEvent e) {
+				return e.getItemInHand();
+			}
+		}, 0);
 		EventValues.registerEventValue(BlockPlaceEvent.class, Block.class, new Getter<Block, BlockPlaceEvent>() {
 			@Override
 			public Block get(final BlockPlaceEvent e) {
