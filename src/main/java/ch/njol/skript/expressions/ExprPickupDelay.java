@@ -86,10 +86,8 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 			case RESET:
 			case SET:
 				for (Entity entity : entities) {
-					if (entity instanceof Item) {
-						Item item = (Item) entity;
-						item.setPickupDelay(change);
-					}
+					if (entity instanceof Item)
+						((Item) entity).setPickupDelay(change);
 				}
 				break;
 			default:
