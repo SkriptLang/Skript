@@ -209,7 +209,7 @@ public class ScriptCommand implements TabExecutor {
 			}
 		}
 
-		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender);
+		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender, commandLabel, rest);
 
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
 			if (sender instanceof Player) {
