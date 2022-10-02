@@ -57,8 +57,8 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	}
 
 	/**
-	 * @param c            The class
-	 * @param codeName     The name used in patterns
+	 * @param c The class
+	 * @param codeName The name used in patterns
 	 * @param languageNode The language node of the type
 	 */
 	public EnumClassInfo(Class<T> c, String codeName, String languageNode) {
