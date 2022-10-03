@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.Objects;
 
 @Name("Command Exist")
-@Description("Checks whether a command/string exist anywhere within the server.")
+@Description("Checks whether a command is registered with the server.")
 @Examples(
 	{"# Example 1",
 		"on command:",
