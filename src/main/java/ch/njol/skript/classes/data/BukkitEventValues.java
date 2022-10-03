@@ -244,7 +244,7 @@ public final class BukkitEventValues {
 			public ItemStack get(BlockPlaceEvent event) {
 				return event.getItemInHand();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(BlockPlaceEvent.class, Block.class, new Getter<Block, BlockPlaceEvent>() {
 			@Override
 			public Block get(final BlockPlaceEvent e) {
