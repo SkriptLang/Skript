@@ -1265,12 +1265,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return A {@link SkriptAddon} representing Skript.
 	 */
 	public static SkriptAddon getAddonInstance() {
-		final SkriptAddon a = addon;
-		if (a == null)
-			return addon = new SkriptAddon(Skript.getInstance())
-					.setLanguageFileDirectory("lang");
-		else
-			return a;
+		if (addon == null) {
+			addon = new SkriptAddon(Skript.getInstance());
+			addon.setLanguageFileDirectory("lang");
+		}
+		return addon;
 	}
 
 	// ================ CONDITIONS & EFFECTS & SECTIONS ================
