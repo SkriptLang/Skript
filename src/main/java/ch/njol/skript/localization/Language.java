@@ -308,7 +308,7 @@ public class Language {
 				Config newLangConfig = new Config(newConfigIn, "Skript.jar/" + langFileName, false, false, ":");
 				newConfigIn.close();
 
-				if (newLangConfig.setValues(langConfig, true, "version")) { // New config is different
+				if (!newLangConfig.compareValues(langConfig, "version")) {
 					File langFile = new File(Skript.getInstance().getDataFolder(), langFileName);
 
 					File langFileBackup = FileUtils.backup(langFile);
