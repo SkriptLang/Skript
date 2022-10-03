@@ -308,14 +308,16 @@ public class Language {
 				Config newLangConfig = new Config(newConfigIn, "Skript.jar/" + langFileName, false, false, ":");
 				newConfigIn.close();
 
+				File langFile = new File(Skript.getInstance().getDataFolder(), langFileName);
 				if (!newLangConfig.compareValues(langConfig, "version")) {
-					File langFile = new File(Skript.getInstance().getDataFolder(), langFileName);
-
 					File langFileBackup = FileUtils.backup(langFile);
 					newLangConfig.getMainNode().set("version", Skript.getVersion().toString());
 					langConfig = newLangConfig;
 					langConfig.save(langFile);
 					Skript.info("The lang file '" + name + ".lang' has been updated to the latest version. A backup of your old lang file has been created as " + langFileBackup.getName());
+				} else { // Only the version changed, don't bother creating a backup
+					langConfig.getMainNode().set("version", Skript.getVersion().toString());
+					langConfig.save(langFile);
 				}
 			}
 
