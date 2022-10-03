@@ -102,7 +102,7 @@ public abstract class Functions {
 	public final static String functionNamePattern = "[\\p{IsAlphabetic}][\\p{IsAlphabetic}\\p{IsDigit}_]*";
 
 	@SuppressWarnings("null")
-	private final static Pattern functionPattern = Pattern.compile("function (" + functionNamePattern + ")\\((.*)\\)(?: :: (.+))?", Pattern.CASE_INSENSITIVE),
+	private final static Pattern functionPattern = Pattern.compile("(local )?function (" + functionNamePattern + ")\\((.*)\\)(?: :: (.+))?", Pattern.CASE_INSENSITIVE),
 		paramPattern = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
 
 	/**
@@ -119,11 +119,13 @@ public abstract class Functions {
 		Matcher m = functionPattern.matcher(definition);
 		if (!m.matches()) // We have checks when loading the signature, but matches() must be called anyway
 			return null; // don't error, already done in signature loading
-		String name = "" + m.group(1);
+		String name = "" + m.group(2);
 
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null) {
-			return null; // Probably duplicate signature; reported before
+			namespace = getScriptNamespace(script.getConfig().getFileName());
+			if (namespace == null)
+				return null; // Probably duplicate signature; reported before
 		}
 		Signature<?> sign = namespace.getSignature(name);
 		if (sign == null) // Signature parsing failed, probably: null signature
@@ -132,7 +134,7 @@ public abstract class Functions {
 		ClassInfo<?> c = sign.returnType;
 
 		if (Skript.debug() || node.debug())
-			Skript.debug("function " + name + "(" + StringUtils.join(params, ", ") + ")"
+			Skript.debug((sign.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
 				+ (c != null ? " :: " + (sign.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 
 		Function<?> f = new ScriptFunction<>(sign, script, node);
@@ -157,7 +159,8 @@ public abstract class Functions {
 		Matcher m = functionPattern.matcher(definition);
 		if (!m.matches())
 			return signError(INVALID_FUNCTION_DEFINITION);
-		String name = "" + m.group(1);
+		boolean local = m.group(1) != null;
+		String name = "" + m.group(2);
 
 		// Ensure there are no duplicate functions
 		if (globalFunctions.containsKey(name)) {
@@ -171,8 +174,14 @@ public abstract class Functions {
 			}
 		}
 
-		String args = m.group(2);
-		String returnType = m.group(3);
+		if (local) {
+			Namespace namespace = getScriptNamespace(script);
+			if (namespace != null && namespace.getSignature(name) != null)
+				return signError("A local function named '" + name + "' already exists in script '" + script + "'");
+		}
+
+		String args = m.group(3);
+		String returnType = m.group(4);
 		List<Parameter<?>> params = new ArrayList<>();
 		int j = 0;
 		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
@@ -232,13 +241,14 @@ public abstract class Functions {
 
 		@SuppressWarnings({"unchecked", "null"})
 		Signature<?> sign = new Signature<>(script, name,
-			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn);
+			params.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn);
 
 		// Register this signature
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, script);
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
 		namespace.addSignature(sign);
-		globalFunctions.put(name, namespace);
+		if (!local)
+			globalFunctions.put(name, namespace);
 
 		Skript.debug("Registered function signature: " + name);
 		return sign;
@@ -269,15 +279,18 @@ public abstract class Functions {
 	/**
 	 * Gets a function, if it exists. Note that even if function exists in scripts,
 	 * it might not have been parsed yet. If you want to check for existance,
-	 * then use {@link #getSignature(String)}.
+	 * then use {@link #getSignature(String, String)}.
 	 * @param name Name of function.
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
-	public static Function<?> getFunction(String name) {
+	public static Function<?> getFunction(String name, @Nullable String script) {
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null) {
-			return null;
+			if (script != null)
+				namespace = getScriptNamespace(script);
+			if (namespace == null)
+				return null;
 		}
 		return namespace.getFunction(name);
 	}
@@ -288,13 +301,24 @@ public abstract class Functions {
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable
-	public static Signature<?> getSignature(String name) {
+	public static Signature<?> getSignature(String name, @Nullable String script) {
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null) {
-			return null;
+			if (script != null)
+				namespace = getScriptNamespace(script);
+			if (namespace == null)
+				return null;
 		}
 		return namespace.getSignature(name);
 	}
+
+
+	@Nullable
+	public static Namespace getScriptNamespace(String name) {
+		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, name));
+	}
+
+
 
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
@@ -331,7 +355,8 @@ public abstract class Functions {
 		while (namespaceIterator.hasNext()) {
 			Namespace namespace = namespaceIterator.next();
 			if (namespace.removeSignature(signature)) {
-				globalFunctions.remove(signature.getName());
+				if (!signature.local)
+					globalFunctions.remove(signature.getName());
 
 				// remove the namespace if it is empty
 				if (namespace.getSignatures().isEmpty())

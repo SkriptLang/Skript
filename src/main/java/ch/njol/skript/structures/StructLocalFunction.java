@@ -36,26 +36,26 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("Function")
+@Name("Local Function")
 @Description({
-	"Functions are structures that can be executed with arguments/parameters to run code.",
-	"They can also return a value to the trigger that is executing the function."
+	"Local Functions are like Functions but the function signature is only preserved in the script it was declared in.",
+	"Note that Functions ALWAYS come before Local Functions, in parsing and execution."
 })
 @Examples({
-	"function sayMessage(message: text):",
-	"\tbroadcast {_message} # our message argument is available in '{_message}'",
-	"function giveApple(amount: number) :: item:",
+	"local function fly(p: player):",
+	"\tmake {_p} fly # our player argument is available in '{_p}'",
+	"local function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
 })
-@Since("2.2")
-public class StructFunction extends Structure {
+@Since("INSERT VERSION")
+public class StructLocalFunction extends Structure {
 
-	public static final Priority PRIORITY = new Priority(400);
+	public static final Priority PRIORITY = new Priority(450);
 
 	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
 
 	static {
-		Skript.registerStructure(StructFunction.class, "function <.+>");
+		Skript.registerStructure(StructLocalFunction.class, "local function <.+>");
 	}
 
 	@Nullable
@@ -75,7 +75,7 @@ public class StructFunction extends Structure {
 	@Override
 	public boolean load() {
 		ParserInstance parser = getParser();
-		parser.setCurrentEvent("function", FunctionEvent.class);
+		parser.setCurrentEvent("local function", FunctionEvent.class);
 
 		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource());
 
@@ -109,7 +109,7 @@ public class StructFunction extends Structure {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "function";
+		return "local function";
 	}
 
 }

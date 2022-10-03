@@ -115,6 +115,11 @@ public class Namespace {
 	
 	public void addSignature(Signature<?> sign) {
 		if (signatures.containsKey(sign.getName())) {
+			Signature<?> current = signatures.get(sign.getName());
+			if (current.local && !sign.local) {
+				signatures.put(sign.getName(), sign);
+				return;
+			}
 			throw new IllegalArgumentException("function name already used");
 		}
 		signatures.put(sign.getName(), sign);
