@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.event.server.TabCompleteEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -46,8 +45,8 @@ import ch.njol.util.Kleenean;
 		"\t\tif the command is not \"exit\":",
 		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
 		"\t\t\tcancel the event"})
-@Since("2.0, INSERT VERSION (support for script commands, tab complete and umknown command events)")
-@Events({"command", "unknown command", "tab complete"})
+@Since("2.0, INSERT VERSION (support for script commands and unknown command event)")
+@Events({"command", "unknown command"})
 public class ExprCommand extends SimpleExpression<String> {
 
 	static {
@@ -61,7 +60,7 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class, TabCompleteEvent.class, UnknownCommandEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class, UnknownCommandEvent.class)) {
 			Skript.error("The 'command' expression can only be used in a script command or command event");
 			return false;
 		}
@@ -80,8 +79,6 @@ public class ExprCommand extends SimpleExpression<String> {
 			command = ((ServerCommandEvent) event).getCommand().trim();
 		} else if (event instanceof UnknownCommandEvent) {
 			command = ((UnknownCommandEvent) event).getCommandLine().trim();
-		} else if (event instanceof TabCompleteEvent) {
-			command = ((TabCompleteEvent) event).getBuffer().substring(1).trim();
 		} else { // It's a script command event
 			ScriptCommandEvent evt = (ScriptCommandEvent) event;
 			command = evt.getCommandLabel() + " " + evt.getArgsString();

@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -27,15 +28,11 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Objects;
-
-@Name("Command Exist")
-@Description("Checks whether a command/string exist anywhere within the server.")
+@Name("Command Exists")
+@Description("Checks whether a command is registered with the server.")
 @Examples(
 	{"# Example 1",
 		"on command:",
@@ -63,12 +60,12 @@ public class CondCommandExist extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		return commands.check(event, command -> Bukkit.getCommandMap().getCommand(command) != null, isNegated());
+		return commands.check(event, command -> Commands.getCommandMap().getCommand(command) != null, isNegated());
 	}
 
 	@Override
 	@Nullable
 	public String toString(Event event, boolean debug) {
-		return "commands named " + commands + (isNegated() ? " don't " : "") + "exist";
+		return "commands named " + commands + (isNegated() ? " doesn't " : "") + "exist";
 	}
 }

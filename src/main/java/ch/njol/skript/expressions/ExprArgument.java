@@ -25,7 +25,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.event.server.TabCompleteEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -88,7 +87,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class, TabCompleteEvent.class)) {
+		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class)) {
 			Skript.error("The 'argument' expression can only be used in a script command or command related events");
 			return false;
 		}
@@ -227,8 +226,6 @@ public class ExprArgument extends SimpleExpression<Object> {
 			fullCommand = ((ServerCommandEvent) event).getCommand().trim();
 		} else if (event instanceof UnknownCommandEvent) { // It's a UnknownCommandEvent then
 			fullCommand = ((UnknownCommandEvent) event).getCommandLine().trim();
-		} else if (event instanceof TabCompleteEvent) { // It's a TabCompleteEvent then
-			fullCommand = ((TabCompleteEvent) event).getBuffer().trim();
 		} else {
 			return new Object[0];
 		}

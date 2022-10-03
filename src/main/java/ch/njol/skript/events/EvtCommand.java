@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.events;
 
-import org.bukkit.Bukkit;
+import ch.njol.skript.command.Commands;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -61,9 +61,9 @@ public class EvtCommand extends SkriptEvent {
 			return false;
 
 		if (command == null) {
-			if (existOnly && event instanceof ServerCommandEvent && Bukkit.getCommandMap().getCommand(((ServerCommandEvent) event).getCommand()) == null)
+			if (existOnly && event instanceof ServerCommandEvent && Commands.getCommandMap().getCommand(((ServerCommandEvent) event).getCommand()) == null)
 				return false;
-			if (existOnly && event instanceof PlayerCommandPreprocessEvent && Bukkit.getCommandMap().getCommand(((PlayerCommandPreprocessEvent) event).getMessage().substring(1)) == null)
+			if (existOnly && event instanceof PlayerCommandPreprocessEvent && Commands.getCommandMap().getCommand(((PlayerCommandPreprocessEvent) event).getMessage().substring(1)) == null)
 				return false;
 			return true;
 		}
