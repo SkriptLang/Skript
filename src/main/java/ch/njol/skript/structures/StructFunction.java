@@ -47,22 +47,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	"function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
 })
-@Since("2.2")
+@Since("2.2, INSERT VERSION (local functions)")
 public class StructFunction extends Structure {
 
-	public static final Priority PRIORITY = new Priority(400);
+	public static final Priority GLOBAL_PRIORITY = new Priority(400);
+	public static final Priority LOCAL_PRIORITY = new Priority(450);
 
 	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
 
 	static {
-		Skript.registerStructure(StructFunction.class, "function <.+>");
+		Skript.registerStructure(StructFunction.class, "[:local] function <.+>");
 	}
 
 	@Nullable
 	private Signature<?> signature;
+	boolean local;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		local = parseResult.hasTag("local");
 		return true;
 	}
 
@@ -75,7 +78,7 @@ public class StructFunction extends Structure {
 	@Override
 	public boolean load() {
 		ParserInstance parser = getParser();
-		parser.setCurrentEvent("function", FunctionEvent.class);
+		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
 		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource());
 
@@ -104,12 +107,12 @@ public class StructFunction extends Structure {
 
 	@Override
 	public Priority getPriority() {
-		return PRIORITY;
+		return local ? LOCAL_PRIORITY : GLOBAL_PRIORITY;
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "function";
+		return (local ? "local " : "") + "function";
 	}
 
 }
