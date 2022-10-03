@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -30,20 +31,18 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("unchecked")
-public class EvtCommand extends SkriptEvent { // TODO condition to check whether a given command exists, & a conditon to check whether it's a custom skript command
+public class EvtCommand extends SkriptEvent {
 	static {
-		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "command [%-string%]")
+		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "[1:existing] command [%-string%]")
 				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a>.")
-				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":")
-				.since("2.0");
+				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":", "on existing command:")
+				.since("2.0, INSERT VERSION (existing only)");
 	}
-	
+
 	@Nullable
 	private String command = null;
+	private Boolean existOnly;
 
 	@Override
 	@SuppressWarnings("null")
@@ -53,30 +52,36 @@ public class EvtCommand extends SkriptEvent { // TODO condition to check whether
 			if (command.startsWith("/"))
 				command = command.substring(1);
 		}
+		existOnly = parser.mark == 1;
 		return true;
 	}
 
-	@Override
-	@SuppressWarnings("null")
-	public boolean check(final Event e) {
-		if (e instanceof ServerCommandEvent && ((ServerCommandEvent) e).getCommand().isEmpty())
+	public boolean check(Event event) {
+		if (event instanceof ServerCommandEvent && ((ServerCommandEvent) event).getCommand().isEmpty())
 			return false;
 
-		if (command == null)
+		if (command == null) {
+			if (existOnly && event instanceof ServerCommandEvent && Bukkit.getCommandMap().getCommand(((ServerCommandEvent) event).getCommand()) == null)
+				return false;
+			if (existOnly && event instanceof PlayerCommandPreprocessEvent && Bukkit.getCommandMap().getCommand(((PlayerCommandPreprocessEvent) event).getMessage().substring(1)) == null)
+				return false;
 			return true;
-		final String message;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			assert ((PlayerCommandPreprocessEvent) e).getMessage().startsWith("/");
-			message = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1);
+		}
+
+		String message;
+		if (event instanceof ServerCommandEvent) {
+			message = ((ServerCommandEvent) event).getCommand();
 		} else {
-			message = ((ServerCommandEvent) e).getCommand();
+			assert ((PlayerCommandPreprocessEvent) event).getMessage().startsWith("/");
+			message = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1);
 		}
 		return StringUtils.startsWithIgnoreCase(message, command)
-				&& (command.contains(" ") || message.length() == command.length() || Character.isWhitespace(message.charAt(command.length()))); // if only the command is given, match that command only
+			&& (command.contains(" ") || message.length() == command.length() || Character.isWhitespace(message.charAt(command.length())));
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	@Nullable
+	public String toString(final Event event, final boolean debug) {
 		return "command" + (command != null ? " /" + command : "");
 	}
 	

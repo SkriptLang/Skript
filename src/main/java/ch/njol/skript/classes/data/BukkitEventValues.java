@@ -74,6 +74,7 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -1395,6 +1396,15 @@ public final class BukkitEventValues {
 			@Nullable
 			public Egg get(PlayerEggThrowEvent event) {
 				return event.getEgg();
+			}
+		}, EventValues.TIME_NOW);
+
+		// UnknownCommandEvent
+		EventValues.registerEventValue(UnknownCommandEvent.class, CommandSender.class, new Getter<CommandSender, UnknownCommandEvent>() {
+			@Override
+			@Nullable
+			public CommandSender get(UnknownCommandEvent event) {
+				return event.getSender();
 			}
 		}, EventValues.TIME_NOW);
 	}

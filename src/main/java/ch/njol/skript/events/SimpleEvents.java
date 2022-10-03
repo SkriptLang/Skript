@@ -31,6 +31,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
@@ -638,6 +639,12 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
+		Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "unknown command")
+			.description("Called when a player executes a command that is not defined\n")
+			.examples("on unknown command:",
+				"\tevent-string is \"unknown_cmd\"",
+				"\tset unknown command message to \"&cHey! this command doesn't actually exist weird.\"")
+			.since("INSERT VERSION");
 	}
 
 }

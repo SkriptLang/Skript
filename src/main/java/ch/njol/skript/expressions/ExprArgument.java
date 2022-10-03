@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -86,8 +88,8 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
-			Skript.error("The 'argument' expression can only be used in a script command or command event");
+		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class, TabCompleteEvent.class)) {
+			Skript.error("The 'argument' expression can only be used in a script command or command related events");
 			return false;
 		}
 
@@ -213,16 +215,20 @@ public class ExprArgument extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
+	protected Object[] get(Event event) {
 		if (argument != null) {
-			return argument.getCurrent(e);
+			return argument.getCurrent(event);
 		}
 
 		String fullCommand;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
-			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			fullCommand = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
+			fullCommand = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (event instanceof UnknownCommandEvent) { // It's a UnknownCommandEvent then
+			fullCommand = ((UnknownCommandEvent) event).getCommandLine().trim();
+		} else if (event instanceof TabCompleteEvent) { // It's a TabCompleteEvent then
+			fullCommand = ((TabCompleteEvent) event).getBuffer().trim();
 		} else {
 			return new Object[0];
 		}
@@ -272,7 +278,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		switch (what) {
 			case LAST:
 				return "the last argument";
