@@ -108,6 +108,26 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 */
 	@SafeVarargs
 	protected final Trigger loadCode(SectionNode sectionNode, String name, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, events);
+	}
+
+	/**
+	 * Loads the code in the given {@link SectionNode},
+	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
+	 *
+	 * This method differs from {@link #loadCode(SectionNode)} in that it
+	 * is meant for code that will be executed in a different event.
+	 *
+	 * @param sectionNode The section node to load.
+	 * @param name The name of the event(s) being used.
+	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
+	 * This occurs before {@link ParserInstance} states are reset.
+	 * @param events The event(s) during the section's execution.
+	 * @return A trigger containing the loaded section. This should be stored and used
+	 * to run the section one or more times.
+	 */
+	@SafeVarargs
+	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		String previousName = parser.getCurrentEventName();
@@ -122,6 +142,9 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		parser.setCurrentSections(new ArrayList<>());
 		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
+
+		if (afterLoading != null)
+			afterLoading.run();
 
 		//noinspection ConstantConditions - We are resetting it to what it was
 		parser.setCurrentEvent(previousName, previousEvents);

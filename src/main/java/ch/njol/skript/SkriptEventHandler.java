@@ -26,20 +26,24 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class SkriptEventHandler {
@@ -52,30 +56,22 @@ public final class SkriptEventHandler {
 	 * the {@link EventExecutor} to be used with this listener.
 	 */
 	public static class PriorityListener implements Listener {
-		
-		public final EventPriority priority;
-		public final Set<Class<? extends Event>> registeredEvents = new HashSet<>();
 
-		@Nullable
-		private Event lastEvent;
-		public final EventExecutor executor = (listener, event) -> {
-			if (lastEvent == event) // an event is received multiple times if multiple superclasses of it are registered
-				return;
-			lastEvent = event;
-			check(event, ((PriorityListener) listener).priority);
-		};
-		
+		public final EventPriority priority;
+
+		public final EventExecutor executor = (listener, event) -> check(event, ((PriorityListener) listener).priority);
+
 		public PriorityListener(EventPriority priority) {
 			this.priority = priority;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Stores one {@link PriorityListener} per {@link EventPriority}.
 	 */
 	private static final PriorityListener[] listeners;
-	
+
 	static {
 		EventPriority[] priorities = EventPriority.values();
 		listeners = new PriorityListener[priorities.length];
@@ -92,11 +88,13 @@ public final class SkriptEventHandler {
 	/**
 	 * A utility method to get all Triggers paired with the provided Event class.
 	 * @param event The event to find pairs from.
-	 * @return An iterator containing all Triggers paired wit the provided Event class.
+	 * @return An iterator containing all Triggers paired with the provided Event class.
 	 */
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
+		HandlerList eventHandlerList = getHandlerList(event);
+		assert eventHandlerList != null; // It had one at some point so this should remain true
 		return new ArrayList<>(triggers).stream()
-			.filter(pair -> pair.getFirst().isAssignableFrom(event))
+			.filter(pair -> pair.getFirst().isAssignableFrom(event) && eventHandlerList == getHandlerList(pair.getFirst()))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}
@@ -112,7 +110,7 @@ public final class SkriptEventHandler {
 		Iterator<Trigger> ts = getTriggers(e.getClass());
 		if (!ts.hasNext())
 			return;
-		
+
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
 			while (ts.hasNext()) {
@@ -126,35 +124,36 @@ public final class SkriptEventHandler {
 				return;
 			Class<? extends Event> c = e.getClass();
 			ts = getTriggers(c);
-			
+
 			logEventStart(e);
 		}
 		
-		if (e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass()) &&
-				!(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY)
-				|| e instanceof ServerCommandEvent && (((ServerCommandEvent) e).getCommand().isEmpty() || ((ServerCommandEvent) e).isCancelled())) {
+		boolean isCancelled = e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass());
+		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY);
+
+		if (isCancelled && isResultDeny) {
 			if (Skript.logVeryHigh())
 				Skript.info(" -x- was cancelled");
 			return;
 		}
-		
+
 		while (ts.hasNext()) {
 			Trigger t = ts.next();
 			if (t.getEvent().getEventPriority() != priority || !t.getEvent().check(e))
 				continue;
-			
+
 			logTriggerStart(t);
 			Object timing = SkriptTimings.start(t.getDebugLabel());
-			
+
 			t.execute(e);
-			
+
 			SkriptTimings.stop(timing);
 			logTriggerEnd(t);
 		}
-		
+
 		logEventEnd();
 	}
-	
+
 	private static long startEvent;
 
 	/**
@@ -180,7 +179,7 @@ public final class SkriptEventHandler {
 			return;
 		Skript.info("== took " + 1. * (System.nanoTime() - startEvent) / 1000000. + " milliseconds ==");
 	}
-	
+
 	private static long startTrigger;
 
 	/**
@@ -208,7 +207,7 @@ public final class SkriptEventHandler {
 
 	/**
 	 * @deprecated This method no longer does anything as self registered Triggers
-	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them).
+	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them here).
 	 */
 	@Deprecated
 	public static void addSelfRegisteringTrigger(Trigger t) { }
@@ -235,40 +234,30 @@ public final class SkriptEventHandler {
 	 * @see #unregisterBukkitEvents(Trigger)
 	 */
 	public static void registerBukkitEvent(Trigger trigger, Class<? extends Event> event) {
+		HandlerList handlerList = getHandlerList(event);
+		if (handlerList == null)
+			return;
+
 		triggers.add(new NonNullPair<>(event, trigger));
 
 		EventPriority priority = trigger.getEvent().getEventPriority();
-
 		PriorityListener listener = listeners[priority.ordinal()];
 		EventExecutor executor = listener.executor;
 
-		Set<Class<? extends Event>> registeredEvents = listener.registeredEvents;
-
 		// PlayerInteractEntityEvent has a subclass we need for armor stands
 		if (event.equals(PlayerInteractEntityEvent.class)) {
-			if (!registeredEvents.contains(event)) {
-				registeredEvents.add(event);
+			if (!isEventRegistered(handlerList, priority)) {
 				Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
 				Bukkit.getPluginManager().registerEvent(PlayerInteractAtEntityEvent.class, listener, priority, executor, Skript.getInstance());
 			}
 			return;
 		}
 
-		if (event.equals(PlayerInteractAtEntityEvent.class) || event.equals(PlayerArmorStandManipulateEvent.class)) {
+		if (event.equals(PlayerInteractAtEntityEvent.class) || event.equals(PlayerArmorStandManipulateEvent.class))
 			return; // Ignore, registered above
-		}
 
-		// Check that we haven't already registered this event with Bukkit
-		// If we have registered it, there is no need to do so again
-		if (registeredEvents.contains(event))
-			return;
-		for (Class<?> cl : registeredEvents) {
-			if (cl.isAssignableFrom(event))
-				return;
-		}
-
-		Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
-		registeredEvents.add(event);
+		if (!isEventRegistered(handlerList, priority)) // Check if event is registered
+			Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
 	}
 
 	/**
@@ -283,5 +272,72 @@ public final class SkriptEventHandler {
 	 * Events which are listened even if they are cancelled.
 	 */
 	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
-	
+
+	/**
+	 * A cache for the getHandlerList methods of Event classes
+	 */
+	private static final Map<Class<? extends Event>, Method> handlerListMethods = new HashMap<>();
+
+	@Nullable
+	@SuppressWarnings("ThrowableNotThrown")
+	private static HandlerList getHandlerList(Class<? extends Event> eventClass) {
+		try {
+			Method method = getHandlerListMethod(eventClass);
+			method.setAccessible(true);
+			return (HandlerList) method.invoke(null);
+		} catch (Exception ex) {
+			Skript.exception(ex, "Failed to get HandlerList for event " + eventClass.getName());
+			return null;
+		}
+	}
+
+	private static Method getHandlerListMethod(Class<? extends Event> eventClass) {
+		Method method;
+
+		synchronized (handlerListMethods) {
+			method = handlerListMethods.get(eventClass);
+			if (method == null) {
+				method = getHandlerListMethod_i(eventClass);
+				if (method != null)
+					method.setAccessible(true);
+				handlerListMethods.put(eventClass, method);
+			}
+		}
+
+		if (method == null)
+			throw new RuntimeException("No getHandlerList method found");
+
+		return method;
+	}
+
+	@Nullable
+	private static Method getHandlerListMethod_i(Class<? extends Event> eventClass) {
+		try {
+			return eventClass.getDeclaredMethod("getHandlerList");
+		} catch (NoSuchMethodException e) {
+			if (
+				eventClass.getSuperclass() != null
+				&& !eventClass.getSuperclass().equals(Event.class)
+				&& Event.class.isAssignableFrom(eventClass.getSuperclass())
+			) {
+				return getHandlerListMethod(eventClass.getSuperclass().asSubclass(Event.class));
+			} else {
+				return null;
+			}
+		}
+	}
+
+	private static boolean isEventRegistered(HandlerList handlerList, EventPriority priority) {
+		for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+			Listener listener = registeredListener.getListener();
+			if (
+				registeredListener.getPlugin() == Skript.getInstance()
+				&& listener instanceof PriorityListener
+				&& ((PriorityListener) listener).priority == priority
+			)
+				return true;
+		}
+		return false;
+	}
+
 }
