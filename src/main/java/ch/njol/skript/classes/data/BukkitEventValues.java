@@ -241,8 +241,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
 			@Override
 			@Nullable
-			public ItemStack get(final BlockPlaceEvent e) {
-				return e.getItemInHand();
+			public ItemStack get(final BlockPlaceEvent event) {
+				return event.getItemInHand();
 			}
 		}, 0);
 		EventValues.registerEventValue(BlockPlaceEvent.class, Block.class, new Getter<Block, BlockPlaceEvent>() {
