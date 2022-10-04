@@ -33,6 +33,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.io.File;
+
 @Name("Is Script Loaded")
 @Description("Check if the current script, or another script, is currently loaded.")
 @Examples({
@@ -57,6 +59,10 @@ public class CondScriptLoaded extends Condition {
 	@SuppressWarnings({"unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
+		if (scripts == null && !getParser().isActive()) {
+			Skript.error("You must provide a script name when not working in a script!");
+			return false;
+		}
 		currentScript = getParser().getCurrentScript();
 		if (scripts == null) {
 			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
@@ -69,13 +75,13 @@ public class CondScriptLoaded extends Condition {
 	@Override
 	public boolean check(Event e) {
 		if (scripts == null) {
-			if (currentScript == null)
-				return isNegated();
+			assert currentScript != null; // If scripts weren't provided then currentScript can't be null
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		}
-		return scripts.check(e,
-				scriptName -> ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(SkriptCommand.getScriptFromName(scriptName))),
-				isNegated());
+		return scripts.check(e, scriptName -> {
+			File scriptFile = SkriptCommand.getScriptFromName(scriptName);
+			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
+		}, isNegated());
 	}
 	
 	@Override
