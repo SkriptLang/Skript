@@ -265,7 +265,34 @@ public final class SkriptEventHandler {
 	 * @param trigger The Trigger to unregister events for.
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
-		triggers.removeIf(pair -> pair.getSecond() == trigger);
+		triggers.removeIf(pair -> {
+			if (pair.getSecond() != trigger)
+				return false;
+
+			HandlerList handlerList = getHandlerList(pair.getFirst());
+			assert handlerList != null;
+
+			EventPriority priority = trigger.getEvent().getEventPriority();
+			if (triggers.stream().noneMatch(pair2 ->
+				trigger != pair2.getSecond()
+				&& pair2.getFirst().isAssignableFrom(pair.getFirst())
+				&& priority == pair2.getSecond().getEvent().getEventPriority()
+				&& handlerList == getHandlerList(pair2.getFirst())
+			)) { // We can unregister this listener :)
+				for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+					Listener listener = registeredListener.getListener();
+
+					if (
+						registeredListener.getPlugin() == Skript.getInstance()
+							&& listener instanceof PriorityListener
+							&& ((PriorityListener) listener).priority == priority
+					)
+						handlerList.unregister(listener);
+				}
+			}
+
+			return true;
+		});
 	}
 
 	/**
