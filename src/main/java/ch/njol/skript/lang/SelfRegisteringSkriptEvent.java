@@ -56,6 +56,17 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	}
 
 	@Override
+	public boolean postLoad() {
+		register(trigger);
+		return true;
+	}
+
+	@Override
+	public void unload() {
+		unregister(trigger);
+	}
+
+	@Override
 	public final boolean check(Event e) {
 		throw new UnsupportedOperationException();
 	}

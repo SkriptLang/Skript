@@ -108,6 +108,7 @@ public abstract class SkriptEvent extends Structure {
 	 */
 	@Override
 	public boolean preLoad() {
+		// Implemented just for javadoc
 		return super.preLoad();
 	}
 
@@ -168,6 +169,7 @@ public abstract class SkriptEvent extends Structure {
 	 */
 	@Override
 	public void postUnload() {
+		// Implemented just for javadoc
 		super.postUnload();
 	}
 
