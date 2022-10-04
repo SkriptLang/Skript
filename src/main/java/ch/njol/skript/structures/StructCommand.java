@@ -140,7 +140,7 @@ public class StructCommand extends Structure {
 		);
 	}
 
-	@Nullable
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private ScriptCommand scriptCommand;
 
 	@Override
@@ -315,10 +315,8 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void unload() {
-		if (scriptCommand != null) {
-			Commands.unregisterCommand(scriptCommand);
-			syncCommands.set(true);
-		}
+		Commands.unregisterCommand(scriptCommand);
+		syncCommands.set(true);
 	}
 
 	@Override
