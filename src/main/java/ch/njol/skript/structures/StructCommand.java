@@ -135,6 +135,9 @@ public class StructCommand extends Structure {
 				.addEntry("cooldown bypass", null,true)
 				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
+				.unexpectedEntryMessage(key ->
+					"Unexpected entry '" + key + "'. Check that it's spelled correctly, and ensure that you have put all code into a trigger."
+				)
 				.build(),
 			"command <.+>"
 		);

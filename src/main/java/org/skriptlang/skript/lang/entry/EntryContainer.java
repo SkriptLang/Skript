@@ -68,10 +68,10 @@ public class EntryContainer {
 	}
 
 	/**
-	 * @return Any nodes unhandled by the EntryValidator.
-	 * {@link EntryValidator#allowsUnknownEntries()} or {@link EntryValidator#allowsUnknownSections()} must be true
-	 *   for this list to contain any values. The 'unhandled node' would represent any entry provided by the user that the validator
-	 *   is not explicitly aware of.
+	 * @return Any nodes unhandled by the {@link EntryValidator}.
+	 * The validator must have a node testing predicate for this list to contain any values.
+	 * The 'unhandled node' would represent any entry provided by the user that the validator
+	 *  is not explicitly aware of.
 	 */
 	public List<Node> getUnhandledNodes() {
 		return unhandledNodes;
