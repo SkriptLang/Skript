@@ -1221,33 +1221,38 @@ public class SkriptParser {
 	/**
 	 * Returns the next character in the expression, skipping strings, variables and parentheses (unless <tt>context</tt> is {@link ParseContext#COMMAND}).
 	 * 
-	 * @param expr The expression
-	 * @param i The last index
+	 * @param expr The expression to traverse.
+	 * @param startIndex The index to start at.
 	 * @return The next index (can be expr.length()), or -1 if an invalid string, variable or bracket is found or if <tt>i >= expr.length()</tt>.
 	 * @throws StringIndexOutOfBoundsException if <tt>i < 0</tt>
 	 */
-	public static int next(final String expr, final int i, final ParseContext context) {
-		if (i >= expr.length())
-			return -1;
-		if (i < 0)
-			throw new StringIndexOutOfBoundsException(i);
+	public static int next(String expr, int startIndex, ParseContext context) {
+		if (startIndex < 0)
+			throw new StringIndexOutOfBoundsException(startIndex);
 		if (context == ParseContext.COMMAND)
-			return i + 1;
-		final char c = expr.charAt(i);
-		if (c == '"') {
-			final int i2 = nextQuote(expr, i + 1);
-			return i2 < 0 ? -1 : i2 + 1;
-		} else if (c == '{') {
-			final int i2 = VariableString.nextVariableBracket(expr, i + 1);
-			return i2 < 0 ? -1 : i2 + 1;
-		} else if (c == '(') {
-			for (int j = i + 1; j >= 0 && j < expr.length(); j = next(expr, j, context)) {
-				if (expr.charAt(j) == ')')
-					return j + 1;
-			}
+			return startIndex + 1;
+
+		int exprLength = expr.length();
+		if (startIndex >= exprLength)
 			return -1;
+
+		int j;
+		switch (expr.charAt(startIndex)) {
+			case '"':
+				j = nextQuote(expr, startIndex + 1);
+				return j < 0 ? -1 : j + 1;
+			case '{':
+				j = VariableString.nextVariableBracket(expr, startIndex + 1);
+				return j < 0 ? -1 : j + 1;
+			case '(':
+				for (j = startIndex + 1; j >= 0 && j < exprLength; j = next(expr, j, context)) {
+					if (expr.charAt(j) == ')')
+						return j + 1;
+				}
+				return -1;
+			default:
+				return startIndex + 1;
 		}
-		return i + 1;
 	}
 
 	/**
@@ -1290,18 +1295,22 @@ public class SkriptParser {
 					return startIndex;
 			}
 
-			if (c == '"') {
-				startIndex = nextQuote(haystack, startIndex + 1);
-				if (startIndex < 0)
-					return -1;
-			} else if (c == '{') {
-				startIndex = VariableString.nextVariableBracket(haystack, startIndex + 1);
-				if (startIndex < 0)
-					return -1;
-			} else if (c == '(') {
-				startIndex = next(haystack, startIndex, parseContext); // Use other function to skip to right after closing parentheses
-				if (startIndex < 0)
-					return -1;
+			switch (c) {
+				case '"':
+					startIndex = nextQuote(haystack, startIndex + 1);
+					if (startIndex < 0)
+						return -1;
+					break;
+				case '{':
+					startIndex = VariableString.nextVariableBracket(haystack, startIndex + 1);
+					if (startIndex < 0)
+						return -1;
+					break;
+				case '(':
+					startIndex = next(haystack, startIndex, parseContext); // Use other function to skip to right after closing parentheses
+					if (startIndex < 0)
+						return -1;
+					break;
 			}
 
 			if (haystack.startsWith(needle, startIndex))
