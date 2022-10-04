@@ -18,9 +18,6 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.ScriptLoader.ScriptInfo;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.util.NonNullPair;
@@ -40,10 +37,8 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,13 +46,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author Peter Güttinger
- */
-public abstract class SkriptEventHandler {
+public final class SkriptEventHandler {
+
+	private SkriptEventHandler() { }
 
 	/**
-	 * A event listener for one priority.
+	 * An event listener for one priority.
 	 * Also stores the registered events for this listener, and
 	 * the {@link EventExecutor} to be used with this listener.
 	 */
@@ -65,9 +59,7 @@ public abstract class SkriptEventHandler {
 
 		public final EventPriority priority;
 
-		public final EventExecutor executor = (listener, event) -> {
-			check(event, ((PriorityListener) listener).priority);
-		};
+		public final EventExecutor executor = (listener, event) -> check(event, ((PriorityListener) listener).priority);
 
 		public PriorityListener(EventPriority priority) {
 			this.priority = priority;
@@ -76,7 +68,7 @@ public abstract class SkriptEventHandler {
 	}
 
 	/**
-	 * Stores one {@link PriorityListener} per {@link EventPriority}
+	 * Stores one {@link PriorityListener} per {@link EventPriority}.
 	 */
 	private static final PriorityListener[] listeners;
 
@@ -88,19 +80,32 @@ public abstract class SkriptEventHandler {
 		}
 	}
 
+	/**
+	 * A list tracking what Triggers are paired with what Events.
+	 */
 	private static final List<NonNullPair<Class<? extends Event>, Trigger>> triggers = new ArrayList<>();
 
-	private static final List<Trigger> selfRegisteredTriggers = new ArrayList<>();
-
+	/**
+	 * A utility method to get all Triggers paired with the provided Event class.
+	 * @param event The event to find pairs from.
+	 * @return An iterator containing all Triggers paired with the provided Event class.
+	 */
 	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
 		HandlerList eventHandlerList = getHandlerList(event);
-
+		assert eventHandlerList != null; // It had one at some point so this should remain true
 		return new ArrayList<>(triggers).stream()
 			.filter(pair -> pair.getFirst().isAssignableFrom(event) && eventHandlerList == getHandlerList(pair.getFirst()))
 			.map(NonNullPair::getSecond)
 			.iterator();
 	}
 
+	/**
+	 * This method is used for validating that the provided Event may be handled by Skript.
+	 * If validation is successful, all Triggers associated with the provided Event are executed.
+	 * A Trigger will only be executed if its priority matches the provided EventPriority.
+	 * @param e The Event to check.
+	 * @param priority The priority of the Event.
+	 */
 	private static void check(Event e, EventPriority priority) {
 		Iterator<Trigger> ts = getTriggers(e.getClass());
 		if (!ts.hasNext())
@@ -151,14 +156,24 @@ public abstract class SkriptEventHandler {
 
 	private static long startEvent;
 
-	public static void logEventStart(Event e) {
+	/**
+	 * Logs that the provided Event has started.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 * @param event The Event that started.
+	 */
+	public static void logEventStart(Event event) {
 		startEvent = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("");
-		Skript.info("== " + e.getClass().getName() + " ==");
+		Skript.info("== " + event.getClass().getName() + " ==");
 	}
 
+	/**
+	 * Logs that the last logged Event start has ended.
+	 * Includes the number of milliseconds execution took.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 */
 	public static void logEventEnd() {
 		if (!Skript.logVeryHigh())
 			return;
@@ -167,100 +182,96 @@ public abstract class SkriptEventHandler {
 
 	private static long startTrigger;
 
-	public static void logTriggerStart(Trigger t) {
+	/**
+	 * Logs that the provided Trigger has begun execution.
+	 * Requires {@link Skript#logVeryHigh()} to be true.
+	 * @param trigger The Trigger that execution has begun for.
+	 */
+	public static void logTriggerStart(Trigger trigger) {
 		startTrigger = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
-		Skript.info("# " + t.getName());
+		Skript.info("# " + trigger.getName());
 	}
 
+	/**
+	 * Logs that the last logged Trigger execution has ended.
+	 * Includes the number of milliseconds execution took.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 */
 	public static void logTriggerEnd(Trigger t) {
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("# " + t.getName() + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
 	}
 
-	public static void addTrigger(Class<? extends Event>[] events, Trigger trigger) {
-		for (Class<? extends Event> e : events) {
-			triggers.add(new NonNullPair<>(e, trigger));
-		}
+	/**
+	 * @deprecated This method no longer does anything as self registered Triggers
+	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them here).
+	 */
+	@Deprecated
+	public static void addSelfRegisteringTrigger(Trigger t) { }
+
+	/**
+	 * A utility method that calls {@link #registerBukkitEvent(Trigger, Class)} for each Event class provided.
+	 * For specific details of the process, see the javadoc of that method.
+	 * @param trigger The Trigger to run when the Event occurs.
+	 * @param events The Event to listen for.
+	 * @see #registerBukkitEvent(Trigger, Class)
+	 * @see #unregisterBukkitEvents(Trigger)
+	 */
+	public static void registerBukkitEvents(Trigger trigger, Class<? extends Event>[] events) {
+		for (Class<? extends Event> event : events)
+			registerBukkitEvent(trigger, event);
 	}
 
 	/**
-	 * Stores a self registered trigger to allow for it to be unloaded later on.
-	 *
-	 * @param t Trigger that has already been registered to its event
+	 * Registers a {@link PriorityListener} with Bukkit for the provided Event.
+	 * Marks that the provided Trigger should be executed when the provided Event occurs.
+	 * @param trigger The Trigger to run when the Event occurs.
+	 * @param event The Event to listen for.
+	 * @see #registerBukkitEvents(Trigger, Class[])
+	 * @see #unregisterBukkitEvents(Trigger)
 	 */
-	public static void addSelfRegisteringTrigger(Trigger t) {
-		assert t.getEvent() instanceof SelfRegisteringSkriptEvent;
-		selfRegisteredTriggers.add(t);
-	}
+	public static void registerBukkitEvent(Trigger trigger, Class<? extends Event> event) {
+		HandlerList handlerList = getHandlerList(event);
+		if (handlerList == null)
+			return;
 
-	static ScriptInfo removeTriggers(File script) {
-		ScriptInfo info = new ScriptInfo();
-		info.files = 1;
+		triggers.add(new NonNullPair<>(event, trigger));
 
-		int previousSize = triggers.size();
-		triggers.removeIf(pair -> script.equals(pair.getSecond().getScript()));
-		info.triggers += previousSize - triggers.size();
+		EventPriority priority = trigger.getEvent().getEventPriority();
+		PriorityListener listener = listeners[priority.ordinal()];
+		EventExecutor executor = listener.executor;
 
-		for (int i = 0; i < selfRegisteredTriggers.size(); i++) {
-			Trigger t = selfRegisteredTriggers.get(i);
-			if (script.equals(t.getScript())) {
-				info.triggers++;
-				((SelfRegisteringSkriptEvent) t.getEvent()).unregister(t);
-				selfRegisteredTriggers.remove(i);
-				i--;
+		// PlayerInteractEntityEvent has a subclass we need for armor stands
+		if (event.equals(PlayerInteractEntityEvent.class)) {
+			if (!isEventRegistered(handlerList, priority)) {
+				Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
+				Bukkit.getPluginManager().registerEvent(PlayerInteractAtEntityEvent.class, listener, priority, executor, Skript.getInstance());
 			}
+			return;
 		}
 
-		info.commands = Commands.unregisterCommands(script);
+		if (event.equals(PlayerInteractAtEntityEvent.class) || event.equals(PlayerArmorStandManipulateEvent.class))
+			return; // Ignore, registered above
 
-		return info;
-	}
-
-	static void removeAllTriggers() {
-		triggers.clear();
-		for (Trigger t : selfRegisteredTriggers)
-			((SelfRegisteringSkriptEvent) t.getEvent()).unregisterAll();
-		selfRegisteredTriggers.clear();
+		if (!isEventRegistered(handlerList, priority)) // Check if event is registered
+			Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
 	}
 
 	/**
-	 * Registers event handlers for all events which currently loaded
-	 * triggers are using.
+	 * Unregisters all events tied to the provided Trigger.
+	 * @param trigger The Trigger to unregister events for.
 	 */
-	static void registerBukkitEvents() {
-		for (NonNullPair<Class<? extends Event>, Trigger> pair : triggers) {
-			assert pair.getFirst() != null;
-			Class<? extends Event> e = pair.getFirst();
-
-			EventPriority priority;
-			priority = pair.getSecond().getEvent().getEventPriority();
-
-			PriorityListener listener = listeners[priority.ordinal()];
-			EventExecutor executor = listener.executor;
-
-			HandlerList handlerList = getHandlerList(e);
-
-			if (handlerList == null)
-				continue;
-
-			// PlayerInteractEntityEvent has a subclass we need for armor stands
-			if (e.equals(PlayerInteractEntityEvent.class)) {
-				if (!isEventRegistered(handlerList, priority)) {
-					Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
-					Bukkit.getPluginManager().registerEvent(PlayerInteractAtEntityEvent.class, listener, priority, executor, Skript.getInstance());
-				}
-				continue;
-			}
-			if (e.equals(PlayerInteractAtEntityEvent.class) || e.equals(PlayerArmorStandManipulateEvent.class))
-				continue; // Ignore, registered above
-
-			if (!isEventRegistered(handlerList, priority)) // Check if event is registered
-				Bukkit.getPluginManager().registerEvent(e, listener, priority, executor, Skript.getInstance());
-		}
+	public static void unregisterBukkitEvents(Trigger trigger) {
+		triggers.removeIf(pair -> pair.getSecond() == trigger);
 	}
+
+	/**
+	 * Events which are listened even if they are cancelled.
+	 */
+	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
 
 	/**
 	 * A cache for the getHandlerList methods of Event classes
@@ -304,9 +315,11 @@ public abstract class SkriptEventHandler {
 		try {
 			return eventClass.getDeclaredMethod("getHandlerList");
 		} catch (NoSuchMethodException e) {
-			if (eventClass.getSuperclass() != null
+			if (
+				eventClass.getSuperclass() != null
 				&& !eventClass.getSuperclass().equals(Event.class)
-				&& Event.class.isAssignableFrom(eventClass.getSuperclass())) {
+				&& Event.class.isAssignableFrom(eventClass.getSuperclass())
+			) {
 				return getHandlerListMethod(eventClass.getSuperclass().asSubclass(Event.class));
 			} else {
 				return null;
@@ -315,17 +328,16 @@ public abstract class SkriptEventHandler {
 	}
 
 	private static boolean isEventRegistered(HandlerList handlerList, EventPriority priority) {
-		for (RegisteredListener rl : handlerList.getRegisteredListeners()) {
-			Listener l = rl.getListener();
-			if (rl.getPlugin() == Skript.getInstance() && l instanceof PriorityListener && ((PriorityListener) l).priority == priority)
+		for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+			Listener listener = registeredListener.getListener();
+			if (
+				registeredListener.getPlugin() == Skript.getInstance()
+				&& listener instanceof PriorityListener
+				&& ((PriorityListener) listener).priority == priority
+			)
 				return true;
 		}
 		return false;
 	}
-
-	/**
-	 * Events which are listened even if they are cancelled.
-	 */
-	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
 
 }

@@ -15,7 +15,7 @@ skript:
 	invalid reload: Skript ne peut être rechargé qu'avec la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.
 	no scripts: Aucun script n'a été trouvé, vous devriez peut-être en écrire quelques-uns ;)
 	no errors: Tous les scripts ont été chargés sans erreur.
-	scripts loaded: %s ¦script a été chargé¦scripts ont été chargés¦ avec un total de %s déclencheur¦¦s¦ et de %s commande¦¦s¦ en %s
+	scripts loaded: %s ¦script a été chargé¦scripts ont été chargés¦ avec un total de %s structure¦¦s¦ en %s
 	finished loading: Chargement terminé.
 
 # -- Skript command --
