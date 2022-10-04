@@ -37,7 +37,7 @@ public class EvtCommand extends SkriptEvent {
 		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "[1:existing] command [using] [%-strings%]")
 				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is registered with the server or is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a> and <a href='conditions.html#CondIsSkriptCommand'>Is Existing Command</a>.")
 				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":", "on existing command:")
-				.since("2.0, INSERT VERSION (existing, multiple strings, using)");
+				.since("2.0, INSERT VERSION (existing, multiple commands, syntax update 'using')");
 	}
 
 	@Nullable
