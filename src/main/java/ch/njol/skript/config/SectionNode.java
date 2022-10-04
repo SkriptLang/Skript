@@ -446,45 +446,80 @@ public class SectionNode extends Node implements Iterable<Node> {
 		}
 		return r;
 	}
-	
+
 	/**
-	 * @param other
-	 * @param excluded keys and sections to exclude
-	 * @return <tt>false</tt> if this and the other SectionNode contain the exact same set of keys
+	 * Updates the values of this SectionNode based on the values of another SectionNode.
+	 * @param other The other SectionNode.
+	 * @param excluded Keys to exclude from this update.
+	 * @return True if there are differences in the keys of this SectionNode and the other SectionNode.
 	 */
-	public boolean setValues(final SectionNode other, final String... excluded) {
-		boolean r = false;
-		for (final Node n : this) {
-			if (CollectionUtils.containsIgnoreCase(excluded, n.key))
+	public boolean setValues(SectionNode other, String... excluded) {
+		return modify(other, false, excluded);
+	}
+
+	/**
+	 * Compares the keys and values of this SectionNode and another.
+	 * @param other The other SectionNode.
+	 * @param excluded Keys to exclude from this comparison.
+	 * @return True if there are no differences in the keys and their values
+	 *  of this SectionNode and the other SectionNode.
+	 */
+	public boolean compareValues(SectionNode other, String... excluded) {
+		return !modify(other, true, excluded); // invert as "modify" returns true if different
+	}
+
+	private boolean modify(SectionNode other, boolean compareValues, String... excluded) {
+		boolean different = false;
+
+		for (Node node : this) {
+			if (CollectionUtils.containsIgnoreCase(excluded, node.key))
 				continue;
-			final Node o = other.get(n.key);
-			if (o == null) {
-				r = true;
-			} else {
-				if (n instanceof SectionNode) {
-					if (o instanceof SectionNode) {
-						r |= ((SectionNode) n).setValues((SectionNode) o);
-					} else {
-						r = true;
+
+			Node otherNode = other.get(node.key);
+			if (otherNode != null) { // other has this key
+				if (node instanceof SectionNode) {
+					if (otherNode instanceof SectionNode) {
+						different |= ((SectionNode) node).modify((SectionNode) otherNode, compareValues);
+					} else { // Our node type is different from the old one
+						different = true;
+						if (compareValues) // Counting values means we don't need to copy over values
+							break;
 					}
-				} else if (n instanceof EntryNode) {
-					if (o instanceof EntryNode) {
-						((EntryNode) n).setValue(((EntryNode) o).getValue());
-					} else {
-						r = true;
+				} else if (node instanceof EntryNode) {
+					if (otherNode instanceof EntryNode) {
+						String ourValue = ((EntryNode) node).getValue();
+						String theirValue = ((EntryNode) otherNode).getValue();
+						if (compareValues) {
+							if (!ourValue.equals(theirValue)) {
+								different = true;
+								break; // Counting values means we don't need to copy over values
+							}
+						} else { // If we don't care about values, just copy over the old one
+							((EntryNode) node).setValue(theirValue);
+						}
+					} else { // Our node type is different from the old one
+						different = true;
+						if (compareValues) // Counting values means we don't need to copy over values
+							break;
 					}
 				}
+			} else { // other is missing this key (which means we have a new key)
+				different = true;
+				if (compareValues) // Counting values means we don't need to copy over values
+					break;
 			}
 		}
-		if (!r) {
-			for (final Node o : other) {
-				if (this.get(o.key) == null) {
-					r = true;
+
+		if (!different) {
+			for (Node otherNode : other) {
+				if (this.get(otherNode.key) == null) {
+					different = true;
 					break;
 				}
 			}
 		}
-		return r;
+
+		return different;
 	}
 	
 }
