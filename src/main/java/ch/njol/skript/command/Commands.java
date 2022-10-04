@@ -21,7 +21,6 @@ package ch.njol.skript.command;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.Effect;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.TriggerItem;
@@ -241,10 +240,15 @@ public abstract class Commands {
 	public static ScriptCommand getScriptCommand(String key) {
 		return commands.get(key);
 	}
-	
+
 	public static boolean skriptCommandExists(final String command) {
 		final ScriptCommand c = commands.get(command);
-		return c != null && c.getName().equals(command);
+		return c != null && (c.getName().equals(command) || c.getAliases().contains(command));
+	}
+
+	public static boolean commandExists(final String command) {
+		final Command c = getCommandMap().getCommand(command);
+		return c != null && (c.getName().equals(command) || c.getAliases().contains(command));
 	}
 	
 	public static void registerCommand(final ScriptCommand command) {

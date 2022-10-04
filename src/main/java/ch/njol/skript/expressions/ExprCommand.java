@@ -39,20 +39,21 @@ import ch.njol.util.Kleenean;
 
 @Name("Command")
 @Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
-@Examples({"# prevent any commands except for the /exit command during some game",
-		"on command:",
-		"\tif {game::%player%::playing} is true:",
-		"\t\tif the command is not \"exit\":",
-		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
-		"\t\t\tcancel the event"})
-@Since("2.0, INSERT VERSION (support for script commands and unknown command event)")
+@Examples({
+	"# prevents any commands except for the /exit command during some game",
+	"on command:",
+	"\tif {game::%player%::playing} is true:",
+	"\t\tif the command is not \"exit\":",
+	"\t\t\tmessage \"You're not allowed to use commands during the game\"",
+	"\t\t\tcancel the event"})
+@Since("2.0, INSERT VERSION (support for script commands, unknown command event)")
 @Events({"command", "unknown command"})
 public class ExprCommand extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCommand.class, String.class, ExpressionType.SIMPLE,
-			"[the] command [(label|alias)]",
-			"[the] (full|complete|whole) command"
+			"[the] (full|complete|whole) command",
+			"[the] command [(label|alias)]"
 		);
 	}
 
@@ -64,7 +65,7 @@ public class ExprCommand extends SimpleExpression<String> {
 			Skript.error("The 'command' expression can only be used in a script command or command event");
 			return false;
 		}
-		fullCommand = matchedPattern == 1;
+		fullCommand = matchedPattern == 0;
 		return true;
 	}
 	

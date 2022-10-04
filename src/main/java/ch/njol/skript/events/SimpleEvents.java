@@ -640,7 +640,7 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 		}
 		Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "unknown command")
-			.description("Called when a player executes a command that is not defined\n")
+			.description("Called when a player executes a command that is not registered\n")
 			.examples("on unknown command:",
 				"\tset unknown command message to \"<##ff3737>%command% is not a valid command!\"")
 			.since("INSERT VERSION");

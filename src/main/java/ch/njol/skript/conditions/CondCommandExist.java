@@ -26,20 +26,20 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Command Exists")
 @Description("Checks whether a command is registered with the server.")
-@Examples(
-	{"# Example 1",
-		"on command:",
-		"\tthe command command doesn't exist",
-		"",
-		"# Example 2",
-		"the command \"sometext\" exist"})
+@Examples({
+	"# Example 1",
+	"on command:",
+	"\tthe command named command doesn't exist",
+	"",
+	"# Example 2",
+	"the command \"sometext\" exist"})
 @Since("INSERT VERSION")
 public class CondCommandExist extends Condition {
 
@@ -52,7 +52,7 @@ public class CondCommandExist extends Condition {
 	private Expression<String> commands;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		commands = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
 		return true;
@@ -60,12 +60,11 @@ public class CondCommandExist extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		return commands.check(event, command -> Commands.getCommandMap().getCommand(command) != null, isNegated());
+		return commands.check(event, Commands::commandExists, isNegated());
 	}
 
 	@Override
-	@Nullable
-	public String toString(Event event, boolean debug) {
-		return "commands named " + commands + (isNegated() ? " doesn't " : "") + "exist";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "commands named " + commands + (isNegated() ? " don't " : "") + "exist";
 	}
 }

@@ -19,6 +19,7 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.command.Commands;
+import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -31,58 +32,60 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 
-@SuppressWarnings("unchecked")
 public class EvtCommand extends SkriptEvent {
 	static {
-		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "[1:existing] command [%-string%]")
-				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a>.")
+		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "[1:existing] command [using] [%-strings%]")
+				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is registered with the server or is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a> and <a href='conditions.html#CondIsSkriptCommand'>Is Existing Command</a>.")
 				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":", "on existing command:")
-				.since("2.0, INSERT VERSION (existing only)");
+				.since("2.0, INSERT VERSION (existing, multiple strings, using)");
 	}
 
 	@Nullable
-	private String command = null;
-	private Boolean existOnly;
+	private Literal<String> commands;
+	private Boolean existsOnly;
 
 	@Override
-	@SuppressWarnings("null")
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		if (args[0] != null) {
-			command = ((Literal<String>) args[0]).getSingle();
-			if (command.startsWith("/"))
-				command = command.substring(1);
+			commands = (Literal<String>) args[0];
 		}
-		existOnly = parser.mark == 1;
+		existsOnly = parser.mark == 1;
 		return true;
 	}
 
 	public boolean check(Event event) {
-		if (event instanceof ServerCommandEvent && ((ServerCommandEvent) event).getCommand().isEmpty())
+		if (event instanceof ServerCommandEvent && ((ServerCommandEvent) event).getCommand().isEmpty()) {
 			return false;
+		}
 
-		if (command == null) {
-			if (existOnly && event instanceof ServerCommandEvent && Commands.getCommandMap().getCommand(((ServerCommandEvent) event).getCommand()) == null)
+		if (commands == null) {
+			if (existsOnly && event instanceof ServerCommandEvent && Commands.getCommandMap().getCommand(((ServerCommandEvent) event).getCommand()) == null)
 				return false;
-			if (existOnly && event instanceof PlayerCommandPreprocessEvent && Commands.getCommandMap().getCommand(((PlayerCommandPreprocessEvent) event).getMessage().substring(1)) == null)
+			if (existsOnly && event instanceof PlayerCommandPreprocessEvent && Commands.getCommandMap().getCommand(((PlayerCommandPreprocessEvent) event).getMessage().substring(1)) == null)
 				return false;
 			return true;
 		}
 
-		String message;
-		if (event instanceof ServerCommandEvent) {
-			message = ((ServerCommandEvent) event).getCommand();
-		} else {
-			assert ((PlayerCommandPreprocessEvent) event).getMessage().startsWith("/");
-			message = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1);
-		}
-		return StringUtils.startsWithIgnoreCase(message, command)
-			&& (command.contains(" ") || message.length() == command.length() || Character.isWhitespace(message.charAt(command.length())));
+		return commands.check(event, new Checker<String>() {
+			@Override
+			public boolean check(String command) {
+				String message;
+				if (event instanceof ServerCommandEvent) {
+					message = ((ServerCommandEvent) event).getCommand();
+				} else {
+					assert ((PlayerCommandPreprocessEvent) event).getMessage().startsWith("/");
+					message = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1);
+				}
+				return StringUtils.startsWithIgnoreCase(message, command)
+					&& (command.contains(" ") || message.length() == command.length() || Character.isWhitespace(message.charAt(command.length()))) // if only the command is given, match that command only
+					&& (existsOnly ? Commands.commandExists(command) : true);
+			}
+		});
 	}
 	
 	@Override
-	@Nullable
-	public String toString(final Event event, final boolean debug) {
-		return "command" + (command != null ? " /" + command : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "command" + (commands != null ? commands.toString(event, debug) : "");
 	}
 	
 }

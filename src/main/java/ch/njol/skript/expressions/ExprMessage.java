@@ -45,36 +45,36 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@SuppressWarnings("deprecation")
 @Name("Message")
 @Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
-@Examples({"on chat:",
-		"\tplayer has permission \"admin\"",
-		"\tset message to \"&c%message%\"",
-		"",
-		"on first join:",
-		"\tset join message to \"Welcome %player% to our awesome server!\"",
-		"",
-		"on join:",
-		"\tplayer has played before",
-		"\tset join message to \"Welcome back, %player%!\"",
-		"",
-		"on quit:",
-		"\tset quit message to \"%player% left this awesome server!\"",
-		"",
-		"on kick:",
-		"\tset kick message to \"You've been kicked from the server!\"",
-		"",
-		"on death:",
-		"\tset the death message to \"%player% died!\"",
-		"",
-		"on unknown command:",
-		"\tset unknown command message to \"<##ff3737>%command% is not a valid command!\""
+@Examples({
+	"on chat:",
+	"\tplayer has permission \"admin\"",
+	"\tset message to \"&c%message%\"",
+	"",
+	"on first join:",
+	"\tset join message to \"Welcome %player% to our awesome server!\"",
+	"",
+	"on join:",
+	"\tplayer has played before",
+	"\tset join message to \"Welcome back, %player%!\"",
+	"",
+	"on quit:",
+	"\tset quit message to \"%player% left this awesome server!\"",
+	"",
+	"on kick:",
+	"\tset kick message to \"You've been kicked from the server!\"",
+	"",
+	"on death:",
+	"\tset the death message to \"%player% died!\"",
+	"",
+	"on unknown command:",
+	"\tset unknown command message to \"<##ff3737>%command% is not a valid command!\""
 })
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), INSERT VERSION (unknown command message)")
 @Events({"chat", "join", "quit", "death", "unknown command"})
 public class ExprMessage extends SimpleExpression<String> {
-	
+
 	@SuppressWarnings("unchecked")
 	private static enum MessageType {
 		CHAT("chat", "[chat( |-)]message", PlayerChatEventHandler.usesAsyncEvent ? AsyncPlayerChatEvent.class : PlayerChatEvent.class) {
@@ -140,9 +140,10 @@ public class ExprMessage extends SimpleExpression<String> {
 					((PlayerDeathEvent) event).setDeathMessage(message);
 			}
 		},
-		UNKNOWN_CMD("unknown command", "unknown command( |-)message", UnknownCommandEvent.class) {
+		UNKNOWN_CMD("unknown command", "unknown( |-)command( |-)message", UnknownCommandEvent.class) {
 			@Override
-			@Nullable String get(Event event) {
+			@Nullable
+			String get(Event event) {
 				return ((UnknownCommandEvent) event).getMessage();
 			}
 

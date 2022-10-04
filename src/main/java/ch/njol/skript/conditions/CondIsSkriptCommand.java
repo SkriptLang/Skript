@@ -18,38 +18,52 @@
  */
 package ch.njol.skript.conditions;
 
-import static ch.njol.skript.command.Commands.skriptCommandExists;
-
-import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.Skript;
+import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is a Skript command")
 @Description("Checks whether a command/string is a custom Skript command.")
-@Examples(
-	{"# Example 1",
+@Examples({
+	"# Example 1",
 	"on command:", 
 	"\tcommand is a skript command",
 	"",
 	"# Example 2",
 	"\"sometext\" is a skript command"})
-@Since("2.6")
-public class CondIsSkriptCommand extends PropertyCondition<String> {
+@Since("2.6, INSERT VERSION (aliases support)")
+public class CondIsSkriptCommand extends Condition {
 	
 	static {
-		register(CondIsSkriptCommand.class, PropertyType.BE, "[a] s(k|c)ript (command|cmd)", "string");
+		Skript.registerCondition(CondIsSkriptCommand.class, "[command[s]] %strings% (is|are) [a] s(k|c)ript (command|cmd)[s]",
+			"[command[s]] %strings% (is not|isn't|aren't|are not) [a] s(k|c)ritp (command|cmd)[s]");
 	}
-	
+
+	private Expression<String> commands;
+
 	@Override
-	public boolean check(String cmd) {
-		return skriptCommandExists(cmd);
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		commands = (Expression<String>) exprs[0];
+		setNegated(matchedPattern == 1);
+		return true;
 	}
-	
+
 	@Override
-	protected String getPropertyName() {
-		return "skript command";
+	public boolean check(Event event) {
+		return commands.check(event, Commands::skriptCommandExists, isNegated());
 	}
-	
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "command " + commands + (isNegated() ? " is not " : " is ") + "a skript command";
+	}
 }
