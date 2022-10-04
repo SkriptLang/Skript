@@ -93,6 +93,7 @@ public class ScriptCommand implements TabExecutor {
 	private String permission;
 	private final VariableString permissionMessage;
 	private final String description;
+	private final String prefix;
 	@Nullable
 	private final Timespan cooldown;
 	private final Expression<String> cooldownMessage;
@@ -128,7 +129,7 @@ public class ScriptCommand implements TabExecutor {
 	 */
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, String usage, List<String> aliases,
+		String description, String prefix, String usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -158,6 +159,7 @@ public class ScriptCommand implements TabExecutor {
 		activeAliases = new ArrayList<>(aliases);
 
 		this.description = Utils.replaceEnglishChatStyles(description);
+		this.prefix = prefix;
 		this.usage = Utils.replaceEnglishChatStyles(usage);
 
 		this.executableBy = executableBy;
@@ -318,7 +320,7 @@ public class ScriptCommand implements TabExecutor {
 	private transient Command overridden = null;
 	private transient Map<String, Command> overriddenAliases = new HashMap<>();
 
-	public void register(final SimpleCommandMap commandMap, final Map<String, Command> knownCommands, final @Nullable Set<String> aliases) {
+	public void register(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
 		synchronized (commandMap) {
 			overriddenAliases.clear();
 			overridden = knownCommands.put(label, bukkitCommand);
@@ -336,19 +338,19 @@ public class ScriptCommand implements TabExecutor {
 					aliases.add(lowerAlias);
 			}
 			bukkitCommand.setAliases(activeAliases);
-			commandMap.register("skript", bukkitCommand);
+			commandMap.register(prefix, bukkitCommand);
 		}
 	}
 
-	public void unregister(final SimpleCommandMap commandMap, final Map<String, Command> knownCommands, final @Nullable Set<String> aliases) {
+	public void unregister(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
 		synchronized (commandMap) {
 			knownCommands.remove(label);
-			knownCommands.remove("skript:" + label);
+			knownCommands.remove(prefix + ":" + label);
 			if (aliases != null)
 				aliases.removeAll(activeAliases);
 			for (final String alias : activeAliases) {
 				knownCommands.remove(alias);
-				knownCommands.remove("skript:" + alias);
+				knownCommands.remove(prefix + ":" + alias);
 			}
 			activeAliases = new ArrayList<>(this.aliases);
 			bukkitCommand.unregister(commandMap);
@@ -417,6 +419,10 @@ public class ScriptCommand implements TabExecutor {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getPrefix() {
+		return prefix;
 	}
 
 	public String getLabel() {
