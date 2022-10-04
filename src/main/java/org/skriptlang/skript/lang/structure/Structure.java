@@ -25,11 +25,9 @@ import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -151,12 +149,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 */
 	public void unload() { }
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 * 	most other Structures have finished unloading.
 	 */

@@ -23,6 +23,7 @@ import org.bukkit.event.Event;
 
 import java.util.Objects;
 
+@Deprecated
 public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 
 	/**

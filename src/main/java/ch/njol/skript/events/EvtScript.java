@@ -18,83 +18,78 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.events.bukkit.ScriptEvent;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-
-/**
- * @author Peter Güttinger
- */
-public class EvtScript extends SelfRegisteringSkriptEvent {
+public class EvtScript extends SkriptEvent {
 	
 	static {
 		Skript.registerEvent("Script Load/Unload", EvtScript.class, ScriptEvent.class,
-			"[(1¦async)] [script] (load|init|enable)",
-			"[(1¦async)] [script] (unload|stop|disable)"
-		)
-			.description("Called directly after the trigger is loaded, or directly before the whole script is unloaded.",
-				"The keyword 'async' indicates the trigger can be ran asynchronously, ")
-			.examples("on load:",
-				"	set {running::%script%} to true",
+			"[:async] [script] (load|init|enable)",
+			"[:async] [script] (unload|stop|disable)"
+			).description(
+				"Called directly after the trigger is loaded, or directly before the whole script is unloaded.",
+				"The keyword 'async' indicates the trigger can be ran asynchronously, "
+			).examples(
+				"on load:",
+				"\tset {running::%script%} to true",
 				"on unload:",
-				"	set {running::%script%} to false")
-			.since("2.0");
+				"\tset {running::%script%} to false"
+			).since("2.0");
 	}
 	
-	private boolean asyncAllowed;
+	private boolean async;
 	private boolean load;
 	
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
-		asyncAllowed = parser.mark == 1;
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		async = parseResult.hasTag("async");
 		load = matchedPattern == 0;
 		return true;
 	}
-	
-	@Nullable
-	private Trigger t;
-	
+
 	@Override
-	public void register(final Trigger t) {
-		this.t = t;
+	public boolean postLoad() {
 		if (load)
-			runTrigger(t, new ScriptEvent());
+			runTrigger(trigger, new ScriptEvent());
+		return true;
 	}
-	
+
 	@Override
-	public void unregister(final Trigger t) {
-		assert t == this.t;
+	public void unload() {
 		if (!load)
-			runTrigger(t, new ScriptEvent());
-		this.t = null;
+			runTrigger(trigger, new ScriptEvent());
+	}
+
+	@Override
+	public boolean check(Event event) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isEventPrioritySupported() {
+		return false;
 	}
 	
 	@Override
-	public void unregisterAll() {
-		if (!load && t != null)
-			runTrigger(t, new ScriptEvent());
-		t = null;
+	public String toString(@Nullable Event event, boolean debug) {
+		return (async ? "async " : "") + "script " + (load ? "" : "un") + "load";
 	}
-	
+
 	private void runTrigger(Trigger trigger, Event event) {
-		if (asyncAllowed || Bukkit.isPrimaryThread()) {
+		if (async || Bukkit.isPrimaryThread()) {
 			trigger.execute(event);
 		} else {
 			if (Skript.getInstance().isEnabled())
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> trigger.execute(event));
 		}
-	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (asyncAllowed ? "async " : "") + "script " + (load ? "" : "un") + "load";
 	}
 	
 }
