@@ -35,17 +35,19 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.MatchResult;
 
 @Name("Function")
 @Description({
 	"Functions are structures that can be executed with arguments/parameters to run code.",
-	"They can also return a value to the trigger that is executing the function."
+	"They can also return a value to the trigger that is executing the function.",
+	"Note that local functions always come after global functions, in parsing and execution"
 })
 @Examples({
 	"function sayMessage(message: text):",
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
-	"function giveApple(amount: number) :: item:",
-	"\treturn {_amount} of apple"
+	"local function giveApple(amount: number) :: item:",
+	"\treturn {_amount} of apple",
 })
 @Since("2.2, INSERT VERSION (local functions)")
 public class StructFunction extends Structure {
@@ -55,23 +57,28 @@ public class StructFunction extends Structure {
 
 	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
 
+	@SuppressWarnings("null")
+	private final static String functionPattern = "(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?";
+
 	static {
-		Skript.registerStructure(StructFunction.class, "[:local] function <.+>");
+		Skript.registerStructure(StructFunction.class, "[:local] function <" + functionPattern + ">");
 	}
 
 	@Nullable
 	private Signature<?> signature;
-	boolean local;
+	private boolean local;
+	private MatchResult regex;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		local = parseResult.hasTag("local");
+		regex = parseResult.regexes.get(0);
 		return true;
 	}
 
 	@Override
 	public boolean preLoad() {
-		signature = Functions.loadSignature(getParser().getCurrentScript().getConfig().getFileName(), getEntryContainer().getSource());
+		signature = Functions.loadSignature(getParser().getCurrentScript().getConfig().getFileName(), local, regex);
 		return signature != null;
 	}
 
@@ -80,7 +87,10 @@ public class StructFunction extends Structure {
 		ParserInstance parser = getParser();
 		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
-		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource());
+		if (signature == null) // Signature parsing failed, probably: null signature
+			return false; // This has been reported before...
+
+		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
 
 		parser.deleteCurrentEvent();
 

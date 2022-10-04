@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,8 +103,7 @@ public abstract class Functions {
 	public final static String functionNamePattern = "[\\p{IsAlphabetic}][\\p{IsAlphabetic}\\p{IsDigit}_]*";
 
 	@SuppressWarnings("null")
-	private final static Pattern functionPattern = Pattern.compile("(local )?function (" + functionNamePattern + ")\\((.*)\\)(?: :: (.+))?", Pattern.CASE_INSENSITIVE),
-		paramPattern = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
+	public final static Pattern paramPattern = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
 
 	/**
 	 * Loads a script function from given node.
@@ -111,33 +111,22 @@ public abstract class Functions {
 	 * @return Script function, or null if something went wrong.
 	 */
 	@Nullable
-	public static Function<?> loadFunction(Script script, SectionNode node) {
-		SkriptLogger.setNode(node);
-		String key = node.getKey();
-		String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
-		assert definition != null;
-		Matcher m = functionPattern.matcher(definition);
-		if (!m.matches()) // We have checks when loading the signature, but matches() must be called anyway
-			return null; // don't error, already done in signature loading
-		String name = "" + m.group(2);
-
+	public static Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
+		String name = signature.name;
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null) {
 			namespace = getScriptNamespace(script.getConfig().getFileName());
 			if (namespace == null)
 				return null; // Probably duplicate signature; reported before
 		}
-		Signature<?> sign = namespace.getSignature(name);
-		if (sign == null) // Signature parsing failed, probably: null signature
-			return null; // This has been reported before...
-		Parameter<?>[] params = sign.parameters;
-		ClassInfo<?> c = sign.returnType;
+		Parameter<?>[] params = signature.parameters;
+		ClassInfo<?> c = signature.returnType;
 
 		if (Skript.debug() || node.debug())
-			Skript.debug((sign.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
-				+ (c != null ? " :: " + (sign.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
+			Skript.debug((signature.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
+				+ (c != null ? " :: " + (signature.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 
-		Function<?> f = new ScriptFunction<>(sign, script, node);
+		Function<?> f = new ScriptFunction<>(signature, script, node);
 
 		// Register the function for signature
 		namespace.addFunction(f);
@@ -148,19 +137,13 @@ public abstract class Functions {
 	/**
 	 * Loads the signature of function from given node.
 	 * @param script Script file name (<b>might</b> be used for some checks).
-	 * @param node Section node.
+	 * @param local If the signature of function is local
+	 * @param matchResult The match result of the function regex pattern
 	 * @return Signature of function, or null if something went wrong.
 	 */
 	@Nullable
-	public static Signature<?> loadSignature(String script, SectionNode node) {
-		SkriptLogger.setNode(node);
-		String key = node.getKey();
-		String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
-		Matcher m = functionPattern.matcher(definition);
-		if (!m.matches())
-			return signError(INVALID_FUNCTION_DEFINITION);
-		boolean local = m.group(1) != null;
-		String name = "" + m.group(2);
+	public static Signature<?> loadSignature(String script, boolean local, MatchResult matchResult) {
+		String name = "" + matchResult.group(1);
 
 		// Ensure there are no duplicate functions
 		if (globalFunctions.containsKey(name)) {
@@ -180,8 +163,8 @@ public abstract class Functions {
 				return signError("A local function named '" + name + "' already exists in script '" + script + "'");
 		}
 
-		String args = m.group(3);
-		String returnType = m.group(4);
+		String args = matchResult.group(2);
+		String returnType = matchResult.group(3);
 		List<Parameter<?>> params = new ArrayList<>();
 		int j = 0;
 		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
@@ -190,13 +173,14 @@ public abstract class Functions {
 			if (i == args.length() || args.charAt(i) == ',') {
 				String arg = args.substring(j, i);
 
-				if (arg.isEmpty()) // Zero-argument function
+				if (args.isEmpty()) // Zero-argument function
 					break;
 
-				// One ore more arguments for this function
+				// One or more arguments for this function
 				Matcher n = paramPattern.matcher(arg);
-				if (!n.matches())
+				if (!n.matches()) {
 					return signError("The " + StringUtils.fancyOrderNumber(params.size() + 1) + " argument's definition is invalid. It should look like 'name: type' or 'name: type = default value'.");
+				}
 				String paramName = "" + n.group(1);
 				for (Parameter<?> p : params) {
 					if (p.name.toLowerCase(Locale.ENGLISH).equals(paramName.toLowerCase(Locale.ENGLISH)))
