@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import java.io.File;
 
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.util.SkriptColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -90,9 +91,17 @@ public abstract class TriggerItem implements Debuggable {
 			
 			return true;
 		} catch (final StackOverflowError err) {
-			final Trigger t = start.getTrigger();
-			final File sc = t == null ? null : t.getScript();
-			Skript.adminBroadcast("<red>The script '<gold>" + (sc == null ? "<unknown>" : sc.getName()) + "<red>' infinitely (or excessively) repeated itself!");
+			Trigger t = start.getTrigger();
+			String scriptName = "<unknown>";
+			if (t != null) {
+				Script script = t.getScript();
+				if (script != null) {
+					File scriptFile = script.getConfig().getFile();
+					if (scriptFile != null)
+						scriptName = scriptFile.getName();
+				}
+			}
+			Skript.adminBroadcast("<red>The script '<gold>" + scriptName + "<red>' infinitely (or excessively) repeated itself!");
 			if (Skript.debug())
 				err.printStackTrace();
 		} catch (final Exception ex) {
