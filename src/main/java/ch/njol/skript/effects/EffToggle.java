@@ -134,7 +134,7 @@ public class EffToggle extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event e) {
 		ArrayList<Object> toggledValues = new ArrayList<>();
 		for (Object o : toggledExpr.getArray(e)) {
 			if (o instanceof Block) {
