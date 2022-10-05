@@ -46,7 +46,6 @@ import ch.njol.util.Kleenean;
 /**
  * @author Peter Güttinger
  */
-@SuppressWarnings("deprecation")
 @Name("Toggle")
 @Description("Toggle a boolean or the state of a block.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
@@ -159,7 +158,6 @@ public class EffToggle extends Effect {
 				}
 				
 				block.setBlockData(data);
-				
 				toggledValues.add(block);
 				
 			} else if (o instanceof Boolean) {
