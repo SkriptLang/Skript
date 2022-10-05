@@ -143,7 +143,7 @@ public class StructCommand extends Structure {
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@Nullable
 	private ScriptCommand scriptCommand;
 
 	@Override
@@ -318,6 +318,7 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void unload() {
+		assert scriptCommand != null; // This method should never be called if one of the loading methods fail
 		Commands.unregisterCommand(scriptCommand);
 		syncCommands.set(true);
 	}
