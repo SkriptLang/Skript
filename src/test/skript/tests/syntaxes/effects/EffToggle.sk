@@ -29,7 +29,7 @@ test "change modes":
   assert {_toggle::1} is true with "{_toggle::1} should be toggled to true"
   assert {_toggle::2} is true with "{_toggle::2} should be toggled to true"
   assert {_toggle::3} is true with "{_toggle::3} should be toggled to true"
-  assert toggled {_isToggled} is false with "{_isToggled} should be toggled to false"
+  assert inverse of {_isToggled} is false with "{_isToggled} should be toggled to false"
 
   set {_block} to block at location(10, 10, 10, world "world")
   set {_list::*} to true and {_block}
