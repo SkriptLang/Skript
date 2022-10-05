@@ -25,14 +25,12 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -116,6 +114,8 @@ public class FunctionReference<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean validateFunction(boolean first) {
+		if (!first && script == null)
+			return false;
 		Function<? extends T> previousFunction = function;
 		function = null;
 		SkriptLogger.setNode(node);

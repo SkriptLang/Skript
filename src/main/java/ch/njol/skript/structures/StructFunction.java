@@ -61,34 +61,40 @@ public class StructFunction extends Structure {
 	private final static String functionPattern = "(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?";
 
 	static {
-		Skript.registerStructure(StructFunction.class, "[:local] function <" + functionPattern + ">");
+		Skript.registerStructure(StructFunction.class,
+			"[:local] function <" + functionPattern + ">");
 	}
 
-	@Nullable
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Signature<?> signature;
 	private boolean local;
-	private MatchResult regex;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	@SuppressWarnings("all")
+	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		local = parseResult.hasTag("local");
-		regex = parseResult.regexes.get(0);
-		return true;
+		MatchResult regex = parseResult.regexes.get(0);
+		String name = regex.group(1);
+		String args = regex.group(2);
+		String returnType = regex.group(3);
+
+		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
+
+		signature = Functions.parseSignature(getParser().getCurrentScript().getConfig().getFileName(), name, args, returnType, local);
+
+		getParser().deleteCurrentEvent();
+		return signature != null;
 	}
 
 	@Override
 	public boolean preLoad() {
-		signature = Functions.loadSignature(getParser().getCurrentScript().getConfig().getFileName(), local, regex);
-		return signature != null;
+		return Functions.registerSignature(signature) != null;
 	}
 
 	@Override
 	public boolean load() {
 		ParserInstance parser = getParser();
 		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
-
-		if (signature == null) // Signature parsing failed, probably: null signature
-			return false; // This has been reported before...
 
 		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
 
@@ -110,8 +116,7 @@ public class StructFunction extends Structure {
 
 	@Override
 	public void unload() {
-		if (signature != null)
-			Functions.unregisterFunction(signature);
+		Functions.unregisterFunction(signature);
 		validateFunctions.set(true);
 	}
 

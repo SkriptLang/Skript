@@ -18,16 +18,12 @@
  */
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.ParseContext;
 import org.skriptlang.skript.lang.script.Script;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
@@ -39,11 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Static methods to work with functions.
@@ -102,9 +94,6 @@ public abstract class Functions {
 
 	public final static String functionNamePattern = "[\\p{IsAlphabetic}][\\p{IsAlphabetic}\\p{IsDigit}_]*";
 
-	@SuppressWarnings("null")
-	public final static Pattern paramPattern = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
-
 	/**
 	 * Loads a script function from given node.
 	 * @param node Section node.
@@ -134,77 +123,23 @@ public abstract class Functions {
 		return f;
 	}
 
+
 	/**
-	 * Loads the signature of function from given node.
+	 * Parses the signature from the given arguments.
 	 * @param script Script file name (<b>might</b> be used for some checks).
-	 * @param local If the signature of function is local
-	 * @param matchResult The match result of the function regex pattern
+	 * @param name The name of the function.
+	 * @param args The parameters of the function. See {@link Parameter#parse(String)}
+	 * @param returnType The return type of the function
+	 * @param local If the signature of function is local.
 	 * @return Signature of function, or null if something went wrong.
+	 * @see Functions#registerSignature(Signature)
 	 */
 	@Nullable
-	public static Signature<?> loadSignature(String script, boolean local, MatchResult matchResult) {
-		String name = "" + matchResult.group(1);
-
-		// Ensure there are no duplicate functions
-		if (globalFunctions.containsKey(name)) {
-			Namespace namespace = globalFunctions.get(name);
-			if (namespace == javaNamespace) { // Special messages for built-in functions
-				return signError("Function name '" + name + "' is reserved by Skript");
-			} else {
-				Signature<?> sign = namespace.getSignature(name);
-				assert sign != null : "globalFunctions points to a wrong namespace";
-				return signError("A function named '" + name + "' already exists in script '" + sign.script + "'");
-			}
-		}
-
-		if (local) {
-			Namespace namespace = getScriptNamespace(script);
-			if (namespace != null && namespace.getSignature(name) != null)
-				return signError("A local function named '" + name + "' already exists in script '" + script + "'");
-		}
-
-		String args = matchResult.group(2);
-		String returnType = matchResult.group(3);
-		List<Parameter<?>> params = new ArrayList<>();
-		int j = 0;
-		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
-			if (i == -1)
-				return signError("Invalid text/variables/parentheses in the arguments of this function");
-			if (i == args.length() || args.charAt(i) == ',') {
-				String arg = args.substring(j, i);
-
-				if (args.isEmpty()) // Zero-argument function
-					break;
-
-				// One or more arguments for this function
-				Matcher n = paramPattern.matcher(arg);
-				if (!n.matches()) {
-					return signError("The " + StringUtils.fancyOrderNumber(params.size() + 1) + " argument's definition is invalid. It should look like 'name: type' or 'name: type = default value'.");
-				}
-				String paramName = "" + n.group(1);
-				for (Parameter<?> p : params) {
-					if (p.name.toLowerCase(Locale.ENGLISH).equals(paramName.toLowerCase(Locale.ENGLISH)))
-						return signError("Each argument's name must be unique, but the name '" + paramName + "' occurs at least twice.");
-				}
-				ClassInfo<?> c;
-				c = Classes.getClassInfoFromUserInput("" + n.group(2));
-				NonNullPair<String, Boolean> pl = Utils.getEnglishPlural("" + n.group(2));
-				if (c == null)
-					c = Classes.getClassInfoFromUserInput(pl.getFirst());
-				if (c == null)
-					return signError("Cannot recognise the type '" + n.group(2) + "'");
-				String rParamName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
-					(!pl.getSecond() ? "::1" : "") : paramName;
-				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
-				if (p == null)
-					return null;
-				params.add(p);
-
-				j = i + 1;
-			}
-			if (i == args.length())
-				break;
-		}
+	@SuppressWarnings({"unchecked", "null"})
+	public static Signature<?> parseSignature(String script, String name, String args, @Nullable String returnType, boolean local) {
+		List<Parameter<?>> parameters = Parameter.parse(args);
+		if (parameters == null)
+			return null;
 
 		// Parse return type if one exists
 		ClassInfo<?> returnClass;
@@ -219,23 +154,49 @@ public abstract class Functions {
 			if (returnClass == null)
 				returnClass = Classes.getClassInfoFromUserInput(p.getFirst());
 			if (returnClass == null) {
-				return signError("Cannot recognise the type '" + returnType + "'");
+				Skript.error("Cannot recognise the type '" + returnType + "'");
+				return null;
 			}
 		}
 
-		@SuppressWarnings({"unchecked", "null"})
-		Signature<?> sign = new Signature<>(script, name,
-			params.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn);
+		return new Signature<>(script, name, parameters.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn);
+	}
 
-		// Register this signature
-		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, script);
+	/**
+	 * Registers the signature.
+	 * @param signature The signature to register.
+	 * @return Signature of function, or null if something went wrong.
+	 * @see Functions#parseSignature(String, String, String, String, boolean)
+	 */
+	@Nullable
+	public static Signature<?> registerSignature(Signature<?> signature) {
+		// Ensure there are no duplicate functions
+		if (globalFunctions.containsKey(signature.name)) {
+			Namespace namespace = globalFunctions.get(signature.name);
+			if (namespace == javaNamespace) { // Special messages for built-in functions
+				return signError("Function name '" + signature.name + "' is reserved by Skript");
+			} else {
+				Signature<?> sign = namespace.getSignature(signature.name);
+				assert sign != null : "globalFunctions points to a wrong namespace";
+				return signError("A function named '" + signature.name + "' already exists in script '" + sign.script + "'");
+			}
+		}
+
+		if (signature.local) {
+			Namespace namespace = getScriptNamespace(signature.script);
+			if (namespace != null && namespace.getSignature(signature.name) != null)
+				return signError("A local function named '" + signature.name + "' already exists in the script");
+		}
+
+		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script);
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
-		namespace.addSignature(sign);
-		if (!local)
-			globalFunctions.put(name, namespace);
+		namespace.addSignature(signature);
+		if (!signature.local)
+			globalFunctions.put(signature.name, namespace);
 
-		Skript.debug("Registered function signature: " + name);
-		return sign;
+		Skript.debug("Registered function signature: " + signature.name);
+
+		return signature;
 	}
 
 	/**

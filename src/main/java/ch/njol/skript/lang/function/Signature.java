@@ -21,7 +21,6 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.WeakHashMap;
@@ -70,7 +69,7 @@ public class Signature<T> {
 	 */
 	final Collection<FunctionReference<?>> calls;
 	
-	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable final ClassInfo<T> returnType, boolean single) {
+	protected Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable final ClassInfo<T> returnType, boolean single) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
