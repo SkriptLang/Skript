@@ -32,14 +32,16 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-@Name("Toggled Boolean")
-@Description("The toggled boolean value.")
-@Examples("set {_gravity} to toggled player's gravity")
+@Name("Inverse Boolean")
+@Description("Get inversed boolean value.")
+@Examples("set {_gravity} to inverse of player's flight mode")
 @Since("INSERT VERSION")
-public class ExprToggled extends SimpleExpression<Boolean> {
+public class ExprInverse extends SimpleExpression<Boolean> {
 
 	static {
-		Skript.registerExpression(ExprToggled.class, Boolean.class, ExpressionType.COMBINED, "[the] (inverse|opposite) of %booleans%");
+		Skript.registerExpression(ExprInverse.class, Boolean.class, ExpressionType.COMBINED, 
+			"[the] (inverse|opposite) of %booleans%"
+		);
 	}
 
 	private Expression<Boolean> booleanExpr;
@@ -73,7 +75,7 @@ public class ExprToggled extends SimpleExpression<Boolean> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "toggled " + booleanExpr.toString(e, debug);
+		return "inverse of " + booleanExpr.toString(e, debug);
 	}
 
 }
