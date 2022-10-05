@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 public class ExprToggled extends SimpleExpression<Boolean> {
 
 	static {
-		Skript.registerExpression(ExprToggled.class, Boolean.class, ExpressionType.COMBINED, "(toggled|switched) %booleans%");
+		Skript.registerExpression(ExprToggled.class, Boolean.class, ExpressionType.COMBINED, "[the] (inverse|opposite) of %booleans%");
 	}
 
 	private Expression<Boolean> booleanExpr;
