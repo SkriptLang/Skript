@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -85,7 +86,7 @@ public class EffDrop extends Effect {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (!isAir(is.getType()) && is.getAmount() > 0) {
+						if (!ItemUtils.isAir(is.getType()) && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {
@@ -99,21 +100,6 @@ public class EffDrop extends Effect {
 				}
 			}
 		}
-	}
-
-	// Only 1.15 and versions after have Material#isAir method
-	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
-	// Version 1.14 have multiple air types but no Material#isAir method
-	private static final boolean OTHER_AIR_EXISTS = Skript.isRunningMinecraft(1, 14);
-
-	private static boolean isAir(Material type) {
-		if (IS_AIR_EXISTS) {
-			return type.isAir();
-		} else if (OTHER_AIR_EXISTS) { 
-			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
-		} 
-		// All versions prior to 1.14 only have 1 air type
-		return type == Material.AIR;
 	}
 
 	@Override

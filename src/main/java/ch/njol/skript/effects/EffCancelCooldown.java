@@ -69,6 +69,9 @@ public class EffCancelCooldown extends Effect {
 
 	@Override
 	protected void execute(Event e) {
+		if (!(e instanceof ScriptCommandEvent))
+			return;
+
 		((ScriptCommandEvent) e).setCooldownCancelled(cancel);
 	}
 
