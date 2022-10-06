@@ -279,20 +279,39 @@ public final class SkriptEventHandler {
 				&& priority == pair2.getSecond().getEvent().getEventPriority()
 				&& handlerList == getHandlerList(pair2.getFirst())
 			)) { // We can unregister this listener :)
-				for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
-					Listener listener = registeredListener.getListener();
+				Listener listener = getSkriptListener(handlerList, priority);
+				if (listener != null) {
+					handlerList.unregister(listener);
 
-					if (
-						registeredListener.getPlugin() == Skript.getInstance()
-							&& listener instanceof PriorityListener
-							&& ((PriorityListener) listener).priority == priority
-					)
-						handlerList.unregister(listener);
+					// Special handling for this event
+					if (pair.getFirst().equals(PlayerInteractEntityEvent.class)) {
+						// No null checks needed as this can all be asserted as true due to the main condition
+						HandlerList specialHandlerList = getHandlerList(PlayerInteractAtEntityEvent.class);
+						assert specialHandlerList != null;
+						Listener specialListener = getSkriptListener(specialHandlerList, priority);
+						assert specialListener != null;
+						specialHandlerList.unregister(specialListener);
+					}
 				}
 			}
 
 			return true;
 		});
+	}
+
+	@Nullable
+	private static Listener getSkriptListener(HandlerList handlerList, EventPriority priority) {
+		for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+			Listener listener = registeredListener.getListener();
+			if (
+				registeredListener.getPlugin() == Skript.getInstance()
+				&& listener instanceof PriorityListener
+				&& ((PriorityListener) listener).priority == priority
+			) {
+				return listener;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -361,8 +380,9 @@ public final class SkriptEventHandler {
 				registeredListener.getPlugin() == Skript.getInstance()
 				&& listener instanceof PriorityListener
 				&& ((PriorityListener) listener).priority == priority
-			)
+			) {
 				return true;
+			}
 		}
 		return false;
 	}
