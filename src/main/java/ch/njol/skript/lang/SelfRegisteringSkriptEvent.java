@@ -18,9 +18,10 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.config.Config;
 import org.bukkit.event.Event;
 
-import ch.njol.skript.config.Config;
+import java.util.Objects;
 
 public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 
@@ -29,14 +30,14 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 *
 	 * @param t the trigger to register to this event
 	 */
-	public abstract void register(final Trigger t);
+	public abstract void register(Trigger t);
 
 	/**
 	 * This method is called to unregister this event registered through {@link #register(Trigger)}.
 	 *
 	 * @param t the same trigger which was registered for this event
 	 */
-	public abstract void unregister(final Trigger t);
+	public abstract void unregister(Trigger t);
 
 	/**
 	 * This method is called to unregister all events registered through {@link #register(Trigger)}.
@@ -44,6 +45,14 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * event it is called on.
 	 */
 	public abstract void unregisterAll();
+
+	@Override
+	public boolean load() {
+		boolean load = super.load();
+		if (load)
+			afterParse(Objects.requireNonNull(getParser().getCurrentScript()).getConfig());
+		return load;
+	}
 
 	@Override
 	public final boolean check(Event e) {
@@ -54,9 +63,11 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * This method is called when this event is parsed. Overriding this is
 	 * optional, and usually not needed.
 	 * @param config Script that is being parsed
+	 * @deprecated Use {@link #postLoad()} instead.
 	 */
+	@Deprecated
 	public void afterParse(Config config) {
-		// DO NOTHING
+
 	}
 
 	@Override

@@ -20,13 +20,13 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -132,13 +132,13 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		String previousName = parser.getCurrentEventName();
 		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
-		SkriptEvent previousSkriptEvent = parser.getCurrentSkriptEvent();
+		Structure previousStructure = parser.getCurrentStructure();
 		List<TriggerSection> previousSections = parser.getCurrentSections();
 		Kleenean previousDelay = parser.getHasDelayBefore();
 
 		parser.setCurrentEvent(name, events);
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
-		parser.setCurrentSkriptEvent(skriptEvent);
+		parser.setCurrentStructure(skriptEvent);
 		parser.setCurrentSections(new ArrayList<>());
 		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
@@ -148,12 +148,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		//noinspection ConstantConditions - We are resetting it to what it was
 		parser.setCurrentEvent(previousName, previousEvents);
-		parser.setCurrentSkriptEvent(previousSkriptEvent);
+		parser.setCurrentStructure(previousStructure);
 		parser.setCurrentSections(previousSections);
 		parser.setHasDelayBefore(previousDelay);
 
-		Config script = parser.getCurrentScript();
-		return new Trigger(script != null ? script.getFile() : null, name, skriptEvent, triggerItems);
+		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
 
 	/**
