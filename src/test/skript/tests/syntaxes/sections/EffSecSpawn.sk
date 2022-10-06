@@ -1,5 +1,12 @@
-test "spawn section" when minecraft version is not "1.9.4":
+test "spawn section":
+	set {_before} to 5
 	spawn a pig at spawn of "world":
+
+		# Make sure variables carry over properly
+		assert {_before} is 5 with "value of {_before} should be 5 (got '%{_before}%')"
+		add 5 to {_before}
+		set {_new var} to 5
+
 		assert event-entity is a pig with "entity not a pig"
 		set {_test} to event-entity
 		assert {_test} is set with "entity not set"
@@ -7,3 +14,9 @@ test "spawn section" when minecraft version is not "1.9.4":
 		set {_location} to event-location
 		assert {_location} is set with "location not set"
 		assert y-coord of spawn of "world" is y-coord of {_location} with "location y coordinate not right"
+
+	delete the last spawned pig
+
+	# Make sure variables carry over properly
+	assert {_before} is 10 with "value of {_before} should be 10 (got '%{_before}%')"
+	assert {_new var} is 5 with "value of {_new var} should be 5 (got '%{_new var}%')"
