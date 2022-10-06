@@ -96,15 +96,18 @@ public abstract class Functions {
 
 	/**
 	 * Loads a script function from given node.
+	 * @param script The script the function is declared in
 	 * @param node Section node.
+	 * @param signature The signature of the function. Use {@link Functions#parseSignature(String, String, String, String, boolean)}
+	 * to get a new signature instance and {@link Functions#registerSignature(Signature)} to register the signature
 	 * @return Script function, or null if something went wrong.
 	 */
 	@Nullable
 	public static Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
 		String name = signature.name;
-		Namespace namespace = globalFunctions.get(name);
+		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
 		if (namespace == null) {
-			namespace = getScriptNamespace(script.getConfig().getFileName());
+			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null; // Probably duplicate signature; reported before
 		}
@@ -131,7 +134,7 @@ public abstract class Functions {
 	 * @param args The parameters of the function. See {@link Parameter#parse(String)}
 	 * @param returnType The return type of the function
 	 * @param local If the signature of function is local.
-	 * @return Signature of function, or null if something went wrong.
+	 * @return Parsed signature or null if something went wrong.
 	 * @see Functions#registerSignature(Signature)
 	 */
 	@Nullable
@@ -153,10 +156,8 @@ public abstract class Functions {
 			singleReturn = !p.getSecond();
 			if (returnClass == null)
 				returnClass = Classes.getClassInfoFromUserInput(p.getFirst());
-			if (returnClass == null) {
-				Skript.error("Cannot recognise the type '" + returnType + "'");
-				return null;
-			}
+			if (returnClass == null)
+				return signError("Cannot recognise the type '" + returnType + "'");
 		}
 
 		return new Signature<>(script, name, parameters.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn);
@@ -171,21 +172,21 @@ public abstract class Functions {
 	@Nullable
 	public static Signature<?> registerSignature(Signature<?> signature) {
 		// Ensure there are no duplicate functions
-		if (globalFunctions.containsKey(signature.name)) {
-			Namespace namespace = globalFunctions.get(signature.name);
-			if (namespace == javaNamespace) { // Special messages for built-in functions
-				return signError("Function name '" + signature.name + "' is reserved by Skript");
-			} else {
-				Signature<?> sign = namespace.getSignature(signature.name);
-				assert sign != null : "globalFunctions points to a wrong namespace";
-				return signError("A function named '" + signature.name + "' already exists in script '" + sign.script + "'");
-			}
-		}
-
 		if (signature.local) {
 			Namespace namespace = getScriptNamespace(signature.script);
-			if (namespace != null && namespace.getSignature(signature.name) != null)
+			if (namespace != null && namespace.getSignature(signature.name, true) != null)
 				return signError("A local function named '" + signature.name + "' already exists in the script");
+		} else {
+			if (globalFunctions.containsKey(signature.name)) {
+				Namespace namespace = globalFunctions.get(signature.name);
+				if (namespace == javaNamespace) { // Special messages for built-in functions
+					return signError("Function name '" + signature.name + "' is reserved by Skript");
+				} else {
+					Signature<?> sign = namespace.getSignature(signature.name, false);
+					assert sign != null : "globalFunctions points to a wrong namespace";
+					return signError("A global function named '" + signature.name + "' already exists in script '" + sign.script + "'");
+				}
+			}
 		}
 
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script);
@@ -223,47 +224,56 @@ public abstract class Functions {
 
 	/**
 	 * Gets a function, if it exists. Note that even if function exists in scripts,
-	 * it might not have been parsed yet. If you want to check for existance,
-	 * then use {@link #getSignature(String, String)}.
-	 * @param name Name of function.
+	 * it might not have been parsed yet. If you want to check for existence,
+	 * then use {@link #getSignature(String, String, boolean)}.
+	 *
+	 * @param name   Name of function.
+	 * @param globalOnly Whether it should ignore local functions. Otherwise, local functions are prioritized.
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
-	public static Function<?> getFunction(String name, @Nullable String script) {
-		Namespace namespace = globalFunctions.get(name);
+	public static Function<?> getFunction(String name, @Nullable String script, boolean globalOnly) {
+		Namespace namespace = null;
+		boolean local = true;
+		if (script != null && !globalOnly)
+			namespace = getScriptNamespace(script);
 		if (namespace == null) {
-			if (script != null)
-				namespace = getScriptNamespace(script);
+			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null;
+			local = false;
 		}
-		return namespace.getFunction(name);
+		Function<?> function = namespace.getFunction(name, local);
+		return function == null ? namespace.getFunction(name, false) : function;
 	}
 
 	/**
 	 * Gets a signature of function with given name.
 	 * @param name Name of function.
+	 * @param globalOnly Whether it should ignore local functions. Otherwise, local functions are prioritized.
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable
-	public static Signature<?> getSignature(String name, @Nullable String script) {
-		Namespace namespace = globalFunctions.get(name);
+	public static Signature<?> getSignature(String name, @Nullable String script, boolean globalOnly) {
+		Namespace namespace = null;
+		boolean local = true;
+		if (script != null && !globalOnly)
+			namespace = getScriptNamespace(script);
 		if (namespace == null) {
-			if (script != null)
-				namespace = getScriptNamespace(script);
+			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null;
+			local = false;
 		}
-		return namespace.getSignature(name);
+		Signature<?> signature = namespace.getSignature(name, local);
+		return signature == null ? namespace.getSignature(name, false) : signature;
 	}
 
 
 	@Nullable
-	public static Namespace getScriptNamespace(String name) {
-		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, name));
+	public static Namespace getScriptNamespace(String script) {
+		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, script));
 	}
-
-
 
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 

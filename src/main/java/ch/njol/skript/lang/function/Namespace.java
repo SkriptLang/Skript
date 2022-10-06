@@ -92,43 +92,84 @@ public class Namespace {
 			return true;
 		}
 	}
+
+	/**
+	 * The key used in the signature and function maps
+	 */
+	public static class Info {
+
+		/**
+		 * Name of the function
+		 */
+		private final String name;
+
+		/**
+		 * Whether the function is local
+		 */
+		private final boolean local;
+
+		public Info(String name, boolean local) {
+			this.name = name;
+			this.local = local;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public boolean isLocal() {
+			return local;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = getName().hashCode();
+			result = 31 * result + (isLocal() ? 1 : 0);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof Info)) return false;
+
+			Info info = (Info) o;
+
+			if (isLocal() != info.isLocal()) return false;
+			return getName().equals(info.getName());
+		}
+	}
 	
 	/**
 	 * Signatures of known functions.
 	 */
-	private final Map<String, Signature<?>> signatures;
-	
+	private final Map<Info, Signature<?>> signatures;
+
 	/**
 	 * Known functions. Populated as function bodies are loaded.
 	 */
-	private final Map<String, Function<?>> functions;
-	
+	private final Map<Info, Function<?>> functions;
+
 	public Namespace() {
 		this.signatures = new HashMap<>();
 		this.functions = new HashMap<>();
 	}
 	
 	@Nullable
-	public Signature<?> getSignature(String name) {
-		return signatures.get(name);
+	public Signature<?> getSignature(String name, boolean local) {
+		return signatures.get(new Info(name, local));
 	}
 	
 	public void addSignature(Signature<?> sign) {
-		if (signatures.containsKey(sign.getName())) {
-			Signature<?> current = signatures.get(sign.getName());
-			if (current.local && !sign.local) {
-				signatures.put(sign.getName(), sign);
-				return;
-			}
+		if (signatures.containsKey(new Info(sign.getName(), sign.local)))
 			throw new IllegalArgumentException("function name already used");
-		}
-		signatures.put(sign.getName(), sign);
+		signatures.put(new Info(sign.getName(), sign.local), sign);
 	}
 
 	public boolean removeSignature(Signature<?> sign) {
-		if (signatures.get(sign.getName()) != sign)
+		if (signatures.get(new Info(sign.getName(), sign.local)) != sign)
 			return false;
-		signatures.remove(sign.getName());
+		signatures.remove(new Info(sign.getName(), sign.local));
 		return true;
 	}
 	
@@ -138,13 +179,13 @@ public class Namespace {
 	}
 	
 	@Nullable
-	public Function<?> getFunction(String name) {
-		return functions.get(name);
+	public Function<?> getFunction(String name, boolean local) {
+		return functions.get(new Info(name, local));
 	}
 	
 	public void addFunction(Function<?> func) {
-		assert signatures.containsKey(func.getName()) : "missing signature for function";
-		functions.put(func.getName(), func);
+		assert signatures.containsKey(new Info(func.getName(), func.getSignature().local)) : "missing signature for function";
+		functions.put(new Info(func.getName(), func.getSignature().local), func);
 	}
 
 	@SuppressWarnings("null")

@@ -69,7 +69,7 @@ public class Signature<T> {
 	 */
 	final Collection<FunctionReference<?>> calls;
 	
-	protected Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable final ClassInfo<T> returnType, boolean single) {
+	Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable final ClassInfo<T> returnType, boolean single) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;

@@ -41,7 +41,7 @@ import java.util.regex.MatchResult;
 @Description({
 	"Functions are structures that can be executed with arguments/parameters to run code.",
 	"They can also return a value to the trigger that is executing the function.",
-	"Note that local functions always come after global functions, in parsing and execution"
+	"Note that local functions always come before global functions, in parsing and execution"
 })
 @Examples({
 	"function sayMessage(message: text):",

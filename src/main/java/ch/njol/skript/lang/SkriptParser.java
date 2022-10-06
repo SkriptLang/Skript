@@ -879,7 +879,7 @@ public class SkriptParser {
 	}
 	
 	@SuppressWarnings("null")
-	private final static Pattern functionCallPattern = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
+	private final static Pattern functionCallPattern = Pattern.compile("(global )?(" + Functions.functionNamePattern + ")\\((.*)\\)");
 	
 	/**
 	 * @param types The required return type or null if it is not used (e.g. when calling a void function)
@@ -897,9 +897,10 @@ public class SkriptParser {
 				log.printLog();
 				return null;
 			}
-			
-			String functionName = "" + m.group(1);
-			String args = m.group(2);
+
+			boolean globalOnly = m.group(1) != null;
+			String functionName = "" + m.group(2);
+			String args = m.group(3);
 			Expression<?>[] params;
 			
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
@@ -959,7 +960,7 @@ public class SkriptParser {
 			ParserInstance parser = getParser();
 			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params, globalOnly);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
 				log.printError();
 				return null;
