@@ -165,9 +165,9 @@ public class TypePatternElement extends PatternElement {
 		if (isNullable)
 			stringBuilder.append("-");
 		if (flagMask != ~0) {
-			if ((flagMask & SkriptParser.PARSE_LITERALS) != 0)
+			if ((flagMask & SkriptParser.PARSE_LITERALS) == 0)
 				stringBuilder.append("~");
-			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) != 0)
+			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0)
 				stringBuilder.append("*");
 		}
 		for (int i = 0; i < classes.length; i++) {
