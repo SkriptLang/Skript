@@ -71,9 +71,9 @@ public class EvtMoveOn extends SkriptEvent {
 	
 	private static final Map<Material, List<Trigger>> ITEM_TYPE_TRIGGERS = new ConcurrentHashMap<>();
 	
-	private static final AtomicBoolean registeredExecutor = new AtomicBoolean();
+	private static final AtomicBoolean REGISTERED_EXECUTOR = new AtomicBoolean();
 
-	private static final EventExecutor executor = (listener, e) -> {
+	private static final EventExecutor EXECUTOR = (listener, e) -> {
 		PlayerMoveEvent event = (PlayerMoveEvent) e;
 		Location from = event.getFrom(), to = event.getTo();
 
@@ -164,10 +164,10 @@ public class EvtMoveOn extends SkriptEvent {
 		for (Material material : materialSet)
 			ITEM_TYPE_TRIGGERS.computeIfAbsent(material, k -> new ArrayList<>()).add(trigger);
 
-		if (!registeredExecutor.get()) {
-			registeredExecutor.set(true);
+		if (!REGISTERED_EXECUTOR.get()) {
+			REGISTERED_EXECUTOR.set(true);
 			Bukkit.getPluginManager().registerEvent(
-				PlayerMoveEvent.class, new Listener(){}, SkriptConfig.defaultEventPriority.value(), executor, Skript.getInstance(), true
+				PlayerMoveEvent.class, new Listener(){}, SkriptConfig.defaultEventPriority.value(), EXECUTOR, Skript.getInstance(), true
 			);
 		}
 

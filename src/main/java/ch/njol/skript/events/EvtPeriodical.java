@@ -60,9 +60,9 @@ public class EvtPeriodical extends SkriptEvent {
 	private int[] taskIDs;
 
 	private World @Nullable [] worlds;
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		period = ((Literal<Timespan>) args[0]).getSingle();
 		if (args.length > 1 && args[1] != null)

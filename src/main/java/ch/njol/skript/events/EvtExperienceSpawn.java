@@ -74,11 +74,11 @@ public class EvtExperienceSpawn extends SkriptEvent {
 		}, EventValues.TIME_NOW);
 	}
 
-	private static final List<Trigger> triggers = Collections.synchronizedList(new ArrayList<>());
+	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());
 
-	private static final AtomicBoolean registeredExecutor = new AtomicBoolean();
+	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
 
-	private static final EventExecutor executor = (listener, event) -> {
+	private static final EventExecutor EXECUTOR = (listener, event) -> {
 		ExperienceSpawnEvent experienceEvent;
 		if (event instanceof BlockExpEvent) {
 			experienceEvent = new ExperienceSpawnEvent(
@@ -108,7 +108,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 		}
 
 		SkriptEventHandler.logEventStart(event);
-		for (Trigger trigger : triggers) {
+		for (Trigger trigger : TRIGGERS) {
 			SkriptEventHandler.logTriggerStart(trigger);
 			trigger.execute(experienceEvent);
 			SkriptEventHandler.logTriggerEnd(trigger);
@@ -136,20 +136,20 @@ public class EvtExperienceSpawn extends SkriptEvent {
 
 	@Override
 	public boolean postLoad() {
-		triggers.add(trigger);
-		if (!registeredExecutor.get()) {
-			registeredExecutor.set(true);
+		TRIGGERS.add(trigger);
+		if (!REGISTERED_EXECUTORS.get()) {
+			REGISTERED_EXECUTORS.set(true);
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
 			//noinspection unchecked
 			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
-				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, executor, Skript.getInstance(), true);
+				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		triggers.remove(trigger);
+		TRIGGERS.remove(trigger);
 	}
 
 	@Override

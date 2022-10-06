@@ -45,21 +45,21 @@ public class EvtSkript extends SkriptEvent {
 	}
 
 	private static final List<Trigger>
-		start = Collections.synchronizedList(new ArrayList<>()),
-		stop = Collections.synchronizedList(new ArrayList<>());
+		START = Collections.synchronizedList(new ArrayList<>()),
+		STOP = Collections.synchronizedList(new ArrayList<>());
 
 	public static void onSkriptStart() {
 		Event event = new SkriptStartEvent();
-		for (Trigger trigger : start)
+		for (Trigger trigger : START)
 			trigger.execute(event);
-		start.clear();
+		START.clear();
 	}
 
 	public static void onSkriptStop() {
 		Event event = new SkriptStopEvent();
-		for (Trigger trigger : stop)
+		for (Trigger trigger : STOP)
 			trigger.execute(event);
-		stop.clear();
+		STOP.clear();
 	}
 	
 	private boolean isStart;
@@ -77,13 +77,13 @@ public class EvtSkript extends SkriptEvent {
 
 	@Override
 	public boolean postLoad() {
-		(isStart ? start : stop).add(trigger);
+		(isStart ? START : STOP).add(trigger);
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		(isStart ? start : stop).remove(trigger);
+		(isStart ? START : STOP).remove(trigger);
 	}
 
 	@Override

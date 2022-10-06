@@ -53,7 +53,7 @@ public class EvtRegionBorder extends SkriptEvent {
 				"(:enter[ing]|leav(e|ing)|exit[ing]) [of] ([a] region|[[the] region] %-regions%)",
 				"region (:enter[ing]|leav(e|ing)|exit[ing])")
 				.description(
-					"Called when a player enters or leaves a <a href='../classes.html#region'>region</a>.",
+					"Called when a player enters or leaves a <a href='./classes.html#region'>region</a>.",
 					"This event requires a supported regions plugin to be installed."
 				).examples(
 					"on region exit:",
@@ -74,7 +74,7 @@ public class EvtRegionBorder extends SkriptEvent {
 	}
 
 	// Even WorldGuard doesn't have events, and this way all region plugins are supported for sure.
-	private final static EventExecutor executor = new EventExecutor() {
+	private final static EventExecutor EXECUTOR = new EventExecutor() {
 		@Nullable
 		Event last = null;
 
@@ -109,16 +109,16 @@ public class EvtRegionBorder extends SkriptEvent {
 	private static void callEvent(Region region, PlayerMoveEvent event, boolean enter) {
 		RegionBorderEvent regionEvent = new RegionBorderEvent(region, event.getPlayer(), enter);
 		regionEvent.setCancelled(event.isCancelled());
-		for (Trigger trigger : triggers) {
+		for (Trigger trigger : TRIGGERS) {
 			if (((EvtRegionBorder) trigger.getEvent()).applies(regionEvent))
 				trigger.execute(regionEvent);
 		}
 		event.setCancelled(regionEvent.isCancelled());
 	}
 
-	private static final List<Trigger> triggers = Collections.synchronizedList(new ArrayList<>());
+	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());
 
-	private static final AtomicBoolean registeredEvents = new AtomicBoolean();
+	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
 	
 	private boolean enter;
 	
@@ -135,20 +135,20 @@ public class EvtRegionBorder extends SkriptEvent {
 
 	@Override
 	public boolean postLoad() {
-		triggers.add(trigger);
-		if (!registeredEvents.get()) {
-			registeredEvents.set(true);
+		TRIGGERS.add(trigger);
+		if (!REGISTERED_EXECUTORS.get()) {
+			REGISTERED_EXECUTORS.set(true);
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
-			Bukkit.getPluginManager().registerEvent(PlayerMoveEvent.class, new Listener(){}, priority, executor, Skript.getInstance(), true);
-			Bukkit.getPluginManager().registerEvent(PlayerTeleportEvent.class, new Listener(){}, priority, executor, Skript.getInstance(), true);
-			Bukkit.getPluginManager().registerEvent(PlayerPortalEvent.class, new Listener(){}, priority, executor, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerMoveEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerTeleportEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerPortalEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
 		return true;
 	}
 
 	@Override
 	public void unload() {
-		triggers.remove(trigger);
+		TRIGGERS.remove(trigger);
 	}
 
 	@Override

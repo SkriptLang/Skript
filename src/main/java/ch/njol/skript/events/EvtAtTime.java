@@ -50,7 +50,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	
 	private static final int CHECK_PERIOD = 10;
 
-	private static final Map<World, EvtAtInfo> triggers = new ConcurrentHashMap<>();
+	private static final Map<World, EvtAtInfo> TRIGGERS = new ConcurrentHashMap<>();
 
 	private static final class EvtAtInfo {
 		private int lastTick; // as Bukkit's scheduler is inconsistent this saves the exact tick when the events were last checked
@@ -65,7 +65,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseRe) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		tick = ((Literal<Time>) args[0]).getSingle().getTicks();
 		worlds = args[1] == null ? Bukkit.getWorlds().toArray(new World[0]) : ((Literal<World>) args[1]).getAll();
 		return true;
@@ -74,9 +74,9 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	@Override
 	public boolean postLoad() {
 		for (World world : worlds) {
-			EvtAtInfo info = triggers.get(world);
+			EvtAtInfo info = TRIGGERS.get(world);
 			if (info == null) {
-				triggers.put(world, info = new EvtAtInfo());
+				TRIGGERS.put(world, info = new EvtAtInfo());
 				info.lastTick = (int) world.getTime() - 1;
 			}
 			info.instances.add(this);
@@ -88,7 +88,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	@Override
 	public void unload() {
-		Iterator<EvtAtInfo> iterator = triggers.values().iterator();
+		Iterator<EvtAtInfo> iterator = TRIGGERS.values().iterator();
 		while (iterator.hasNext()) {
 			EvtAtInfo info = iterator.next();
 			info.instances.remove(this);
@@ -98,7 +98,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 				iterator.remove();
 		}
 
-		if (taskID == -1 && triggers.isEmpty()) { // Unregister Bukkit listener if possible
+		if (taskID == -1 && TRIGGERS.isEmpty()) { // Unregister Bukkit listener if possible
 			Bukkit.getScheduler().cancelTask(taskID);
 			taskID = -1;
 		}
@@ -120,7 +120,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 		if (taskID != -1)
 			return;
 		taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Skript.getInstance(), () -> {
-			for (Entry<World, EvtAtInfo> entry : triggers.entrySet()) {
+			for (Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
 				EvtAtInfo info = entry.getValue();
 				int tick = (int) entry.getKey().getTime();
 
