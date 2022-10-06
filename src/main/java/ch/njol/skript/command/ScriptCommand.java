@@ -34,7 +34,6 @@ import java.util.UUID;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.structures.StructCommand;
 import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -130,7 +129,7 @@ public class ScriptCommand implements TabExecutor {
 	 */
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, @Nullable String prefix, String usage, List<String> aliases,
+		String description, String prefix, String usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -160,7 +159,7 @@ public class ScriptCommand implements TabExecutor {
 		activeAliases = new ArrayList<>(aliases);
 
 		this.description = Utils.replaceEnglishChatStyles(description);
-		this.prefix = prefix == null ? StructCommand.DEFAULT_PREFIX : prefix;
+		this.prefix = prefix;
 		this.usage = Utils.replaceEnglishChatStyles(usage);
 
 		this.executableBy = executableBy;
