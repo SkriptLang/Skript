@@ -87,7 +87,7 @@ public class StructCommand extends Structure {
 		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
 		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
-	private static final AtomicBoolean syncCommands = new AtomicBoolean();
+	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	static {
 		Skript.registerStructure(
@@ -305,7 +305,7 @@ public class StructCommand extends Structure {
 		getParser().deleteCurrentEvent();
 
 		Commands.registerCommand(scriptCommand);
-		syncCommands.set(true);
+		SYNC_COMMANDS.set(true);
 
 		return true;
 	}
@@ -320,7 +320,7 @@ public class StructCommand extends Structure {
 	public void unload() {
 		assert scriptCommand != null; // This method should never be called if one of the loading methods fail
 		Commands.unregisterCommand(scriptCommand);
-		syncCommands.set(true);
+		SYNC_COMMANDS.set(true);
 	}
 
 	@Override
@@ -329,8 +329,8 @@ public class StructCommand extends Structure {
 	}
 
 	private void attemptCommandSync() {
-		if (syncCommands.get()) {
-			syncCommands.set(false);
+		if (SYNC_COMMANDS.get()) {
+			SYNC_COMMANDS.set(false);
 			if (CommandReloader.syncCommands(Bukkit.getServer())) {
 				Skript.debug("Commands synced to clients");
 			} else {
