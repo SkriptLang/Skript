@@ -82,9 +82,9 @@ public class EffToggle extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event event) {
 		ArrayList<Object> toggledValues = new ArrayList<>();
-		for (Object o : toggledExpr.getArray(e)) {
+		for (Object o : toggledExpr.getArray(event)) {
 			if (o instanceof Block) {
 				Block block = (Block) o;
 				BlockData data = block.getBlockData();
@@ -113,12 +113,12 @@ public class EffToggle extends Effect {
 			}
 		}
 
-		toggledExpr.change(e, toggledValues.toArray(), ChangeMode.SET);
+		toggledExpr.change(event, toggledValues.toArray(), ChangeMode.SET);
 		
 	}
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "toggle " + toggledExpr.toString(e, debug);
+	public String toString(@Nullable Event event, final boolean debug) {
+		return "toggle " + toggledExpr.toString(event, debug);
 	}
 	
 }

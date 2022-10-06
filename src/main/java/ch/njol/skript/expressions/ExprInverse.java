@@ -55,8 +55,8 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 	
 	@Override
 	@Nullable
-	protected Boolean[] get(Event e) {
-		Boolean[] original = booleanExpr.getArray(e);
+	protected Boolean[] get(Event event) {
+		Boolean[] original = booleanExpr.getArray(event);
 		Boolean[] toggled = new Boolean[original.length];
 		for (int i = 0; i < original.length; i++)
 			toggled[i] = !original[i];
@@ -74,8 +74,8 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "inverse of " + booleanExpr.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "inverse of " + booleanExpr.toString(event, debug);
 	}
 
 }
