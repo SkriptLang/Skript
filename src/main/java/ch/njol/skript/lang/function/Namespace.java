@@ -119,6 +119,13 @@ public class Namespace {
 		}
 		signatures.put(sign.getName(), sign);
 	}
+
+	public boolean removeSignature(Signature<?> sign) {
+		if (signatures.get(sign.getName()) != sign)
+			return false;
+		signatures.remove(sign.getName());
+		return true;
+	}
 	
 	@SuppressWarnings("null")
 	public Collection<Signature<?>> getSignatures() {
