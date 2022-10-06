@@ -34,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Repeat String")
 @Description("repeats a given string, a number of times")
-@Examples({"\"Hello, Wolrd! \" repeated 2 times", "nl repeated 100 times"})
+@Examples({"\"Hello, World! \" repeated 2 times", "nl repeated 100 times"})
 @Since("INSERT VERSION")
 public class ExprRepeat extends SimpleExpression<String> {
 
@@ -53,8 +53,9 @@ public class ExprRepeat extends SimpleExpression<String> {
 	}
 
 	@Override
-	protected @Nullable String[] get(Event event) {
-		int count = this.count.getSingle(event).intValue();
+	@Nullable
+	protected String[] get(Event event) {
+		int count = this.count.getSingle(event);
 		String string = this.string.getSingle(event);
 		if (count < 1)
 			return new String[]{string};
