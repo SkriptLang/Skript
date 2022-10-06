@@ -51,18 +51,28 @@ public class ParseTagPatternElement extends PatternElement {
 			if (next instanceof LiteralPatternElement) {
 				// (:a)
 				tag = next.toString().trim();
-			} else if (next instanceof GroupPatternElement && ((GroupPatternElement) next).getPatternElement() instanceof ChoicePatternElement) {
-				// :(a|b)
-				ChoicePatternElement choicePatternElement = (ChoicePatternElement) ((GroupPatternElement) next).getPatternElement();
-				List<PatternElement> patternElements = choicePatternElement.getPatternElements();
-				for (int i = 0; i < patternElements.size(); i++) {
-					PatternElement patternElement = patternElements.get(i);
-					// Prevent a pattern such as :(a|b|) from being turned into (a:a|b:b|:), instead (a:a|b:b|)
-					if (patternElement instanceof LiteralPatternElement && !patternElement.toString().isEmpty()) {
-						ParseTagPatternElement newTag = new ParseTagPatternElement(patternElement.toString().trim());
-						newTag.setNext(patternElement);
-						newTag.originalNext = patternElement;
-						patternElements.set(i, newTag);
+			} else {
+				// Get the inner element from either a group or optional pattern element
+				PatternElement inner = null;
+				if (next instanceof GroupPatternElement) {
+					inner = ((GroupPatternElement) next).getPatternElement();
+				} else if (next instanceof OptionalPatternElement) {
+					inner = ((OptionalPatternElement) next).getPatternElement();
+				}
+
+				if (inner instanceof ChoicePatternElement) {
+					// :(a|b) or :[a|b]
+					ChoicePatternElement choicePatternElement = (ChoicePatternElement) inner;
+					List<PatternElement> patternElements = choicePatternElement.getPatternElements();
+					for (int i = 0; i < patternElements.size(); i++) {
+						PatternElement patternElement = patternElements.get(i);
+						// Prevent a pattern such as :(a|b|) from being turned into (a:a|b:b|:), instead (a:a|b:b|)
+						if (patternElement instanceof LiteralPatternElement && !patternElement.toString().isEmpty()) {
+							ParseTagPatternElement newTag = new ParseTagPatternElement(patternElement.toString().trim());
+							newTag.setNext(patternElement);
+							newTag.originalNext = patternElement;
+							patternElements.set(i, newTag);
+						}
 					}
 				}
 			}
