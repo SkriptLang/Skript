@@ -87,8 +87,6 @@ public class StructCommand extends Structure {
 		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
 		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
-	private static final String DEFAULT_PREFIX = "skript";
-
 	private static final AtomicBoolean syncCommands = new AtomicBoolean();
 
 	static {
@@ -97,7 +95,7 @@ public class StructCommand extends Structure {
 			EntryValidator.builder()
 				.addEntry("usage", null, true)
 				.addEntry("description", "", true)
-				.addEntry("prefix", DEFAULT_PREFIX, true)
+				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
 				.addEntryData(new VariableStringEntryData("permission message", null, true, CommandEvent.class))
 				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
@@ -262,20 +260,7 @@ public class StructCommand extends Structure {
 		}
 
 		String description = entryContainer.get("description", String.class, true);
-		String prefix = entryContainer.get("prefix", String.class, true);
-		for (char c : prefix.toCharArray()) {
-			if (Character.isWhitespace(c)) {
-				Skript.warning("command /" + command + " has a whitespace in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
-				prefix = DEFAULT_PREFIX;
-				break;
-			}
-			// char 167 is §
-			if (c == 167) {
-				Skript.warning("command /" + command + " has an illegal character in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
-				prefix = DEFAULT_PREFIX;
-				break;
-			}
-		}
+		String prefix = entryContainer.getOptional("prefix", String.class, true);
 
 		String permission = entryContainer.get("permission", String.class, true);
 		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);

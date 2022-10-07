@@ -85,6 +85,7 @@ public class ScriptCommand implements TabExecutor {
 
 	public final static Message m_executable_by_players = new Message("commands.executable by players");
 	public final static Message m_executable_by_console = new Message("commands.executable by console");
+	private static final String DEFAULT_PREFIX = "skript";
 
 	final String name;
 	private final String label;
@@ -121,6 +122,7 @@ public class ScriptCommand implements TabExecutor {
 	 * @param pattern
 	 * @param arguments the list of Arguments this command takes
 	 * @param description description to display in /help
+	 * @param prefix the prefix of the command
 	 * @param usage message to display if the command was used incorrectly
 	 * @param aliases /alias1, /alias2, ...
 	 * @param permission permission or null if none
@@ -129,7 +131,7 @@ public class ScriptCommand implements TabExecutor {
 	 */
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, String prefix, String usage, List<String> aliases,
+		String description, @Nullable String prefix, String usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -146,6 +148,25 @@ public class ScriptCommand implements TabExecutor {
 			this.permissionMessage = permissionMessage;
 		}
 
+		if (prefix != null) {
+			for (char c : prefix.toCharArray()) {
+				if (Character.isWhitespace(c)) {
+					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					prefix = ScriptCommand.DEFAULT_PREFIX;
+					break;
+				}
+				// char 167 is §
+				if (c == 167) {
+					Skript.warning("command /" + name + " has an illegal character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					prefix = ScriptCommand.DEFAULT_PREFIX;
+					break;
+				}
+			}
+		} else {
+			prefix = DEFAULT_PREFIX;
+		}
+		this.prefix = prefix;
+
 		this.cooldown = cooldown;
 		this.cooldownMessage = cooldownMessage == null
 				? new SimpleLiteral<>(Language.get("commands.cooldown message"),false)
@@ -159,7 +180,6 @@ public class ScriptCommand implements TabExecutor {
 		activeAliases = new ArrayList<>(aliases);
 
 		this.description = Utils.replaceEnglishChatStyles(description);
-		this.prefix = prefix;
 		this.usage = Utils.replaceEnglishChatStyles(usage);
 
 		this.executableBy = executableBy;
