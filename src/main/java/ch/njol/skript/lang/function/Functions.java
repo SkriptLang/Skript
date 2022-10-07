@@ -234,17 +234,19 @@ public abstract class Functions {
 	@Nullable
 	public static Function<?> getFunction(String name, @Nullable String script, boolean globalOnly) {
 		Namespace namespace = null;
-		boolean local = true;
-		if (script != null && !globalOnly)
+		Function<?> function = null;
+		if (script != null && !globalOnly) {
 			namespace = getScriptNamespace(script);
-		if (namespace == null) {
+			if (namespace != null)
+				function = namespace.getFunction(name);
+		}
+		if (namespace == null || function == null) {
 			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null;
-			local = false;
+			function = namespace.getFunction(name, false);
 		}
-		Function<?> function = namespace.getFunction(name, local);
-		return function == null ? namespace.getFunction(name, false) : function;
+		return function;
 	}
 
 	/**
@@ -256,17 +258,19 @@ public abstract class Functions {
 	@Nullable
 	public static Signature<?> getSignature(String name, @Nullable String script, boolean globalOnly) {
 		Namespace namespace = null;
-		boolean local = true;
-		if (script != null && !globalOnly)
+		Signature<?> signature = null;
+		if (script != null && !globalOnly) {
 			namespace = getScriptNamespace(script);
-		if (namespace == null) {
+			if (namespace != null)
+				signature = namespace.getSignature(name);
+		}
+		if (namespace == null || signature == null) {
 			namespace = globalFunctions.get(name);
 			if (namespace == null)
 				return null;
-			local = false;
+			signature = namespace.getSignature(name, false);
 		}
-		Signature<?> signature = namespace.getSignature(name, local);
-		return signature == null ? namespace.getSignature(name, false) : signature;
+		return signature;
 	}
 
 

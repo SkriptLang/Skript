@@ -159,7 +159,13 @@ public class Namespace {
 	public Signature<?> getSignature(String name, boolean local) {
 		return signatures.get(new Info(name, local));
 	}
-	
+
+	@Nullable
+	public Signature<?> getSignature(String name) {
+		Signature<?> signature = getSignature(name, true);
+		return signature == null ? getSignature(name, false) : signature;
+	}
+
 	public void addSignature(Signature<?> sign) {
 		if (signatures.containsKey(new Info(sign.getName(), sign.local)))
 			throw new IllegalArgumentException("function name already used");
@@ -182,7 +188,13 @@ public class Namespace {
 	public Function<?> getFunction(String name, boolean local) {
 		return functions.get(new Info(name, local));
 	}
-	
+
+	@Nullable
+	public Function<?> getFunction(String name) {
+		Function<?> function = getFunction(name, true);
+		return function == null ? getFunction(name, false) : function;
+	}
+
 	public void addFunction(Function<?> func) {
 		assert signatures.containsKey(new Info(func.getName(), func.getSignature().local)) : "missing signature for function";
 		functions.put(new Info(func.getName(), func.getSignature().local), func);
