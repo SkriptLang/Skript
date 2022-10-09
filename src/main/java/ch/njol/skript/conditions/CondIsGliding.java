@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.LivingEntity;
 
@@ -32,8 +31,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 public class CondIsGliding extends PropertyCondition<LivingEntity> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 9))
-			register(CondIsFlying.class, "gliding", "livingentites");
+		register(CondIsGliding.class, "gliding", "livingentites");
 	}
 
 	@Override
