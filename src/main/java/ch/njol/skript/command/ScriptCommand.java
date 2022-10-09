@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.command;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,11 +26,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.config.SectionNode;
+import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -56,7 +59,6 @@ import ch.njol.skript.command.Commands.CommandAliasHelpTopic;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -99,7 +101,7 @@ public class ScriptCommand implements TabExecutor {
 	private final Expression<String> cooldownStorage;
 	final String usage;
 
-	final Trigger trigger;
+	private final Trigger trigger;
 
 	private final String pattern;
 	private final List<Argument<?>> arguments;
@@ -122,16 +124,18 @@ public class ScriptCommand implements TabExecutor {
 	 * @param aliases /alias1, /alias2, ...
 	 * @param permission permission or null if none
 	 * @param permissionMessage message to display if the player doesn't have the given permission
-	 * @param items trigger to execute
+	 * @param node the node to parse and load into a Trigger
 	 */
-	public ScriptCommand(final File script, final String name, final String pattern, final List<Argument<?>> arguments,
-						 final String description, final String usage, final ArrayList<String> aliases,
-						 final String permission, @Nullable final VariableString permissionMessage, @Nullable final Timespan cooldown,
-						 @Nullable final VariableString cooldownMessage, final String cooldownBypass,
-						 @Nullable VariableString cooldownStorage, final int executableBy, final List<TriggerItem> items) {
-		Validate.notNull(name, pattern, arguments, description, usage, aliases, items);
+	public ScriptCommand(
+		Script script, String name, String pattern, List<Argument<?>> arguments,
+		String description, String usage, List<String> aliases,
+		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
+		@Nullable VariableString cooldownMessage, String cooldownBypass,
+		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
+	) {
+		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
 		this.name = name;
-		label = "" + name.toLowerCase();
+		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
 		if (permissionMessage == null) {
 			VariableString defaultMsg = VariableString.newInstance(Language.get("commands.no permission message"));
@@ -161,7 +165,8 @@ public class ScriptCommand implements TabExecutor {
 		this.pattern = pattern;
 		this.arguments = arguments;
 
-		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), items);
+		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
+		trigger.setLineNumber(node.getLine());
 
 		bukkitCommand = setupBukkitCommand();
 	}
@@ -208,7 +213,7 @@ public class ScriptCommand implements TabExecutor {
 			}
 		}
 
-		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender);
+		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender, commandLabel, rest);
 
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
 			if (sender instanceof Player) {
@@ -321,7 +326,7 @@ public class ScriptCommand implements TabExecutor {
 				aliases.remove(label);
 			final Iterator<String> as = activeAliases.iterator();
 			while (as.hasNext()) {
-				final String lowerAlias = as.next().toLowerCase();
+				final String lowerAlias = as.next().toLowerCase(Locale.ENGLISH);
 				if (knownCommands.containsKey(lowerAlias) && (aliases == null || !aliases.contains(lowerAlias))) {
 					as.remove();
 					continue;
@@ -511,7 +516,7 @@ public class ScriptCommand implements TabExecutor {
 	}
 
 	@Nullable
-	public File getScript() {
+	public Script getScript() {
 		return trigger.getScript();
 	}
 
