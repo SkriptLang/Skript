@@ -225,17 +225,16 @@ public abstract class Functions {
 	/**
 	 * Gets a function, if it exists. Note that even if function exists in scripts,
 	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getSignature(String, String, boolean)}.
+	 * then use {@link #getSignature(String, String)}.
 	 *
 	 * @param name   Name of function.
-	 * @param globalOnly Whether it should ignore local functions. Otherwise, local functions are prioritized.
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
-	public static Function<?> getFunction(String name, @Nullable String script, boolean globalOnly) {
+	public static Function<?> getFunction(String name, @Nullable String script) {
 		Namespace namespace = null;
 		Function<?> function = null;
-		if (script != null && !globalOnly) {
+		if (script != null) {
 			namespace = getScriptNamespace(script);
 			if (namespace != null)
 				function = namespace.getFunction(name);
@@ -252,14 +251,13 @@ public abstract class Functions {
 	/**
 	 * Gets a signature of function with given name.
 	 * @param name Name of function.
-	 * @param globalOnly Whether it should ignore local functions. Otherwise, local functions are prioritized.
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable
-	public static Signature<?> getSignature(String name, @Nullable String script, boolean globalOnly) {
+	public static Signature<?> getSignature(String name, @Nullable String script) {
 		Namespace namespace = null;
 		Signature<?> signature = null;
-		if (script != null && !globalOnly) {
+		if (script != null) {
 			namespace = getScriptNamespace(script);
 			if (namespace != null)
 				signature = namespace.getSignature(name);
@@ -272,7 +270,6 @@ public abstract class Functions {
 		}
 		return signature;
 	}
-
 
 	@Nullable
 	public static Namespace getScriptNamespace(String script) {

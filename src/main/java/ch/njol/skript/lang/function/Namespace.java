@@ -130,12 +130,15 @@ public class Namespace {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (!(o instanceof Info)) return false;
+			if (this == o)
+				return true;
+			if (!(o instanceof Info))
+				return false;
 
 			Info info = (Info) o;
 
-			if (isLocal() != info.isLocal()) return false;
+			if (isLocal() != info.isLocal())
+				return false;
 			return getName().equals(info.getName());
 		}
 	}

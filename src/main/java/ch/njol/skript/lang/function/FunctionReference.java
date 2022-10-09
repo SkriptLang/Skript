@@ -103,8 +103,8 @@ public class FunctionReference<T> {
 	@Nullable
 	public final String script;
 	
-	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script, @Nullable Class<? extends T>[] returnTypes,
-							 Expression<?>[] params, boolean global) {
+	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script,
+							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params, boolean global) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
@@ -127,14 +127,14 @@ public class FunctionReference<T> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, script, global);
+		Signature<?> sign = Functions.getSignature(functionName, global ? null : script);
 		
 		// Check if the requested function exists
 		if (sign == null) {
 			if (first) {
-				Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' does not exist.");
+				Skript.error("The function '" + functionName + "' does not exist.");
 			} else {
-				Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was deleted or renamed, but is still used in other script(s)."
+				Skript.error("The function '" + functionName + "' was deleted or renamed, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 			}
@@ -147,9 +147,9 @@ public class FunctionReference<T> {
 			ClassInfo<?> rt = sign.returnType;
 			if (rt == null) {
 				if (first) {
-					Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' doesn't return any value.");
+					Skript.error("The function '" + functionName + "' doesn't return any value.");
 				} else {
-					Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with no return value, but is still used in other script(s)."
+					Skript.error("The function '" + functionName + "' was redefined with no return value, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -159,7 +159,7 @@ public class FunctionReference<T> {
 				if (first) {
 					Skript.error("The returned value of the function '" + functionName + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
-					Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
+					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -168,7 +168,7 @@ public class FunctionReference<T> {
 			if (first) {
 				single = sign.single;
 			} else if (single && !sign.single) {
-				Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
+				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 				return false;
@@ -182,15 +182,15 @@ public class FunctionReference<T> {
 			if (parameters.length > sign.getMaxParameters()) {
 				if (first) {
 					if (sign.getMaxParameters() == 0) {
-						Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' has no arguments, but " + parameters.length + " are given."
+						Skript.error("The function '" + functionName + "' has no arguments, but " + parameters.length + " are given."
 							+ " To call a function without parameters, just write the function name followed by '()', e.g. 'func()'.");
 					} else {
-						Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
+						Skript.error("The function '" + functionName + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
 							+ " but " + parameters.length + " are given."
 							+ " If you want to use lists in function calls, you have to use additional parentheses, e.g. 'give(player, (iron ore and gold ore))'");
 					}
 				} else {
-					Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
+					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -201,10 +201,10 @@ public class FunctionReference<T> {
 		// Not enough parameters
 		if (parameters.length < sign.getMinParameters()) {
 			if (first) {
-				Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
+				Skript.error("The function '" + functionName + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
 					+ " but only " + parameters.length + " " + (parameters.length == 1 ? "is" : "are") + " given.");
 			} else {
-				Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
+				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 			}
@@ -227,7 +227,7 @@ public class FunctionReference<T> {
 								+ " Please note that storing the value in a variable and then using that variable as parameter will suppress this error, but it still won't work.");
 						}
 					} else {
-						Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
 							+ " These will continue to use the old version of the function until Skript restarts.");
 						function = previousFunction;
 					}
@@ -237,7 +237,7 @@ public class FunctionReference<T> {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
 							+ "but a single argument was expected");
 					} else {
-						Skript.error("The " + (global ? "global " : "") + "function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
 							+ " These will continue to use the old version of the function until Skript restarts.");
 						function = previousFunction;
 					}
@@ -271,7 +271,7 @@ public class FunctionReference<T> {
 	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
-			function = (Function<? extends T>) Functions.getFunction(functionName, script, global);
+			function = (Function<? extends T>) Functions.getFunction(functionName, global ? null : script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName +

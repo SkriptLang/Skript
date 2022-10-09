@@ -57,12 +57,9 @@ public class StructFunction extends Structure {
 
 	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
 
-	@SuppressWarnings("null")
-	private final static String functionPattern = "(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?";
-
 	static {
 		Skript.registerStructure(StructFunction.class,
-			"[:local] function <" + functionPattern + ">");
+			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
