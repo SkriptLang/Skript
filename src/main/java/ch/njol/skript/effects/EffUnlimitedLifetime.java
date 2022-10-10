@@ -40,8 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffUnlimitedLifetime extends Effect {
 
 	static {
-		Skript.registerEffect(EffUnlimitedLifetime.class,
-			"make %entities% have [an] (unlimited|infinite) life(time|span)");
+		Skript.registerEffect(EffUnlimitedLifetime.class, "make %entities% have [an] (unlimited|infinite) life(time|span)");
 	}
 
 	private Expression<Entity> entityExpr;
