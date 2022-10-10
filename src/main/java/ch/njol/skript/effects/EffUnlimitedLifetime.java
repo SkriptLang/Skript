@@ -65,4 +65,5 @@ public class EffUnlimitedLifetime extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "make " + entityExpr.toString(event, debug) + " have an unlimited lifetime";
 	}
+
 }
