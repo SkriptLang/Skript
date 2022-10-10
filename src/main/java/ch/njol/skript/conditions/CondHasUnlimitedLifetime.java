@@ -47,4 +47,5 @@ public class CondHasUnlimitedLifetime extends PropertyCondition<Entity> {
 	protected String getPropertyName() {
 		return "unlimited lifetime";
 	}
+
 }
