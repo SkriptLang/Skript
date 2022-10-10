@@ -78,6 +78,9 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 			case REMOVE:
 				for (Entity entity : entities)
 					entity.setTicksLived(Math.max(1, entity.getTicksLived() - ticks));
+				break;
+			default:
+				assert false;
 		}
 	}
 
