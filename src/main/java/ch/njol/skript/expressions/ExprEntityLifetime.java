@@ -53,6 +53,7 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 			case SET:
 			case ADD:
 			case RESET:
+			case DELETE:
 			case REMOVE:
 				return CollectionUtils.array(Timespan.class);
 		}
@@ -62,23 +63,19 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Entity[] entities = this.getExpr().getArray(event);
-		int ticks = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int ticks = delta == null ? 1 : (int) ((Timespan) delta[0]).getTicks_i();
 		switch (mode) {
+			case DELETE:
+			case RESET:
 			case SET:
 				for (Entity entity : entities)
 					entity.setTicksLived(ticks);
 				break;
+			case REMOVE:
+				ticks *= -1;
 			case ADD:
 				for (Entity entity : entities)
 					entity.setTicksLived(entity.getTicksLived() + ticks);
-				break;
-			case RESET:
-				for (Entity entity : entities)
-					entity.setTicksLived(1);
-				break;
-			case REMOVE:
-				for (Entity entity : entities)
-					entity.setTicksLived(Math.max(1, entity.getTicksLived() - ticks));
 				break;
 			default:
 				assert false;

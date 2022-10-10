@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -37,6 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"drop tripwire hook at player's location",
 	"make last dropped item have unlimited lifetime"
 })
+@Since("INSERT VERSION")
 public class EffUnlimitedLifetime extends Effect {
 
 	static {
@@ -53,8 +55,7 @@ public class EffUnlimitedLifetime extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Entity[] entities = entityExpr.getArray(event);
-		for (Entity entity : entities) {
+		for (Entity entity : entityExpr.getArray(event)) {
 			if (!(entity instanceof Item))
 				continue;
 			((Item) entity).setUnlimitedLifetime(true);
