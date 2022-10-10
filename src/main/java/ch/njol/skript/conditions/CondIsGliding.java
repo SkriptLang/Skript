@@ -27,7 +27,6 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Description("Checks whether an entity is gliding.")
 @Examples("if player is gliding")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.9+")
 public class CondIsGliding extends PropertyCondition<LivingEntity> {
 
 	static {
