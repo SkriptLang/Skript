@@ -90,4 +90,5 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 	protected String getPropertyName() {
 		return "lifetime";
 	}
+
 }
