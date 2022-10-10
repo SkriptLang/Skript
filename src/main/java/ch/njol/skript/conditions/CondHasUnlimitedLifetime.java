@@ -33,7 +33,7 @@ import org.bukkit.entity.Item;
 public class CondHasUnlimitedLifetime extends PropertyCondition<Entity> {
 
 	static {
-		register(CondHasUnlimitedLifetime.class, PropertyType.HAVE, "[an] (unlimited|infinite) life(time|span) ", "entities");
+		register(CondHasUnlimitedLifetime.class, PropertyType.HAVE, "[an] (unlimited|infinite) life(time|span)", "entities");
 	}
 
 	@Override
