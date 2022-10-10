@@ -29,9 +29,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
@@ -241,23 +238,11 @@ public final class SkriptEventHandler {
 		triggers.add(new NonNullPair<>(event, trigger));
 
 		EventPriority priority = trigger.getEvent().getEventPriority();
-		PriorityListener listener = listeners[priority.ordinal()];
-		EventExecutor executor = listener.executor;
 
-		// PlayerInteractEntityEvent has a subclass we need for armor stands
-		if (event.equals(PlayerInteractEntityEvent.class)) {
-			if (!isEventRegistered(handlerList, priority)) {
-				Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
-				Bukkit.getPluginManager().registerEvent(PlayerInteractAtEntityEvent.class, listener, priority, executor, Skript.getInstance());
-			}
-			return;
+		if (!isEventRegistered(handlerList, priority)) { // Check if event is registered
+			PriorityListener listener = listeners[priority.ordinal()];
+			Bukkit.getPluginManager().registerEvent(event, listener, priority, listener.executor, Skript.getInstance());
 		}
-
-		if (event.equals(PlayerInteractAtEntityEvent.class) || event.equals(PlayerArmorStandManipulateEvent.class))
-			return; // Ignore, registered above
-
-		if (!isEventRegistered(handlerList, priority)) // Check if event is registered
-			Bukkit.getPluginManager().registerEvent(event, listener, priority, executor, Skript.getInstance());
 	}
 
 	/**
@@ -274,44 +259,26 @@ public final class SkriptEventHandler {
 
 			EventPriority priority = trigger.getEvent().getEventPriority();
 			if (triggers.stream().noneMatch(pair2 ->
-				trigger != pair2.getSecond()
-				&& pair2.getFirst().isAssignableFrom(pair.getFirst())
-				&& priority == pair2.getSecond().getEvent().getEventPriority()
-				&& handlerList == getHandlerList(pair2.getFirst())
-			)) { // We can unregister this listener :)
-				Listener listener = getSkriptListener(handlerList, priority);
-				if (listener != null) {
-					handlerList.unregister(listener);
-
-					// Special handling for this event
-					if (pair.getFirst().equals(PlayerInteractEntityEvent.class)) {
-						// No null checks needed as this can all be asserted as true due to the main condition
-						HandlerList specialHandlerList = getHandlerList(PlayerInteractAtEntityEvent.class);
-						assert specialHandlerList != null;
-						Listener specialListener = getSkriptListener(specialHandlerList, priority);
-						assert specialListener != null;
-						specialHandlerList.unregister(specialListener);
+				trigger != pair2.getSecond() // Don't match the trigger we are unregistering
+				&& pair2.getFirst().isAssignableFrom(pair.getFirst()) // Basic similarity check
+				&& priority == pair2.getSecond().getEvent().getEventPriority() // Ensure same priority
+				&& handlerList == getHandlerList(pair2.getFirst()) // Ensure same handler list
+			)) { // We can attempt to unregister this listener
+				Skript skript = Skript.getInstance();
+				for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+					Listener listener = registeredListener.getListener();
+					if (
+						registeredListener.getPlugin() == skript
+						&& listener instanceof PriorityListener
+						&& ((PriorityListener) listener).priority == priority
+					) {
+						handlerList.unregister(listener);
 					}
 				}
 			}
 
 			return true;
 		});
-	}
-
-	@Nullable
-	private static Listener getSkriptListener(HandlerList handlerList, EventPriority priority) {
-		for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
-			Listener listener = registeredListener.getListener();
-			if (
-				registeredListener.getPlugin() == Skript.getInstance()
-				&& listener instanceof PriorityListener
-				&& ((PriorityListener) listener).priority == priority
-			) {
-				return listener;
-			}
-		}
-		return null;
 	}
 
 	/**
