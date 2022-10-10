@@ -47,7 +47,8 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
 			case SET:
 			case ADD:
