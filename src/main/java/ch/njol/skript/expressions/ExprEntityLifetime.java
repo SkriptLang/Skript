@@ -41,7 +41,8 @@ public class ExprEntityLifetime extends SimplePropertyExpression<Entity, Timespa
 	}
 
 	@Override
-	public @Nullable Timespan convert(Entity entity) {
+	@Nullable
+	public Timespan convert(Entity entity) {
 		return Timespan.fromTicks_i(entity.getTicksLived());
 	}
 
