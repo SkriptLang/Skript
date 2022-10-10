@@ -35,7 +35,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Makes a dropped item have an unlimited lifetime.")
 @Examples({
 	"drop tripwire hook at player's location",
-	"make last dropped item have unlimited lifetime"})
+	"make last dropped item have unlimited lifetime"
+})
 public class EffUnlimitedLifetime extends Effect {
 
 	static {
