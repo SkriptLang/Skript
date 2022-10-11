@@ -43,9 +43,16 @@ public class LiteralUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> Expression<T> defendExpression(Expression<?> expr) {
 		if (expr instanceof ExpressionList) {
-			Expression<?>[] expressions = ((ExpressionList) expr).getExpressions();
-			for (int i = 0; i < expressions.length; i++)
-				expressions[i] = LiteralUtils.defendExpression(expressions[i]);
+			Expression<?>[] oldExpressions = ((ExpressionList<?>) expr).getExpressions();
+
+			Expression<? extends T>[] newExpressions = new Expression[oldExpressions.length];
+			Class<?>[] returnTypes = new Class[oldExpressions.length];
+
+			for (int i = 0; i < oldExpressions.length; i++) {
+				newExpressions[i] = LiteralUtils.defendExpression(oldExpressions[i]);
+				returnTypes[i] = newExpressions[i].getReturnType();
+			}
+			return new ExpressionList<>(newExpressions, (Class<T>) Utils.getSuperType(returnTypes), expr.getAnd());
 		} else if (expr instanceof UnparsedLiteral) {
 			Literal<?> parsedLiteral = ((UnparsedLiteral) expr).getConvertedExpression(Object.class);
 			return (Expression<T>) (parsedLiteral == null ? expr : parsedLiteral);
