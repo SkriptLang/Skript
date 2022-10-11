@@ -40,15 +40,17 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @Name("Vectors - Arithmetic")
 @Description("Arithmetic expressions for vectors.")
-@Examples({"set {_v} to vector 1, 2, 3 // 5",
-		"set {_v} to {_v} ++ {_v}",
-		"set {_v} to {_v} ++ 5",
-		"set {_v} to {_v} -- {_v}",
-		"set {_v} to {_v} -- 5",
-		"set {_v} to {_v} ** {_v}",
-		"set {_v} to {_v} ** 5",
-		"set {_v} to {_v} // {_v}",
-		"set {_v} to {_v} // 5"})
+@Examples({
+	"set {_v} to vector 1, 2, 3 // 5",
+	"set {_v} to {_v} ++ {_v}",
+	"set {_v} to {_v} ++ 5",
+	"set {_v} to {_v} -- {_v}",
+	"set {_v} to {_v} -- 5",
+	"set {_v} to {_v} ** {_v}",
+	"set {_v} to {_v} ** 5",
+	"set {_v} to {_v} // {_v}",
+	"set {_v} to {_v} // 5"
+})
 @Since("2.2-dev28")
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
@@ -93,34 +95,43 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	}
 
 	private final static Patterns<Operator> patterns = new Patterns<>(new Object[][] {
-			{"%vector%[ ]++[ ]%vector%", Operator.PLUS},
-			{"%vector%[ ]--[ ]%vector%", Operator.MINUS},
-			{"%vector%[ ]**[ ]%vector%", Operator.MULT},
-			{"%vector%[ ]//[ ]%vector%", Operator.DIV}
+			{"%vector%[ ]++[ ]%vector/number%", Operator.PLUS},
+			{"%vector%[ ]--[ ]%vector/number%", Operator.MINUS},
+			{"%vector%[ ]**[ ]%vector/number%", Operator.MULT},
+			{"%vector%[ ]//[ ]%vector/number%", Operator.DIV}
 	});
 
 	static {
 		Skript.registerExpression(ExprVectorArithmetic.class, Vector.class, ExpressionType.SIMPLE, patterns.getPatterns());
 	}
 
-	@SuppressWarnings("null")
-	private Expression<Vector> first, second;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<Vector> first;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<?> second;
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Operator op;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		first = (Expression<Vector>) exprs[0];
-		second = (Expression<Vector>) exprs[1];
+		second = exprs[1];
 		op = patterns.getInfo(matchedPattern);
 		return true;
 	}
 
 	@Override
 	protected Vector[] get(Event e) {
-		Vector v1 = first.getSingle(e), v2 = second.getSingle(e);
+		Vector v1 = first.getSingle(e), v2;
+		Object object = this.second.getSingle(e);
+		if (object instanceof Number) {
+			double num = ((Number) object).doubleValue();
+			v2 = new Vector(num, num, num);
+		} else {
+			v2 = (Vector) object;
+		}
 		if (v1 == null)
 			v1 = new Vector();
 		if (v2 == null)
