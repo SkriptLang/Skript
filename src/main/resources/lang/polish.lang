@@ -25,7 +25,7 @@ skript command:
 		description: Główne polecenie Skripta.
 		help: Wyświetla tę stronę pomocy. Użyj '/skript reload/enable/disable/update' aby otrzymać więcej informacji
 		reload:
-			description: Przeładowuje wybrany skrypt, każdy ze skryptów, konfigurację albo wszystko,
+			description: Przeładowuje wybrany skrypt, każdy ze skryptów, konfigurację albo wszystko
 			all: Przeładowuje każdy ze skryptów, konfigurację i wszystkie konfiguracje aliasów
 			config: Przeładowuje główną konfigurację
 			aliases: Przeładowuje konfiguracje aliasów (aliases-*.sk lub JAR Skripta)
