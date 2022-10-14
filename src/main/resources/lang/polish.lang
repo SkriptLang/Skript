@@ -15,7 +15,7 @@ skript:
 	invalid reload: Skript może być przeładowany tylko przez polecenie '/reload' Bukkita lub '/skript reload'.
 	no scripts: Nie znaleziono żadnych skryptów, może warto jakieś napisać ;)
 	no errors: Wszystkie skrypty zostały załadowane bez błędów.
-	scripts loaded: Załadowano %s skrypt¦¦ów¦ z %s wyzwalacz¦em¦ami¦ i %s poleceni¦em¦ami¦ w %s
+	scripts loaded: Załadowano %s skrypt¦¦ów¦ posiadających łącznie %s struktur¦ę¦¦ w %s
 	finished loading: Zakończone ładowanie.
 
 # -- Skript command --
