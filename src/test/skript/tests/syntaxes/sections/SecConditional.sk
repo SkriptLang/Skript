@@ -36,7 +36,6 @@ test "SecConditional - if all true":
 		1 is 1
 		2 is 2
 	then:
-		broadcast "hello"
 		set {_a} to true
 	assert {_a} is set with "if all did not run"
 

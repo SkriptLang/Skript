@@ -98,7 +98,7 @@ public class SecConditional extends Section {
 				parser.setCurrentStructure(null);
 			}
 
-			// if this is a multiline "if", we have to parse each line
+			// if this is a multiline "if", we have to parse each line as it's own condition
 			if (multiline) {
 				if (sectionNode.isEmpty()) {
 					Skript.error("'if' sections must contain at least one condition");
@@ -109,8 +109,10 @@ public class SecConditional extends Section {
 					if (key != null) {
 						SkriptLogger.setNode(n);
 						Condition condition = Condition.parse(key, "Can't understand this condition: '" + key + "'");
-						if (condition != null)
-							conditions.add(condition);
+						// if this condition was invalid, don't bother parsing the rest
+						if (condition == null)
+							return false;
+						conditions.add(condition);
 					}
 				}
 				SkriptLogger.setNode(sectionNode);
@@ -156,10 +158,8 @@ public class SecConditional extends Section {
 		}
 
 		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
-
-		if (!multiline || type == ConditionalType.ELSE || type == ConditionalType.THEN) {
+		if (!multiline || type == ConditionalType.ELSE || type == ConditionalType.THEN)
 			loadCode(sectionNode);
-		}
 		hasDelayAfter = getParser().getHasDelayBefore();
 
 		// If the code definitely has a delay before this section, or if the section did not alter the delayed Kleenean,
@@ -298,13 +298,13 @@ public class SecConditional extends Section {
 	}
 
 	private boolean checkConditions(Event event) {
-		if (this.type == ConditionalType.IF || this.type == ConditionalType.ELSE_IF) {
-			if (this.ifAny) {
-				return conditions.stream().anyMatch(c -> c.check(event));
-			}
+		if (conditions.isEmpty()) { // else and then
+			return true;
+		} else if (this.ifAny) {
+			return conditions.stream().anyMatch(c -> c.check(event));
+		} else {
 			return conditions.stream().allMatch(c -> c.check(event));
 		}
-		return true;
 	}
 
 }
