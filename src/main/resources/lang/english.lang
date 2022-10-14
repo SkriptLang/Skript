@@ -75,7 +75,7 @@ skript command:
 			enabling: Enabling all disabled scripts...
 			enabled: Successfully enabled & parsed all previously disabled scripts.
 			error: Encountered %s error¦¦s¦ while parsing disabled scripts!
-			io error: Could not load any scripts (some scripts might have been renamed already and will be enabled when the server restarts): %s
+			io error: Could not load one or more scripts - some scripts might have been renamed already and will be enabled when the server restarts: %s
 		single:
 			already enabled: <gold>%s<reset> is already enabled! Use <gray>/<gold>skript <cyan>reload <red>%s<reset> to reload it if it was changed.
 			enabling: Enabling <gold>%s<reset>...
@@ -87,11 +87,11 @@ skript command:
 			enabling: Enabling <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>...
 			enabled: Successfully enabled & parsed <gold>%2$s<reset> previously disabled scripts in <gold>%1$s<reset>.
 			error: Encountered %2$s error¦¦s¦ while parsing scripts in <gold>%1$s<red>!
-			io error: Error while enabling scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
+			io error: Error while enabling one or more scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
 	disable:
 		all:
 			disabled: Successfully disabled all scripts.
-			io error: Could not rename one or more scripts - some scripts will be enabled again when you restart the server: %s
+			io error: Could not rename one or more scripts - some scripts might have been renamed already and will be disabled when the server restarts: %s
 		single:
 			already disabled: <gold>%s<reset> is already disabled!
 			disabled: Successfully disabled <gold>%s<reset>.
