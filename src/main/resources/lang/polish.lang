@@ -10,23 +10,23 @@ none: <none>
 skript:
 	copyright: ~ stworzony przez & © Peter "Njol" Güttinger ~
 	prefix: <gray>[<gold>Skript<gray>] # not used
-	quotes error: Nieprawidłowe użycie cudzysłowów ("). Jeśli chcesz użyć cudzysłowia w "cytowanym tekście", powiel cudzysłów w nim: "".
+	quotes error: Nieprawidłowe użycie cudzysłowa ("). Jeśli chcesz użyć cudzysłowa w "cytowanym tekście", podwój go: "".
 	brackets error: Nieprawidłowa ilość lub rozmieszczenie nawiasów. Upewnij się, że każdy nawias otwierający ma odpowiadający mu nawias zamykający.
 	invalid reload: Skript może być przeładowany tylko przez polecenie '/reload' Bukkita lub '/skript reload'.
 	no scripts: Nie znaleziono żadnych skryptów, może warto jakieś napisać ;)
 	no errors: Wszystkie skrypty zostały załadowane bez błędów.
-	scripts loaded: Załadowano %s skrypt¦¦ów¦ z %s wyzwalacz¦em¦ami¦ i %s komend¦ą¦ami¦ w %s
+	scripts loaded: Załadowano %s skrypt¦¦ów¦ z %s wyzwalacz¦em¦ami¦ i %s poleceni¦em¦ami¦ w %s
 	finished loading: Zakończone ładowanie.
 
 # -- Skript command --
 skript command:
-	usage: Usage:
+	usage: Sposób użycia:
 	help:
-		description: Główna polecenie Skripta.
+		description: Główne polecenie Skripta.
 		help: Wyświetla tę stronę pomocy. Użyj '/skript reload/enable/disable/update' aby otrzymać więcej informacji
 		reload:
 			description: Przeładowuje wybrany skrypt, każdy ze skryptów, konfigurację albo wszystko,
-			all: Przeładowuje konfigurację, wszystkie konfiguracje aliasów i każdy ze skryptów
+			all: Przeładowuje każdy ze skryptów, konfigurację i wszystkie konfiguracje aliasów
 			config: Przeładowuje główną konfigurację
 			aliases: Przeładowuje konfiguracje aliasów (aliases-*.sk lub JAR Skripta)
 			scripts: Przeładowuje wszystkie skrypty
@@ -75,7 +75,7 @@ skript command:
 			enabling: Włączanie wszystkich wyłączonych skryptów...
 			enabled: Pomyślnie włączono i zinterpretowano wszystkie wyłączone skrypty.
 			error: Znaleziono %s bł¦ąd¦ędów¦ podczas interpretacji wyłączonych skryptów!
-			io error: Nie udało się wczytać żadnych skryptów (niektóe skrypty mogły mieć zmienioną nazwę i zostaną one włączone po restarcie serwera): %s
+			io error: Nie udało się wczytać żadnych skryptów (niektóre skrypty mogły mieć zmienioną nazwę i zostaną one włączone po restarcie serwera): %s
 		single:
 			already enabled: <gold>%s<reset> jest już włączony! Użyj <gray>/<gold>skript <cyan>reload <red>%s<reset> aby odświeżyć skrypt, jeśli został edytowany.
 			enabling: Włączanie <gold>%s<reset>...
@@ -95,7 +95,7 @@ skript command:
 		single:
 			already disabled: <gold>%s<reset> jest już wyłączony!
 			disabled: Pomyślnie wyłączono <gold>%s<reset>.
-			io error: Nie udało się zmienić nazwy <gold>%s<red>, skrypt może zostać włączony po restarcie serwera: %s
+			io error: Nie udało się zmienić nazwy <gold>%s<red>, skrypt pozostanie włączony po restarcie serwera: %s
 		folder:
 			empty: <gold>%s<reset> nie zawiera żadnych włączonych skryptów.
 			disabled: Pomyślnie wyłączono <gold>%2$s<reset> skrypt¦¦ów¦ w <gold>%1$s<reset>.
@@ -131,7 +131,7 @@ updater:
 	downloading: Pobieranie Skripta <gold>%s<reset>...
 	download in progress: Obecnie trwa pobieranie najnowszej wersji Skripta.
 	download error: <red>Podczas pobierania najnowszej wersji Skripta wystąpił błąd:<light red> %s
-	downloaded: Najnowsza wersja Skripta została pobrana! Zrestartuj serwer lub użyj komendy /reload aby zastosować zmiany.
+	downloaded: Najnowsza wersja Skripta została pobrana! Zrestartuj serwer lub użyj polecenia /reload aby zastosować zmiany.
 	internal error: Wystąpił wewnętrzny błąd podczas sprawdzania najnowszej wersji Skripta. Sprawdź konsolę lub logi serwera po więcej szczegółów.
 	custom version: Na twoim serwerze jest obecnie zmodyfikowana, nieoficjalna wersja Skripta. Aktualizacje nie będą automatycznie instalowane.
 	nightly build: Na twoim serwerze jest obecnie rozwojowa wersja Skripta. Aktualizacje nie będą automatycznie instalowane.
@@ -140,7 +140,7 @@ updater:
 commands:
 	no permission message: Nie masz odpowiednich uprawnień, aby użyć tego polecenia.
 	cooldown message: Używasz tego polecenia zbyt często, spróbuj ponownie później
-	executable by players: Ta polecenie może zostać użyte tylko przez graczy
+	executable by players: To polecenie może zostać użyte tylko przez graczy
 	executable by console: To polecenie może zostać użyte tylko z konsoli
 	correct usage: Prawidłowe użycie:
 	invalid argument: Niepoprawny argument <gray>'%s<gray>'<reset>. Dozwolone są:
