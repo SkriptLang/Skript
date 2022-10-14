@@ -30,3 +30,36 @@ test "SecConditional":
 		exit 1 section
 	else:
 		assert 1 = 2 with "conditional failed ##5"
+
+test "SecConditional - if all true":
+	if:
+		1 is 1
+		2 is 2
+	then:
+		broadcast "hello"
+		set {_a} to true
+	assert {_a} is set with "if all did not run"
+
+test "SecConditional - if all false":
+	if:
+		1 is 1
+		2 is 1
+	then:
+		set {_a} to true
+	assert {_a} is not set with "if all ran when conditions were false"
+
+test "SecConditional - if any true":
+	if any:
+		1 is 3
+		2 is 2
+	then:
+		set {_a} to true
+	assert {_a} is set with "if any did not run when at least one condition was true"
+
+test "SecConditional - if any false":
+	if any:
+		1 is 3
+		2 is 7
+	then:
+		set {_a} to true
+	assert {_a} is not set with "if any ran when no condition was true"
