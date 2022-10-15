@@ -23,8 +23,6 @@ jobs:
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-            - name: Build Skript
-              run: ./gradlew clean nightlyRelease
             - name: Build Skript and run test scripts
               run: ./gradlew clean skriptTestJava8
             - name: Rename file
