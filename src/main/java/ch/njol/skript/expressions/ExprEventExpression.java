@@ -51,8 +51,6 @@ public class ExprEventExpression extends WrapperExpression<Object> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		String className = parser.regexes.get(0).group(0);
 
-		System.out.println(className);
-		System.out.println(Noun.stripIndefiniteArticle(className));
 		ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(Noun.stripIndefiniteArticle(className));
 		if (classInfo == null)
 			return false;
