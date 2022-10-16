@@ -65,9 +65,11 @@ import ch.njol.util.Kleenean;
 public class EventValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 	
 	private final Class<? extends T> c;
+	private final Class<?> componentType;
 	@Nullable
 	private Changer<? super T> changer;
 	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
+	private final boolean single;
 	
 	public EventValueExpression(final Class<? extends T> c) {
 		this(c, null);
@@ -77,20 +79,27 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		assert c != null;
 		this.c = c;
 		this.changer = changer;
+		single = !c.isArray();
+		componentType = single ? c : c.getComponentType();
 	}
 	
 	@Override
 	@Nullable
+	@SuppressWarnings({"unchecked", "SuspiciousSystemArraycopy"})
 	protected T[] get(final Event e) {
 		final T o = getValue(e);
 		if (o == null)
-			return null;
-		@SuppressWarnings("unchecked")
-		final T[] one = (T[]) Array.newInstance(c, 1);
-		one[0] = o;
-		return one;
+			return (T[]) new Object[0];
+		if (single) {
+			final T[] one = (T[]) Array.newInstance(c, 1);
+			one[0] = o;
+			return one;
+		}
+		T[] array = (T[]) Array.newInstance(c.getComponentType(), ((T[]) o).length);
+		System.arraycopy(o, 0, array, 0, array.length);
+		return array;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Nullable
 	private <E extends Event> T getValue(final E e) {
@@ -141,7 +150,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 			}
 			if (!hasValue) {
-				log.printError("There's no " + Classes.getSuperClassInfo(c).getName() + " in " + Utils.a(getParser().getCurrentEventName()) + " event");
+				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(getParser().getCurrentEventName()) + " event");
 				return false;
 			}
 			log.printLog();
@@ -158,13 +167,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	
 	@Override
 	public boolean isSingle() {
-		return true;
+		return single;
 	}
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		if (!debug || e == null)
-			return "event-" + Classes.getSuperClassInfo(c).getName();
+			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
 		return Classes.getDebugMessage(getValue(e));
 	}
 	
