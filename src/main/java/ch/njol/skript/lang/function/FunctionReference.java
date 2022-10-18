@@ -73,11 +73,6 @@ public class FunctionReference<T> {
 	private final Expression<?>[] parameters;
 
 	/**
-	 * Whether this reference only calls global functions
-	 */
-	private boolean global;
-
-	/**
 	 * Indicates if the caller expects this function to return a single value.
 	 * Used for verifying correctness of the function signature.
 	 */
@@ -104,13 +99,12 @@ public class FunctionReference<T> {
 	public final String script;
 	
 	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script,
-							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params, boolean global) {
+							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
 		this.returnTypes = returnTypes;
 		parameters = params;
-		this.global = global;
 	}
 	
 	/**
@@ -127,7 +121,7 @@ public class FunctionReference<T> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, global ? null : script);
+		Signature<?> sign = Functions.getSignature(functionName, script);
 		
 		// Check if the requested function exists
 		if (sign == null) {
@@ -271,7 +265,7 @@ public class FunctionReference<T> {
 	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
-			function = (Function<? extends T>) Functions.getFunction(functionName, global ? null : script);
+			function = (Function<? extends T>) Functions.getFunction(functionName, script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName +

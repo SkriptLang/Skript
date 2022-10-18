@@ -227,7 +227,8 @@ public abstract class Functions {
 	 * it might not have been parsed yet. If you want to check for existence,
 	 * then use {@link #getSignature(String, String)}.
 	 *
-	 * @param name   Name of function.
+	 * @param name Name of function.
+	 * @param script The script where the function is declared in. Used to get local functions.
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
@@ -251,6 +252,7 @@ public abstract class Functions {
 	/**
 	 * Gets a signature of function with given name.
 	 * @param name Name of function.
+	 * @param script The script where the function is declared in. Used to get local functions.
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable

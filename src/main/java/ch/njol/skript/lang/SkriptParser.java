@@ -27,8 +27,6 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
@@ -50,10 +48,10 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
-import org.bukkit.event.EventPriority;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -879,7 +877,7 @@ public class SkriptParser {
 	}
 	
 	@SuppressWarnings("null")
-	private final static Pattern functionCallPattern = Pattern.compile("(global )?(" + Functions.functionNamePattern + ")\\((.*)\\)");
+	private final static Pattern functionCallPattern = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
 	
 	/**
 	 * @param types The required return type or null if it is not used (e.g. when calling a void function)
@@ -898,9 +896,8 @@ public class SkriptParser {
 				return null;
 			}
 
-			boolean globalOnly = m.group(1) != null;
-			String functionName = "" + m.group(2);
-			String args = m.group(3);
+			String functionName = "" + m.group(1);
+			String args = m.group(2);
 			Expression<?>[] params;
 			
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
@@ -960,7 +957,7 @@ public class SkriptParser {
 			ParserInstance parser = getParser();
 			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params, globalOnly);//.toArray(new Expression[params.size()]));
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
 				log.printError();
 				return null;
