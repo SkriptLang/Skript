@@ -98,8 +98,10 @@ public class FunctionReference<T> {
 	@Nullable
 	public final String script;
 	
-	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script,
-							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
+	public FunctionReference(
+			String functionName, @Nullable Node node, @Nullable String script,
+			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+	) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
@@ -268,8 +270,7 @@ public class FunctionReference<T> {
 			function = (Function<? extends T>) Functions.getFunction(functionName, script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
-			Skript.error("Couldn't resolve call for '" + functionName +
-				"'. Be careful when using functions in 'script load' events!");
+			Skript.error("Couldn't resolve call for '" + functionName + "'.");
 			return null; // Return nothing and hope it works
 		}
 		

@@ -96,7 +96,7 @@ public class Namespace {
 	/**
 	 * The key used in the signature and function maps
 	 */
-	public static class Info {
+	private static class Info {
 
 		/**
 		 * Name of the function
@@ -170,15 +170,17 @@ public class Namespace {
 	}
 
 	public void addSignature(Signature<?> sign) {
-		if (signatures.containsKey(new Info(sign.getName(), sign.local)))
+		Info info = new Info(sign.getName(), sign.local);
+		if (signatures.containsKey(info))
 			throw new IllegalArgumentException("function name already used");
-		signatures.put(new Info(sign.getName(), sign.local), sign);
+		signatures.put(info, sign);
 	}
 
 	public boolean removeSignature(Signature<?> sign) {
-		if (signatures.get(new Info(sign.getName(), sign.local)) != sign)
+		Info info = new Info(sign.getName(), sign.local);
+		if (signatures.get(info) != sign)
 			return false;
-		signatures.remove(new Info(sign.getName(), sign.local));
+		signatures.remove(info);
 		return true;
 	}
 	
@@ -199,8 +201,9 @@ public class Namespace {
 	}
 
 	public void addFunction(Function<?> func) {
-		assert signatures.containsKey(new Info(func.getName(), func.getSignature().local)) : "missing signature for function";
-		functions.put(new Info(func.getName(), func.getSignature().local), func);
+		Info info = new Info(func.getName(), func.getSignature().local);
+		assert signatures.containsKey(info) : "missing signature for function";
+		functions.put(info, func);
 	}
 
 	@SuppressWarnings("null")

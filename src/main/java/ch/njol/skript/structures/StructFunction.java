@@ -59,7 +59,8 @@ public class StructFunction extends Structure {
 
 	static {
 		Skript.registerStructure(StructFunction.class,
-			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?>");
+			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?>"
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
