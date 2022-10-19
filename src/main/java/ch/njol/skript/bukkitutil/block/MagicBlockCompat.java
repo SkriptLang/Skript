@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.bukkitutil.block;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -30,12 +32,14 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemFlags;
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.yggdrasil.Fields;
 
 /**
  * Block compatibility implemented with magic numbers. No other choice until
@@ -130,6 +134,22 @@ public class MagicBlockCompat implements BlockCompat {
 			} else {
 				return MatchQuality.DIFFERENT;
 			}
+		}
+
+		@Override
+		public Fields serialize() throws NotSerializableException {
+			Fields fields = new Fields();
+			fields.putObject("material", id);
+			fields.putPrimitive("data", data);
+			fields.putPrimitive("itemFlags", itemFlags);
+			return fields;
+		}
+
+		@Override
+		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException, NotSerializableException {
+			this.id = fields.getAndRemoveObject("material", Material.class);
+			this.data = fields.getAndRemovePrimitive("data", short.class);
+			this.itemFlags = fields.getAndRemovePrimitive("itemFlags", int.class);
 		}
 	}
 	
