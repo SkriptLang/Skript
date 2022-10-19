@@ -1,0 +1,15 @@
+test "potion effect":
+	spawn a pig at spawn of world "world"
+	set {_pig} to last spawned pig
+	set {_potion} to potion effect of slowness of tier 5 for 10 seconds
+	apply {_potion} to {_pig}
+	assert {_pig} has potion effect slowness with "pig failed to apply slowness"
+	apply potion effect of speed of tier 5 for 10 seconds to {_pig}
+	assert {_pig} has potion effect speed with "pig failed to apply speed"
+	apply haste of tier 5 to {_pig} for 10 seconds
+	assert {_pig} has potion effect haste with "pig failed to apply haste"
+	apply ambient strength of tier 5 to {_pig} for 10 seconds
+	assert {_pig} has potion effect strength with "pig failed to apply strength"
+	apply jump boost of tier 5 without particles to {_pig} for 10 seconds
+	assert {_pig} has potion effect slowness with "pig failed to apply jump boost"
+	delete last spawned pig
