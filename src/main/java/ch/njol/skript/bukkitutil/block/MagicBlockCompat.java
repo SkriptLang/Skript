@@ -137,17 +137,17 @@ public class MagicBlockCompat implements BlockCompat {
 		}
 
 		@Override
-		public Fields serialize() throws NotSerializableException {
+		public Fields serialize() {
 			Fields fields = new Fields();
-			fields.putObject("material", id);
+			fields.putPrimitive("material", id.name());
 			fields.putPrimitive("data", data);
 			fields.putPrimitive("itemFlags", itemFlags);
 			return fields;
 		}
 
 		@Override
-		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException, NotSerializableException {
-			this.id = fields.getAndRemoveObject("material", Material.class);
+		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
+			this.id = Material.valueOf(fields.getAndRemovePrimitive("material", String.class));
 			this.data = fields.getAndRemovePrimitive("data", short.class);
 			this.itemFlags = fields.getAndRemovePrimitive("itemFlags", int.class);
 		}
