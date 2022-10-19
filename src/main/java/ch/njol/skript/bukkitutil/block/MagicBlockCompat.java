@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.bukkitutil.block;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -39,6 +38,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemFlags;
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 
 /**
@@ -72,11 +72,20 @@ public class MagicBlockCompat implements BlockCompat {
 	}
 	
 	@SuppressWarnings({"deprecation"})
-	private class MagicBlockValues extends BlockValues {
+	private static class MagicBlockValues extends BlockValues {
+
+		static {
+			Variables.yggdrasil.registerSingleClass(MagicBlockValues.class, "MagicBlockValues");
+		}
 
 		private Material id;
 		short data;
 		private int itemFlags;
+
+		/**
+		 * Used for serialization
+		 */
+		private MagicBlockValues() {}
 
 		public MagicBlockValues(BlockState block) {
 			this.id = ItemUtils.asItem(block.getType());
@@ -139,7 +148,7 @@ public class MagicBlockCompat implements BlockCompat {
 		@Override
 		public Fields serialize() {
 			Fields fields = new Fields();
-			fields.putPrimitive("material", id.name());
+			fields.putObject("material", id.name());
 			fields.putPrimitive("data", data);
 			fields.putPrimitive("itemFlags", itemFlags);
 			return fields;
@@ -147,9 +156,9 @@ public class MagicBlockCompat implements BlockCompat {
 
 		@Override
 		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
-			this.id = Material.valueOf(fields.getAndRemovePrimitive("material", String.class));
-			this.data = fields.getAndRemovePrimitive("data", short.class);
-			this.itemFlags = fields.getAndRemovePrimitive("itemFlags", int.class);
+			this.id = Material.valueOf(fields.getAndRemoveObject("material", String.class));
+			this.data = fields.getAndRemovePrimitive("data", Short.class);
+			this.itemFlags = fields.getAndRemovePrimitive("itemFlags", Integer.class);
 		}
 	}
 	
