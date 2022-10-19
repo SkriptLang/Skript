@@ -26,8 +26,9 @@ import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.expressions.ExprParse;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
@@ -38,13 +39,11 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
@@ -53,17 +52,17 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,7 +122,7 @@ public class SkriptParser {
 	public final static class ParseResult {
 		public final Expression<?>[] exprs;
 		public final List<MatchResult> regexes = new ArrayList<>(1);
-		public final String expr;
+		public String expr;
 		/**
 		 * Defaults to 0. Any marks encountered in the pattern will be XORed with the existing value, in particular if only one mark is encountered this value will be set to that
 		 * mark.
@@ -187,16 +186,22 @@ public class SkriptParser {
 	}
 	
 	@Nullable
-	public static <T extends SyntaxElement> T parseStatic(String expr, final Iterator<? extends SyntaxElementInfo<? extends T>> source, final @Nullable String defaultError) {
-		expr = "" + expr.trim();
+	public static <T extends SyntaxElement> T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, @Nullable String defaultError) {
+		return parseStatic(expr, source, ParseContext.DEFAULT, defaultError);
+	}
+
+	@Nullable
+	public static <T extends SyntaxElement> T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, ParseContext parseContext, @Nullable String defaultError) {
+		expr = expr.trim();
 		if (expr.isEmpty()) {
 			Skript.error(defaultError);
 			return null;
 		}
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		final T e;
+
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		T e;
 		try {
-			e = new SkriptParser(expr, PARSE_LITERALS).parse(source);
+			e = new SkriptParser(expr, PARSE_LITERALS, parseContext).parse(source);
 			if (e != null) {
 				log.printLog();
 				return e;
@@ -207,7 +212,7 @@ public class SkriptParser {
 			log.stop();
 		}
 	}
-	
+
 	@Nullable
 	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
@@ -223,7 +228,13 @@ public class SkriptParser {
 						try {
 							res = parse_i(pattern, 0, 0);
 						} catch (MalformedPatternException e) {
-							throw new RuntimeException("pattern compiling exception, element class: " + info.c.getName(), e);
+							String message = "pattern compiling exception, element class: " + info.c.getName();
+							try {
+								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.c);
+								message += " (provided by " + providingPlugin.getName() + ")";
+							} catch (IllegalArgumentException | IllegalStateException ignored) {}
+							throw new RuntimeException(message, e);
+
 						}
 						if (res != null) {
 							int x = -1;
@@ -711,14 +722,10 @@ public class SkriptParser {
 				return ts.get(0);
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				if (getParser().getCurrentScript() != null) {
-					Config cs = getParser().getCurrentScript();
-					if (!ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction")) {
-						Skript.warning(MISSING_AND_OR + ": " + expr);
-					}
-				} else {
+				ParserInstance parser = getParser();
+				Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+				if (currentScript == null || !currentScript.suppressesWarning(ScriptWarning.MISSING_CONJUNCTION))
 					Skript.warning(MISSING_AND_OR + ": " + expr);
-				}
 			}
 			
 			final Class<? extends T>[] exprRetTypes = new Class[ts.size()];
@@ -847,13 +854,10 @@ public class SkriptParser {
 			}
 			
 			if (and.isUnknown() && !suppressMissingAndOrWarnings) {
-				if (getParser().getCurrentScript() != null) {
-					Config cs = getParser().getCurrentScript();
-					if (!ScriptOptions.getInstance().suppressesWarning(cs.getFile(), "conjunction"))
-						Skript.warning(MISSING_AND_OR + ": " + expr);
-				} else {
+				ParserInstance parser = getParser();
+				Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+				if (currentScript == null || !currentScript.suppressesWarning(ScriptWarning.MISSING_CONJUNCTION))
 					Skript.warning(MISSING_AND_OR + ": " + expr);
-				}
 			}
 			
 			final Class<?>[] exprRetTypes = new Class[ts.size()];
@@ -952,8 +956,10 @@ public class SkriptParser {
 //			}
 //			@SuppressWarnings("null")
 
+			ParserInstance parser = getParser();
+			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					getParser().getCurrentScript() != null ? getParser().getCurrentScript().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
 			if (!e.validateFunction(true)) {
 				log.printError();
 				return null;
@@ -993,79 +999,6 @@ public class SkriptParser {
 	@Nullable
 	public static ParseResult parse(final String text, final String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern, 0, 0);
-	}
-
-	@Nullable
-	public static NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(String event, String defaultError) {
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
-		try {
-			String[] split = event.split(" with priority ");
-			EventPriority priority;
-			if (split.length != 1) {
-				event = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-
-				String priorityString = split[split.length - 1];
-				try {
-					priority = EventPriority.valueOf(priorityString.toUpperCase(Locale.ENGLISH));
-				} catch (IllegalArgumentException e) { // Priority doesn't exist
-					log.printErrors("The priority " + priorityString + " doesn't exist");
-					return null;
-				}
-			} else {
-				priority = null;
-			}
-
-			NonNullPair<SkriptEventInfo<?>, SkriptEvent> e = new SkriptParser(event, PARSE_LITERALS, ParseContext.EVENT).parseEvent(priority);
-			if (e != null) {
-				if (priority != null && !e.getSecond().isEventPrioritySupported()) {
-					log.printErrors("This event doesn't support event priority");
-					return null;
-				}
-
-				log.printLog();
-				return e;
-			}
-			log.printErrors(defaultError);
-			return null;
-		} finally {
-			log.stop();
-		}
-	}
-
-	@Nullable
-	private NonNullPair<SkriptEventInfo<?>, SkriptEvent> parseEvent(@Nullable EventPriority eventPriority) {
-		assert context == ParseContext.EVENT;
-		assert flags == PARSE_LITERALS;
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
-			for (SkriptEventInfo<?> info : Skript.getEvents()) {
-				for (int i = 0; i < info.patterns.length; i++) {
-					log.clear();
-					try {
-						String pattern = info.patterns[i];
-						assert pattern != null;
-						ParseResult res = parse_i(pattern, 0, 0);
-						if (res != null) {
-							SkriptEvent e = info.c.newInstance();
-							e.eventPriority = eventPriority;
-							Literal<?>[] ls = Arrays.copyOf(res.exprs, res.exprs.length, Literal[].class);
-							if (!e.init(ls, i, res)) {
-								log.printError();
-								return null;
-							}
-							log.printLog();
-							return new NonNullPair<>(info, e);
-						}
-					} catch (InstantiationException | IllegalAccessException e) {
-						assert false;
-					}
-				}
-			}
-			log.printError(null);
-			return null;
-		} finally {
-			log.stop();
-		}
 	}
 	
 	/**
@@ -1243,7 +1176,7 @@ public class SkriptParser {
 		return i + 1;
 	}
 
-	private static final Map<String, SkriptPattern> patterns = new HashMap<>();
+	private static final Map<String, SkriptPattern> patterns = new ConcurrentHashMap<>();
 
 	@Nullable
 	private ParseResult parse_i(String pattern, int i, int j) {
