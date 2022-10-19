@@ -41,7 +41,7 @@ import java.util.regex.MatchResult;
 @Description({
 	"Functions are structures that can be executed with arguments/parameters to run code.",
 	"They can also return a value to the trigger that is executing the function.",
-	"Note that local functions always come before global functions, in parsing and execution"
+	"Note that local functions come before global functions execution"
 })
 @Examples({
 	"function sayMessage(message: text):",
@@ -52,8 +52,7 @@ import java.util.regex.MatchResult;
 @Since("2.2, INSERT VERSION (local functions)")
 public class StructFunction extends Structure {
 
-	public static final Priority GLOBAL_PRIORITY = new Priority(400);
-	public static final Priority LOCAL_PRIORITY = new Priority(450);
+	public static final Priority PRIORITY = new Priority(400);
 
 	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
 
@@ -120,7 +119,7 @@ public class StructFunction extends Structure {
 
 	@Override
 	public Priority getPriority() {
-		return local ? LOCAL_PRIORITY : GLOBAL_PRIORITY;
+		return PRIORITY;
 	}
 
 	@Override
