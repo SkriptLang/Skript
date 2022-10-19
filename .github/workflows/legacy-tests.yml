@@ -1,6 +1,10 @@
 name: Legacy Java 8 (MC 1.9.4-1.12.2)
 
-on: [push, pull_request]
+on:
+    push:
+        branches:
+            - master
+            - 'dev/**'
 
 jobs:
     build:

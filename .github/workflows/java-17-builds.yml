@@ -1,6 +1,10 @@
 name: Java 17 CI (MC 1.17+)
 
-on: [push, pull_request]
+on:
+    push:
+        branches:
+            - master
+            - 'dev/**'
 
 jobs:
     build:
