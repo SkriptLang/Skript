@@ -18,6 +18,38 @@
  */
 package ch.njol.skript.aliases;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.SpawnEggMeta;
+import org.bukkit.potion.PotionData;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
@@ -27,31 +59,6 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFactory;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.potion.PotionData;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
@@ -72,6 +79,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
 	
+	private static final boolean SPAWN_EGG_META_EXISTS = Skript.classExists("org.bukkit.inventory.meta.SpawnEggMeta");
+	private static final boolean HAS_NEW_SKULL_META_METHODS = Skript.methodExists(SkullMeta.class, "getOwningPlayer");
+	
 	// Load or create material registry
 	static {
 		Path materialsFile = Paths.get(Skript.getInstance().getDataFolder().getAbsolutePath(), "materials.json");
@@ -88,11 +98,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
-	 *
-	 * @deprecated before 1.13 is no longer supported
 	 */
-	@Deprecated
-	public static final boolean itemDataValues = false;
+	public static final boolean itemDataValues = !Skript.isRunningMinecraft(1, 13);
 	
 	/**
 	 * ItemStack, which is used for everything but serialization.
@@ -313,12 +320,16 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			return MatchQuality.DIFFERENT;
 		}
 		BlockValues values = blockValues;
-		// Items (held in inventories) don't have block values
-		// If this is an item, given item must not have them either
-		if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
-			return MatchQuality.SAME_MATERIAL;
+		if (!itemDataValues) {
+			// Items (held in inventories) don't have block values
+			// If this is an item, given item must not have them either
+			if (itemForm && item.blockValues != null && !item.blockValues.isDefault()) {
+				return MatchQuality.SAME_MATERIAL;
+			}
+		} else if (itemFlags != 0 && ItemUtils.getDamage(stack) != ItemUtils.getDamage(item.stack)) {
+			return MatchQuality.DIFFERENT; // On 1.12 and below, items may share a material but have a different data value (ex: white wool vs red wool)
 		}
-
+		
 		/*
 		 * Initially, expect exact match. Lower expectations as new differences
 		 * between items are discovered.
@@ -428,16 +439,35 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			PotionData theirPotion = ((PotionMeta) second).getBasePotionData();
 			return !Objects.equals(ourPotion, theirPotion) ? MatchQuality.SAME_MATERIAL : quality;
 		}
-
+		
+		// Only check spawn egg data on 1.12 and below. See issue #3167
+		if (!MaterialRegistry.newMaterials && SPAWN_EGG_META_EXISTS && second instanceof SpawnEggMeta) {
+			if (!(first instanceof SpawnEggMeta)) {
+				return MatchQuality.DIFFERENT; // Second is a spawn egg, first is clearly not
+			}
+			// Compare spawn egg spawned type
+			EntityType ourSpawnedType = ((SpawnEggMeta) first).getSpawnedType();
+			EntityType theirSpawnedType = ((SpawnEggMeta) second).getSpawnedType();
+			return !Objects.equals(ourSpawnedType, theirSpawnedType) ? MatchQuality.SAME_MATERIAL : quality;
+		}
+		
 		// Skull owner
 		if (second instanceof SkullMeta) {
 			if (!(first instanceof SkullMeta)) {
 				return MatchQuality.DIFFERENT; // Second is a skull, first is clearly not
 			}
 			// Compare skull owners
-			OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
-			OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
-			return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
+			if (HAS_NEW_SKULL_META_METHODS) {
+				OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
+				OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
+				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
+			} else { // Use old methods
+				@SuppressWarnings("deprecation")
+				String ourOwner = ((SkullMeta) first).getOwner();
+				@SuppressWarnings("deprecation")
+				String theirOwner = ((SkullMeta) second).getOwner();
+				return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
+			}
 		}
 		
 		return quality;
@@ -573,7 +603,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
 		this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
 		ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
-
+		fields.setFields(this); // Everything but ItemStack and Material
+		
 		// Initialize ItemStack
 		this.stack = new ItemStack(type);
 		stack.setItemMeta(meta); // Just set meta to it
@@ -601,8 +632,10 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			meta.setDisplayName(null); // Clear display name
 			data.stack.setItemMeta(meta);
 		}
-		ItemUtils.setDamage(data.stack, 0); // Set to undamaged
-
+		if (!itemDataValues) {
+			ItemUtils.setDamage(data.stack, 0); // Set to undamaged
+		}
+		
 		data.type = type;
 		data.blockValues = blockValues;
 		data.itemForm = itemForm;

@@ -148,7 +148,7 @@ public class MagicBlockCompat implements BlockCompat {
 		@Override
 		public Fields serialize() {
 			Fields fields = new Fields();
-			fields.putObject("material", id.name());
+			fields.putObject("material", id.ordinal());
 			fields.putPrimitive("data", data);
 			fields.putPrimitive("itemFlags", itemFlags);
 			return fields;
