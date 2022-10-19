@@ -148,15 +148,17 @@ public class MagicBlockCompat implements BlockCompat {
 		@Override
 		public Fields serialize() {
 			Fields fields = new Fields();
-			fields.putObject("material", id.ordinal());
+			fields.putPrimitive("material", id.ordinal());
 			fields.putPrimitive("data", data);
 			fields.putPrimitive("itemFlags", itemFlags);
 			return fields;
 		}
 
+		private static final Material[] materials = Material.values();
+
 		@Override
 		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
-			this.id = Material.valueOf(fields.getAndRemoveObject("material", String.class));
+			this.id = materials[fields.getAndRemovePrimitive("id", int.class)];
 			this.data = fields.getAndRemovePrimitive("data", Short.class);
 			this.itemFlags = fields.getAndRemovePrimitive("itemFlags", Integer.class);
 		}
