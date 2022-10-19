@@ -51,40 +51,40 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
 	
 	static {
-		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %itemtypes%]")
+		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
 				.description("Called when a dispenser dispenses an item.")
 				.examples("on dispense of iron block:",
 						"\tsend \"that'd be 19.99 please!\"")
 				.since("<i>unknown</i> (before 2.1)");
-		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %itemtypes%]")
+		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %-itemtypes%]")
 				.description("Called whenever an item stack is spawned in a world, e.g. as drop of a block or mob, a player throwing items out of their inventory, or a dispenser dispensing an item (not shooting it).")
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("<i>unknown</i> (before 2.1)");
-		Skript.registerEvent("Drop", EvtItem.class, PlayerDropItemEvent.class, "[player] drop[ing] [[of] %itemtypes%]")
+		Skript.registerEvent("Drop", EvtItem.class, PlayerDropItemEvent.class, "[player] drop[ing] [[of] %-itemtypes%]")
 				.description("Called when a player drops an item from their inventory.")
 				.examples("on drop:")
 				.since("<i>unknown</i> (before 2.1)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
-			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %itemtypes%]")
+			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
 					.since("2.2-Fixes-V10");
 		}
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
+		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
 				.since("<i>unknown</i> (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
-					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %itemtypes%]")
+					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("<i>unknown</i> (before 2.1), 2.5 (entity)")
 				.requiredPlugins("1.12.2+ for entity");
 		} else {
-			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %itemtypes%]")
+			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:")
 				.since("<i>unknown</i> (before 2.1)");
@@ -95,12 +95,12 @@ public class EvtItem extends SkriptEvent {
 //				.examples("on brew:")
 //				.since("2.0");
 		if (hasConsumeEvent) {
-			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %itemtypes%]")
+			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 					.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 					.examples("on consume:")
 					.since("2.0");
 		}
-		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %itemtypes%]")
+		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
 				.description("Called when clicking on inventory slot.")
 				.examples("on inventory click:",
 						"\tif event-item is stone:",
