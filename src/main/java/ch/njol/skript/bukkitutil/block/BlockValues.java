@@ -18,16 +18,14 @@
  */
 package ch.njol.skript.bukkitutil.block;
 
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.MatchQuality;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Contains all data block has that is needed for comparisions.
  */
-public abstract class BlockValues {
+public abstract class BlockValues implements YggdrasilExtendedSerializable {
 	
 	public abstract boolean isDefault();
 	
