@@ -287,11 +287,11 @@ public class EventValues {
 		}
 		// This second loop for the fourth check will attempt to look for converters assignable to the class of the provided event.
 		for (EventValueInfo<?, ?> ev : eventValues) {
-			boolean checkInstanceOf = !ev.event.isAssignableFrom(event);
-			if (checkInstanceOf && !event.isAssignableFrom(ev.event))
+			// The requesting event must be assignable to the event value's event. Otherwise it'll throw an error.
+			if (!event.isAssignableFrom(ev.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, checkInstanceOf);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, false);
 			if (getter == null)
 				continue;
 			
@@ -308,22 +308,30 @@ public class EventValues {
 	/**
 	 * Check if the event value states to exclude events.
 	 * 
-	 * @param ev
-	 * @param e
+	 * @param info The event value info that will be used to grab the value from
+	 * @param event The event class to check the excludes against.
 	 * @return boolean if true the event value passes for the events.
 	 */
-	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
-		if (ev.excludes == null)
+	private static boolean checkExcludes(EventValueInfo<?, ?> info, Class<? extends Event> event) {
+		if (info.excludes == null)
 			return true;
-		for (Class<? extends Event> ex : (Class<? extends Event>[]) ev.excludes) {
-			if (ex.isAssignableFrom(e)) {
-				Skript.error(ev.excludeErrorMessage);
+		for (Class<? extends Event> ex : (Class<? extends Event>[]) info.excludes) {
+			if (ex.isAssignableFrom(event)) {
+				Skript.error(info.excludeErrorMessage);
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
+	/**
+	 * Return a converter wrapped in a getter that will grab the requested value by converting from the given event value info.
+	 * 
+	 * @param info The event value info that will be used to grab the value from
+	 * @param to The class that the converter will look for to convert the type from the event value to
+	 * @param checkInstanceOf If the event must be an exact instance of the event value info's event or not.
+	 * @return The found Converter wrapped in a Getter object.
+	 */
 	@Nullable
 	private static <E extends Event, F, T> Getter<? extends T, ? super E> getConvertedGetter(EventValueInfo<E, F> info, Class<T> to, boolean checkInstanceOf) {
 		Converter<? super F, ? extends T> converter = Converters.getConverter(info.c, to);
