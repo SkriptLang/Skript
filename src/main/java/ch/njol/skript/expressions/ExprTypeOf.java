@@ -27,6 +27,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.registrations.Converters;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -44,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	static {
-		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories/potioneffects");
+		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories/potioneffects/blockdatas");
 	}
 
 	@Override
@@ -63,6 +64,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return ((Inventory) o).getType();
 		} else if (o instanceof PotionEffect) {
 			return ((PotionEffect) o).getType();
+		} else if (o instanceof BlockData) {
+			return new ItemType(((BlockData) o).getMaterial());
 		}
 		assert false;
 		return null;
