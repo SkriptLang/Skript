@@ -211,32 +211,32 @@ public class EventValues {
 	 * @see EventValueExpression#EventValueExpression(Class)
 	 */
 	@Nullable
-	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> e, Class<T> c, int time) {
-		return getEventValueGetter(e, c, time, true);
+	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> c, int time) {
+		return getEventValueGetter(event, c, time, true);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
-	private static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> e, Class<T> c, int time, boolean allowDefault) {
+	private static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> c, int time, boolean allowDefault) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
 		// First check for exact classes matching the parameters.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.equals(ev.c))
 				continue;
-			if (!checkExcludes(ev, e))
+			if (!checkExcludes(ev, event))
 				return null;
-			if (ev.event.isAssignableFrom(e))
+			if (ev.event.isAssignableFrom(event))
 				return (Getter<? extends T, ? super E>) ev.getter;
 		}
 		// Second check for assignable subclasses.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.isAssignableFrom(ev.c))
 				continue;
-			if (!checkExcludes(ev, e))
+			if (!checkExcludes(ev, event))
 				return null;
-			if (ev.event.isAssignableFrom(e))
+			if (ev.event.isAssignableFrom(event))
 				return (Getter<? extends T, ? super E>) ev.getter;
-			if (!e.isAssignableFrom(ev.event))
+			if (!event.isAssignableFrom(ev.event))
 				continue;
 			return new Getter<T, E>() {
 				@Override
@@ -253,10 +253,10 @@ public class EventValues {
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!ev.c.isAssignableFrom(c))
 				continue;
-			boolean checkInstanceOf = !ev.event.isAssignableFrom(e);
-			if (checkInstanceOf && !e.isAssignableFrom(ev.event))
+			boolean checkInstanceOf = !ev.event.isAssignableFrom(event);
+			if (checkInstanceOf && !event.isAssignableFrom(ev.event))
 				continue;
-			if (!checkExcludes(ev, e))
+			if (!checkExcludes(ev, event))
 				return null;
 			return new Getter<T, E>() {
 				@Override
@@ -271,23 +271,37 @@ public class EventValues {
 				}
 			};
 		}
-		// Fourth check will attempt to convert the event value to the type.
+		// Fourth check will attempt to convert the event value to the requesting type.
+		// This first for loop will check that the events are exact. See issue #5016
 		for (EventValueInfo<?, ?> ev : eventValues) {
-			boolean checkInstanceOf = !ev.event.isAssignableFrom(e);
-			if (checkInstanceOf && !e.isAssignableFrom(ev.event))
+			if (!event.isInstance(ev.event))
+				continue;
+			
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, true);
+			if (getter == null)
+				continue;
+			
+			if (!checkExcludes(ev, event))
+				return null;
+			return getter;
+		}
+		// This second loop for the fourth check will attempt to look for converters assignable to the class of the provided event.
+		for (EventValueInfo<?, ?> ev : eventValues) {
+			boolean checkInstanceOf = !ev.event.isAssignableFrom(event);
+			if (checkInstanceOf && !event.isAssignableFrom(ev.event))
 				continue;
 			
 			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, checkInstanceOf);
 			if (getter == null)
 				continue;
 			
-			if (!checkExcludes(ev, e))
+			if (!checkExcludes(ev, event))
 				return null;
 			return getter;
 		}
 		// If the check should try again matching event values with a 0 time (most event values).
 		if (allowDefault && time != 0)
-			return getEventValueGetter(e, c, 0, false);
+			return getEventValueGetter(event, c, 0, false);
 		return null;
 	}
 
@@ -298,7 +312,6 @@ public class EventValues {
 	 * @param e
 	 * @return boolean if true the event value passes for the events.
 	 */
-	@SuppressWarnings("unchecked")
 	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
 		if (ev.excludes == null)
 			return true;
@@ -312,17 +325,17 @@ public class EventValues {
 	}
 	
 	@Nullable
-	private static <E extends Event, F, T> Getter<? extends T, ? super E> getConvertedGetter(EventValueInfo<E, F> i, Class<T> to, boolean checkInstanceOf) {
-		Converter<? super F, ? extends T> converter = Converters.getConverter(i.c, to);
+	private static <E extends Event, F, T> Getter<? extends T, ? super E> getConvertedGetter(EventValueInfo<E, F> info, Class<T> to, boolean checkInstanceOf) {
+		Converter<? super F, ? extends T> converter = Converters.getConverter(info.c, to);
 		if (converter == null)
 			return null;
 		return new Getter<T, E>() {
 			@Override
 			@Nullable
 			public T get(E e) {
-				if (checkInstanceOf && !i.event.isInstance(e))
+				if (checkInstanceOf && !info.event.isInstance(e))
 					return null;
-				F f = i.getter.get(e);
+				F f = info.getter.get(e);
 				if (f == null)
 					return null;
 				return converter.convert(f);
