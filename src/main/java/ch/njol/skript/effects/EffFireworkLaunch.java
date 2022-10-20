@@ -70,6 +70,8 @@ public class EffFireworkLaunch extends Effect {
 	protected void execute(Event event) {
 		FireworkEffect[] effects = this.effects.getArray(event);
 		int power = lifetime.getOptionalSingle(event).orElse(1).intValue();
+		if (power < 0 || power > 127) // Firework's power range limit
+			power = Math.min(127, Math.max(0, power));
 		for (Location location : locations.getArray(event)) {
 			World world = location.getWorld();
 			if (world == null)
