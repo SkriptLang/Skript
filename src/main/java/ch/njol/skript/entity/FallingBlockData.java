@@ -52,7 +52,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
-	
+
 	@Nullable
 	private ItemType[] types = null;
 	
@@ -88,6 +88,8 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 				Skript.error(m_not_a_block_error.toString());
 				return false;
 			}
+		} else {
+			types = new ItemType[] {new ItemType(Material.STONE)};
 		}
 		return true;
 	}
