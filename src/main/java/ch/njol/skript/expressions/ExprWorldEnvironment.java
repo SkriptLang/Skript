@@ -34,10 +34,10 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tapply fire resistance to player for 10 minutes"
 })
 @Since("INSERT VERSION")
-public class ExprEnvironment extends SimplePropertyExpression<World, Environment> {
+public class ExprWorldEnvironment extends SimplePropertyExpression<World, Environment> {
 
 	static {
-		register(ExprEnvironment.class, Environment.class, "[world] environment", "worlds");
+		register(ExprWorldEnvironment.class, Environment.class, "[world] environment", "worlds");
 	}
 
 	@Override
