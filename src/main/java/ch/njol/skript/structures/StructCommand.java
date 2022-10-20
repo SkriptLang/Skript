@@ -260,7 +260,7 @@ public class StructCommand extends Structure {
 		}
 
 		String description = entryContainer.get("description", String.class, true);
-		String prefix = entryContainer.getOptional("prefix", String.class, true);
+		String prefix = entryContainer.getOptional("prefix", String.class, false);
 
 		String permission = entryContainer.get("permission", String.class, true);
 		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);

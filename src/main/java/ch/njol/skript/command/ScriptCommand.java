@@ -151,13 +151,13 @@ public class ScriptCommand implements TabExecutor {
 		if (prefix != null) {
 			for (char c : prefix.toCharArray()) {
 				if (Character.isWhitespace(c)) {
-					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
 					prefix = ScriptCommand.DEFAULT_PREFIX;
 					break;
 				}
 				// char 167 is §
 				if (c == 167) {
-					Skript.warning("command /" + name + " has an illegal character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					Skript.warning("command /" + name + " has an illegal character in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
 					prefix = ScriptCommand.DEFAULT_PREFIX;
 					break;
 				}
