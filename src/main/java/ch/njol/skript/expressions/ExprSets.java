@@ -34,7 +34,6 @@ import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -47,21 +46,21 @@ import java.util.function.Supplier;
 		"\tmessage \"Set attribute %loop-value% to 10!\""
 })
 @Since("INSERT VERSION")
-public class ExprSets<T> extends SimpleExpression<T> {
+public class ExprSets extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
 			"[(all [[of] the]|the|every)] %*classinfo%");
 	}
 
+	private ClassInfo<?> classInfo;
 	@Nullable
-	private Supplier<Iterator<T>> supplier;
-	private ClassInfo<T> classInfo;
+	private Supplier<? extends Iterator<?>> supplier;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-			classInfo = ((Literal<ClassInfo<T>>) exprs[0]).getSingle();
+			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
 			supplier = classInfo.getSupplier();
 			if (supplier == null) {
 				Skript.error("You cannot get all values of type '" + classInfo.getName().getSingular() + "'");
@@ -71,16 +70,17 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected T[] get(Event event) {
-		Iterator<T> iterator = supplier.get();
-		List<T> elements = Lists.newArrayList(iterator);
-		return (T[]) elements.toArray(new Object[0]);
+	protected Object[] get(Event event) {
+		assert supplier != null;
+		Iterator<?> iterator = supplier.get();
+		List<?> elements = Lists.newArrayList(iterator);
+		return elements.toArray(new Object[0]);
 	}
 
 	@Override
 	@Nullable
-	public Iterator<? extends T> iterator(Event event) {
+	public Iterator<?> iterator(Event event) {
+		assert supplier != null;
 		return supplier.get();
 	}
 
@@ -90,7 +90,7 @@ public class ExprSets<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public Class<? extends T> getReturnType() {
+	public Class<?> getReturnType() {
 		return classInfo.getC();
 	}
 
