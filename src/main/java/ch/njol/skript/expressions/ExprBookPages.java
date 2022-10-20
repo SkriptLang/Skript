@@ -19,14 +19,12 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -34,13 +32,13 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Name("Book Pages")
@@ -52,7 +50,7 @@ import java.util.List;
 	"set page 1 of player's held item to \"Book writing\""
 })
 @Since("2.2-dev31, INSERT VERSION (changers)")
-public class ExprBookPages extends PropertyExpression<ItemType, String> {
+public class ExprBookPages extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
@@ -62,6 +60,7 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 			"%itemtypes%'[s] [book] page %number%");
 	}
 
+	private Expression<ItemType> items;
 	@Nullable
 	private Expression<Number> page;
 
@@ -69,13 +68,13 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		if (matchedPattern == 0 || matchedPattern == 1) {
-			setExpr((Expression<ItemType>) exprs[0]);
+			items = (Expression<ItemType>) exprs[0];
 		} else {
 			if (matchedPattern == 2) {
 				page = (Expression<Number>) exprs[0];
-				setExpr((Expression<ItemType>) exprs[1]);
+				items = (Expression<ItemType>) exprs[1];
 			} else {
-				setExpr((Expression<ItemType>) exprs[0]);
+				items = (Expression<ItemType>) exprs[0];
 				page = (Expression<Number>) exprs[1];
 			}
 		}
@@ -85,14 +84,13 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	protected String[] get(Event event, ItemType[] source) {
+	protected String[] get(Event event) {
 		List<String> pages = new ArrayList<>();
-		for (ItemType itemType : source) {
-			ItemMeta meta = itemType.getItemMeta();
-			if (!(meta instanceof BookMeta))
+		for (ItemType itemType : items.getArray(event)) {
+			if (itemType == null || !(itemType.getItemMeta() instanceof BookMeta))
 				continue;
-			BookMeta bookMeta = (BookMeta) meta;
-			if (page == null) {
+			BookMeta bookMeta = (BookMeta) itemType.getItemMeta();
+			if (isAllPages()) {
 				pages.addAll(bookMeta.getPages());
 			} else {
 				Number pageNumber = page.getSingle(event);
@@ -113,37 +111,39 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 		switch (mode) {
 			case SET:
 			case RESET:
-			case DELETE:
-				return CollectionUtils.array(page == null ? String[].class : String.class);
+				return CollectionUtils.array(isAllPages() ? String[].class : String.class);
 			case ADD:
-				return page == null ? CollectionUtils.array(String[].class) : null;
+				return isAllPages() ? CollectionUtils.array(String[].class) : null;
 			default:
 				return null;
 		}
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		ItemType[] itemTypes = getExpr().getArray(event);
-		int page = this.page == null ? -1 : this.page.getOptionalSingle(event).orElse(-1).intValue();
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD) && delta == null)
+			return;
+		ItemType[] itemTypes = items.getArray(event);
+		int page = !isAllPages() ? this.page.getOptionalSingle(event).orElse(-1).intValue() : -1;
 		String[] newPages = delta == null ? null : new String[delta.length];
+
 		if (newPages != null)
 			for (int i = 0; i < delta.length; i++)
 				newPages[i] = delta[i] + "";
+
 		for (ItemType itemType : itemTypes) {
-			if (itemType == null)
+			if (itemType == null || !(itemType.getItemMeta() instanceof BookMeta))
 				continue;
-			ItemMeta meta = itemType.getItemMeta();
-			if (!(meta instanceof BookMeta))
-				continue;
-			BookMeta bookMeta = (BookMeta) meta;
+
+			BookMeta bookMeta = (BookMeta) itemType.getItemMeta();
 			List<String> pages = new ArrayList<>(bookMeta.getPages());
 			int pageCount = bookMeta.getPageCount();
+
 			switch (mode) {
 				case DELETE:
 				case RESET:
-					if (this.page == null) {
-						pages = Arrays.asList("");
+					if (isAllPages()) {
+						pages = Collections.singletonList("");
 					} else {
 						if (page <= 0 || page > pageCount)
 							continue;
@@ -153,14 +153,13 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 				case SET:
 					if (newPages.length == 0)
 						continue;
-					if (this.page == null) {
+					if (isAllPages()) {
 						pages = Arrays.asList(newPages);
 					} else {
 						if (page <= 0)
 							continue;
-						while (pages.size() < page) {
+						while (pages.size() < page)
 							pages.add("");
-						}
 						pages.set(page - 1, newPages[0]);
 					}
 					break;
@@ -168,9 +167,19 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 					pages.addAll(Arrays.asList(newPages));
 					break;
 			}
+
 			bookMeta.setPages(pages);
 			itemType.setItemMeta(bookMeta);
 		}
+	}
+
+	private boolean isAllPages() {
+		return page == null;
+	}
+
+	@Override
+	public boolean isSingle() {
+		return items.isSingle() && !isAllPages();
 	}
 
 	@Override
@@ -180,6 +189,6 @@ public class ExprBookPages extends PropertyExpression<ItemType, String> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "book pages of " + getExpr().toString(event, debug);
+		return (page != null ? "page " + page.toString(event, debug) : "the book pages") + " of " + items.toString(event, debug);
 	}
 }
