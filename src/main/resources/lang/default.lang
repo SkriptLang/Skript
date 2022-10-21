@@ -1907,7 +1907,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
