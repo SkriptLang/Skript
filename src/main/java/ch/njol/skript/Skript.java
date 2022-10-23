@@ -18,6 +18,101 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.bukkitutil.BurgerHelper;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Comparator;
+import ch.njol.skript.classes.Converter;
+import ch.njol.skript.classes.data.BukkitClasses;
+import ch.njol.skript.classes.data.BukkitEventValues;
+import ch.njol.skript.classes.data.DefaultComparators;
+import ch.njol.skript.classes.data.DefaultConverters;
+import ch.njol.skript.classes.data.DefaultFunctions;
+import ch.njol.skript.classes.data.JavaClasses;
+import ch.njol.skript.classes.data.SkriptClasses;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.hooks.Hook;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.PluralizingArgsMessage;
+import ch.njol.skript.log.BukkitLoggerFilter;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.ErrorDescLogHandler;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.log.Verbosity;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Comparators;
+import ch.njol.skript.registrations.Converters;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.tests.runner.SkriptTestEvent;
+import ch.njol.skript.tests.runner.TestMode;
+import ch.njol.skript.tests.runner.TestTracker;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.update.ReleaseManifest;
+import ch.njol.skript.update.ReleaseStatus;
+import ch.njol.skript.update.UpdateManifest;
+import ch.njol.skript.util.Date;
+import ch.njol.skript.util.EmptyStacktraceException;
+import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Task;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Closeable;
+import ch.njol.util.Kleenean;
+import ch.njol.util.NullableChecker;
+import ch.njol.util.OpenCloseable;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.iterator.CheckedIterator;
+import ch.njol.util.coll.iterator.EnumerationIterable;
+import com.google.gson.Gson;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.structure.StructureInfo;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,102 +143,10 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.bukkitutil.BurgerHelper;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.data.BukkitClasses;
-import ch.njol.skript.classes.data.BukkitEventValues;
-import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.classes.data.DefaultConverters;
-import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.JavaClasses;
-import ch.njol.skript.classes.data.SkriptClasses;
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.config.Config;
-import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.events.EvtSkript;
-import ch.njol.skript.hooks.Hook;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.log.BukkitLoggerFilter;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.ErrorDescLogHandler;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.log.Verbosity;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.tests.runner.SkriptTestEvent;
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.skript.tests.runner.TestTracker;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.skript.update.ReleaseManifest;
-import ch.njol.skript.update.ReleaseStatus;
-import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.variables.Variables;
-import ch.njol.util.Closeable;
-import ch.njol.util.Kleenean;
-import ch.njol.util.NullableChecker;
-import ch.njol.util.OpenCloseable;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.EnumerationIterable;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -229,8 +232,12 @@ public final class Skript extends JavaPlugin implements Listener {
 		return v;
 	}
 	
-	public final static Message m_invalid_reload = new Message("skript.invalid reload"),
-			m_finished_loading = new Message("skript.finished loading");
+	public static final Message
+		m_invalid_reload = new Message("skript.invalid reload"),
+		m_finished_loading = new Message("skript.finished loading"),
+		m_no_errors = new Message("skript.no errors"),
+		m_no_scripts = new Message("skript.no scripts");
+	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
 	
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
@@ -342,6 +349,23 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		Collections.addAll(disabledHookRegistrations, hooks);
 	}
+
+	/**
+	 * The folder containing all Scripts.
+	 * Never reference this field directly. Use {@link #getScriptsFolder()}.
+	 */
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private File scriptsFolder;
+
+	/**
+	 * @return The folder containing all Scripts.
+	 */
+	public File getScriptsFolder() {
+		if (!scriptsFolder.isDirectory())
+			//noinspection ResultOfMethodCallIgnored
+			scriptsFolder.mkdirs();
+		return scriptsFolder;
+	}
 	
 	@Override
 	public void onEnable() {
@@ -368,18 +392,18 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
-		
-		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+
+		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER + File.separator);
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
-				if (!scripts.isDirectory()) {
-					if (!scripts.mkdirs())
-						throw new IOException("Could not create the directory " + scripts);
+				if (!scriptsFolder.isDirectory()) {
+					if (!scriptsFolder.mkdirs())
+						throw new IOException("Could not create the directory " + scriptsFolder);
 					populateExamples = true;
 				}
 
@@ -395,14 +419,16 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
-						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + File.separator)) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
+						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
+						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang/")
+							&& e.getName().startsWith("lang" + File.separator)
 							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+							&& !e.getName().endsWith(File.separator + "default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
@@ -504,7 +530,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		ChatMessages.registerListeners();
 		
 		try {
-			getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections");
+			getAddonInstance().loadClasses("ch.njol.skript",
+				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -636,8 +663,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								errorCounter.start();
 								File testDir = TestMode.TEST_DIR.toFile();
 								assert testDir != null;
-								List<Config> configs = ScriptLoader.loadStructures(testDir);
-								ScriptLoader.loadScripts(configs, errorCounter).join();
+								ScriptLoader.loadScripts(testDir, errorCounter);
 							} finally {
 								errorCounter.stop();
 							}
@@ -729,30 +755,51 @@ public final class Skript extends JavaPlugin implements Listener {
 				/*
 				 * Start loading scripts
 				 */
-				ScriptLoader.loadScripts(OpenCloseable.EMPTY)
-					.thenAccept(unused -> {
-						Skript.info(m_finished_loading.toString());
-						
-						// EvtSkript.onSkriptStart should be called on main server thread
-						if (!ScriptLoader.isAsync()) {
-							EvtSkript.onSkriptStart();
-							
-							// Suppresses the "can't keep up" warning after loading all scripts
-							// Only for non-asynchronous loading
-							Filter filter = record -> {
-								if (record == null)
-									return false;
-								return record.getMessage() == null
-									|| !record.getMessage().toLowerCase(Locale.ENGLISH).startsWith("can't keep up!");
-							};
-							BukkitLoggerFilter.addFilter(filter);
-							Bukkit.getScheduler().scheduleSyncDelayedTask(
-								Skript.this,
-								() -> BukkitLoggerFilter.removeFilter(filter),
-								1);
-						} else {
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this,
-								EvtSkript::onSkriptStart);
+				Date start = new Date();
+				CountingLogHandler logHandler = new CountingLogHandler(Level.SEVERE);
+
+				File scriptsFolder = getScriptsFolder();
+				ScriptLoader.updateDisabledScripts(scriptsFolder.toPath());
+				ScriptLoader.loadScripts(scriptsFolder, OpenCloseable.EMPTY)
+					.thenAccept(scriptInfo -> {
+						try {
+							if (logHandler.getCount() == 0)
+								Skript.info(m_no_errors.toString());
+							if (scriptInfo.files == 0)
+								Skript.warning(m_no_scripts.toString());
+							if (Skript.logNormal() && scriptInfo.files > 0)
+								Skript.info(m_scripts_loaded.toString(
+									scriptInfo.files,
+									scriptInfo.structures,
+									start.difference(new Date())
+								));
+
+							Skript.info(m_finished_loading.toString());
+
+							// EvtSkript.onSkriptStart should be called on main server thread
+							if (!ScriptLoader.isAsync()) {
+								EvtSkript.onSkriptStart();
+
+								// Suppresses the "can't keep up" warning after loading all scripts
+								// Only for non-asynchronous loading
+								Filter filter = record -> {
+									if (record == null)
+										return false;
+									return record.getMessage() == null
+										|| !record.getMessage().toLowerCase(Locale.ENGLISH).startsWith("can't keep up!");
+								};
+								BukkitLoggerFilter.addFilter(filter);
+								Bukkit.getScheduler().scheduleSyncDelayedTask(
+									Skript.this,
+									() -> BukkitLoggerFilter.removeFilter(filter),
+									1);
+							} else {
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this,
+									EvtSkript::onSkriptStart);
+							}
+						} catch (Exception e) {
+							// Something went wrong, we need to make sure the exception is printed
+							throw Skript.exception(e);
 						}
 					});
 				
@@ -1061,7 +1108,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		partDisabled = true;
 		EvtSkript.onSkriptStop(); // TODO [code style] warn user about delays in Skript stop events
 
-		ScriptLoader.disableScripts();
+		ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 	}
 
 	@Override
@@ -1218,20 +1265,19 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return A {@link SkriptAddon} representing Skript.
 	 */
 	public static SkriptAddon getAddonInstance() {
-		final SkriptAddon a = addon;
-		if (a == null)
-			return addon = new SkriptAddon(Skript.getInstance())
-					.setLanguageFileDirectory("lang");
-		else
-			return a;
+		if (addon == null) {
+			addon = new SkriptAddon(Skript.getInstance());
+			addon.setLanguageFileDirectory("lang");
+		}
+		return addon;
 	}
-	
+
 	// ================ CONDITIONS & EFFECTS & SECTIONS ================
 
-	private final static Collection<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(50);
-	private final static Collection<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(50);
-	private final static Collection<SyntaxElementInfo<? extends Statement>> statements = new ArrayList<>(100);
-	private final static Collection<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(50);
+	private static final Collection<SyntaxElementInfo<? extends Statement>> statements = new ArrayList<>(100);
+	private static final Collection<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(50);
 
 	/**
 	 * registers a {@link Condition}.
@@ -1340,8 +1386,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	// ================ EVENTS ================
-	
-	private final static Collection<SkriptEventInfo<?>> events = new ArrayList<>(50);
+
+	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
 	
 	/**
 	 * Registers an event.
@@ -1353,13 +1399,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event> event, final String... patterns) {
-		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, CollectionUtils.array(event));
-		events.add(r);
-		return r;
+	@SuppressWarnings("unchecked")
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event> event, String... patterns) {
+		return registerEvent(name, c, new Class[] {event}, patterns);
 	}
 	
 	/**
@@ -1371,19 +1413,47 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(final String name, final Class<E> c, final Class<? extends Event>[] events, final String... patterns) {
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event>[] events, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		assert originClassPath != null;
-		final SkriptEventInfo<E> r = new SkriptEventInfo<>(name, patterns, c, originClassPath, events);
-		Skript.events.add(r);
+
+		String[] transformedPatterns = new String[patterns.length];
+		for (int i = 0; i < patterns.length; i++)
+			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + " [with priority (lowest|low|normal|high|highest|monitor)]";
+
+		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
+		structures.add(r);
 		return r;
 	}
-	
-	public static Collection<SkriptEventInfo<?>> getEvents() {
-		return events;
+
+	public static <E extends Structure> void registerStructure(Class<E> c, String... patterns) {
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath);
+		structures.add(structureInfo);
 	}
-	
+
+	public static <E extends Structure> void registerStructure(Class<E> c, EntryValidator entryValidator, String... patterns) {
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, entryValidator);
+		structures.add(structureInfo);
+	}
+
+	/**
+	 * Modifications made to the returned Collection will not be reflected in the events available for parsing.
+	 */
+	public static Collection<SkriptEventInfo<?>> getEvents() {
+		// Only used in documentation generation, so generating a new list each time is fine
+		return (Collection<SkriptEventInfo<?>>) (Collection<?>) structures.stream()
+			.filter(info -> info instanceof SkriptEventInfo)
+			.collect(Collectors.toList());
+	}
+
+	public static List<StructureInfo<? extends Structure>> getStructures() {
+		return structures;
+	}
+
 	// ================ COMMANDS ================
 	
 	/**
@@ -1697,9 +1767,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		logEx("Current item: " + (item == null ? "null" : item.toString(null, true)));
 		if (item != null && item.getTrigger() != null) {
 			Trigger trigger = item.getTrigger();
-			assert trigger != null;
-			File script = trigger.getScript();
-			logEx("Current trigger: " + trigger.toString(null, true) + " (" + (script == null ? "null" : script.getName()) + ", line " + trigger.getLineNumber() + ")");
+			Script script = trigger.getScript();
+			logEx("Current trigger: " + trigger.toString(null, true) + " (" + (script == null ? "null" : script.getConfig().getFileName()) + ", line " + trigger.getLineNumber() + ")");
 		}
 		logEx();
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());

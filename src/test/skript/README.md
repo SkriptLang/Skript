@@ -75,12 +75,12 @@ some syntaxes for test development are available.
 Use Gradle to launch a test development server:
 
 ```
-TERM=dumb ./gradlew clean skriptTestDev
+gradlew clean skriptTestDev --console=plain
 ```
 
 The server launched will be running at localhost:25565. You can use console
 as normal, though there is some lag due to Gradle. If you're having trouble,
-try without <code>TERM=dumb</code>.
+try without <code>--console=plain</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.

@@ -20,6 +20,8 @@ package ch.njol.skript.effects;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -45,15 +47,18 @@ public class EffFireworkLaunch extends Effect {
 		Skript.registerEffect(EffFireworkLaunch.class, "(launch|deploy) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
 	}
 
-	@SuppressWarnings("null")
+	@Nullable
+	public static Entity lastSpawned = null;
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<FireworkEffect> effects;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> lifetime;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		effects = (Expression<FireworkEffect>) exprs[0];
 		locations = (Expression<Location>) exprs[1];
@@ -62,24 +67,27 @@ public class EffFireworkLaunch extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Number power = lifetime.getSingle(e);
-		if (power == null)
-			power = 1;
-		for (Location location : locations.getArray(e)) {
-			Firework firework = location.getWorld().spawn(location, Firework.class);
+	protected void execute(Event event) {
+		FireworkEffect[] effects = this.effects.getArray(event);
+		int power = lifetime.getOptionalSingle(event).orElse(1).intValue();
+		for (Location location : locations.getArray(event)) {
+			World world = location.getWorld();
+			if (world == null)
+				continue;
+			Firework firework = world.spawn(location, Firework.class);
 			FireworkMeta meta = firework.getFireworkMeta();
-			meta.addEffects(effects.getArray(e));
-			meta.setPower(power.intValue());
+			meta.addEffects(effects);
+			meta.setPower(power);
 			firework.setFireworkMeta(meta);
+			lastSpawned = firework;
 		}
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "Launch firework(s) " + effects.toString(e, debug) +
-				" at location(s) " + locations.toString(e, debug) +
-				" timed " + lifetime.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "Launch firework(s) " + effects.toString(event, debug) +
+				" at location(s) " + locations.toString(event, debug) +
+				" timed " + lifetime.toString(event, debug);
 	}
 
 }

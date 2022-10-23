@@ -28,13 +28,13 @@ import ch.njol.skript.events.bukkit.SkriptParseEvent;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,14 +100,14 @@ public class SecConditional extends Section {
 			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
-			SkriptEvent currentSkriptEvent = parser.getCurrentSkriptEvent();
+			Structure currentStructure = parser.getCurrentStructure();
 
 			// Change event if using 'parse if'
 			if (parseIf) {
 				//noinspection unchecked
 				parser.setCurrentEvents(new Class[]{SkriptParseEvent.class});
 				parser.setCurrentEventName("parse");
-				parser.setCurrentSkriptEvent(null);
+				parser.setCurrentStructure(null);
 			}
 			// Don't print a default error if 'if' keyword wasn't provided
 			condition = Condition.parse(expr, parseResult.mark != 0 ? "Can't understand this condition: '" + expr + "'" : null);
@@ -115,7 +115,7 @@ public class SecConditional extends Section {
 			if (parseIf) {
 				parser.setCurrentEvents(currentEvents);
 				parser.setCurrentEventName(currentEventName);
-				parser.setCurrentSkriptEvent(currentSkriptEvent);
+				parser.setCurrentStructure(currentStructure);
 			}
 
 			if (condition == null)

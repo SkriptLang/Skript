@@ -186,6 +186,17 @@ public class Config implements Comparable<Config> {
 	public boolean setValues(final Config other, final String... excluded) {
 		return getMainNode().setValues(other.getMainNode(), excluded);
 	}
+
+	/**
+	 * Compares the keys and values of this Config and another.
+	 * @param other The other Config.
+	 * @param excluded Keys to exclude from this comparison.
+	 * @return True if there are differences in the keys and their values
+	 *  of this Config and the other Config.
+	 */
+	public boolean compareValues(Config other, String... excluded) {
+		return getMainNode().compareValues(other.getMainNode(), excluded);
+	}
 	
 	@Nullable
 	public File getFile() {
