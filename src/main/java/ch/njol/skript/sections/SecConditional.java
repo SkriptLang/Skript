@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.sections;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -28,28 +29,33 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
-	private final static Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][] {
+	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
+	private static final Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][] {
 		{"else", ConditionalType.ELSE},
-		{"else [(:parse)] if [<.+>]", ConditionalType.ELSE_IF},
-		{"[(:parse)] if (any:any|any:at least one [of])", ConditionalType.IF},
-		{"[(:parse)] if [all]", ConditionalType.IF},
-		{"[(:parse)] if <.+>", ConditionalType.IF},
-		{"then [run|perform|do]", ConditionalType.THEN},
-		{"(inline:<.+>)", ConditionalType.IF}
+		{"else [:parse] if [<.+>]", ConditionalType.ELSE_IF},
+		{"else [:parse] if (:any|any:at least one [of])", ConditionalType.ELSE_IF},
+		{"else [:parse] if [all]", ConditionalType.ELSE_IF},
+		{"[:parse] if (:any|any:at least one [of])", ConditionalType.IF},
+		{"[:parse] if [all]", ConditionalType.IF},
+		{"[:parse] if <.+>", ConditionalType.IF},
+		{THEN_PATTERN.toString(), ConditionalType.THEN},
+		{"inline:<.+>", ConditionalType.IF}
 	});
 
 	static {
@@ -65,7 +71,6 @@ public class SecConditional extends Section {
 	private boolean ifAny;
 	private boolean parseIf;
 	private boolean parseIfPassed;
-	private boolean inline;
 	private boolean multiline;
 
 	private Kleenean hasDelayAfter;
@@ -78,13 +83,12 @@ public class SecConditional extends Section {
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
 		type = CONDITIONAL_PATTERNS.getInfo(matchedPattern);
-		ifAny = parseResult.tags.contains("any");
-		parseIf = parseResult.tags.contains("parse");
-		inline = parseResult.tags.contains("inline");
+		ifAny = parseResult.hasTag("any");
+		parseIf = parseResult.hasTag("parse");
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
+		boolean explicit = parseResult.hasTag("inline");
 		// if this an an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
-
 			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
@@ -98,29 +102,36 @@ public class SecConditional extends Section {
 				parser.setCurrentStructure(null);
 			}
 
-			// if this is a multiline "if", we have to parse each line as it's own condition
+			// if this is a multiline "if", we have to parse each line as its own condition
 			if (multiline) {
-				if (sectionNode.isEmpty()) {
-					Skript.error("'if' sections must contain at least one condition");
+				// we have to get the size of the iterator here as SectionNode#size includes empty/void nodes
+				int nonEmptyNodeCount = Iterables.size(sectionNode);
+				if (nonEmptyNodeCount < 2) {
+					Skript.error((ifAny ? "'if any'" : "'if all'") + " sections must contain at least two conditions");
 					return false;
 				}
-				for (Node n : sectionNode) {
-					String key = n.getKey();
-					if (key != null) {
-						SkriptLogger.setNode(n);
-						Condition condition = Condition.parse(key, "Can't understand this condition: '" + key + "'");
+				for (Node childNode : sectionNode) {
+					if (childNode instanceof SectionNode) {
+						Skript.error((ifAny ? "'if any'" : "'if all'") + " sections may not contain other sections");
+						return false;
+					}
+					String childKey = childNode.getKey();
+					if (childKey != null) {
+						childKey = ScriptLoader.replaceOptions(childKey);
+						parser.setNode(childNode);
+						Condition condition = Condition.parse(childKey, "Can't understand this condition: '" + childKey + "'");
 						// if this condition was invalid, don't bother parsing the rest
 						if (condition == null)
 							return false;
 						conditions.add(condition);
 					}
 				}
-				SkriptLogger.setNode(sectionNode);
+				parser.setNode(sectionNode);
 			} else {
-				// otherwise, this is just a simple single line "if", with the condition in the syntax
+				// otherwise, this is just a simple single line "if", with the condition on the same line
 				String expr = parseResult.regexes.get(0).group();
 				// Don't print a default error if 'if' keyword wasn't provided
-				Condition condition = Condition.parse(expr, inline ? null : "Can't understand this condition: '" + expr + "'");
+				Condition condition = Condition.parse(expr, explicit ? null : "Can't understand this condition: '" + expr + "'");
 				if (condition != null)
 					conditions.add(condition);
 			}
@@ -135,17 +146,39 @@ public class SecConditional extends Section {
 				return false;
 		}
 
+		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		SecConditional lastIf;
 		if (type != ConditionalType.IF) {
 			lastIf = getClosestIf(triggerItems);
 			if (lastIf == null) {
-				if (type == ConditionalType.ELSE_IF)
+				if (type == ConditionalType.ELSE_IF) {
 					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
-				else
+				} else if (type == ConditionalType.ELSE) {
 					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
+				} else if (type == ConditionalType.THEN) {
+					Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
+				}
+				return false;
+			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
+				Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
 				return false;
 			}
 		} else {
+			// if this is a multiline if, we need to check if there is a "then" section after this
+			if (multiline) {
+				Node nextNode = getNextNode(sectionNode);
+				String error = (ifAny ? "'if any'" : "'if all'") + " has to be placed just before a 'then' section";
+				if (nextNode instanceof SectionNode && nextNode.getKey() != null) {
+					String nextNodeKey = ScriptLoader.replaceOptions(nextNode.getKey());
+					if (THEN_PATTERN.match(nextNodeKey) == null) {
+						Skript.error(error);
+						return false;
+					}
+				} else {
+					Skript.error(error);
+					return false;
+				}
+			}
 			lastIf = null;
 		}
 
@@ -158,7 +191,7 @@ public class SecConditional extends Section {
 		}
 
 		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
-		if (!multiline || type == ConditionalType.ELSE || type == ConditionalType.THEN)
+		if (!multiline || type == ConditionalType.THEN)
 			loadCode(sectionNode);
 		hasDelayAfter = getParser().getHasDelayBefore();
 
@@ -206,7 +239,7 @@ public class SecConditional extends Section {
 	protected TriggerItem walk(Event event) {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
 			return getNormalNext();
-		} else if (type == ConditionalType.ELSE || parseIf || checkConditions(event)) {
+		} else if (parseIf || checkConditions(event)) {
 			TriggerItem skippedNext = getSkippedNext();
 			if (multiline) {
 				SecConditional thenSection = (SecConditional) getNormalNext();
@@ -300,11 +333,27 @@ public class SecConditional extends Section {
 	private boolean checkConditions(Event event) {
 		if (conditions.isEmpty()) { // else and then
 			return true;
-		} else if (this.ifAny) {
+		} else if (ifAny) {
 			return conditions.stream().anyMatch(c -> c.check(event));
 		} else {
 			return conditions.stream().allMatch(c -> c.check(event));
 		}
+	}
+
+	@Nullable
+	private Node getNextNode(Node precedingNode) {
+		SectionNode parentNode = precedingNode.getParent();
+		if (parentNode == null) {
+			return null;
+		}
+		Iterator<Node> parentIterator = parentNode.iterator();
+		while (parentIterator.hasNext()) {
+			Node current = parentIterator.next();
+			if (current == precedingNode) {
+				return parentIterator.hasNext() ? parentIterator.next() : null;
+			}
+		}
+		return null;
 	}
 
 }
