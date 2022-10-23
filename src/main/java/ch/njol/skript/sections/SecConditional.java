@@ -87,6 +87,43 @@ public class SecConditional extends Section {
 		parseIf = parseResult.hasTag("parse");
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
 		boolean explicit = parseResult.hasTag("inline");
+
+		// ensure this conditional is chained correctly (e.g. an else must have an if)
+		SecConditional lastIf;
+		if (type != ConditionalType.IF) {
+			lastIf = getClosestIf(triggerItems);
+			if (lastIf == null) {
+				if (type == ConditionalType.ELSE_IF) {
+					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
+				} else if (type == ConditionalType.ELSE) {
+					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
+				} else if (type == ConditionalType.THEN) {
+					Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
+				}
+				return false;
+			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
+				Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
+				return false;
+			}
+		} else {
+			// if this is a multiline if, we need to check if there is a "then" section after this
+			if (multiline) {
+				Node nextNode = getNextNode(sectionNode, getParser());
+				String error = (ifAny ? "'if any'" : "'if all'") + " has to be placed just before a 'then' section";
+				if (nextNode instanceof SectionNode && nextNode.getKey() != null) {
+					String nextNodeKey = ScriptLoader.replaceOptions(nextNode.getKey());
+					if (THEN_PATTERN.match(nextNodeKey) == null) {
+						Skript.error(error);
+						return false;
+					}
+				} else {
+					Skript.error(error);
+					return false;
+				}
+			}
+			lastIf = null;
+		}
+
 		// if this an an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
 			ParserInstance parser = getParser();
@@ -144,42 +181,6 @@ public class SecConditional extends Section {
 
 			if (conditions.isEmpty())
 				return false;
-		}
-
-		// ensure this conditional is chained correctly (e.g. an else must have an if)
-		SecConditional lastIf;
-		if (type != ConditionalType.IF) {
-			lastIf = getClosestIf(triggerItems);
-			if (lastIf == null) {
-				if (type == ConditionalType.ELSE_IF) {
-					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.ELSE) {
-					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.THEN) {
-					Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
-				}
-				return false;
-			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
-				Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
-				return false;
-			}
-		} else {
-			// if this is a multiline if, we need to check if there is a "then" section after this
-			if (multiline) {
-				Node nextNode = getNextNode(sectionNode);
-				String error = (ifAny ? "'if any'" : "'if all'") + " has to be placed just before a 'then' section";
-				if (nextNode instanceof SectionNode && nextNode.getKey() != null) {
-					String nextNodeKey = ScriptLoader.replaceOptions(nextNode.getKey());
-					if (THEN_PATTERN.match(nextNodeKey) == null) {
-						Skript.error(error);
-						return false;
-					}
-				} else {
-					Skript.error(error);
-					return false;
-				}
-			}
-			lastIf = null;
 		}
 
 		// ([else] parse if) If condition is valid and false, do not parse the section
@@ -341,7 +342,9 @@ public class SecConditional extends Section {
 	}
 
 	@Nullable
-	private Node getNextNode(Node precedingNode) {
+	private Node getNextNode(Node precedingNode, ParserInstance parser) {
+		// iterating over the parent node causes the current node to change, so we need to store it to reset it later
+		Node originalCurrentNode = parser.getNode();
 		SectionNode parentNode = precedingNode.getParent();
 		if (parentNode == null) {
 			return null;
@@ -350,9 +353,12 @@ public class SecConditional extends Section {
 		while (parentIterator.hasNext()) {
 			Node current = parentIterator.next();
 			if (current == precedingNode) {
-				return parentIterator.hasNext() ? parentIterator.next() : null;
+				Node nextNode = parentIterator.hasNext() ? parentIterator.next() : null;
+				parser.setNode(originalCurrentNode);
+				return nextNode;
 			}
 		}
+		parser.setNode(originalCurrentNode);
 		return null;
 	}
 
