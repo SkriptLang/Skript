@@ -32,6 +32,8 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -41,11 +43,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -717,5 +715,12 @@ public abstract class Utils {
 		}
 		return lastIndex;
 	}
-	
+
+	public static Advancement[] getAllAdvancements() {
+		Iterator<Advancement> iterator = Bukkit.advancementIterator();
+		List<Advancement> advancements = new ArrayList<>();
+		while (iterator.hasNext())
+			advancements.add(iterator.next());
+		return advancements.toArray(new Advancement[0]);
+	}
 }
