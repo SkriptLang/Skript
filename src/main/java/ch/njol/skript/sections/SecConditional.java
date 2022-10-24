@@ -55,7 +55,7 @@ public class SecConditional extends Section {
 		{"[:parse] if [all]", ConditionalType.IF},
 		{"[:parse] if <.+>", ConditionalType.IF},
 		{THEN_PATTERN.toString(), ConditionalType.THEN},
-		{"inline:<.+>", ConditionalType.IF}
+		{"implicit:<.+>", ConditionalType.IF}
 	});
 
 	static {
@@ -86,7 +86,6 @@ public class SecConditional extends Section {
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
-		boolean explicit = parseResult.hasTag("inline");
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		SecConditional lastIf;
@@ -98,11 +97,11 @@ public class SecConditional extends Section {
 				} else if (type == ConditionalType.ELSE) {
 					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
 				} else if (type == ConditionalType.THEN) {
-					Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
+					Skript.error("'then' has to placed just after a multiline 'if'/'else if' section");
 				}
 				return false;
 			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
-				Skript.error("'then' has to be placed just after another 'if all' or 'if any' section");
+				Skript.error("'then' has to placed just after a multiline 'if'/'else if' section");
 				return false;
 			}
 		} else {
@@ -168,7 +167,7 @@ public class SecConditional extends Section {
 				// otherwise, this is just a simple single line "if", with the condition on the same line
 				String expr = parseResult.regexes.get(0).group();
 				// Don't print a default error if 'if' keyword wasn't provided
-				Condition condition = Condition.parse(expr, explicit ? null : "Can't understand this condition: '" + expr + "'");
+				Condition condition = Condition.parse(expr, parseResult.hasTag("implicit") ? null : "Can't understand this condition: '" + expr + "'");
 				if (condition != null)
 					conditions.add(condition);
 			}
@@ -267,17 +266,17 @@ public class SecConditional extends Section {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String parseIf = this.parseIf ? "parse " : "";
 		switch (type) {
 			case IF:
 				if (multiline)
-					return parseIf + "if (multiline)";
-				return parseIf + "if " + conditions.get(0).toString(e, debug);
+					return parseIf + "if " + (ifAny ? "any" : "all");
+				return parseIf + "if " + conditions.get(0).toString(event, debug);
 			case ELSE_IF:
 				if (multiline)
-					return "else " + parseIf + "if (multiline)";
-				return "else " + parseIf + "if " + conditions.get(0).toString(e, debug);
+					return "else " + parseIf + "if " + (ifAny ? "any" : "all");
+				return "else " + parseIf + "if " + conditions.get(0).toString(event, debug);
 			case ELSE:
 				return "else";
 			case THEN:
