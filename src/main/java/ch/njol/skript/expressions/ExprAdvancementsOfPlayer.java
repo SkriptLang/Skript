@@ -92,7 +92,6 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null) {
-			List<Advancement> advancements = new ArrayList<>();
 			for (Player player : players.getArray(event)) {
 				AdvancementProgress progress;
 				switch (mode) {
