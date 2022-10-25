@@ -25,7 +25,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -44,13 +44,19 @@ public class ExprAllAdvancements extends SimpleExpression<Advancement> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "all advancements";
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		return true;
+	}
+
+	@Override
+	@Nullable
+	protected Advancement[] get(Event event) {
+		return Utils.getAllAdvancements();
 	}
 
 	@Override
 	public boolean isSingle() {
-		return Utils.getAllAdvancements().length == 1;
+		return false;
 	}
 
 	@Override
@@ -59,12 +65,7 @@ public class ExprAllAdvancements extends SimpleExpression<Advancement> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		return true;
-	}
-
-	@Override
-	protected @Nullable Advancement[] get(Event e) {
-		return Utils.getAllAdvancements();
+	public String toString(@Nullable Event event, boolean debug) {
+		return "all advancements";
 	}
 }

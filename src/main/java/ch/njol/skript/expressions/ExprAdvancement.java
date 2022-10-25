@@ -25,7 +25,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
@@ -50,8 +50,31 @@ public class ExprAdvancement extends SimpleExpression<Advancement> {
 	private Expression<String> advancements;
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the advancements " + advancements.toString(e, debug);
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		advancements = (Expression<String>) exprs[0];
+		return true;
+	}
+
+	@Override
+	@Nullable
+	protected Advancement[] get(Event event) {
+		List<Advancement> advancementList = new ArrayList<>();
+		for (String advancement : advancements.getArray(event)) {
+			String namespace;
+			String key;
+			if (advancement.contains(":") && !advancement.startsWith(":")) {
+				namespace = advancement.split(":")[0];
+				key = advancement.split(":")[1];
+			} else {
+				namespace = "minecraft";
+				key = advancement;
+			}
+			NamespacedKey namespacedKey = new NamespacedKey(namespace, key);
+			if (Bukkit.getAdvancement(namespacedKey) != null) {
+				advancementList.add(Bukkit.getAdvancement(namespacedKey));
+			}
+		}
+		return advancementList.toArray(new Advancement[0]);
 	}
 
 	@Override
@@ -65,18 +88,7 @@ public class ExprAdvancement extends SimpleExpression<Advancement> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		advancements = (Expression<String>) exprs[0];
-		return true;
-	}
-
-	@Override
-	protected @Nullable Advancement[] get(Event e) {
-		List<Advancement> advancementList = new ArrayList<>();
-		for (String advancement : advancements.getArray(e))
-			if (advancement.contains(":") && !advancement.startsWith(":"))
-				if (Bukkit.getAdvancement(new NamespacedKey(advancement.split(":")[0], advancement.split(":")[1])) != null)
-					advancementList.add(Bukkit.getAdvancement(new NamespacedKey(advancement.split(":")[0], advancement.split(":")[1])));
-		return advancementList.toArray(new Advancement[0]);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the advancements " + advancements.toString(event, debug);
 	}
 }

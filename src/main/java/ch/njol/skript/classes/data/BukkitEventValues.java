@@ -86,8 +86,28 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerItemMendEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerRiptideEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -1320,20 +1340,20 @@ public final class BukkitEventValues {
 			}
 		}, -1);
 		EventValues.registerEventValue(PlayerAdvancementDoneEvent.class, Advancement.class, new Getter<Advancement, PlayerAdvancementDoneEvent>() {
-			@Nullable
 			@Override
-			public Advancement get(PlayerAdvancementDoneEvent e) {
-				return e.getAdvancement();
+			@Nullable
+			public Advancement get(PlayerAdvancementDoneEvent event) {
+				return event.getAdvancement();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		if (Skript.classExists("net.kyori.adventure.text.Component")) {
 			EventValues.registerEventValue(PlayerAdvancementDoneEvent.class, String.class, new Getter<String, PlayerAdvancementDoneEvent>() {
-				@Nullable
 				@Override
-				public String get(PlayerAdvancementDoneEvent e) {
-					return Bukkit.getUnsafe().legacyComponentSerializer().serialize(e.message());
+				@Nullable
+				public String get(PlayerAdvancementDoneEvent event) {
+					return Bukkit.getUnsafe().legacyComponentSerializer().serialize(event.message());
 				}
-			}, 0);
+			}, EventValues.TIME_NOW);
 		}
 	}
 }

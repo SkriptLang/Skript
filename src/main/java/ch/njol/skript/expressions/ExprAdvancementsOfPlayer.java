@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -53,32 +53,25 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 
 	static {
 		Skript.registerExpression(ExprAdvancementsOfPlayer.class, Advancement.class, ExpressionType.SIMPLE,
-			"[all] [[of] the] advancements (of|from) %players%",
-			"[all [of]] %players%'[s] advancements");
+			"[the] advancements of %player%",
+			"%player%'[s] advancements"
+		);
 	}
 
 	private Expression<Player> players;
-	private boolean single;
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the advancements of " + players.toString(e, debug);
-	}
-
-	@Override
-	public boolean isSingle() {
-		return single;
-	}
-
-	@Override
-	public Class<? extends Advancement> getReturnType() {
-		return Advancement.class;
-	}
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		return true;
+	}
+
+	@Override
+	@Nullable
+	protected Advancement[] get(Event event) {
+		for (Player player : players.getArray(event))
+			return getAdvancementsFromPlayer(player).toArray(new Advancement[0]);
+		return null;
 	}
 
 	@Override
@@ -97,56 +90,74 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		List<Advancement> advancements = new ArrayList<>();
-		for (Player player : players.getArray(e)) {
-			switch (mode) {
-				case SET:
-					assert delta != null;
-					advancements.addAll(Arrays.asList((Advancement[]) delta));
-					break;
-				case ADD:
-					assert delta != null;
-					advancements.addAll(List.of(getAdvancementsFromPlayer(player)));
-					advancements.addAll(Arrays.asList((Advancement[]) delta));
-					break;
-				case REMOVE:
-					assert delta != null;
-					advancements.addAll(List.of(getAdvancementsFromPlayer(player)));
-					advancements.removeAll(Arrays.asList((Advancement[]) delta));
-					break;
-				case DELETE:
-				case RESET:
-					break;
-			}
-			AdvancementProgress progress;
-			for (Advancement advancement : getAdvancementsFromPlayer(player)) {
-				progress = player.getAdvancementProgress(advancement);
-				for (String criteria : progress.getAwardedCriteria())
-					progress.revokeCriteria(criteria);
-			}
-			for (Advancement advancement : advancements) {
-				progress = player.getAdvancementProgress(advancement);
-				for (String criteria : progress.getRemainingCriteria())
-					progress.awardCriteria(criteria);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta != null) {
+			List<Advancement> advancements = new ArrayList<>();
+			for (Player player : players.getArray(event)) {
+				AdvancementProgress progress;
+				switch (mode) {
+					case SET:
+						assert delta != null;
+						for (Advancement advancement : getAdvancementsFromPlayer(player)) {
+							progress = player.getAdvancementProgress(advancement);
+							for (String criteria : progress.getAwardedCriteria())
+								progress.revokeCriteria(criteria);
+						}
+						for (Advancement advancement : (Advancement[]) delta) {
+							progress = player.getAdvancementProgress(advancement);
+							for (String criteria : progress.getRemainingCriteria())
+								progress.awardCriteria(criteria);
+						}
+						break;
+					case ADD:
+						assert delta != null;
+						for (Advancement advancement : (Advancement[]) delta) {
+							progress = player.getAdvancementProgress(advancement);
+							for (String criteria : progress.getRemainingCriteria())
+								progress.awardCriteria(criteria);
+						}
+						break;
+					case REMOVE:
+						assert delta != null;
+						for (Advancement advancement : (Advancement[]) delta) {
+							progress = player.getAdvancementProgress(advancement);
+							for (String criteria : progress.getAwardedCriteria())
+								progress.revokeCriteria(criteria);
+						}
+						break;
+					case DELETE:
+					case RESET:
+						for (Advancement advancement : getAdvancementsFromPlayer(player)) {
+							progress = player.getAdvancementProgress(advancement);
+							for (String criteria : progress.getAwardedCriteria())
+								progress.revokeCriteria(criteria);
+						}
+						break;
+				}
 			}
 		}
 	}
 
 	@Override
-	protected @Nullable Advancement[] get(Event e) {
-		for (Player player : players.getArray(e)) {
-			single = getAdvancementsFromPlayer(player).length < 1;
-			return getAdvancementsFromPlayer(player);
-		}
-		return null;
+	public boolean isSingle() {
+		return false;
 	}
 
-	private static Advancement[] getAdvancementsFromPlayer(Player player) {
+	@Override
+	public Class<? extends Advancement> getReturnType() {
+		return Advancement.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the advancements of " + players.toString(event, debug);
+	}
+
+	private static List<Advancement> getAdvancementsFromPlayer(Player player) {
 		List<Advancement> advancements = new ArrayList<>();
 		for (Advancement advancement : Utils.getAllAdvancements())
 			if (player.getAdvancementProgress(advancement).isDone())
 				advancements.add(advancement);
-		return advancements.toArray(new Advancement[0]);
+		return advancements;
 	}
 }
