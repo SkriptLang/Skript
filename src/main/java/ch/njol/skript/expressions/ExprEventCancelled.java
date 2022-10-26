@@ -86,7 +86,7 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 			return CollectionUtils.array(Boolean.class);
 		return null;
 	}
-
+	
 	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
