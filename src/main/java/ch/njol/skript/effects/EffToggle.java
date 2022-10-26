@@ -84,9 +84,9 @@ public class EffToggle extends Effect {
 	@Override
 	protected void execute(Event event) {
 		ArrayList<Object> toggledValues = new ArrayList<>();
-		for (Object o : toggledExpr.getArray(event)) {
-			if (o instanceof Block) {
-				Block block = (Block) o;
+		for (Object obj : toggledExpr.getArray(event)) {
+			if (obj instanceof Block) {
+				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
 				if (toggle == -1) {
 					if (data instanceof Openable)
@@ -108,8 +108,8 @@ public class EffToggle extends Effect {
 				block.setBlockData(data);
 				toggledValues.add(block);
 
-			} else if (o instanceof Boolean) {
-				toggledValues.add(!(Boolean) o);
+			} else if (obj instanceof Boolean) {
+				toggledValues.add(!(Boolean) obj);
 			}
 		}
 
