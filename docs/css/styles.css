@@ -356,7 +356,7 @@ div.active-syntax .item-examples p {
     border-left: solid 3px #ff9800;
     text-decoration: none;
     background-color: #353535;
-    font-size: 26px;
+    font-size: 1.5vw;
     font-weight: bold;
     color: #ff9800;
     height: 35px;
@@ -1163,7 +1163,7 @@ pre code { /* override styling for code blocks */
 
 #cookies-bar {
     position: sticky;
-    right: 8vw;
+    margin: 0 -8vw;
     bottom: 0;
     background-color: #353535;
     color: white;
