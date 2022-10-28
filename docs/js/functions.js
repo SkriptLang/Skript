@@ -36,7 +36,7 @@ function getCookie(cname) {
  * @param {object} value 
  * @param {double} exdays time in days
  */
-function setStorageItem(item, value, exdays) {
+function setStorageItem(item, value, exdays, force = false) {
   if (!isCookiesAccepted && !force)
     return;
     
