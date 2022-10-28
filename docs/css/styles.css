@@ -743,6 +743,10 @@ td ul {
     .item-table-label {
         width: 5em;
     }
+
+    #cookies-bar {
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 550px) {
@@ -1167,7 +1171,6 @@ pre code { /* override styling for code blocks */
     bottom: 0;
     background-color: #353535;
     color: white;
-    width: 100vw;
     padding: 10px;
     z-index: 100;
     display: flex;

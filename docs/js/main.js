@@ -389,7 +389,7 @@ if (examples) {
 
 // <> Cookies Accecpt
 if (!isCookiesAccepted) {
-  content.insertAdjacentHTML('beforeend', `<div id=cookies-bar><p>We use cookies and local storage to enhance your browsing experience and store github related statistics. By clicking "Accept", you consent to our use of cookies and local storage.</p><button id=cookies-accept>Accept</button> <button id=cookies-deny>Deny</button></div>`);
+  content.insertAdjacentHTML('beforeend', `<div id="cookies-bar"> <p> We use cookies and local storage to enhance your browsing experience and store github related statistics. By clicking "Accept", you consent to our use of cookies and local storage. </p><div style="padding: 10px; white-space: nowrap;"> <button id="cookies-accept">Accept</button> <button id="cookies-deny">Deny</button> </div></div>`);
 }
 
 let cookiesBar = document.querySelector("#cookies-bar");;
