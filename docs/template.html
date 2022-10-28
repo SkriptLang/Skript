@@ -22,6 +22,7 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script> 
   
+  <script src="./js/functions.js"></script>
   <script src="./js/main.js" defer></script>
 
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -34,7 +35,8 @@
 
 </head>
 <body>
-  <script src="./js/theme-switcher.js"></script> <!-- fix white theme flicker -->
+  <!-- loaded inside body without defer to fix theme flicker -->
+  <script src="./js/theme-switcher.js"></script>
 
   ${include navbar.html}
   <nav id="side-nav">

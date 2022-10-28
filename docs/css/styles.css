@@ -1160,3 +1160,35 @@ pre code { /* override styling for code blocks */
     color: rgb(255, 91, 91) !important;
     font-weight: 600;
 }
+
+#cookies-bar {
+    position: sticky;
+    right: 8vw;
+    bottom: 0;
+    background-color: #353535;
+    color: white;
+    width: 100vw;
+    padding: 10px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cookies-accept {
+    padding: 5px 10px;
+    border: unset;
+    background-color: rgb(29, 167, 29);
+    margin: 0 5px;
+    cursor: pointer;
+    color: white;
+}
+
+#cookies-deny {
+    padding: 5px 10px;
+    border: unset;
+    background-color: rgb(167, 29, 29);
+    margin: 0 5px;
+    cursor: pointer;
+    color: white;
+}
