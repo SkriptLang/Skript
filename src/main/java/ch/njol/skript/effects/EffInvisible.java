@@ -44,8 +44,8 @@ public class EffInvisible extends Effect {
 				"make %livingentities% (visible|not invisible)");
 	}
 
-	private Expression<LivingEntity> livingEntities;
 	private boolean invisible;
+	private Expression<LivingEntity> livingEntities;
 
 	@Override
 	@SuppressWarnings("unchecked")
