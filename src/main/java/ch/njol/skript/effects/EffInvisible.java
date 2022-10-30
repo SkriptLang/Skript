@@ -47,8 +47,8 @@ public class EffInvisible extends Effect {
 	private Expression<LivingEntity> livingEntities;
 	private boolean invisible;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		livingEntities = (Expression<LivingEntity>) exprs[0];
 		invisible = matchedPattern == 0;
