@@ -32,7 +32,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Make Invisible")
-@Description("Makes a living entity visible/invisible.")
+@Description("Makes a living entity visible/invisible, " +
+	"achieving the same result as an invisibility potion but without a time limit. " +
+	"When making an entity invisible after using an invisibility potion on it, " +
+	"the potion will be ignored and after it runs out the entity will stay invisible.")
 @Examples("make target entity invisible")
 @Since("INSERT VERSION")
 public class EffInvisible extends Effect {
