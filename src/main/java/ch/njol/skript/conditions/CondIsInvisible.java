@@ -37,14 +37,14 @@ public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "isInvisible"))
-			register(CondIsInvisible.class, PropertyType.BE, "(invisible|1¦visible)", "livingentities");
+			register(CondIsInvisible.class, PropertyType.BE, "(invisible|:visible)", "livingentities");
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr((Expression<LivingEntity>) exprs[0]);
-		setNegated(matchedPattern == 1 ^ parseResult.mark == 1);
+		setNegated(matchedPattern == 1 ^ parseResult.hasTag("visible"));
 		return true;
 	}
 
