@@ -1,0 +1,5 @@
+test "entity invisibility" when running minecraft "1.17":
+	spawn pig at spawn of world "world":
+		make entity invisible
+		assert entity is invisible with "failed to make pig invisible"
+		delete entity
