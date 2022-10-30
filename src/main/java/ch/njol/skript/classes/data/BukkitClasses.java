@@ -151,12 +151,12 @@ public class BukkitClasses {
 						}
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Entity e) {
 						return "entity:" + e.getUniqueId().toString().toLowerCase(Locale.ENGLISH);
@@ -168,7 +168,7 @@ public class BukkitClasses {
 					}
 				})
 				.changer(DefaultChangers.entityChanger));
-
+		
 		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
 				.user("living ?entit(y|ies)")
 				.name("Living Entity")
@@ -180,7 +180,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(LivingEntity.class))
 				.changer(DefaultChangers.entityChanger));
-
+		
 		Classes.registerClass(new ClassInfo<>(Projectile.class, "projectile")
 				.user("projectiles?")
 				.name("Projectile")
@@ -191,7 +191,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
-
+		
 		Classes.registerClass(new ClassInfo<>(Block.class, "block")
 				.user("blocks?")
 				.name("Block")
@@ -207,17 +207,17 @@ public class BukkitClasses {
 					public Block parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final Block b, final int flags) {
 						return BlockUtils.blockToString(b, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Block b) {
 						return b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ();
@@ -239,12 +239,12 @@ public class BukkitClasses {
 						f.putPrimitive("z", b.getZ());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(final Block o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					protected Block deserialize(final Fields fields) throws StreamCorruptedException {
 						final World w = fields.getObject("world", World.class);
@@ -253,17 +253,17 @@ public class BukkitClasses {
 							throw new StreamCorruptedException();
 						return w.getBlockAt(x, y, z);
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					// return b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ();
 					@Override
 					@Nullable
@@ -284,7 +284,7 @@ public class BukkitClasses {
 						}
 					}
 				}));
-
+		
 		if (Skript.classExists("org.bukkit.block.data.BlockData")) {
 			Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
 				.user("block ?datas?")
@@ -309,12 +309,12 @@ public class BukkitClasses {
 					public BlockData parse(String s, ParseContext context) {
 						return BlockUtils.createBlockData(s);
 					}
-
+					
 					@Override
 					public String toString(BlockData o, int flags) {
 						return o.getAsString().replace(",", ";");
 					}
-
+					
 					@Override
 					public String toVariableNameString(BlockData o) {
 						return "blockdata:" + o.getAsString();
@@ -327,12 +327,12 @@ public class BukkitClasses {
 						f.putObject("blockdata", o.getAsString());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(BlockData o, Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					protected BlockData deserialize(Fields f) throws StreamCorruptedException {
 						String data = f.getObject("blockdata", String.class);
@@ -343,19 +343,19 @@ public class BukkitClasses {
 							throw new StreamCorruptedException("Invalid block data: " + data);
 						}
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
-
+					
 					@Override
 					protected boolean canBeInstantiated() {
 						return false;
 					}
 				}));
 		}
-
+		
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
 				.name("Location")
@@ -371,18 +371,18 @@ public class BukkitClasses {
 					public Location parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final Location l, final int flags) {
 						String worldPart = l.getWorld() == null ? "" : " in '" + l.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by spigot
 						return "x: " + Skript.toString(l.getX()) + ", y: " + Skript.toString(l.getY()) + ", z: " + Skript.toString(l.getZ()) + ", yaw: " + Skript.toString(l.getYaw()) + ", pitch: " + Skript.toString(l.getPitch()) + worldPart;
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Location l) {
 						return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ();
@@ -404,29 +404,29 @@ public class BukkitClasses {
 						f.putPrimitive("pitch", l.getPitch());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(final Location o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public Location deserialize(final Fields f) throws StreamCorruptedException {
 						return new Location(f.getObject("world", World.class),
 								f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class),
 								f.getPrimitive("yaw", float.class), f.getPrimitive("pitch", float.class));
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false; // no nullary constructor - also, saving the location manually prevents errors should Location ever be changed
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
-
+					
 					// return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|" + l.getYaw() + "/" + l.getPitch();
 					@Override
 					@Nullable
@@ -448,7 +448,7 @@ public class BukkitClasses {
 					}
 				})
 				.cloner(Location::clone));
-
+		
 		Classes.registerClass(new ClassInfo<>(Vector.class, "vector")
 				.user("vectors?")
 				.name("Vector")
@@ -463,17 +463,17 @@ public class BukkitClasses {
 					public Vector parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final Vector vec, final int flags) {
 						return "x: " + Skript.toString(vec.getX()) + ", y: " + Skript.toString(vec.getY()) + ", z: " + Skript.toString(vec.getZ());
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Vector vec) {
 						return "vector:" + vec.getX() + "," + vec.getY() + "," + vec.getZ();
@@ -493,29 +493,29 @@ public class BukkitClasses {
 						f.putPrimitive("z", o.getZ());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(Vector o, Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public Vector deserialize(final Fields f) throws StreamCorruptedException {
 						return new Vector(f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class));
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-
+					
 					@Override
 					protected boolean canBeInstantiated() {
 						return false;
 					}
 				})
 				.cloner(Vector::clone));
-
+		
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
 				.name("World")
@@ -529,7 +529,7 @@ public class BukkitClasses {
 				.parser(new Parser<World>() {
 					@SuppressWarnings("null")
 					private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
-
+					
 					@Override
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
@@ -541,12 +541,12 @@ public class BukkitClasses {
 							return Bukkit.getWorld(m.group(1));
 						return null;
 					}
-
+					
 					@Override
 					public String toString(final World w, final int flags) {
 						return "" + w.getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(final World w) {
 						return "" + w.getName();
@@ -558,17 +558,17 @@ public class BukkitClasses {
 						f.putObject("name", w.getName());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(final World o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					@Override
 					protected World deserialize(final Fields fields) throws StreamCorruptedException {
 						final String name = fields.getObject("name", String.class);
@@ -578,20 +578,20 @@ public class BukkitClasses {
 							throw new StreamCorruptedException("Missing world " + name);
 						return w;
 					}
-
+					
 					// return w.getName();
 					@Override
 					@Nullable
 					public World deserialize(final String s) {
 						return Bukkit.getWorld(s);
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(Inventory.class, "inventory")
 				.user("inventor(y|ies)")
 				.name("Inventory")
@@ -610,28 +610,28 @@ public class BukkitClasses {
 					public Inventory parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final Inventory i, final int flags) {
 						return "inventory of " + Classes.toString(i.getHolder());
 					}
-
+					
 					@Override
 					public String getDebugMessage(final Inventory i) {
 						return "inventory of " + Classes.getDebugMessage(i.getHolder());
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Inventory i) {
 						return "inventory of " + Classes.toString(i.getHolder(), StringMode.VARIABLE_NAME);
 					}
 				}).changer(DefaultChangers.inventoryChanger));
-
+		
 		Classes.registerClass(new ClassInfo<>(InventoryAction.class, "inventoryaction")
 				.user("inventory ?actions?")
 				.name("Inventory Action")
@@ -646,19 +646,19 @@ public class BukkitClasses {
 					public InventoryAction parse(String s, ParseContext context) {
 						return InventoryActions.parse(s);
 					}
-
+					
 					@Override
 					public String toString(InventoryAction o, int flags) {
 						return InventoryActions.toString(o, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(InventoryAction o) {
 						return o.name();
 					}
 				}));
-
+		
 		final EnumUtils<ClickType> invClicks = new EnumUtils<>(ClickType.class, "click types");
 		Classes.registerClass(new ClassInfo<>(ClickType.class, "clicktype")
 				.user("click ?types?")
@@ -675,19 +675,19 @@ public class BukkitClasses {
 					public ClickType parse(String s, ParseContext context) {
 						return invClicks.parse(s);
 					}
-
+					
 					@Override
 					public String toString(ClickType o, int flags) {
 						return invClicks.toString(o, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(ClickType o) {
 						return o.name();
 					}
 				}));
-
+		
 		final EnumUtils<InventoryType> invTypes = new EnumUtils<>(InventoryType.class, "inventory types");
 		Classes.registerClass(new ClassInfo<>(InventoryType.class, "inventorytype")
 				.user("inventory ?types?")
@@ -703,19 +703,19 @@ public class BukkitClasses {
 					public InventoryType parse(String s, ParseContext context) {
 						return invTypes.parse(s);
 					}
-
+					
 					@Override
 					public String toString(InventoryType o, int flags) {
 						return invTypes.toString(o, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(InventoryType o) {
 						return o.name();
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(Player.class, "player")
 				.user("players?")
 				.name("Player")
@@ -748,17 +748,17 @@ public class BukkitClasses {
 						assert false;
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
-
+					
 					@Override
 					public String toString(final Player p, final int flags) {
 						return "" + p.getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Player p) {
 						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
@@ -801,17 +801,17 @@ public class BukkitClasses {
 						assert false;
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
-
+					
 					@Override
 					public String toString(OfflinePlayer p, int flags) {
 						return p.getName() == null ? p.getUniqueId().toString() : p.getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(OfflinePlayer p) {
 						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
@@ -833,17 +833,17 @@ public class BukkitClasses {
 						f.putObject("uuid", p.getUniqueId());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(final OfflinePlayer o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					@SuppressWarnings("deprecation")
 					@Override
 					protected OfflinePlayer deserialize(final Fields fields) throws StreamCorruptedException {
@@ -859,7 +859,7 @@ public class BukkitClasses {
 							return Bukkit.getOfflinePlayer(name);
 						}
 					}
-
+					
 					// return p.getName();
 					@SuppressWarnings("deprecation")
 					@Override
@@ -867,13 +867,13 @@ public class BukkitClasses {
 					public OfflinePlayer deserialize(final String s) {
 						return Bukkit.getOfflinePlayer(s);
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(CommandSender.class, "commandsender")
 				.user("((commands?)? ?)?(sender|executor)s?")
 				.name("Command Sender")
@@ -899,23 +899,23 @@ public class BukkitClasses {
 					public CommandSender parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final CommandSender s, final int flags) {
 						return "" + s.getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(final CommandSender s) {
 						return "" + s.getName();
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new EventValueExpression<>(InventoryHolder.class))
@@ -925,7 +925,7 @@ public class BukkitClasses {
 					public boolean canParse(ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(InventoryHolder holder, int flags) {
 						if (holder instanceof BlockState) {
@@ -936,7 +936,7 @@ public class BukkitClasses {
 							return Classes.toString(holder);
 						}
 					}
-
+					
 					@Override
 					public String toVariableNameString(InventoryHolder holder) {
 						return toString(holder, 0);
@@ -953,14 +953,14 @@ public class BukkitClasses {
 				.defaultExpression(new SimpleLiteral<>(GameMode.SURVIVAL, true))
 				.parser(new Parser<GameMode>() {
 					private final Message[] names = new Message[GameMode.values().length];
-
+					
 					{
 						int i = 0;
 						for (final GameMode m : GameMode.values()) {
 							names[i++] = new Message("game modes." + m.name());
 						}
 					}
-
+					
 					@Override
 					@Nullable
 					public GameMode parse(final String s, final ParseContext context) {
@@ -970,18 +970,18 @@ public class BukkitClasses {
 						}
 						return null;
 					}
-
+					
 					@Override
 					public String toString(final GameMode m, final int flags) {
 						return names[m.ordinal()].toString();
 					}
-
+					
 					@Override
 					public String toVariableNameString(final GameMode o) {
 						return "" + o.toString().toLowerCase(Locale.ENGLISH);
 					}
 				}).serializer(new EnumSerializer<>(GameMode.class)));
-
+		
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
 				.user("item", "material")
 				.name("Item / Material")
@@ -1008,24 +1008,24 @@ public class BukkitClasses {
 							Skript.error("'" + s + "' represents multiple materials");
 							return null;
 						}
-
+						
 						final ItemStack i = t.getRandom();
 						assert i != null;
 						return i;
 					}
-
+					
 					@Override
 					public String toString(final ItemStack i, final int flags) {
 						return ItemType.toString(i, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final ItemStack i) {
 						final StringBuilder b = new StringBuilder("item:");
 						b.append(i.getType().name());
 						b.append(":" + ItemUtils.getDamage(i));
 						b.append("*" + i.getAmount());
-
+						
 						for (Entry<Enchantment, Integer> entry : i.getEnchantments().entrySet())
 							b.append("#" + EnchantmentUtils.getKey(entry.getKey()))
 									.append(":" + entry.getValue());
@@ -1035,12 +1035,12 @@ public class BukkitClasses {
 				})
 				.cloner(ItemStack::clone)
 				.serializer(new ConfigurationSerializer<>()));
-
+		
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
 				.name(ClassInfo.NO_DOC)
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
-
+		
 		Classes.registerClass(new ClassInfo<>(Biome.class, "biome")
 				.user("biomes?")
 				.name("Biome")
@@ -1055,19 +1055,19 @@ public class BukkitClasses {
 					public Biome parse(final String s, final ParseContext context) {
 						return BiomeUtils.parse(s);
 					}
-
+					
 					@Override
 					public String toString(final Biome b, final int flags) {
 						return BiomeUtils.toString(b, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Biome b) {
 						return "" + b.name();
 					}
 				})
 				.serializer(new EnumSerializer<>(Biome.class)));
-
+		
 		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
 			.user("potion ?effects?")
 			.name("Potion Effect")
@@ -1075,17 +1075,17 @@ public class BukkitClasses {
 			.usage("speed of tier 1 for 10 seconds")
 			.since("2.5.2")
 			.parser(new Parser<PotionEffect>() {
-
+				
 				@Override
 				public boolean canParse(ParseContext context) {
 					return false;
 				}
-
+				
 				@Override
 				public String toString(PotionEffect potionEffect, int flags) {
 					return PotionEffectUtils.toString(potionEffect);
 				}
-
+				
 				@Override
 				public String toVariableNameString(PotionEffect o) {
 					return "potion_effect:" + o.getType().getName();
@@ -1103,12 +1103,12 @@ public class BukkitClasses {
 					fields.putPrimitive("ambient", o.isAmbient());
 					return fields;
 				}
-
+				
 				@Override
 				public void deserialize(PotionEffect o, Fields f) {
 					assert false;
 				}
-
+				
 				@Override
 				protected PotionEffect deserialize(Fields fields) throws StreamCorruptedException {
 					String typeName = fields.getObject("type", String.class);
@@ -1122,18 +1122,18 @@ public class BukkitClasses {
 					boolean ambient = fields.getPrimitive("ambient", boolean.class);
 					return new PotionEffect(type, duration, amplifier, ambient, particles);
 				}
-
+				
 				@Override
 				public boolean mustSyncDeserialization() {
 					return false;
 				}
-
+				
 				@Override
 				protected boolean canBeInstantiated() {
 					return false;
 				}
 			}));
-
+		
 		Classes.registerClass(new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
 				.user("potion( ?effect)? ?types?") // "type" had to be made non-optional to prevent clashing with potion effects
 				.name("Potion Effect Type")
@@ -1149,12 +1149,12 @@ public class BukkitClasses {
 					public PotionEffectType parse(final String s, final ParseContext context) {
 						return PotionEffectUtils.parseType(s);
 					}
-
+					
 					@Override
 					public String toString(final PotionEffectType p, final int flags) {
 						return PotionEffectUtils.toString(p, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final PotionEffectType p) {
 						return "" + p.getName();
@@ -1167,17 +1167,17 @@ public class BukkitClasses {
 						f.putObject("name", o.getName());
 						return f;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					@Override
 					public void deserialize(final PotionEffectType o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
 						final String name = fields.getObject("name", String.class);
@@ -1187,20 +1187,20 @@ public class BukkitClasses {
 							throw new StreamCorruptedException("Invalid PotionEffectType " + name);
 						return t;
 					}
-
+					
 					// return o.getName();
 					@Override
 					@Nullable
 					public PotionEffectType deserialize(final String s) {
 						return PotionEffectType.getByName(s);
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
 				}));
-
+		
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
 		Classes.registerClass(new ClassInfo<>(DamageCause.class, "damagecause")
 				.user("damage ?causes?")
@@ -1219,19 +1219,19 @@ public class BukkitClasses {
 					public DamageCause parse(final String s, final ParseContext context) {
 						return DamageCauseUtils.parse(s);
 					}
-
+					
 					@Override
 					public String toString(final DamageCause d, final int flags) {
 						return DamageCauseUtils.toString(d, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final DamageCause d) {
 						return "" + d.name();
 					}
 				})
 				.serializer(new EnumSerializer<>(DamageCause.class)));
-
+		
 		Classes.registerClass(new ClassInfo<>(Chunk.class, "chunk")
 				.user("chunks?")
 				.name("Chunk")
@@ -1245,17 +1245,17 @@ public class BukkitClasses {
 					public Chunk parse(final String s, final ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(final ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(final Chunk c, final int flags) {
 						return "chunk (" + c.getX() + "," + c.getZ() + ") of " + c.getWorld().getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Chunk c) {
 						return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
@@ -1270,17 +1270,17 @@ public class BukkitClasses {
 						f.putPrimitive("z", c.getZ());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(final Chunk o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					@Override
 					protected Chunk deserialize(final Fields fields) throws StreamCorruptedException {
 						final World w = fields.getObject("world", World.class);
@@ -1289,7 +1289,7 @@ public class BukkitClasses {
 							throw new StreamCorruptedException();
 						return w.getChunkAt(x, z);
 					}
-
+					
 					// return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
 					@Override
 					@Nullable
@@ -1308,13 +1308,13 @@ public class BukkitClasses {
 							return null;
 						}
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(Enchantment.class, "enchantment")
 				.user("enchantments?")
 				.name("Enchantment")
@@ -1330,12 +1330,12 @@ public class BukkitClasses {
 					public Enchantment parse(final String s, final ParseContext context) {
 						return EnchantmentType.parseEnchantment(s);
 					}
-
+					
 					@Override
 					public String toString(final Enchantment e, final int flags) {
 						return EnchantmentType.toString(e, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(final Enchantment e) {
 						return "" + EnchantmentUtils.getKey(e);
@@ -1348,17 +1348,17 @@ public class BukkitClasses {
 						f.putObject("key", EnchantmentUtils.getKey(ench));
 						return f;
 					}
-
+					
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-
+					
 					@Override
 					public void deserialize(final Enchantment o, final Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					protected Enchantment deserialize(final Fields fields) throws StreamCorruptedException {
 						final String key = fields.getObject("key", String.class);
@@ -1368,20 +1368,20 @@ public class BukkitClasses {
 							throw new StreamCorruptedException("Invalid enchantment " + key);
 						return e;
 					}
-
+					
 					// return "" + e.getId();
 					@Override
 					@Nullable
 					public Enchantment deserialize(String s) {
 						return Enchantment.getByName(s);
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
 				}));
-
+		
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")
 				.name(ClassInfo.NO_DOC)
@@ -1393,37 +1393,37 @@ public class BukkitClasses {
 						f.putObject("i", o.ordinal());
 						return f;
 					}
-
+					
 					@Override
 					public void deserialize(Material o, Fields f) {
 						assert false;
 					}
-
+					
 					@Override
 					public Material deserialize(Fields f) throws StreamCorruptedException {
 						Material mat = allMaterials[(int) f.getPrimitive("i")];
 						assert mat != null; // Hope server owner didn't mod too much...
 						return mat;
 					}
-
+					
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-
+					
 					@Override
 					protected boolean canBeInstantiated() {
 						return false; // It is an enum, come on
 					}
 				}));
-
+		
 		Classes.registerClass(new ClassInfo<>(Metadatable.class, "metadataholder")
 				.user("metadata ?holders?")
 				.name("Metadata Holder")
 				.description("Something that can hold metadata (e.g. an entity or block)")
 				.examples("set metadata value \"super cool\" of player to true")
 				.since("2.2-dev36"));
-
+		
 		EnumUtils<TeleportCause> teleportCauses = new EnumUtils<>(TeleportCause.class, "teleport causes");
 		Classes.registerClass(new ClassInfo<>(TeleportCause.class, "teleportcause")
 				.user("teleport ?(cause|reason|type)s?")
@@ -1437,12 +1437,12 @@ public class BukkitClasses {
 					public TeleportCause parse(String input, ParseContext context) {
 						return teleportCauses.parse(input);
 					}
-
+					
 					@Override
 					public String toString(TeleportCause teleportCause, int flags) {
 						return teleportCauses.toString(teleportCause, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(TeleportCause teleportCause) {
@@ -1450,7 +1450,7 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(TeleportCause.class)));
-
+		
 		EnumUtils<SpawnReason> spawnReasons = new EnumUtils<>(SpawnReason.class, "spawn reasons");
 		Classes.registerClass(new ClassInfo<>(SpawnReason.class, "spawnreason")
 				.user("spawn(ing)? ?reasons?")
@@ -1464,12 +1464,12 @@ public class BukkitClasses {
 					public SpawnReason parse(String input, ParseContext context) {
 						return spawnReasons.parse(input);
 					}
-
+					
 					@Override
 					public String toString(SpawnReason spawnReason, int flags) {
 						return spawnReasons.toString(spawnReason, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(SpawnReason spawnReason) {
@@ -1477,7 +1477,7 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(SpawnReason.class)));
-
+		
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
 					.user("server ?icons?")
@@ -1491,24 +1491,24 @@ public class BukkitClasses {
 						public CachedServerIcon parse(final String s, final ParseContext context) {
 							return null;
 						}
-
+						
 						@Override
 						public boolean canParse(final ParseContext context) {
 							return false;
 						}
-
+						
 						@Override
 						public String toString(final CachedServerIcon o, int flags) {
 							return "server icon";
 						}
-
+						
 						@Override
 						public String toVariableNameString(final CachedServerIcon o) {
 							return "server icon";
 						}
 					}));
 		}
-
+		
 		EnumUtils<FireworkEffect.Type> fireworktypes = new EnumUtils<>(FireworkEffect.Type.class, "firework types");
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.Type.class, "fireworktype")
 				.user("firework ?types?")
@@ -1523,12 +1523,12 @@ public class BukkitClasses {
 					public FireworkEffect.@Nullable Type parse(String input, ParseContext context) {
 						return fireworktypes.parse(input);
 					}
-
+					
 					@Override
 					public String toString(FireworkEffect.Type type, int flags) {
 						return fireworktypes.toString(type, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(FireworkEffect.Type type) {
@@ -1536,7 +1536,7 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(FireworkEffect.Type.class)));
-
+		
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
 				.name("Firework Effect")
@@ -1554,23 +1554,23 @@ public class BukkitClasses {
 					public FireworkEffect parse(String input, ParseContext context) {
 						return null;
 					}
-
+					
 					@Override
 					public boolean canParse(ParseContext context) {
 						return false;
 					}
-
+					
 					@Override
 					public String toString(FireworkEffect effect, int flags) {
 						return "Firework effect " + effect.toString();
 					}
-
+					
 					@Override
 					public String toVariableNameString(FireworkEffect effect) {
 						return "firework effect " + effect.toString();
 					}
 				}));
-
+		
 		EnumUtils<Difficulty> difficulties = new EnumUtils<>(Difficulty.class, "difficulties");
 		Classes.registerClass(new ClassInfo<>(Difficulty.class, "difficulty")
 				.user("difficult(y|ies)")
@@ -1584,12 +1584,12 @@ public class BukkitClasses {
 					public Difficulty parse(final String input, final ParseContext context) {
 						return difficulties.parse(input);
 					}
-
+					
 					@Override
 					public String toString(Difficulty difficulty, int flags) {
 						return difficulties.toString(difficulty, flags);
 					}
-
+					
 					@SuppressWarnings("null")
 					@Override
 					public String toVariableNameString(Difficulty difficulty) {
@@ -1598,7 +1598,7 @@ public class BukkitClasses {
 
 				})
 				.serializer(new EnumSerializer<>(Difficulty.class)));
-
+		
 		EnumUtils<Status> resourcePackStates = new EnumUtils<>(Status.class, "resource pack states");
 		Classes.registerClass(new ClassInfo<>(Status.class, "resourcepackstate")
 				.user("resource ?pack ?states?")
@@ -1625,7 +1625,7 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Status.class)));
-
+		
 		if (Skript.classExists("org.bukkit.SoundCategory")) {
 			EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
 			Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
@@ -1642,12 +1642,12 @@ public class BukkitClasses {
 						public SoundCategory parse(final String s, final ParseContext context) {
 							return soundCategories.parse(s);
 						}
-
+						
 						@Override
 						public String toString(SoundCategory state, int flags) {
 							return soundCategories.toString(state, flags);
 						}
-
+						
 						@SuppressWarnings("null")
 						@Override
 						public String toVariableNameString(SoundCategory category) {
@@ -1672,12 +1672,12 @@ public class BukkitClasses {
 						public Gene parse(String expr, ParseContext context) {
 							return genes.parse(expr);
 						}
-
+						
 						@Override
 						public String toString(Gene gene, int flags) {
 							return genes.toString(gene, flags);
 						}
-
+						
 						@Override
 						public String toVariableNameString(Gene gene) {
 							return gene.name();
@@ -1699,12 +1699,12 @@ public class BukkitClasses {
 				public RegainReason parse(String s, ParseContext parseContext) {
 					return regainReasons.parse(s);
 				}
-
+				
 				@Override
 				public String toString(RegainReason o, int flags) {
 					return regainReasons.toString(o, flags);
 				}
-
+				
 				@Override
 				public String toVariableNameString(RegainReason o) {
 					return "regainreason:" + o.name();
@@ -1726,12 +1726,12 @@ public class BukkitClasses {
 						public Cat.@Nullable Type parse(String expr, ParseContext context) {
 							return races.parse(expr);
 						}
-
+						
 						@Override
 						public String toString(Cat.Type race, int flags) {
 							return races.toString(race, flags);
 						}
-
+						
 						@Override
 						public String toVariableNameString(Cat.Type race) {
 							return race.name();
@@ -1754,12 +1754,12 @@ public class BukkitClasses {
 					public GameRule parse(final String input, final ParseContext context) {
 						return GameRule.getByName(input);
 					}
-
+					
 					@Override
 					public String toString(GameRule o, int flags) {
 						return o.getName();
 					}
-
+					
 					@Override
 					public String toVariableNameString(GameRule o) {
 						return o.getName();
@@ -1767,7 +1767,7 @@ public class BukkitClasses {
 				})
 			);
 		}
-
+		
 // 		Temporarily disabled until bugs are fixed
 //		if (Skript.classExists("org.bukkit.persistence.PersistentDataHolder")) {
 //			Classes.registerClass(new ClassInfo<>(PersistentDataHolder.class, "persistentdataholder")
@@ -1806,7 +1806,7 @@ public class BukkitClasses {
 					public String toString(EnchantmentOffer eo, int flags) {
 						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
 					}
-
+	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
 						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
@@ -1828,12 +1828,12 @@ public class BukkitClasses {
 					public Attribute parse(String input, ParseContext context) {
 						return attributes.parse(input);
 					}
-
+					
 					@Override
 					public String toString(Attribute a, int flags) {
 						return attributes.toString(a, flags);
 					}
-
+					
 					@Override
 					public String toVariableNameString(Attribute a) {
 						return toString(a, 0);
@@ -1841,25 +1841,25 @@ public class BukkitClasses {
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
 		Classes.registerClass(new ClassInfo<>(Advancement.class, "advancement")
-				.user("advancements?")
-				.name("Advancement")
-				.description("Represents an advancement.")
-				.since("INSERT VERSION")
-				.parser(new Parser<Advancement>() {
-					@Override
-					public boolean canParse(ParseContext context) {
+			.user("advancements?")
+			.name("Advancement")
+			.description("Represents an advancement.")
+			.since("INSERT VERSION")
+			.parser(new Parser<Advancement>() {
+				@Override
+				public boolean canParse(ParseContext context) {
 					return false;
 				}
 
-					@Override
-					public String toString(Advancement a, int flags) {
+				@Override
+				public String toString(Advancement a, int flags) {
 					return a.getKey().getNamespace() + ":" + a.getKey().getKey();
 				}
 
-					@Override
-					public String toVariableNameString(Advancement a) {
-						return toString(a, 0);
-					}
-				}));
+				@Override
+				public String toVariableNameString(Advancement a) {
+					return toString(a, 0);
+				}
+			}));
 	}
 }

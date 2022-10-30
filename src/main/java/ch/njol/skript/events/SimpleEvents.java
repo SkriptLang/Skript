@@ -608,7 +608,7 @@ public class SimpleEvents {
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
 		}
-		Skript.registerEvent("Advancement Done", SimpleEvent.class, PlayerAdvancementDoneEvent.class, "advancement [(complete|finish|done)]")
+		Skript.registerEvent("Advancement Done", SimpleEvent.class, PlayerAdvancementDoneEvent.class, "advancement [(complete|finish.0)]")
 			.description("Called when a player completes an advancement.")
 			.examples("on advancement:",
 				"\tset advancement message to \"%player% got a new advancement!\"",
