@@ -24,6 +24,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Invisible")
@@ -34,7 +37,15 @@ public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "isInvisible"))
-			register(CondIsInvisible.class, PropertyType.BE, "invisible", "livingentities");
+			register(CondIsInvisible.class, PropertyType.BE, "(invisible|1¦visible)", "livingentities");
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		setExpr((Expression<LivingEntity>) exprs[0]);
+		setNegated(matchedPattern == 1 ^ parseResult.mark == 1);
+		return true;
 	}
 
 	@Override
