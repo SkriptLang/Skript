@@ -56,14 +56,14 @@ public class EffInvisible extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (LivingEntity entity : livingEntities.getArray(e))
+	protected void execute(Event event) {
+		for (LivingEntity entity : livingEntities.getArray(event))
 			entity.setInvisible(invisible);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + livingEntities.toString(e, debug) + " " + (invisible ? "in" : "") + "visible";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + livingEntities.toString(event, debug) + " " + (invisible ? "in" : "") + "visible";
 	}
 
 }
