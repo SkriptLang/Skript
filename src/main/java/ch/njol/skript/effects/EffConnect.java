@@ -59,7 +59,9 @@ public class EffConnect extends Effect {
 	@Override
 	protected void execute(Event e) {
 		String server = this.server.getSingle(e);
-		Player[] players = this.players.getArray(e);
+		Player[] players = this.players.stream(e)
+			.filter(Player::isOnline)
+			.toArray(Player[]::new);
 		if (server == null || players.length == 0)
 			return;
 
