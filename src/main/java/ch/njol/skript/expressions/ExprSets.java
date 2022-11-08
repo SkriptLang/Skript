@@ -50,7 +50,8 @@ public class ExprSets extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
-			"[(all [[of] the]|the|every)] %*classinfo%");
+			"[all [[of] the]|the|every] %*classinfo%"
+		);
 	}
 
 	private ClassInfo<?> classInfo;

@@ -61,9 +61,10 @@ public class ExprItems extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
-			"[(all [[of] the]|the|every)] block(s|[ ]type[s])",
-			"[(all [[of] the]|the|every)] blocks of type[s] %itemtypes%",
-			"[(all [[of] the]|the|every)] items of type[s] %itemtypes%");
+			"[all [[of] the]|the|every] block(s|[ ]type[s])",
+			"[all [[of] the]|the|every] blocks of type[s] %itemtypes%",
+			"[all [[of] the]|the|every] items of type[s] %itemtypes%"
+		);
 	}
 
 	@Nullable
