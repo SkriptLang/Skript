@@ -274,7 +274,7 @@ public class EventValues {
 		// Fourth check will attempt to convert the event value to the requesting type.
 		// This first for loop will check that the events are exact. See issue #5016
 		for (EventValueInfo<?, ?> ev : eventValues) {
-			if (!event.isInstance(ev.event))
+			if (!event.getClass().equals(ev.event))
 				continue;
 			
 			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, true);
