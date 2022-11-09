@@ -88,4 +88,5 @@ public class ExprRepeat extends SimpleExpression<String> {
 	public String toString(Event event, boolean debug) {
 		return strings.toString(event, debug) + " repeated " + count.toString(event, debug) + " times";
 	}
+
 }
