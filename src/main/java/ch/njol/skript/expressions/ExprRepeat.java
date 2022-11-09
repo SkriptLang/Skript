@@ -32,22 +32,28 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Name("Repeat String")
 @Description("repeats a given string, a number of times")
-@Examples({"\"Hello, World! \" repeated 2 times", "nl repeated 100 times"})
+@Examples({
+	"\"Hello, World! \" repeated 2 times",
+	"nl and nl repeated 5 times"
+})
 @Since("INSERT VERSION")
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%string% repeated %integer% time[s]");
+		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %integer% time[s]");
 	}
 
-	private Expression<String> string;
+	private Expression<String> strings;
 	private Expression<Integer> count;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		string = (Expression<String>) exprs[0];
+		strings = (Expression<String>) exprs[0];
 		count = (Expression<Integer>) exprs[1];
 		return true;
 	}
@@ -55,16 +61,21 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
+		List<String> stringList = new ArrayList<>();
 		int count = this.count.getSingle(event);
-		String string = this.string.getSingle(event);
-		if (count < 1)
-			return new String[]{string};
-		return new String[]{StringUtils.multiply(string, count)};
+		for (String string : this.strings.getArray(event)) {
+			if (count < 1) {
+				stringList.add(StringUtils.multiply(string, count));
+				continue;
+			}
+			stringList.add(StringUtils.multiply(string,count));
+		}
+		return stringList.toArray(new String[stringList.size()]);
 	}
 
 	@Override
 	public boolean isSingle() {
-		return true;
+		return strings.isSingle();
 	}
 
 	@Override
@@ -75,6 +86,6 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String toString(Event event, boolean debug) {
-		return string.toString(event, debug) + " repeated " + count.toString(event, debug) + " times";
+		return strings.toString(event, debug) + " repeated " + count.toString(event, debug) + " times";
 	}
 }
