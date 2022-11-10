@@ -570,7 +570,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this, () -> {
 					if (logNormal())
 						info("Loading variables...");
-					final long vls = System.currentTimeMillis();
+					long vls = System.currentTimeMillis();
 					
 					LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
 						@Override
