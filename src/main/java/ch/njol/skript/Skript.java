@@ -574,7 +574,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					
 					LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
 						@Override
-						public LogResult log(final LogEntry entry) {
+						public LogResult log(LogEntry entry) {
 							super.log(entry);
 							if (entry.level.intValue() >= Level.SEVERE.intValue()) {
 								logEx(entry.message); // no [Skript] prefix
