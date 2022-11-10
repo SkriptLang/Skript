@@ -606,7 +606,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					} finally {
 						h.stop();
 					}
-					final long vld = System.currentTimeMillis() - vls;
+					long vld = System.currentTimeMillis() - vls;
 					if (logNormal())
 						info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 				});
