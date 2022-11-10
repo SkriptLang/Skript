@@ -41,7 +41,7 @@ public class SQLiteStorage extends SQLStorage {
 		if (f == null)
 			return null;
 		setTableName(config.get("table", "variables21"));
-		final String name = f.getName();
+		String name = f.getName();
 		assert name.endsWith(".db");
 		return new SQLite(SkriptLogger.LOGGER, "[Skript]", f.getParent(), name.substring(0, name.length() - ".db".length()));
 	}
