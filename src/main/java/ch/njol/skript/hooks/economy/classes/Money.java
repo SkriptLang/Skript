@@ -21,8 +21,6 @@ package ch.njol.skript.hooks.economy.classes;
 import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Converter;

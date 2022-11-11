@@ -34,7 +34,6 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 
 /**
  * @author Peter Güttinger
