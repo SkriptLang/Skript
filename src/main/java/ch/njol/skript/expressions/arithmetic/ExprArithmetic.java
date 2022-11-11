@@ -22,6 +22,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.conditions.CondCompare;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.registrations.Arithmetics;
+import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -32,12 +36,11 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 
 /**
  * @author Peter Güttinger
@@ -50,7 +53,7 @@ import ch.njol.util.Kleenean;
 		"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
-public class ExprArithmetic extends SimpleExpression<Number> {
+public class ExprArithmetic extends SimpleExpression<Object> {
 	
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 	
@@ -68,78 +71,93 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 	
 	private final static Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
 
-		{"\\(%number%\\)[ ]+[ ]\\(%number%\\)", new PatternInfo(Operator.PLUS, true, true)},
-		{"\\(%number%\\)[ ]+[ ]%number%", new PatternInfo(Operator.PLUS, true, false)},
-		{"%number%[ ]+[ ]\\(%number%\\)", new PatternInfo(Operator.PLUS, false, true)},
-		{"%number%[ ]+[ ]%number%", new PatternInfo(Operator.PLUS, false, false)},
+		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.PLUS, true, true)},
+		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.PLUS, true, false)},
+		{"%object%[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.PLUS, false, true)},
+		{"%object%[ ]+[ ]%object%", new PatternInfo(Operator.PLUS, false, false)},
 		
-		{"\\(%number%\\)[ ]-[ ]\\(%number%\\)", new PatternInfo(Operator.MINUS, true, true)},
-		{"\\(%number%\\)[ ]-[ ]%number%", new PatternInfo(Operator.MINUS, true, false)},
-		{"%number%[ ]-[ ]\\(%number%\\)", new PatternInfo(Operator.MINUS, false, true)},
-		{"%number%[ ]-[ ]%number%", new PatternInfo(Operator.MINUS, false, false)},
+		{"\\(%object%\\)[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.MINUS, true, true)},
+		{"\\(%object%\\)[ ]-[ ]%object%", new PatternInfo(Operator.MINUS, true, false)},
+		{"%object%[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.MINUS, false, true)},
+		{"%object%[ ]-[ ]%object%", new PatternInfo(Operator.MINUS, false, false)},
 		
-		{"\\(%number%\\)[ ]*[ ]\\(%number%\\)", new PatternInfo(Operator.MULT, true, true)},
-		{"\\(%number%\\)[ ]*[ ]%number%", new PatternInfo(Operator.MULT, true, false)},
-		{"%number%[ ]*[ ]\\(%number%\\)", new PatternInfo(Operator.MULT, false, true)},
-		{"%number%[ ]*[ ]%number%", new PatternInfo(Operator.MULT, false, false)},
+		{"\\(%object%\\)[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULT, true, true)},
+		{"\\(%object%\\)[ ]*[ ]%object%", new PatternInfo(Operator.MULT, true, false)},
+		{"%object%[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULT, false, true)},
+		{"%object%[ ]*[ ]%object%", new PatternInfo(Operator.MULT, false, false)},
 		
-		{"\\(%number%\\)[ ]/[ ]\\(%number%\\)", new PatternInfo(Operator.DIV, true, true)},
-		{"\\(%number%\\)[ ]/[ ]%number%", new PatternInfo(Operator.DIV, true, false)},
-		{"%number%[ ]/[ ]\\(%number%\\)", new PatternInfo(Operator.DIV, false, true)},
-		{"%number%[ ]/[ ]%number%", new PatternInfo(Operator.DIV, false, false)},
+		{"\\(%object%\\)[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIV, true, true)},
+		{"\\(%object%\\)[ ]/[ ]%object%", new PatternInfo(Operator.DIV, true, false)},
+		{"%object%[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIV, false, true)},
+		{"%object%[ ]/[ ]%object%", new PatternInfo(Operator.DIV, false, false)},
 		
-		{"\\(%number%\\)[ ]^[ ]\\(%number%\\)", new PatternInfo(Operator.EXP, true, true)},
-		{"\\(%number%\\)[ ]^[ ]%number%", new PatternInfo(Operator.EXP, true, false)},
-		{"%number%[ ]^[ ]\\(%number%\\)", new PatternInfo(Operator.EXP, false, true)},
-		{"%number%[ ]^[ ]%number%", new PatternInfo(Operator.EXP, false, false)},
+		{"\\(%object%\\)[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXP, true, true)},
+		{"\\(%object%\\)[ ]^[ ]%object%", new PatternInfo(Operator.EXP, true, false)},
+		{"%object%[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXP, false, true)},
+		{"%object%[ ]^[ ]%object%", new PatternInfo(Operator.EXP, false, false)},
 		
 	});
 	
 	static {
-		Skript.registerExpression(ExprArithmetic.class, Number.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
+		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
 	
 	@SuppressWarnings("null")
-	private Expression<? extends Number> first;
-	@SuppressWarnings("null")
-	private Expression<? extends Number> second;
+	private Expression<?> first, second;
 	@SuppressWarnings("null")
 	private Operator op;
 	
 	@SuppressWarnings("null")
-	private Class<? extends Number> returnType;
+	private Class<?> returnType;
 	
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
 	
 	// A parsed chain, like a tree
-	private ArithmeticGettable arithmeticGettable;
+	@Nullable
+	private ArithmeticGettable<?> arithmeticGettable;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings({"null"})
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		first = (Expression<? extends Number>) exprs[0];
-		second = (Expression<? extends Number>) exprs[1];
-		
+		first = LiteralUtils.defendExpression(exprs[0]);
+		second = LiteralUtils.defendExpression(exprs[1]);
+
+		if (!LiteralUtils.canInitSafely(first, second))
+			return false;
+
+		returnType = first.getReturnType();
+		Class<?> secondClass = second.getReturnType();
+
 		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
 		op = patternInfo.operator;
-		
-		if (op == Operator.DIV || op == Operator.EXP) {
-			returnType = Double.class;
-		} else {
-			Class<?> firstReturnType = first.getReturnType();
-			Class<?> secondReturnType = second.getReturnType();
-			
-			boolean firstIsInt = false;
-			boolean secondIsInt = false;
-			for (final Class<?> i : INTEGER_CLASSES) {
-				firstIsInt |= i.isAssignableFrom(firstReturnType);
-				secondIsInt |= i.isAssignableFrom(secondReturnType);
+
+		if (Number.class.isAssignableFrom(returnType)) {
+			if (op == Operator.DIV || op == Operator.EXP) {
+				returnType = Double.class;
+			} else {
+				Class<?> firstReturnType = first.getReturnType();
+				Class<?> secondReturnType = second.getReturnType();
+
+				boolean firstIsInt = false;
+				boolean secondIsInt = false;
+				for (final Class<?> i : INTEGER_CLASSES) {
+					firstIsInt |= i.isAssignableFrom(firstReturnType);
+					secondIsInt |= i.isAssignableFrom(secondReturnType);
+				}
+
+				returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
 			}
-			
-			returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
 		}
-		
+
+		Arithmetic<?> arithmetic = null;
+
+		if (!returnType.equals(Object.class)
+				&& !secondClass.equals(Object.class)
+				&& (arithmetic = getArithmetic(returnType, op, secondClass)) == null) {
+			return false;
+		}
+
 		// Chaining
 		if (first instanceof ExprArithmetic && !patternInfo.leftGrouped) {
 			chain.addAll(((ExprArithmetic) first).chain);
@@ -152,24 +170,54 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 		} else {
 			chain.add(second);
 		}
-		
-		arithmeticGettable = ArithmeticChain.parse(chain);
-		
+
+		if (arithmetic != null)
+			arithmeticGettable = ArithmeticChain.parse(chain, arithmetic);
+
 		return true;
 	}
 	
-	@SuppressWarnings("null")
 	@Override
-	protected Number[] get(final Event e) {
-		Number[] one = (Number[]) Array.newInstance(returnType, 1);
-		
-		one[0] = arithmeticGettable.get(e, returnType == Long.class);
-		
+	@SuppressWarnings("null")
+	protected Object[] get(final Event e) {
+		Class<?> type = returnType;
+		if (Number.class.isAssignableFrom(type))
+			type = Number.class;
+
+		Object[] one = (Object[]) Array.newInstance(type, 1);
+
+		if (arithmeticGettable == null) {
+			Object first = this.first.getSingle(e);
+			Object second = this.second.getSingle(e);
+
+			if (first == null || second == null)
+				return one;
+
+			Arithmetic<?> arithmetic = getArithmetic(first.getClass(), op, second.getClass());
+			if (arithmetic == null)
+				return one;
+
+			arithmeticGettable = ArithmeticChain.parse(chain, arithmetic);
+		}
+
+		one[0] = arithmeticGettable.get(e);
+
 		return one;
 	}
-	
+
+	@Nullable
+	private Arithmetic<?> getArithmetic(Class<?> firstClass, Operator operator, Class<?> secondClass) {
+		Arithmetic<?> arithmetic = Arithmetics.getArithmetic(firstClass);
+
+		if (arithmetic == null || !arithmetic.acceptsOperator(operator, secondClass)) {
+			return null;
+		}
+
+		return arithmetic;
+	}
+
 	@Override
-	public Class<? extends Number> getReturnType() {
+	public Class<?> getReturnType() {
 		return returnType;
 	}
 	
@@ -182,13 +230,5 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
 	}
-	
-	@SuppressWarnings("null")
-	@Override
-	public Expression<? extends Number> simplify() {
-		if (first instanceof Literal && second instanceof Literal)
-			return new SimpleLiteral<>(getArray(null), Number.class, false);
-		return this;
-	}
-	
+
 }

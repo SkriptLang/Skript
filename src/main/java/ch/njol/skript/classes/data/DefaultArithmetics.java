@@ -58,8 +58,7 @@ public class DefaultArithmetics {
 						result = one * two;
 						break;
 					case DIV:
-						result = one / two;
-						break;
+						return one / two;
 					case EXP:
 						result = Math.pow(one, two);
 						break;

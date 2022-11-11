@@ -134,16 +134,7 @@ public abstract class Arithmetics {
 		Arithmetic<? super T> arithmetic = getArithmetic(c);
 		if (arithmetic == null)
 			return false;
-		Class<?>[] classes = arithmetic.acceptOperator(operator);
-		if (classes == null)
-			return false;
-		for (Class<?> type : types) {
-			for (Class<?> aClass : classes) {
-				if (aClass.isAssignableFrom(type))
-					return true;
-			}
-		}
-		return false;
+		return arithmetic.acceptsOperator(operator, types);
 	}
 
 }

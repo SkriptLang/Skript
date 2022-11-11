@@ -19,6 +19,7 @@
 package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.expressions.arithmetic.Operator;
+import ch.njol.skript.registrations.Arithmetics;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,6 +31,19 @@ import org.jetbrains.annotations.Nullable;
 public interface Arithmetic<A> {
 
 	Class<?> @Nullable [] acceptOperator(Operator operator);
+
+	default boolean acceptsOperator(Operator operator, Class<?>... types) {
+		Class<?>[] classes = acceptOperator(operator);
+		if (classes == null)
+			return false;
+		for (Class<?> type : types) {
+			for (Class<?> aClass : classes) {
+				if (aClass.isAssignableFrom(type))
+					return true;
+			}
+		}
+		return false;
+	}
 
 	A calculate(A first, Operator operator, Object second);
 

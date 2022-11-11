@@ -20,8 +20,8 @@ package ch.njol.skript.expressions.arithmetic;
 
 import org.bukkit.event.Event;
 
-public interface ArithmeticGettable {
+public interface ArithmeticGettable<T> {
 	
-	Number get(Event event, boolean integer);
+	T get(Event event);
 	
 }

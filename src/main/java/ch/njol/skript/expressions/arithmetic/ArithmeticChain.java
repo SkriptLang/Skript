@@ -20,13 +20,15 @@ package ch.njol.skript.expressions.arithmetic;
 
 import java.util.List;
 
+import ch.njol.skript.registrations.Arithmetics;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
+import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 
-public class ArithmeticChain implements ArithmeticGettable {
+public class ArithmeticChain<L, R> implements ArithmeticGettable<L> {
 	
 	@SuppressWarnings("unchecked")
 	private static final Checker<Object>[] CHECKERS = new Checker[]{
@@ -35,43 +37,47 @@ public class ArithmeticChain implements ArithmeticGettable {
 		o -> o.equals(Operator.EXP)
 	};
 	
-	private final ArithmeticGettable left;
+	private final ArithmeticGettable<L> left;
 	private final Operator operator;
-	private final ArithmeticGettable right;
+	private final ArithmeticGettable<R> right;
+	private final Arithmetic<L> arithmetic;
 	
-	public ArithmeticChain(ArithmeticGettable left, Operator operator, ArithmeticGettable right) {
+	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator, ArithmeticGettable<R> right, Arithmetic<L> arithmetic) {
 		this.left = left;
 		this.operator = operator;
 		this.right = right;
+		this.arithmetic = arithmetic;
 	}
 	
 	@Override
-	public Number get(Event event, boolean integer) {
-		return operator.calculate(left.get(event, integer), right.get(event, integer), integer);
+	public L get(Event event) {
+		L left = this.left.get(event);
+		R right = this.right.get(event);
+		return arithmetic.calculate(left, operator, right);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static ArithmeticGettable parse(List<Object> chain) {
+	public static <L> ArithmeticGettable<L> parse(List<Object> chain, Arithmetic<L> arithmetic) {
 		for (Checker<Object> checker : CHECKERS) {
 			int lastIndex = Utils.findLastIndex(chain, checker);
 			
 			if (lastIndex != -1) {
 				List<Object> leftChain = chain.subList(0, lastIndex);
-				ArithmeticGettable left = parse(leftChain);
+				ArithmeticGettable<L> left = parse(leftChain, arithmetic);
 				
 				Operator operator = (Operator) chain.get(lastIndex);
 				
 				List<Object> rightChain = chain.subList(lastIndex + 1, chain.size());
-				ArithmeticGettable right = parse(rightChain);
+				ArithmeticGettable<?> right = parse(rightChain, arithmetic);
 				
-				return new ArithmeticChain(left, operator, right);
+				return new ArithmeticChain<>(left, operator, right, arithmetic);
 			}
 		}
 		
 		if (chain.size() != 1)
 			throw new IllegalStateException();
-		
-		return new NumberExpressionInfo((Expression<? extends Number>) chain.get(0));
+
+		return event -> ((Expression<? extends L>) chain.get(0)).getSingle(event);
 	}
 	
 }
