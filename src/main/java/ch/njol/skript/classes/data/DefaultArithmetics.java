@@ -43,29 +43,39 @@ public class DefaultArithmetics {
 				return CollectionUtils.array(Number.class);
 			}
 
+			private boolean isInteger(Number... numbers) {
+				for (Number number : numbers) {
+					if (Double.class.isAssignableFrom(number.getClass()) || Float.class.isAssignableFrom(number.getClass()))
+						return false;
+				}
+				return true;
+			}
+
 			@Override
 			public Number calculate(Number first, Operator operator, Object second) {
-				double one = first.doubleValue();
-				double two = ((Number) second).doubleValue();
-				double result = 0;
+				Number two = (Number) second;
+				boolean integer = operator != Operator.DIV && isInteger(first, two);
 				switch (operator) {
-					case MINUS:
-						two *= -1;
 					case PLUS:
-						result = one + two;
-						break;
+						if (integer)
+							return first.longValue() + two.longValue();
+						return first.doubleValue() + two.doubleValue();
+					case MINUS:
+						if (integer)
+							return first.longValue() - two.longValue();
+						return first.doubleValue() - two.doubleValue();
 					case MULT:
-						result = one * two;
-						break;
+						if (integer)
+							return first.longValue() * two.longValue();
+						return first.doubleValue() * two.doubleValue();
 					case DIV:
-						return one / two;
+						return first.doubleValue() / two.doubleValue();
 					case EXP:
-						result = Math.pow(one, two);
-						break;
+						if (integer)
+							return (long) Math.pow(first.longValue(), two.longValue());
+						return Math.pow(first.doubleValue(), two.doubleValue());
 				}
-				if (result == (long) result)
-					return (long) result;
-				return result;
+				return 0L;
 			}
 		});
 		Arithmetics.registerDifference(Number.class, (first, second) -> {

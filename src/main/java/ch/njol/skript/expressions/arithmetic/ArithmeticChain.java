@@ -51,9 +51,7 @@ public class ArithmeticChain<L, R> implements ArithmeticGettable<L> {
 	
 	@Override
 	public L get(Event event) {
-		L left = this.left.get(event);
-		R right = this.right.get(event);
-		return arithmetic.calculate(left, operator, right);
+		return arithmetic.calculate(left.get(event), operator, right.get(event));
 	}
 	
 	@SuppressWarnings("unchecked")

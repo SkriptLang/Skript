@@ -22,8 +22,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.njol.skript.conditions.CondCompare;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Arithmetics;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
@@ -54,69 +52,71 @@ import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic extends SimpleExpression<Object> {
-	
+
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
-	
+
 	private static class PatternInfo {
 		public final Operator operator;
 		public final boolean leftGrouped;
 		public final boolean rightGrouped;
-		
+
 		public PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 			this.operator = operator;
 			this.leftGrouped = leftGrouped;
 			this.rightGrouped = rightGrouped;
 		}
 	}
-	
+
 	private final static Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
 
 		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.PLUS, true, true)},
 		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.PLUS, true, false)},
 		{"%object%[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.PLUS, false, true)},
 		{"%object%[ ]+[ ]%object%", new PatternInfo(Operator.PLUS, false, false)},
-		
+
 		{"\\(%object%\\)[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.MINUS, true, true)},
 		{"\\(%object%\\)[ ]-[ ]%object%", new PatternInfo(Operator.MINUS, true, false)},
 		{"%object%[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.MINUS, false, true)},
 		{"%object%[ ]-[ ]%object%", new PatternInfo(Operator.MINUS, false, false)},
-		
+
 		{"\\(%object%\\)[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULT, true, true)},
 		{"\\(%object%\\)[ ]*[ ]%object%", new PatternInfo(Operator.MULT, true, false)},
 		{"%object%[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULT, false, true)},
 		{"%object%[ ]*[ ]%object%", new PatternInfo(Operator.MULT, false, false)},
-		
+
 		{"\\(%object%\\)[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIV, true, true)},
 		{"\\(%object%\\)[ ]/[ ]%object%", new PatternInfo(Operator.DIV, true, false)},
 		{"%object%[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIV, false, true)},
 		{"%object%[ ]/[ ]%object%", new PatternInfo(Operator.DIV, false, false)},
-		
+
 		{"\\(%object%\\)[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXP, true, true)},
 		{"\\(%object%\\)[ ]^[ ]%object%", new PatternInfo(Operator.EXP, true, false)},
 		{"%object%[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXP, false, true)},
 		{"%object%[ ]^[ ]%object%", new PatternInfo(Operator.EXP, false, false)},
-		
+
 	});
-	
+
 	static {
 		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<?> first, second;
 	@SuppressWarnings("null")
 	private Operator op;
-	
+
 	@SuppressWarnings("null")
 	private Class<?> returnType;
-	
+
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
-	
+
 	// A parsed chain, like a tree
 	@Nullable
 	private ArithmeticGettable<?> arithmeticGettable;
-	
+
+	private boolean leftGrouped, rightGrouped;
+
 	@Override
 	@SuppressWarnings({"null"})
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -131,6 +131,8 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
 		op = patternInfo.operator;
+		leftGrouped = patternInfo.leftGrouped;
+		rightGrouped = patternInfo.rightGrouped;
 
 		if (Number.class.isAssignableFrom(returnType)) {
 			if (op == Operator.DIV || op == Operator.EXP) {
@@ -159,13 +161,13 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		}
 
 		// Chaining
-		if (first instanceof ExprArithmetic && !patternInfo.leftGrouped) {
+		if (first instanceof ExprArithmetic && !leftGrouped) {
 			chain.addAll(((ExprArithmetic) first).chain);
 		} else {
 			chain.add(first);
 		}
 		chain.add(op);
-		if (second instanceof ExprArithmetic && !patternInfo.rightGrouped) {
+		if (second instanceof ExprArithmetic && !rightGrouped) {
 			chain.addAll(((ExprArithmetic) second).chain);
 		} else {
 			chain.add(second);
@@ -176,32 +178,28 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 		return true;
 	}
-	
+
 	@Override
 	@SuppressWarnings("null")
 	protected Object[] get(final Event e) {
-		Class<?> type = returnType;
-		if (Number.class.isAssignableFrom(type))
-			type = Number.class;
-
-		Object[] one = (Object[]) Array.newInstance(type, 1);
-
 		if (arithmeticGettable == null) {
 			Object first = this.first.getSingle(e);
 			Object second = this.second.getSingle(e);
 
 			if (first == null || second == null)
-				return one;
+				return new Object[0];
 
 			Arithmetic<?> arithmetic = getArithmetic(first.getClass(), op, second.getClass());
 			if (arithmetic == null)
-				return one;
+				return new Object[0];
 
 			arithmeticGettable = ArithmeticChain.parse(chain, arithmetic);
 		}
 
-		one[0] = arithmeticGettable.get(e);
+		Object result = arithmeticGettable.get(e);
 
+		Object[] one = (Object[]) Array.newInstance(result.getClass(), 1);
+		one[0] = result;
 		return one;
 	}
 
@@ -220,15 +218,21 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	public Class<?> getReturnType() {
 		return returnType;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
+		String one = first.toString(e, debug);
+		String two = second.toString(e, debug);
+		if (leftGrouped)
+			one = '(' + one + ')';
+		if (rightGrouped)
+			two = '(' + two + ')';
+		return one + " " + op + " " + two;
 	}
 
 }

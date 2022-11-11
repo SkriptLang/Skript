@@ -19,19 +19,31 @@
 package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.expressions.arithmetic.Operator;
-import ch.njol.skript.registrations.Arithmetics;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents arithmetic for certain two types. Multiplication, division and
- * power of methods are optional and may throw UnsupportedOperationExceptions.
- * @param <A> the type of the absolute value
- * @param <R> the type of the relative value
+ * Represents arithmetic for certain a certain type.
+ * @param <T> the type of arithmetic
+ * @see Difference
+ * @see ch.njol.skript.registrations.Arithmetics#registerArithmetic(Class, Arithmetic)
+ * @see ch.njol.skript.classes.data.DefaultArithmetics
  */
-public interface Arithmetic<A> {
+public interface Arithmetic<T> {
 
+	/**
+	 * Tests whether this arithmetic supports the given operator, and if yes what type(s) it expects the second value to be.
+	 * @param operator The operator to test for
+	 * @return An array of types that can be used in {@link #calculate(Object, Operator, Object)}.
+	 */
 	Class<?> @Nullable [] acceptOperator(Operator operator);
 
+
+	/**
+	 * Tests whether this arithmetic supports the given operator and types.
+	 * @param operator The operator to test for
+	 * @param types The types to test for
+	 * @return Whether {@link #calculate(Object, Operator, Object)} can be used or not.
+	 */
 	default boolean acceptsOperator(Operator operator, Class<?>... types) {
 		Class<?>[] classes = acceptOperator(operator);
 		if (classes == null)
@@ -45,7 +57,7 @@ public interface Arithmetic<A> {
 		return false;
 	}
 
-	A calculate(A first, Operator operator, Object second);
+	T calculate(T first, Operator operator, Object second);
 
 	final class ArithmeticInfo<T> {
 
