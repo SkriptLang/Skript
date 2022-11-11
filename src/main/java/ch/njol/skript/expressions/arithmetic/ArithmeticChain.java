@@ -20,7 +20,6 @@ package ch.njol.skript.expressions.arithmetic;
 
 import java.util.List;
 
-import ch.njol.skript.registrations.Arithmetics;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.lang.Expression;

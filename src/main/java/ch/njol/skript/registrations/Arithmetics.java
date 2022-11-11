@@ -20,7 +20,6 @@ package ch.njol.skript.registrations;
 
 import ch.njol.skript.expressions.arithmetic.Operator;
 import com.google.common.base.Preconditions;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 import org.skriptlang.skript.lang.arithmetic.Arithmetic.ArithmeticInfo;
@@ -28,7 +27,6 @@ import org.skriptlang.skript.lang.arithmetic.Difference;
 import org.skriptlang.skript.lang.arithmetic.Difference.DifferenceInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
