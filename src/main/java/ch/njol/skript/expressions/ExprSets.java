@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Name("Sets")
-@Description("A list of all the values of a type; useful for looping.")
+@Description("Returns a list of all the values of a type; useful for looping.")
 @Examples({
 	"loop all attribute types:",
-		"\tset loop-value attribute of player to 10",
-		"\tmessage \"Set attribute %loop-value% to 10!\""
+	"\tset loop-value attribute of player to 10",
+	"\tmessage \"Set attribute %loop-value% to 10!\""
 })
 @Since("INSERT VERSION")
 public class ExprSets extends SimpleExpression<Object> {
