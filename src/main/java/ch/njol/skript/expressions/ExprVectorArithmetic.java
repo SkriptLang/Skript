@@ -49,7 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"set {_v} to {_v} ** 5",
 		"set {_v} to {_v} // {_v}",
 		"set {_v} to {_v} // 5"})
-@Since("2.2-dev28")
+@Since("2.2-dev28, INSERT VERSION (deprecated)")
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
 	private enum Operator {
@@ -115,6 +115,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 		first = (Expression<Vector>) exprs[0];
 		second = (Expression<Vector>) exprs[1];
 		op = patterns.getInfo(matchedPattern);
+		Skript.warning("This expression deprecated in favor of ExprArithmetic. Please use that instead, e.g. vector(2, 4, 1) + vector(5, 2, 3)");
 		return true;
 	}
 
