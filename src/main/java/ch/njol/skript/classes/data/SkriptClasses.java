@@ -24,7 +24,7 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.Arithmetic;
+import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumSerializer;
@@ -338,37 +338,6 @@ public class SkriptClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				})
-				.math(Timespan.class, new Arithmetic<Timespan, Timespan>() {
-					@Override
-					public Timespan difference(final Timespan t1, final Timespan t2) {
-						return new Timespan(Math.abs(t1.getMilliSeconds() - t2.getMilliSeconds()));
-					}
-
-					@Override
-					public Timespan add(final Timespan value, final Timespan difference) {
-						return new Timespan(value.getMilliSeconds() + difference.getMilliSeconds());
-					}
-
-					@Override
-					public Timespan subtract(final Timespan value, final Timespan difference) {
-						return new Timespan(Math.max(0, value.getMilliSeconds() - difference.getMilliSeconds()));
-					}
-
-					@Override
-					public Timespan multiply(Timespan value, Timespan multiplier) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Timespan divide(Timespan value, Timespan divider) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Timespan power(Timespan value, Timespan exponent) {
-						throw new UnsupportedOperationException();
-					}
 				}));
 
 		// TODO remove
@@ -455,36 +424,6 @@ public class SkriptClasses {
 						} catch (final NumberFormatException e) {
 							return null;
 						}
-					}
-				}).math(Timespan.class, new Arithmetic<Date, Timespan>() {
-					@Override
-					public Timespan difference(final Date first, final Date second) {
-						return first.difference(second);
-					}
-
-					@Override
-					public Date add(final Date value, final Timespan difference) {
-						return new Date(value.getTimestamp() + difference.getMilliSeconds());
-					}
-
-					@Override
-					public Date subtract(final Date value, final Timespan difference) {
-						return new Date(value.getTimestamp() - difference.getMilliSeconds());
-					}
-
-					@Override
-					public Date multiply(Date value, Timespan multiplier) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Date divide(Date value, Timespan divider) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Date power(Date value, Timespan exponent) {
-						throw new UnsupportedOperationException();
 					}
 				}));
 

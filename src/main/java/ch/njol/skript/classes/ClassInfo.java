@@ -34,6 +34,7 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 
 /**
  * @author Peter Güttinger
@@ -65,12 +66,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Serializer<? super T> serializer = null;
 	@Nullable
 	private Class<?> serializeAs = null;
-	
-	@Nullable
-	private Arithmetic<? super T, ?> math = null;
-	@Nullable
-	private Class<?> mathRelativeType = null;
-	
+
 	@Nullable
 	private String docName = null;
 	@Nullable
@@ -188,13 +184,6 @@ public class ClassInfo<T> implements Debuggable {
 	public ClassInfo<T> changer(final Changer<? super T> changer) {
 		assert this.changer == null;
 		this.changer = changer;
-		return this;
-	}
-	
-	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
-		assert this.math == null;
-		this.math = math;
-		mathRelativeType = relativeType;
 		return this;
 	}
 	
@@ -346,22 +335,7 @@ public class ClassInfo<T> implements Debuggable {
 	public Class<?> getSerializeAs() {
 		return serializeAs;
 	}
-	
-	@Nullable
-	public Arithmetic<? super T, ?> getMath() {
-		return math;
-	}
 
-	@Nullable
-	public <R> Arithmetic<T, R> getRelativeMath() {
-		return (Arithmetic<T, R>) math;
-	}
-	
-	@Nullable
-	public Class<?> getMathRelativeType() {
-		return mathRelativeType;
-	}
-	
 	@Nullable
 	public String[] getDescription() {
 		return description;

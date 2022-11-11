@@ -21,6 +21,8 @@ package ch.njol.skript.expressions;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import ch.njol.skript.expressions.arithmetic.Operator;
+import ch.njol.skript.registrations.Arithmetics;
 import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.Event;
@@ -30,7 +32,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -126,17 +127,14 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			return;
 
 		Function<Timespan, Timespan> value = null;
-		ClassInfo<Timespan> ci = DefaultClasses.TIMESPAN;
-		Arithmetic<Timespan, Timespan> arithmetic = ci.getRelativeMath();
 		Timespan changed = (Timespan) delta[0];
-		assert arithmetic != null;
 
 		switch (mode) {
 			case ADD:
-				value = (original) -> arithmetic.add(original, changed);
+				value = (original) -> Arithmetics.calculate(original, Operator.PLUS, changed);
 				break;
 			case REMOVE:
-				value = (original) -> arithmetic.difference(original, changed);
+				value = (original) -> Arithmetics.difference(original, changed, Timespan.class);
 				break;
 			case SET:
 				value = (original) -> changed;

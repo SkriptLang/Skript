@@ -16,26 +16,36 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.classes;
+package org.skriptlang.skript.lang.arithmetic;
 
-/**
- * Represents arithmetic for certain two types. Multiplication, division and
- * power of methods are optional and may throw UnsupportedOperationExceptions.
- * @param <A> the type of the absolute value
- * @param <R> the type of the relative value
- */
-public interface Arithmetic<A, R> {
-	
-	public R difference(A first, A second);
-	
-	public A add(A value, R difference);
-	
-	public A subtract(A value, R difference);
-	
-	public A multiply(A value, R multiplier);
-	
-	public A divide(A value, R divider);
-	
-	public A power(A value, R exponent);
-	
+@FunctionalInterface
+public interface Difference<A, R> {
+
+	R difference(A first, A second);
+
+	final class DifferenceInfo<A, R> {
+
+		private final Class<A> type;
+		private final Class<R> relativeType;
+		private final Difference<A, R> difference;
+
+		public DifferenceInfo(Class<A> type, Class<R> relativeType, Difference<A, R> difference) {
+			this.type = type;
+			this.relativeType = relativeType;
+			this.difference = difference;
+		}
+
+		public Class<A> getType() {
+			return type;
+		}
+
+		public Class<R> getRelativeType() {
+			return relativeType;
+		}
+
+		public Difference<A, R> getDifference() {
+			return difference;
+		}
+
+	}
 }

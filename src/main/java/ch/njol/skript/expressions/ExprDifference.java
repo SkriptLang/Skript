@@ -20,11 +20,11 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.registrations.Arithmetics;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.doc.Description;
@@ -39,9 +39,9 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.arithmetic.Difference.DifferenceInfo;
 
 /**
  * @author Peter Güttinger
@@ -62,7 +62,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 	
 	@SuppressWarnings("rawtypes")
 	@Nullable
-	private Arithmetic math;
+	private DifferenceInfo differenceInfo;
 	@SuppressWarnings("null")
 	private Class<?> relativeType;
 	
@@ -71,15 +71,15 @@ public class ExprDifference extends SimpleExpression<Object> {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		first = exprs[0];
 		second = exprs[1];
-		final ClassInfo<?> ci;
+		final Class<?> c;
 		if (first instanceof Variable && second instanceof Variable) {
-			ci = DefaultClasses.OBJECT;
+			c = Object.class;
 		} else if (first instanceof Literal<?> && second instanceof Literal<?>) {
 			first = first.getConvertedExpression(Object.class);
 			second = second.getConvertedExpression(Object.class);
 			if (first == null || second == null)
 				return false;
-			ci = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
+			c = Utils.getSuperType(first.getReturnType(), second.getReturnType());
 		} else {
 			if (first instanceof Literal<?>) {
 				first = first.getConvertedExpression(second.getReturnType());
@@ -96,19 +96,19 @@ public class ExprDifference extends SimpleExpression<Object> {
 				second = second.getConvertedExpression(first.getReturnType());
 			}
 			assert first != null && second != null;
-			ci = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
+			c = Utils.getSuperType(first.getReturnType(), second.getReturnType());
 		}
-		assert ci != null;
-		if (!ci.getC().equals(Object.class) && ci.getMath() == null) {
+		assert c != null;
+
+		if (!c.equals(Object.class) && (differenceInfo = Arithmetics.getDifferenceInfo(c)) == null) {
 			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second), ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
-		if (ci.getC().equals(Object.class)) {
+		if (c.equals(Object.class)) {
 			// Initialize less stuff, basically
 			relativeType = Object.class; // Relative math type would be null which the parser doesn't like
 		} else {
-			math = ci.getMath();
-			relativeType = ci.getMathRelativeType();
+			relativeType = differenceInfo.getRelativeType();
 		}
 		return true;
 	}
@@ -124,15 +124,15 @@ public class ExprDifference extends SimpleExpression<Object> {
 		
 		// If we're comparing object expressions, such as variables, math is null right now
 		if (relativeType.equals(Object.class)) {
-			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(f.getClass(), s.getClass()));
-			math = info.getMath();
-			if (math == null) { // User did something stupid, just return <none> for them
+			Class<?> c = Utils.getSuperType(f.getClass(), s.getClass());
+			differenceInfo = Arithmetics.getDifferenceInfo(c);
+			if (differenceInfo == null) { // User did something stupid, just return <none> for them
 				return one;
 			}
 		}
 		
-		assert math != null; // NOW it cannot be null
-		one[0] = math.difference(f, s);
+		assert differenceInfo != null; // NOW it cannot be null
+		one[0] = differenceInfo.getDifference().difference(f, s);
 		
 		return one;
 	}
