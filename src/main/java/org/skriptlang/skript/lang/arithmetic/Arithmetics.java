@@ -16,32 +16,30 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.registrations;
+package org.skriptlang.skript.lang.arithmetic;
 
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.expressions.arithmetic.Operator;
-import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.arithmetic.Arithmetic;
-import org.skriptlang.skript.lang.arithmetic.Arithmetic.ArithmeticInfo;
-import org.skriptlang.skript.lang.arithmetic.Difference;
-import org.skriptlang.skript.lang.arithmetic.Difference.DifferenceInfo;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Contains all registered arithmetics and allows operating with them.
+ * Contains all registered arithmetics/differences and allows operating with them.
  */
 @SuppressWarnings("unchecked")
-public abstract class Arithmetics {
+public final class Arithmetics {
 
 	private Arithmetics() {}
 
-	private static final List<ArithmeticInfo<?>> registeredArithmetics = new ArrayList<>();
-	private static final List<DifferenceInfo<?, ?>> registeredDifferences = new ArrayList<>();
+	private static final List<ArithmeticInfo<?>> registeredArithmetics = Collections.synchronizedList(new ArrayList<>());
+	private static final List<DifferenceInfo<?, ?>> registeredDifferences = Collections.synchronizedList(new ArrayList<>());
 
 	public static <T> void registerArithmetic(Class<T> type, Arithmetic<T> arithmetic) {
-		Preconditions.checkArgument(getArithmeticInfoExact(type) == null, "An arithmetic is already registered with this type");
+		if (getArithmeticInfoExact(type) != null)
+			throw new SkriptAPIException("An arithmetic is already registered with this type");
 		registeredArithmetics.add(new ArithmeticInfo<>(type, arithmetic));
 	}
 
@@ -75,7 +73,8 @@ public abstract class Arithmetics {
 	}
 
 	public static <A, R> void registerDifference(Class<A> type, Class<R> relativeType, Difference<A, R> difference) {
-		Preconditions.checkArgument(getDifferenceInfoExact(type) == null, "A difference is already registered with this type");
+		if (getDifferenceInfoExact(type) != null)
+			throw new SkriptAPIException("A difference is already registered with this type");
 		registeredDifferences.add(new DifferenceInfo<>(type, relativeType, difference));
 	}
 

@@ -18,17 +18,28 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
-/**
- * Used to get the difference between two objects of the same type.
- * @param <A> The absolute type
- * @param <R> The relative type
- * @see Arithmetic
- * @see Arithmetics#registerDifference(Class, Class, Difference)
- * @see ch.njol.skript.classes.data.DefaultArithmetics
- */
-@FunctionalInterface
-public interface Difference<A, R> {
+public final class DifferenceInfo<A, R> {
 
-	R difference(A first, A second);
+	private final Class<A> type;
+	private final Class<R> relativeType;
+	private final Difference<A, R> difference;
+
+	public DifferenceInfo(Class<A> type, Class<R> relativeType, Difference<A, R> difference) {
+		this.type = type;
+		this.relativeType = relativeType;
+		this.difference = difference;
+	}
+
+	public Class<A> getType() {
+		return type;
+	}
+
+	public Class<R> getRelativeType() {
+		return relativeType;
+	}
+
+	public Difference<A, R> getDifference() {
+		return difference;
+	}
 
 }

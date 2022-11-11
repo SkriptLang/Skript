@@ -22,7 +22,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.njol.skript.registrations.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -197,6 +197,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		}
 
 		Object result = arithmeticGettable.get(e);
+		arithmeticGettable = null;
 
 		Object[] one = (Object[]) Array.newInstance(result.getClass(), 1);
 		one[0] = result;

@@ -24,6 +24,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.njol.skript.expressions.arithmetic.Operator;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -65,6 +68,11 @@ public class ClassInfo<T> implements Debuggable {
 	private Serializer<? super T> serializer = null;
 	@Nullable
 	private Class<?> serializeAs = null;
+
+	@Nullable
+	private Arithmetic<? super T, ?> math = null;
+	@Nullable
+	private Class<?> mathRelativeType = null;
 
 	@Nullable
 	private String docName = null;
@@ -183,6 +191,40 @@ public class ClassInfo<T> implements Debuggable {
 	public ClassInfo<T> changer(final Changer<? super T> changer) {
 		assert this.changer == null;
 		this.changer = changer;
+		return this;
+	}
+
+	@Deprecated
+	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
+		assert this.math == null;
+		this.math = math;
+		mathRelativeType = relativeType;
+		Arithmetics.registerArithmetic(c, new org.skriptlang.skript.lang.arithmetic.Arithmetic<T>() {
+			@Override
+			public Class<?> @Nullable [] acceptOperator(Operator operator) {
+				return CollectionUtils.array(relativeType);
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public T calculate(T first, Operator operator, Object second) {
+				R two = relativeType.cast(second);
+				switch (operator) {
+					case PLUS:
+						return (T) math.add(first, two);
+					case MINUS:
+						return (T) math.subtract(first, two);
+					case MULT:
+						return (T) math.multiply(first, two);
+					case DIV:
+						return (T) math.divide(first, two);
+					case EXP:
+						return (T) math.power(first, two);
+				}
+				return null;
+			}
+		});
+		Arithmetics.registerDifference(c, relativeType, (math::difference));
 		return this;
 	}
 	
@@ -333,6 +375,25 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public Class<?> getSerializeAs() {
 		return serializeAs;
+	}
+
+	@Nullable
+	@Deprecated
+	public Arithmetic<? super T, ?> getMath() {
+		return math;
+	}
+
+	@Nullable
+	@Deprecated
+	@SuppressWarnings("unchecked")
+	public <R> Arithmetic<T, R> getRelativeMath() {
+		return (Arithmetic<T, R>) math;
+	}
+
+	@Nullable
+	@Deprecated
+	public Class<?> getMathRelativeType() {
+		return mathRelativeType;
 	}
 
 	@Nullable

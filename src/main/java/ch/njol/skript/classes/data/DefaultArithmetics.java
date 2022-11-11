@@ -21,12 +21,12 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.arithmetic.Operator;
 import ch.njol.skript.hooks.economy.classes.Money;
-import ch.njol.skript.registrations.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetic;
 
 public class DefaultArithmetics {

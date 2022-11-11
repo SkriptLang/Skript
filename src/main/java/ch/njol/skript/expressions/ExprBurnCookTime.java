@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import ch.njol.skript.expressions.arithmetic.Operator;
-import ch.njol.skript.registrations.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.Event;

@@ -20,12 +20,11 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
-import ch.njol.skript.registrations.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -38,10 +37,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.lang.arithmetic.Difference.DifferenceInfo;
+import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
 
 /**
  * @author Peter Güttinger

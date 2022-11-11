@@ -19,13 +19,13 @@
 package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.expressions.arithmetic.Operator;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents arithmetic for certain a certain type.
  * @param <T> the type of arithmetic
  * @see Difference
- * @see ch.njol.skript.registrations.Arithmetics#registerArithmetic(Class, Arithmetic)
+ * @see Arithmetics#registerArithmetic(Class, Arithmetic)
  * @see ch.njol.skript.classes.data.DefaultArithmetics
  */
 public interface Arithmetic<T> {
@@ -59,23 +59,4 @@ public interface Arithmetic<T> {
 
 	T calculate(T first, Operator operator, Object second);
 
-	final class ArithmeticInfo<T> {
-
-		private final Class<T> type;
-		private final Arithmetic<T> arithmetic;
-
-		public ArithmeticInfo(Class<T> type, Arithmetic<T> arithmetic) {
-			this.type = type;
-			this.arithmetic = arithmetic;
-		}
-
-		public Class<T> getType() {
-			return type;
-		}
-
-		public Arithmetic<T> getArithmetic() {
-			return arithmetic;
-		}
-
-	}
 }
