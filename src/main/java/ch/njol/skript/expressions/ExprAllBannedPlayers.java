@@ -16,7 +16,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("All Banned Players")
-@Description("Returns a list of all of the banned players.")
+@Description("Returns a list of all the banned players.")
 @Examples({
 	"command /banlist:",
 	"\ttrigger:",
