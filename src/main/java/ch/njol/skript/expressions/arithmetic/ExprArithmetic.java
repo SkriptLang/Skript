@@ -22,6 +22,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
@@ -157,6 +159,9 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		if (!returnType.equals(Object.class)
 				&& !secondClass.equals(Object.class)
 				&& (arithmetic = getArithmetic(returnType, op, secondClass)) == null) {
+			ClassInfo<?> first = Classes.getSuperClassInfo(returnType);
+			ClassInfo<?> second = Classes.getSuperClassInfo(secondClass);
+			Skript.error(op + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
 			return false;
 		}
 
@@ -233,7 +238,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 			one = '(' + one + ')';
 		if (rightGrouped)
 			two = '(' + two + ')';
-		return one + " " + op + " " + two;
+		return one + " " + op.getSign() + " " + two;
 	}
 
 }

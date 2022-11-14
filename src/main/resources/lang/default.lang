@@ -1863,6 +1863,14 @@ environments:
 	the_end: end, the end
 	custom: custom
 
+# -- Operators --
+operators:
+	add: addition¦s @an
+	subtract: subtraction¦s @a
+	multiply: multiplication¦s @a
+	divide: division¦s @a
+	exponent: exponentiation¦s @an
+
 # -- Boolean --
 boolean:
 	true:

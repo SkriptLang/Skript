@@ -18,23 +18,34 @@
  */
 package ch.njol.skript.expressions.arithmetic;
 
+import ch.njol.skript.localization.Noun;
+
 public enum Operator {
 	
-	PLUS('+'),
-	MINUS('-'),
-	MULT('*'),
-	DIV('/'),
-	EXP('^');
-	
+	PLUS('+', "add"),
+	MINUS('-', "subtract"),
+	MULT('*', "multiply"),
+	DIV('/', "divide"),
+	EXP('^', "exponent");
+
+	private final Noun name;
 	private final char sign;
 	
-	Operator(final char sign) {
+	Operator(char sign, String node) {
 		this.sign = sign;
+		this.name = new Noun("operators." + node);
 	}
-	
+
+	public Noun getName() {
+		return name;
+	}
+
+	public char getSign() {
+		return sign;
+	}
+
 	@Override
 	public String toString() {
-		return "" + sign;
+		return name.getSingular();
 	}
-	
 }
