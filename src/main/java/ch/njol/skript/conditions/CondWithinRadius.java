@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -43,9 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondWithinRadius extends Condition {
 
 	static {
-		Skript.registerCondition(CondWithinRadius.class,
-			"%locations% (is|are) within %number% (block|metre|meter)[s] (around|of) %location%",
-			"%locations% (isn't|is not|aren't|are not) within %number% (block|metre|meter)[s] (around|of) %location%");
+		PropertyCondition.register(CondWithinRadius.class, "within %number% (block|metre|meter)[s] (around|of) %location%", "locations");
 	}
 
 	private Expression<Location> locations;
@@ -65,14 +64,15 @@ public class CondWithinRadius extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		Number radius = this.radius.getSingle(event);
+		double radius = this.radius.getOptionalSingle(event).orElse(0).doubleValue();
 		Location center = point.getSingle(event);
-		if (radius == null || center == null)
+		if (center == null)
 			return false;
+		double radiusSquared = radius * radius * Skript.EPSILON_MULT;
 		return locations.check(event, location -> {
 			if (!location.getWorld().equals(center.getWorld()))
 				return false;
-			return location.distance(center) <= radius.doubleValue();
+			return location.distanceSquared(center) <= radiusSquared;
 		}, isNegated());
 	}
 
