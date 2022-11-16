@@ -39,6 +39,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -1765,25 +1766,6 @@ public class BukkitClasses {
 			})
 		);
 
-// 		Temporarily disabled until bugs are fixed
-//		if (Skript.classExists("org.bukkit.persistence.PersistentDataHolder")) {
-//			Classes.registerClass(new ClassInfo<>(PersistentDataHolder.class, "persistentdataholder")
-//					.user("persistent data ?holders?")
-//					.name("Persistent Data Holder")
-//					.description(
-//							"Represents something that can have persistent data. "
-//							+ "The following can all hold persistent data: "
-//							+ "entities, projectiles, items, banners, barrels, beds, beehives (1.15), bells, blast furnaces, "
-//							+ "brewing stands, campfires, chests, command blocks, comparators, conduits, mob spawners, "
-//							+ "daylight detectors, dispensers, droppers, enchanting tables, ender chests, end gateways, furnaces, "
-//							+ "hoppers, jigsaw blocks, jukeboxes, lecterns, shulker boxes, signs, skulls, smokers, and structure blocks. "
-//							+ "For the source list, <a href='https://hub.spigotmc.org/javadocs/spigot/org/bukkit/persistence/PersistentDataHolder.html'>see this page</a>."
-//					)
-//					.examples("set persistent data value \"epic\" of player to true")
-//					.requiredPlugins("1.14 or newer")
-//					.since("2.5"));
-//		}
-
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
 			.user("enchant[ment][ ]offers?")
 			.name("Enchantment Offer")
@@ -1836,5 +1818,31 @@ public class BukkitClasses {
 					}
 				})
 				.serializer(new EnumSerializer<>(Attribute.class)));
+
+		EnumUtils<Environment> environments = new EnumUtils<>(Environment.class, "environments");
+		Classes.registerClass(new ClassInfo<>(Environment.class, "environment")
+				.user("(world ?)?environments?")
+				.name("World Environment")
+				.description("Represents the environment of a world.")
+				.usage(environments.getAllNames())
+				.since("INSERT VERSION")
+				.parser(new Parser<Environment>() {
+					@Override
+					@Nullable
+					public Environment parse(String input, ParseContext context) {
+						return environments.parse(input);
+					}
+
+					@Override
+					public String toString(Environment environment, int flags) {
+						return environments.toString(environment, flags);
+					}
+
+					@Override
+					public String toVariableNameString(Environment environment) {
+						return toString(environment, 0);
+					}
+				})
+				.serializer(new EnumSerializer<>(Environment.class)));
 	}
 }

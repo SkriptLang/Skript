@@ -29,6 +29,7 @@ import ch.njol.skript.Skript;
  * Manages Skript's own number -> Material mappings. They are used to save
  * items as variables.
  */
+@Deprecated
 public class MaterialRegistry {
 
 	/**
