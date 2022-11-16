@@ -45,16 +45,16 @@ import java.util.List;
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %integer% time[s]");
+		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %number% time[s]");
 	}
 
 	private Expression<String> strings;
-	private Expression<Integer> count;
+	private Expression<Number> count;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		strings = (Expression<String>) exprs[0];
-		count = (Expression<Integer>) exprs[1];
+		count = (Expression<Number>) exprs[1];
 		return true;
 	}
 
@@ -62,15 +62,15 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Nullable
 	protected String[] get(Event event) {
 		List<String> stringList = new ArrayList<>();
-		int count = this.count.getSingle(event);
+		int count = this.count.getSingle(event).intValue();
 		for (String string : this.strings.getArray(event)) {
 			if (count < 1) {
-				stringList.add(StringUtils.multiply(string, count));
+				stringList.add(string);
 				continue;
 			}
 			stringList.add(StringUtils.multiply(string,count));
 		}
-		return stringList.toArray(new String[stringList.size()]);
+		return stringList.toArray(String[]::new);
 	}
 
 	@Override
