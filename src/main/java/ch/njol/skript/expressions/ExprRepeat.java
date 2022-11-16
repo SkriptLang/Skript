@@ -62,7 +62,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Nullable
 	protected String[] get(Event event) {
 		List<String> stringList = new ArrayList<>();
-		int count = this.count.getSingle(event).intValue();
+		int count = this.count.getOptionalSingle(event).orElse(0).intValue();
 		for (String string : this.strings.getArray(event)) {
 			if (count < 1) {
 				stringList.add(string);
