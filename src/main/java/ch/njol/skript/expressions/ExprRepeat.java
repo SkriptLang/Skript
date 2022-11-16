@@ -45,7 +45,7 @@ import java.util.List;
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %number% time[s]");
+		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %number% times");
 	}
 
 	private Expression<String> strings;
@@ -62,9 +62,9 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Nullable
 	protected String[] get(Event event) {
 		List<String> stringList = new ArrayList<>();
-		int count = this.count.getOptionalSingle(event).orElse(0).intValue();
+		int count = this.count.getOptionalSingle(event).orElse(1).intValue();
 		for (String string : this.strings.getArray(event)) {
-			if (count < 1) {
+			if (count <= 1) {
 				stringList.add(string);
 				continue;
 			}

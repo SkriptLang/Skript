@@ -1,0 +1,4 @@
+test "repeat expression":
+	assert "A" repeated 3 times is "AAA" with "repeat expression failed ##1"
+	set {_msg} to "B" repeated 3 times
+	assert length of {_msg} is 3 with "repeat expression failed ##2"
