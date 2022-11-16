@@ -32,8 +32,6 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
-
 @Name("Unload World")
 @Description({"Unload a world"})
 @Examples({
@@ -45,7 +43,7 @@ import java.util.Arrays;
 public class EffWorldUnload extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (save|1¦(do not|don't) save)]");
+		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (:save)]");
 	}
 
 	private boolean save;
@@ -54,7 +52,7 @@ public class EffWorldUnload extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
-		save = parseResult.mark != 1;
+		save = parseResult.hasTag("save");
 		return true;
 	}
 

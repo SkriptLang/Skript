@@ -27,8 +27,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
-
 public class EvtWorldLoad extends SkriptEvent {
 
 	static {
@@ -41,12 +39,11 @@ public class EvtWorldLoad extends SkriptEvent {
 	}
 
 	@Nullable
-	private World[] worlds;
+	private Literal<World> worlds;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (worlds != null)
-			worlds = ((Literal<World>) args[0]).getArray();
+		worlds = (Literal<World>) args[0];
 		return true;
 	}
 
@@ -54,13 +51,15 @@ public class EvtWorldLoad extends SkriptEvent {
 	public boolean check(Event event) {
 		if (worlds == null)
 			return true;
-		return Arrays.stream(worlds).anyMatch(world -> ((WorldLoadEvent) event).getWorld().equals(world));
+
+		return worlds.check(event, world -> world.equals(((WorldLoadEvent) event).getWorld()));
 	}
 
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "loading of world" + (worlds == null ? "" : " " + worlds);
+	@Nullable
+	public String toString( Event event, boolean debug) {
+		return "loading of world" + (worlds == null ? "" : " of " + worlds.toString(event,debug));
 	}
 
 }
