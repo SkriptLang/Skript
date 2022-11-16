@@ -203,7 +203,7 @@ public class EventValues {
 	 * <p>
 	 * Can print an error if the event value is blocked for the given event.
 	 * 
-	 * @param e the event class the getter will be getting from
+	 * @param event the event class the getter will be getting from
 	 * @param c type of getter
 	 * @param time the event-value's time
 	 * @return A getter to get values for a given type of events
@@ -277,7 +277,7 @@ public class EventValues {
 			if (!event.equals(eventValueInfo.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, true);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, false);
 			if (getter == null)
 				continue;
 			
@@ -291,7 +291,7 @@ public class EventValues {
 			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, false);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, true);
 			if (getter == null)
 				continue;
 			
