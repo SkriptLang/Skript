@@ -60,9 +60,8 @@ public class EffWorldUnload extends Effect {
 	protected void execute(Event event) {
 		World mainWorld = Bukkit.getWorlds().get(0);
 		for (World world : this.worlds.getArray(event)) {
-			if (mainWorld != null && world != mainWorld) {
+			if (mainWorld != null && world != mainWorld)
 				world.getPlayers().forEach(player -> player.teleport(mainWorld.getSpawnLocation()));
-			}
 			Bukkit.unloadWorld(world, save);
 		}
 		return;
