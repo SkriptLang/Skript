@@ -220,51 +220,51 @@ public class EventValues {
 	private static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> c, int time, boolean allowDefault) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
 		// First check for exact classes matching the parameters.
-		for (EventValueInfo<?, ?> ev : eventValues) {
-			if (!c.equals(ev.c))
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
+			if (!c.equals(eventValueInfo.c))
 				continue;
-			if (!checkExcludes(ev, event))
+			if (!checkExcludes(eventValueInfo, event))
 				return null;
-			if (ev.event.isAssignableFrom(event))
-				return (Getter<? extends T, ? super E>) ev.getter;
+			if (eventValueInfo.event.isAssignableFrom(event))
+				return (Getter<? extends T, ? super E>) eventValueInfo.getter;
 		}
 		// Second check for assignable subclasses.
-		for (EventValueInfo<?, ?> ev : eventValues) {
-			if (!c.isAssignableFrom(ev.c))
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
+			if (!c.isAssignableFrom(eventValueInfo.c))
 				continue;
-			if (!checkExcludes(ev, event))
+			if (!checkExcludes(eventValueInfo, event))
 				return null;
-			if (ev.event.isAssignableFrom(event))
-				return (Getter<? extends T, ? super E>) ev.getter;
-			if (!event.isAssignableFrom(ev.event))
+			if (eventValueInfo.event.isAssignableFrom(event))
+				return (Getter<? extends T, ? super E>) eventValueInfo.getter;
+			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
 			return new Getter<T, E>() {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (!ev.event.isInstance(event))
+					if (!eventValueInfo.event.isInstance(event))
 						return null;
-					return ((Getter<? extends T, E>) ev.getter).get(event);
+					return ((Getter<? extends T, E>) eventValueInfo.getter).get(event);
 				}
 			};
 		}
 		// Most checks have returned before this below is called, but Skript will attempt to convert or find an alternative.
 		// Third check is if the returned object matches the class.
-		for (EventValueInfo<?, ?> ev : eventValues) {
-			if (!ev.c.isAssignableFrom(c))
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
+			if (!eventValueInfo.c.isAssignableFrom(c))
 				continue;
-			boolean checkInstanceOf = !ev.event.isAssignableFrom(event);
-			if (checkInstanceOf && !event.isAssignableFrom(ev.event))
+			boolean checkInstanceOf = !eventValueInfo.event.isAssignableFrom(event);
+			if (checkInstanceOf && !event.isAssignableFrom(eventValueInfo.event))
 				continue;
-			if (!checkExcludes(ev, event))
+			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			return new Getter<T, E>() {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (checkInstanceOf && !ev.event.isInstance(event))
+					if (checkInstanceOf && !eventValueInfo.event.isInstance(event))
 						return null;
-					Object object = ((Getter<? super T, ? super E>) ev.getter).get(event);
+					Object object = ((Getter<? super T, ? super E>) eventValueInfo.getter).get(event);
 					if (c.isInstance(object))
 						return (T) object;
 					return null;
@@ -273,29 +273,29 @@ public class EventValues {
 		}
 		// Fourth check will attempt to convert the event value to the requesting type.
 		// This first for loop will check that the events are exact. See issue #5016
-		for (EventValueInfo<?, ?> ev : eventValues) {
-			if (!event.equals(ev.event))
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
+			if (!event.equals(eventValueInfo.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, true);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, true);
 			if (getter == null)
 				continue;
 			
-			if (!checkExcludes(ev, event))
+			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			return getter;
 		}
 		// This second loop for the fourth check will attempt to look for converters assignable to the class of the provided event.
-		for (EventValueInfo<?, ?> ev : eventValues) {
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
 			// The requesting event must be assignable to the event value's event. Otherwise it'll throw an error.
-			if (!event.isAssignableFrom(ev.event))
+			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
 			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, false);
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, c, false);
 			if (getter == null)
 				continue;
 			
-			if (!checkExcludes(ev, event))
+			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			return getter;
 		}
