@@ -285,7 +285,7 @@ public class EventValues {
 				return null;
 			return getter;
 		}
-		// This second loop for the fourth check will attempt to look for converters assignable to the class of the provided event.
+		// This loop will attempt to look for converters assignable to the class of the provided event.
 		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
 			// The requesting event must be assignable to the event value's event. Otherwise it'll throw an error.
 			if (!event.isAssignableFrom(eventValueInfo.event))
