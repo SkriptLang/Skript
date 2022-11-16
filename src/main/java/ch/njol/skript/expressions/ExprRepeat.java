@@ -68,7 +68,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 				stringList.add(string);
 				continue;
 			}
-			stringList.add(StringUtils.multiply(string,count));
+			stringList.add(StringUtils.multiply(string, count));
 		}
 		return stringList.toArray(String[]::new);
 	}
