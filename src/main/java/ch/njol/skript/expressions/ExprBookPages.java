@@ -108,8 +108,10 @@ public class ExprBookPages extends SimpleExpression<String> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case SET:
 			case RESET:
+			case DELETE:
+				return CollectionUtils.array();
+			case SET:
 				return CollectionUtils.array(isAllPages() ? String[].class : String.class);
 			case ADD:
 				return isAllPages() ? CollectionUtils.array(String[].class) : null;
@@ -119,6 +121,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 	}
 
 	@Override
+	@SuppressWarnings("ConstantConditions")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD) && delta == null)
 			return;
@@ -135,15 +138,28 @@ public class ExprBookPages extends SimpleExpression<String> {
 				continue;
 
 			BookMeta bookMeta = (BookMeta) itemType.getItemMeta();
-			List<String> pages = new ArrayList<>(bookMeta.getPages());
+			List<String> pages = null;
+			if (isAllPages()) {
+				switch (mode) {
+					case DELETE:
+					case RESET:
+						pages = Collections.singletonList("");
+						break;
+					case SET:
+						pages = Arrays.asList(newPages);
+						break;
+					default:
+						assert false;
+				}
+			} else {
+				pages = new ArrayList<>(bookMeta.getPages());
+			}
 			int pageCount = bookMeta.getPageCount();
 
 			switch (mode) {
 				case DELETE:
 				case RESET:
-					if (isAllPages()) {
-						pages = Collections.singletonList("");
-					} else {
+					if (!isAllPages()) {
 						if (page <= 0 || page > pageCount)
 							continue;
 						pages.remove(page - 1);
@@ -152,9 +168,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 				case SET:
 					if (newPages.length == 0)
 						continue;
-					if (isAllPages()) {
-						pages = Arrays.asList(newPages);
-					} else {
+					if (!isAllPages()) {
 						if (page <= 0)
 							continue;
 						while (pages.size() < page)
