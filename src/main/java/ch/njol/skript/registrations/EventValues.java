@@ -330,7 +330,7 @@ public class EventValues {
 	 * @param info The event value info that will be used to grab the value from
 	 * @param to The class that the converter will look for to convert the type from the event value to
 	 * @param checkInstanceOf If the event must be an exact instance of the event value info's event or not.
-	 * @return The found Converter wrapped in a Getter object.
+	 * @return The found Converter wrapped in a Getter object, or null if no Converter was found.
 	 */
 	@Nullable
 	private static <E extends Event, F, T> Getter<? extends T, ? super E> getConvertedGetter(EventValueInfo<E, F> info, Class<T> to, boolean checkInstanceOf) {
