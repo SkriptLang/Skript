@@ -29,6 +29,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
@@ -61,12 +62,16 @@ public class ExprSets extends SimpleExpression<Object> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
-			supplier = classInfo.getSupplier();
-			if (supplier == null) {
-				Skript.error("You cannot get all values of type '" + classInfo.getName().getSingular() + "'");
-				return false;
-			}
+		boolean plural = Utils.getEnglishPlural(parser.expr).getSecond();
+		if (!plural && !parser.expr.startsWith("every"))
+			return false;
+
+		classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
+		supplier = classInfo.getSupplier();
+		if (supplier == null) {
+			Skript.error("You cannot get all values of type '" + classInfo.getName().getSingular() + "'");
+			return false;
+		}
 		return true;
 	}
 

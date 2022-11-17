@@ -29,6 +29,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.IteratorIterable;
 import com.google.common.collect.Iterables;
@@ -61,7 +62,7 @@ public class ExprItems extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
-			"[all [[of] the]|the|every] block(s|[ ]type[s])",
+			"[all [[of] the]|the|every] block[[ ]type][s]",
 			"[all [[of] the]|the|every] blocks of type[s] %itemtypes%",
 			"[all [[of] the]|the|every] items of type[s] %itemtypes%"
 		);
@@ -75,6 +76,10 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		boolean plural = Utils.getEnglishPlural(parseResult.expr).getSecond();
+		if (!plural && !parseResult.expr.startsWith("every"))
+			return false;
+
 		items = matchedPattern == 2;
 		itemTypeExpr = matchedPattern == 0 ? null : (Expression<ItemType>) exprs[0];
 		if (itemTypeExpr instanceof Literal) {
