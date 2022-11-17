@@ -34,8 +34,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Within Location")
-@Description({"Whether a location is within two other locations forming a cuboid.",
-		"Using the <a href='conditions.html#CondCompare'>is between</a> condition will refer to a straight line between locations."})
+@Description({
+	"Whether a location is within two other locations forming a cuboid.",
+	"Using the <a href='conditions.html#CondCompare'>is between</a> condition will refer to a straight line between locations."
+})
 @Examples({
 	"if player's location is within {_loc1} and {_loc2}:",
 		"\tsend \"You are in a PvP zone!\" to player"
