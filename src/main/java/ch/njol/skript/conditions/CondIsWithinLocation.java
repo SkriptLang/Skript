@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -43,9 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondIsWithinLocation extends Condition {
 
 	static {
-		Skript.registerCondition(CondIsWithinLocation.class,
-			"%locations% (is|are) within %location% and %location%",
-			"%locations% (isn't|is not|aren't|are not) within %location% and %location%");
+		PropertyCondition.register(CondIsWithinLocation.class, "within %location% and %location%", "locations");
 	}
 
 	private Expression<Location> locsToCheck, loc1, loc2;
