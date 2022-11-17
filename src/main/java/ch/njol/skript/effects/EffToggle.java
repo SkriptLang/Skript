@@ -39,9 +39,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Toggle")
 @Description("Toggle a boolean or the state of a block.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
