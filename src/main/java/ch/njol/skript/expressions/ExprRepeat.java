@@ -70,7 +70,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 			}
 			stringList.add(StringUtils.multiply(string, count));
 		}
-		return stringList.toArray(String[]::new);
+		return stringList.toArray(new String[0]);
 	}
 
 	@Override
