@@ -33,6 +33,7 @@ import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -874,7 +875,7 @@ public class BukkitClasses {
 						return toString(holder, 0);
 					}
 				}));
-		Classes.registerClass(new EnumClassInfo<>(GameMode.class, "gamemode", "game modes")
+		Classes.registerClass(new EnumClassInfo<>(GameMode.class, "gamemode", "game modes", new SimpleLiteral<>(GameMode.SURVIVAL, true))
 				.user("game ?modes?")
 				.name("Game Mode")
 				.description("The game modes survival, creative, adventure and spectator.")
