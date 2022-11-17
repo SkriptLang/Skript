@@ -33,28 +33,33 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("All Banned Players")
-@Description("Returns a list of all the banned players.")
+@Name("All Banned Entries")
+@Description("Returns a list of all the banned players or ips.")
 @Examples({
 	"command /banlist:",
 	"\ttrigger:",
 	"\t\tsend all the banned players"
 })
 @Since("INSERT VERSION")
-public class ExprAllBannedPlayers extends SimpleExpression<OfflinePlayer> {
+public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprAllBannedPlayers.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] banned players");
+		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] banned (players|:ips)");
 	}
+
+	private boolean ip;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ip = parseResult.hasTag("ips");
 		return true;
 	}
 
 	@Override
 	@Nullable
-	protected OfflinePlayer[] get(Event event) {
+	protected Object[] get(Event event) {
+		if (ip)
+			return Bukkit.getIPBans().toArray(new String[0]);
 		return Bukkit.getBannedPlayers().toArray(new OfflinePlayer[0]);
 	}
 
@@ -64,8 +69,8 @@ public class ExprAllBannedPlayers extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public Class<? extends OfflinePlayer> getReturnType() {
-		return OfflinePlayer.class;
+	public Class<?> getReturnType() {
+		return ip ? String.class : OfflinePlayer.class;
 	}
 
 	@Override
