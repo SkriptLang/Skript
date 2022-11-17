@@ -34,6 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Name("Repeat String")
 @Description("repeats a given string, a number of times")
@@ -63,11 +64,9 @@ public class ExprRepeat extends SimpleExpression<String> {
 	protected String[] get(Event event) {
 		List<String> stringList = new ArrayList<>();
 		int count = this.count.getOptionalSingle(event).orElse(1).intValue();
+		if (count <= 1)
+			return strings.getArray(event);
 		for (String string : this.strings.getArray(event)) {
-			if (count <= 1) {
-				stringList.add(string);
-				continue;
-			}
 			stringList.add(StringUtils.multiply(string, count));
 		}
 		return stringList.toArray(new String[0]);
