@@ -25,6 +25,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -44,20 +45,17 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprEventExpression extends WrapperExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprEventExpression.class, Object.class, ExpressionType.PROPERTY, "[the] event-<.+>");// property so that it is parsed after most other expressions
+		Skript.registerExpression(ExprEventExpression.class, Object.class, ExpressionType.PROPERTY, "[the] event-%*classinfo%");// property so that it is parsed after most other expressions
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		String className = parser.regexes.get(0).group(0);
-
-		ClassInfo<?> classInfo = Classes.getClassInfoFromUserInput(Noun.stripIndefiniteArticle(className));
-		if (classInfo == null)
-			return false;
+		ClassInfo<?> classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
 		Class<?> c = classInfo.getC();
 
-		boolean plural = Utils.getEnglishPlural(className).getSecond();
-		EventValueExpression<?> eventValue = new EventValueExpression<Object>(plural ? CollectionUtils.arrayType(c) : c);
+		boolean plural = Utils.getEnglishPlural(parser.expr).getSecond();
+		EventValueExpression<?> eventValue = new EventValueExpression<>(plural ? CollectionUtils.arrayType(c) : c);
 		setExpr(eventValue);
 		return eventValue.init();
 	}
