@@ -44,12 +44,12 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondWithinRadius extends Condition {
 
 	static {
-		PropertyCondition.register(CondWithinRadius.class, "within %number% (block|metre|meter)[s] (around|of) %location%", "locations");
+		PropertyCondition.register(CondWithinRadius.class, "within %number% (block|metre|meter)[s] (around|of) %locations%", "locations");
 	}
 
 	private Expression<Location> locations;
 	private Expression<Number> radius;
-	private Expression<Location> point;
+	private Expression<Location> points;
 
 
 	@Override
@@ -57,7 +57,7 @@ public class CondWithinRadius extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		locations = (Expression<Location>) exprs[0];
 		radius = (Expression<Number>) exprs[1];
-		point = (Expression<Location>) exprs[2];
+		points = (Expression<Location>) exprs[2];
 		setNegated(matchedPattern == 1);
 		return true;
 	}
@@ -65,21 +65,18 @@ public class CondWithinRadius extends Condition {
 	@Override
 	public boolean check(Event event) {
 		double radius = this.radius.getOptionalSingle(event).orElse(0).doubleValue();
-		Location center = point.getSingle(event);
-		if (center == null)
-			return false;
 		double radiusSquared = radius * radius * Skript.EPSILON_MULT;
-		return locations.check(event, location -> {
+		return locations.check(event, location -> points.check(event, center -> {
 			if (!location.getWorld().equals(center.getWorld()))
 				return false;
 			return location.distanceSquared(center) <= radiusSquared;
-		}, isNegated());
+		}), isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return locations.toString(event, debug) + (locations.isSingle() ? " is " : " are ") + (isNegated() ? " not " : "")
-			+ "within " + radius.toString(event, debug) + " blocks around " + point.toString(event, debug);
+			+ "within " + radius.toString(event, debug) + " blocks around " + points.toString(event, debug);
 	}
 
 }
