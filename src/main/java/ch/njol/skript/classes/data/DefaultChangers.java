@@ -305,15 +305,6 @@ public class DefaultChangers {
 						if (object instanceof ItemType) {
 							ItemType itemType = (ItemType) object;
 							itemType.getBlock().setBlock(block, true);
-							ItemMeta itemMeta = itemType.getItemMeta();
-							if (itemMeta instanceof SkullMeta) {
-								OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
-								if (offlinePlayer == null)
-									continue;
-								Skull skull = (Skull) block.getState();
-								skull.setOwningPlayer(offlinePlayer);
-								skull.update();
-							}
 						} else if (object instanceof BlockData) {
 							block.setBlockData(((BlockData) object));
 						}
