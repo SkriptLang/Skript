@@ -108,6 +108,8 @@ Developers may also request changes to the formatting of your code and attached 
 
 Once you have made the requested changes (or if you require clarification or assistance) you can request a re-review from the developer.
 
+You don't need to keep your pull request fork up-to-date with Skript's master branch - we can update it automatically and notify you if there are any problems.
+
 ### Merging a Contribution
 
 Pull requests may be left un-merged until an appropriate time (e.g. before a suitable release.) This timeframe may be increased for breaking changes or significant new features, which might be better targeted in a major version.
