@@ -48,7 +48,7 @@ public class SecConditional extends Section {
 	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
 	private static final Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][] {
 		{"else", ConditionalType.ELSE},
-		{"else [:parse] if [<.+>]", ConditionalType.ELSE_IF},
+		{"else [:parse] if <.+>", ConditionalType.ELSE_IF},
 		{"else [:parse] if (:any|any:at least one [of])", ConditionalType.ELSE_IF},
 		{"else [:parse] if [all]", ConditionalType.ELSE_IF},
 		{"[:parse] if (:any|any:at least one [of])", ConditionalType.IF},
@@ -97,11 +97,11 @@ public class SecConditional extends Section {
 				} else if (type == ConditionalType.ELSE) {
 					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
 				} else if (type == ConditionalType.THEN) {
-					Skript.error("'then' has to placed just after a multiline 'if'/'else if' section");
+					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 				}
 				return false;
 			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
-				Skript.error("'then' has to placed just after a multiline 'if'/'else if' section");
+				Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 				return false;
 			}
 		} else {
@@ -123,7 +123,7 @@ public class SecConditional extends Section {
 			lastIf = null;
 		}
 
-		// if this an an "if" or "else if", let's try to parse the conditions right away
+		// if this an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
 			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
@@ -240,18 +240,12 @@ public class SecConditional extends Section {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
 			return getNormalNext();
 		} else if (parseIf || checkConditions(event)) {
+			// if this is a multiline if, we need to run the "then" section instead
+			SecConditional sectionToRun = multiline ? (SecConditional) getNormalNext() : this;
 			TriggerItem skippedNext = getSkippedNext();
-			if (multiline) {
-				SecConditional thenSection = (SecConditional) getNormalNext();
-				assert thenSection != null;
-				if (thenSection.last != null)
-					thenSection.last.setNext(skippedNext);
-				return thenSection.first != null ? thenSection.first : skippedNext;
-			} else {
-				if (last != null)
-					last.setNext(skippedNext);
-				return first != null ? first : skippedNext;
-			}
+			if (sectionToRun.last != null)
+				sectionToRun.last.setNext(skippedNext);
+			return sectionToRun.first != null ? sectionToRun.first : skippedNext;
 		} else {
 			return getNormalNext();
 		}
@@ -345,9 +339,8 @@ public class SecConditional extends Section {
 		// iterating over the parent node causes the current node to change, so we need to store it to reset it later
 		Node originalCurrentNode = parser.getNode();
 		SectionNode parentNode = precedingNode.getParent();
-		if (parentNode == null) {
+		if (parentNode == null)
 			return null;
-		}
 		Iterator<Node> parentIterator = parentNode.iterator();
 		while (parentIterator.hasNext()) {
 			Node current = parentIterator.next();
