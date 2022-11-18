@@ -258,9 +258,8 @@ public final class BukkitEventValues {
 			@Nullable
 			public ItemStack get(BlockPlaceEvent event) {
 				ItemStack item = event.getItemInHand().clone();
-				if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+				if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 					item.setAmount(item.getAmount() - 1);
-				}
 				return item;
 			}
 		}, EventValues.TIME_FUTURE);
