@@ -28,12 +28,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -92,10 +89,6 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 
@@ -1473,52 +1466,11 @@ public class BukkitClasses {
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
 						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
-				.defaultExpression(new EventValueExpression<>(Attribute.class))
-				.usage(attributes.getAllNames())
-				.since("2.5")
-				.parser(new Parser<Attribute>() {
-					@Override
-					@Nullable
-					public Attribute parse(String input, ParseContext context) {
-						return attributes.parse(input);
-					}
 
-					@Override
-					public String toString(Attribute a, int flags) {
-						return attributes.toString(a, flags);
-					}
-
-					@Override
-					public String toVariableNameString(Attribute a) {
-						return toString(a, 0);
-					}
-				})
-				.serializer(new EnumSerializer<>(Attribute.class)));
-
-		EnumUtils<Environment> environments = new EnumUtils<>(Environment.class, "environments");
-		Classes.registerClass(new ClassInfo<>(Environment.class, "environment")
+		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
 				.user("(world ?)?environments?")
 				.name("World Environment")
 				.description("Represents the environment of a world.")
-				.usage(environments.getAllNames())
-				.since("INSERT VERSION")
-				.parser(new Parser<Environment>() {
-					@Override
-					@Nullable
-					public Environment parse(String input, ParseContext context) {
-						return environments.parse(input);
-					}
-
-					@Override
-					public String toString(Environment environment, int flags) {
-						return environments.toString(environment, flags);
-					}
-
-					@Override
-					public String toVariableNameString(Environment environment) {
-						return toString(environment, 0);
-					}
-				})
-				.serializer(new EnumSerializer<>(Environment.class)));
+				.since("INSERT VERSION"));
 	}
 }
