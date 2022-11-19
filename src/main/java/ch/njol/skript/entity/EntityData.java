@@ -160,7 +160,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
 				.supplier(() -> new ArrayIterator<>(infos.stream()
-					.map(info -> parse(info.codeName))
+					.map(info -> parseWithoutIndefiniteArticle(info.codeName))
 					.toArray(EntityData[]::new)))
 				.parser(new Parser<EntityData>() {
 					@Override
