@@ -77,7 +77,7 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean plural = Utils.getEnglishPlural(parseResult.expr).getSecond();
-		if (!plural && !parseResult.expr.startsWith("every"))
+		if (matchedPattern == 0 && !plural && !parseResult.expr.startsWith("every"))
 			return false;
 
 		items = matchedPattern == 2;
