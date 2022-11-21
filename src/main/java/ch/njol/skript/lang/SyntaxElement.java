@@ -21,6 +21,9 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a general part of the syntax.
@@ -45,6 +48,26 @@ public interface SyntaxElement {
 	 */
 	default ParserInstance getParser() {
 		return ParserInstance.get();
+	}
+
+
+	/**
+	 * Gets the events in which this element can be used in. If there are no limits to this element, you may
+	 * return an empty array, or simply not override this method.
+	 * @return the events this element is usable in, or an empty array.
+	 */
+	@NotNull
+	default Class<? extends Event>[] getUsableEvents() {
+		return new Class[0];
+	}
+	/**
+	 * Gets the sections in which this element can be used in. If there are no limits to this element, you may
+	 * return an empty array, or simply not override this method.
+	 * @return the sections this element is usable in, or an empty array.
+	 */
+	@Nullable
+	default Class<? extends Section>[] getUsableSections() {
+		return new Class[0];
 	}
 
 }
