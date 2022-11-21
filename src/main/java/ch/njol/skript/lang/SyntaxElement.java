@@ -50,7 +50,6 @@ public interface SyntaxElement {
 		return ParserInstance.get();
 	}
 
-
 	/**
 	 * Gets the events in which this element can be used in. If there are no limits to this element, you may
 	 * return an empty array, or simply not override this method.
@@ -60,6 +59,7 @@ public interface SyntaxElement {
 	default Class<? extends Event>[] getUsableEvents() {
 		return new Class[0];
 	}
+
 	/**
 	 * Gets the sections in which this element can be used in. If there are no limits to this element, you may
 	 * return an empty array, or simply not override this method.
