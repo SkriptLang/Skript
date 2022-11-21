@@ -55,7 +55,6 @@ public interface SyntaxElement {
 	 * return an empty array, or simply not override this method.
 	 * @return the events this element is usable in, or an empty array.
 	 */
-	@NotNull
 	default Class<? extends Event>[] getUsableEvents() {
 		return new Class[0];
 	}
@@ -65,7 +64,6 @@ public interface SyntaxElement {
 	 * return an empty array, or simply not override this method.
 	 * @return the sections this element is usable in, or an empty array.
 	 */
-	@Nullable
 	default Class<? extends Section>[] getUsableSections() {
 		return new Class[0];
 	}

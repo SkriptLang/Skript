@@ -263,12 +263,12 @@ public class SkriptParser {
 							T t = info.c.newInstance();
 							List<TriggerSection> sections = getParser().getCurrentSections();
 							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
-							if (t.getUsableEvents().length > 0 && !CollectionUtils.containsAny(t.getUsableEvents(), getParser().getCurrentEvents()))
+							if (t.getUsableEvents().length > 0 && !CollectionUtils.containsAny(t.getUsableEvents(), getParser().getCurrentEvents())) {
 								Skript.error("You cannot use this element in a(n) " + getParser().getCurrentEventName() + " event.");
-							else if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass())))
+							} else if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass()))) {
 								Skript.error("You cannot use this element " + (current == null ? "outside of the allowed sections."
 									: "in a '" + current.toString(null, false) + "' section"));
-							else if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
+							} else if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
