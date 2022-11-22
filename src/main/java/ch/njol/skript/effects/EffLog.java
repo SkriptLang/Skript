@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
 
+import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -114,9 +115,14 @@ public class EffLog extends Effect {
 					w.flush();
 				}
 			} else {
-				final Trigger t = getTrigger();
-				final File script = t == null ? null : t.getScript();
-				Skript.info("[" + (script != null ? script.getName() : "---") + "] " + message);
+				Trigger t = getTrigger();
+				String scriptName = "---";
+				if (t != null) {
+					Script script = t.getScript();
+					if (script != null)
+						scriptName = script.getConfig().getFileName();
+				}
+				Skript.info("[" + scriptName + "] " + message);
 			}
 		}
 	}

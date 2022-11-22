@@ -32,7 +32,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 	}
 	
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
-		this(new Signature<>("none", name, parameters, returnType, single));
+		this(new Signature<>("none", name, parameters, false, returnType, single));
 	}
 	
 	@Override

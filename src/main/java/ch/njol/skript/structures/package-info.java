@@ -16,19 +16,12 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang;
-
-import org.bukkit.event.Event;
-
 /**
- * Effects which can be tested implement this interface.
- * <p>
- * TODO implement this
- * 
- * @author Peter Güttinger
+ * Support for script-based testing.
  */
-public interface Testable {
-	
-	public boolean test(Event e);
-	
-}
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package ch.njol.skript.structures;
+
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+

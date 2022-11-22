@@ -358,6 +358,16 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public void tick() {
+		b.tick();
+	}
+
+	@Override
+	public void randomTick() {
+		b.randomTick();
+	}
+
+	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return b.applyBoneMeal(blockFace);
 	}
