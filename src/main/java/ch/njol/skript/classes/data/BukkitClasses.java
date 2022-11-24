@@ -28,9 +28,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.util.*;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
