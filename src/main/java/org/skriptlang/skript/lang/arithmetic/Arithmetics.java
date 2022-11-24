@@ -65,6 +65,7 @@ public final class Arithmetics {
 			.findFirst().orElse(null);
 	}
 
+	@Nullable
 	public static <T> T calculate(T first, Operator operator, Object second) {
 		Arithmetic<T> arithmetic = (Arithmetic<T>) getArithmetic(first.getClass());
 		if (arithmetic == null || !acceptsOperator(first.getClass(), operator, second.getClass()))
@@ -112,6 +113,7 @@ public final class Arithmetics {
 			.findFirst().orElse(null);
 	}
 
+	@Nullable
 	public static <A, R> R difference(A first, A second, Class<R> expectedReturnType) {
 		Difference<A, R> difference = (Difference<A, R>) getDifference(first.getClass(), expectedReturnType);
 		if (difference == null)

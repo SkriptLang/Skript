@@ -46,7 +46,7 @@ import org.skriptlang.skript.lang.arithmetic.Arithmetic;
  * @author Peter Güttinger
  */
 @Name("Arithmetic")
-@Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
+@Description("Arithmetic expressions, event.g. 1 + 2, (health of player - 2) / 3, etc.")
 @Examples({"set the player's health to 10 - the player's health",
 		"loop (argument + 2) / 5 times:",
 		"\tmessage \"Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%\"",
@@ -121,7 +121,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 	@Override
 	@SuppressWarnings({"null"})
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		first = LiteralUtils.defendExpression(exprs[0]);
 		second = LiteralUtils.defendExpression(exprs[1]);
 
@@ -145,7 +145,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 				boolean firstIsInt = false;
 				boolean secondIsInt = false;
-				for (final Class<?> i : INTEGER_CLASSES) {
+				for (Class<?> i : INTEGER_CLASSES) {
 					firstIsInt |= i.isAssignableFrom(firstReturnType);
 					secondIsInt |= i.isAssignableFrom(secondReturnType);
 				}
@@ -185,11 +185,10 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	}
 
 	@Override
-	@SuppressWarnings("null")
-	protected Object[] get(final Event e) {
+	protected Object[] get(Event event) {
 		if (arithmeticGettable == null) {
-			Object first = this.first.getSingle(e);
-			Object second = this.second.getSingle(e);
+			Object first = this.first.getSingle(event);
+			Object second = this.second.getSingle(event);
 
 			if (first == null || second == null)
 				return new Object[0];
@@ -201,7 +200,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 			arithmeticGettable = ArithmeticChain.parse(chain, arithmetic);
 		}
 
-		Object result = arithmeticGettable.get(e);
+		Object result = arithmeticGettable.get(event);
 		arithmeticGettable = null;
 
 		Object[] one = (Object[]) Array.newInstance(result.getClass(), 1);
@@ -213,9 +212,8 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	private Arithmetic<?> getArithmetic(Class<?> firstClass, Operator operator, Class<?> secondClass) {
 		Arithmetic<?> arithmetic = Arithmetics.getArithmetic(firstClass);
 
-		if (arithmetic == null || !arithmetic.acceptsOperator(operator, secondClass)) {
+		if (arithmetic == null || !arithmetic.acceptsOperator(operator, secondClass))
 			return null;
-		}
 
 		return arithmetic;
 	}
@@ -231,9 +229,9 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		String one = first.toString(e, debug);
-		String two = second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		String one = first.toString(event, debug);
+		String two = second.toString(event, debug);
 		if (leftGrouped)
 			one = '(' + one + ')';
 		if (rightGrouped)
