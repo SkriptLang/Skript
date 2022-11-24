@@ -1856,6 +1856,13 @@ attribute types:
 	horse_jump_strength: horse jump strength
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
+# -- Environments --
+environments:
+	normal: normal, overworld, the overworld
+	nether: nether, the nether
+	the_end: end, the end
+	custom: custom
+
 # -- Moon Phases --
 moon phases:
 	first_quarter: first quarter
@@ -1918,7 +1925,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a

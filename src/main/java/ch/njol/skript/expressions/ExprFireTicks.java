@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -31,24 +30,20 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Freeze Time")
-@Description("How much time an entity has been in powdered snow for.")
-@Examples({
-	"player's freeze time is less than 3 seconds:",
-	"\tsend \"you're about to freeze!\" to the player"
-})
+@Name("Entity Fire Burn Duration")
+@Description("How much time an entity will be burning for.")
+@Examples({"send \"You will stop burning in %fire time of player%\""})
 @Since("INSERT VERSION")
-public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
+public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		if (Skript.methodExists(Entity.class, "getFreezeTicks"))
-			register(ExprFreezeTicks.class, Timespan.class, "freeze time", "entities");
+		register(ExprFireTicks.class, Timespan.class, "(burn[ing]|fire) (time|duration)", "entities");
 	}
 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks_i(entity.getFreezeTicks());
+		return Timespan.fromTicks_i(Math.max(entity.getFireTicks(), 0));
 	}
 
 	@Override
@@ -58,32 +53,21 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
-		int newTime;
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Entity[] entities = getExpr().getArray(event);
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		switch (mode) {
-			case ADD:
-				for (Entity entity : getExpr().getArray(e)) {
-					newTime = entity.getFreezeTicks() + time;
-					setFreezeTicks(entity, newTime);
-				}
-				break;
 			case REMOVE:
-				for (Entity entity : getExpr().getArray(e)) {
-					newTime = entity.getFreezeTicks() - time;
-					setFreezeTicks(entity, newTime);
-				}
-				break;
-			case SET:
-				for (Entity entity : getExpr().getArray(e)) {
-					setFreezeTicks(entity, time);
-				}
+				change = -change;
+			case ADD:
+				for (Entity entity : entities)
+					entity.setFireTicks(entity.getFireTicks() + change);
 				break;
 			case DELETE:
 			case RESET:
-				for (Entity entity : getExpr().getArray(e)) {
-					setFreezeTicks(entity, 0);
-				}
+			case SET:
+				for (Entity entity : entities)
+					entity.setFireTicks(change);
 				break;
 			default:
 				assert false;
@@ -97,14 +81,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	@Override
 	protected String getPropertyName() {
-		return "freeze time";
+		return "fire time";
 	}
 
-	private void setFreezeTicks(Entity entity, int ticks) {
-		//Limit time to between 0 and max
-		if (ticks < 0)
-			ticks = 0;
-		// Set new time
-		entity.setFreezeTicks(ticks);
-	}
 }
