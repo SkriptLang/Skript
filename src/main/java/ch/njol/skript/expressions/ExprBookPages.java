@@ -53,7 +53,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
-			"[(all [[of] the]|the)] [book] (pages|content) of %itemtypes%",
+			"[all [[of] the]|the] [book] (pages|content) of %itemtypes%",
 			"%itemtypes%'[s] [book] (pages|content)",
 			"[book] page %number% of %itemtypes%",
 			"%itemtypes%'[s] [book] page %number%");
@@ -68,21 +68,18 @@ public class ExprBookPages extends SimpleExpression<String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0 || matchedPattern == 1) {
 			items = (Expression<ItemType>) exprs[0];
+		} else if (matchedPattern == 2) {
+			page = (Expression<Number>) exprs[0];
+			items = (Expression<ItemType>) exprs[1];
 		} else {
-			if (matchedPattern == 2) {
-				page = (Expression<Number>) exprs[0];
-				items = (Expression<ItemType>) exprs[1];
-			} else {
-				items = (Expression<ItemType>) exprs[0];
-				page = (Expression<Number>) exprs[1];
-			}
+			items = (Expression<ItemType>) exprs[0];
+			page = (Expression<Number>) exprs[1];
 		}
-		return true;
+			return true;
 	}
 
 	@Override
 	@Nullable
-	@SuppressWarnings("null")
 	protected String[] get(Event event) {
 		List<String> pages = new ArrayList<>();
 		for (ItemType itemType : items.getArray(event)) {
@@ -129,12 +126,13 @@ public class ExprBookPages extends SimpleExpression<String> {
 		int page = !isAllPages() ? this.page.getOptionalSingle(event).orElse(-1).intValue() : -1;
 		String[] newPages = delta == null ? null : new String[delta.length];
 
-		if (newPages != null)
+		if (newPages != null) {
 			for (int i = 0; i < delta.length; i++)
 				newPages[i] = delta[i] + "";
+		}
 
 		for (ItemType itemType : itemTypes) {
-			if (itemType == null || !(itemType.getItemMeta() instanceof BookMeta))
+			if (!(itemType.getItemMeta() instanceof BookMeta))
 				continue;
 
 			BookMeta bookMeta = (BookMeta) itemType.getItemMeta();
