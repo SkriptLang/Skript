@@ -31,15 +31,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Value Within")
-@Description("Gets the value within objects. Usually used with variables to get the value they store rather than the variable itself, " +
-	"or with lists to get the values of a type.")
+@Description(
+	"Gets the value within objects. Usually used with variables to get the value they store rather than the variable itself, " +
+	"or with lists to get the values of a type."
+)
 @Examples({
 	"set {_entity} to a random entity out of all entities",
 	"delete entity within {_entity} # This deletes the entity itself and not the value stored in the variable",
@@ -57,6 +58,9 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	@Nullable
 	private ClassInfo<?> classInfo;
 
+	@Nullable
+	private ClassInfo<?> returnTypeInfo;
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -67,9 +71,6 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 		setExpr(expr);
 		return true;
 	}
-
-	@Nullable
-	private ClassInfo<?> returnTypeInfo;
 
 	@Override
 	@Nullable
