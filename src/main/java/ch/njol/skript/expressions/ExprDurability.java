@@ -76,13 +76,18 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
-			return null;
-		return CollectionUtils.array(Number.class);
+		switch (mode) {
+			case SET:
+			case ADD:
+			case REMOVE:
+			case DELETE:
+			case RESET:
+				return CollectionUtils.array(Number.class);
+		}
+		return null;
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int i = delta == null ? 0 : ((Number) delta[0]).intValue();
 		Object[] objects = getExpr().getArray(event);
