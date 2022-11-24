@@ -28,16 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.*;
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -1479,5 +1473,14 @@ public class BukkitClasses {
 				.name("World Environment")
 				.description("Represents the environment of a world.")
 				.since("INSERT VERSION"));
+
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
+				.user("(lunar|moon) ?phases?")
+				.name("Moon Phase")
+				.description("Represents the phase of a moon.")
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper 1.16+"));
+		}
 	}
 }
