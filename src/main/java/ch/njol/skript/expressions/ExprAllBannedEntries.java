@@ -33,8 +33,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("All Banned Entries")
-@Description("Returns a list of all the banned players or ips.")
+@Name("All Banned Players/IPs")
+@Description("Obtains the list of all banned players or IP addresses.")
 @Examples({
 	"command /banlist:",
 	"\ttrigger:",
@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[(all [[of] the]|the)] banned (players|:ips)");
+		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[all [[of] the]|the] banned (players|ips:(ips|ip addresses))");
 	}
 
 	private boolean ip;
@@ -75,7 +75,7 @@ public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "all banned players";
+		return "all banned " + (ip ? "ips" : "players");
 	}
 
 }
