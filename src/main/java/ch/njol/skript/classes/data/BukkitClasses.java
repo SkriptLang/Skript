@@ -1861,7 +1861,7 @@ public class BukkitClasses {
 
 					@Override
 					public String toVariableNameString(MoonPhase moonPhase) {
-						return toString(moonPhase, 0);
+						return moonPhase.name();
 					}
 				})
 				.serializer(new EnumSerializer<>(MoonPhase.class)));

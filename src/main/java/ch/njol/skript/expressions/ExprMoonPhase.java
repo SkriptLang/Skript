@@ -30,10 +30,10 @@ import org.bukkit.World;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Moon Phase")
-@Description("The current moon phase of a world")
+@Description("The current moon phase of a world.")
 @Examples({
 	"if moon phase of player's world is full moon:",
-		"\tsend \"today's a full moon!\""
+		"\tsend \"Watch for the wolves!\""
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.16+")
