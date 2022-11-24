@@ -75,7 +75,7 @@ public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "all banned " + (ip ? "ips" : "players");
+		return "all banned " + (ip ? "ip addresses" : "players");
 	}
 
 }
