@@ -94,11 +94,39 @@ in next Skript release, whenever that happens.
 
 Good luck!
 
-### Pull Request Review
-Pull requests require one passing review before they can be merged. In
-addition to that, code submitted by people outside of core team must be tested
-by core team members. In some cases, this might be as simple as running the
-automated tests.
+### Submitting a Contribution
 
-In exceptional situations, pull requests may be merged regardless of review
-status by @bensku.
+Having submitted your contribution it will enter a public review phase.
+
+Other contributors and users may make comments or ask questions about your contribution. \
+You are encouraged to respond to these - people may have valuable feedback!
+
+Developers may request changes to the content of your pull request. These are valuable since they may concern unreleased content. Please respect our team's wishes - changes are requested when we see room for improvement or necessary issues that need to be addressed.
+Change requests are not an indictment of your code quality.
+
+Developers may also request changes to the formatting of your code and attached files. These are important to help maintain the consistent standard and readability of our code base.
+
+Once you have made the requested changes (or if you require clarification or assistance) you can request a re-review from the developer.
+
+You don't need to keep your pull request fork up-to-date with Skript's master branch - we can update it automatically and notify you if there are any problems.
+
+### Merging a Contribution
+
+Pull requests may be left un-merged until an appropriate time (e.g. before a suitable release.) This timeframe may be increased for breaking changes or significant new features, which might be better targeted in a major version.
+
+Please respect the process - this is a very complex project that takes a lot of time and care to maintain. Your contribution has not been forgotten about.
+
+For a contribution to be merged it requires at least two approving reviews from the core development team. It will then require a senior member to merge it.
+
+You do not need to 'bump' your contribution if it is un-merged; we may be waiting for a more suitable release to include it.
+
+If you have been waiting for a response to a question or change for a significant time please re-request our reviews or contact us.
+
+In exceptional situations, pull requests may be merged regardless of review status by one of the organisation admins. 
+
+### Peaceful Resolution
+
+Please respect our maintainers, developers, contributors and users. \
+Our contributors come from a wide variety of backgrounds and countries - you may need to explain issues and requests if they are misunderstood.
+
+Please refer disrespectful and unpleasant behaviour to our tracker team. For concerns about abuse, please contact the organisation directly.
