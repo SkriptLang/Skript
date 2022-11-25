@@ -80,8 +80,8 @@ public class EffContinue extends Effect {
 		throw new UnsupportedOperationException();
 	}
 
-	@Nullable
 	@Override
+	@Nullable
 	protected TriggerItem walk(Event e) {
 		return loop;
 	}
