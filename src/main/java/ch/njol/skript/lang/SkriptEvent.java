@@ -26,6 +26,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -55,12 +56,15 @@ public abstract class SkriptEvent extends Structure {
 	public static final Priority PRIORITY = new Priority(600);
 
 	/**
-	 * Checks if the current event is of the given types.
+	 * Checks if the current event is of the given types. Will log an error if false.
 	 * @param events the events to check.
 	 * @return true if the current event is of the given types.
 	 */
 	public static boolean isEvent(Class<? extends Event>... events) {
-		return CollectionUtils.containsAny(ParserInstance.get().getCurrentEvents(), events);
+		if (CollectionUtils.containsAny(ParserInstance.get().getCurrentEvents(), events))
+			return true;
+		Skript.error("You cannot use this element in " + Utils.a(ParserInstance.get().getCurrentEventName()) + " event.");
+		return false;
 	}
 
 	private String expr;
