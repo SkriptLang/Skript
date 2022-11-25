@@ -21,9 +21,7 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.structure.Structure;
 
 /**
  * Represents a general part of the syntax.
@@ -51,11 +49,11 @@ public interface SyntaxElement {
 	}
 
 	/**
-	 * Gets the events in which this element can be used in. If there are no limits to this element, you may
+	 * Gets the structures in which this element can be used in. If there are no limits to this element, you may
 	 * return an empty array, or simply not override this method.
-	 * @return the events this element is usable in, or an empty array.
+	 * @return the structures this element is usable in, or an empty array.
 	 */
-	default Class<? extends Event>[] getUsableEvents() {
+	default Class<? extends Structure>[] getUsableStructures() {
 		return new Class[0];
 	}
 
