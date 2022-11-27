@@ -18,27 +18,18 @@
  */
 package ch.njol.skript.util.chat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.util.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.ChatColor;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Handles parsing chat messages.
@@ -579,19 +570,23 @@ public class ChatMessages {
 	 * @return A string without styles.
 	 */
 	public static String stripStyles(String text) {
-		List<MessageComponent> components = parse(text);
-		StringBuilder sb = new StringBuilder();
-		for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
-			sb.append(component.text);
-		}
-		String plain = sb.toString();
-
-		if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-			plain = plain.replaceAll("[§&]x", "");
-
-		plain = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
-
-		assert plain != null;
-		return plain;
+		String previous;
+		String result = text;
+		do {
+			previous = result;
+			
+			List<MessageComponent> components = parse(result);
+			StringBuilder builder = new StringBuilder();
+			for (MessageComponent component : components) // This also strips bracket tags ex. <red> <ttp:..> etc.
+				builder.append(component.text);
+			String plain = builder.toString();
+			
+			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
+				plain = plain.replaceAll("[§&]x", "");
+			
+			result = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
+		} while (!previous.equals(result));
+		
+		return result;
 	}
 }
