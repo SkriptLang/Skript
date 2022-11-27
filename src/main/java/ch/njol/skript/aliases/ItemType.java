@@ -996,7 +996,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			}
 			b.append(types.get(i).toString(debug, plural));
 		}
-		return "" + b;
+		return b.toString();
 	}
 	
 	public static String toString(final ItemStack i) {

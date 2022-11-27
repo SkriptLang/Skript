@@ -285,10 +285,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			int i = 0;
 			for (Entry<Enchantment, Integer> e : enchs.entrySet()) {
 				if (i != 0) {
-					if (i != enchs.size() - 1)
+					if (i != enchs.size() - 1) {
 						b.append(", ");
-					else
+					} else  {
 						b.append(" " + GeneralWords.and + " ");
+					}
 				}
 				Enchantment ench = e.getKey();
 				if (ench == null)
@@ -311,10 +312,11 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				int i = 0;
 				for (String l : lore) {
 					if (i != 0) {
-						if (i != lore.size() - 1)
+						if (i != lore.size() - 1)  {
 							b.append(", ");
-						else
+						} else {
 							b.append(" " + GeneralWords.and + " ");
+						}
 					}
 					b.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");
 					i++;
@@ -322,7 +324,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			}
 		}
 
-		return "" + b;
+		return b.toString();
 	}
 	
 	/**
