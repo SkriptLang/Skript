@@ -1,0 +1,6 @@
+test "where filter":
+	set {_list::*} to "foo", "bar" and "foobar"
+	assert first element of ({_list::*} where [string input is "foo"]) is "foo" with "ExprFilter filtered incorrectly"
+	assert {_list::*} where [number input is set] is not set with "ExprFilter provided input value when classinfo did not match"
+	assert first element of ({_list::*} where [input is "foo"]) is "foo" with "ExprFilter filtered object input incorrectly"
+	assert {_list::*} where [false is true] is not set with "ExprFilter returned objects with false condition"
