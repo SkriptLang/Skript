@@ -143,8 +143,8 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 				case REMOVE:
 					pingEvent.setMaxPlayers(pingEvent.getMaxPlayers() - amount);
 					break;
-				case DELETE:
 				case RESET:
+				case DELETE:
 					pingEvent.setMaxPlayers(Bukkit.getMaxPlayers());
 			}
 		}
@@ -161,7 +161,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the count of " + (isReal ? "real max players" : "max players");
 	}
 
