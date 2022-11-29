@@ -19,6 +19,9 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
+import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -646,6 +649,32 @@ public class SimpleEvents {
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "[world[ ]]border bounds chang(e|ing)")
+				.description("Called when a world border changes its bounds, either over time, or instantly.")
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on border bounds change:",
+					"\tbroadcast \"You better get moving!\""
+				)
+				.since("INSERT VERSION");
+			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border bounds finish chang(e|ing)")
+				.description("Called when a moving world border has finished it's move.")
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on border bounds finish change:",
+					"\tbroadcast \"Get inside the borders!\""
+				)
+				.since("INSERT VERSION");
+			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "[world[ ]]border center chang(e|ing)")
+				.description("Called when a world border's center has changed.")
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on border center change:",
+					"\tbroadcast \"The center has moved\""
+				)
 				.since("INSERT VERSION");
 		}
 	}

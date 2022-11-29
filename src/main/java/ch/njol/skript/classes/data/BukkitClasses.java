@@ -51,6 +51,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.WorldBorder;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -1489,5 +1490,33 @@ public class BukkitClasses {
 				.since("INSERT VERSION")
 				.requiredPlugins("Paper 1.16+"));
 		}
+
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				@Nullable
+				public WorldBorder parse(String s, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder o, int flags) {
+					return "world border" + (o.getWorld() != null ? " of world named " + o.getWorld().getName() : "");
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder o) {
+					return o.toString();
+				}
+			}));
 	}
 }
