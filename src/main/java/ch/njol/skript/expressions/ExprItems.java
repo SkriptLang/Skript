@@ -63,8 +63,8 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	static {
 		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
 			"[all [[of] the]|the|every] block[[ ]type][s]",
-			"[all [[of] the]|the|every] blocks of type[s] %itemtypes%",
-			"[all [[of] the]|the|every] items of type[s] %itemtypes%"
+			"[all [[of] the]|the|every] block[s] of type[s] %itemtypes%",
+			"[all [[of] the]|the|every] item[s] of type[s] %itemtypes%"
 		);
 	}
 
@@ -139,6 +139,11 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "all of the " + (items ? "items" : "blocks") + (itemTypeExpr != null ? " of type " + itemTypeExpr.toString(event, debug) : "");
+	}
+
+	@Override
+	public boolean isLoopOf(String string) {
+		return (items && string.equals("item")) || (!items && string.equals("block"));
 	}
 
 }
