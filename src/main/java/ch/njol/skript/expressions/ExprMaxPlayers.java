@@ -45,10 +45,10 @@ import org.eclipse.jdt.annotation.Nullable;
 		"	set the max players count to (online players count + 1)"})
 @RequiredPlugins("Paper 1.16+ (modify max real players)")
 @Since("2.3, INSERT VERSION (modify max real players)")
-public class ExprMaxPlayers extends SimpleExpression<Long> {
+public class ExprMaxPlayers extends SimpleExpression<Integer> {
 
 	static {
-		Skript.registerExpression(ExprMaxPlayers.class, Long.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprMaxPlayers.class, Integer.class, ExpressionType.PROPERTY,
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] player[s] [(count|amount|number|size)]",
 				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] (count|amount|number|size) of players");
 	}
@@ -74,12 +74,15 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 
 	@Override
 	@Nullable
-	public Long[] get(Event e) {
-		if (!isReal && !(e instanceof ServerListPingEvent))
+	public Integer[] get(Event event) {
+		if (!isReal && !(event instanceof ServerListPingEvent))
 			return null;
 
-		if (isReal) return CollectionUtils.array((long) Bukkit.getMaxPlayers());
-		else return CollectionUtils.array((long) ((ServerListPingEvent) e).getMaxPlayers());
+		if (isReal) {
+			return CollectionUtils.array(Bukkit.getMaxPlayers());
+		} else {
+			return CollectionUtils.array(((ServerListPingEvent) event).getMaxPlayers());
+		}
 	}
 
 	@Override
@@ -110,10 +113,10 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int amount = ((Number) delta[0]).intValue();
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int amount = delta == null ? 0 : ((Number) delta[0]).intValue();
 		
-		if (!isReal && !(e instanceof ServerListPingEvent))
+		if (!isReal && !(event instanceof ServerListPingEvent))
 			return;
 
 		if (isReal) {
@@ -129,20 +132,20 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 					break;
 			}
 		} else {
-			ServerListPingEvent event = (ServerListPingEvent) e;
+			ServerListPingEvent pingEvent = (ServerListPingEvent) event;
 			switch (mode) {
 				case SET:
-					event.setMaxPlayers(amount);
+					pingEvent.setMaxPlayers(amount);
 					break;
 				case ADD:
-					event.setMaxPlayers(event.getMaxPlayers() + amount);
+					pingEvent.setMaxPlayers(pingEvent.getMaxPlayers() + amount);
 					break;
 				case REMOVE:
-					event.setMaxPlayers(event.getMaxPlayers() - amount);
+					pingEvent.setMaxPlayers(pingEvent.getMaxPlayers() - amount);
 					break;
 				case DELETE:
 				case RESET:
-					event.setMaxPlayers(Bukkit.getMaxPlayers());
+					pingEvent.setMaxPlayers(Bukkit.getMaxPlayers());
 			}
 		}
 	}
@@ -153,8 +156,8 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
