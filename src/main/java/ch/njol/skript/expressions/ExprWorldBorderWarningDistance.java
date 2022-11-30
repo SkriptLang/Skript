@@ -60,7 +60,6 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		@SuppressWarnings("ConstantConditions")
 		int input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).intValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {

@@ -35,7 +35,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Expand/Shrink World Border")
 @Description({
 	"Expand or shrink the size of a world border.",
-	"Note: Using <code>by</code> adds/subtracts from the current size of the world border. Using <code>to</code> sets to the specified size."
+	"Note: Using <code>by</code> adds/subtracts from the current size of the world border.",
+	"Using <code>to</code> sets to the specified size."
 })
 @Examples({
 	"expand world border of player by 100 in 5 seconds",
@@ -53,16 +54,16 @@ public class EffWorldBorderExpand extends Effect {
 	private boolean shrink;
 	private int pattern;
 	private Expression<WorldBorder> worldBorders;
-	private Expression<Number> numberExpr;
+	private Expression<Number> number;
 	@Nullable
-	private Expression<Timespan> timespanExpr;
+	private Expression<Timespan> timespan;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worldBorders = (Expression<WorldBorder>) exprs[0];
-		numberExpr = (Expression<Number>) exprs[1];
-		timespanExpr = (Expression<Timespan>) exprs[2];
+		number = (Expression<Number>) exprs[1];
+		timespan = (Expression<Timespan>) exprs[2];
 		shrink = parseResult.hasTag("shrink");
 		pattern = matchedPattern;
 		return true;
@@ -70,10 +71,10 @@ public class EffWorldBorderExpand extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		double input = numberExpr.getOptionalSingle(event).orElse(0).doubleValue();
+		double input = number.getOptionalSingle(event).orElse(0).doubleValue();
 		long speed = 0;
-		if (timespanExpr != null) {
-			Timespan timespan = timespanExpr.getSingle(event);
+		if (timespan != null) {
+			Timespan timespan = this.timespan.getSingle(event);
 			if (timespan != null)
 				speed = timespan.getMilliSeconds() / 1000;
 		}
@@ -95,8 +96,8 @@ public class EffWorldBorderExpand extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (shrink ? "shrink " : "expand ") + worldBorders.toString(event, debug)
-			+ (pattern == 0 ? " by " : " to ") + numberExpr.toString(event, debug)
-			+ (timespanExpr == null ? "" : " over " + timespanExpr.toString(event, debug));
+			+ (pattern == 0 ? " by " : " to ") + number.toString(event, debug)
+			+ (timespan == null ? "" : " over " + timespan.toString(event, debug));
 	}
 
 }

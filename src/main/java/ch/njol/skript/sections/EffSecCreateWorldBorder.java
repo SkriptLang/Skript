@@ -25,9 +25,9 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -38,6 +38,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("World Border Creation")
 @Description({
@@ -50,10 +51,10 @@ import java.util.List;
 	"set player's world border to the last created world border"
 })
 @Since("INSERT VERSION")
-public class SecCreateWorldBorder extends Section {
+public class EffSecCreateWorldBorder extends EffectSection {
 
 	static {
-		Skript.registerSection(SecCreateWorldBorder.class, "create [a] [new] [world[ ]]border");
+		Skript.registerSection(EffSecCreateWorldBorder.class, "create [a] [new] [world[ ]]border");
 	}
 
 	@Nullable
@@ -66,13 +67,17 @@ public class SecCreateWorldBorder extends Section {
 						int matchedPattern,
 						Kleenean isDelayed,
 						ParseResult parseResult,
-						SectionNode sectionNode,
-						List<TriggerItem> triggerItems) {
-		if (getParser().isCurrentSection(SecCreateWorldBorder.class)) {
-			Skript.error("The 'world border creation' section cannot be inside a 'world border creation' section");
-			return false;
+						@Nullable SectionNode sectionNode,
+						@Nullable List<TriggerItem> triggerItems) {
+		if (sectionNode != null) {
+			AtomicBoolean delayed = new AtomicBoolean(false);
+			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
+			loadCode(sectionNode, "world border creation", afterLoading);
+			if (delayed.get()) {
+				Skript.error("Delays can't be used within a World Border Creation section");
+				return false;
+			}
 		}
-		loadCode(sectionNode);
 		return true;
 	}
 
@@ -96,18 +101,19 @@ public class SecCreateWorldBorder extends Section {
 			Skript.registerExpression(ExprWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "[the] [world[ ]]border");
 		}
 
-		private SecCreateWorldBorder section;
+		@Nullable
+		private EffSecCreateWorldBorder section;
 
 		@Override
 		public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-			//noinspection ConstantConditions
-			section = getParser().getCurrentSection(SecCreateWorldBorder.class);
+			section = getParser().getCurrentSection(EffSecCreateWorldBorder.class);
 			return section != null;
 		}
 
 		@Override
 		@Nullable
 		protected WorldBorder[] get(Event event) {
+			assert section != null;
 			return new WorldBorder[] {section.worldBorder};
 		}
 

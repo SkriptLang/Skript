@@ -60,7 +60,6 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		@SuppressWarnings("ConstantConditions")
 		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {

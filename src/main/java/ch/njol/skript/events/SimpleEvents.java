@@ -652,7 +652,7 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 		}
 		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
-			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "[world[ ]]border bounds chang(e|ing)")
+			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "[world[ ]]border [bounds] chang(e|ing)")
 				.description("Called when a world border changes its bounds, either over time, or instantly.")
 				.requiredPlugins("Paper 1.16+")
 				.examples(
@@ -660,7 +660,7 @@ public class SimpleEvents {
 					"\tbroadcast \"You better get moving!\""
 				)
 				.since("INSERT VERSION");
-			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border bounds finish chang(e|ing)")
+			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border [bounds] finish chang(e|ing)")
 				.description("Called when a moving world border has finished it's move.")
 				.requiredPlugins("Paper 1.16+")
 				.examples(

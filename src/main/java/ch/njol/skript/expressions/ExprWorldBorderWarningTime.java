@@ -34,16 +34,16 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The warning time of a world border.")
 @Examples("set warning time of {_worldborder} to 1")
 @Since("INSERT VERSION")
-public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Long> {
+public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
 
 	static {
-		register(ExprWorldBorderWarningTime.class, Long.class, "[border] warning time", "worldborders");
+		register(ExprWorldBorderWarningTime.class, Timespan.class, "[border] warning time", "worldborders");
 	}
 
 	@Override
 	@Nullable
-	public Long convert(WorldBorder worldBorder) {
-		return (long) worldBorder.getWarningTime();
+	public Timespan convert(WorldBorder worldBorder) {
+		return new Timespan(worldBorder.getWarningTime() * 1000L);
 	}
 
 	@Override
@@ -61,7 +61,6 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		@SuppressWarnings("ConstantConditions")
 		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getMilliSeconds() / 1000);
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -85,8 +84,8 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
 	}
 
 }

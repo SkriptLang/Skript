@@ -60,7 +60,6 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		@SuppressWarnings("ConstantConditions")
 		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue(), 6.0E7));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {

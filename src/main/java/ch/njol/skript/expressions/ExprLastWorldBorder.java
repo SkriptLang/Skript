@@ -27,7 +27,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.sections.SecCreateWorldBorder;
+import ch.njol.skript.sections.EffSecCreateWorldBorder;
 import ch.njol.util.Kleenean;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
@@ -55,7 +55,7 @@ public class ExprLastWorldBorder extends SimpleExpression<WorldBorder> {
 	@Override
 	@Nullable
 	protected WorldBorder[] get(Event event) {
-		return new WorldBorder[] {SecCreateWorldBorder.lastCreatedWorldBorder};
+		return new WorldBorder[] {EffSecCreateWorldBorder.lastCreatedWorldBorder};
 	}
 
 	@Override

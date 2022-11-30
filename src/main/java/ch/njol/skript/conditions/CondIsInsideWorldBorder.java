@@ -45,26 +45,26 @@ public class CondIsInsideWorldBorder extends Condition {
 		PropertyCondition.register(CondIsInsideWorldBorder.class, "inside %worldborders%", "locations");
 	}
 
-	private Expression<Location> locationExpr;
-	private Expression<WorldBorder> worldBorderExpr;
+	private Expression<Location> location;
+	private Expression<WorldBorder> worldBorders;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		locationExpr = (Expression<Location>) exprs[0];
-		worldBorderExpr = (Expression<WorldBorder>) exprs[1];
+		location = (Expression<Location>) exprs[0];
+		worldBorders = (Expression<WorldBorder>) exprs[1];
 		setNegated(matchedPattern == 1);
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		return locationExpr.check(event, location -> worldBorderExpr.check(event, worldBorder -> worldBorder.isInside(location)), isNegated());
+		return location.check(event, location -> worldBorders.check(event, worldBorder -> worldBorder.isInside(location)), isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return locationExpr.toString(event, debug) + (locationExpr.isSingle() ? " is " : " are ") + "inside " + worldBorderExpr.toString(event, debug);
+		return location.toString(event, debug) + (location.isSingle() ? " is " : " are ") + "inside " + worldBorders.toString(event, debug);
 	}
 
 }
