@@ -1863,6 +1863,17 @@ environments:
 	the_end: end, the end
 	custom: custom
 
+# -- Moon Phases --
+moon phases:
+	first_quarter: first quarter
+	full_moon: full moon
+	last_quarter: last quarter
+	new_moon: new moon
+	waning_crescent: waning crescent
+	waning_gibbous: waning gibbous
+	waxing_crescent: waxing crescent
+	waxing_gibbous: waxing gibbous
+
 # -- Boolean --
 boolean:
 	true:
