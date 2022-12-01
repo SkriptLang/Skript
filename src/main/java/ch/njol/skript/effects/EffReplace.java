@@ -29,6 +29,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -89,8 +90,18 @@ public class EffReplace extends Effect {
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(Event e) {
-		Object[] haystack = this.haystack.getAll(e);
 		Object[] needles = this.needles.getAll(e);
+		if (haystack instanceof ExpressionList) {
+			for (Expression<?> haystackExpr : ((ExpressionList<?>) haystack).getExpressions()) {
+				replace(e, needles, haystackExpr);
+			}
+		} else {
+			replace(e, needles, haystack);
+		}
+	}
+
+	private void replace(Event e, Object[] needles, Expression<?> haystackExpr) {
+		Object[] haystack = haystackExpr.getAll(e);
 		Object replacement = this.replacement.getSingle(e);
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
@@ -108,7 +119,7 @@ public class EffReplace extends Effect {
 						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
 					}
 			}
-			this.haystack.change(e, haystack, ChangeMode.SET);
+			haystackExpr.change(e, haystack, ChangeMode.SET);
 		} else {
 			for (Inventory inv : (Inventory[]) haystack)
 				for (ItemType needle : (ItemType[]) needles)
