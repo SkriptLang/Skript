@@ -56,7 +56,7 @@ skript command:
 		reloading: 正在重新加载<gold>%s<reset>…
 		reloaded: <lime>已成功重新加载<gold>%s<lime>。<gray>（<gold>%2$sms<gray>）
 		error: <light red>在重新加载<gold>%1$s<light red>时遇到了<gold>%2$s<light red>个错误！<gray>（<gold>%3$sms<gray>）
-		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
+		script disabled: <gold>%s<reset>已禁用。使用<gray>/<gold>skript <cyan>enable <red>%s<reset>来启用它。
 		warning details: <yellow>    %s<reset>\n
 		error details: <light red>    %s<reset>\n
 		other details: <white>    %s<reset>\n
@@ -151,8 +151,8 @@ commands:
 
 # -- Hooks --
 hooks:
-	hooked: 成功hook到%s
-	error: 无法hook到%1$s。这可能是因为Skript不支持已安装的%1$s版本。
+	hooked: 成功与%s连接
+	error: 无法连接到%1$s。这可能是因为Skript不支持已安装的%1$s版本。
 
 # -- Aliases --
 aliases:
