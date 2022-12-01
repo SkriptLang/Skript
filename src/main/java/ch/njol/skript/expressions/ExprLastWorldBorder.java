@@ -19,10 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -30,6 +27,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.sections.EffSecCreateWorldBorder;
 import ch.njol.util.Kleenean;
 import org.bukkit.WorldBorder;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -41,10 +39,12 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set player's world border to the last created world border"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("1.18+")
 public class ExprLastWorldBorder extends SimpleExpression<WorldBorder> {
 
 	static {
-		Skript.registerExpression(ExprLastWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "[the] last[ly] created [world[ ]]border");
+		if (Skript.methodExists(Player.class, "getWorldBorder"))
+			Skript.registerExpression(ExprLastWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "[the] last[ly] created [world[ ]]border");
 	}
 
 	@Override

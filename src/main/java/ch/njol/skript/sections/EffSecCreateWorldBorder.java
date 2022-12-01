@@ -20,11 +20,7 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.NoDoc;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -34,6 +30,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -51,10 +48,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	"set player's world border to the last created world border"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("1.18+")
 public class EffSecCreateWorldBorder extends EffectSection {
 
 	static {
-		Skript.registerSection(EffSecCreateWorldBorder.class, "create [a] [new] [world[ ]]border");
+		if (Skript.methodExists(Player.class, "getWorldBorder"))
+			Skript.registerSection(EffSecCreateWorldBorder.class, "create [a] [new] [world[ ]]border");
 	}
 
 	@Nullable
