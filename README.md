@@ -13,7 +13,7 @@ Skript requires **Spigot** to work. You heard it right, Bukkit does *not* work.
 parts of Skript to be available.
 
 Skript supports only the **latest** patch versions of Minecraft 1.9+.
-For example, this means that 1.16.4 is supported, but 1.16.3 is *not*.
+For example, this means that 1.16.5 is supported, but 1.16.4 is *not*.
 Testing with all old patch versions is not feasible for us.
 
 Minecraft 1.8 and earlier are not, and will not be supported. New Minecraft
