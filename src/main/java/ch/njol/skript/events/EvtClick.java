@@ -64,7 +64,9 @@ public class EvtClick extends SkriptEvent {
 	private static final ClickEventTracker entityInteractTracker = new ClickEventTracker(Skript.getInstance());
 	
 	static {
-		Class<? extends PlayerEvent>[] eventTypes = CollectionUtils.array(PlayerInteractEvent.class, PlayerInteractEntityEvent.class);
+		Class<? extends PlayerEvent>[] eventTypes = CollectionUtils.array(
+			PlayerInteractEvent.class, PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class
+		);
 		
 		Skript.registerEvent("Click", EvtClick.class, eventTypes,
 				"[(" + RIGHT + "¦right|" + LEFT + "¦left)(| |-)][mouse(| |-)]click[ing] [on %-entitydata/itemtype%] [(with|using|holding) %-itemtype%]",
