@@ -106,7 +106,8 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 				return CollectionUtils.array(Number.class);
 			case RESET:
 			case DELETE:
-				if (!isReal) return CollectionUtils.array(Number.class);
+				if (!isReal)
+					return CollectionUtils.array(Number.class);
 		}
 		
 		return null;
