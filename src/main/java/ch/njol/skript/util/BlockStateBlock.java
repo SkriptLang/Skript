@@ -357,6 +357,16 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public void tick() {
+		state.getBlock().tick();
+	}
+
+	@Override
+	public void randomTick() {
+		state.getBlock().randomTick();
+	}
+
+	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return state.getBlock().applyBoneMeal(blockFace);
 	}
