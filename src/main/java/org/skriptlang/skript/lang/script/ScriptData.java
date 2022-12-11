@@ -16,30 +16,10 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
-
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.eclipse.jdt.annotation.Nullable;
+package org.skriptlang.skript.lang.script;
 
 /**
- * @author Peter Güttinger
+ * To be implemented on data objects for {@link Script}'s Data API.
+ * @see Script#addData(ScriptData) 
  */
-public abstract class DamageCauseUtils {
-	private DamageCauseUtils() {}
-	
-	private final static EnumUtils<DamageCause> util = new EnumUtils<>(DamageCause.class, "damage causes");
-	
-	@Nullable
-	public static DamageCause parse(final String s) {
-		return util.parse(s);
-	}
-	
-	public static String toString(final DamageCause dc, final int flags) {
-		return util.toString(dc, flags);
-	}
-	
-	public static String getAllNames() {
-		return util.getAllNames();
-	}
-	
-}
+public interface ScriptData { }
