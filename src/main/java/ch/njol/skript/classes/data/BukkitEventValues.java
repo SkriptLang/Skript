@@ -37,6 +37,8 @@ import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -48,6 +50,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Hanging;
@@ -57,6 +60,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -110,6 +114,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -1231,13 +1236,38 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new Getter<Location, PlayerTeleportEvent>() {
+		//PlayerMoveEvent
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
 			@Nullable
-			public Location get(final PlayerTeleportEvent e) {
+			public Location get(PlayerMoveEvent e) {
 				return e.getFrom();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			@Nullable
+			public Location get(PlayerMoveEvent e) {
+				return e.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		//EntityMoveEvent
+		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getFrom();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
+				@Override
+				@Nullable
+				public Location get(EntityMoveEvent e) {
+					return e.getTo();
+				}
+			}, EventValues.TIME_FUTURE);
+		}
 		//PlayerToggleFlightEvent
 		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, new Getter<Player, PlayerToggleFlightEvent>() {
 			@Override
@@ -1340,6 +1370,16 @@ public final class BukkitEventValues {
 				return evt.getEntity();
 			}
 		}, 0);
+		// PlayerTradeEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			EventValues.registerEventValue(PlayerTradeEvent.class, AbstractVillager.class, new Getter<AbstractVillager, PlayerTradeEvent>() {
+				@Override
+				@Nullable
+				public AbstractVillager get(PlayerTradeEvent event) {
+					return event.getVillager();
+				}
+			}, EventValues.TIME_NOW);
+		}
 		// PlayerChangedWorldEvent
 		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
 			@Nullable
@@ -1348,5 +1388,14 @@ public final class BukkitEventValues {
 				return e.getFrom();
 			}
 		}, -1);
+
+		// PlayerEggThrowEvent
+		EventValues.registerEventValue(PlayerEggThrowEvent.class, Egg.class, new Getter<Egg, PlayerEggThrowEvent>() {
+			@Override
+			@Nullable
+			public Egg get(PlayerEggThrowEvent event) {
+				return event.getEgg();
+			}
+		}, EventValues.TIME_NOW);
 	}
 }

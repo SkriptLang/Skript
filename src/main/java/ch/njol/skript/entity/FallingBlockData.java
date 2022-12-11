@@ -52,7 +52,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
-	
+
 	@Nullable
 	private ItemType[] types = null;
 	
@@ -114,7 +114,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	@Override
 	@Nullable
 	public FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
-		ItemType t = CollectionUtils.getRandom(types);
+		ItemType t = types == null ? new ItemType(Material.STONE) : CollectionUtils.getRandom(types);
 		assert t != null;
 		Material material = t.getMaterial();
 

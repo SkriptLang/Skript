@@ -16,29 +16,12 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
-
-import org.bukkit.block.Biome;
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
- * Contains utility methods related to biomes
+ * Support for script-based testing.
  */
-public class BiomeUtils {
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package ch.njol.skript.structures;
 
-	private final static EnumUtils<Biome> util = new EnumUtils<>(Biome.class, "biomes");
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-	@Nullable
-	public static Biome parse(String name) {
-		return util.parse(name);
-	}
-
-	public static String toString(Biome biome, int flags) {
-		return util.toString(biome, flags);
-	}
-
-	public static String getAllNames() {
-		return util.getAllNames();
-	}
-
-}
