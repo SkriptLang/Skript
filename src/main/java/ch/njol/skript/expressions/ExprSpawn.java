@@ -18,15 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.bukkit.event.world.SpawnChangeEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -38,75 +31,84 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.bukkit.event.world.SpawnChangeEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Spawn")
 @Description("The spawn point of a world.")
-@Examples({"teleport all players to spawn",
-		"set the spawn point of \"world\" to the player's location"})
+@Examples({
+	"teleport all players to spawn",
+	"set the spawn point of \"world\" to the player's location"
+})
 @Since("1.4.2")
 public class ExprSpawn extends PropertyExpression<World, Location> {
+
 	static {
-		Skript.registerExpression(ExprSpawn.class, Location.class, ExpressionType.PROPERTY, "[the] spawn[s] [(point|location)[s]] [of %worlds%]", "%worlds%'[s] spawn[s] [(point|location)[s]]");
+		Skript.registerExpression(ExprSpawn.class, Location.class, ExpressionType.PROPERTY,
+				"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
+				"%worlds%'[s] spawn[s] [(point|location)[s]]"
+		);
 	}
-	
-	@SuppressWarnings({"unchecked", "null"})
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends World>) exprs[0]);
 		return true;
 	}
-	
+
 	@Override
-	protected Location[] get(final Event e, final World[] source) {
-		if (getTime() == -1 && e instanceof SpawnChangeEvent && !Delay.isDelayed(e)) {
-			return new Location[] {((SpawnChangeEvent) e).getPreviousLocation()};
-		}
-		return get(source, new Converter<World, Location>() {
-			@Override
-			@Nullable
-			public Location convert(final World w) {
-				return w.getSpawnLocation();
-			}
-		});
+	protected Location[] get(Event event, World[] source) {
+		if (getTime() == -1 && event instanceof SpawnChangeEvent && !Delay.isDelayed(event))
+			return new Location[] {((SpawnChangeEvent) event).getPreviousLocation()};
+		return get(source, World::getSpawnLocation);
 	}
-	
-	@Override
-	public Class<? extends Location> getReturnType() {
-		return Location.class;
-	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "spawn of " + getExpr().toString(e, debug);
-	}
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Location.class);
 		return null;
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
-		
-		final Location l = (Location) delta[0];
-		final int x = l.getBlockX(), y = l.getBlockY(), z = l.getBlockZ();
-		for (final World w : getExpr().getArray(e)) {
-			w.setSpawnLocation(x, y, z);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		//noinspection ConstantConditions
+		if (delta == null)
+			return;
+
+		Location originalLocation = (Location) delta[0];
+		assert originalLocation != null;
+		for (World world : getExpr().getArray(event)) {
+			Location location = originalLocation.clone();
+			World locationWorld = location.getWorld();
+			if (locationWorld == null) {
+				location.setWorld(world);
+				world.setSpawnLocation(location);
+			} else if (locationWorld.equals(world)) {
+				world.setSpawnLocation(location);
+			}
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
-	public boolean setTime(final int time) {
+	@SuppressWarnings("unchecked")
+	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), SpawnChangeEvent.class);
 	}
-	
+
+	@Override
+	public Class<? extends Location> getReturnType() {
+		return Location.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the spawn point of " + getExpr().toString(event, debug);
+	}
+
 }
