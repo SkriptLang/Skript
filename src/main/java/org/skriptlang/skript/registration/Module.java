@@ -28,7 +28,7 @@ import java.io.IOException;
  * Modules can be loaded using {@link SkriptAddon#loadModules(String, String...)}.
  * Note that when loading 'org.skriptlang.skript.X', the module class should be placed at 'org.skriptlang.skript.X.ModuleClassHere'
  * 	as the mentioned method will not search deeper than the provided subpackages.
- * The example below is the structure that a project using Modules should use.
+ * The example below is a possible organization structure that a project using Modules could use.
  * <pre>
  * <b>potions</b>
  * |- elements
@@ -53,7 +53,7 @@ public abstract class Module {
 	 * Loads syntax elements for this module.
 	 * @param loader The SkriptAddon to load syntax with.
 	 * @param subPackageName The location of syntax elements (ex: "elements")
-	 *                    Elements should **not** be contained within the main module package.
+	 *                    Elements should <b>not</b> be contained within the main module package.
 	 *                    They should be within a subpackage of the package containing the Module class.
 	 */
 	public void loadSyntax(SkriptAddon loader, String subPackageName) {

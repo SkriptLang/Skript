@@ -528,7 +528,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		ChatMessages.registerListeners();
 
 		getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections")
-			.loadModules("org.skriptlang.skript");
+			.loadModules("org.skriptlang", "skript.syntax", "skriptbukkit");
 
 		Commands.registerListeners();
 		
