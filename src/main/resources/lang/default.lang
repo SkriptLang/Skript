@@ -769,19 +769,19 @@ entities:
 		pattern: wither skull((|1¦s)| projectile(|1¦s))
 	wolf:
 		name: wol¦f¦ves
-		pattern: <age> wol(f|1¦ves)
+		pattern: <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: <age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)
+		pattern: (<age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
-		pattern: (wild|untamed) <age> wol(f|1¦ves)
+		pattern: (wild|untamed) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	angry wolf:
 		name: angry wol¦f¦ves @an
-		pattern: (angry|aggressive) <age> wol(f|1¦ves)
+		pattern: (angry|aggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	peaceful wolf:
 		name: peaceful wol¦f¦ves
-		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves)
+		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
 		pattern: <age> zombie(|1¦s)|(4¦)zombie (kid(|1¦s)|child(|1¦ren))
@@ -1856,6 +1856,24 @@ attribute types:
 	horse_jump_strength: horse jump strength
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
+# -- Environments --
+environments:
+	normal: normal, overworld, the overworld
+	nether: nether, the nether
+	the_end: end, the end
+	custom: custom
+
+# -- Moon Phases --
+moon phases:
+	first_quarter: first quarter
+	full_moon: full moon
+	last_quarter: last quarter
+	new_moon: new moon
+	waning_crescent: waning crescent
+	waning_gibbous: waning gibbous
+	waxing_crescent: waxing crescent
+	waxing_gibbous: waxing gibbous
+
 # -- Boolean --
 boolean:
 	true:
@@ -1907,7 +1925,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
