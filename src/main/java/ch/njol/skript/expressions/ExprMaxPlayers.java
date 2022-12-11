@@ -95,7 +95,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 		}
 		
 		if (isReal && !SET_MAX_PLAYERS_EXISTS) {
-			Skript.error("Modifying real max player count is not supported on this server version");
+			Skript.error("Modifying the 'real max player count' is only supported on Paper 1.16 and newer");
 			return null;
 		}
 		
