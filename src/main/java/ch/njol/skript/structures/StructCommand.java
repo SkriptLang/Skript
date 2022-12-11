@@ -132,7 +132,7 @@ public class StructCommand extends Structure {
 				})
 				.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
 				.addEntryData(new VariableStringEntryData("cooldown message", null, true, CommandEvent.class))
-				.addEntry("cooldown bypass", null,true)
+				.addEntry("cooldown bypass", null, true)
 				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
 				.unexpectedEntryMessage(key ->

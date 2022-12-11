@@ -66,10 +66,10 @@ public class EffSuppressWarnings extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) { }
+	protected void execute(Event event) { }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String word;
 		switch (mark) {
 			case CONFLICT:

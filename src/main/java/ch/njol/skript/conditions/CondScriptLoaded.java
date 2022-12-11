@@ -27,6 +27,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -47,7 +48,8 @@ public class CondScriptLoaded extends Condition {
 	static {
 		Skript.registerCondition(CondScriptLoaded.class,
 				"script[s] [%-strings%] (is|are) loaded",
-				"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded");
+				"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded"
+		);
 	}
 	
 	@Nullable
@@ -56,46 +58,42 @@ public class CondScriptLoaded extends Condition {
 	private Script currentScript;
 	
 	@Override
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
-		if (scripts == null && !getParser().isActive()) {
-			Skript.error("You must provide a script name when not working in a script!");
-			return false;
+
+		ParserInstance parser = getParser();
+		if (parser.isActive()) {
+			if (scripts == null) // no scripts provided means use current script
+				currentScript = parser.getCurrentScript();
+		} else {
+			if (scripts == null) { // parser is inactive but no scripts were provided
+				Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
+				return false;
+			}
 		}
-		currentScript = getParser().getCurrentScript();
-		if (scripts == null) {
-			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
-			return false;
-		}
+
 		setNegated(matchedPattern == 1);
 		return true;
 	}
 
 	@Override
-	public boolean check(Event e) {
-		if (scripts == null) {
-			assert currentScript != null; // If scripts weren't provided then currentScript can't be null
+	public boolean check(Event event) {
+		if (scripts == null)
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
-		}
-		return scripts.check(e, scriptName -> {
+		return scripts.check(event, scriptName -> {
 			File scriptFile = SkriptCommand.getScriptFromName(scriptName);
 			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
 		}, isNegated());
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		String scriptName;
-		if (scripts == null)
-			scriptName = "script";
-		else
-			scriptName = (scripts.isSingle() ? "script" : "scripts" + " " + scripts.toString(e, debug));
-		boolean isSingle = scripts == null || scripts.isSingle();
-		if (isSingle)
+	public String toString(@Nullable Event event, boolean debug) {
+		String scriptName = scripts == null ?
+			"script" : (scripts.isSingle() ? "script" : "scripts" + " " + scripts.toString(event, debug));
+		if (scripts == null || scripts.isSingle())
 			return scriptName + (isNegated() ? " isn't" : " is") + " loaded";
-		else
-			return scriptName + (isNegated() ? " aren't" : " are") + " loaded";
+		return scriptName + (isNegated() ? " aren't" : " are") + " loaded";
 	}
 	
 }
