@@ -49,8 +49,9 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 
 	static {
 		Skript.registerExpression(ExprMaxPlayers.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] player[s] [(count|amount|number|size)]",
-				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] max[imum] (count|amount|number|size) of players");
+				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] player[s] [count|amount|number|size]",
+				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] (count|amount|number|size) of players"
+			);
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
