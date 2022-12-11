@@ -47,12 +47,12 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description({
 	"A slot of a furnace, i.e. either the ore, fuel or result slot.",
 	"Remember to use '<a href='#ExprBlock'>block</a>' and not <code>furnace</code>, as <code>furnace</code> is not an existing expression.",
-	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event"
-	+ " and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
-	"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in "
-	+ " the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
-	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace."
-	+ " Thus you may wish to use the event block in this case (e.g. <code>the fuel slot of the event-block</code>) to get accurate values if needed."
+	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event" +
+	"and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
+	"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in " +
+	"the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
+	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace." +
+	"Thus you may wish to use the event block in this case (e.g. <code>the fuel slot of the event-block</code>) to get accurate values if needed."
 })
 @Examples({
 	"set the fuel slot of the clicked block to a lava bucket",
@@ -105,20 +105,20 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 
 	@Override
 	@Nullable
-	protected Slot[] get(Event e) {
+	protected Slot[] get(Event event) {
 		Block[] blocks;
 		if (isEvent) {
 			blocks = new Block[1];
-			if (e instanceof FurnaceSmeltEvent) {
-				blocks[0] = ((FurnaceSmeltEvent) e).getBlock();
-			} else if (e instanceof FurnaceBurnEvent) {
-				blocks[0] = ((FurnaceBurnEvent) e).getBlock();
+			if (event instanceof FurnaceSmeltEvent) {
+				blocks[0] = ((FurnaceSmeltEvent) event).getBlock();
+			} else if (event instanceof FurnaceBurnEvent) {
+				blocks[0] = ((FurnaceBurnEvent) event).getBlock();
 			} else {
 				return new Slot[0];
 			}
 		} else {
 			assert this.blocks != null;
-			blocks = this.blocks.getArray(e);
+			blocks = this.blocks.getArray(event);
 		}
 
 		for (Block block : blocks) {
@@ -126,8 +126,8 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 				return new Slot[0];
 
 			FurnaceInventory furnaceInventory = ((Furnace) block.getState()).getInventory();
-			if (isEvent && !Delay.isDelayed(e)) {
-				return new Slot[]{new FurnaceEventSlot(e, furnaceInventory)};
+			if (isEvent && !Delay.isDelayed(event)) {
+				return new Slot[]{new FurnaceEventSlot(event, furnaceInventory)};
 			} else { // Normal inventory slot is fine since the time will always be in the present
 				return new Slot[]{new InventorySlot(furnaceInventory, slot)};
 			}
@@ -150,14 +150,14 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String time = (getTime() == -1) ? "past " : (getTime() == 1) ? "future " : "";
 		String slotName = (slot == ORE) ? "ore" : (slot == FUEL) ? "fuel" : "result";
 		if (isEvent) {
 			return "the " + time + slotName + (isResultSlot ? " slot" : "");
 		} else {
 			assert blocks != null;
-			return "the " + time + slotName + " slot of " + blocks.toString(e, debug);
+			return "the " + time + slotName + " slot of " + blocks.toString(event, debug);
 		}
 	}
 
@@ -179,9 +179,9 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 		
 		private final Event event;
 		
-		public FurnaceEventSlot(Event e, FurnaceInventory furnaceInventory) {
+		public FurnaceEventSlot(Event event, FurnaceInventory furnaceInventory) {
 			super(furnaceInventory, slot);
-			this.event = e;
+			this.event = event;
 		}
 		
 		@Override
