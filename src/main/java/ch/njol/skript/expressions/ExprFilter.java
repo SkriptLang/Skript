@@ -62,20 +62,6 @@ public class ExprFilter extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprFilter.class, Object.class, ExpressionType.COMBINED,
 				"%objects% (where|that match) \\[<.+>\\]");
-
-		ExprLoopValue.registerLoopValueHandler(ExprFilter.class, (source, type) -> {
-			for (ExprInput<?> child : source.children) { // if they used player input, let's assume loop-player is valid
-				//noinspection ConstantConditions
-				if (child.getClassInfo() == null || child.getClassInfo().getUserInputPatterns() == null)
-					continue;
-
-				for (Pattern pattern : child.getClassInfo().getUserInputPatterns()) {
-					if (pattern.matcher(type).matches())
-						return true;
-				}
-			}
-			return ExprLoopValue.isLoopOf(source.objects, type); // Nothing matched, so we'll rely on the object expression's logic
-		});
 	}
 
 	private Object current;

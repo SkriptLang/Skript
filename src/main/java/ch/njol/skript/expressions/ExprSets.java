@@ -64,12 +64,10 @@ public class ExprSets extends SimpleExpression<Object> {
 				"[(all [[of] the]|the|every)] block(s|[ ]types)", "[(all [[of] the]|the)] blocks of type[s] %itemtypes%",
 				"([all [[of] the]] colo[u]rs|(the|every) colo[u]r)");
 
-		ExprLoopValue.registerLoopValueHandler(ExprSets.class, (source, type) -> {
-			int pattern = source.pattern;
-			return (pattern == 4 && (type.equalsIgnoreCase("color") || type.equalsIgnoreCase("colour")))
-			|| (pattern >= 2 && type.equalsIgnoreCase("block"))
-			|| (pattern < 2 && type.equalsIgnoreCase("item"));
-		});
+		// this is needed for usage of "loop-block" since it's actually an ItemStack (not a Block)
+		ExprLoopValue.registerLoopValueHandler(ExprSets.class, (source, type) ->
+			source.pattern >= 2 && type.equalsIgnoreCase("block")
+		);
 	}
 
 	@Nullable

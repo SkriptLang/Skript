@@ -102,12 +102,10 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 
 			Expression<?> loopedExpression = secLoop.getLoopedExpression();
 
-			//noinspection deprecation
 			if (
-				(typeAsClass != null && typeAsClass.isAssignableFrom(loopedExpression.getReturnType())) // loop-integer
+				(typeAsClass != null && typeAsClass.isAssignableFrom(loopedExpression.getReturnType())) // loop-<type> (ex: loop-integer)
 				|| type.equalsIgnoreCase("value") // loop-value
-				|| loopedExpression.isLoopOf(type) // loop-argument
-				|| isLoopOf(loopedExpression, type)
+				|| isLoopOf(loopedExpression, type) // loop-<something> (ex: loop-argument)
 			) {
 				if (currentLoopValue < loopValue) { // Move onto the next one (ex: this is 'loop-value-1', but we want 'loop-value-2')
 					currentLoopValue++;
@@ -214,6 +212,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 
 	@SuppressWarnings("unchecked")
 	public static <Type extends Expression<?>> boolean isLoopOf(Type source, String type) {
+		//noinspection deprecation
+		if (source.isLoopOf(type)) // for backwards compatibility
+			return true;
 		LoopValueHandler<Type> loopValueHandler = (LoopValueHandler<Type>) LOOP_VALUE_HANDLERS.get(source.getClass());
 		if (loopValueHandler == null)
 			return false;

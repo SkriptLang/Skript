@@ -71,7 +71,9 @@ public class ExprArgument extends SimpleExpression<Object> {
 				"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
 				"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
 		);
-		ExprLoopValue.registerLoopValueHandler(ExprArgument.class, (source, type) -> type.equalsIgnoreCase("argument"));
+		ExprLoopValue.registerLoopValueHandler(ExprArgument.class, (source, type) ->
+			type.equalsIgnoreCase("argument") || type.equalsIgnoreCase("arg")
+		);
 	}
 
 	private static final int LAST = 0, ORDINAL = 1, SINGLE = 2, ALL = 3, CLASSINFO = 4;

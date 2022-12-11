@@ -53,8 +53,6 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 		Skript.registerExpression(ExprBlockSphere.class, Block.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the)] blocks in radius %number% [(of|around) %location%]",
 				"[(all [[of] the]|the)] blocks around %location% in radius %number%");
-
-		ExprLoopValue.registerLoopValueHandler(ExprBlockSphere.class, (source, type) -> type.equalsIgnoreCase("block"));
 	}
 	
 	@SuppressWarnings("null")

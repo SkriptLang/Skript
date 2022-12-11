@@ -52,12 +52,14 @@ import ch.njol.util.Kleenean;
 		"loop decimals from 3.94 to 4: # loops 3.94, 3.95, 3.96, 3.97, 3.98, 3.99, 4"})
 @Since("1.4.6 (integers & numbers), 2.5.1 (decimals)")
 public class ExprNumbers extends SimpleExpression<Number> {
+
 	static {
 		Skript.registerExpression(ExprNumbers.class, Number.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the)] (numbers|1¦integers|2¦decimals) (between|from) %number% (and|to) %number%");
 
+		// needed for usage of loop-decimal
 		ExprLoopValue.registerLoopValueHandler(ExprNumbers.class, (source, type) ->
-			source.mode == 1 && (type.equalsIgnoreCase("integer") || type.equalsIgnoreCase("int"))
+			source.mode == 2 && type.equalsIgnoreCase("decimal")
 		);
 	}
 	
