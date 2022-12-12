@@ -41,14 +41,14 @@ public class CondAnchorWorks extends Condition {
 
 	static {
 		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			Skript.registerCondition(CondAnchorWorks.class, "respawn anchors [(do|1:do(n't| not))] work in %worlds%");
+			Skript.registerCondition(CondAnchorWorks.class, "respawn anchors [do[1:(n't| not)]] work in %worlds%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<World> worlds;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings({"unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		setNegated(parseResult.mark == 1);
@@ -56,13 +56,13 @@ public class CondAnchorWorks extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return worlds.check(e, World::isRespawnAnchorWorks, isNegated());
+	public boolean check(Event event) {
+		return worlds.check(event, World::isRespawnAnchorWorks, isNegated());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "respawn anchors " + (isNegated() ? " do" : " don't") + " work in " + worlds.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "respawn anchors " + (isNegated() ? " do" : " don't") + " work in " + worlds.toString(event, debug);
 	}
 
 }

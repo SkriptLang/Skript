@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,9 +35,14 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Bed/Anchor Spawn")
 @Description("Checks what the respawn location of a player in the respawn event is.")
-@Examples({"respawn location is a bed"})
+@Examples({
+	"on respawn:",
+	"\tthe respawn location is a bed",
+	"\tbroadcast \"%player% is respawning in their bed! So cozy!\""
+})
 @RequiredPlugins("Minecraft 1.16+")
 @Since("INSERT VERSION")
+@Events("respawn")
 public class CondRespawnLocation extends Condition {
 
 	static {
@@ -49,7 +55,7 @@ public class CondRespawnLocation extends Condition {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
-			Skript.error("The condition 'respawn location' may only be used in the respawn event");
+			Skript.error("The 'respawn location' condition may only be used in the respawn event");
 			return false;
 		}
 		setNegated(parseResult.mark == 1);
@@ -58,16 +64,16 @@ public class CondRespawnLocation extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		if (e instanceof PlayerRespawnEvent) {
-			PlayerRespawnEvent event = (PlayerRespawnEvent) e;
-			return (bedSpawn ? event.isBedSpawn() : event.isAnchorSpawn()) != isNegated();
+	public boolean check(Event event) {
+		if (event instanceof PlayerRespawnEvent) {
+			PlayerRespawnEvent respawnEvent = (PlayerRespawnEvent) event;
+			return (bedSpawn ? respawnEvent.isBedSpawn() : respawnEvent.isAnchorSpawn()) != isNegated();
 		}
 		return false;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the respawn location " + (isNegated() ? "isn't" : "is") + " a " + (bedSpawn ? "bed spawn" : "respawn anchor");
 	}
 

@@ -86,14 +86,11 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
-
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int charge = 0;
-		int charges = ((Number) delta[0]).intValue();
+		int charges = delta != null ? ((Number) delta[0]).intValue() : 0;
 
-		for (Block block : getExpr().getArray(e)) {
+		for (Block block : getExpr().getArray(event)) {
 			if (block.getBlockData() instanceof RespawnAnchor) {
 				RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
 				switch (mode) {
@@ -105,10 +102,6 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 						break;
 					case SET:
 						charge = charges;
-					case RESET:
-					case DELETE:
-						assert false;
-						break;
 				}
 				anchor.setCharges(min(max(charge, 0), 4));
 				block.setBlockData(anchor);
