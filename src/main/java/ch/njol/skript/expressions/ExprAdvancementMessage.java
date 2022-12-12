@@ -42,7 +42,7 @@ import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Advancement Message")
-@Description("The message of an advancement in the advancement grant event.")
+@Description("The message of an advancement in the <a href=\\\"./events.html#advancement_complete\\\">advancement complete event</a>.")
 @Examples("set advancement message to \"%player% completed an advancement!\"")
 @Since("INSERT VERSION")
 public class ExprAdvancementMessage extends SimpleExpression<String> {
@@ -54,6 +54,8 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerAdvancementDoneEvent.class))
+			Skript.error("The advancement message expression can only be used inside of the advancement complete event.");
 		return getParser().isCurrentEvent(PlayerAdvancementDoneEvent.class);
 	}
 
@@ -61,9 +63,9 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 	@Nullable
 	protected String[] get(Event event) {
 		if (event instanceof PlayerAdvancementDoneEvent) {
-			PlayerAdvancementDoneEvent e = (PlayerAdvancementDoneEvent) event;
-			if (e.message() != null)
-				return new String[]{Bukkit.getUnsafe().legacyComponentSerializer().serialize(e.message())};
+			PlayerAdvancementDoneEvent advEvent = (PlayerAdvancementDoneEvent) event;
+			if (advEvent.message() != null)
+				return new String[]{Bukkit.getUnsafe().legacyComponentSerializer().serialize(advEvent.message())};
 		}
 		return null;
 	}
@@ -84,20 +86,19 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (event instanceof PlayerAdvancementDoneEvent) {
-			PlayerAdvancementDoneEvent e = (PlayerAdvancementDoneEvent) event;
-			if (e.message() != null) {
-				switch (mode) {
-					case SET:
-						assert delta != null;
-						e.message(Component.text((String) delta[0]));
-						break;
-					case DELETE:
-						e.message(Component.text(""));
-						break;
-					case RESET:
-						e.message(getAdvancementMessage(e.getAdvancement(), e.getPlayer()));
-						break;
-				}
+			PlayerAdvancementDoneEvent advEvent = (PlayerAdvancementDoneEvent) event;
+			switch (mode) {
+				case SET:
+					if (delta != null)
+						advEvent.message(Component.text((String) delta[0]));
+					break;
+				case DELETE:
+					if (delta != null)
+						advEvent.message(Component.text(""));
+					break;
+				case RESET:
+					advEvent.message(getAdvancementMessage(advEvent.getAdvancement(), advEvent.getPlayer()));
+					break;
 			}
 		}
 	}
@@ -117,14 +118,14 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 		return "the advancement message";
 	}
 
-	private static Component getAdvancementMessage(Advancement a, Player p) {
-		boolean isChallenge = a.getDisplay().frame() == AdvancementDisplay.Frame.CHALLENGE;
+	private static Component getAdvancementMessage(Advancement advancement, Player player) {
+		boolean isChallenge = advancement.getDisplay().frame() == AdvancementDisplay.Frame.CHALLENGE;
 		TextColor color = (isChallenge ? TextColor.color(0xAA00AA) : TextColor.color(0x55FF55));
-		Component advancement = a.getDisplay().title().hoverEvent(HoverEvent.showText(a.getDisplay().description().color(color)));
-		return Component.text(p.getDisplayName() + ((isChallenge) ? " has completed the challenge " : " has made the advancement "))
+		Component a = advancement.getDisplay().title().hoverEvent(HoverEvent.showText(advancement.getDisplay().description().color(color)));
+		return Component.text(player.getDisplayName() + ((isChallenge) ? " has completed the challenge " : " has made the advancement "))
 			.color(color)
 			.append(Component.text("["))
-			.append(advancement)
+			.append(a)
 			.append(Component.text("]"));
 	}
 }

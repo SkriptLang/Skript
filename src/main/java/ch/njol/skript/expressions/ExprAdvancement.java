@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Advancement")
-@Description("A registered advancement.")
+@Description("A Minecraft <a href=\\\"https://minecraft.fandom.com/wiki/Advancement\\\">advancement</a>.")
 @Examples("remove the advancement \"minecraft:adventure/root\" from advancements of player")
 @Since("INSERT VERSION")
 public class ExprAdvancement extends SimpleExpression<Advancement> {
@@ -70,9 +70,8 @@ public class ExprAdvancement extends SimpleExpression<Advancement> {
 				key = advancement;
 			}
 			NamespacedKey namespacedKey = new NamespacedKey(namespace, key);
-			if (Bukkit.getAdvancement(namespacedKey) != null) {
+			if (Bukkit.getAdvancement(namespacedKey) != null)
 				advancementList.add(Bukkit.getAdvancement(namespacedKey));
-			}
 		}
 		return advancementList.toArray(new Advancement[0]);
 	}

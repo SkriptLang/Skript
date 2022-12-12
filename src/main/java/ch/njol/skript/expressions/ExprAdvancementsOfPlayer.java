@@ -38,11 +38,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-@Name("Player Advancements")
-@Description("The advancements of a player.")
+@Name("Advancements of Player")
+@Description("Returns the advancements of a player.")
 @Examples({
 	"add the advancement \"minecraft:adventure/root\" to advancements of player",
 	"if advancements of player contains the advancement \"minecraft:adventure/root\"",
@@ -69,9 +68,10 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 	@Override
 	@Nullable
 	protected Advancement[] get(Event event) {
+		List<Advancement> advancementList = new ArrayList<>();
 		for (Player player : players.getArray(event))
-			return getAdvancementsFromPlayer(player).toArray(new Advancement[0]);
-		return null;
+			advancementList.addAll(getAdvancementsFromPlayer(player));
+		return advancementList.toArray(new Advancement[0]);
 	}
 
 	@Override
@@ -91,12 +91,11 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta != null) {
-			for (Player player : players.getArray(event)) {
-				AdvancementProgress progress;
-				switch (mode) {
-					case SET:
-						assert delta != null;
+		for (Player player : players.getArray(event)) {
+			AdvancementProgress progress;
+			switch (mode) {
+				case SET:
+					if (delta != null) {
 						for (Advancement advancement : getAdvancementsFromPlayer(player)) {
 							progress = player.getAdvancementProgress(advancement);
 							for (String criteria : progress.getAwardedCriteria())
@@ -107,32 +106,34 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 							for (String criteria : progress.getRemainingCriteria())
 								progress.awardCriteria(criteria);
 						}
-						break;
-					case ADD:
-						assert delta != null;
+					}
+					break;
+				case ADD:
+					if (delta != null) {
 						for (Advancement advancement : (Advancement[]) delta) {
 							progress = player.getAdvancementProgress(advancement);
 							for (String criteria : progress.getRemainingCriteria())
 								progress.awardCriteria(criteria);
 						}
-						break;
-					case REMOVE:
-						assert delta != null;
+					}
+					break;
+				case REMOVE:
+					if (delta != null) {
 						for (Advancement advancement : (Advancement[]) delta) {
 							progress = player.getAdvancementProgress(advancement);
 							for (String criteria : progress.getAwardedCriteria())
 								progress.revokeCriteria(criteria);
 						}
-						break;
-					case DELETE:
-					case RESET:
-						for (Advancement advancement : getAdvancementsFromPlayer(player)) {
-							progress = player.getAdvancementProgress(advancement);
-							for (String criteria : progress.getAwardedCriteria())
-								progress.revokeCriteria(criteria);
-						}
-						break;
-				}
+					}
+					break;
+				case DELETE:
+				case RESET:
+					for (Advancement advancement : getAdvancementsFromPlayer(player)) {
+						progress = player.getAdvancementProgress(advancement);
+						for (String criteria : progress.getAwardedCriteria())
+							progress.revokeCriteria(criteria);
+					}
+					break;
 			}
 		}
 	}
@@ -154,9 +155,10 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 
 	private static List<Advancement> getAdvancementsFromPlayer(Player player) {
 		List<Advancement> advancements = new ArrayList<>();
-		for (Advancement advancement : Utils.getAllAdvancements())
+		for (Advancement advancement : Utils.getAllAdvancements()) {
 			if (player.getAdvancementProgress(advancement).isDone())
 				advancements.add(advancement);
+		}
 		return advancements;
 	}
 }

@@ -608,13 +608,15 @@ public class SimpleEvents {
 					"\t\tsend \"Oops! Mending failed!\" to player")
 				.since("2.5.1");
 		}
-		Skript.registerEvent("Advancement Done", SimpleEvent.class, PlayerAdvancementDoneEvent.class, "advancement [(complete|finish.0)]")
+		Skript.registerEvent("Advancement Complete", SimpleEvent.class, PlayerAdvancementDoneEvent.class, "advancement [complete|finish]")
 			.description("Called when a player completes an advancement.")
-			.examples("on advancement:",
-				"\tset advancement message to \"%player% got a new advancement!\"",
-				"# Check if advancement is not a recipe.",
+			.examples(
+				"on advancement complete:",
+				"\tset advancement message to \"%event-player% got a new advancement!\"",
+				"\t# Check if advancement is not a recipe.",
 				"\tif \"%event-advancement%\" does not contain \"recipes/\":",
-				"\t\tsend action bar \"Nice, you got an advancement!\"")
+				"\t\tsend action bar \"Nice, you got an advancement!\""
+			)
 			.since("INSERT VERSION");
 	}
 }
