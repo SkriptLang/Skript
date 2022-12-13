@@ -18,6 +18,7 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -35,6 +36,7 @@ public final class Arithmetics {
 	private static final Map<Class<?>, Object> defaultValues = Collections.synchronizedMap(new HashMap<>());
 
 	public static <T> void registerDefaultValue(Class<T> type, T value) {
+		Skript.checkAcceptRegistrations();
 		if (defaultValues.containsKey(type))
 			throw new SkriptAPIException("A default value is already registered for type '" + type + '\'');
 		defaultValues.put(type, value);
@@ -54,6 +56,7 @@ public final class Arithmetics {
 	}
 
 	public static <A, R> void registerDifference(Class<A> type, Class<R> returnType, Operation<A, A, R> operation) {
+		Skript.checkAcceptRegistrations();
 		if (getDifferenceInfoExact(type) != null)
 			throw new SkriptAPIException("A difference is already registered with types '" + type + "' and '" + returnType + '\'');
 		registeredDifferences.add(new DifferenceInfo<>(type, returnType, operation));
