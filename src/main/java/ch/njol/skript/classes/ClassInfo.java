@@ -34,6 +34,8 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 /**
  * @author Peter Güttinger
@@ -190,11 +192,19 @@ public class ClassInfo<T> implements Debuggable {
 		this.changer = changer;
 		return this;
 	}
-	
+
+	@Deprecated
+	@SuppressWarnings("unchecked")
 	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
 		assert this.math == null;
 		this.math = math;
 		mathRelativeType = relativeType;
+		Operator.ADDITION.addHandler(c, relativeType, (left, right) -> (T) math.add(left, right));
+		Operator.SUBTRACTION.addHandler(c, relativeType, (left, right) -> (T) math.subtract(left, right));
+		Operator.MULTIPLICATION.addHandler(c, relativeType, (left, right) -> (T) math.multiply(left, right));
+		Operator.DIVISION.addHandler(c, relativeType, (left, right) -> (T) math.divide(left, right));
+		Operator.EXPONENTIATION.addHandler(c, relativeType, (left, right) -> (T) math.power(left, right));
+		Arithmetics.registerDifference(c, relativeType, math::difference);
 		return this;
 	}
 	
@@ -348,16 +358,19 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Nullable
+	@Deprecated
 	public Arithmetic<? super T, ?> getMath() {
 		return math;
 	}
 
 	@Nullable
+	@Deprecated
 	public <R> Arithmetic<T, R> getRelativeMath() {
 		return (Arithmetic<T, R>) math;
 	}
 	
 	@Nullable
+	@Deprecated
 	public Class<?> getMathRelativeType() {
 		return mathRelativeType;
 	}

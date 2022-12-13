@@ -21,12 +21,13 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -590,53 +591,45 @@ public class Variable<T> implements Expression<T> {
 						}
 					}
 				} else {
-					Object o = get(e);
-					ClassInfo<?> ci;
-					if (o == null) {
-						ci = null;
-					} else {
-						Class<?> c = o.getClass();
-						assert c != null;
-						ci = Classes.getSuperClassInfo(c);
-					}
-					Arithmetic a = null;
+					Object object = get(e);
+					Class<?> clazz = object == null ? null : object.getClass();
+					List<OperationInfo<?, ?, ?>> infos = null;
+					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] cs;
-					if (o == null || ci == null || (a = ci.getMath()) != null) {
+					if (object == null || clazz == null || (infos = operator.getHandlers(clazz)).size() > 0) {
 						boolean changed = false;
 						for (Object d : delta) {
-							if (o == null || ci == null) {
-								Class<?> c = d.getClass();
-								assert c != null;
-								ci = Classes.getSuperClassInfo(c);
+							if (object == null || clazz == null) {
+								clazz = d.getClass();
+								assert clazz != null;
 
-								if ((a = ci.getMath()) != null)
-									o = d;
+								if ((infos = operator.getHandlers(clazz)).size() > 0)
+									object = d;
 								if (d instanceof Number) { // Nonexistent variable: add/subtract
 									if (mode == ChangeMode.REMOVE) // Variable is delta negated
-										o = -((Number) d).doubleValue(); // Hopefully enough precision
+										object = -((Number) d).doubleValue(); // Hopefully enough precision
 									else // Variable is now what was added to it
-										o = d;
+										object = d;
 								}
 								changed = true;
 								continue;
 							}
-							Class<?> r = ci.getMathRelativeType();
-							assert a != null && r != null : ci;
-							Object diff = Converters.convert(d, r);
-							if (diff != null) {
-								if (mode == ChangeMode.ADD)
-									o = a.add(o, diff);
-								else
-									o = a.subtract(o, diff);
-								changed = true;
+							for (OperationInfo info : infos) {
+								Class<?> r = info.getRight();
+								Object diff = Converters.convert(d, r);
+								if (diff != null) {
+									object = info.getOperation().calculate(object, diff);
+									changed = true;
+									break;
+								}
 							}
 						}
 						if (changed)
-							set(e, o);
-					} else if ((changer = ci.getChanger()) != null && (cs = changer.acceptChange(mode)) != null) {
-						Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
-						one[0] = o;
+							set(e, object);
+					} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (cs = changer.acceptChange(mode)) != null) {
+						Object[] one = (Object[]) Array.newInstance(object.getClass(), 1);
+						one[0] = object;
 
 						Class<?>[] cs2 = new Class<?>[cs.length];
 						for (int i = 0; i < cs.length; i++)

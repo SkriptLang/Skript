@@ -16,16 +16,30 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions.arithmetic;
+package org.skriptlang.skript.lang.arithmetic;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+public final class DifferenceInfo<A, R> {
 
-public interface ArithmeticGettable<T> {
+	private final Class<A> type;
+	private final Class<R> returnType;
+	private final Operation<A, A, R> operation;
 
-	@Nullable
-	T get(Event event);
+	public DifferenceInfo(Class<A> type, Class<R> returnType, Operation<A, A, R> operation) {
+		this.type = type;
+		this.returnType = returnType;
+		this.operation = operation;
+	}
 
-	Class<? extends T> getReturnType();
-	
+	public Class<A> getType() {
+		return type;
+	}
+
+	public Class<R> getReturnType() {
+		return returnType;
+	}
+
+	public Operation<A, A, R> getOperation() {
+		return operation;
+	}
+
 }

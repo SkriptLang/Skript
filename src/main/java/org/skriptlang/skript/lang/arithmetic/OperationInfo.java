@@ -16,16 +16,35 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions.arithmetic;
+package org.skriptlang.skript.lang.arithmetic;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+public class OperationInfo<L, R, T> {
 
-public interface ArithmeticGettable<T> {
+	private final Class<L> left;
+	private final Class<R> right;
+	private final Class<T> returnType;
+	private final Operation<L, R, T> operation;
 
-	@Nullable
-	T get(Event event);
+	public OperationInfo(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
+		this.left = left;
+		this.right = right;
+		this.returnType = returnType;
+		this.operation = operation;
+	}
 
-	Class<? extends T> getReturnType();
-	
+	public Class<L> getLeft() {
+		return left;
+	}
+
+	public Class<R> getRight() {
+		return right;
+	}
+
+	public Class<T> getReturnType() {
+		return returnType;
+	}
+
+	public Operation<L, R, T> getOperation() {
+		return operation;
+	}
 }

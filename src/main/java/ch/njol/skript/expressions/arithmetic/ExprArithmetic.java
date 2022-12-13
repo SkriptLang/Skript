@@ -22,6 +22,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -32,12 +35,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 
 /**
  * @author Peter Güttinger
@@ -50,14 +53,14 @@ import ch.njol.util.Kleenean;
 		"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
-public class ExprArithmetic extends SimpleExpression<Number> {
+public class ExprArithmetic extends SimpleExpression<Object> {
 	
-	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
+	private static Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 	
 	private static class PatternInfo {
-		public final Operator operator;
-		public final boolean leftGrouped;
-		public final boolean rightGrouped;
+		public Operator operator;
+		public boolean leftGrouped;
+		public boolean rightGrouped;
 		
 		public PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 			this.operator = operator;
@@ -66,110 +69,143 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 		}
 	}
 	
-	private final static Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
+	private static Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
 
-		{"\\(%number%\\)[ ]+[ ]\\(%number%\\)", new PatternInfo(Operator.PLUS, true, true)},
-		{"\\(%number%\\)[ ]+[ ]%number%", new PatternInfo(Operator.PLUS, true, false)},
-		{"%number%[ ]+[ ]\\(%number%\\)", new PatternInfo(Operator.PLUS, false, true)},
-		{"%number%[ ]+[ ]%number%", new PatternInfo(Operator.PLUS, false, false)},
+		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, true, true)},
+		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, true, false)},
+		{"%object%[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, false, true)},
+		{"%object%[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, false, false)},
 		
-		{"\\(%number%\\)[ ]-[ ]\\(%number%\\)", new PatternInfo(Operator.MINUS, true, true)},
-		{"\\(%number%\\)[ ]-[ ]%number%", new PatternInfo(Operator.MINUS, true, false)},
-		{"%number%[ ]-[ ]\\(%number%\\)", new PatternInfo(Operator.MINUS, false, true)},
-		{"%number%[ ]-[ ]%number%", new PatternInfo(Operator.MINUS, false, false)},
+		{"\\(%object%\\)[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, true, true)},
+		{"\\(%object%\\)[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, true, false)},
+		{"%object%[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, false, true)},
+		{"%object%[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, false, false)},
 		
-		{"\\(%number%\\)[ ]*[ ]\\(%number%\\)", new PatternInfo(Operator.MULT, true, true)},
-		{"\\(%number%\\)[ ]*[ ]%number%", new PatternInfo(Operator.MULT, true, false)},
-		{"%number%[ ]*[ ]\\(%number%\\)", new PatternInfo(Operator.MULT, false, true)},
-		{"%number%[ ]*[ ]%number%", new PatternInfo(Operator.MULT, false, false)},
+		{"\\(%object%\\)[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, true, true)},
+		{"\\(%object%\\)[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, true, false)},
+		{"%object%[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, false, true)},
+		{"%object%[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, false, false)},
 		
-		{"\\(%number%\\)[ ]/[ ]\\(%number%\\)", new PatternInfo(Operator.DIV, true, true)},
-		{"\\(%number%\\)[ ]/[ ]%number%", new PatternInfo(Operator.DIV, true, false)},
-		{"%number%[ ]/[ ]\\(%number%\\)", new PatternInfo(Operator.DIV, false, true)},
-		{"%number%[ ]/[ ]%number%", new PatternInfo(Operator.DIV, false, false)},
+		{"\\(%object%\\)[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, true, true)},
+		{"\\(%object%\\)[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, true, false)},
+		{"%object%[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, false, true)},
+		{"%object%[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, false, false)},
 		
-		{"\\(%number%\\)[ ]^[ ]\\(%number%\\)", new PatternInfo(Operator.EXP, true, true)},
-		{"\\(%number%\\)[ ]^[ ]%number%", new PatternInfo(Operator.EXP, true, false)},
-		{"%number%[ ]^[ ]\\(%number%\\)", new PatternInfo(Operator.EXP, false, true)},
-		{"%number%[ ]^[ ]%number%", new PatternInfo(Operator.EXP, false, false)},
+		{"\\(%object%\\)[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, true, true)},
+		{"\\(%object%\\)[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, true, false)},
+		{"%object%[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, false, true)},
+		{"%object%[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, false, false)},
 		
 	});
 	
 	static {
-		Skript.registerExpression(ExprArithmetic.class, Number.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
+		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
 	
-	@SuppressWarnings("null")
-	private Expression<? extends Number> first;
-	@SuppressWarnings("null")
-	private Expression<? extends Number> second;
-	@SuppressWarnings("null")
+	private Expression<?> first, second;
 	private Operator op;
-	
-	@SuppressWarnings("null")
-	private Class<? extends Number> returnType;
+
+	private Class<?> returnType;
 	
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
-	private final List<Object> chain = new ArrayList<>();
+	private List<Object> chain = new ArrayList<>();
 	
 	// A parsed chain, like a tree
-	private ArithmeticGettable arithmeticGettable;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private ArithmeticGettable<?> arithmeticGettable;
+
+	private boolean leftGrouped, rightGrouped;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		first = (Expression<? extends Number>) exprs[0];
-		second = (Expression<? extends Number>) exprs[1];
-		
+	@SuppressWarnings("ConstantConditions")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		first = LiteralUtils.defendExpression(exprs[0]);
+		second = LiteralUtils.defendExpression(exprs[1]);
+
+		if (!LiteralUtils.canInitSafely(first, second))
+			return false;
+
+		Class<?> firstClass = first.getReturnType(), secondClass = second.getReturnType();
+
 		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
+		leftGrouped = patternInfo.leftGrouped;
+		rightGrouped = patternInfo.rightGrouped;
 		op = patternInfo.operator;
-		
-		if (op == Operator.DIV || op == Operator.EXP) {
-			returnType = Double.class;
-		} else {
-			Class<?> firstReturnType = first.getReturnType();
-			Class<?> secondReturnType = second.getReturnType();
-			
-			boolean firstIsInt = false;
-			boolean secondIsInt = false;
-			for (final Class<?> i : INTEGER_CLASSES) {
-				firstIsInt |= i.isAssignableFrom(firstReturnType);
-				secondIsInt |= i.isAssignableFrom(secondReturnType);
-			}
-			
-			returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
+		OperationInfo<?, ?, ?> operationInfo = null;
+
+		if ((!hasHandlers(firstClass, secondClass))
+				|| (firstClass != Object.class
+				&& secondClass != Object.class
+				&& (operationInfo = op.findHandler(firstClass, secondClass)) == null)) {
+			return error(firstClass, secondClass);
 		}
-		
+
+		returnType = operationInfo == null ? Object.class : operationInfo.getReturnType();
+
+		if (Number.class.isAssignableFrom(returnType)) {
+			if (op == Operator.DIVISION || op == Operator.EXPONENTIATION) {
+				returnType = Double.class;
+			} else {
+				Class<?> firstReturnType = first.getReturnType();
+				Class<?> secondReturnType = second.getReturnType();
+
+				boolean firstIsInt = false;
+				boolean secondIsInt = false;
+				for (Class<?> i : INTEGER_CLASSES) {
+					firstIsInt |= i.isAssignableFrom(firstReturnType);
+					secondIsInt |= i.isAssignableFrom(secondReturnType);
+				}
+
+				returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
+			}
+		}
+
 		// Chaining
-		if (first instanceof ExprArithmetic && !patternInfo.leftGrouped) {
+		if (first instanceof ExprArithmetic && !leftGrouped) {
 			chain.addAll(((ExprArithmetic) first).chain);
 		} else {
 			chain.add(first);
 		}
 		chain.add(op);
-		if (second instanceof ExprArithmetic && !patternInfo.rightGrouped) {
+		if (second instanceof ExprArithmetic && !rightGrouped) {
 			chain.addAll(((ExprArithmetic) second).chain);
 		} else {
 			chain.add(second);
 		}
-		
+
 		arithmeticGettable = ArithmeticChain.parse(chain);
-		
+		if (arithmeticGettable == null) {
+			ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
+			Skript.error(op.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+			return false;
+		}
+
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	protected Number[] get(final Event e) {
-		Number[] one = (Number[]) Array.newInstance(returnType, 1);
-		
-		one[0] = arithmeticGettable.get(e, returnType == Long.class);
-		
+	protected Object[] get(Event event) {
+		Object result = arithmeticGettable.get(event);
+		Object[] one = (Object[]) Array.newInstance(result == null ? returnType : result.getClass(), 1);
+		one[0] = result;
 		return one;
 	}
-	
+
+	private boolean error(Class<?> firstClass, Class<?> secondClass) {
+		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
+		Skript.error(op.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+		return false;
+	}
+
+	private boolean hasHandlers(Class<?>... classes) {
+		for (Class<?> type : classes) {
+			if (type != Object.class && op.getHandlers(type).size() == 0)
+				return false;
+		}
+		return true;
+	}
+
 	@Override
-	public Class<? extends Number> getReturnType() {
+	public Class<?> getReturnType() {
 		return returnType;
 	}
 	
@@ -179,16 +215,14 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		String one = first.toString(event, debug);
+		String two = second.toString(event, debug);
+		if (leftGrouped)
+			one = '(' + one + ')';
+		if (rightGrouped)
+			two = '(' + two + ')';
+		return one + " " + op + " " + two;
 	}
-	
-	@SuppressWarnings("null")
-	@Override
-	public Expression<? extends Number> simplify() {
-		if (first instanceof Literal && second instanceof Literal)
-			return new SimpleLiteral<>(getArray(null), Number.class, false);
-		return this;
-	}
-	
+
 }

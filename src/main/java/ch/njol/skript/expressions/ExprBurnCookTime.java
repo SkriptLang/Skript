@@ -30,9 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -41,10 +39,11 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 @Name("Burn/Cook Time")
 @Description({"The time a furnace takes to burn an item in a <a href='events.html#fuel_burn'>fuel burn</a> event.",
@@ -126,17 +125,14 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			return;
 
 		Function<Timespan, Timespan> value = null;
-		ClassInfo<Timespan> ci = DefaultClasses.TIMESPAN;
-		Arithmetic<Timespan, Timespan> arithmetic = ci.getRelativeMath();
 		Timespan changed = (Timespan) delta[0];
-		assert arithmetic != null;
 
 		switch (mode) {
 			case ADD:
-				value = (original) -> arithmetic.add(original, changed);
+				value = (original) -> Operator.ADDITION.calculate(original, changed, Timespan.class);
 				break;
 			case REMOVE:
-				value = (original) -> arithmetic.difference(original, changed);
+				value = (original) -> Arithmetics.difference(original, changed, Timespan.class);
 				break;
 			case SET:
 				value = (original) -> changed;

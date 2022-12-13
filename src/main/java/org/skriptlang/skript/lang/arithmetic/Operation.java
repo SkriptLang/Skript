@@ -16,16 +16,11 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions.arithmetic;
+package org.skriptlang.skript.lang.arithmetic;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+@FunctionalInterface
+public interface Operation<L, R, T> {
 
-public interface ArithmeticGettable<T> {
+	T calculate(L left, R right);
 
-	@Nullable
-	T get(Event event);
-
-	Class<? extends T> getReturnType();
-	
 }

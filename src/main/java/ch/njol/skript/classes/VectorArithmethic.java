@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 /**
  * @author bi0qaw
  */
+@Deprecated
 public class VectorArithmethic implements Arithmetic<Vector, Vector> {
 	
 	@Override
