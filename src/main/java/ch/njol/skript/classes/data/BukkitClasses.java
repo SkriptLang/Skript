@@ -38,6 +38,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -1479,5 +1480,14 @@ public class BukkitClasses {
 				.name("World Environment")
 				.description("Represents the environment of a world.")
 				.since("INSERT VERSION"));
+
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
+				.user("(lunar|moon) ?phases?")
+				.name("Moon Phase")
+				.description("Represents the phase of a moon.")
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper 1.16+"));
+		}
 	}
 }
