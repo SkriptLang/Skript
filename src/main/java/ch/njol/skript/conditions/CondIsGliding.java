@@ -16,19 +16,34 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang;
+package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import org.bukkit.entity.LivingEntity;
 
-/**
- * Effects which can be tested implement this interface.
- * <p>
- * TODO implement this
- * 
- * @author Peter Güttinger
- */
-public interface Testable {
-	
-	public boolean test(Event e);
-	
+import ch.njol.skript.conditions.base.PropertyCondition;
+
+@Name("Is Gliding")
+@Description("Checks whether a living entity is gliding.")
+@Examples("if player is gliding")
+@Since("INSERT VERSION")
+public class CondIsGliding extends PropertyCondition<LivingEntity> {
+
+	static {
+		register(CondIsGliding.class, "gliding", "livingentities");
+	}
+
+	@Override
+	public boolean check(LivingEntity entity) {
+		return entity.isGliding();
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "gliding";
+	}
+
 }
