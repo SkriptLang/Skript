@@ -1547,6 +1547,22 @@ public class BukkitClasses {
 				.description("A boss/event bar, displayed at the top of the screen.")
 				.examples("set {bar} to a new boss bar", "add player to {bar}")
 				.since("INSERT VERSION")
+			.parser(new Parser<BossBar>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(BossBar bossBar, int flags) {
+					return "bossbar with title \"" + bossBar.getTitle() + "\"";
+				}
+
+				@Override
+				public String toVariableNameString(BossBar bossBar) {
+					return toString(bossBar, 0);
+				}
+			}));
 				.changer(new Changer<>() {
 					@Override
 					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
