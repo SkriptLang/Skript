@@ -241,6 +241,7 @@ function searchNow(value = "") {
       let regex = new RegExp(searchValue, "gi")
       let name = document.querySelectorAll(`#${e.id} .item-title h1`)[0].textContent // Syntax Name
       let desc = document.querySelectorAll(`#${e.id} .item-description`)[0].textContent // Syntax Desc
+	  let keywords = e.getAttribute("data-keywords")
       let id = e.id // Syntax ID
       let filtersFound = false;
 
@@ -284,7 +285,7 @@ function searchNow(value = "") {
         filtersFound = true
 
       if ((regex.test(pattern.textContent.replaceAll("[ ]", " ")) || regex.test(name) ||
-           regex.test(desc) || "#" + id == searchValue || searchValue == "") && filtersFound) { // Replacing '[ ]' will improve some searching cases such as 'off[ ]hand'
+           regex.test(desc) || regex.test(keywords) || "#" + id == searchValue || searchValue == "") && filtersFound) { // Replacing '[ ]' will improve some searching cases such as 'off[ ]hand'
         pass = true
         break; // Performance
       }
