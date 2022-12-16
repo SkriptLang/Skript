@@ -655,12 +655,6 @@ entities:
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
-	op:
-		name: op¦s @an
-		pattern: op(|1¦s)
-	non-op:
-		name: non-op¦s
-		pattern: non(-| |)op(|1¦s)
 	zombie pigman:
 		name: zombie pig¦man¦men|zombified piglin
 		pattern: <age> (zombie pigm(an|1¦en)|zombified piglin(|1¦s))|(4¦)(zombie pigletboy(|1¦s)|zombified piglin (kid(|1¦s)|child(|1¦ren)))
