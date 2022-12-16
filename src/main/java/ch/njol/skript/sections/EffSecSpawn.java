@@ -44,18 +44,21 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO this won't show up in the docs, sections don't have a tab. We should create a tab for them,
-//  and maybe add EffectSections to the effects page as well
 @Name("Spawn")
-@Description({"Spawn a creature. This can be used as an effect and as a section.",
+@Description({
+	"Spawn a creature. This can be used as an effect and as a section.",
 	"If it is used as a section, the section is run before the entity is added to the world.",
 	"You can modify the entity in this section, using for example 'event-entity' or 'cow'. ",
-	"Do note that other event values, such as 'player', won't work in this section."})
-@Examples({"spawn 3 creepers at the targeted block",
+	"Do note that other event values, such as 'player', won't work in this section."
+})
+@Examples({
+	"spawn 3 creepers at the targeted block",
 	"spawn a ghast 5 meters above the player",
 	"spawn a zombie at the player:",
-	"\tset name of the zombie to \"\""})
+	"\tset name of the zombie to \"\""
+})
 @Since("1.0, 2.6.1 (with section)")
 public class EffSecSpawn extends EffectSection {
 
@@ -71,7 +74,8 @@ public class EffSecSpawn extends EffectSection {
 		}
 
 		@Override
-		public @NotNull HandlerList getHandlers() {
+		@NotNull
+		public HandlerList getHandlers() {
 			throw new IllegalStateException();
 		}
 	}
@@ -79,16 +83,15 @@ public class EffSecSpawn extends EffectSection {
 	static {
 		Skript.registerSection(EffSecSpawn.class,
 			"(spawn|summon) %entitytypes% [%directions% %locations%]",
-			"(spawn|summon) %number% of %entitytypes% [%directions% %locations%]");
+			"(spawn|summon) %number% of %entitytypes% [%directions% %locations%]"
+		);
 		EventValues.registerEventValue(SpawnEvent.class, Entity.class, new Getter<Entity, SpawnEvent>() {
 			@Override
 			public Entity get(SpawnEvent spawnEvent) {
 				return spawnEvent.getEntity();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 	}
-
-	private static final boolean BUKKIT_CONSUMER_EXISTS = Skript.classExists("org.bukkit.util.Consumer");
 
 	@Nullable
 	public static Entity lastSpawned = null;
@@ -116,12 +119,13 @@ public class EffSecSpawn extends EffectSection {
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
 
 		if (sectionNode != null) {
-			if (!BUKKIT_CONSUMER_EXISTS) {
-				Skript.error("The spawn section isn't available on your Minecraft version, use a spawn effect instead");
+			AtomicBoolean delayed = new AtomicBoolean(false);
+			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
+			trigger = loadCode(sectionNode, "spawn", afterLoading, SpawnEvent.class);
+			if (delayed.get()) {
+				Skript.error("Delays can't be used within a Spawn Effect Section");
 				return false;
 			}
-
-			trigger = loadCode(sectionNode, "spawn", SpawnEvent.class);
 		}
 
 		return true;
@@ -130,10 +134,10 @@ public class EffSecSpawn extends EffectSection {
 	@Override
 	@Nullable
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	protected TriggerItem walk(Event e) {
+	protected TriggerItem walk(Event event) {
 		lastSpawned = null;
 
-		Object localVars = Variables.copyLocalVariables(e);
+		Object localVars = Variables.copyLocalVariables(event);
 
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
@@ -142,33 +146,40 @@ public class EffSecSpawn extends EffectSection {
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, localVars);
-				trigger.execute(spawnEvent);
+				TriggerItem.walk(trigger, spawnEvent);
+				Variables.setLocalVariables(event, Variables.copyLocalVariables(spawnEvent));
+				// Clear spawnEvent's local variables as it won't be done automatically
+				Variables.removeLocals(spawnEvent);
 			};
 		} else {
 			consumer = null;
 		}
 
-		Number a = amount != null ? amount.getSingle(e) : 1;
-		if (a != null) {
-			EntityType[] ts = types.getArray(e);
-			for (Location l : locations.getArray(e)) {
-				for (EntityType type : ts) {
-					for (int i = 0; i < a.doubleValue() * type.getAmount(); i++) {
-						if (consumer != null)
-							type.data.spawn(l, (Consumer) consumer); // lastSpawned set within Consumer
-						else
-							lastSpawned = type.data.spawn(l);
+		Number numberAmount = amount != null ? amount.getSingle(event) : 1;
+		if (numberAmount != null) {
+			double amount = numberAmount.doubleValue();
+			EntityType[] types = this.types.getArray(event);
+			for (Location location : locations.getArray(event)) {
+				for (EntityType type : types) {
+					double typeAmount = amount * type.getAmount();
+					for (int i = 0; i < typeAmount; i++) {
+						if (consumer != null) {
+							type.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+						} else {
+							lastSpawned = type.data.spawn(location);
+						}
 					}
 				}
 			}
 		}
 
-		return super.walk(e, false);
+		return super.walk(event, false);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "spawn " + (amount != null ? amount.toString(e, debug) + " of " : "") + types.toString(e, debug) + " " + locations.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "spawn " + (amount != null ? amount.toString(event, debug) + " of " : "") +
+			types.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }

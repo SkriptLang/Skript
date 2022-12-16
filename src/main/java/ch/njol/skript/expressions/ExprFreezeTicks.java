@@ -104,8 +104,6 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 		//Limit time to between 0 and max
 		if (ticks < 0)
 			ticks = 0;
-		if (entity.getMaxFreezeTicks() < ticks)
-			ticks = entity.getMaxFreezeTicks();
 		// Set new time
 		entity.setFreezeTicks(ticks);
 	}

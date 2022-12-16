@@ -108,6 +108,8 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.util.SimpleEvent;
@@ -618,6 +620,25 @@ public class SimpleEvents {
 				"\t\tset repair cost to repair cost * 50%",
 				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
 			.since("INSERT VERSION");
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
+				.description("Called when a player has traded with a villager.")
+				.requiredPlugins("Paper 1.16.5+")
+				.examples("on player trade:",
+					"\tchance of 50%:",
+					"\t\tcancel event",
+					"\t\tsend \"The trade was somehow denied!\" to player")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
+				.description("Called when an entity jumps.")
+				.requiredPlugins("Paper 1.15.2+")
+				.examples("on entity jump:",
+					"\tif entity is a wither skeleton:",
+					"\t\tcancel event")
+				.since("INSERT VERSION");
+		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
