@@ -13,7 +13,7 @@ Skript requires **Spigot** to work. You heard it right, Bukkit does *not* work.
 parts of Skript to be available.
 
 Skript supports only the **latest** patch versions of Minecraft 1.9+.
-For example, this means that 1.16.4 is supported, but 1.16.3 is *not*.
+For example, this means that 1.16.5 is supported, but 1.16.4 is *not*.
 Testing with all old patch versions is not feasible for us.
 
 Minecraft 1.8 and earlier are not, and will not be supported. New Minecraft
@@ -29,6 +29,9 @@ latest version of Skript.
 ## Reporting Issues
 Please see our [contribution guidelines](https://github.com/SkriptLang/Skript/blob/master/.github/contributing.md)
 before reporting issues.
+
+## Help Us Test
+We have an [official Discord community](https://discord.gg/ZPsZAg6ygu) for testing Skript's new features and releases.
 
 ## A Note About Add-ons
 We don't support add-ons here, even though some of Skript developers have also
@@ -61,18 +64,18 @@ only used to provide compatibility with old WorldGuard versions.
 
 ### Testing
 Skript has some tests written in Skript. Running them requires a Minecraft
-server, but our build script can fetch it for you. Running tests is easy:
+server, but our build script will create one for you. Running the tests is easy:
 
 ```
-./gradlew (quickTest|skriptTest|skriptTestFull)
+./gradlew (quickTest|skriptTest|skriptTestJava8|skriptTestJava17)
 ```
 
-<code>quickTest</code> runs the test suite on newest supported server.
-<code>skriptTest</code> additionally runs the tests on oldest supported
-server, and on 1.12 (pre-flattening). <code>skriptTestFull</code> runs
-tests on **ALL** supported versions, some of which do not work on Java 9+.
+<code>quickTest</code> runs the test suite on newest supported server version.
+<code>skriptTestJava17</code> (1.17+) runs the tests on the latest supported Java version.
+<code>skriptTestJava8</code> (1.13-1.16) runs the tests on the oldest supported Java version.
+<code>skriptTest</code> runs both skriptTestJava8 and skriptTestJava17
 
-By running tests, you agree to Mojang's End User License Agreement.
+By running the tests, you agree to Mojang's End User License Agreement.
 
 ### Importing to Eclipse
 With new Eclipse versions, there is integrated Gradle support, and it actually works now.
@@ -159,6 +162,7 @@ Or, if you use Maven:
     <groupId>com.github.SkriptLang</groupId>
     <artifactId>Skript</artifactId>
     <version>[versionTag]</version>
+	<scope>provided</scope>
 </dependency>
 ```
 

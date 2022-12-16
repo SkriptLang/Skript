@@ -20,13 +20,13 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
 import com.destroystokyo.paper.block.BlockSoundGroup;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.SoundGroup;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -101,10 +101,6 @@ public class DelayedChangeBlock implements Block {
 	@Override
 	public byte getData() {
 		return b.getData();
-	}
-
-	public void setData(byte data) throws Throwable {
-		MagicBlockCompat.setDataMethod.invokeExact(b, data);
 	}
 
 	@Override
@@ -205,6 +201,11 @@ public class DelayedChangeBlock implements Block {
 	@Override
 	public Biome getBiome() {
 		return b.getBiome();
+	}
+
+	@Override
+	public @NotNull Biome getComputedBiome() {
+		return b.getComputedBiome();
 	}
 
 	@Override
@@ -357,6 +358,16 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public void tick() {
+		b.tick();
+	}
+
+	@Override
+	public void randomTick() {
+		b.randomTick();
+	}
+
+	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return b.applyBoneMeal(blockFace);
 	}
@@ -445,6 +456,11 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public @NotNull SoundGroup getBlockSoundGroup() {
+		return b.getBlockSoundGroup();
+	}
+
+	@Override
 	public String getTranslationKey() {
 		return b.getTranslationKey();
 	}
@@ -473,6 +489,11 @@ public class DelayedChangeBlock implements Block {
 	@NotNull
 	public VoxelShape getCollisionShape() {
 		return b.getCollisionShape();
+	}
+
+	@Override
+	public boolean canPlace(@NotNull BlockData data) {
+		return b.canPlace(data);
 	}
 
 	@Override

@@ -66,6 +66,9 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	@Nullable
 	@Override
 	protected Number[] get(Event e) {
+		if (!(e instanceof EntityRegainHealthEvent))
+			return null;
+
 		return new Number[]{((EntityRegainHealthEvent) e).getAmount()};
 	}
 	
@@ -83,6 +86,9 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	
 	@Override
 	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		if (!(e instanceof EntityRegainHealthEvent))
+			return;
+
 		double value = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case SET:

@@ -21,7 +21,6 @@ package ch.njol.skript.entity;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -413,35 +412,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 	
 	@Nullable
-	public E spawn(final Location loc) {
-		assert loc != null;
-		try {
-			final E e = loc.getWorld().spawn(loc, getType());
-			if (baby.isTrue())
-				EntityUtils.setBaby(e);
-			else if (baby.isFalse())
-				EntityUtils.setAdult(e);
-			set(e);
-			return e;
-		} catch (final IllegalArgumentException e) {
-			if (Skript.testing())
-				Skript.error("Can't spawn " + getType().getName());
-			return null;
-		}
+	public final E spawn(Location loc) {
+		return spawn(loc, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Nullable
-	public E spawn(Location loc, Consumer<E> consumer) {
+	public E spawn(Location loc, @Nullable Consumer<E> consumer) {
 		assert loc != null;
 		try {
-			E e = loc.getWorld().spawn(loc, (Class<E>) getType(), consumer);
+			E e;
+			if (consumer != null)
+				e = loc.getWorld().spawn(loc, (Class<E>) getType(), consumer);
+			else
+				e = loc.getWorld().spawn(loc, getType());
+
 			if (baby.isTrue())
 				EntityUtils.setBaby(e);
 			else if (baby.isFalse())
 				EntityUtils.setAdult(e);
 			set(e);
 			return e;
-		} catch (final IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			if (Skript.testing())
 				Skript.error("Can't spawn " + getType().getName());
 			return null;
@@ -471,9 +463,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		assert types.length > 0;
 		if (type == Player.class) {
 			if (worlds == null && types.length == 1 && types[0] instanceof PlayerData && ((PlayerData) types[0]).op == 0)
-				return (E[]) PlayerUtils.getOnlinePlayers().toArray(new Player[0]);
+				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
 			final List<Player> list = new ArrayList<>();
-			for (final Player p : PlayerUtils.getOnlinePlayers()) {
+			for (final Player p : Bukkit.getOnlinePlayers()) {
 				if (worlds != null && !CollectionUtils.contains(worlds, p.getWorld()))
 					continue;
 				for (final EntityData<?> t : types) {
