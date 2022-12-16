@@ -1,0 +1,18 @@
+test "nearest entity does not allow duplicate entities":
+	assert nearest cow and cow relative to {_null} to fail with "duplicate entities were allowed in nearest entity expr"
+
+# server doesn't spawn the entities until the next tick, and we can't wait in the test system so... commented for now
+#test "nearest entity":
+#	delete all entities
+#	spawn a cow at spawn of world "world"
+#	set {_cow} to last spawned cow
+#	spawn a creeper 10 blocks to the left of {_cow}
+#	set {_close creeper} to last spawned creeper
+#	spawn a creeper 15 blocks to the left of {_cow}
+#	set {_far creeper} to last spawned creeper
+#	spawn a pig 2 blocks to the left of {_cow}
+#	set {_really close pig} to last spawned pig
+#	assert nearest creeper relative to {_cow} is {_close creeper} with "incorrect nearest creeper found"
+#	assert nearest entity relative to {_cow} is {_pig} with "incorrect nearest entity found"
+#	assert nearest entity relative to (location of {_cow}) is {_cow} with "incorrect nearest entity found when using location"
+#   delete all entities

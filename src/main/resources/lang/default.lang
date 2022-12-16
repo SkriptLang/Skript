@@ -655,12 +655,6 @@ entities:
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
-	op:
-		name: op¦s @an
-		pattern: op(|1¦s)
-	non-op:
-		name: non-op¦s
-		pattern: non(-| |)op(|1¦s)
 	zombie pigman:
 		name: zombie pig¦man¦men|zombified piglin
 		pattern: <age> (zombie pigm(an|1¦en)|zombified piglin(|1¦s))|(4¦)(zombie pigletboy(|1¦s)|zombified piglin (kid(|1¦s)|child(|1¦ren)))
@@ -1856,6 +1850,24 @@ attribute types:
 	horse_jump_strength: horse jump strength
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
+# -- Environments --
+environments:
+	normal: normal, overworld, the overworld
+	nether: nether, the nether
+	the_end: end, the end
+	custom: custom
+
+# -- Moon Phases --
+moon phases:
+	first_quarter: first quarter
+	full_moon: full moon
+	last_quarter: last quarter
+	new_moon: new moon
+	waning_crescent: waning crescent
+	waning_gibbous: waning gibbous
+	waxing_crescent: waxing crescent
+	waxing_gibbous: waxing gibbous
+
 # -- Boolean --
 boolean:
 	true:
@@ -1907,7 +1919,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
