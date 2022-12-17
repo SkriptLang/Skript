@@ -70,8 +70,8 @@ code. Contributors should also see the dedicated
   
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
-  - SimpleExpression: init -> get (getAll) -> (acceptChange) -> (change) -> isSingle -> getReturnType -> toString
-  - SimplePropertyExpression: -> (init) -> convert -> (acceptChange) -> (change) -> getReturnType -> getPropertyName 
+  - SimpleExpression: init -> get/getAll -> acceptChange -> change -> setTime -> getTime -> isSingle -> getReturnType -> toString
+  - SimplePropertyExpression: -> init -> convert -> acceptChange -> change -> setTime -> getTime -> getReturnType -> getPropertyName
   - Effect: init ->  execute  -> toString
   - Condition: init -> check -> toString
 
