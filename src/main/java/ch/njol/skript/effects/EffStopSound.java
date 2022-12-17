@@ -19,10 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -37,7 +34,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Name("Stop Sound")
-@Description({"Stops a sound from playing to the specified players. Both Minecraft sound names and " +
+@Description({"Stops the given sound(s) from playing to the specified players. Both Minecraft sound names and " +
 		"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
 		"are supported. Resource pack sounds are supported too. The sound category is 'master' by default. " +
 		"A sound can't be stopped from a different category. ",
@@ -48,15 +45,20 @@ import java.util.regex.Pattern;
 		"stop all sound for all players",
 		"stop sound in record category"})
 @Since("2.4, INSERT VERSION (stop all sound)")
+@RequiredPlugins("MC 1.17.1 (stop all sound)")
 public class EffStopSound extends Effect {
 	
+	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
 	
 	static {
-		Skript.registerEffect(EffStopSound.class,
+		if (STOP_ALL_SUPPORTED) Skript.registerEffect(EffStopSound.class,
 				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
 				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]",
 				"stop [all] sound[s] [(in|from) %-soundcategory%] [(from playing to|for) %players%]");
+		else Skript.registerEffect(EffStopSound.class,
+				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
+				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
