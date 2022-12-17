@@ -64,11 +64,16 @@ public class EffPlaySound extends Effect {
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> sounds;
-	private @Nullable Expression<SoundCategory> category;
-	private @Nullable Expression<Number> volume;
-	private @Nullable Expression<Number> pitch;
-	private @Nullable Expression<Location> locations;
-	private @Nullable Expression<Player> players;
+	@Nullable
+	private Expression<SoundCategory> category;
+	@Nullable
+	private Expression<Number> volume;
+	@Nullable
+	private Expression<Number> pitch;
+	@Nullable
+	private Expression<Location> locations;
+	@Nullable
+	private Expression<Player> players;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -90,23 +95,14 @@ public class EffPlaySound extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SoundCategory category = this.category.getOptionalSingle(event).orElse(SoundCategory.MASTER);
-		
-		float volume = 1;
-		if (this.volume != null) {
-			Number volumeNumber = this.volume.getSingle(event);
-			if (volumeNumber == null)
-				return;
-			volume = volumeNumber.floatValue();
-		}
-		
-		float pitch = 1;
-		if (this.pitch != null) {
-			Number pitchNumber = this.pitch.getSingle(event);
-			if (pitchNumber == null)
-				return;
-			pitch = pitchNumber.floatValue();
-		}
+		SoundCategory category = this.category.getOptionalSingle(event)
+			.orElse(SoundCategory.MASTER);
+		float volume = this.volume.getOptionalSingle(event)
+			.orElse(1)
+			.floatValue();
+		float pitch = this.pitch.getOptionalSingle(event)
+			.orElse(1)
+			.floatValue();
 		
 		if (players != null) {
 			if (locations == null) {

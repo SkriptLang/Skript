@@ -19,7 +19,11 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -88,14 +92,10 @@ public class EffStopSound extends Effect {
 	@Override
 	protected void execute(Event event) {
 		// All sounds pattern wants explicitly defined master category
-		SoundCategory category = allSounds ? null : SoundCategory.MASTER;
-		if (this.category != null) {
-			category = this.category.getSingle(event);
-			if (category == null)
-				return;
-		}
-		
+		SoundCategory category = this.category.getOptionalSingle(event)
+			.orElse(allSounds ? null : SoundCategory.MASTER);
 		Player[] targets = players.getArray(event);
+		
 		if (allSounds) {
 			if (category == null) {
 				for (Player player : targets)
