@@ -90,12 +90,7 @@ public class EffPlaySound extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SoundCategory category = SoundCategory.MASTER;
-		if (this.category != null) {
-			category = this.category.getSingle(event);
-			if (category == null)
-				return;
-		}
+		SoundCategory category = this.category.getOptionalSingle(event).orElse(SoundCategory.MASTER);
 		
 		float volume = 1;
 		if (this.volume != null) {
