@@ -292,16 +292,16 @@ public class DefaultChangers {
 		
 		@Override
 		public void change(final Block[] blocks, final @Nullable Object[] delta, final ChangeMode mode) {
-			for (final Block block : blocks) {
+			for (Block block : blocks) {
 				assert block != null;
 				switch (mode) {
 					case SET:
 						assert delta != null;
-						Object o = delta[0];
-						if (o instanceof ItemType) {
-							((ItemType) delta[0]).getBlock().setBlock(block, true);
-						} else if (o instanceof BlockData) {
-							block.setBlockData(((BlockData) o));
+						Object object = delta[0];
+						if (object instanceof ItemType) {
+							((ItemType) object).getBlock().setBlock(block, true);
+						} else if (object instanceof BlockData) {
+							block.setBlockData(((BlockData) object));
 						}
 						break;
 					case DELETE:
@@ -311,30 +311,30 @@ public class DefaultChangers {
 					case REMOVE:
 					case REMOVE_ALL:
 						assert delta != null;
-						final BlockState state = block.getState();
+						BlockState state = block.getState();
 						if (!(state instanceof InventoryHolder))
 							break;
-						final Inventory invi = ((InventoryHolder) state).getInventory();
+						Inventory invi = ((InventoryHolder) state).getInventory();
 						if (mode == ChangeMode.ADD) {
-							for (final Object d : delta) {
-								if (d instanceof Inventory) {
-									for (final ItemStack i : (Inventory) d) {
+							for (Object obj : delta) {
+								if (obj instanceof Inventory) {
+									for (ItemStack i : (Inventory) obj) {
 										if (i != null)
 											invi.addItem(i);
 									}
 								} else {
-									((ItemType) d).addTo(invi);
+									((ItemType) obj).addTo(invi);
 								}
 							}
 						} else {
-							for (final Object d : delta) {
-								if (d instanceof Inventory) {
-									invi.removeItem(((Inventory) d).getContents());
+							for (Object obj : delta) {
+								if (obj instanceof Inventory) {
+									invi.removeItem(((Inventory) obj).getContents());
 								} else {
 									if (mode == ChangeMode.REMOVE)
-										((ItemType) d).removeFrom(invi);
+										((ItemType) obj).removeFrom(invi);
 									else
-										((ItemType) d).removeAll(invi);
+										((ItemType) obj).removeAll(invi);
 								}
 							}
 						}
