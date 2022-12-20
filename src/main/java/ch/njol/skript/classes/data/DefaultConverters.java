@@ -21,8 +21,10 @@ package ch.njol.skript.classes.data;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
@@ -362,5 +364,25 @@ public class DefaultConverters {
 		}
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
+
+		Converters.registerConverter(String.class, Advancement.class, new Converter<String, Advancement>() {
+			@Override
+			@Nullable
+			public Advancement convert(String string) {
+				String namespace;
+				String key;
+				if (string.contains(":") && !string.startsWith(":")) {
+					namespace = string.split(":")[0];
+					key = string.split(":")[1];
+				} else {
+					namespace = "minecraft";
+					key = string;
+				}
+				NamespacedKey namespacedKey = new NamespacedKey(namespace, key);
+				if (Bukkit.getAdvancement(namespacedKey) != null)
+					return Bukkit.getAdvancement(namespacedKey);
+				return null;
+			}
+		});
 	}
 }
