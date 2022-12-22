@@ -52,7 +52,7 @@ import java.util.stream.StreamSupport;
 		"\tmessage \"Theres at least one %loop-item% in this block\"",
 		"drop all blocks at the player # drops one of every block at the player"
 })
-@Since("<i>unknown</i> (before 1.4.2)")
+@Since("1.0 pre-5")
 public class ExprItems extends SimpleExpression<ItemType> {
 
 	private static final ItemType[] ALL_BLOCKS = Arrays.stream(Material.values())

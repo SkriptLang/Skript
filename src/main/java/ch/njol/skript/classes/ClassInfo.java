@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ch.njol.skript.expressions.ExprSets;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
@@ -178,7 +178,8 @@ public class ClassInfo<T> implements Debuggable {
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> supplier(Supplier<Iterator<T>> supplier) {
-		assert this.supplier == null;
+		if (this.supplier != null)
+			throw new SkriptAPIException("supplier of this class is already set");
 		this.supplier = supplier;
 		return this;
 	}
