@@ -461,6 +461,14 @@ public final class ParserInstance implements Experimented {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// Experiments API
 
 	@Override
