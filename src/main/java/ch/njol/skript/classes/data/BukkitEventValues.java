@@ -183,8 +183,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
 			@Override
 			@Nullable
-			public Block[] get(final StructureGrowEvent e) {
-				return e.getBlocks().stream()
+			public Block[] get(StructureGrowEvent event) {
+				return event.getBlocks().stream()
 					.map(BlockState::getBlock)
 					.toArray(Block[]::new);
 			}
@@ -192,19 +192,19 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, new Getter<Block, StructureGrowEvent>() {
 			@Override
 			@Nullable
-			public Block get(final StructureGrowEvent e) {
-				for (final BlockState bs : e.getBlocks()) {
-					if (bs.getLocation().equals(e.getLocation()))
+			public Block get(StructureGrowEvent event) {
+				for (final BlockState bs : event.getBlocks()) {
+					if (bs.getLocation().equals(event.getLocation()))
 						return new BlockStateBlock(bs);
 				}
-				return e.getLocation().getBlock();
+				return event.getLocation().getBlock();
 			}
 		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
 			@Override
 			@Nullable
-			public Block[] get(final StructureGrowEvent e) {
-				return e.getBlocks().stream()
+			public Block[] get(StructureGrowEvent event) {
+				return event.getBlocks().stream()
 					.map(BlockStateBlock::new)
 					.toArray(Block[]::new);
 			}
@@ -470,11 +470,13 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// EntityDeathEvent
-		EventValues.registerEventValue(EntityDeathEvent.class, ItemStack[].class, new Getter<ItemStack[], EntityDeathEvent>() {
+		EventValues.registerEventValue(EntityDeathEvent.class, ItemType[].class, new Getter<ItemType[], EntityDeathEvent>() {
 			@Override
 			@Nullable
-			public ItemStack[] get(final EntityDeathEvent e) {
-				return e.getDrops().toArray(new ItemStack[0]);
+			public ItemType[] get(EntityDeathEvent event) {
+				return event.getDrops().stream()
+					.map(ItemType::new)
+					.toArray(ItemType[]::new);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(EntityDeathEvent.class, Projectile.class, new Getter<Projectile, EntityDeathEvent>() {
@@ -584,8 +586,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, LivingEntity[].class, new Getter<LivingEntity[], AreaEffectCloudApplyEvent>() {
 			@Override
 			@Nullable
-			public LivingEntity[] get(AreaEffectCloudApplyEvent e) {
-				return e.getAffectedEntities().toArray(new LivingEntity[0]);
+			public LivingEntity[] get(AreaEffectCloudApplyEvent event) {
+				return event.getAffectedEntities().toArray(new LivingEntity[0]);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
@@ -947,7 +949,6 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 
-
 		// === CommandEvents ===
 		// PlayerCommandPreprocessEvent is a PlayerEvent
 		EventValues.registerEventValue(ServerCommandEvent.class, CommandSender.class, new Getter<CommandSender, ServerCommandEvent>() {
@@ -959,8 +960,8 @@ public final class BukkitEventValues {
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(CommandEvent.class, String[].class, new Getter<String[], CommandEvent>() {
 			@Override
-			public String[] get(final CommandEvent e) {
-				return e.getArgs();
+			public String[] get(CommandEvent event) {
+				return event.getArgs();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, new Getter<CommandSender, CommandEvent>() {
@@ -1232,8 +1233,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PortalCreateEvent.class, Block[].class, new Getter<Block[], PortalCreateEvent>() {
 			@Override
 			@Nullable
-			public Block[] get(final PortalCreateEvent e) {
-				return e.getBlocks().stream()
+			public Block[] get(PortalCreateEvent event) {
+				return event.getBlocks().stream()
 					.map(BlockState::getBlock)
 					.toArray(Block[]::new);
 			}
@@ -1258,14 +1259,14 @@ public final class BukkitEventValues {
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
-			public String[] get(PlayerEditBookEvent e) {
-				return e.getPreviousBookMeta().getPages().toArray(new String[0]);
+			public String[] get(PlayerEditBookEvent event) {
+				return event.getPreviousBookMeta().getPages().toArray(new String[0]);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
-			public String[] get(PlayerEditBookEvent e) {
-				return e.getNewBookMeta().getPages().toArray(new String[0]);
+			public String[] get(PlayerEditBookEvent event) {
+				return event.getNewBookMeta().getPages().toArray(new String[0]);
 			}
 		}, EventValues.TIME_FUTURE);
 		//ItemDespawnEvent
@@ -1436,8 +1437,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(EnchantItemEvent.class, EnchantmentType[].class, new Getter<EnchantmentType[], EnchantItemEvent>() {
 			@Override
 			@Nullable
-			public EnchantmentType[] get(EnchantItemEvent e) {
-				return e.getEnchantsToAdd().entrySet().stream()
+			public EnchantmentType[] get(EnchantItemEvent event) {
+				return event.getEnchantsToAdd().entrySet().stream()
 					.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
 					.toArray(EnchantmentType[]::new);
 			}

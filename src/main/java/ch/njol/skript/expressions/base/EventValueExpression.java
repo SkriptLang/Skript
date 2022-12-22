@@ -71,11 +71,11 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
 	private final boolean single;
 	
-	public EventValueExpression(final Class<? extends T> c) {
+	public EventValueExpression(Class<? extends T> c) {
 		this(c, null);
 	}
 	
-	public EventValueExpression(final Class<? extends T> c, final @Nullable Changer<? super T> changer) {
+	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer) {
 		assert c != null;
 		this.c = c;
 		this.changer = changer;
@@ -85,67 +85,67 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	
 	@Override
 	@Nullable
-	@SuppressWarnings({"unchecked", "SuspiciousSystemArraycopy"})
-	protected T[] get(final Event e) {
-		final T o = getValue(e);
-		if (o == null)
-			return (T[]) new Object[0];
+	@SuppressWarnings("unchecked")
+	protected T[] get(Event event) {
+		T value = getValue(event);
+		if (value == null)
+			return (T[]) Array.newInstance(c, 0);
 		if (single) {
-			final T[] one = (T[]) Array.newInstance(c, 1);
-			one[0] = o;
+			T[] one = (T[]) Array.newInstance(c, 1);
+			one[0] = value;
 			return one;
 		}
-		T[] array = (T[]) Array.newInstance(c.getComponentType(), ((T[]) o).length);
-		System.arraycopy(o, 0, array, 0, array.length);
+		T[] dataArray = (T[]) value;
+		T[] array = (T[]) Array.newInstance(c.getComponentType(), ((T[]) value).length);
+		System.arraycopy(dataArray, 0, array, 0, array.length);
 		return array;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Nullable
-	private <E extends Event> T getValue(final E e) {
-		if (getters.containsKey(e.getClass())) {
-			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(e.getClass());
-			return g == null ? null : g.get(e);
+	private <E extends Event> T getValue(E event) {
+		if (getters.containsKey(event.getClass())) {
+			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());
+			return g == null ? null : g.get(event);
 		}
 		
 		for (final Entry<Class<? extends Event>, Getter<? extends T, ?>> p : getters.entrySet()) {
-			if (p.getKey().isAssignableFrom(e.getClass())) {
-				getters.put(e.getClass(), p.getValue());
-				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(e);
+			if (p.getKey().isAssignableFrom(event.getClass())) {
+				getters.put(event.getClass(), p.getValue());
+				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(event);
 			}
 		}
 		
-		getters.put(e.getClass(), null);
+		getters.put(event.getClass(), null);
 		
 		return null;
 	}
 	
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (exprs.length != 0)
 			throw new SkriptAPIException(this.getClass().getName() + " has expressions in its pattern but does not override init(...)");
 		return init();
 	}
 	
-	@SuppressWarnings("null")
 	@Override
 	public boolean init() {
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			boolean hasValue = false;
-			final Class<? extends Event>[] es = getParser().getCurrentEvents();
-			if (es == null) {
+			Class<? extends Event>[] events = getParser().getCurrentEvents();
+			if (events == null) {
 				assert false;
 				return false;
 			}
-			for (final Class<? extends Event> e : es) {
-				if (getters.containsKey(e)) {
-					hasValue = getters.get(e) != null;
+			for (Class<? extends Event> event : events) {
+				if (getters.containsKey(event)) {
+					hasValue = getters.get(event) != null;
 					continue;
 				}
-				final Getter<? extends T, ?> getter = EventValues.getEventValueGetter(e, c, getTime());
+				Getter<? extends T, ?> getter = EventValues.getEventValueGetter(event, c, getTime());
 				if (getter != null) {
-					getters.put(e, getter);
+					getters.put(event, getter);
 					hasValue = true;
 				}
 			}
@@ -171,40 +171,40 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (!debug || e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (!debug || event == null)
 			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
-		return Classes.getDebugMessage(getValue(e));
+		return Classes.getDebugMessage(getValue(event));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		Changer<? super T> ch = changer;
-		if (ch == null)
-			changer = ch = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
-		return ch == null ? null : ch.acceptChange(mode);
+	@SuppressWarnings("unchecked")
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		Changer<? super T> changer = this.changer;
+		if (changer == null)
+			this.changer = changer = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
+		return changer == null ? null : changer.acceptChange(mode);
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		final Changer<? super T> ch = changer;
-		if (ch == null)
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Changer<? super T> changer = this.changer;
+		if (changer == null)
 			throw new UnsupportedOperationException();
-		ChangerUtils.change(ch, getArray(e), delta, mode);
+		ChangerUtils.change(changer, getArray(event), delta, mode);
 	}
 	
 	@Override
-	public boolean setTime(final int time) {
-		final Class<? extends Event>[] es = getParser().getCurrentEvents();
-		if (es == null) {
+	public boolean setTime(int time) {
+		Class<? extends Event>[] events = getParser().getCurrentEvents();
+		if (events == null) {
 			assert false;
 			return false;
 		}
-		for (final Class<? extends Event> e : es) {
-			assert e != null;
-			if (EventValues.doesEventValueHaveTimeStates(e, c)) {
+		for (Class<? extends Event> event : events) {
+			assert event != null;
+			if (EventValues.doesEventValueHaveTimeStates(event, c)) {
 				super.setTime(time);
 				// Since the time was changed, we now need to re-initalize the getters we already got. START
 				getters.clear();
