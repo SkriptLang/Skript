@@ -46,14 +46,50 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	public ParsingStack(ParsingStack parsingStack) {
 		Stack<Element> stack = new Stack<>();
 		stack.addAll(parsingStack.stack);
+
 		this.stack = stack;
 	}
 
 	/**
 	 * Removes and returns the top element of this stack.
+	 *
+	 * @throws IllegalStateException if the stack is empty.
 	 */
-	public Element pop() {
+	public Element pop() throws IllegalStateException {
+		if (stack.isEmpty()) {
+			throw new IllegalStateException("Stack is empty");
+		}
+
 		return stack.pop();
+	}
+
+	/**
+	 * Returns the element at the given index in the stack,
+	 * starting with the top element at index 0.
+	 *
+	 * @throws IndexOutOfBoundsException if the given index does not point to
+	 * 										an element in the stack.
+	 */
+	public Element peek(int index) throws IndexOutOfBoundsException {
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Index: " + index);
+		}
+
+		return stack.get(size() - index);
+	}
+
+	/**
+	 * Returns the top element of the stack.
+	 * Equivalent to {@code peek(0)}.
+	 *
+	 * @throws IllegalStateException if the stack is empty.
+	 */
+	public Element peek() throws IllegalStateException {
+		if (stack.isEmpty()) {
+			throw new IllegalStateException("Stack is empty");
+		}
+
+		return peek(0);
 	}
 
 	/**
@@ -71,6 +107,13 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	}
 
 	/**
+	 * Gets the size of the stack.
+	 */
+	public int size() {
+		return stack.size();
+	}
+
+	/**
 	 * Prints this stack to the given {@link PrintStream}.
 	 */
 	public void print(PrintStream printStream) {
@@ -81,15 +124,33 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		synchronized (printStream) {
 			printStream.println("Stack:");
 
-			for (Element element : stack) {
-				printStream.println("\t" + element.getSyntaxElementClass().getName() + " @ " + element.getPatternIndex());
+			if (stack.isEmpty()) {
+				printStream.println("<empty>");
+			} else {
+				for (Element element : stack) {
+					printStream.println("\t" + element.getSyntaxElementClass().getName()
+						+ " @ " + element.getPatternIndex());
+				}
 			}
 		}
 	}
 
 	@Override
 	public Iterator<Element> iterator() {
-		return stack.iterator();
+		Iterator<Element> iterator = stack.iterator();
+
+		// Wrap iterator to disable element removal support
+		return new Iterator<Element>() {
+			@Override
+			public boolean hasNext() {
+				return iterator.hasNext();
+			}
+
+			@Override
+			public Element next() {
+				return iterator.next();
+			}
+		};
 	}
 
 	/**
@@ -101,6 +162,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		private final int patternIndex;
 
 		public Element(SyntaxElementInfo<?> syntaxElementInfo, int patternIndex) {
+			assert patternIndex >= 0 && patternIndex < syntaxElementInfo.getPatterns().length;
+
 			this.syntaxElementInfo = syntaxElementInfo;
 			this.patternIndex = patternIndex;
 		}
