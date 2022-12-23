@@ -18,8 +18,11 @@
  */
 package ch.njol.skript.lang.parser;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.util.Kleenean;
 
 import java.io.PrintStream;
 import java.util.Iterator;
@@ -27,6 +30,10 @@ import java.util.Stack;
 
 /**
  * A stack that keeps track of what Skript is currently parsing.
+ * <p>
+ * When accessing the stack from within {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)},
+ * the stack element corresponding to that {@link SyntaxElement} is <b>not</b>
+ * on the parsing stack.
  */
 public class ParsingStack implements Iterable<ParsingStack.Element> {
 
