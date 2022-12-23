@@ -182,7 +182,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				return m.hasDisplayName() ? m.getDisplayName() : null;
 			}
 		} else if (o instanceof World) {
-			return ((World) o).getName();
+			return mark == 1 ? ((World) o).getName() : null;
 		} else if (HAS_GAMERULES && o instanceof GameRule) {
             return ((GameRule) o).getName();
         }
