@@ -1266,6 +1266,7 @@ teleport causes:
 	plugin: plugin
 	spectate: spectate, spectator
 	unknown: unknown
+	dismount: dismount, dismounted
 
 # -- Game Modes --
 game modes:
