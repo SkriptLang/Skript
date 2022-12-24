@@ -133,6 +133,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		mark = parseResult.mark;
 		setExpr(exprs[0]);
+		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
+			Skript.error("Use 'name' to get the name of a world.");
+			return false;
+		}
 		return true;
 	}
 
@@ -166,8 +170,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			if (TITLE_METHOD != null) {
 				try {
 					return (String) TITLE_METHOD.invoke(o);
-				} catch (Throwable e) {
-					Skript.exception(e);
+				} catch (Throwable event) {
+					Skript.exception(event);
 					return null;
 				}
 			} else {
@@ -182,7 +186,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				return m.hasDisplayName() ? m.getDisplayName() : null;
 			}
 		} else if (o instanceof World) {
-			return mark == 1 ? ((World) o).getName() : null;
+			return ((World) o).getName();
 		} else if (HAS_GAMERULES && o instanceof GameRule) {
             return ((GameRule) o).getName();
         }
@@ -196,6 +200,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			if (mark == 1 && Player.class.isAssignableFrom(getExpr().getReturnType())) {
 				Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
 				return null;
+			} else if (mark == 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
+				return null;
 			}
 			return CollectionUtils.array(String.class);
 		}
@@ -203,9 +209,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
-		for (Object o : getExpr().getArray(e)) {
+		for (Object o : getExpr().getArray(event)) {
 			if (o instanceof Player) {
 				switch (mark) {
 					case 2:
