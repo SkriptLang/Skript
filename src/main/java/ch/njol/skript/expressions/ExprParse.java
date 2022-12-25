@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-
-import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -43,8 +37,16 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.MalformedPatternException;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
+import org.bukkit.ChatColor;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
 
 @Name("Parse")
 @Description({"Parses text as a given type, or as a given pattern.",
@@ -86,6 +88,7 @@ public class ExprParse extends SimpleExpression<Object> {
 	private String pattern;
 	@Nullable
 	private boolean[] plurals;
+	private boolean patternSingleExpr = false;
 
 	@Nullable
 	private ClassInfo<?> classInfo;
@@ -125,6 +128,18 @@ public class ExprParse extends SimpleExpression<Object> {
 
 			this.pattern = pattern;
 			plurals = p.getSecond();
+
+			SkriptPattern skriptPattern;
+			try {
+				skriptPattern = PatternCompiler.compile(pattern);
+			} catch (MalformedPatternException e) {
+				// Some checks already done by validatePattern above, but just making sure
+				Skript.error("Malformed pattern: " + e.getMessage());
+				return false;
+			}
+
+			// If the pattern contains at most 1 type, this expression is single
+			this.patternSingleExpr = skriptPattern.countNonNullTypes() <= 1;
 		} else {
 			classInfo = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
 			if (classInfo.getC() == String.class) {
@@ -199,7 +214,7 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern == null;
+		return pattern == null || patternSingleExpr;
 	}
 
 	@Override
