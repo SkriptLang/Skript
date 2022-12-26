@@ -63,11 +63,10 @@ public class CondScriptLoaded extends Condition {
 		scripts = (Expression<String>) exprs[0];
 
 		ParserInstance parser = getParser();
-		if (parser.isActive()) {
-			if (scripts == null) // no scripts provided means use current script
+		if (scripts == null) {
+			if (parser.isActive()) { // no scripts provided means use current script
 				currentScript = parser.getCurrentScript();
-		} else {
-			if (scripts == null) { // parser is inactive but no scripts were provided
+			} else { // parser is inactive but no scripts were provided
 				Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
 				return false;
 			}
