@@ -56,7 +56,8 @@ public class ExprBookPages extends SimpleExpression<String> {
 			"[all [[of] the]|the] [book] (pages|content) of %itemtypes%",
 			"%itemtypes%'[s] [book] (pages|content)",
 			"[book] page %number% of %itemtypes%",
-			"%itemtypes%'[s] [book] page %number%");
+			"%itemtypes%'[s] [book] page %number%"
+		);
 	}
 
 	private Expression<ItemType> items;
@@ -75,7 +76,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 			items = (Expression<ItemType>) exprs[0];
 			page = (Expression<Number>) exprs[1];
 		}
-			return true;
+		return true;
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 	protected String[] get(Event event) {
 		List<String> pages = new ArrayList<>();
 		for (ItemType itemType : items.getArray(event)) {
-			if (itemType == null || !(itemType.getItemMeta() instanceof BookMeta))
+			if (!(itemType.getItemMeta() instanceof BookMeta))
 				continue;
 			BookMeta bookMeta = (BookMeta) itemType.getItemMeta();
 			if (isAllPages()) {
@@ -120,7 +121,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 	@Override
 	@SuppressWarnings("ConstantConditions")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD) && delta == null)
+		if (delta == null && (mode == ChangeMode.SET || mode == ChangeMode.ADD))
 			return;
 		ItemType[] itemTypes = items.getArray(event);
 		int page = !isAllPages() ? this.page.getOptionalSingle(event).orElse(-1).intValue() : -1;
@@ -202,4 +203,5 @@ public class ExprBookPages extends SimpleExpression<String> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return (page != null ? "page " + page.toString(event, debug) : "the book pages") + " of " + items.toString(event, debug);
 	}
+
 }
