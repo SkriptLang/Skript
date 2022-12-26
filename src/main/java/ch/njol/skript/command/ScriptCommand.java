@@ -157,7 +157,7 @@ public class ScriptCommand implements TabExecutor {
 				}
 				// char 167 is §
 				if (c == 167) {
-					Skript.warning("command /" + name + " has an illegal character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					Skript.warning("command /" + name + " has a section character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
 					prefix = ScriptCommand.DEFAULT_PREFIX;
 					break;
 				}
