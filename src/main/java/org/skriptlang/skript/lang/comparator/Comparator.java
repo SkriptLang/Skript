@@ -21,12 +21,12 @@ package org.skriptlang.skript.lang.comparator;
 /**
  * Used to compare two objects of a different or the same type.
  *
- * @param <Type1> The first type for comparison.
- * @param <Type2> The second type for comparison.
+ * @param <T1> The first type for comparison.
+ * @param <T2> The second type for comparison.
  * @see Comparators#registerComparator(Class, Class, Comparator)
  */
 @FunctionalInterface
-public interface Comparator<Type1, Type2> {
+public interface Comparator<T1, T2> {
 
 	/**
 	 * The main method for this Comparator to determine the Relation between two objects.
@@ -34,7 +34,7 @@ public interface Comparator<Type1, Type2> {
 	 * @param o2 The second object for comparison.
 	 * @return The Relation between the two provided objects.
 	 */
-	Relation compare(Type1 o1, Type2 o2);
+	Relation compare(T1 o1, T2 o2);
 	
 	/**
 	 * @return Whether this comparator supports ordering of elements or not.

@@ -21,16 +21,16 @@ package org.skriptlang.skript.lang.comparator;
 /**
  * Holds information about a Comparator.
  *
- * @param <Type1> The first type for comparison.
- * @param <Type2> The second type for comparison.
+ * @param <T1> The first type for comparison.
+ * @param <T2> The second type for comparison.
  */
-public final class ComparatorInfo<Type1, Type2> {
+public final class ComparatorInfo<T1, T2> {
 
-	final Class<Type1> firstType;
-	final Class<Type2> secondType;
-	final Comparator<Type1, Type2> comparator;
+	final Class<T1> firstType;
+	final Class<T2> secondType;
+	final Comparator<T1, T2> comparator;
 
-	ComparatorInfo(Class<Type1> firstType, Class<Type2> secondType, Comparator<Type1, Type2> comparator) {
+	ComparatorInfo(Class<T1> firstType, Class<T2> secondType, Comparator<T1, T2> comparator) {
 		this.firstType = firstType;
 		this.secondType = secondType;
 		this.comparator = comparator;
@@ -39,21 +39,21 @@ public final class ComparatorInfo<Type1, Type2> {
 	/**
 	 * @return The first type for comparison for this Comparator.
 	 */
-	public Class<Type1> getFirstType() {
+	public Class<T1> getFirstType() {
 		return firstType;
 	}
 
 	/**
 	 * @return The second type for comparison for this Comparator.
 	 */
-	public Class<Type2> getSecondType() {
+	public Class<T2> getSecondType() {
 		return secondType;
 	}
 
 	/**
 	 * @return The Comparator this information is in reference to.
 	 */
-	public Comparator<Type1, Type2> getComparator() {
+	public Comparator<T1, T2> getComparator() {
 		return comparator;
 	}
 

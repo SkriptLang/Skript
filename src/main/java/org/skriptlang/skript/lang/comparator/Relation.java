@@ -158,9 +158,9 @@ public enum Relation {
 
 	/**
 	 * @return An int relating to the value of this Relation.
-	 * <br>    0 if {@link #EQUAL} or {@link #NOT_EQUAL}
-	 * <br>    1 if {@link #GREATER} or {@link #GREATER_OR_EQUAL}
-	 * <br>    -1 if {@link #SMALLER} or {@link #SMALLER_OR_EQUAL}
+	 * <br>0 if {@link #EQUAL} or {@link #NOT_EQUAL}
+	 * <br>1 if {@link #GREATER} or {@link #GREATER_OR_EQUAL}
+	 * <br>-1 if {@link #SMALLER} or {@link #SMALLER_OR_EQUAL}
 	 */
 	public int getRelation() {
 		switch (this) {

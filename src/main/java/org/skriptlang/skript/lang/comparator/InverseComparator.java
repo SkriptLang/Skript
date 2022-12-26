@@ -20,18 +20,21 @@ package org.skriptlang.skript.lang.comparator;
 
 /**
  * Similar to {@link Comparator}, but {@link Comparator#compare(Object, Object)} arguments are switched.
- * If necessary, the resulting {@link Relation} is switched
+ * If necessary, the resulting {@link Relation} is switched.
+ *
+ * @param <T1> The first type for comparison.
+ * @param <T2> The second type for comparison.
  */
-final class InverseComparator<Type1, Type2> implements Comparator<Type1, Type2> {
+final class InverseComparator<T1, T2> implements Comparator<T1, T2> {
 
-	private final Comparator<Type2, Type1> comparator;
+	private final Comparator<T2, T1> comparator;
 
-	InverseComparator(Comparator<Type2, Type1> comparator) {
+	InverseComparator(Comparator<T2, T1> comparator) {
 		this.comparator = comparator;
 	}
 
 	@Override
-	public Relation compare(Type1 o1, Type2 o2) {
+	public Relation compare(T1 o1, T2 o2) {
 		return comparator.compare(o2, o1).getSwitched();
 	}
 

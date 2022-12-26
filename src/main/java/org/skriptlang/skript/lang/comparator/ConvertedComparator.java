@@ -25,25 +25,25 @@ import org.eclipse.jdt.annotation.Nullable;
  * A ConvertedComparator is a comparator that converts its parameters so that they may be used
  * within a different comparator that requires different parameter types.
  *
- * @param <Type1> The first type for comparison.
- * @param <Type2> The second type for comparison.
- * @param <CType1> The type of the conversion result for Type1.
- * If no 'firstConverter' is provided, then this is the same as Type1.
- * @param <CType2> The type of the conversion result for Type2.
- * If no 'secondConverter' is provided, then this is the same as Type2.
+ * @param <T1> The first type for comparison.
+ * @param <T2> The second type for comparison.
+ * @param <C1> The type of the conversion result for T1.
+ * If no 'firstConverter' is provided, then this is the same as T1.
+ * @param <C2> The type of the conversion result for T2.
+ * If no 'secondConverter' is provided, then this is the same as T2.
  */
-final class ConvertedComparator<Type1, Type2, CType1, CType2> implements Comparator<Type1, Type2> {
+final class ConvertedComparator<T1, T2, C1, C2> implements Comparator<T1, T2> {
 
-	private final Comparator<CType1, CType2> comparator;
+	private final Comparator<C1, C2> comparator;
 	@Nullable
-	private final Converter<Type1, CType1> firstConverter;
+	private final Converter<T1, C1> firstConverter;
 	@Nullable
-	private final Converter<Type2, CType2> secondConverter;
+	private final Converter<T2, C2> secondConverter;
 
 	ConvertedComparator(
-		@Nullable Converter<Type1, CType1> firstConverter,
-		Comparator<CType1, CType2> c,
-		@Nullable Converter<Type2, CType2> secondConverter
+		@Nullable Converter<T1, C1> firstConverter,
+		Comparator<C1, C2> c,
+		@Nullable Converter<T2, C2> secondConverter
 	) {
 		if (firstConverter == null && secondConverter == null)
 			throw new IllegalArgumentException("firstConverter and secondConverter must not BOTH be null!");
@@ -54,14 +54,14 @@ final class ConvertedComparator<Type1, Type2, CType1, CType2> implements Compara
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Relation compare(Type1 o1, Type2 o2) {
-		// null converter means 'comparator' is actually Comparator<Type1, CType2>
-		CType1 t1 = firstConverter == null ? (CType1) o1 : firstConverter.convert(o1);
+	public Relation compare(T1 o1, T2 o2) {
+		// null converter means 'comparator' is actually Comparator<T1, C2>
+		C1 t1 = firstConverter == null ? (C1) o1 : firstConverter.convert(o1);
 		if (t1 == null)
 			return Relation.NOT_EQUAL;
 
-		// null converter means 'comparator' is actually Comparator<CType1, Type2>
-		CType2 t2 = secondConverter == null ? (CType2) o2 : secondConverter.convert(o2);
+		// null converter means 'comparator' is actually Comparator<C1, T2>
+		C2 t2 = secondConverter == null ? (C2) o2 : secondConverter.convert(o2);
 		if (t2 == null)
 			return Relation.NOT_EQUAL;
 
