@@ -146,7 +146,7 @@ public class PaperEntityUtils {
 		@Override
 		public void tick() {
 			if (target instanceof Vector) {
-				Vector vector = ((Vector)target);
+				Vector vector = (Vector) target;
 				mob.lookAt(vector.getX(), vector.getY(), vector.getZ(), speed, maxPitch);
 			} else if (target instanceof Location) {
 				mob.lookAt((Location) target, speed, maxPitch);
