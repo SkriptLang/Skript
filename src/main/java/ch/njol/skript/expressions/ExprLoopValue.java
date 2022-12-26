@@ -31,7 +31,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.sections.SecLoop;
@@ -41,6 +40,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,7 +83,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	private boolean isIndex = false;
 	
 	@Override
-	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		name = parser.expr;
 
 		String type = parser.regexes.get(0).group();
@@ -93,20 +94,12 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			type = matcher.group(1);
 			loopValue = Utils.parseInt("" + matcher.group(2));
 		}
-		Class<?> typeAsClass = Classes.getClassFromUserInput(type);
 
 		int currentLoopValue = 1;
 		SecLoop loop = null;
 
 		for (SecLoop secLoop : getParser().getCurrentSections(SecLoop.class)) {
-
-			Expression<?> loopedExpression = secLoop.getLoopedExpression();
-
-			if (
-				(typeAsClass != null && typeAsClass.isAssignableFrom(loopedExpression.getReturnType())) // loop-<type> (ex: loop-integer)
-				|| type.equalsIgnoreCase("value") // loop-value
-				|| isLoopOf(loopedExpression, type) // loop-<something> (ex: loop-argument)
-			) {
+			if (isLoopOf(secLoop.getLoopedExpression(), type)) {
 				if (currentLoopValue < loopValue) { // Move onto the next one (ex: this is 'loop-value-1', but we want 'loop-value-2')
 					currentLoopValue++;
 					continue;
@@ -124,7 +117,6 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 				if (currentLoopValue == loopValue) // We found the right one
 					break;
 			}
-
 		}
 
 		if (loop == null) {
@@ -172,9 +164,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
-	protected Object[] get(Event e) {
+	protected Object[] get(Event event) {
 		if (isVariableLoop) {
-			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(event);
 
 			if (current == null)
 				return new Object[0];
@@ -188,43 +180,69 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
-		one[0] = loop.getCurrent(e);
+		one[0] = loop.getCurrent(event);
 		return one;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
 			return name;
 
 		if (isVariableLoop) {
-			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(event);
 			if (current == null)
 				return Classes.getDebugMessage(null);
 			return isIndex ? "\"" + current.getKey() + "\"" : Classes.getDebugMessage(current.getValue());
 		}
 
-		return Classes.getDebugMessage(loop.getCurrent(e));
+		return Classes.getDebugMessage(loop.getCurrent(event));
 	}
 
 	private static final Map<Class<? extends Expression<?>>, LoopValueHandler<?>> LOOP_VALUE_HANDLERS = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, List<String>> TYPE_ALIASES = new ConcurrentHashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public static <Type extends Expression<?>> boolean isLoopOf(Type source, String type) {
+	public static <T extends Expression<?>> boolean isLoopOf(T source, String type) {
+		Class<?> typeAsClass = Classes.getClassFromUserInput(type);
+		Class<?> returnType = source.getReturnType();
+
+		// loop-<type> (ex: loop-integer)
+		if (typeAsClass != null && typeAsClass.isAssignableFrom(returnType))
+			return true;
+
+		// check aliases for something like 'slot' ('item' is an alias for 'slot')
+		List<String> aliases = TYPE_ALIASES.get(returnType);
+		if (aliases != null && aliases.contains(type))
+			return true;
+
+		// loop-value
+		if (type.equals("value"))
+			return true;
+
 		//noinspection deprecation
 		if (source.isLoopOf(type)) // for backwards compatibility
 			return true;
-		LoopValueHandler<Type> loopValueHandler = (LoopValueHandler<Type>) LOOP_VALUE_HANDLERS.get(source.getClass());
+
+		// loop-<something> (ex: loop-argument)
+		LoopValueHandler<T> loopValueHandler = (LoopValueHandler<T>) LOOP_VALUE_HANDLERS.get(source.getClass());
 		if (loopValueHandler == null)
 			return false;
 		return loopValueHandler.isLoopOf(source, type);
 	}
 
-	public static <Type extends Expression<?>> void registerLoopValueHandler(Class<Type> source, LoopValueHandler<Type> loopValueHandler) {
+	public static <T extends Expression<?>> void registerLoopValueHandler(Class<T> source, LoopValueHandler<T> loopValueHandler) {
 		if (LOOP_VALUE_HANDLERS.containsKey(source))
 			throw new SkriptAPIException("A loop value handler is already registered for: " + source);
 		LOOP_VALUE_HANDLERS.put(source, loopValueHandler);
+	}
+
+	public static void registerTypeAlias(Class<?> type, String alias) {
+		List<String> aliases = TYPE_ALIASES.computeIfAbsent(type, key -> new ArrayList<>());
+		if (aliases.contains(alias))
+			throw new SkriptAPIException("'" + alias + "' is already an alias for type '" + type.getSimpleName() + "'");
+		aliases.add(alias);
 	}
 
 	@FunctionalInterface
