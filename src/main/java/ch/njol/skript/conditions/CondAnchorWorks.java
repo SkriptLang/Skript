@@ -34,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Do Respawn Anchors Work")
 @Description("Checks whether or not respawn anchors work in a world.")
-@Examples({"respawn anchors work in world \"world_nether\""})
+@Examples("respawn anchors work in world \"world_nether\"")
 @RequiredPlugins("Minecraft 1.16+")
 @Since("INSERT VERSION")
 public class CondAnchorWorks extends Condition {
