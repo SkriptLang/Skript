@@ -36,7 +36,6 @@ public enum Operator {
 	DIVISION('/', "divide"),
 	EXPONENTIATION('^', "exponent");
 
-	private final List<OperationInfo<?, ?, ?>> handlerList = Collections.synchronizedList(new ArrayList<>());
 	private final char sign;
 	private final Noun m_name;
 
@@ -54,72 +53,8 @@ public enum Operator {
 		return m_name.toString();
 	}
 
-	public <T> void addHandler(Class<T> type, Operation<T, T, T> operation) {
-		addHandler(type, type, operation);
-	}
-
-	public <L, R> void addHandler(Class<L> left, Class<R> right, Operation<L, R, L> operation) {
-		addHandler(left, right, left, operation);
-	}
-
-	public <L, R> void addHandler(Class<L> left, Class<R> right, Operation<L, R, L> operation, Operation<R, L, L> commutativeOperation) {
-		addHandler(left, right, left, operation, commutativeOperation);
-	}
-
-	public <L, R, T> void addHandler(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation, Operation<R, L, T> commutativeOperation) {
-		addHandler(left, right, returnType, operation);
-		addHandler(right, left, returnType, commutativeOperation);
-	}
-
-	public <L, R, T> void addHandler(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
-		Skript.checkAcceptRegistrations();
-		if (findHandler(left, right) != null)
-			throw new SkriptAPIException("An operator is already registered with the types '" + left + "' and '" + right + '\'');
-		handlerList.add(new OperationInfo<>(left, right, returnType, operation));
-	}
-
-	public List<OperationInfo<?, ?, ?>> getHandlers(Class<?> type) {
-		return handlerList.stream()
-			.filter(handler -> handler.getLeft().isAssignableFrom(type))
-			.collect(Collectors.toList());
-	}
-
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <L, R> OperationInfo<L, R, ?> findHandler(Class<L> left, Class<R> right) {
-		return (OperationInfo<L, R, ?>) handlerList.stream()
-			.filter(handler -> handler.getLeft().isAssignableFrom(left) && handler.getRight().isAssignableFrom(right))
-			.findFirst().orElse(null);
-	}
-
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <L, R, T> OperationInfo<L, R, T> findHandler(Class<L> left, Class<R> right, Class<T> returnType) {
-		return (OperationInfo<L, R, T>) handlerList.stream()
-			.filter(handler ->
-				handler.getLeft().isAssignableFrom(left)
-					&& handler.getRight().isAssignableFrom(right)
-					&& handler.getReturnType().isAssignableFrom(returnType))
-			.findFirst().orElse(null);
-	}
-
-	@Nullable
-	public Class<?> lookupClass(Class<?> to) {
-		List<OperationInfo<?, ?, ?>> operationInfos = getHandlers(to);
-		if (operationInfos.size() == 0)
-			return null;
-		OperationInfo<?, ?, ?> operation = findHandler(to, to);
-
-		if (operation == null) {
-			operation = operationInfos.get(0);
-			return operation.getRight();
-		} else {
-			return to;
-		}
-	}
-
 	public boolean acceptsClass(Class<?> type, Class<?>... classes) {
-		List<OperationInfo<?, ?, ?>> infoList = getHandlers(type);
+		List<OperationInfo<?, ?, ?>> infoList = Arithmetics.getOperations(this, type);
 		if (infoList.size() == 0)
 			return false;
 
@@ -135,7 +70,7 @@ public enum Operator {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <L, R, T> T calculate(L left, R right, Class<T> expectedReturnType) {
-		Operation<L, R, T> operation = (Operation<L, R, T>) findHandler(left.getClass(), right.getClass(), expectedReturnType);
+		Operation<L, R, T> operation = (Operation<L, R, T>) Arithmetics.findOperation(this, left.getClass(), right.getClass(), expectedReturnType);
 		if (operation == null)
 			return null;
 		return operation.calculate(left, right);

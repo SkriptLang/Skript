@@ -39,6 +39,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 
@@ -135,7 +136,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		if ((!hasHandlers(firstClass, secondClass))
 				|| (firstClass != Object.class
 				&& secondClass != Object.class
-				&& (operationInfo = op.findHandler(firstClass, secondClass)) == null)) {
+				&& (operationInfo = Arithmetics.findOperation(op, firstClass, secondClass)) == null)) {
 			return error(firstClass, secondClass);
 		}
 
@@ -198,7 +199,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 	private boolean hasHandlers(Class<?>... classes) {
 		for (Class<?> type : classes) {
-			if (type != Object.class && op.getHandlers(type).size() == 0)
+			if (type != Object.class && Arithmetics.getOperations(op, type).size() == 0)
 				return false;
 		}
 		return true;

@@ -68,7 +68,7 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 		if (right == null) {
 			if (rightClass == Object.class) {
-				rightClass = operator.lookupClass(leftClass);
+				rightClass = Arithmetics.lookupClass(operator, leftClass);
 				if (rightClass == null)
 					return null;
 			}
@@ -78,7 +78,7 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 		if (left == null) {
 			if (leftClass == Object.class) {
-				leftClass = operator.lookupClass(rightClass);
+				leftClass = Arithmetics.lookupClass(operator, rightClass);
 				if (leftClass == null)
 					return null;
 			}
@@ -86,13 +86,13 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 			left = Arithmetics.getDefaultValue(leftClass);
 		}
 
-		if (left == null && operator.getHandlers(rightClass).size() > 0)
+		if (left == null && Arithmetics.getOperations(operator, rightClass).size() > 0)
 			return right;
-		if (right == null && operator.getHandlers(leftClass).size() > 0)
+		if (right == null && Arithmetics.getOperations(operator, leftClass).size() > 0)
 			return left;
 
 		if (operationInfo == null) {
-			operationInfo = operator.findHandler(leftClass, rightClass);
+			operationInfo = Arithmetics.findOperation(operator, leftClass, rightClass);
 			if (operationInfo == null)
 				return null;
 		}
@@ -124,7 +124,7 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 				OperationInfo<?, ?, ?> operationInfo = null;
 				if (left.getReturnType() != Object.class && right.getReturnType() != Object.class) {
-					operationInfo = operator.findHandler(left.getReturnType(), right.getReturnType());
+					operationInfo = Arithmetics.findOperation(operator, left.getReturnType(), right.getReturnType());
 					if (operationInfo == null)
 						return null;
 				}

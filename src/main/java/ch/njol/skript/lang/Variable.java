@@ -26,6 +26,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.script.Script;
@@ -597,14 +598,14 @@ public class Variable<T> implements Expression<T> {
 					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] cs;
-					if (object == null || clazz == null || (infos = operator.getHandlers(clazz)).size() > 0) {
+					if (object == null || clazz == null || (infos = Arithmetics.getOperations(operator, clazz)).size() > 0) {
 						boolean changed = false;
 						for (Object d : delta) {
 							if (object == null || clazz == null) {
 								clazz = d.getClass();
 								assert clazz != null;
 
-								if ((infos = operator.getHandlers(clazz)).size() > 0)
+								if ((infos = Arithmetics.getOperations(operator, clazz)).size() > 0)
 									object = d;
 								if (d instanceof Number) { // Nonexistent variable: add/subtract
 									if (mode == ChangeMode.REMOVE) // Variable is delta negated
