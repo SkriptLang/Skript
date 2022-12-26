@@ -48,10 +48,10 @@ import org.eclipse.jdt.annotation.Nullable;
 	"A slot of a furnace, i.e. either the ore, fuel or result slot.",
 	"Remember to use '<a href='#ExprBlock'>block</a>' and not <code>furnace</code>, as <code>furnace</code> is not an existing expression.",
 	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event" +
-	"and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
+	" and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
 	"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in " +
 	"the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
-	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace." +
+	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace.",
 	"Thus you may wish to use the event block in this case (e.g. <code>the fuel slot of the event-block</code>) to get accurate values if needed."
 })
 @Examples({
