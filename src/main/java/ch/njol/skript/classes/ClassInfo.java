@@ -199,11 +199,11 @@ public class ClassInfo<T> implements Debuggable {
 		assert this.math == null;
 		this.math = math;
 		mathRelativeType = relativeType;
-		Operator.ADDITION.addHandler(c, relativeType, (left, right) -> (T) math.add(left, right));
-		Operator.SUBTRACTION.addHandler(c, relativeType, (left, right) -> (T) math.subtract(left, right));
-		Operator.MULTIPLICATION.addHandler(c, relativeType, (left, right) -> (T) math.multiply(left, right));
-		Operator.DIVISION.addHandler(c, relativeType, (left, right) -> (T) math.divide(left, right));
-		Operator.EXPONENTIATION.addHandler(c, relativeType, (left, right) -> (T) math.power(left, right));
+		Arithmetics.registerOperation(Operator.ADDITION, c, relativeType, (left, right) -> (T) math.add(left, right));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, c, relativeType, (left, right) -> (T) math.subtract(left, right));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, c, relativeType, (left, right) -> (T) math.multiply(left, right));
+		Arithmetics.registerOperation(Operator.DIVISION, c, relativeType, (left, right) -> (T) math.divide(left, right));
+		Arithmetics.registerOperation(Operator.EXPONENTIATION, c, relativeType, (left, right) -> (T) math.power(left, right));
 		Arithmetics.registerDifference(c, relativeType, math::difference);
 		return this;
 	}
