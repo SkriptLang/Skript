@@ -101,8 +101,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		return array;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nullable
+	@SuppressWarnings("unchecked")
 	private <E extends Event> T getValue(E event) {
 		if (getters.containsKey(event.getClass())) {
 			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());

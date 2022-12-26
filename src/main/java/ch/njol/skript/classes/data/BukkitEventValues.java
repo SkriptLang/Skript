@@ -470,13 +470,11 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// EntityDeathEvent
-		EventValues.registerEventValue(EntityDeathEvent.class, ItemType[].class, new Getter<ItemType[], EntityDeathEvent>() {
+		EventValues.registerEventValue(EntityDeathEvent.class, ItemStack[].class, new Getter<ItemStack[], EntityDeathEvent>() {
 			@Override
 			@Nullable
-			public ItemType[] get(EntityDeathEvent event) {
-				return event.getDrops().stream()
-					.map(ItemType::new)
-					.toArray(ItemType[]::new);
+			public ItemStack[] get(EntityDeathEvent event) {
+				return event.getDrops().toArray(new ItemStack[0]);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(EntityDeathEvent.class, Projectile.class, new Getter<Projectile, EntityDeathEvent>() {
