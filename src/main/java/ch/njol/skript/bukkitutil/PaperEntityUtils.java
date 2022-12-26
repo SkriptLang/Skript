@@ -126,12 +126,15 @@ public class PaperEntityUtils {
 		private static final GoalKey<Mob> SKRIPT_LOOK_KEY = GoalKey.of(Mob.class, new NamespacedKey(Skript.getInstance(), "skript_entity_look"));
 		private static final EnumSet<GoalType> LOOK_GOAL = EnumSet.of(GoalType.LOOK);
 
+		private static final int VECTOR = 0, LOCATION = 1, ENTITY = 2;
+
 		private final float speed, maxPitch;
 		private final Object target;
+		private int ticks = 0, type;
 		private final Mob mob;
-		private int ticks = 0;
 
 		LookGoal(Object target, Mob mob, float speed, float maxPitch) {
+			this.type = target instanceof Vector ? 0 : target instanceof Location ? 1 : 2;
 			this.maxPitch = maxPitch;
 			this.target = target;
 			this.speed = speed;
@@ -145,13 +148,17 @@ public class PaperEntityUtils {
 
 		@Override
 		public void tick() {
-			if (target instanceof Vector) {
-				Vector vector = ((Vector)target);
-				mob.lookAt(vector.getX(), vector.getY(), vector.getZ(), speed, maxPitch);
-			} else if (target instanceof Location) {
-				mob.lookAt((Location) target, speed, maxPitch);
-			} else if (target instanceof Entity) {
-				mob.lookAt((Entity) target, speed, maxPitch);
+			switch (type) {
+				case VECTOR:
+					Vector vector = ((Vector)target);
+					mob.lookAt(vector.getX(), vector.getY(), vector.getZ(), speed, maxPitch);
+					break;
+				case LOCATION:
+					mob.lookAt((Location) target, speed, maxPitch);
+					break;
+				case ENTITY:
+					mob.lookAt((Entity) target, speed, maxPitch);
+					break;
 			}
 			ticks++;
 		}
