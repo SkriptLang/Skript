@@ -62,8 +62,12 @@ public final class Arithmetics {
 			.add(new OperationInfo<>(left, right, returnType, operation));
 	}
 
+	public static List<OperationInfo<?, ?, ?>> getOperations(Operator operator) {
+		return registeredOperations.getOrDefault(operator, Collections.emptyList());
+	}
+
 	public static List<OperationInfo<?, ?, ?>> getOperations(Operator operator, Class<?> type) {
-		return registeredOperations.get(operator).stream()
+		return getOperations(operator).stream()
 			.filter(handler -> handler.getLeft().isAssignableFrom(type))
 			.collect(Collectors.toList());
 	}
@@ -71,7 +75,7 @@ public final class Arithmetics {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static  <L, R> OperationInfo<L, R, ?> findOperation(Operator operator, Class<L> left, Class<R> right) {
-		return (OperationInfo<L, R, ?>) registeredOperations.get(operator).stream()
+		return (OperationInfo<L, R, ?>) getOperations(operator).stream()
 			.filter(handler -> handler.getLeft().isAssignableFrom(left) && handler.getRight().isAssignableFrom(right))
 			.findFirst().orElse(null);
 	}
@@ -79,7 +83,7 @@ public final class Arithmetics {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static  <L, R, T> OperationInfo<L, R, T> findOperation(Operator operator, Class<L> left, Class<R> right, Class<T> returnType) {
-		return (OperationInfo<L, R, T>) registeredOperations.get(operator).stream()
+		return (OperationInfo<L, R, T>) getOperations(operator).stream()
 			.filter(handler ->
 				handler.getLeft().isAssignableFrom(left)
 					&& handler.getRight().isAssignableFrom(right)
