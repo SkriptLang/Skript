@@ -59,7 +59,8 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	private ClassInfo<?> classInfo;
 
 	@Nullable
-	private ClassInfo<?> returnTypeInfo;
+	@SuppressWarnings("rawtypes")
+	private Changer changer;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -75,20 +76,15 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (returnTypeInfo == null)
-			returnTypeInfo = Classes.getSuperClassInfo(getReturnType());
-		Changer<?> changer = returnTypeInfo.getChanger();
+		changer = Classes.getSuperClassInfo(getReturnType()).getChanger();
 		if (changer == null)
 			return null;
 		return changer.acceptChange(mode);
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings("unchecked")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (returnTypeInfo == null)
-			throw new UnsupportedOperationException();
-		Changer changer = returnTypeInfo.getChanger();
 		if (changer == null)
 			throw new UnsupportedOperationException();
 		changer.change(getArray(event), delta, mode);
