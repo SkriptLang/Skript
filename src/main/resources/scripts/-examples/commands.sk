@@ -62,9 +62,9 @@ command /item <items>:
     cooldown bypass: skript.example.cooldown
     trigger:
         if player has permission "skript.example.item.all":
-            give arguments to player
+            give argument to player
         else:
-            loop arguments:
+            loop argument:
                 if loop-item is not blacklisted:
                     give loop-item to player
                 else:
