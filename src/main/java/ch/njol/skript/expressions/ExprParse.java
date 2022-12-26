@@ -122,9 +122,9 @@ public class ExprParse extends SimpleExpression<Object> {
 			// Compile the SkriptPattern
 			try {
 				this.pattern = PatternCompiler.compile(pattern);
-			} catch (MalformedPatternException e) {
+			} catch (MalformedPatternException exception) {
 				// Some checks already done by validatePattern above, but just making sure
-				Skript.error("Malformed pattern: " + e.getMessage());
+				Skript.error("Malformed pattern: " + exception.getMessage());
 				return false;
 			}
 
