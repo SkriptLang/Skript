@@ -16,19 +16,33 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.lang;
+package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import org.bukkit.OfflinePlayer;
 
-/**
- * Effects which can be tested implement this interface.
- * <p>
- * TODO implement this
- * 
- * @author Peter Güttinger
- */
-public interface Testable {
-	
-	public boolean test(Event e);
-	
+@Name("Is Operator")
+@Description("Checks whether a player is a server operator.")
+@Examples("player is an operator")
+@Since("INSERT VERSION")
+public class CondIsOp extends PropertyCondition<OfflinePlayer> {
+
+	static {
+		register(CondIsOp.class, PropertyType.BE, "[[a] server|an] op[erator][s]", "offlineplayers");
+	}
+
+	@Override
+	public boolean check(OfflinePlayer player) {
+		return player.isOp();
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "op";
+	}
+
 }

@@ -86,6 +86,7 @@ import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.PiglinBrute;
 import org.bukkit.entity.Pillager;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.PufferFish;
@@ -209,6 +210,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("magma cube", MagmaCube.class);
 		addSimpleEntity("slime", Slime.class);
 		addSimpleEntity("painting", Painting.class);
+		addSimpleEntity("player", Player.class);
 		addSimpleEntity("zombie pigman", PigZombie.class);
 		addSimpleEntity("silverfish", Silverfish.class);
 		addSimpleEntity("snowball", Snowball.class);

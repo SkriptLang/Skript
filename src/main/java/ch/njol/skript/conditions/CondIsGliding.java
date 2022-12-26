@@ -16,29 +16,34 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
+package ch.njol.skript.conditions;
 
-import org.bukkit.block.Biome;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import org.bukkit.entity.LivingEntity;
 
-/**
- * Contains utility methods related to biomes
- */
-public class BiomeUtils {
+import ch.njol.skript.conditions.base.PropertyCondition;
 
-	private final static EnumUtils<Biome> util = new EnumUtils<>(Biome.class, "biomes");
+@Name("Is Gliding")
+@Description("Checks whether a living entity is gliding.")
+@Examples("if player is gliding")
+@Since("INSERT VERSION")
+public class CondIsGliding extends PropertyCondition<LivingEntity> {
 
-	@Nullable
-	public static Biome parse(String name) {
-		return util.parse(name);
+	static {
+		register(CondIsGliding.class, "gliding", "livingentities");
 	}
 
-	public static String toString(Biome biome, int flags) {
-		return util.toString(biome, flags);
+	@Override
+	public boolean check(LivingEntity entity) {
+		return entity.isGliding();
 	}
 
-	public static String getAllNames() {
-		return util.getAllNames();
+	@Override
+	protected String getPropertyName() {
+		return "gliding";
 	}
 
 }
