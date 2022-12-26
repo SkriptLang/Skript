@@ -54,8 +54,6 @@ public class EvtSpectate extends SkriptEvent {
 	 * 1 = swap. When the player did have a past spectating target.
 	 * 0 = start. When the player starts spectating a new target.
 	 * -1 = stop. When the player stops spectating a target.
-	 * UNKNOWN = start. When the player starts spectating a new target.
-	 * FALSE = stop. When the player stops spectating a target.
 	 */
 	private int pattern;
 
