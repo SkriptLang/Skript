@@ -33,25 +33,25 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * By using conversion chains, Skript can convert an object into a different type that seemingly has no relation.
  *
- * @param <From> The type to convert from.
- * @param <Middle> A middle type that is needed for converting 'from' to 'to'.
+ * @param <F> The type to convert from.
+ * @param <M> A middle type that is needed for converting 'from' to 'to'.
  *                'from' will be converted to this type, and then this type will be converted to 'to'.
- * @param <To> The type to convert to.
+ * @param <T> The type to convert to.
  */
-final class ChainedConverter<From, Middle, To> implements Converter<From, To> {
+final class ChainedConverter<F, M, T> implements Converter<F, T> {
 
-	private final Converter<From, Middle> first;
-	private final Converter<Middle, To> second;
+	private final Converter<F, M> first;
+	private final Converter<M, T> second;
 
-	ChainedConverter(Converter<From, Middle> first, Converter<Middle, To> second) {
+	ChainedConverter(Converter<F, M> first, Converter<M, T> second) {
 		this.first = first;
 		this.second = second;
 	}
 
 	@Override
 	@Nullable
-	public To convert(From from) {
-		Middle middle = first.convert(from);
+	public T convert(F from) {
+		M middle = first.convert(from);
 		if (middle == null)
 			return null;
 		return second.convert(middle);

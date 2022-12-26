@@ -23,11 +23,11 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * Used to convert an object to a different type.
  *
- * @param <From> The type to convert from.
- * @param <To> The type to convert to.
+ * @param <F> The type to convert from.
+ * @param <T> The type to convert to.
  */
 @FunctionalInterface
-public interface Converter<From, To> {
+public interface Converter<F, T> {
 
 	/**
 	 * A Converter flag declaring that this Converter may be chained in any way with another Converter.
@@ -56,6 +56,6 @@ public interface Converter<From, To> {
 	 * @param from The object to convert.
 	 * @return The converted object.
 	 */
-	@Nullable To convert(From from);
+	@Nullable T convert(F from);
 
 }

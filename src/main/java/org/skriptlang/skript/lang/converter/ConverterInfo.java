@@ -21,32 +21,32 @@ package org.skriptlang.skript.lang.converter;
 /**
  * Holds information about a {@link Converter}.
  *
- * @param <From> The type to convert from.
- * @param <To> The type to convert to.
+ * @param <F> The type to convert from.
+ * @param <T> The type to convert to.
  */
-public final class ConverterInfo<From, To> {
+public final class ConverterInfo<F, T> {
 
-	private final Class<From> from;
-	private final Class<To> to;
-	private final Converter<From, To> converter;
+	private final Class<F> from;
+	private final Class<T> to;
+	private final Converter<F, T> converter;
 	private final int flags;
 
-	public ConverterInfo(Class<From> from, Class<To> to, Converter<From, To> converter, int flags) {
+	public ConverterInfo(Class<F> from, Class<T> to, Converter<F, T> converter, int flags) {
 		this.from = from;
 		this.to = to;
 		this.converter = converter;
 		this.flags = flags;
 	}
 
-	public Class<From> getFrom() {
+	public Class<F> getFrom() {
 		return from;
 	}
 
-	public Class<To> getTo() {
+	public Class<T> getTo() {
 		return to;
 	}
 
-	public Converter<From, To> getConverter() {
+	public Converter<F, T> getConverter() {
 		return converter;
 	}
 
