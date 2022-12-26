@@ -48,7 +48,7 @@ public class CondAnchorWorks extends Condition {
 	private Expression<World> worlds;
 
 	@Override
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		setNegated(parseResult.mark == 1);
