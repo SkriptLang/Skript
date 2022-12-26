@@ -59,12 +59,14 @@ public class EffConnect extends Effect {
 	@Override
 	protected void execute(Event e) {
 		String server = this.server.getSingle(e);
-		Player[] players = this.players.getArray(e);
+		Player[] players = this.players.stream(e)
+			.filter(Player::isOnline)
+			.toArray(Player[]::new);
 		if (server == null || players.length == 0)
 			return;
 
 		// the message channel is case sensitive so let's fix that
-		Utils.sendPluginMessage(BUNGEE_CHANNEL, r -> GET_SERVERS_CHANNEL.equals(r.readUTF()), GET_SERVERS_CHANNEL)
+		Utils.sendPluginMessage(players[0], BUNGEE_CHANNEL, r -> GET_SERVERS_CHANNEL.equals(r.readUTF()), GET_SERVERS_CHANNEL)
 			.thenAccept(response -> {
 				// for loop isn't as pretty a stream, but will be faster with tons of servers
 				for (String validServer : response.readUTF().split(", ")) {

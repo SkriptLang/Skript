@@ -1,0 +1,12 @@
+test "ExprElement":
+	set {_list::*} to "foo", "bar" and "foobar"
+	assert first element of {_list::*} is "foo" with "Incorrect first element"
+	assert last element of {_list::*} is "foobar" with "Incorrect last element"
+	assert 2nd element of {_list::*} is "bar" with "Incorrect 2nd element"
+	assert {_list::*} contains (random element of {_list::*}) with "Incorrect random element"
+	assert 2nd to last element of {_list::*} is "bar" with "Incorrect 2nd last element"
+	assert 3rd last element of {_list::*} is "foo" with "Incorrect 3rd last element"
+	assert 100th last element of {_list::*} is not set with "Incorrect 100th last element"
+	assert 1st last element of {_list::*} is "foobar" with "Incorrect 1st last element"
+	assert 0th last element of {_list::*} is not set with "Incorrect 0th last element"
+	assert -1th last element of {_list::*} is not set with "Incorrect -1th element"
