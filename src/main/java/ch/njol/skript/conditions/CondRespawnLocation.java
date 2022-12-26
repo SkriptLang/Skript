@@ -55,7 +55,7 @@ public class CondRespawnLocation extends Condition {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerRespawnEvent.class)) {
-			Skript.error("The 'respawn location' condition may only be used in the respawn event");
+			Skript.error("The 'respawn location' condition may only be used in a respawn event");
 			return false;
 		}
 		setNegated(parseResult.mark == 1);
