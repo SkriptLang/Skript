@@ -97,8 +97,8 @@ public class EvtSpectate extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (pattern == START ? "start" : pattern == SWAP ? "swap" : "stop") + " spectating"
-				+ datas != null ? "of " + datas.toString(event, debug) : "";
+		return (pattern == START ? "start" : pattern == SWAP ? "swap" : "stop") + " spectating" +
+					(datas != null ? "of " + datas.toString(event, debug) : "");
 	}
 
 }

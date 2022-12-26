@@ -40,6 +40,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -89,12 +90,12 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 		if (EVENT_SUPPORT && players == null && !Delay.isDelayed(event)) {
 			if (event instanceof PlayerStartSpectatingEntityEvent) {
 				// Past state.
-				if (getTime() == -1)
+				if (getTime() == EventValues.TIME_PAST)
 					return CollectionUtils.array(((PlayerStartSpectatingEntityEvent) event).getCurrentSpectatorTarget());
 				return CollectionUtils.array(((PlayerStartSpectatingEntityEvent) event).getNewSpectatorTarget());
 			} else if (event instanceof PlayerStopSpectatingEntityEvent) {
 				// There isn't going to be a future state in a stop spectating event.
-				if (getTime() == 1)
+				if (getTime() == EventValues.TIME_FUTURE)
 					return new Entity[0];
 				return CollectionUtils.array(((PlayerStopSpectatingEntityEvent) event).getSpectatorTarget());
 			}
@@ -129,17 +130,15 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 			case SET:
 				assert delta != null;
 				for (Player player : players.getArray(event)) {
-					if (player.getGameMode() != GameMode.SPECTATOR)
-						continue;
-					player.setSpectatorTarget((Entity) delta[0]);
+					if (player.getGameMode() == GameMode.SPECTATOR)
+						player.setSpectatorTarget((Entity) delta[0]);
 				}
 				break;
 			case RESET:
 			case DELETE:
 				for (Player player : players.getArray(event)) {
-					if (player.getGameMode() != GameMode.SPECTATOR)
-						continue;
-					player.setSpectatorTarget(null);
+					if (player.getGameMode() == GameMode.SPECTATOR)
+						player.setSpectatorTarget(null);
 				}
 				break;
 			default:
@@ -158,9 +157,7 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
 	@Override
 	public boolean isSingle() {
-		if (players == null)
-			return true;
-		return players.isSingle();
+		return players == null || players.isSingle();
 	}
 
 	@Override
