@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang.function;
 
+import org.skriptlang.skript.lang.script.Script;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ScriptLoader;
@@ -34,13 +35,13 @@ public class ScriptFunction<T> extends Function<T> {
 	
 	private final Trigger trigger;
 	
-	public ScriptFunction(Signature<T> sign, SectionNode node) {
+	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		super(sign);
 		
 		Functions.currentFunction = this;
 		try {
 			trigger = new Trigger(
-				node.getConfig().getFile(),
+				script,
 				"function " + sign.getName(),
 				new SimpleEvent(),
 				ScriptLoader.loadItems(node)

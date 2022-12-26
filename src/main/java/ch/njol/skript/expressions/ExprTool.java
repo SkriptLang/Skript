@@ -82,7 +82,7 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 			@Nullable
 			public Slot get(final LivingEntity ent) {
 				if (!delayed) {
-					if (e instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) e).getPlayer() == ent) {
+					if (!offHand && e instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) e).getPlayer() == ent) {
 						final PlayerInventory i = ((PlayerItemHeldEvent) e).getPlayer().getInventory();
 						return new InventorySlot(i, getTime() >= 0 ? ((PlayerItemHeldEvent) e).getNewSlot() : ((PlayerItemHeldEvent) e).getPreviousSlot());
 					} else if (e instanceof PlayerBucketEvent && ((PlayerBucketEvent) e).getPlayer() == ent) {
