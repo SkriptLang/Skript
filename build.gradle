@@ -161,7 +161,7 @@ tasks.register('testNaming') {
 // Create a test task with given name, environments dir/file, dev mode and java version.
 void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs) {
 	tasks.register(name, JavaExec) {
-		dependsOn jar, testNaming
+		dependsOn nightlyRelease, testNaming
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
@@ -170,7 +170,7 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 		}
 		group = 'execution'
 		classpath = files([
-			'build' + File.separator + 'libs' + File.separator + 'Skript.jar',
+			'build' + File.separator + 'libs' + File.separator + 'Skript-nightly.jar',
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
