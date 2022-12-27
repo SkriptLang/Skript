@@ -20,8 +20,6 @@ package org.skriptlang.skript.registration;
 
 import ch.njol.skript.SkriptAddon;
 
-import java.io.IOException;
-
 /**
  * A module is a part of a {@link SkriptAddon} containing related syntax, classinfos, converters, etc.
  * They are intended for providing organization and structure.
@@ -47,7 +45,7 @@ public abstract class Module {
 	 * @param addon The addon responsible for registering this module.
 	 *              To be used for registering syntax, classinfos, etc.
 	 */
-	public abstract void register(SkriptAddon addon) throws IOException;
+	public abstract void register(SkriptAddon addon);
 
 	/**
 	 * Loads syntax elements for this module.
