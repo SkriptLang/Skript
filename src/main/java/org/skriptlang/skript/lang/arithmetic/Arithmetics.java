@@ -34,9 +34,9 @@ public final class Arithmetics {
 
 	private Arithmetics() {}
 
-	private static final ConcurrentHashMap<Operator, List<OperationInfo<?, ?, ?>>> registeredOperations = new ConcurrentHashMap<>();
+	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> registeredOperations = new ConcurrentHashMap<>();
 	private static final List<DifferenceInfo<?, ?>> registeredDifferences = Collections.synchronizedList(new ArrayList<>());
-	private static final ConcurrentHashMap<Class<?>, Object> defaultValues = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, Object> defaultValues = new ConcurrentHashMap<>();
 
 	public static <T> void registerOperation(Operator operator, Class<T> type, Operation<T, T, T> operation) {
 		registerOperation(operator, type, type, operation);
