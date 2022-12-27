@@ -1210,12 +1210,20 @@ public final class BukkitEventValues {
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
 			@Override
-			public ItemStack get(PlayerEditBookEvent e) {
+			public ItemStack get(PlayerEditBookEvent event) {
 				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
-				book.setItemMeta(e.getNewBookMeta());
+				book.setItemMeta(event.getPreviousBookMeta());
 				return book;
 			}
-		}, 0);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
+			@Override
+			public ItemStack get(PlayerEditBookEvent event) {
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+				book.setItemMeta(event.getNewBookMeta());
+				return book;
+			}
+		}, EventValues.TIME_FUTURE);
 		//ItemDespawnEvent
 		EventValues.registerEventValue(ItemDespawnEvent.class, Item.class, new Getter<Item, ItemDespawnEvent>() {
 			@Override
