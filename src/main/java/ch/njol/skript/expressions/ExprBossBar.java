@@ -132,7 +132,11 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -141,6 +145,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -149,28 +156,55 @@ import java.util.WeakHashMap;
 @Description("The boss bar of a player")
 @Examples({"set bossbar of player to \"Hello!\""})
 @Since("INSERT VERSION")
-public class ExprBossBar extends SimplePropertyExpression<Player, BossBar> {
+public class ExprBossBar extends SimpleExpression<BossBar> {
 
 	static {
-		register(ExprBossBar.class, BossBar.class, "boss[ ]bar", "players");
+		PropertyExpression.register(ExprBossBar.class, BossBar.class, "boss[ ]bars", "players");
 	}
 
-	private final static Map<Player, BossBar> playerBossBarMap = new WeakHashMap<>();
+	// insertion order is important so this MUST be a LinkedHashSet
+	private static Map<Player, LinkedHashSet<BossBar>> playerBossBarMap = new WeakHashMap<>();
+	@Nullable
+	private static BossBar lastBossBar;
 
 	@Nullable
-	public static BossBar getBossBarForPlayer(Player player) {
+	public static LinkedHashSet<BossBar> getBossBarsForPlayer(Player player) {
 		return playerBossBarMap.get(player);
 	}
 
-	@Override
 	@Nullable
-	public BossBar convert(final Player player) {
-		return getBossBarForPlayer(player);
+	public static BossBar getLastBossBar() {
+		return lastBossBar;
+	}
+
+	private Expression<Player> players;
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		players = (Expression<Player>) exprs[0];
+		return true;
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "bossbar";
+	protected BossBar[] get(Event event) {
+		List<BossBar> allBars = new ArrayList<>();
+		for (Player player : players.getArray(event)) {
+			LinkedHashSet<BossBar> playerBars = getBossBarsForPlayer(player);
+			if (playerBars != null) {
+				allBars.addAll(playerBars);
+			}
+		}
+		return allBars.toArray(new BossBar[0]);
+	}
+
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "bossbars of " + players.toString(event, debug);
 	}
 
 	@Override
@@ -180,33 +214,63 @@ public class ExprBossBar extends SimplePropertyExpression<Player, BossBar> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
-			return new Class[] {String.class};
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		switch (mode) {
+			case DELETE:
+			case ADD:
+			case SET:
+				return new Class[]{String[].class, BossBar[].class};
+			case REMOVE:
+				return new Class[]{BossBar[].class};
+		}
 		return null;
 	}
 
 	@Override
-	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
-		for (final Player player : getExpr().getArray(event)) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		for (Player player : players.getArray(event)) {
 			switch (mode) {
 				case DELETE:
-					BossBar bossBar = getBossBarForPlayer(player);
-					if (bossBar != null) {
-						bossBar.removePlayer(player);
-						playerBossBarMap.remove(player);
+					LinkedHashSet<BossBar> bossBars = getBossBarsForPlayer(player);
+					if (bossBars != null) {
+						for (BossBar bar : bossBars) {
+							bar.removePlayer(player);
+						}
+						bossBars.clear();
+					}
+					break;
+				case ADD:
+					bossBars = getBossBarsForPlayer(player);
+					if (bossBars == null) {
+						bossBars = new LinkedHashSet<>();
+						playerBossBarMap.put(player, bossBars);
+					}
+					for (Object objToAdd : delta) {
+						BossBar newBar;
+						if (objToAdd instanceof BossBar)
+							newBar = (BossBar) objToAdd;
+						else
+							newBar = Bukkit.createBossBar((String) objToAdd, BarColor.WHITE, BarStyle.SOLID);
+						newBar.addPlayer(player);
+						bossBars.add(newBar);
+						lastBossBar = newBar;
 					}
 					break;
 				case SET:
-					bossBar = getBossBarForPlayer(player);
-					if (bossBar == null) {
-						bossBar = Bukkit.createBossBar((String) delta[0], BarColor.WHITE, BarStyle.SOLID);
-						playerBossBarMap.put(player, bossBar);
-					} else {
-						bossBar.setTitle((String) delta[0]);
+					change(event, null, ChangeMode.DELETE);
+					change(event, delta, ChangeMode.ADD);
+					break;
+				case REMOVE:
+					bossBars = getBossBarsForPlayer(player);
+					if (bossBars != null) {
+						for (Object bossBarToRemove : delta) {
+							((BossBar) bossBarToRemove).removePlayer(player);
+							bossBars.remove(bossBarToRemove);
+						}
 					}
-					bossBar.addPlayer(player);
+					break;
 			}
 		}
 	}
+
 }
