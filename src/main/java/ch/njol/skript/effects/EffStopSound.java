@@ -67,7 +67,8 @@ public class EffStopSound extends Effect {
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> sounds;
-	private @Nullable Expression<SoundCategory> category;
+	@Nullable
+	private Expression<SoundCategory> category;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Player> players;
 	
