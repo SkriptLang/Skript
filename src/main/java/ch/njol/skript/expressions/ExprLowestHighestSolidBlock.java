@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -67,13 +68,14 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 		if (!lowest)
 			return world.getHighestBlockAt(location);
 
+		// sigh...
 		location = location.clone();
 		location.setY(world.getMinHeight());
 		Block block = location.getBlock();
 		int maxHeight = world.getMaxHeight();
 		while (block.getY() < maxHeight && !block.isSolid())
 			block = block.getRelative(BlockFace.UP);
-		return block;
+		return block.isSolid() ? block : world.getHighestBlockAt(block.getLocation());
 	}
 
 	@Override
