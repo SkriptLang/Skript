@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.bukkit.potion.elements;
+package org.skriptlang.skriptbukkit.potion.elements;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;

@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.bukkit.potion.util;
+package org.skriptlang.skriptbukkit.potion.util;
 
 import ch.njol.skript.util.Timespan;
 import org.bukkit.potion.PotionEffect;

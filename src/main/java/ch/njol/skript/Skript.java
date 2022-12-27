@@ -108,7 +108,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.bukkit.potion.PotionRegistration;
+import org.skriptlang.skriptbukkit.potion.PotionModule;
 
 import java.io.File;
 import java.io.IOException;
@@ -504,7 +504,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript", "conditions", "effects", "events", "expressions", "entity", "sections");
-			new PotionRegistration().register(getAddonInstance());
+			new PotionModule().register(getAddonInstance());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

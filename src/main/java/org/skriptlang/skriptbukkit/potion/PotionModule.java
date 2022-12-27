@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.bukkit.potion;
+package org.skriptlang.skriptbukkit.potion;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
@@ -30,24 +30,17 @@ import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
-import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
-import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skriptbukkit.potion.util.PotionUtils;
+import org.skriptlang.skriptbukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.StreamCorruptedException;
 
-public class PotionRegistration {
+public class PotionModule {
 
 	public void register(SkriptAddon addon) {
-
-		try {
-			addon.loadClasses("org.skriptlang.skript.bukkit.potion.elements");
-		} catch (IOException e) {
-			Skript.exception(e, "An error occurred while trying to load potion elements.");
-		}
-
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::new);
 
@@ -74,6 +67,7 @@ public class PotionRegistration {
 			}
 		});
 
+		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "potioneffect")
 			.user("potion ?effects?")
 			.name("Potion Effect")
@@ -204,6 +198,13 @@ public class PotionRegistration {
 				}
 			})
 		);
+
+		// Load Syntax
+		try {
+			addon.loadClasses("org.skriptlang.skriptbukkit.potion.elements");
+		} catch (IOException e) {
+			Skript.exception(e, "An error occurred while trying to load potion elements.");
+		}
 
 	}
 
