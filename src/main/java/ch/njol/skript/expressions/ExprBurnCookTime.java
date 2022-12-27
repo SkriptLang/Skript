@@ -129,7 +129,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 
 		switch (mode) {
 			case ADD:
-				value = (original) -> Operator.ADDITION.calculate(original, changed, Timespan.class);
+				value = (original) -> Arithmetics.calculate(Operator.ADDITION, original, changed, Timespan.class);
 				break;
 			case REMOVE:
 				value = (original) -> Arithmetics.difference(original, changed, Timespan.class);

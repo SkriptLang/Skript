@@ -1886,7 +1886,7 @@ operators:
 	subtract: subtraction
 	multiply: multiplication
 	divide: division
-	exponent: exponantiation
+	exponent: exponentiation
 
 # -- Types --
 types:

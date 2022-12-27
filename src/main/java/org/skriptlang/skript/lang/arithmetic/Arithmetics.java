@@ -27,15 +27,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class Arithmetics {
 
 	private Arithmetics() {}
 
-	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> registeredOperations = Collections.synchronizedMap(new HashMap<>());
+	private static final ConcurrentHashMap<Operator, List<OperationInfo<?, ?, ?>>> registeredOperations = new ConcurrentHashMap<>();
 	private static final List<DifferenceInfo<?, ?>> registeredDifferences = Collections.synchronizedList(new ArrayList<>());
-	private static final Map<Class<?>, Object> defaultValues = Collections.synchronizedMap(new HashMap<>());
+	private static final ConcurrentHashMap<Class<?>, Object> defaultValues = new ConcurrentHashMap<>();
 
 	public static <T> void registerOperation(Operator operator, Class<T> type, Operation<T, T, T> operation) {
 		registerOperation(operator, type, type, operation);
@@ -104,6 +105,15 @@ public final class Arithmetics {
 		} else {
 			return to;
 		}
+	}
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public static <L, R, T> T calculate(Operator operator, L left, R right, Class<T> expectedReturnType) {
+		Operation<L, R, T> operation = (Operation<L, R, T>) findOperation(operator, left.getClass(), right.getClass(), expectedReturnType);
+		if (operation == null)
+			return null;
+		return operation.calculate(left, right);
 	}
 
 	public static <T> void registerDefaultValue(Class<T> type, T value) {

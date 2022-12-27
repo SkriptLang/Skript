@@ -86,9 +86,9 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 			left = Arithmetics.getDefaultValue(leftClass);
 		}
 
-		if (left == null && Arithmetics.getOperations(operator, rightClass).size() > 0)
+		if (left == null)
 			return right;
-		if (right == null && Arithmetics.getOperations(operator, leftClass).size() > 0)
+		if (right == null)
 			return left;
 
 		if (operationInfo == null) {

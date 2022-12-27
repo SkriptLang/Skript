@@ -67,12 +67,4 @@ public enum Operator {
 		return false;
 	}
 
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <L, R, T> T calculate(L left, R right, Class<T> expectedReturnType) {
-		Operation<L, R, T> operation = (Operation<L, R, T>) Arithmetics.findOperation(this, left.getClass(), right.getClass(), expectedReturnType);
-		if (operation == null)
-			return null;
-		return operation.calculate(left, right);
-	}
 }

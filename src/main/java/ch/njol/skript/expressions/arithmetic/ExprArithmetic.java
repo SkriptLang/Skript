@@ -175,9 +175,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 		arithmeticGettable = ArithmeticChain.parse(chain);
 		if (arithmeticGettable == null) {
-			ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
-			Skript.error(op.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
-			return false;
+			return error(firstClass, secondClass);
 		}
 
 		return true;
@@ -223,7 +221,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 			one = '(' + one + ')';
 		if (rightGrouped)
 			two = '(' + two + ')';
-		return one + " " + op + " " + two;
+		return one + ' ' + op + ' ' + two;
 	}
 
 }

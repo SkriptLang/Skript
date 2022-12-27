@@ -18,6 +18,11 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
+/**
+ * @param <L> The class of left operand
+ * @param <R> The class of the right operand
+ * @param <T> The return type of the operation
+ */
 @FunctionalInterface
 public interface Operation<L, R, T> {
 

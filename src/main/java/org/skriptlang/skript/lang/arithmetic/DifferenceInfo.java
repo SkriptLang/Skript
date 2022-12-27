@@ -18,19 +18,23 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
-public final class DifferenceInfo<A, R> {
+/**
+ * @param <T> The type of the difference
+ * @param <R> The return type of the difference
+ */
+public final class DifferenceInfo<T, R> {
 
-	private final Class<A> type;
+	private final Class<T> type;
 	private final Class<R> returnType;
-	private final Operation<A, A, R> operation;
+	private final Operation<T, T, R> operation;
 
-	public DifferenceInfo(Class<A> type, Class<R> returnType, Operation<A, A, R> operation) {
+	public DifferenceInfo(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
 		this.type = type;
 		this.returnType = returnType;
 		this.operation = operation;
 	}
 
-	public Class<A> getType() {
+	public Class<T> getType() {
 		return type;
 	}
 
@@ -38,7 +42,7 @@ public final class DifferenceInfo<A, R> {
 		return returnType;
 	}
 
-	public Operation<A, A, R> getOperation() {
+	public Operation<T, T, R> getOperation() {
 		return operation;
 	}
 

@@ -690,7 +690,8 @@ public abstract class Utils {
 	public static boolean isInteger(Number... numbers) {
 		for (Number number : numbers) {
 			if (Double.class.isAssignableFrom(number.getClass()) || Float.class.isAssignableFrom(number.getClass()))
-				return false;		}
+				return false;
+		}
 		return true;
 	}
 	
