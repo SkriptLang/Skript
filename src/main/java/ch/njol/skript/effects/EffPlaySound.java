@@ -146,8 +146,8 @@ public class EffPlaySound extends Effect {
 		static <T> void play(@NotNull SoundReceiver<T, String> stringReceiver,
                 @NotNull SoundReceiver<T, Sound> soundReceiver,
                 @NotNull T receiver, @NotNull Location location, @NotNull String[] sounds,
-                @NotNull SoundCategory category, float volume, float pitch) {
-			
+                @NotNull SoundCategory category, float volume, float pitch
+		) {	
 			for (String sound : sounds) {
 				try {
 					Sound enumSound = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
