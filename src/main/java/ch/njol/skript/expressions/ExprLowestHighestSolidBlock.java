@@ -70,7 +70,8 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 		location = location.clone();
 		location.setY(world.getMinHeight());
 		Block block = location.getBlock();
-		while (!block.isSolid())
+		int maxHeight = world.getMaxHeight();
+		while (block.getY() < maxHeight && !block.isSolid())
 			block = block.getRelative(BlockFace.UP);
 		return block;
 	}
