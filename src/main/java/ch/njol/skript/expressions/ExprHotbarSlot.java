@@ -77,7 +77,8 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 	protected Slot[] get(Event event, Player[] source) {
 		return get(source, new Getter<Slot, Player>() {
 			@Override
-			public @Nullable Slot get(Player player) {
+			@Nullable
+			public Slot get(Player player) {
 				int time = getTime();
 				PlayerInventory inventory = player.getInventory();
 				if (event instanceof PlayerItemHeldEvent && time != EventValues.TIME_NOW) {
