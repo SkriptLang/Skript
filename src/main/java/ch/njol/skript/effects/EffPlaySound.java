@@ -59,7 +59,8 @@ public class EffPlaySound extends Effect {
 				"play sound[s] %strings% [(in|from) %-soundcategory%] " +
 						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] at %locations% [(to|for) %-players%]",
 				"play sound[s] %strings% [(in|from) %-soundcategory%] " +
-						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]");
+						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]"
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
