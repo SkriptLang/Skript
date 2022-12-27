@@ -1266,6 +1266,7 @@ teleport causes:
 	plugin: plugin
 	spectate: spectate, spectator
 	unknown: unknown
+	dismount: dismount, dismounted
 
 # -- Game Modes --
 game modes:
@@ -1763,6 +1764,7 @@ spawn reasons:
 	default: default
 	dispense_egg: dispense egg, dispensing egg
 	drowned: drowned
+	duplication: duplication
 	egg: egg
 	ender_pearl: ender pearl
 	explosion: explosion
@@ -1931,7 +1933,12 @@ types:
 	cattype: cat type¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
-	enchantmentoffer: enchantment offer¦s @a
+	enchantmentoffer: enchantment offer¦s @an
+	environment: environment¦s @an
+	moonphase: moonphase¦s @a
+	resourcepackstate: resource pack state¦s @a
+	gene: panda gene¦s @a
+	gamerulevalue: gamerule value¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -1951,9 +1958,6 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
-	resourcepackstate: resource pack state¦s @a
-	gene: panda gene¦s @a
-	gamerulevalue: gamerule value¦s @a
 
 	# Hooks
 	money: money
