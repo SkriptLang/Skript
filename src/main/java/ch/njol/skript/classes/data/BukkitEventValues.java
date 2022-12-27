@@ -1211,9 +1211,9 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
 			@Override
 			public ItemStack get(PlayerEditBookEvent e) {
-				ItemStack book = new ItemStack(e.getPlayer().getItemInHand().getType());
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
 				book.setItemMeta(e.getNewBookMeta());
-				return book; // TODO: Find better way to derive this event value
+				return book;
 			}
 		}, 0);
 		//ItemDespawnEvent
