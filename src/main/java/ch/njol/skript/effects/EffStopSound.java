@@ -111,7 +111,6 @@ public class EffStopSound extends Effect {
 					Sound soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
 					for (Player player : targets)
 						player.stopSound(soundEnum, category);
-					
 					continue;
 				} catch (IllegalArgumentException ignored) {}
 				
