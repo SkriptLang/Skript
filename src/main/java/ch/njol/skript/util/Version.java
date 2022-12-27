@@ -52,8 +52,7 @@ public class Version implements Serializable, Comparable<Version> {
 		this.postfix = postfix == null || postfix.isEmpty() ? null : postfix;
 	}
 
-	// Note: The Config classes struggle with spaces when present in the version class.
-	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?\\-?(.*)");
+	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?\\s*(.*)");
 
 	public Version(String version) {
 		final Matcher m = versionPattern.matcher(version.trim());
