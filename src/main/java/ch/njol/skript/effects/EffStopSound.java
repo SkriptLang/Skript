@@ -44,10 +44,12 @@ import java.util.regex.Pattern;
 		"A sound can't be stopped from a different category. ",
 		"",
 		"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."})
-@Examples({"stop sound \"block.chest.open\" for the player",
-		"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player",
-		"stop all sound for all players",
-		"stop sound in record category"})
+@Examples({
+	"stop sound \"block.chest.open\" for the player",
+	"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player",
+	"stop all sound for all players",
+	"stop sound in record category"
+})
 @Since("2.4, INSERT VERSION (stop all sound)")
 @RequiredPlugins("MC 1.17.1 (stop all sound)")
 public class EffStopSound extends Effect {
@@ -56,13 +58,16 @@ public class EffStopSound extends Effect {
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
 	
 	static {
-		if (STOP_ALL_SUPPORTED) Skript.registerEffect(EffStopSound.class,
+		if (STOP_ALL_SUPPORTED) {
+			Skript.registerEffect(EffStopSound.class,
 				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
 				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]",
 				"stop [all] sound[s] [(in|from) %-soundcategory%] [(from playing to|for) %players%]");
-		else Skript.registerEffect(EffStopSound.class,
+		} else {
+			Skript.registerEffect(EffStopSound.class,
 				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
 				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
+		}
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -93,7 +98,7 @@ public class EffStopSound extends Effect {
 	@Override
 	protected void execute(Event event) {
 		// All sounds pattern wants explicitly defined master category
-		SoundCategory category = this.category.getOptionalSingle(event)
+		SoundCategory category = this.category == null ? null : this.category.getOptionalSingle(event)
 			.orElse(allSounds ? null : SoundCategory.MASTER);
 		Player[] targets = players.getArray(event);
 		
@@ -115,10 +120,8 @@ public class EffStopSound extends Effect {
 				} catch (IllegalArgumentException ignored) { }
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches()) {
-					Skript.warning("The sound name \"" + sound + "\" is invalid.");
+				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				}
 				
 				for (Player player : targets)
 					player.stopSound(sound, category);

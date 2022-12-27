@@ -46,9 +46,11 @@ import java.util.regex.Pattern;
 		"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
 		"",
 		"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."})
-@Examples({"play sound \"block.note_block.pling\" # It is block.note.pling in 1.12.2",
-		"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
-		"play sound \"custom.music.1\" in jukebox category at {speakerBlock}"})
+@Examples({
+	"play sound \"block.note_block.pling\" # It is block.note.pling in 1.12.2",
+	"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
+	"play sound \"custom.music.1\" in jukebox category at {speakerBlock}"
+})
 @Since("2.2-dev28, 2.4 (sound categories)")
 public class EffPlaySound extends Effect {
 
@@ -96,7 +98,7 @@ public class EffPlaySound extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SoundCategory category = this.category.getOptionalSingle(event)
+		SoundCategory category = this.category == null ? SoundCategory.MASTER : this.category.getOptionalSingle(event)
 			.orElse(SoundCategory.MASTER);
 		float volume = this.volume.getOptionalSingle(event)
 			.orElse(1)
@@ -126,16 +128,22 @@ public class EffPlaySound extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (locations != null) return "play sound " + sounds.toString(event, debug) +
-				(category != null ? " in " + category.toString(event, debug) : "") +
-				(volume != null ? " at volume " + volume.toString(event, debug) : "") +
-				(pitch != null ? " at pitch " + pitch.toString(event, debug) : "") +
-				(locations != null ? " at " + locations.toString(event, debug) : "") +
-				(players != null ? " for " + players.toString(event, debug) : "");
-		else return "play sound " + sounds.toString(event, debug) +
-				(volume != null ? " at volume " + volume.toString(event, debug) : "") +
-				(pitch != null ? " at pitch " + pitch.toString(event, debug) : "") +
-				(players != null ? " to " + players.toString(event, debug) : "");
+		StringBuilder builder = new StringBuilder()
+			.append("play sound ")
+			.append(sounds.toString(event, debug));
+		
+		if (category != null) builder.append(" in ")
+			.append(category.toString(event, debug));
+		if (volume != null) builder.append(" with volume ")
+			.append(volume.toString(event, debug));
+		if (pitch != null) builder.append(" with pitch ")
+			.append(pitch.toString(event, debug));
+		if (locations != null) builder.append(" at ")
+			.append(locations.toString(event, debug));
+		if (players != null) builder.append(" to ")
+			.append(players.toString(event, debug));
+		
+		return builder.toString();
 	}
 	
 	@FunctionalInterface
@@ -156,10 +164,8 @@ public class EffPlaySound extends Effect {
 				} catch (IllegalArgumentException ignored) {}
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches()) {
-					Skript.warning("The sound name \"" + sound + "\" is invalid.");
+				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				}
 				
 				stringReceiver.play(receiver, location, sound, category, volume, pitch);
 			}
