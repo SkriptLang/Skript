@@ -33,16 +33,16 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The warning distance of a world border.")
 @Examples("set warning distance of {_worldborder} to 1")
 @Since("INSERT VERSION")
-public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Long> {
+public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 
 	static {
-		register(ExprWorldBorderWarningDistance.class, Long.class, "[border] warning distance", "worldborders");
+		register(ExprWorldBorderWarningDistance.class, Integer.class, "[border] warning distance", "worldborders");
 	}
 
 	@Override
 	@Nullable
-	public Long convert(WorldBorder worldBorder) {
-		return (long) worldBorder.getWarningTime();
+	public Integer convert(WorldBorder worldBorder) {
+		return worldBorder.getWarningTime();
 	}
 
 	@Override
@@ -83,8 +83,8 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 }
