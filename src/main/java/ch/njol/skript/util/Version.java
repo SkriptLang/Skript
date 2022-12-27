@@ -37,25 +37,25 @@ public class Version implements Serializable, Comparable<Version> {
 	 */
 	@Nullable
 	private final String postfix;
-	
-	public Version(final int... version) {
+
+	public Version(int... version) {
 		if (version.length < 1 || version.length > 3)
 			throw new IllegalArgumentException("Versions must have a minimum of 2 and a maximum of 3 numbers (" + version.length + " numbers given)");
 		for (int i = 0; i < version.length; i++)
 			this.version[i] = version[i];
 		postfix = null;
 	}
-	
-	public Version(final int major, final int minor, final @Nullable String postfix) {
+
+	public Version(int major, int minor, @Nullable String postfix) {
 		version[0] = major;
 		version[1] = minor;
 		this.postfix = postfix == null || postfix.isEmpty() ? null : postfix;
 	}
-	
-	@SuppressWarnings("null")
-	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?\\s*(.*)");
-	
-	public Version(final String version) {
+
+	// Note: The Config classes struggle with spaces when present in the version class.
+	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?\\-?(.*)");
+
+	public Version(String version) {
 		final Matcher m = versionPattern.matcher(version.trim());
 		if (!m.matches())
 			throw new IllegalArgumentException("'" + version + "' is not a valid version string");
@@ -65,7 +65,7 @@ public class Version implements Serializable, Comparable<Version> {
 		}
 		postfix = m.group(m.groupCount()).isEmpty() ? null : m.group(m.groupCount());
 	}
-	
+
 	@Override
 	public boolean equals(final @Nullable Object obj) {
 		if (this == obj)
