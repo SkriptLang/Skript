@@ -135,25 +135,20 @@ public class EffPlaySound extends Effect {
 			.append("play sound ")
 			.append(sounds.toString(event, debug));
 		
-		if (category != null) {
+		if (category != null)
 			builder.append(" in ").append(category.toString(event, debug));
-		}
 		
-		if (volume != null) {
+		if (volume != null)
 			builder.append(" with volume ").append(volume.toString(event, debug));
-		}
 		
-		if (pitch != null) {
+		if (pitch != null)
 			builder.append(" with pitch ").append(pitch.toString(event, debug));
-		}
 		
-		if (locations != null) {
+		if (locations != null)
 			builder.append(" at ").append(locations.toString(event, debug));
-		}
 		
-		if (players != null) {
+		if (players != null)
 			builder.append(" to ").append(players.toString(event, debug));
-		}
 		
 		return builder.toString();
 	}
