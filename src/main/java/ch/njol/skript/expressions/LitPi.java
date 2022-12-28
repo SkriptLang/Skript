@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Returns the mathematical constant pi. (approx. 3.1415926535)")
 @Examples("set {_tau} to pi * 2")
 @Since("INSERT VERSION")
-public class LitPi extends SimpleLiteral<Number> {
+public class LitPi extends SimpleLiteral<Double> {
 
 	static {
 		Skript.registerExpression(LitPi.class, Number.class, ExpressionType.SIMPLE, "(pi|π)");
