@@ -60,7 +60,7 @@ import net.md_5.bungee.api.ChatColor;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
-	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, or gamerule.",
+	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, gamerule or world.",
 	"",
 	"<ul>",
 	"\t<li><strong>Players</strong>",
@@ -94,16 +94,21 @@ import net.md_5.bungee.api.ChatColor;
 	"\t\t\t<li><strong>Name:</strong> The name of the gamerule. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Worlds</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
 	"on join:",
-	"	player has permission \"name.red\"",
-	"	set the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
-	"	set the player's tab list name to \"&lt;green&gt;%player's name%\"",
+	"\tplayer has permission \"name.red\"",
+	"\tset the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
+	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
 	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
 })
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), INSERT VERSION (worlds support)")
+@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), INSERT VERSION (worlds)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
