@@ -1,0 +1,6 @@
+test "ExprParse return type array":
+	set {_i} to stone named "textHello"
+
+	set {_d} to first element of ((uncolored name of {_i}) parsed as "text%string%")
+
+	assert {_d} is "Hello" with "parsed as pattern expression did not work correctly"
