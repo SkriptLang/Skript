@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitPi extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitPi.class, Number.class, ExpressionType.SIMPLE, "(pi|π)");
+		Skript.registerExpression(LitPi.class, Double.class, ExpressionType.SIMPLE, "(pi|π)");
 	}
 
 	public LitPi() {
