@@ -26,13 +26,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Pi")
-@Description("Returns the mathematical constant pi.")
+@Description("Returns the mathematical constant pi. (approx. 3.1415926535")
 @Examples("set {_tau} to pi * 2")
 @Since("INSERT VERSION")
 public class LitPi extends SimpleLiteral<Number> {
@@ -46,7 +47,7 @@ public class LitPi extends SimpleLiteral<Number> {
 	}
 
 	@Override
-	public boolean init( Expression<?>[] exprs,  int matchedPattern,  Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
