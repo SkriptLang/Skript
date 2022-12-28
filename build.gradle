@@ -195,7 +195,7 @@ void createTestTask(String name, String environment, boolean devMode, int javaVe
 		])
 		main = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
-			'test_runners',
+			'build/test_runners',
 			junit ? 'src/test/skript/tests/junit' : 'src/test/skript/tests',
 			'src/test/resources/runner_data',
 			environment,
