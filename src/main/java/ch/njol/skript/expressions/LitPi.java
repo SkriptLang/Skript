@@ -51,7 +51,7 @@ public class LitPi extends SimpleLiteral<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "pi";
 	}
 	
