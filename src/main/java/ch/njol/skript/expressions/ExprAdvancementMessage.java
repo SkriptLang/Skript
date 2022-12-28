@@ -33,7 +33,7 @@ import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.advancement.AdvancementDisplay;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
@@ -54,9 +54,11 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerAdvancementDoneEvent.class))
+		if (!getParser().isCurrentEvent(PlayerAdvancementDoneEvent.class)) {
 			Skript.error("The advancement message expression can only be used inside of the advancement complete event.");
-		return getParser().isCurrentEvent(PlayerAdvancementDoneEvent.class);
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -93,11 +95,12 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 						advEvent.message(Component.text((String) delta[0]));
 					break;
 				case DELETE:
-					if (delta != null)
-						advEvent.message(Component.text(""));
+					advEvent.message(null);
 					break;
 				case RESET:
-					advEvent.message(getAdvancementMessage(advEvent.getAdvancement(), advEvent.getPlayer()));
+					Advancement advancement = advEvent.getAdvancement();
+					if (advancement.getDisplay() != null)
+						advEvent.message(getAdvancementMessage(advancement, advEvent.getPlayer()));
 					break;
 			}
 		}
@@ -120,12 +123,15 @@ public class ExprAdvancementMessage extends SimpleExpression<String> {
 
 	private static Component getAdvancementMessage(Advancement advancement, Player player) {
 		boolean isChallenge = advancement.getDisplay().frame() == AdvancementDisplay.Frame.CHALLENGE;
-		TextColor color = (isChallenge ? TextColor.color(0xAA00AA) : TextColor.color(0x55FF55));
+		NamedTextColor color = (isChallenge ? NamedTextColor.DARK_PURPLE : NamedTextColor.GREEN);
 		Component a = advancement.getDisplay().title().hoverEvent(HoverEvent.showText(advancement.getDisplay().description().color(color)));
 		return Component.text(player.getDisplayName() + ((isChallenge) ? " has completed the challenge " : " has made the advancement "))
-			.color(color)
-			.append(Component.text("["))
-			.append(a)
-			.append(Component.text("]"));
+			.color(NamedTextColor.WHITE)
+			.append(Component.text("[")
+				.color(color))
+			.append(a
+				.color(color))
+			.append(Component.text("]")
+				.color(color));
 	}
 }

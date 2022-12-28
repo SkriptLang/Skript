@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprAllAdvancements extends SimpleExpression<Advancement> {
 
 	static {
-		Skript.registerExpression(ExprAllAdvancements.class, Advancement.class, ExpressionType.SIMPLE, "all [[of] the] advancements");
+		Skript.registerExpression(ExprAllAdvancements.class, Advancement.class, ExpressionType.SIMPLE, "the advancements");
 	}
 
 	@Override

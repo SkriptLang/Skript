@@ -18,16 +18,14 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -48,28 +46,22 @@ import java.util.List;
 	"remove all advancements from advancements of player"
 })
 @Since("INSERT VERSION")
-public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
+public class ExprAdvancementsOfPlayer extends PropertyExpression<Player, Advancement> {
 
 	static {
-		Skript.registerExpression(ExprAdvancementsOfPlayer.class, Advancement.class, ExpressionType.SIMPLE,
-			"[the] advancements of %player%",
-			"%player%'[s] advancements"
-		);
+		register(ExprAdvancementsOfPlayer.class, Advancement.class, "advancement[s]", "players");
 	}
-
-	private Expression<Player> players;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		players = (Expression<Player>) exprs[0];
+		setExpr((Expression<Player>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected Advancement[] get(Event event) {
+	protected Advancement[] get(Event event, Player[] source) {
 		List<Advancement> advancementList = new ArrayList<>();
-		for (Player player : players.getArray(event))
+		for (Player player : source)
 			advancementList.addAll(getAdvancementsFromPlayer(player));
 		return advancementList.toArray(new Advancement[0]);
 	}
@@ -91,7 +83,7 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		for (Player player : players.getArray(event)) {
+		for (Player player : getExpr().getAll(event)) {
 			AdvancementProgress progress;
 			switch (mode) {
 				case SET:
@@ -139,18 +131,13 @@ public class ExprAdvancementsOfPlayer extends SimpleExpression<Advancement> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return false;
-	}
-
-	@Override
 	public Class<? extends Advancement> getReturnType() {
 		return Advancement.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the advancements of " + players.toString(event, debug);
+		return "the advancements of " + getExpr().toString(event, debug);
 	}
 
 	private static List<Advancement> getAdvancementsFromPlayer(Player player) {

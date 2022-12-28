@@ -372,16 +372,14 @@ public class DefaultConverters {
 				String namespace;
 				String key;
 				if (string.contains(":") && !string.startsWith(":")) {
-					namespace = string.split(":")[0];
-					key = string.split(":")[1];
+					String[] namespacedKey = string.split(":");
+					namespace = namespacedKey[0];
+					key = namespacedKey[1];
 				} else {
 					namespace = "minecraft";
 					key = string;
 				}
-				NamespacedKey namespacedKey = new NamespacedKey(namespace, key);
-				if (Bukkit.getAdvancement(namespacedKey) != null)
-					return Bukkit.getAdvancement(namespacedKey);
-				return null;
+				return Bukkit.getAdvancement(new NamespacedKey(namespace, key));
 			}
 		});
 	}
