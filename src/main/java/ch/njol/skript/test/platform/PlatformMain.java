@@ -62,6 +62,7 @@ public class PlatformMain {
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
+		boolean junit = "true".equals(args[6]);
 		
 		// Load environments
 		List<Environment> envs;
@@ -80,17 +81,22 @@ public class PlatformMain {
 		}
 		System.out.println("Test environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		
-		Set<String> allTests = new HashSet<>();
+
 		Map<String, List<NonNullPair<Environment, String>>> failures = new HashMap<>();
-		
+		Set<String> allTests = new HashSet<>();
+
 		boolean docsFailed = false;
 		// Run tests and collect the results
 		envs.sort(Comparator.comparing(Environment::getName));
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, "-Xmx5G");
+			TestResults results = null;
+			if (junit) {
+				results = env.runJUnit(runnerRoot, testsRoot, "-Xmx5G");
+			} else {
+				results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, "-Xmx5G");
+			}
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.
@@ -134,19 +140,23 @@ public class PlatformMain {
 		
 		// All succeeded tests in a single line
 		System.out.printf("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25));
-		System.out.println("Tested environments: " + String.join(", ",
+		System.out.println("\nTested environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		System.out.println("\nSucceeded: " + String.join(", ", succeeded));
+		System.out.println("\nSucceeded:\n  " + String.join((junit ? "\n  " : ", "), succeeded));
+
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
-			System.err.println("Failed:");
+			Thread.sleep(1); // speed at which system prints fails without this, and can look like successful tests failed.
+			System.err.println("\nFailed:");
 			for (String failed : failNames) {
 				List<NonNullPair<Environment, String>> errors = failures.get(failed);
-				System.err.println("  " + failed + " (on " + errors.size() + " environments)");
+				System.err.println("  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
 				for (NonNullPair<Environment, String> error : errors) {
 					System.err.println("    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
 				}
 			}
-			System.exit(failNames.size()); // Error code to indicate how many tests failed
+			System.out.printf("%n%s", StringUtils.repeat("-", 60));
+			System.exit(failNames.size()); // Error code to indicate how many tests failed.
+			return;
 		}
 		System.out.printf("%n%s", StringUtils.repeat("-", 60));
 	}

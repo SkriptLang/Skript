@@ -64,6 +64,11 @@ public class TestMode {
 	public static final Path RESULTS_FILE = ENABLED ? Paths.get(System.getProperty(ROOT + "results")) : null;
 
 	/**
+	 * If this test is for JUnits on the server.
+	 */
+	public static final boolean JUNIT = "true".equals(System.getProperty(ROOT + "junit"));
+
+	/**
 	 * In development mode, file that was last run.
 	 */
 	@Nullable

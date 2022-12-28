@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.junit.Test;
+
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.registrations.Classes;
 

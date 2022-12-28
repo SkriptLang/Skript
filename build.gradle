@@ -41,6 +41,7 @@ dependencies {
 	//testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
 	testShadow group: 'junit', name: 'junit', version: '4.12'
 	testShadow group: 'org.easymock', name: 'easymock', version: '4.2'
+	testShadow group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.2'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -58,7 +59,7 @@ task checkAliases {
 
 task testJar(type: ShadowJar) {
 	dependsOn(compileTestJava)
-	archiveName 'Skript.jar'
+	archiveName 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
@@ -174,9 +175,13 @@ tasks.register('testNaming') {
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs) {
+void createTestTask(String name, String environment, boolean devMode, int javaVersion, boolean genDocs, boolean junit) {
 	tasks.register(name, JavaExec) {
-		dependsOn nightlyRelease, testNaming
+		if (junit) {
+			dependsOn testJar
+		} else {
+			dependsOn nightlyRelease, testNaming
+		}
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
@@ -185,18 +190,19 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 		}
 		group = 'execution'
 		classpath = files([
-			'build' + File.separator + 'libs' + File.separator + 'Skript-nightly.jar',
+			'build' + File.separator + 'libs' + File.separator + (junit ? 'Skript-JUnit.jar' : 'Skript-nightly.jar'),
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
 		main = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
 			'test_runners',
-			'src/test/skript/tests',
+			junit ? 'src/test/skript/tests/junit' : 'src/test/skript/tests',
 			'src/test/resources/runner_data',
-			environments,
+			environment,
 			devMode,
-			genDocs
+			genDocs,
+			junit
 		]
 	}
 }
@@ -209,17 +215,22 @@ tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ["-source", "" + oldestJava, "-target", "" + oldestJava]
 }
 
+createTestTask('JUnitQuick','src/test/skript/environments/' + latestEnv, false, latestJava, false, true)
+createTestTask('JUnitJava17', 'src/test/skript/environments/java17', false, latestJava, false, true)
+createTestTask('JUnitJava8','src/test/skript/environments/java8', false, oldestJava, false, true)
+tasks.register('JUnit') {dependsOn JUnitJava8, JUnitJava17}
+
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false)
+createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
+createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false, false)
+createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false, false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), false)
+	? latestJava : project.property('testEnvJavaVersion')), false, false)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), true)
+	? latestJava : project.property('testEnvJavaVersion')), true, false)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {

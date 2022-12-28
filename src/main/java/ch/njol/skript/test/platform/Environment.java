@@ -45,6 +45,11 @@ import java.util.*;
  */
 public class Environment {
 
+	/**
+	 * Time before the process is killed if there was a stack stace etc.
+	 */
+	private static final int TIMEOUT = 5 * 60_000; // 5 minutes.
+
 	private static final Gson gson = new Gson();
 
 	/**
@@ -265,9 +270,61 @@ public class Environment {
 						System.exit(1);
 					}
 				}
-			}, 8 * 60_000); // 8 minutes.
+			}, TIMEOUT);
 		}
 
+		int code = process.waitFor();
+		if (code != 0)
+			throw new IOException("environment returned with code " + code);
+
+		// Read test results
+		if (!Files.exists(resultsPath))
+			return null;
+		TestResults results = new Gson().fromJson(new String(Files.readAllBytes(resultsPath)), TestResults.class);
+		assert results != null;
+		return results;
+	}
+
+	@Nullable
+	public TestResults runJUnit(Path runnerRoot, Path testsRoot, String... jvmArgs) throws IOException, InterruptedException {
+		Path env = runnerRoot.resolve(name);
+		Path resultsPath = env.resolve("test_results.json");
+		Files.deleteIfExists(resultsPath);
+		List<String> args = new ArrayList<>();
+		args.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
+		args.add("-ea");
+		args.add("-Dskript.testing.enabled=true");
+		args.add("-Dskript.testing.dir=" + testsRoot);
+		args.add("-Dskript.testing.junit=true");
+		args.add("-Dskript.testing.results=test_results.json");
+		args.add("-Ddisable.watchdog=true");
+		args.addAll(Arrays.asList(jvmArgs));
+		args.addAll(Arrays.asList(commandLine));
+
+		Process process = new ProcessBuilder(args)
+				.directory(env.toFile())
+				.redirectOutput(Redirect.INHERIT)
+				.redirectError(Redirect.INHERIT)
+				.redirectInput(Redirect.INHERIT)
+				.start();
+
+		// When we exit, try to make them exit too
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
+			if (process.isAlive()) {
+				process.destroy();
+			}
+		}));
+
+		new Timer("runner watchdog", true).schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				if (process.isAlive()) {
+					System.err.println("Test environment is taking too long, failing...");
+					System.exit(1);
+				}
+			}
+		}, TIMEOUT);
 		int code = process.waitFor();
 		if (code != 0)
 			throw new IOException("environment returned with code " + code);
