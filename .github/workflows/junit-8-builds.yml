@@ -1,4 +1,4 @@
-name: JUnit
+name: JUnit (MC 1.13-1.16)
 
 on:
     push:
@@ -24,4 +24,4 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
             - name: Build Skript and run JUnit
-              run: ./gradlew clean junit
+              run: ./gradlew clean JUnitJava8

@@ -28,6 +28,7 @@ allprojects {
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.7'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
+
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19.3-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -38,10 +39,8 @@ dependencies {
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
-	//testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
 	testShadow group: 'junit', name: 'junit', version: '4.12'
 	testShadow group: 'org.easymock', name: 'easymock', version: '4.2'
-	testShadow group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.2'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -332,9 +331,4 @@ task nightlyRelease(type: ShadowJar) {
 			'Sealed': 'true'
 		)
 	}
-}
-
-test {
-    useJUnitPlatform()
-    dependsOn testJar
 }

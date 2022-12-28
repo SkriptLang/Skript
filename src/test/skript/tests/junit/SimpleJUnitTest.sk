@@ -1,0 +1,7 @@
+
+on damage of pig:
+	junit test is "org.skriptlang.skript.test.tests.regression.SimpleJUnitTest"
+	assert custom name of victim is "Simple JUnit Test" with "piggy was not the same" on junit test
+
+	# Remember the damage was 100 but Skript represents it by hearts so it's 50.
+	assert damage is 50 with "damage was not 50" on the currently running junit test

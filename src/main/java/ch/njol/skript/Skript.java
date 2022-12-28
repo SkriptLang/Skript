@@ -42,12 +42,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -74,6 +76,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -122,6 +128,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
@@ -147,66 +154,6 @@ import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.gson.Gson;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureInfo;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.logging.Filter;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -414,7 +361,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * The folder containing all Scripts.
 	 * Never reference this field directly. Use {@link #getScriptsFolder()}.
 	 */
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private File scriptsFolder;
 
 	/**
@@ -700,9 +646,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+						long shutdown = 0;
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
 						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
+							SkriptLogger.setVerbosity(Verbosity.DEBUG);
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
 						} else {
 							info("Loading all tests from " + TestMode.TEST_DIR);
@@ -728,6 +676,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
+								SkriptLogger.setVerbosity(Verbosity.DEBUG);
 								info("Running all JUnit tests...");
 								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
 								try {
@@ -735,10 +684,14 @@ public final class Skript extends JavaPlugin implements Listener {
 									// Test that requires package access.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
 									size = classes.size();
-									for (Class<?> test : classes) {
-										info("Running JUnit test '" + test.getName() + "'");
-										Result junit = JUnitCore.runClasses(test);
-										TestTracker.testStarted("JUnit: '" + test.getName() + "'");
+									for (Class<?> clazz : classes) {
+										String test = clazz.getName();
+										SkriptJUnitTest.lastJUnitTest = test;
+										info("Running JUnit test '" + test + "'");
+										Result junit = JUnitCore.runClasses(clazz);
+										TestTracker.testStarted("JUnit: '" + test + "'");
+										shutdown += SkriptJUnitTest.getDelay();
+										SkriptJUnitTest.setDelay(0);
 										tests += junit.getRunCount();
 										milliseconds += junit.getRunTime();
 										ignored += junit.getIgnoreCount();
@@ -746,10 +699,11 @@ public final class Skript extends JavaPlugin implements Listener {
 											fails += junit.getFailureCount();
 											junit.getFailures().forEach(failure -> {
 												String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-												TestTracker.testFailed("'" + test.getName() + "': " + message);
+												TestTracker.testFailed("'" + test + "': " + message);
 												Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
 											});
 										}
+										SkriptJUnitTest.lastJUnitTest = null;
 									}
 								} catch (IOException e) {
 									Skript.exception(e, "Failed to execute JUnit runtime tests.");
@@ -770,11 +724,12 @@ public final class Skript extends JavaPlugin implements Listener {
 						} catch (IOException e) {
 							Skript.exception(e, "Failed to write test results.");
 						}
-						info("Testing done, shutting down the server...");
+						long seconds = TimeUnit.MILLISECONDS.toSeconds(shutdown);
+						info("Testing done, shutting down the server in " + seconds + " second " + (seconds == 1 ? "" : "s") + "...");
 						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 							Bukkit.getServer().shutdown();
-						}, 5);
+						}, seconds * 20);
 					}, 100);
 				}
 				

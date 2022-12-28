@@ -154,6 +154,7 @@ public class PlatformMain {
 					System.err.println("    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
 				}
 			}
+			Thread.sleep(1);
 			System.out.printf("%n%s", StringUtils.repeat("-", 60));
 			System.exit(failNames.size()); // Error code to indicate how many tests failed.
 			return;
