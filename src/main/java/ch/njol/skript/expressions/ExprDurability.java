@@ -49,9 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"reset data value of block at player"})
 @Since("1.2")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
-	
-	private static final boolean LEGACY_BLOCK = !Skript.isRunningMinecraft(1, 13);
-	
+
 	static {
 		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
 	}
@@ -65,8 +63,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 		} else if (o instanceof ItemType) {
 			ItemStack item = ((ItemType) o).getRandom();
 			return (long) ItemUtils.getDamage(item);
-		} else if (LEGACY_BLOCK && o instanceof Block) {
-			return (long) ((Block) o).getData();
 		}
 		return null;
 	}
@@ -98,8 +94,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 				itemStack = ((ItemType) o).getRandom();
 			else if (o instanceof Slot)
 				itemStack = ((Slot) o).getItem();
-			else if (LEGACY_BLOCK)
-				block = (Block) o;
 			else
 				return;
 			

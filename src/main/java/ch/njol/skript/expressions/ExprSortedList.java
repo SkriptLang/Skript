@@ -18,13 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,7 +27,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 @Name("Sorted List")
 @Description({"Sorts given list in natural order. All objects in list must be comparable;",
@@ -50,6 +50,14 @@ public class ExprSortedList extends SimpleExpression<Object> {
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> list;
+
+	@SuppressWarnings("unused")
+	public ExprSortedList() {
+	}
+
+	public ExprSortedList(Expression<?> list) {
+		this.list = list;
+	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -67,7 +75,7 @@ public class ExprSortedList extends SimpleExpression<Object> {
 			Object value = unsorted[i];
 			if (value instanceof Long) {
 				// Hope it fits to the double...
-				sorted[i] = Double.valueOf(((Long) value).longValue());
+				sorted[i] = (double) (Long) value;
 			} else {
 				// No conversion needed
 				sorted[i] = value;
@@ -80,6 +88,20 @@ public class ExprSortedList extends SimpleExpression<Object> {
 			return new Object[]{}; // We don't have a sorted array available
 		}
 		return sorted;
+	}
+
+	@Override
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		if (CollectionUtils.containsSuperclass(to, getReturnType()))
+			return (Expression<? extends R>) this;
+
+		Expression<? extends R> convertedList = list.getConvertedExpression(to);
+		if (convertedList != null)
+			return (Expression<? extends R>) new ExprSortedList(convertedList);
+
+		return null;
 	}
 
 	@Override

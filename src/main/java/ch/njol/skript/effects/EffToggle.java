@@ -56,21 +56,7 @@ public class EffToggle extends Effect {
 	static {
 		Skript.registerEffect(EffToggle.class, "(close|turn off|de[-]activate) %blocks%", "(toggle|switch) [[the] state of] %blocks%", "(open|turn on|activate) %blocks%");
 	}
-	
-	@Nullable
-	private static final MethodHandle setDataMethod;
-	private static final boolean flattening = Skript.isRunningMinecraft(1, 13);
-	
-	static {
-		MethodHandle mh;
-		try {
-			mh = MethodHandles.lookup().findVirtual(Block.class, "setData", MethodType.methodType(void.class, byte.class));
-		} catch (NoSuchMethodException | IllegalAccessException e) {
-			mh = null;
-		}
-		setDataMethod = mh;
-	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<Block> blocks;
 	private int toggle;
@@ -82,53 +68,9 @@ public class EffToggle extends Effect {
 		toggle = matchedPattern - 1;
 		return true;
 	}
-	
-	// Used for Minecraft 1.12 and older
-	private final static byte[] bitFlags = new byte[Skript.MAXBLOCKID + 1];
-	private final static boolean[] doors = new boolean[Skript.MAXBLOCKID + 1];
-	static {
-		bitFlags[28] = 0x8; // Detector rail
-		// Doors
-		bitFlags[64] = 0x4; // Oak door (block)
-		bitFlags[193] = 0x4; // Spruce door (block)
-		bitFlags[194] = 0x4; // Birch door (block)
-		bitFlags[195] = 0x4; // Jungle door (block)
-		bitFlags[196] = 0x4; // Acacia door (block)
-		bitFlags[197] = 0x4; // Dark oak door (block)
-		bitFlags[71] = 0x4; // Iron door (block)
-		// Redstone stuff
-		bitFlags[69] = 0x8; // Lever
-		bitFlags[70] = 0x1; // Stone pressure plate
-		bitFlags[72] = 0x1; // Wooden pressure plate
-		bitFlags[77] = 0x8; // Stone button
-		// Trapdoors
-		bitFlags[96] = 0x4; // Wooden trapdoor
-		bitFlags[167] = 0x4; // Iron trapdoor
-		// Fence gates
-		bitFlags[107] = 0x4; // Oak fence gate
-		bitFlags[183] = 0x4; // Spruce fence gate
-		bitFlags[184] = 0x4; // Birch fence gate
-		bitFlags[185] = 0x4; // Jungle fence gate
-		bitFlags[186] = 0x4; // Dark oak fence gate
-		bitFlags[187] = 0x4; // Acacia fence gate
-		
-		doors[64] = true; // Oak door (block)
-		doors[193] = true; // Spruce door (block)
-		doors[194] = true; // Birch door (block)
-		doors[195] = true; // Jungle door (block)
-		doors[196] = true; // Acacia door (block
-		doors[197] = true; // Dark oak door (block)
-		doors[71] = true; // Iron door (block)
-	}
-	
+
 	@Override
 	protected void execute(final Event e) {
-		if (!flattening) {
-			executeLegacy(e);
-			return;
-		}
-		
-		// 1.13 and newer: use BlockData
 		for (Block b : blocks.getArray(e)) {
 			BlockData data = b.getBlockData();
 			if (toggle == -1) {
@@ -151,39 +93,7 @@ public class EffToggle extends Effect {
 			b.setBlockData(data);
 		}
 	}
-	
-	/**
-	 * Handles toggling blocks on 1.12 and older.
-	 * @param e Event.
-	 */
-	private void executeLegacy(Event e) {
-		for (Block b : blocks.getArray(e)) {
-			int type = b.getType().getId();
-			
-			byte data = b.getData();
-			if (doors[type] == true && (data & 0x8) == 0x8) {
-				b = b.getRelative(BlockFace.DOWN);
-				type = b.getType().getId();
-				if (doors[type] != true)
-					continue;
-				data = b.getData();
-			}
-			
-			MethodHandle mh = setDataMethod;
-			assert mh != null;
-			try {
-				if (toggle == -1)
-					mh.invokeExact(b, (byte) (data & ~bitFlags[type]));
-				else if (toggle == 0)
-					mh.invokeExact(b, (byte) (data ^ bitFlags[type]));
-				else
-					mh.invokeExact(b, (byte) (data | bitFlags[type]));
-			} catch (Throwable ex) {
-				Skript.exception(ex);
-			}
-		}
-	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "toggle " + blocks.toString(e, debug);

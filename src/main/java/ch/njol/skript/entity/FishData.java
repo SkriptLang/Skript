@@ -34,9 +34,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public class FishData extends EntityData<Fish> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 13))
-			register(FishData.class, "fish", Fish.class, 0, 
-					"fish", "cod", "puffer fish", "salmon", "tropical fish");
+		register(FishData.class, "fish", Fish.class, 0,
+				"fish", "cod", "puffer fish", "salmon", "tropical fish");
 	}
 	
 	private boolean init = true;

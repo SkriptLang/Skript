@@ -86,6 +86,7 @@ import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.PiglinBrute;
 import org.bukkit.entity.Pillager;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.PufferFish;
@@ -177,12 +178,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
-	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityclass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityclass));
+	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass));
 	}
 
-	private static void addSuperEntity(String codeName, Class<? extends Entity> entityclass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityclass, true));
+	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, true));
 	}
 	static {
 		// Simple Entities
@@ -209,6 +210,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("magma cube", MagmaCube.class);
 		addSimpleEntity("slime", Slime.class);
 		addSimpleEntity("painting", Painting.class);
+		addSimpleEntity("player", Player.class);
 		addSimpleEntity("zombie pigman", PigZombie.class);
 		addSimpleEntity("silverfish", Silverfish.class);
 		addSimpleEntity("snowball", Snowball.class);
@@ -255,9 +257,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("salmon", Salmon.class);
 		addSimpleEntity("tropical fish", TropicalFish.class);
 		addSimpleEntity("trident", Trident.class);
-		
-		if (Skript.classExists("org.bukkit.entity.Illusioner")) // Added in 1.12
-			addSimpleEntity("illusioner", Illusioner.class);
+
+		addSimpleEntity("illusioner", Illusioner.class);
 
 		if (Skript.isRunningMinecraft(1, 14)) {
 			addSimpleEntity("pillager", Pillager.class);

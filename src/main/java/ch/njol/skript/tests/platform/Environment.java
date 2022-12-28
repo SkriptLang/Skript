@@ -87,7 +87,6 @@ public class Environment {
 		@Nullable
 		private transient String source;
 
-		@SuppressWarnings("ConstantConditions")
 		public PaperResource(String version, String target) {
 			super(null, target);
 			this.version = version;
@@ -220,15 +219,22 @@ public class Environment {
 		}
 	}
 
-	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, String... jvmArgs) throws IOException, InterruptedException {
+	@Nullable
+	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, String... jvmArgs) throws IOException, InterruptedException {
 		Path env = runnerRoot.resolve(name);
+		Path resultsPath = env.resolve("test_results.json");
+		Files.deleteIfExists(resultsPath);
 		List<String> args = new ArrayList<>();
-		args.add("java");
+		args.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
 		args.add("-ea");
 		args.add("-Dskript.testing.enabled=true");
 		args.add("-Dskript.testing.dir=" + testsRoot);
 		args.add("-Dskript.testing.devMode=" + devMode);
+		args.add("-Dskript.testing.genDocs=" + genDocs);
+		if (genDocs)
+			args.add("-Dskript.forceregisterhooks");
 		args.add("-Dskript.testing.results=test_results.json");
+		args.add("-Ddisable.watchdog=true");
 		args.addAll(Arrays.asList(jvmArgs));
 		args.addAll(Arrays.asList(commandLine));
 
@@ -257,16 +263,17 @@ public class Environment {
 						System.exit(1);
 					}
 				}
-			}, 8 * 60_000);
+			}, 8 * 60_000); // 8 minutes.
 		}
 
 		int code = process.waitFor();
-		if (code != 0) {
+		if (code != 0)
 			throw new IOException("environment returned with code " + code);
-		}
 
 		// Read test results
-		TestResults results = new Gson().fromJson(new String(Files.readAllBytes(env.resolve("test_results.json"))), TestResults.class);
+		if (!Files.exists(resultsPath))
+			return null;
+		TestResults results = new Gson().fromJson(new String(Files.readAllBytes(resultsPath)), TestResults.class);
 		assert results != null;
 		return results;
 	}
