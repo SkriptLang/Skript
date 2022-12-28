@@ -176,9 +176,8 @@ public class EffPlaySound extends Effect {
 				} catch (IllegalArgumentException ignored) {}
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches()) {
+				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				}
 				
 				stringReceiver.play(receiver, location, sound, category, volume, pitch);
 			}

@@ -124,9 +124,8 @@ public class EffStopSound extends Effect {
 				} catch (IllegalArgumentException ignored) { }
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches()) {
+				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				}
 				
 				for (Player player : targets) {
 					player.stopSound(sound, category);
