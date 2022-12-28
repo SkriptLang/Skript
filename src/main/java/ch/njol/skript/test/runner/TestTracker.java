@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.test.utils.TestResults;
 
 /**
@@ -56,7 +55,6 @@ public class TestTracker {
 	}
 
 	public static void junitTestFailed(String junit, String msg) {
-		Skript.debug("Added JUnit fail " + junit + " with message " + msg);
 		failedTests.put(junit, msg);
 	}
 
