@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import net.kyori.adventure.text.Component;
 
 public class SimpleJUnitTest extends SkriptJUnitTest {
 
@@ -37,9 +36,10 @@ public class SimpleJUnitTest extends SkriptJUnitTest {
 	}
 
 	@Before
+	@SuppressWarnings("deprecation")
 	public void setup() {
 		piggy = spawnTestPig();
-		piggy.customName(Component.text("Simple JUnit Test"));
+		piggy.setCustomName("Simple JUnit Test");
 	}
 
 	@Test
