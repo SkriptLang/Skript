@@ -109,20 +109,23 @@ public class EffPlaySound extends Effect {
 		
 		if (players != null) {
 			if (locations == null) {
-				for (Player player : players.getArray(event))
+				for (Player player : players.getArray(event)) {
 					SoundReceiver.play(Player::playSound, Player::playSound, player,
-						player.getLocation(), sounds.getArray(event), category,  volume, pitch);
+						player.getLocation(), sounds.getArray(event), category, volume, pitch);
+				}
 			} else {
 				for (Player player : players.getArray(event)) {
-					for (Location location : locations.getArray(event))
+					for (Location location : locations.getArray(event)) {
 						SoundReceiver.play(Player::playSound, Player::playSound, player,
 							location, sounds.getArray(event), category, volume, pitch);
+					}
 				}
 			}
 		} else if (locations != null) {
-			for (Location location : locations.getArray(event))
+			for (Location location : locations.getArray(event)) {
 				SoundReceiver.play(World::playSound, World::playSound, location.getWorld(),
 					location, sounds.getArray(event), category, volume, pitch);
+			}
 		}
 	}
 
@@ -132,16 +135,25 @@ public class EffPlaySound extends Effect {
 			.append("play sound ")
 			.append(sounds.toString(event, debug));
 		
-		if (category != null) builder.append(" in ")
-			.append(category.toString(event, debug));
-		if (volume != null) builder.append(" with volume ")
-			.append(volume.toString(event, debug));
-		if (pitch != null) builder.append(" with pitch ")
-			.append(pitch.toString(event, debug));
-		if (locations != null) builder.append(" at ")
-			.append(locations.toString(event, debug));
-		if (players != null) builder.append(" to ")
-			.append(players.toString(event, debug));
+		if (category != null) {
+			builder.append(" in ").append(category.toString(event, debug));
+		}
+		
+		if (volume != null) {
+			builder.append(" with volume ").append(volume.toString(event, debug));
+		}
+		
+		if (pitch != null) {
+			builder.append(" with pitch ").append(pitch.toString(event, debug));
+		}
+		
+		if (locations != null) {
+			builder.append(" at ").append(locations.toString(event, debug));
+		}
+		
+		if (players != null) {
+			builder.append(" to ").append(players.toString(event, debug));
+		}
 		
 		return builder.toString();
 	}
@@ -164,8 +176,9 @@ public class EffPlaySound extends Effect {
 				} catch (IllegalArgumentException ignored) {}
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches())
+				if (!KEY_PATTERN.matcher(sound).matches()) {
 					continue;
+				}
 				
 				stringReceiver.play(receiver, location, sound, category, volume, pitch);
 			}

@@ -104,27 +104,33 @@ public class EffStopSound extends Effect {
 		
 		if (allSounds) {
 			if (category == null) {
-				for (Player player : targets)
+				for (Player player : targets) {
 					player.stopAllSounds();
+				}
 			} else {
-				for (Player player : targets)
+				for (Player player : targets) {
 					player.stopSound(category);
+				}
 			}
 		} else {
 			for (String sound : sounds.getArray(event)) {
 				try {
 					Sound soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
-					for (Player player : targets)
+					for (Player player : targets) {
 						player.stopSound(soundEnum, category);
+					}
+					
 					continue;
 				} catch (IllegalArgumentException ignored) { }
 				
 				sound = sound.toLowerCase(Locale.ENGLISH);
-				if (!KEY_PATTERN.matcher(sound).matches())
+				if (!KEY_PATTERN.matcher(sound).matches()) {
 					continue;
+				}
 				
-				for (Player player : targets)
+				for (Player player : targets) {
 					player.stopSound(sound, category);
+				}
 			}
 		}
 	}
