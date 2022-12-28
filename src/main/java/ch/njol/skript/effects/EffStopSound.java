@@ -56,18 +56,14 @@ public class EffStopSound extends Effect {
 	
 	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
+
 	
 	static {
-		if (STOP_ALL_SUPPORTED) {
-			Skript.registerEffect(EffStopSound.class,
-				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]",
-				"stop [all] sound[s] [(in|from) %-soundcategory%] [(from playing to|for) %players%]");
-		} else {
-			Skript.registerEffect(EffStopSound.class,
-				"stop sound[s] %strings% [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-				"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
-		}
+		String stopPattern = STOP_ALL_SUPPORTED ? "(all:all sound[s]|sound[s] %strings%)" : "sound[s] %strings%";
+		
+		Skript.registerEffect(EffStopSound.class,
+			"stop " + stopPattern + " [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
+			"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -82,7 +78,7 @@ public class EffStopSound extends Effect {
 	@Override
 	@SuppressWarnings({"unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		allSounds = matchedPattern == 2;
+		allSounds = parseResult.hasTag("all");
 		if (allSounds) {
 			category = (Expression<SoundCategory>) exprs[0];
 			players = (Expression<Player>) exprs[1];
