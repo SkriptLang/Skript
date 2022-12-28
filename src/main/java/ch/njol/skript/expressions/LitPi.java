@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Pi")
 @Description("Returns the mathematical constant pi.")
@@ -54,4 +54,5 @@ public class LitPi extends SimpleLiteral<Number> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return "pi";
 	}
+	
 }
