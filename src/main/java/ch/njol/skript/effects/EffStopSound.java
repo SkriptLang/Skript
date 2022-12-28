@@ -50,8 +50,8 @@ import java.util.regex.Pattern;
 	"stop all sound for all players",
 	"stop sound in record category"
 })
-@Since("2.4, INSERT VERSION (stop all sound)")
-@RequiredPlugins("MC 1.17.1 (stop all sound)")
+@Since("2.4, INSERT VERSION (stop all sounds)")
+@RequiredPlugins("MC 1.17.1 (stop all sounds)")
 public class EffStopSound extends Effect {
 	
 	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
