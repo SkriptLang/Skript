@@ -270,6 +270,8 @@ public class SkriptParser {
 									Skript.error("You cannot use this element " + (current == null ? "outside of the allowed sections."
 										: "in a '" + current.toString(null, false) + "' section"));
 								}
+							} else if (t.getUsableStructures().length > 0) {
+								Skript.error("You cannot use this element outside of the allowed structures.");
 							}
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
