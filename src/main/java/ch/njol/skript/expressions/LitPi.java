@@ -46,7 +46,7 @@ public class LitPi extends SimpleLiteral<Number> {
 	}
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
+	public boolean init( Expression<?>[] exprs,  int matchedPattern,  Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
