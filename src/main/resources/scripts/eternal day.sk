@@ -1,6 +1,0 @@
-#
-# Makes eternal day in all worlds by setting each world's time to morning in the evening.
-#
-
-at 18:00:
-	set time to 7:00

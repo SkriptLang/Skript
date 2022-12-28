@@ -1721,33 +1721,33 @@ click types:
 
 # -- Inventory Types --
 inventory types:
-	chest: chest inventory
-	dispenser: dispenser inventory
-	dropper: dropper inventory
-	furnace: furnace inventory
-	workbench: workbench inventory
-	crafting: crafting table inventory
-	enchanting: enchanting table inventory
-	brewing: brewing stand inventory
-	player: player inventory
-	creative: creative inventory
-	merchant: merchant inventory, villager inventory
-	ender_chest: ender chest inventory
-	anvil: anvil inventory
-	beacon: beacon inventory
-	hopper: hopper inventory
-	shulker_box: shulker box inventory
-	barrel: barrel inventory
-	blast_furnace: blast furnace inventory
-	lectern: lectern inventory
-	smoker: smoker inventory
-	loom: loom inventory
-	cartography: cartography table inventory
-	grindstone: grindstone inventory
-	stonecutter: stonecutter inventory
-	smithing: smithing inventory
-	composter: composter inventory
-	chiseled_bookshelf: chiseled bookshelf, bookshelf
+	chest: chest inventory @a
+	dispenser: dispenser inventory @a
+	dropper: dropper inventory @a
+	furnace: furnace inventory @a
+	workbench: workbench inventory @a
+	crafting: crafting table inventory @a
+	enchanting: enchanting table inventory @an
+	brewing: brewing stand inventory @a
+	player: player inventory @a
+	creative: creative inventory @a
+	merchant: merchant inventory @a, villager inventory @a
+	ender_chest: ender chest inventory @an
+	anvil: anvil inventory @an
+	beacon: beacon inventory @a
+	hopper: hopper inventory @a
+	shulker_box: shulker box inventory @a
+	barrel: barrel inventory @a
+	blast_furnace: blast furnace inventory @a
+	lectern: lectern inventory @a
+	smoker: smoker inventory @a
+	loom: loom inventory @a
+	cartography: cartography table inventory @a
+	grindstone: grindstone inventory @a
+	stonecutter: stonecutter inventory @a
+	smithing: smithing inventory @a
+	composter: composter inventory @a
+	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
 
 # -- Spawn Reasons --
 spawn reasons:
