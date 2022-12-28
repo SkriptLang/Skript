@@ -1,0 +1,44 @@
+
+#
+# A simple example of using an option to make a common value accessible through the file.
+#
+
+options:
+    my server name: Server Name
+    condition: player is alive
+    nice message: "You're alive!"
+
+on join:
+    send "Welcome to {@my server name}"
+    # Options don't need `%...%` since they are raw inputs.
+    if {@condition}: # The raw `player is alive` is copied here during parsing.
+        send {@nice message}
+
+#
+# An example of custom aliases for groups of items.
+# This can be used as a shorthand in code.
+#
+
+aliases:
+    pretty items = iron ingot, gold ingot, diamond
+
+on join:
+    player has permission "skript.example.aliases"
+    give player random item out of pretty items # A random item from our alias.
+
+#
+# An example showing how default variables can be used.
+# These are seen the first time they are loaded, but not overwritten if you change the file copy.
+# They act like default variable values.
+#
+
+variables:
+    score::%player% = 100
+    some variable = "Hello"
+
+command /variabletest:
+    permission: skript.example.variables
+    trigger:
+        add 1 to {score::%player%}
+        send "Your score is now %{score::%player%}%."
+        send {some variable}
