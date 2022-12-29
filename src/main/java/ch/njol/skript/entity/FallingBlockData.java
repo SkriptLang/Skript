@@ -88,8 +88,6 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 				Skript.error(m_not_a_block_error.toString());
 				return false;
 			}
-		} else {
-			types = new ItemType[] {new ItemType(Material.STONE)};
 		}
 		return true;
 	}
@@ -116,7 +114,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	@Override
 	@Nullable
 	public FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
-		ItemType t = CollectionUtils.getRandom(types);
+		ItemType t = types == null ? new ItemType(Material.STONE) : CollectionUtils.getRandom(types);
 		assert t != null;
 		Material material = t.getMaterial();
 
