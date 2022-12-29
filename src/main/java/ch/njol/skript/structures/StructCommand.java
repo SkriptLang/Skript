@@ -95,6 +95,7 @@ public class StructCommand extends Structure {
 			EntryValidator.builder()
 				.addEntry("usage", null, true)
 				.addEntry("description", "", true)
+				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
 				.addEntryData(new VariableStringEntryData("permission message", null, true, CommandEvent.class))
 				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
@@ -259,6 +260,7 @@ public class StructCommand extends Structure {
 		}
 
 		String description = entryContainer.get("description", String.class, true);
+		String prefix = entryContainer.getOptional("prefix", String.class, false);
 
 		String permission = entryContainer.get("permission", String.class, true);
 		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);
@@ -289,8 +291,8 @@ public class StructCommand extends Structure {
 
 		Commands.currentArguments = currentArguments;
 		try {
-			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, usage,
-				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
+			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, prefix,
+				usage, aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
 				executableBy, entryContainer.get("trigger", SectionNode.class, false));
 		} finally {
 			Commands.currentArguments = null;

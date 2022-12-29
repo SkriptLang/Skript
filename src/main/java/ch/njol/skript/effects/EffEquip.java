@@ -46,7 +46,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Testable;
 import ch.njol.util.Kleenean;
 
 /**
@@ -57,7 +56,7 @@ import ch.njol.util.Kleenean;
 @Examples({"equip player with diamond helmet",
 		"equip player with all diamond armor"})
 @Since("1.0, INSERT VERSION (multiple entities)")
-public class EffEquip extends Effect implements Testable {
+public class EffEquip extends Effect {
 
 	static {
 		Skript.registerEffect(EffEquip.class,
@@ -176,17 +175,6 @@ public class EffEquip extends Effect implements Testable {
 			if (en instanceof Player)
 				PlayerUtils.updateInventory((Player) en);
 		}
-	}
-
-	@Override
-	public boolean test(Event e) {
-//		final Iterable<Player> ps = players.getArray(e);
-//		for (final ItemType t : types.getArray(e)) {
-//			for (final Player p : ps) {
-//				//REMIND this + think...
-//			}
-//		}
-		return false;
 	}
 
 	@Override

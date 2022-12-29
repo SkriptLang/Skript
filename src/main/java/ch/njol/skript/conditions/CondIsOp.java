@@ -16,29 +16,33 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
+package ch.njol.skript.conditions;
 
-import org.bukkit.block.Biome;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import org.bukkit.OfflinePlayer;
 
-/**
- * Contains utility methods related to biomes
- */
-public class BiomeUtils {
+@Name("Is Operator")
+@Description("Checks whether a player is a server operator.")
+@Examples("player is an operator")
+@Since("INSERT VERSION")
+public class CondIsOp extends PropertyCondition<OfflinePlayer> {
 
-	private final static EnumUtils<Biome> util = new EnumUtils<>(Biome.class, "biomes");
-
-	@Nullable
-	public static Biome parse(String name) {
-		return util.parse(name);
+	static {
+		register(CondIsOp.class, PropertyType.BE, "[[a] server|an] op[erator][s]", "offlineplayers");
 	}
 
-	public static String toString(Biome biome, int flags) {
-		return util.toString(biome, flags);
+	@Override
+	public boolean check(OfflinePlayer player) {
+		return player.isOp();
 	}
 
-	public static String getAllNames() {
-		return util.getAllNames();
+	@Override
+	protected String getPropertyName() {
+		return "op";
 	}
 
 }
