@@ -18,8 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.ServerPlatform;
+import ch.njol.skript.Skript;
 import ch.njol.util.VectorMath;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -35,118 +39,179 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.util.Vector;
 
 @Name("Yaw / Pitch")
-@Description("The yaw or pitch of a location or vector.")
+@Description({"The yaw or pitch of a location or vector.",
+		"A yaw of 0 or 360 represents the positive x direction. Adding a positive number to the yaw of a player will rotate it counter-clockwise.",
+		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards."})
 @Examples({"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
-	"set {_yaw} to yaw of player",
-	"set {_p} to pitch of target entity"})
-@Since("2.0, 2.2-dev28 (vector yaw/pitch)")
+		"set {_yaw} to yaw of player",
+		"set {_p} to pitch of target entity",
+		"add 90 to yaw of player # Rotates the player counter-clockwise"})
+@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
 	static {
-		register(ExprYawPitch.class, Number.class, "(0¦yaw|1¦pitch)", "locations/vectors");
+		register(ExprYawPitch.class, Number.class, "(:yaw|pitch)", "entities/locations/vectors");
 	}
+
+	// For non-Paper versions lower than 1.19, changing the rotation of an entity is not supported for players.
+	private static final boolean SUPPORTS_PLAYERS = Skript.isRunningMinecraft(1, 19) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;
 
 	private boolean usesYaw;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		usesYaw = parseResult.mark == 0;
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		usesYaw = parseResult.hasTag("yaw");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
-	public Number convert(final Object object) {
-		if (object instanceof Location) {
-			Location l = ((Location) object);
-			return usesYaw ? convertToPositive(l.getYaw()) : l.getPitch();
+	public Number convert(Object object) {
+		if (object instanceof Entity) {
+			Location location = ((Entity) object).getLocation();
+			return usesYaw
+					? toSkriptYaw(location.getYaw())
+					: toSkriptPitch(location.getPitch());
+		} else if (object instanceof Location) {
+			Location location = (Location) object;
+			return usesYaw
+					? toSkriptYaw(location.getYaw())
+					: toSkriptPitch(location.getPitch());
 		} else if (object instanceof Vector) {
-			Vector vector = ((Vector) object);
-			if (usesYaw)
-				return VectorMath.skriptYaw(VectorMath.getYaw(vector));
-			return VectorMath.skriptPitch(VectorMath.getPitch(vector));
+			Vector vector = (Vector) object;
+			return usesYaw
+					? toSkriptYaw(VectorMath.getYaw(vector))
+					: toSkriptPitch(VectorMath.getPitch(vector));
 		}
 		return null;
 	}
 
-	@SuppressWarnings({"null"})
 	@Override
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (getExpr().getReturnType().isAssignableFrom(Player.class) && !SUPPORTS_PLAYERS)
+			return null;
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
 			return CollectionUtils.array(Number.class);
 		return null;
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, Object[] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
+	public void change(Event event, Object[] delta, ChangeMode mode) {
 		float value = ((Number) delta[0]).floatValue();
-		for (Object single : getExpr().getArray(e)) {
-			if (single instanceof Location) {
-				changeLocation(((Location) single), value, mode);
-			} else if (single instanceof Vector) {
-				changeVector(((Vector) single), value, mode);
+		for (Object object : getExpr().getArray(event)) {
+			if (object instanceof Player && !SUPPORTS_PLAYERS)
+				continue;
+			if (object instanceof Entity) {
+				changeForEntity((Entity) object, value, mode);
+			} else if (object instanceof Location) {
+				changeForLocation(((Location) object), value, mode);
+			} else if (object instanceof Vector) {
+				changeForVector(((Vector) object), value, mode);
 			}
 		}
 	}
 
-	private void changeLocation(Location l, float value, ChangeMode mode) {
+	private void changeForEntity(Entity entity, float value, ChangeMode mode) {
+		Location location = entity.getLocation();
 		switch (mode) {
 			case SET:
-				if (usesYaw)
-					l.setYaw(convertToPositive(value));
-				else
-					l.setPitch(value);
-				break;
-			case ADD:
-				if (usesYaw)
-					l.setYaw(convertToPositive(l.getYaw()) + value);
-				else
-					l.setPitch(l.getPitch() + value);
+				if (usesYaw) {
+					entity.setRotation(fromSkriptYaw(value), location.getPitch());
+				} else {
+					entity.setRotation(location.getYaw(), fromSkriptPitch(value));
+				}
 				break;
 			case REMOVE:
-				if (usesYaw)
-					l.setYaw(convertToPositive(l.getYaw()) - value);
-				else
-					l.setPitch(l.getPitch() - value);
+				value = -value;
+			case ADD:
+				if (usesYaw) {
+					entity.setRotation(location.getYaw() + value, location.getPitch());
+				} else {
+					// Subtracting because of Minecraft's upside-down pitch.
+					entity.setRotation(location.getYaw(), location.getPitch() - value);
+				}
+				break;
+			case RESET:
+				if (usesYaw) {
+					entity.setRotation(fromSkriptYaw(0), location.getPitch());
+				} else {
+					entity.setRotation(location.getYaw(), fromSkriptPitch(0));
+				}
 				break;
 			default:
 				break;
 		}
 	}
 
-	private void changeVector(Vector vector, float n, ChangeMode mode) {
-		float yaw = VectorMath.getYaw(vector);
-		float pitch = VectorMath.getPitch(vector);
+	private void changeForLocation(Location location, float value, ChangeMode mode) {
 		switch (mode) {
-			case REMOVE:
-				n = -n;
-				//$FALL-THROUGH$
-			case ADD:
-				if (usesYaw)
-					yaw += n;
-				else
-					pitch -= n; // Negative because of Minecraft's / Skript's upside down pitch
-				Vector newVector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
-				VectorMath.copyVector(vector, newVector);
-				break;
 			case SET:
-				if (usesYaw)
-					yaw = VectorMath.fromSkriptYaw(n);
-				else
-					pitch = VectorMath.fromSkriptPitch(n);
-				newVector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
-				VectorMath.copyVector(vector, newVector);
+				if (usesYaw) {
+					location.setYaw(fromSkriptYaw(value));
+				} else {
+					location.setPitch(fromSkriptPitch(value));
+				}
+				break;
+			case REMOVE:
+				value = -value;
+			case ADD:
+				if (usesYaw) {
+					location.setYaw(location.getYaw() + value);
+				} else {
+					// Subtracting because of Minecraft's upside-down pitch.
+					location.setPitch(location.getPitch() - value);
+				}
+				break;
+			case RESET:
+				if (usesYaw) {
+					location.setYaw(fromSkriptYaw(0));
+				} else {
+					location.setPitch(fromSkriptPitch(0));
+				}
+			default:
+				break;
 		}
 	}
 
+	private void changeForVector(Vector vector, float value, ChangeMode mode) {
+		float yaw = VectorMath.getYaw(vector);
+		float pitch = VectorMath.getPitch(vector);
+		switch (mode) {
+			case SET:
+				if (usesYaw) {
+					yaw = fromSkriptYaw(value);
+				} else {
+					pitch = fromSkriptPitch(value);
+				}
+				break;
+			case REMOVE:
+				value = -value;
+			case ADD:
+				if (usesYaw) {
+					yaw += value;
+				} else {
+					// Subtracting because of Minecraft's upside-down pitch.
+					pitch -= value;
+				}
+				break;
+		}
+		VectorMath.copyVector(vector, VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length()));
+	}
 
-	//Some random method decided to use for converting to positive values.
-	public float convertToPositive(float f) {
-		if (f != 0 && f * -1 == Math.abs(f))
-			return 360 + f;
-		return f;
+	private static float fromSkriptYaw(float yaw) {
+		return Location.normalizeYaw(yaw + 90);
+	}
+
+	private static float toSkriptYaw(float yaw) {
+		yaw = Location.normalizeYaw(yaw);
+		return yaw - 90 < 0 ? yaw + 270 : yaw - 90;
+	}
+
+	private static float fromSkriptPitch(float pitch) {
+		return Location.normalizePitch(-pitch);
+	}
+
+	private static float toSkriptPitch(float pitch) {
+		return -Location.normalizePitch(pitch);
 	}
 
 	@Override
