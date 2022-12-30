@@ -221,4 +221,4 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,java,eclipse,git
 
 # Skript test runners
-test_runners/
+build/test_runners/
