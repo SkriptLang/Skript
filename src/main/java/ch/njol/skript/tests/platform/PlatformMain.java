@@ -64,7 +64,7 @@ public class PlatformMain {
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
 		boolean debug = "true".equals(args[6]);
-		List<String> jvmArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 7, args.length)));
+		List<String> jvmArgs = Lists.newArrayList(Arrays.copyOfRange(args, 7, args.length));
 		jvmArgs.add("-Xmx5G");
 		
 		// Load environments
