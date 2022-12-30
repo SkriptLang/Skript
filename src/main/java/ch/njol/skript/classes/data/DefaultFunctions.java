@@ -79,7 +79,6 @@ public class DefaultFunctions {
 						decimal = decimal.setScale(placement, RoundingMode.HALF_UP);
 						return new Double[] {decimal.doubleValue()};
 					}
-					//	return new Double[] {Math2.round(value * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 					long rounded = Math2.round(value);
 					return new Double[] {(int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 				}
