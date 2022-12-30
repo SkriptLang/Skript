@@ -158,14 +158,18 @@ tasks.register('testNaming') {
 	}
 }
 
+enum Modifiers {
+	DevMode, GenDocs, Debug
+}
+
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs, boolean debug) {
+void createTestTask(String name, String environments, int javaVersion, String profiler = null, Modifiers... modifiers) {
 	tasks.register(name, JavaExec) {
 		dependsOn nightlyRelease, testNaming
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
-		if (devMode) {
+		if (modifiers.contains(Modifiers.DevMode)) {
 			standardInput = System.in
 		}
 		group = 'execution'
@@ -180,10 +184,13 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 			'src/test/skript/tests',
 			'src/test/resources/runner_data',
 			environments,
-			devMode,
-			genDocs,
-			debug
+			modifiers.contains(Modifiers.DevMode),
+			modifiers.contains(Modifiers.GenDocs),
+			modifiers.contains(Modifiers.Debug),
 		]
+
+		if (profiler != null)
+			args += profiler
 	}
 }
 
@@ -196,16 +203,14 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false, false)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false, false)
-createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
-	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), false, true)
+String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
+int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion'))
+createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, latestJava)
+createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', latestJava)
+createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', oldestJava)
+createTestTask('skriptTestDev', 'src/test/skript/environments/' + env, envJava, Modifiers.DevMode, Modifiers.Debug)
+createTestTask('genDocs', 'src/test/skript/environments/' + env, envJava, Modifiers.GenDocs)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
-createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
-	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), true, false)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
