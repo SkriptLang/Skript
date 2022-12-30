@@ -18,24 +18,31 @@
  */
 package ch.njol.skript.bukkitutil;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.entity.EntityData;
+import org.bukkit.Location;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Piglin;
+import org.bukkit.entity.Zoglin;
+import org.bukkit.entity.Zombie;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.bukkit.Location;
-import org.bukkit.entity.*;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
 
 /**
  * Utility class for quick {@link Entity} methods
  */
 public class EntityUtils {
-	
+
 	private static final boolean HAS_PIGLINS = Skript.classExists("org.bukkit.entity.Piglin");
 
 	/**
 	 * Cache Skript EntityData -> Bukkit EntityType
 	 */
-	private static final BiMap<EntityData, EntityType> SPAWNER_TYPES = HashBiMap.create();
+	private static final BiMap<EntityData<?>, EntityType> SPAWNER_TYPES = HashBiMap.create();
 
 	static {
 		for (EntityType e : EntityType.values()) {
@@ -44,7 +51,7 @@ public class EntityUtils {
 				SPAWNER_TYPES.put(EntityData.fromClass(c), e);
 		}
 	}
-	
+
 	/**
 	 * Check if an entity is ageable.
 	 * Some entities, such as zombies, do not have an age but can be a baby/adult.
@@ -57,7 +64,7 @@ public class EntityUtils {
 			return true;
 		return HAS_PIGLINS && (entity instanceof Piglin || entity instanceof Zoglin);
 	}
-	
+
 	/**
 	 * Get the age of an ageable entity.
 	 * Entities such as zombies do not have an age, this will return -1 if baby, 0 if adult.
@@ -78,7 +85,7 @@ public class EntityUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Set the age of an entity.
 	 * Entities such as zombies do not have an age, setting below 0 will make them a baby otherwise adult.
@@ -98,7 +105,7 @@ public class EntityUtils {
 				((Zoglin) entity).setBaby(age < 0);
 		}
 	}
-	
+
 	/**
 	 * Quick method for making an entity a baby.
 	 * Ageable entities (such as sheep or pigs) will set their default baby age to -24000.
@@ -108,7 +115,7 @@ public class EntityUtils {
 	public static void setBaby(Entity entity) {
 		setAge(entity, -24000);
 	}
-	
+
 	/**
 	 * Quick method for making an entity an adult.
 	 *
@@ -117,7 +124,7 @@ public class EntityUtils {
 	public static void setAdult(Entity entity) {
 		setAge(entity, 0);
 	}
-	
+
 	/**
 	 * Quick method to check if entity is an adult.
 	 *
@@ -133,7 +140,7 @@ public class EntityUtils {
 	 * @param e Skript's EntityData
 	 * @return Bukkit's EntityType
 	 */
-	public static EntityType toBukkitEntityType(EntityData e) {
+	public static EntityType toBukkitEntityType(EntityData<?> e) {
 		return SPAWNER_TYPES.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
 	}
 
@@ -142,7 +149,7 @@ public class EntityUtils {
 	 * @param e Bukkit's EntityType
 	 * @return Skript's EntityData
 	 */
-	public static EntityData toSkriptEntityData(EntityType e) {
+	public static EntityData<?> toSkriptEntityData(EntityType e) {
 		return SPAWNER_TYPES.inverse().get(e);
 	}
 
