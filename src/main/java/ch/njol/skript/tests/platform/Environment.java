@@ -220,7 +220,7 @@ public class Environment {
 	}
 
 	@Nullable
-	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug, String... jvmArgs) throws IOException, InterruptedException {
+	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug, List<String> jvmArgs) throws IOException, InterruptedException {
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
 		Files.deleteIfExists(resultsPath);
@@ -237,7 +237,7 @@ public class Environment {
 		args.add("-Ddisable.watchdog=true");
 		if (debug)
 			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044");
-		args.addAll(Arrays.asList(jvmArgs));
+		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 
 		Process process = new ProcessBuilder(args)

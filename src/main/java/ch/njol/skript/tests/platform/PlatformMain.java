@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -63,6 +64,8 @@ public class PlatformMain {
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
 		boolean debug = "true".equals(args[6]);
+		List<String> jvmArgs = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(args, 7, args.length)));
+		jvmArgs.add("-Xmx5G");
 		
 		// Load environments
 		List<Environment> envs;
@@ -91,7 +94,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, "-Xmx5G");
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.

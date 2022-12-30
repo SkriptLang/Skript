@@ -159,11 +159,11 @@ tasks.register('testNaming') {
 }
 
 enum Modifiers {
-	DevMode, GenDocs, Debug
+	DevMode, GenDocs, Debug, Profile
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environments, int javaVersion, String profiler = null, Modifiers... modifiers) {
+void createTestTask(String name, String environments, int javaVersion, Modifiers... modifiers) {
 	tasks.register(name, JavaExec) {
 		dependsOn nightlyRelease, testNaming
 		javaLauncher = javaToolchains.launcherFor {
@@ -189,8 +189,10 @@ void createTestTask(String name, String environments, int javaVersion, String pr
 			modifiers.contains(Modifiers.Debug),
 		]
 
-		if (profiler != null)
-			args += profiler
+		if (modifiers.contains(Modifiers.Profile)) {
+			if (project.property('profiler') == null) logger.error('Add parameter -Pprofiler=<path to profiler>')
+			else args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
+		}
 	}
 }
 
@@ -204,11 +206,12 @@ tasks.withType(JavaCompile).configureEach {
 
 // Register different Skript testing tasks
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
-int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion'))
+int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, latestJava)
 createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', latestJava)
 createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', oldestJava)
 createTestTask('skriptTestDev', 'src/test/skript/environments/' + env, envJava, Modifiers.DevMode, Modifiers.Debug)
+createTestTask('skriptProfile', 'src/test/skript/environments/' + latestEnv, latestJava, Modifiers.Profile)
 createTestTask('genDocs', 'src/test/skript/environments/' + env, envJava, Modifiers.GenDocs)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 
