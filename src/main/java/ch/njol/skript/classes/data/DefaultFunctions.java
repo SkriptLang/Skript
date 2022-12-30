@@ -41,10 +41,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("null")
 public class DefaultFunctions {
 	
 	private static String str(double n) {
@@ -68,16 +64,21 @@ public class DefaultFunctions {
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Long>("round", numberParam, DefaultClasses.LONG, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(-1, false))}, DefaultClasses.NUMBER, true) {
 			@Override
-			public Long[] executeSimple(Object[][] params) {
+			public Number[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
 					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.round(((Number) params[0][0]).doubleValue())};
+				double value = ((Number) params[0][0]).doubleValue();
+				int placement = ((Number)params[1][0]).intValue();
+				if (placement > 0) {
+					return new Double[] {Math2.round(value * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
+				}
+				return new Long[] {Math2.round(value)};
 			}
-		}.description("Rounds a number, i.e. returns the closest integer to the argument.")
+		}.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
-			.since("2.2"));
+			.since("2.2, INSERT VERSION (decimal placement)"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
 			@Override

@@ -1,0 +1,10 @@
+test "rounding function":
+	assert round(1.5) is 2 with "first assertion round failed"
+	assert round(1.49) is 1 with "second assertion round failed"
+	assert round(1.534, 2) is 1.53 with "third assertion round failed"
+	assert round(1.536, 2) is 1.54 with "fourth assertion round failed"
+	assert round(1.5367623123456789, 5) is 1.53676 with "fifth assertion round failed"
+	assert round(1.5, 1) is 1.5 with "double comparing failed" #because 1.50 should still be 1.5
+	assert round(1.5, 1) is 1.50 with "tricking assertion round failed %round(1.5, 1)%"
+	assert round(1.5, 2) is 1.500 with "second tricking assertion round failed %round(1.5, 2)%"
+	assert round(1.500000, 3) is 1.5000 with "third tricking assertion round failed %round(1.500000, 3)%"
