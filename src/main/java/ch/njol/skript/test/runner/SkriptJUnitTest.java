@@ -91,9 +91,18 @@ public abstract class SkriptJUnitTest {
 	 * @return the Block after it has been updated.
 	 */
 	protected Block setBlock(Material material) {
-		Block block = getTestWorld().getBlockAt(getTestLocation());
+		Block block = getBlock();
 		block.setType(material);
 		return block;
+	}
+
+	/**
+	 * Return the main block for testing in the getTestLocation();
+	 * 
+	 * @return the Block after it has been updated.
+	 */
+	protected Block getBlock() {
+		return getTestWorld().getBlockAt(getTestLocation());
 	}
 
 }

@@ -18,8 +18,6 @@
  */
 package org.skriptlang.skript.test.tests.regression;
 
-import java.util.concurrent.TimeUnit;
-
 import org.bukkit.entity.Pig;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +30,7 @@ public class SimpleJUnitTest extends SkriptJUnitTest {
 	private static Pig piggy;
 
 	static {
-		setDelay(TimeUnit.SECONDS.toMillis(1));
+		setDelay(10);
 	}
 
 	@Before
