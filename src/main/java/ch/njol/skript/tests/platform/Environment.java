@@ -236,7 +236,7 @@ public class Environment {
 		args.add("-Dskript.testing.results=test_results.json");
 		args.add("-Ddisable.watchdog=true");
 		if (debug)
-			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044");
+			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
 		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 
