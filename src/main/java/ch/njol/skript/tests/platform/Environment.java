@@ -220,7 +220,7 @@ public class Environment {
 	}
 
 	@Nullable
-	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, String... jvmArgs) throws IOException, InterruptedException {
+	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug, String... jvmArgs) throws IOException, InterruptedException {
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
 		Files.deleteIfExists(resultsPath);
@@ -235,6 +235,8 @@ public class Environment {
 			args.add("-Dskript.forceregisterhooks");
 		args.add("-Dskript.testing.results=test_results.json");
 		args.add("-Ddisable.watchdog=true");
+		if (debug)
+			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044");
 		args.addAll(Arrays.asList(jvmArgs));
 		args.addAll(Arrays.asList(commandLine));
 

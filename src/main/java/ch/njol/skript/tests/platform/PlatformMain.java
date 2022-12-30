@@ -62,6 +62,7 @@ public class PlatformMain {
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
+		boolean debug = "true".equals(args[6]);
 		
 		// Load environments
 		List<Environment> envs;
@@ -90,7 +91,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, "-Xmx5G");
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, "-Xmx5G");
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.

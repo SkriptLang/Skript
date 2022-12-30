@@ -159,7 +159,7 @@ tasks.register('testNaming') {
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs) {
+void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs, boolean debug) {
 	tasks.register(name, JavaExec) {
 		dependsOn nightlyRelease, testNaming
 		javaLauncher = javaToolchains.launcherFor {
@@ -181,7 +181,8 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 			'src/test/resources/runner_data',
 			environments,
 			devMode,
-			genDocs
+			genDocs,
+			debug
 		]
 	}
 }
@@ -195,16 +196,16 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false)
+createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
+createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false, false)
+createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false, false)
 createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), false)
+	? latestJava : project.property('testEnvJavaVersion')), false, true)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), true)
+	? latestJava : project.property('testEnvJavaVersion')), true, false)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
