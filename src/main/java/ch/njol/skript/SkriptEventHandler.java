@@ -34,6 +34,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -287,18 +288,31 @@ public final class SkriptEventHandler {
 	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
 
 	/**
-	 * A cache for the getHandlerList methods of Event classes
+	 * A cache for the getHandlerList methods of Event classes.
 	 */
 	private static final Map<Class<? extends Event>, Method> handlerListMethods = new HashMap<>();
 
+	/**
+	 * A cache for obtained HandlerLists.
+	 */
+	private static final Map<Method, WeakReference<HandlerList>> handlerListCache = new HashMap<>();
+
 	@Nullable
-	@SuppressWarnings("ThrowableNotThrown")
 	private static HandlerList getHandlerList(Class<? extends Event> eventClass) {
 		try {
 			Method method = getHandlerListMethod(eventClass);
-			method.setAccessible(true);
-			return (HandlerList) method.invoke(null);
+
+			WeakReference<HandlerList> handlerListReference = handlerListCache.get(method);
+			HandlerList handlerList = handlerListReference != null ? handlerListReference.get() : null;
+			if (handlerList == null) {
+				method.setAccessible(true);
+				handlerList = (HandlerList) method.invoke(null);
+				handlerListCache.put(method, new WeakReference<>(handlerList));
+			}
+
+			return handlerList;
 		} catch (Exception ex) {
+			//noinspection ThrowableNotThrown
 			Skript.exception(ex, "Failed to get HandlerList for event " + eventClass.getName());
 			return null;
 		}
