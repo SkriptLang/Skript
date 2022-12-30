@@ -89,8 +89,11 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (getExpr().getReturnType().isAssignableFrom(Player.class) && !SUPPORTS_PLAYERS)
 			return null;
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			return CollectionUtils.array(Number.class);
+		} else if (mode == ChangeMode.RESET) {
+			return new Class[0];
+		}
 		return null;
 	}
 
