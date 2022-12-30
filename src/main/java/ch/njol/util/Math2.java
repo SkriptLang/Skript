@@ -21,7 +21,6 @@ package ch.njol.util;
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.MarkedForRemoval;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
 
 import java.util.Arrays;
 
