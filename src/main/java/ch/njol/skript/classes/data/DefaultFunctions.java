@@ -70,7 +70,7 @@ public class DefaultFunctions {
 				if (params[0][0] instanceof Long)
 					return new Long[] {(Long) params[0][0]};
 				double value = ((Number) params[0][0]).doubleValue();
-				int placement = ((Number)params[1][0]).intValue();
+				int placement = ((Number) params[1][0]).intValue();
 				if (placement > 0) {
 					return new Double[] {Math2.round(value * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 				}
