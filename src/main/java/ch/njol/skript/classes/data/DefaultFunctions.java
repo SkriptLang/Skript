@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 
 import ch.njol.skript.lang.function.FunctionEvent;
@@ -64,15 +66,22 @@ public class DefaultFunctions {
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(-1, false))}, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
 					return new Long[] {(Long) params[0][0]};
 				double value = ((Number) params[0][0]).doubleValue();
 				int placement = ((Number) params[1][0]).intValue();
-				if (placement > 0) {
-					return new Double[] {Math2.round(value * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
+				if (placement != 0) {
+					if (placement >= 0) {
+						BigDecimal decimal = new BigDecimal(Double.toString(value));
+						decimal = decimal.setScale(placement, RoundingMode.HALF_UP);
+						return new Double[] {decimal.doubleValue()};
+					}
+					//	return new Double[] {Math2.round(value * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
+					long rounded = Math2.round(value);
+					return new Double[] {(int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 				}
 				return new Long[] {Math2.round(value)};
 			}
@@ -434,13 +443,13 @@ public class DefaultFunctions {
 			public Long[] executeSimple(Object[][] params) {
 				long level = (long) params[0][0];
 				long exp;
-			    if (level <= 0) {
+				if (level <= 0) {
 					exp = 0;
 				} else if (level >= 1 && level <= 15) {
 					exp = level * level + 6 * level;
 				} else if (level >= 16 && level <= 30) { // Truncating decimal parts probably works
-			        exp = (int) (2.5 * level * level - 40.5 * level + 360);
-			    } else { // Half experience points do not exist, anyway
+					exp = (int) (2.5 * level * level - 40.5 * level + 360);
+				} else { // Half experience points do not exist, anyway
 					exp = (int) (4.5 * level * level - 162.5 * level + 2220);
 				}
 				

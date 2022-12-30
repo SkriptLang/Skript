@@ -8,3 +8,9 @@ test "rounding function":
 	assert round(1.5, 1) is 1.50 with "tricking assertion round failed"
 	assert round(1.5, 2) is 1.500 with "second tricking assertion round failed"
 	assert round(1.500000, 3) is 1.5000 with "third tricking assertion round failed"
+	assert round(-11.535, 2) is -11.54 with "fourth tricking assertion round failed"
+
+	assert round(111.111, -1) is 110.0 with "first negative assertion round failed"
+	assert round(15.1, -1) is 20.0 with "second negative assertion round failed"
+	assert round(1044.5, -1) is 1050.0 with "third negative assertion round failed"
+	assert round(-1044.5, -2) is -1000.0 with "fourth negative assertion round failed"
