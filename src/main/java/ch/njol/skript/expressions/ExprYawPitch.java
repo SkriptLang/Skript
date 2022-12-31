@@ -37,17 +37,22 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Yaw / Pitch")
 @Description({
 		"The yaw or pitch of a location or vector.",
 		"A yaw of 0 or 360 represents the positive x direction. Adding a positive number to the yaw of a player will rotate it counter-clockwise.",
-		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards."
+		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards.",
+		"You can only change the yaw/pitch of entities, not players. Only Paper 1.19+ users may directly change the yaw/pitch of players."
 })
-@Examples({"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
+@Examples({
+		"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
 		"set {_yaw} to yaw of player",
 		"set {_p} to pitch of target entity",
-		"add 90 to yaw of player # Rotates the player counter-clockwise"})
+		"set pitch of player to 90 # Makes the player look upwards, Paper 1.19+ only",
+		"add 180 to yaw of target of player # Makes the target look behind him"
+})
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
@@ -63,7 +68,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		usesYaw = parseResult.hasTag("yaw");
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -91,16 +96,23 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (getExpr().getReturnType().isAssignableFrom(Player.class) && !SUPPORTS_PLAYERS)
 			return null;
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
-			return CollectionUtils.array(Number.class);
-		} else if (mode == ChangeMode.RESET) {
-			return new Class[0];
+
+		switch (mode) {
+			case SET:
+			case ADD:
+			case REMOVE:
+				return CollectionUtils.array(Number.class);
+			case RESET:
+				return new Class[0];
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
-	public void change(Event event, Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (delta == null && mode != ChangeMode.RESET)
+			return;
 		float value = ((Number) delta[0]).floatValue();
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Player && !SUPPORTS_PLAYERS)
