@@ -55,7 +55,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
-		register(ExprEntityAttribute.class, Number.class, "[(base|1:total|1:final|1:modified)] attribute [value]", "entities");
+		register(ExprEntityAttribute.class, Number.class, "[(base|1:total|1:final|1:modified)] %attributetype% attribute [value]", "entities");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
