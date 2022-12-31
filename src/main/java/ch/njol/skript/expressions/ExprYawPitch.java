@@ -59,7 +59,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	private boolean usesYaw;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		usesYaw = parseResult.hasTag("yaw");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
