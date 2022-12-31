@@ -36,7 +36,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Test environment information.
@@ -220,7 +224,9 @@ public class Environment {
 	}
 
 	@Nullable
-	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug, List<String> jvmArgs) throws IOException, InterruptedException {
+	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug,
+	                            String verbosity, List<String> jvmArgs) throws IOException, InterruptedException {
+		
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
 		Files.deleteIfExists(resultsPath);
@@ -231,6 +237,8 @@ public class Environment {
 		args.add("-Dskript.testing.dir=" + testsRoot);
 		args.add("-Dskript.testing.devMode=" + devMode);
 		args.add("-Dskript.testing.genDocs=" + genDocs);
+		if (!verbosity.equalsIgnoreCase("null"))
+			args.add("-Dskript.testing.verbosity=" + verbosity);
 		if (genDocs)
 			args.add("-Dskript.forceregisterhooks");
 		args.add("-Dskript.testing.results=test_results.json");

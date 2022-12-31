@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,8 @@ public class PlatformMain {
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
 		boolean debug = "true".equals(args[6]);
-		List<String> jvmArgs = Lists.newArrayList(Arrays.copyOfRange(args, 7, args.length));
+		String verbosity = args[7].toUpperCase(Locale.ENGLISH);
+		List<String> jvmArgs = Lists.newArrayList(Arrays.copyOfRange(args, 8, args.length));
 		jvmArgs.add("-Xmx5G");
 		
 		// Load environments
@@ -95,7 +97,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, jvmArgs);
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, verbosity, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.

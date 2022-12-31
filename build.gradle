@@ -187,6 +187,7 @@ void createTestTask(String name, String environments, int javaVersion, Modifiers
 			modifiers.contains(Modifiers.DevMode),
 			modifiers.contains(Modifiers.GenDocs),
 			modifiers.contains(Modifiers.Debug),
+			project.findProperty('verbosity') ?: "null"
 		]
 
 		if (modifiers.contains(Modifiers.Profile)) {
