@@ -39,9 +39,11 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.util.Vector;
 
 @Name("Yaw / Pitch")
-@Description({"The yaw or pitch of a location or vector.",
+@Description({
+		"The yaw or pitch of a location or vector.",
 		"A yaw of 0 or 360 represents the positive x direction. Adding a positive number to the yaw of a player will rotate it counter-clockwise.",
-		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards."})
+		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards."
+})
 @Examples({"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
 		"set {_yaw} to yaw of player",
 		"set {_p} to pitch of target entity",
