@@ -103,6 +103,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Player && !SUPPORTS_PLAYERS)
 				continue;
+				
 			if (object instanceof Entity) {
 				changeForEntity((Entity) object, value, mode);
 			} else if (object instanceof Location) {
