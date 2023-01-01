@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -227,7 +228,7 @@ public class ChatMessages {
 					} else {
 						name = tag;
 					}
-					name = name.toLowerCase(); // Tags are case-insensitive
+					name = name.toLowerCase(Locale.ENGLISH); // Tags are case-insensitive
 					
 					boolean tryHex = Utils.HEX_SUPPORTED && name.startsWith("#");
 					ChatColor chatColor = null;

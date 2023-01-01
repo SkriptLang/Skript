@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -52,6 +53,9 @@ public class EffLightning extends Effect {
 	
 	private boolean effectOnly;
 	
+	@Nullable
+	public static Entity lastSpawned = null;
+	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -64,9 +68,9 @@ public class EffLightning extends Effect {
 	protected void execute(final Event e) {
 		for (final Location l : locations.getArray(e)) {
 			if (effectOnly)
-				l.getWorld().strikeLightningEffect(l);
+				lastSpawned = l.getWorld().strikeLightningEffect(l);
 			else
-				l.getWorld().strikeLightning(l);
+				lastSpawned = l.getWorld().strikeLightning(l);
 		}
 	}
 	

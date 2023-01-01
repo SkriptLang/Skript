@@ -23,6 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -181,7 +183,7 @@ public abstract class SkriptLogger {
 			}
 		}
 		entry.logged();
-		LOGGER.log(entry.getLevel(), "[Skript] " + entry.toFormattedString());
+		sendFormatted(Bukkit.getConsoleSender(), "[Skript] " + entry.toFormattedString());
 	}
 	
 	public static void logAll(Collection<LogEntry> entries) {
@@ -201,5 +203,17 @@ public abstract class SkriptLogger {
 	public static boolean log(Verbosity minVerb) {
 		return minVerb.compareTo(verbosity) <= 0;
 	}
-	
+
+	/**
+	 * Sends the given formatted message to the given {@link CommandSender}.
+	 */
+	public static void sendFormatted(CommandSender commandSender, String message) {
+		if (commandSender instanceof ConsoleCommandSender) {
+			for (String s : message.split("\n"))
+				Bukkit.getConsoleSender().sendMessage(s);
+		} else {
+			commandSender.sendMessage(message);
+		}
+	}
+
 }

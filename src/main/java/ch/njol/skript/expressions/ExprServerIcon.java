@@ -77,10 +77,13 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	@Nullable
 	public CachedServerIcon[] get(Event e) {
 		CachedServerIcon icon = null;
-		if ((isServerPingEvent && !isDefault) && PAPER_EVENT_EXISTS)
+		if ((isServerPingEvent && !isDefault) && PAPER_EVENT_EXISTS) {
+			if (!(e instanceof PaperServerListPingEvent))
+				return null;
 			icon = ((PaperServerListPingEvent) e).getServerIcon();
-		else
+		} else {
 			icon = Bukkit.getServerIcon();
+		}
 		if (icon == null || icon.getData() == null)
 			return null;
 		return CollectionUtils.array(icon);
@@ -103,6 +106,9 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof PaperServerListPingEvent))
+			return;
+
 		PaperServerListPingEvent event = (PaperServerListPingEvent) e;
 		switch (mode) {
 			case SET:

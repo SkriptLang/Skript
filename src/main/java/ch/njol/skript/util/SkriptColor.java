@@ -23,6 +23,7 @@ import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -44,7 +45,7 @@ public enum SkriptColor implements Color {
 	BLACK(DyeColor.BLACK, ChatColor.BLACK),
 	DARK_GREY(DyeColor.GRAY, ChatColor.DARK_GRAY),
 	// DyeColor.LIGHT_GRAY on 1.13, DyeColor.SILVER on earlier (dye colors were changed in 1.12)
-	LIGHT_GREY(DyeColor.getByColor(org.bukkit.Color.fromRGB(Skript.isRunningMinecraft(1, 12) ? 0x9D9D97 : 0x999999)), ChatColor.GRAY),
+	LIGHT_GREY(DyeColor.LIGHT_GRAY, ChatColor.GRAY),
 	WHITE(DyeColor.WHITE, ChatColor.WHITE),
 	
 	DARK_BLUE(DyeColor.BLUE, ChatColor.DARK_BLUE),
@@ -76,7 +77,7 @@ public enum SkriptColor implements Color {
 				String node = LANGUAGE_NODE + "." + color.name();
 				color.setAdjective(new Adjective(node + ".adjective"));
 				for (String name : Language.getList(node + ".names"))
-					names.put(name.toLowerCase(), color);
+					names.put(name.toLowerCase(Locale.ENGLISH), color);
 			}
 		});
 	}

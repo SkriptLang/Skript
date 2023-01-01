@@ -20,6 +20,8 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 /**
  * A {@link PatternElement} that contains a literal string to be matched, for example {@code hello world}.
  * This element does not handle spaces as would be expected.
@@ -29,7 +31,7 @@ public class LiteralPatternElement extends PatternElement {
 	private final char[] literal;
 
 	public LiteralPatternElement(String literal) {
-		this.literal = literal.toLowerCase().toCharArray();
+		this.literal = literal.toLowerCase(Locale.ENGLISH).toCharArray();
 	}
 
 	public boolean isEmpty() {

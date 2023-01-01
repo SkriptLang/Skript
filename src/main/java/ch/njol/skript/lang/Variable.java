@@ -27,14 +27,14 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Comparator.Relation;
-import ch.njol.skript.config.Config;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.util.ScriptOptions;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
@@ -45,8 +45,8 @@ import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
+import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -180,14 +180,15 @@ public class Variable<T> implements Expression<T> {
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
-		Config currentScript = ParserInstance.get().getCurrentScript();
+		ParserInstance parser = ParserInstance.get();
+		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 		if (currentScript != null
 				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-				&& !ScriptOptions.getInstance().suppressesWarning(currentScript.getFile(), "start expression")
+				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
 				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(currentScript.getFileName(), 0, -3) + "." + name + "}");
+				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + "." + name + "}");
 		}
 
 		// Check for local variable type hints
@@ -327,8 +328,6 @@ public class Variable<T> implements Expression<T> {
 		return l.toArray();
 	}
 
-	private final static boolean uuidSupported = Skript.methodExists(OfflinePlayer.class, "getUniqueId");
-
 	/*
 	 * Workaround for player variables when a player has left and rejoined
 	 * because the player object inside the variable will be a (kinda) dead variable
@@ -338,7 +337,7 @@ public class Variable<T> implements Expression<T> {
 		if(SkriptConfig.enablePlayerVariableFix.value() && t != null && t instanceof Player){
 			Player p = (Player) t;
 			if(!p.isValid() && p.isOnline()){
-				Player player = uuidSupported ? Bukkit.getPlayer(p.getUniqueId()) : Bukkit.getPlayerExact(p.getName());
+				Player player = Bukkit.getPlayer(p.getUniqueId());
 				Variables.setVariable(key, player, event, local);
 				return player;
 			}
@@ -396,9 +395,12 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
+	@Nullable
 	public Iterator<T> iterator(Event e) {
-		//if (!list)
-		//	throw new SkriptAPIException("");
+		if (!list) {
+			T item = getSingle(e);
+			return item != null ? new SingleItemIterator<>(item) : null;
+		}
 		String name = StringUtils.substring(this.name.toString(e), 0, -1);
 		Object val = Variables.getVariable(name + "*", e, local);
 		if (val == null)

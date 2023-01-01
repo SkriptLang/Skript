@@ -85,7 +85,7 @@ public class BlockUtils {
 		Location l = b.getLocation().add(0.5, 0.5, 0.5);
 		BlockFace blockFace = Direction.getFacing(b);
 		if (blockFace != BlockFace.SELF) {
-			l.setPitch(Direction.getPitch(Math.sin(blockFace.getModY())));
+			l.setPitch(Direction.getPitch(Math.asin(blockFace.getModY())));
 			l.setYaw(Direction.getYaw(Math.atan2(blockFace.getModZ(), blockFace.getModX())));
 		}
 		return l;
@@ -141,7 +141,7 @@ public class BlockUtils {
 	 * @return the actual CB block from the given argument
 	 */
 	public static Block extractBlock(Block block) {
-		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
+		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
 	}
 
 }

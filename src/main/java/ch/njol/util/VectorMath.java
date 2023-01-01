@@ -190,4 +190,12 @@ public class VectorMath {
 			return angle;
 		}
 	}
+
+	/**
+	 * Copies vector components of {@code vector2} into {@code vector1}.
+	 */
+	public static void copyVector(Vector vector1, Vector vector2) {
+		vector1.setX(vector2.getX()).setY(vector2.getY()).setZ(vector2.getZ());
+	}
+
 }

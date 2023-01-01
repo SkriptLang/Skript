@@ -25,6 +25,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -279,6 +280,8 @@ public class DefaultConverters {
 			public Block convert(final InventoryHolder holder) {
 				if (holder instanceof BlockState)
 					return new BlockInventoryHolder((BlockState) holder);
+				if (holder instanceof DoubleChest)
+					return holder.getInventory().getLocation().getBlock();
 				return null;
 			}
 		});
@@ -347,16 +350,14 @@ public class DefaultConverters {
 		});
 		
 		// EnchantmentOffer Converters
-		if (Skript.isRunningMinecraft(1, 11)) {
-			// EnchantmentOffer - EnchantmentType
-			Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, new Converter<EnchantmentOffer, EnchantmentType>() {
-				@Nullable
-				@Override
-				public EnchantmentType convert(EnchantmentOffer eo) {
-					return new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel());
-				}
-			});
-		}
+		// EnchantmentOffer - EnchantmentType
+		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, new Converter<EnchantmentOffer, EnchantmentType>() {
+			@Nullable
+			@Override
+			public EnchantmentType convert(EnchantmentOffer eo) {
+				return new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel());
+			}
+		});
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 	}
