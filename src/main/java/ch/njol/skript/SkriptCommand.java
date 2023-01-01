@@ -184,7 +184,7 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("enable")) {
-				if (args[1].equals("all")) {
+				if (args[1].equalsIgnoreCase("all")) {
 					try {
 						info(sender, "enable.all.enabling");
 						File[] files = toggleScripts(new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER), true).toArray(new File[0]);
@@ -264,7 +264,7 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("disable")) {
-				if (args[1].equals("all")) {
+				if (args[1].equalsIgnoreCase("all")) {
 					ScriptLoader.disableScripts();
 					try {
 						toggleScripts(new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER), false);
@@ -318,7 +318,7 @@ public class SkriptCommand implements CommandExecutor {
 					Skript.info(sender, "" + SkriptUpdater.m_internal_error);
 					return true;
 				}
-				if (args[1].equals("check")) {
+				if (args[1].equalsIgnoreCase("check")) {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
@@ -328,6 +328,7 @@ public class SkriptCommand implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
 				info(sender, "info.documentation");
+				info(sender, "info.tutorials");
 				info(sender, "info.server", Bukkit.getVersion());
 				info(sender, "info.version", Skript.getVersion());
 				info(sender, "info.addons", Skript.getAddons().isEmpty() ? "None" : "");

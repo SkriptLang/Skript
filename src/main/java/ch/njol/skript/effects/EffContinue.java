@@ -27,12 +27,16 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Name("Continue")
 @Description("Skips the value currently being looped, moving on to the next value if it exists.")
@@ -40,7 +44,7 @@ import java.util.List;
 		"\tif loop-value does not have permission \"moderator\":",
 		"\t\tcontinue # filter out non moderators",
 		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast"})
-@Since("2.2-dev37")
+@Since("2.2-dev37, INSERT VERSION (while loops)")
 public class EffContinue extends Effect {
 
 	static {
@@ -48,16 +52,20 @@ public class EffContinue extends Effect {
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private SecLoop loop;
+	private TriggerSection section;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<SecLoop> loops = getParser().getCurrentSections(SecLoop.class);
-		if (loops.isEmpty()) {
-			Skript.error("Continue may only be used in loops");
+		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections().stream()
+			.filter(s -> s instanceof SecLoop || s instanceof SecWhile)
+			.collect(Collectors.toList());
+		
+		if (currentSections.isEmpty()) {
+			Skript.error("Continue may only be used in while or loops");
 			return false;
 		}
-		loop = loops.get(loops.size() - 1);
+		
+		section = currentSections.get(currentSections.size() - 1);
 		return true;
 	}
 
@@ -69,7 +77,7 @@ public class EffContinue extends Effect {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
-		return loop;
+		return section;
 	}
 
 	@Override

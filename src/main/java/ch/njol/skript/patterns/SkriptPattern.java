@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SkriptPattern {
 
@@ -42,7 +43,7 @@ public class SkriptPattern {
 	@Nullable
 	public MatchResult match(String expr, int flags, ParseContext parseContext) {
 		// Matching shortcut
-		String lowerExpr = expr.toLowerCase();
+		String lowerExpr = expr.toLowerCase(Locale.ENGLISH);
 		for (String keyword : keywords)
 			if (!lowerExpr.contains(keyword))
 				return null;

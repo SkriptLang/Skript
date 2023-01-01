@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.bukkit.command.Command;
@@ -153,6 +154,6 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "the " + type.name().toLowerCase().replace("_", " ") + " of command " + commandName.toString(e, debug);
+		return "the " + type.name().toLowerCase(Locale.ENGLISH).replace("_", " ") + " of command " + commandName.toString(e, debug);
 	}
 }

@@ -66,6 +66,9 @@ public class CondResourcePack extends Condition {
 	
 	@Override
 	public boolean check(Event e) {
+		if (!(e instanceof PlayerResourcePackStatusEvent))
+			return isNegated();
+
 		Status state = ((PlayerResourcePackStatusEvent) e).getStatus();
 		return states.check(e, state::equals, isNegated());
 	}

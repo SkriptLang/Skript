@@ -286,10 +286,7 @@ public class DefaultChangers {
 			if (mode == ChangeMode.RESET)
 				return null; // REMIND regenerate?
 			if (mode == ChangeMode.SET)
-				if (Skript.classExists("org.bukkit.block.data.BlockData"))
-					return CollectionUtils.array(ItemType.class, BlockData.class);
-				else
-					return CollectionUtils.array(ItemType.class);
+				return CollectionUtils.array(ItemType.class, BlockData.class);
 			return CollectionUtils.array(ItemType[].class, Inventory[].class);
 		}
 		

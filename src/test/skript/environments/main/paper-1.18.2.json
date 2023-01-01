@@ -1,10 +1,13 @@
 {
-	"name": "paper-1.16.5",
+	"name": "paper-1.18.2",
 	"resources": [
 		{"source": "server.properties.generic", "target": "server.properties"}
 	],
-	"downloads": [
-		{"source": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-790.jar", "target": "paperclip.jar"}
+	"paperDownloads": [
+		{
+			"version": "1.18.2",
+			"target": "paperclip.jar"
+		}
 	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [

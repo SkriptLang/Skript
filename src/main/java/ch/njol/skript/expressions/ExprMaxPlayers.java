@@ -70,6 +70,9 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 	@Override
 	@Nullable
 	public Long[] get(Event e) {
+		if (!isReal && !(e instanceof ServerListPingEvent))
+			return null;
+
 		if (isReal)
 			return CollectionUtils.array((long) Bukkit.getMaxPlayers());
 		else
@@ -99,6 +102,9 @@ public class ExprMaxPlayers extends SimpleExpression<Long> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(e instanceof ServerListPingEvent))
+			return;
+
 		ServerListPingEvent event = (ServerListPingEvent) e;
 		switch (mode) {
 			case SET:

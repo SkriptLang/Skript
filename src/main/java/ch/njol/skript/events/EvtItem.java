@@ -64,17 +64,17 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player drops an item from their inventory.")
 				.examples("on drop:")
 				.since("<i>unknown</i> (before 2.1)");
-		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
-				.description("Called when a player crafts an item.")
-				.examples("on craft:")
-				.since("<i>unknown</i> (before 2.1)");
-		if (hasPrepareCraftEvent) {
+		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
 					.since("2.2-Fixes-V10");
 		}
+		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
+		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
+				.description("Called when a player crafts an item.")
+				.examples("on craft:")
+				.since("<i>unknown</i> (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
 					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %itemtypes%]")

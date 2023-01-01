@@ -39,7 +39,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprProjectileBounceState extends SimplePropertyExpression<Projectile, Boolean> {
 	
 	static {
-		register(ExprProjectileBounceState.class, Boolean.class, "[the] projectile bounce (state|ability|mode)", "projectiles");
+		register(ExprProjectileBounceState.class, Boolean.class, "projectile bounce (state|ability|mode)", "projectiles");
 	}
 	
 	@Nullable

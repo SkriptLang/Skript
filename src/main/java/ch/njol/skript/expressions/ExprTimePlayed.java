@@ -48,15 +48,8 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
 
-	private static final Statistic TIME_PLAYED;
-
 	static {
 		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
-		if (Skript.isRunningMinecraft(1, 13)) {
-			TIME_PLAYED = Statistic.PLAY_ONE_MINUTE; // Statistic name is misleading, it's actually measured in ticks
-		} else {
-			TIME_PLAYED = Statistic.valueOf("PLAY_ONE_TICK");
-		}
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})
@@ -69,7 +62,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	@Nullable
 	@Override
 	public Timespan convert(OfflinePlayer offlinePlayer) {
-		return Timespan.fromTicks_i(offlinePlayer.getStatistic(TIME_PLAYED));
+		return Timespan.fromTicks_i(offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
 	}
 	
 	@Nullable
@@ -86,7 +79,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		long ticks = ((Timespan) delta[0]).getTicks_i();
 		for (OfflinePlayer offlinePlayer : getExpr().getArray(e)) {
-			long playerTicks = offlinePlayer.getStatistic(TIME_PLAYED);
+			long playerTicks = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -95,7 +88,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 					ticks = playerTicks - ticks;
 					break;
 			}
-			offlinePlayer.setStatistic(TIME_PLAYED, (int) ticks);
+			offlinePlayer.setStatistic(Statistic.PLAY_ONE_MINUTE, (int) ticks);
 		}
 	}
 	

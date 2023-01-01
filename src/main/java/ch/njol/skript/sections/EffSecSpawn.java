@@ -88,6 +88,8 @@ public class EffSecSpawn extends EffectSection {
 		}, 0);
 	}
 
+	private static final boolean BUKKIT_CONSUMER_EXISTS = Skript.classExists("org.bukkit.util.Consumer");
+
 	@Nullable
 	public static Entity lastSpawned = null;
 
@@ -113,8 +115,14 @@ public class EffSecSpawn extends EffectSection {
 		types = (Expression<EntityType>) exprs[matchedPattern];
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
 
-		if (sectionNode != null)
+		if (sectionNode != null) {
+			if (!BUKKIT_CONSUMER_EXISTS) {
+				Skript.error("The spawn section isn't available on your Minecraft version, use a spawn effect instead");
+				return false;
+			}
+
 			trigger = loadCode(sectionNode, "spawn", SpawnEvent.class);
+		}
 
 		return true;
 	}

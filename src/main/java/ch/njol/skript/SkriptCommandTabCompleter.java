@@ -56,7 +56,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				// Live update, this will get all old and new (even not loaded) scripts
 				Files.walk(scripts.toPath())
 					.map(Path::toFile)
-					.filter(f -> (!f.isDirectory() && f.getName().toLowerCase().endsWith(".sk")) ||
+					.filter(f -> (!f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk")) ||
 						f.isDirectory()) // filter folders and skript files only
 					.filter(f -> { // Filtration for enable, disable and reload
 						if (args[0].equalsIgnoreCase("enable"))

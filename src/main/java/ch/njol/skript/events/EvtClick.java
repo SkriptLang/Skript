@@ -47,18 +47,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("unchecked")
 public class EvtClick extends SkriptEvent {
-	
-	/**
-	 * Two hands available.
-	 */
-	final static boolean twoHanded = Skript.isRunningMinecraft(1, 9);
-	
-	/**
-	 * If a hand has item, it will always be used when the other hand has
-	 * nothing.
-	 */
-	final static boolean alwaysPreferItem = !Skript.isRunningMinecraft(1, 13);
-	
+
 	/**
 	 * Click types.
 	 */

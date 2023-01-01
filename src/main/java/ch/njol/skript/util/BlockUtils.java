@@ -85,7 +85,7 @@ public class BlockUtils {
 		Location l = b.getLocation().add(0.5, 0.5, 0.5);
 		BlockFace blockFace = Direction.getFacing(b);
 		if (blockFace != BlockFace.SELF) {
-			l.setPitch(Direction.getPitch(Math.sin(blockFace.getModY())));
+			l.setPitch(Direction.getPitch(Math.asin(blockFace.getModY())));
 			l.setYaw(Direction.getYaw(Math.atan2(blockFace.getModZ(), blockFace.getModX())));
 		}
 		return l;
@@ -133,5 +133,15 @@ public class BlockUtils {
 
 		return String.format("'%s' at %s, %s, %s in world '%s'", type, x, y, z, world);
 	}
-	
+
+	/**
+	 * Extracts the actual CraftBukkit block from the given argument,
+	 * by extracting the block from {@link DelayedChangeBlock} if the given argument is a {@link DelayedChangeBlock}.
+	 *
+	 * @return the actual CB block from the given argument
+	 */
+	public static Block extractBlock(Block block) {
+		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
+	}
+
 }

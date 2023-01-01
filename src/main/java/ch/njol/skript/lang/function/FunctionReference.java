@@ -18,14 +18,6 @@
  */
 package ch.njol.skript.lang.function;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import ch.njol.skript.lang.UnparsedLiteral;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -33,11 +25,19 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Reference to a Skript function.
@@ -274,7 +274,7 @@ public class FunctionReference<T> {
 				params[0][i] = Classes.clone(params[0][i]);
 			}
 		} else { // Use parameters in normal way
-			for (int i = 0; i < params.length; i++) {
+			for (int i = 0; i < parameters.length; i++) {
 				Object[] array = parameters[i].getArray(e);
 				params[i] = Arrays.copyOf(array, array.length);
 				// Don't allow mutating across function boundary; same hack is applied to variables

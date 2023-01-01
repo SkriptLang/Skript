@@ -174,7 +174,7 @@ public class SkriptClasses {
 					
 					@Override
 					public String toVariableNameString(final WeatherType o) {
-						return "" + o.name().toLowerCase();
+						return "" + o.name().toLowerCase(Locale.ENGLISH);
 					}
 
 				})
@@ -702,7 +702,7 @@ public class SkriptClasses {
 
 					@Override
 					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase();
+						return "" + o.name().toLowerCase(Locale.ENGLISH);
 					}
 				}).serializer(new EnumSerializer<>(StructureType.class)));
 
