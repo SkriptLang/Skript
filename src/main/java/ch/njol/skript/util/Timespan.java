@@ -101,24 +101,18 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
 			final String[] ss = TIMESPAN_SPLIT_PATTERN.split(s);
 			final long[] times = {1L, Times.SECOND.time, Times.MINUTE.time, Times.HOUR.time, Times.DAY.time}; // ms, s, m, h, d
-
 			boolean hasMs = s.contains(".");
 			int length = ss.length;
-			for (int i = length - 1; i >= 0; i--) {
-//				for (int i = 0; i < ss.length; i++) {
-				t += times[length - (hasMs ? 1 : 0)] * Utils.parseLong("" + ss[i - 1]); // DD:HH:MM:SS.ms length=5
-//				}
-			}
-//			int offset = 2; // MM:SS[.ms]
-//			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
-//				offset = 0;
-//			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
-//				offset = 1;
-//
-//			for (int i = 0; i < ss.length; i++) {
-//				t += times[offset + i] * Utils.parseLong("" + ss[i]);
-//			}
+			int offset = 2; // MM:SS[.ms]
 
+			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
+				offset = 0;
+			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
+				offset = 1;
+
+			for (int i = 0; i < ss.length; i++) {
+				t += times[offset + i] * Utils.parseLong("" + ss[i]);
+			}
 		} else { // <number> minutes/seconds/.. etc
 			final String[] subs = s.toLowerCase(Locale.ENGLISH).split("\\s+");
 			for (int i = 0; i < subs.length; i++) {
