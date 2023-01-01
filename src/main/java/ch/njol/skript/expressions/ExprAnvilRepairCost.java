@@ -99,16 +99,16 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 			return;
 
 		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
-		for (Inventory inv : getExpr().getArray(event)) {
-			if (inv instanceof AnvilInventory) {
-				AnvilInventory aInv = (AnvilInventory) inv;
-				int change = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
+		for (Inventory inventory : getExpr().getArray(event)) {
+			if (inventory instanceof AnvilInventory) {
+				AnvilInventory anvilInventory = (AnvilInventory) inventory;
+				int change = mode == ChangeMode.SET ? 0 : (isMax ? anvilInventory.getMaximumRepairCost() : anvilInventory.getRepairCost());
 				int newValue = Math.max((change + value), 0);
 
 				if (isMax)
-					aInv.setMaximumRepairCost(newValue);
+					anvilInventory.setMaximumRepairCost(newValue);
 				else
-					aInv.setRepairCost(newValue);
+					anvilInventory.setRepairCost(newValue);
 			}
 		}
 	}
