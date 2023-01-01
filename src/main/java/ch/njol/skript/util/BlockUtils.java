@@ -141,7 +141,7 @@ public class BlockUtils {
 	 * @return the actual CB block from the given argument
 	 */
 	public static Block extractBlock(Block block) {
-		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
+		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
 	}
 
 }

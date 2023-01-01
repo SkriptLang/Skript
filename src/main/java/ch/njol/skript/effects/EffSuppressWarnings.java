@@ -19,7 +19,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -27,68 +26,50 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.util.ScriptOptions;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.io.File;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
 @Description("Suppresses target warnings from the current script.")
-@Examples({"locally suppress conflict warnings",
-			"suppress the variable save warnings"})
+@Examples({
+	"locally suppress missing conjunction warnings",
+	"suppress the variable save warnings"
+})
 @Since("2.3")
 public class EffSuppressWarnings extends Effect {
 
 	static {
-		Skript.registerEffect(EffSuppressWarnings.class, "[local[ly]] suppress [the] (1¦conflict|2¦variable save|3¦[missing] conjunction[s]|4¦starting [with] expression[s]) warning[s]");
+		Skript.registerEffect(EffSuppressWarnings.class,
+			"[local[ly]] suppress [the] (1:conflict|2:variable save|3:[missing] conjunction[s]|4:starting [with] expression[s]) warning[s]"
+		);
 	}
 
-	private final int CONFLICT = 1;
-	private final int INSTANCE = 2;
-	private final int CONJUNCTION = 3;
-	private final int STARTEXPR = 4;
+	private static final int CONFLICT = 1, INSTANCE = 2, CONJUNCTION = 3, START_EXPR = 4;
 	private int mark = 0;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		Config cs = getParser().getCurrentScript();
-		if (cs == null) {
-			Skript.error("You can only suppress warnings for script files!");
+		if (!getParser().isActive()) {
+			Skript.error("You can't suppress warnings outside of a script!");
 			return false;
 		}
-		File scriptFile = cs.getFile();
+
 		mark = parseResult.mark;
-		switch (parseResult.mark) {
-			case CONFLICT: { // Possible variable conflicts
-				Skript.warning("Variable conflict warnings no longer need suppression, as they have been removed altogether");
-				break;
-			}
-			case INSTANCE: { // Variables cannot be saved
-				ScriptOptions.getInstance().setSuppressWarning(scriptFile, "instance var");
-				break;
-			}
-			case CONJUNCTION: { // Missing "and" or "or"
-				ScriptOptions.getInstance().setSuppressWarning(scriptFile, "conjunction");
-				break;
-			}
-			case STARTEXPR: { // Variable starts with expression
-				ScriptOptions.getInstance().setSuppressWarning(scriptFile, "start expression");
-				break;
-			}
-			default: {
-				throw new AssertionError();
-			}
+		if (mark == 1) {
+			Skript.warning("Variable conflict warnings no longer need suppression, as they have been removed altogether");
+		} else {
+			getParser().getCurrentScript().suppressWarning(ScriptWarning.values()[mark - 2]);
 		}
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) { }
+	protected void execute(Event event) { }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String word;
 		switch (mark) {
 			case CONFLICT:
@@ -100,7 +81,7 @@ public class EffSuppressWarnings extends Effect {
 			case CONJUNCTION:
 				word = "missing conjunction";
 				break;
-			case STARTEXPR:
+			case START_EXPR:
 				word = "starting expression";
 				break;
 			default:

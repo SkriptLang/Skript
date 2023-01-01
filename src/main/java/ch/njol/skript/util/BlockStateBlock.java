@@ -357,6 +357,16 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public void tick() {
+		state.getBlock().tick();
+	}
+
+	@Override
+	public void randomTick() {
+		state.getBlock().randomTick();
+	}
+
+	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return state.getBlock().applyBoneMeal(blockFace);
 	}
@@ -513,4 +523,15 @@ public class BlockStateBlock implements Block {
 	public @NotNull String translationKey() {
 		return state.getBlock().getTranslationKey();
 	}
+
+	@Override
+	public boolean breakNaturally(boolean triggerEffect, boolean dropExperience) {
+		return state.getBlock().breakNaturally(triggerEffect, dropExperience);
+	}
+
+	@Override
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect, boolean dropExperience) {
+		return state.getBlock().breakNaturally(tool, triggerEffect, dropExperience);
+	}
+
 }
