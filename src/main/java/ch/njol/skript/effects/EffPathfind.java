@@ -28,6 +28,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -40,9 +41,10 @@ import ch.njol.util.Kleenean;
 @Examples({
 	"make all creepers pathfind towards player",
 	"make all cows stop pathfinding",
-	"make event-entity pathfind towards player"
+	"make event-entity pathfind towards player at speed 1"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("Paper")
 public class EffPathfind extends Effect {
 
 	static {
@@ -72,7 +74,7 @@ public class EffPathfind extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
-		int speed = this.speed != null ? this.speed.getSingle(event).intValue() : 1;
+		double speed = this.speed != null ? this.speed.getOptionalSingle(event).orElse(1).doubleValue() : 1;
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (!(entity instanceof Mob))
 				continue;
@@ -87,13 +89,12 @@ public class EffPathfind extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (target == null)
-			return "make " + entities.toString(e, debug) + " stop pathfinding";
-
-		String repr = "make " + entities.toString(e, debug) + " pathfind towards " + target.toString(e, debug);
+			return "make " + entities.toString(event, debug) + " stop pathfinding";
+		String repr = "make " + entities.toString(event, debug) + " pathfind towards " + target.toString(event, debug);
 		if (speed != null)
-			repr += " at speed " + speed.toString(e, debug);
+			repr += " at speed " + speed.toString(event, debug);
 		return repr;
 	}
 
