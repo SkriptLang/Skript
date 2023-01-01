@@ -49,7 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	
 	static {
-		Skript.registerExpression(ExprFoodLevel.class, Number.class, ExpressionType.PROPERTY, "[the] (food|hunger)[[ ](level|met(er|re)|bar)] [of %player%]", "%player%'[s] (food|hunger)[[ ](level|met(er|re)|bar)]");
+		Skript.registerExpression(ExprFoodLevel.class, Number.class, ExpressionType.PROPERTY, "[the] (food|hunger)[[ ](level|met(er|re)|bar)] [of %players%]", "%players%'[s] (food|hunger)[[ ](level|met(er|re)|bar)]");
 	}
 	
 	@SuppressWarnings({"unchecked", "null"})

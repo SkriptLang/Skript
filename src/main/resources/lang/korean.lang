@@ -51,16 +51,16 @@ skript command:
 	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 스크립트를 찾을 수 없습니다!
 	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 폴더를 찾을 수 없습니다!
 	reload:
-		warning line info: <gold><bold>라인 %s: <gray>(%s)\n
-		error line info: <light red><bold>라인 %s: <gray>(%s)\n
+		warning line info: <gold><bold>라인 %s: <gray>(%s)<reset>\n
+		error line info: <light red><bold>라인 %s: <gray>(%s)<reset>\n
 		reloading: <gold>%s<reset>을(를) 다시 로드하는 중입니다...
 		reloaded: <gold>%s<lime>을(를) 다시 로드했습니다. <gray>(<gold>%2$sms<gray>)
 		error: <gold>%1$s<light red>을(를) 다시 로드하는 동안 <gold>%2$s<light red>개의 오류를 발견했습니다! <gray>(<gold>%2$sms<gray>)
 		script disabled: <gold>%s<reset>은 현재 비활성화되어 있습니다. <gray>/<gold>skript<cyan> <red>%s<reset>을 사용하여 활성화하십시오.
-		warning details: <yellow>    %s\n
-		error details: <light red>    %s\n
-		other details: <white>    %s\n
-		line details: <gold>    라인: <gray>%s\n <reset>
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    라인: <gray>%s<reset>\n <reset>
 
 		config, aliases and scripts: 구성(config), 별칭(aliases) 및 모든 스크립트
 		scripts: 모든 스크립트

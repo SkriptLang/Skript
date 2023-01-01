@@ -24,6 +24,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -97,21 +98,25 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		}
 		return true;
 	}
-	
-	@Nullable
+
 	@Override
-	public ThrownPotion spawn(Location loc) {
+	public @Nullable ThrownPotion spawn(Location loc, @Nullable Consumer<ThrownPotion> consumer) {
 		ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
-		final ItemStack i = t.getRandom();
-		if (i == null) {
+		ItemStack i = t.getRandom();
+		if (i == null)
 			return null;
-		}
-		ThrownPotion potion = loc.getWorld().spawn(loc, ThrownPotion.class);
+
+		ThrownPotion potion;
+		if (consumer != null)
+			potion = loc.getWorld().spawn(loc, ThrownPotion.class, consumer);
+		else
+			potion = loc.getWorld().spawn(loc, ThrownPotion.class);
+
 		potion.setItem(i);
 		return potion;
 	}
-	
+
 	@Override
 	public void set(final ThrownPotion entity) {
 		if (types != null) {

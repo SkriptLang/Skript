@@ -51,16 +51,16 @@ skript command:
 	invalid script: Das Skript <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	invalid folder: Der Ordner <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	reload:
-		warning line info: <gold><bold>Linie %s: <gray>(%s)\n
-		error line info: <light red><bold>Linie %s: <gray>(%s)\n
+		warning line info: <gold><bold>Linie %s: <gray>(%s)<reset>\n
+		error line info: <light red><bold>Linie %s: <gray>(%s)<reset>\n
 		reloading: Lade <gold>%s <reset>neu...
 		reloaded: <gold>%s <lime>erfolgreich neu geladen. <gray>(<gold>%2$sms<gray>)
 		error: <gold>%2$s <light red>Fehler ¦ist¦sind¦ beim Parsen aufgetreten! <gray>(<gold>%2$sms<gray>)
 		script disabled: <gold>%s<reset> ist derzeit deaktiviert. Verwende <gray>/<gold>skript <cyan>enable <red>%s<reset> um es zu aktivieren.
-		warning details: <yellow>    %s\n
-		error details: <light red>    %s\n
-		other details: <white>    %s\n
-		line details: <gold>    Linie: <gray>%s\n <reset>
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Linie: <gray>%s<reset>\n <reset>
 		
 		config, aliases and scripts: die Konfiguration, alle Itemnamen und alle Skripte
 		scripts: alle Skripte

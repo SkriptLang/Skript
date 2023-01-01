@@ -930,7 +930,7 @@ public class BukkitClasses {
 						if (holder instanceof BlockState) {
 							return Classes.toString(((BlockState) holder).getBlock());
 						} else if (holder instanceof DoubleChest) {
-							return "double chest";
+							return Classes.toString(holder.getInventory().getLocation().getBlock());
 						} else {
 							return Classes.toString(holder);
 						}

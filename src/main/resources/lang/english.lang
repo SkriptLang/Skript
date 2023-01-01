@@ -51,16 +51,16 @@ skript command:
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	reload:
-		warning line info: <gold><bold>Line %s:<gray> (%s)\n
-		error line info: <light red><bold>Line %s:<gray> (%s)\n
+		warning line info: <gold><bold>Line %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Line %s:<gray> (%s)<reset>\n
 		reloading: Reloading <gold>%s<reset>...
 		reloaded: <lime>Successfully reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
 		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
 		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
-		warning details: <yellow>    %s\n
-		error details: <light red>    %s\n
-		other details: <white>    %s\n
-		line details: <gold>    Line: <gray>%s\n <reset>
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Line: <gray>%s<reset>\n <reset>
 
 		config, aliases and scripts: the config, aliases and all scripts
 		scripts: all scripts
@@ -69,7 +69,7 @@ skript command:
 		script: <gold>%s<reset>
 		scripts in folder: all scripts in <gold>%s<reset>
 		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>
-		empty folder: <gold>%s<reset>r does not contain any enabled scripts.
+		empty folder: <gold>%s<reset> does not contain any enabled scripts.
 	enable:
 		all:
 			enabling: Enabling all disabled scripts...

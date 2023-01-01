@@ -400,14 +400,14 @@ public final class BukkitEventValues {
 			public Entity get(final EntityEvent e) {
 				return e.getEntity();
 			}
-		}, 0, "Use 'attacker' and/or 'victim' in damage events", EntityDamageEvent.class);
+		}, 0, "Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, CommandSender.class, new Getter<CommandSender, EntityEvent>() {
 			@Override
 			@Nullable
 			public CommandSender get(final EntityEvent e) {
 				return e.getEntity();
 			}
-		}, 0, "Use 'attacker' and/or 'victim' in damage events", EntityDamageEvent.class);
+		}, 0, "Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, new Getter<World, EntityEvent>() {
 			@Override
 			@Nullable
@@ -635,6 +635,13 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// PlayerDropItemEvent
+		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, new Getter<Player, PlayerDropItemEvent>() {
+			@Override
+			@Nullable
+			public Player get(PlayerDropItemEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Item.class, new Getter<Item, PlayerDropItemEvent>() {
 			@Override
 			@Nullable
@@ -650,6 +657,13 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 		// PlayerPickupItemEvent
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, new Getter<Player, PlayerPickupItemEvent>() {
+			@Override
+			@Nullable
+			public Player get(PlayerPickupItemEvent e) {
+				return e.getPlayer();
+			}
+		}, 0);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Item.class, new Getter<Item, PlayerPickupItemEvent>() {
 			@Override
 			@Nullable
@@ -662,12 +676,6 @@ public final class BukkitEventValues {
 			@Nullable
 			public ItemType get(final PlayerPickupItemEvent e) {
 				return new ItemType(e.getItem().getItemStack());
-			}
-		}, 0);
-		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, new Getter<Entity, PlayerPickupItemEvent>() {
-			@Override
-			public @Nullable Entity get(PlayerPickupItemEvent e) {
-				return e.getPlayer();
 			}
 		}, 0);
 		// EntityPickupItemEvent
@@ -810,7 +818,8 @@ public final class BukkitEventValues {
 		}
 		
 		// --- HangingEvents ---
-		
+
+		// Note: will not work in HangingEntityBreakEvent due to event-entity being parsed as HangingBreakByEntityEvent#getRemover() from code down below
 		EventValues.registerEventValue(HangingEvent.class, Hanging.class, new Getter<Hanging, HangingEvent>() {
 			@Override
 			@Nullable

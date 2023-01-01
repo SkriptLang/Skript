@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.util.regex.Matcher;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
@@ -38,13 +32,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Map;
+import java.util.regex.Matcher;
+
 @Name("Replace")
-@Description({"Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.",
-		"Starting with 2.2-dev24, you can replace items in a inventory too."})
+@Description("Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.")
 @Examples({"replace \"<item>\" in {textvar} with \"%item%\"",
 		"replace every \"&\" with \"§\" in line 1",
 		"# The following acts as a simple chat censor, but it will e.g. censor mass, hassle, assassin, etc. as well:",
@@ -52,8 +49,9 @@ import ch.njol.util.StringUtils;
 		"	replace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
 		" ",
 		"replace all stone and dirt in player's inventory and player's top inventory with diamond"})
-@Since("2.0, 2.2-dev24 (replace in muliple strings and replace items in inventory), 2.5 (replace first, case sensitivity)")
+@Since("2.0, 2.2-dev24 (replace in multiple strings and replace items in inventory), 2.5 (replace first, case sensitivity)")
 public class EffReplace extends Effect {
+
 	static {
 		Skript.registerEffect(EffReplace.class,
 				"replace (all|every|) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
@@ -69,9 +67,10 @@ public class EffReplace extends Effect {
 	private boolean replaceString = true;
 	private boolean replaceFirst = false;
 	private boolean caseSensitive = false;
+
 	@SuppressWarnings({"null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		haystack =  exprs[1 + matchedPattern % 2];
 		replaceString = matchedPattern < 4;
 		replaceFirst = matchedPattern > 1 && matchedPattern < 4;
@@ -89,7 +88,7 @@ public class EffReplace extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event e) {
 		Object[] haystack = this.haystack.getAll(e);
 		Object[] needles = this.needles.getAll(e);
 		Object replacement = this.replacement.getSingle(e);
@@ -98,13 +97,13 @@ public class EffReplace extends Effect {
 		if (replaceString) {
 			if (replaceFirst) {
 				for (int x = 0; x < haystack.length; x++)
-					for (final Object n : needles) {
+					for (Object n : needles) {
 						assert n != null;
 						haystack[x] = StringUtils.replaceFirst((String)haystack[x], (String)n, Matcher.quoteReplacement((String)replacement), caseSensitive);
 					}
 			} else {
 				for (int x = 0; x < haystack.length; x++)
-					for (final Object n : needles) {
+					for (Object n : needles) {
 						assert n != null;
 						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
 					}
@@ -112,15 +111,23 @@ public class EffReplace extends Effect {
 			this.haystack.change(e, haystack, ChangeMode.SET);
 		} else {
 			for (Inventory inv : (Inventory[]) haystack)
-				for (ItemType item : (ItemType[]) needles)
-					for (Integer slot : inv.all(item.getRandom()).keySet()) {
-						inv.setItem(slot.intValue(), ((ItemType) replacement).getRandom());
+				for (ItemType needle : (ItemType[]) needles)
+					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
+						int slot = entry.getKey();
+						ItemStack itemStack = entry.getValue();
+
+						if (new ItemType(itemStack).isSimilar(needle)) {
+							ItemStack newItemStack = ((ItemType) replacement).getRandom();
+							newItemStack.setAmount(itemStack.getAmount());
+
+							inv.setItem(slot, newItemStack);
+						}
 					}
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		if (replaceFirst)
 			return "replace first " + needles.toString(e, debug) + " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
 					+ "(case sensitive: " + caseSensitive + ")";

@@ -56,40 +56,44 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 	@Override
 	@Nullable
 	public Long convert(Timespan t) {
-		if (type == YEARS)
-			return t.getYears();
-		if (type == MONTHS)
-			return t.getMonths();
-		if (type == WEEKS)
-			return t.getWeeks();
-		if (type == DAYS)
-			return t.getDays();
-		if (type == HOURS)
-			return t.getHours();
-		if (type == MINUTES)
-			return t.getMinutes();
-		if (type == SECONDS)
-			return t.getSeconds();
+		switch (type) {
+			case YEARS:
+				return t.getYears();
+			case MONTHS:
+				return t.getMonths();
+			case WEEKS:
+				return t.getWeeks();
+			case DAYS:
+				return t.getDays();
+			case HOURS:
+				return t.getHours();
+			case MINUTES:
+				return t.getMinutes();
+			case SECONDS:
+				return t.getSeconds();
+		}
 
 		return t.getTicks_i();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		if (type == YEARS)
-			return "years";
-		if (type == MONTHS)
-			return "months";
-		if (type == WEEKS)
-			return "weeks";
-		if (type == DAYS)
-			return "days";
-		if (type == HOURS)
-			return "hours";
-		if (type == MINUTES)
-			return "minutes";
-		if (type == SECONDS)
-			return "seconds";
+		switch (type) {
+			case YEARS:
+				return "years";
+			case MONTHS:
+				return "months";
+			case WEEKS:
+				return "weeks";
+			case DAYS:
+				return "days";
+			case HOURS:
+				return "hours";
+			case MINUTES:
+				return "minutes";
+			case SECONDS:
+				return "seconds";
+		}
 
 		return "ticks";
 	}

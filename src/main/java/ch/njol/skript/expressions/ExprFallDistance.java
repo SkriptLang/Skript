@@ -39,7 +39,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprFallDistance extends SimplePropertyExpression<Entity, Number> {
 	
 	static {
-		register(ExprFallDistance.class, Number.class, "[the] fall[en] (distance|height)", "entities");
+		register(ExprFallDistance.class, Number.class, "fall[en] (distance|height)", "entities");
 	}
 	
 	@Nullable
