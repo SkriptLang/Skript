@@ -42,12 +42,12 @@ import java.util.List;
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
 @Examples({
 	"if player has any ore:",
-	"\tstop",
+		"\tstop",
 	"message \"%player% has no ores!\"",
 	"loop blocks above the player:",
-	"\tloop-block is not air:",
-	"\t\texit 2 sections",
-	"\tset loop-block to water"
+		"\tloop-block is not air:",
+			"\t\texit 2 sections",
+		"\tset loop-block to water"
 })
 @Since("<i>unknown</i> (before 2.1)")
 public class EffExit extends Effect { // TODO [code style] warn user about code after a stop effect
