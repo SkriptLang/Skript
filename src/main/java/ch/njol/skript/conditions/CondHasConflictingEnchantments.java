@@ -37,8 +37,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Conflicting Enchantments")
 @Description("Checks whether an item has conflicting enchantments with the given enchantment.")
-@Examples({"player's tool has conflicting enchantments with efficiency",
-		"event-item has conflicting stored enchantments with power"})
+@Examples({
+		"player's tool has conflicting enchantments with efficiency",
+		"event-item has conflicting stored enchantments with power"
+})
 @Since("INSERT VERSION")
 public class CondHasConflictingEnchantments extends Condition {
 	
