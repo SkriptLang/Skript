@@ -95,13 +95,13 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null || delta[0] == null)
+		if (delta == null)
 			return;
 
+		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inv : getExpr().getArray(event)) {
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
-				int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 				int change = mode == ChangeMode.SET ? 0 : (isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost());
 				int newValue = Math.max((change + value), 0);
 
