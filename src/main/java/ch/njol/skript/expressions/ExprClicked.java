@@ -175,6 +175,9 @@ public class ExprClicked extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	protected Object[] get(Event e) {
+		if (!(e instanceof InventoryClickEvent) && clickable != ClickableType.BLOCK_AND_ITEMS && clickable != ClickableType.ENCHANT_BUTTON)
+			return null;
+
 		switch (clickable) {
 			case BLOCK_AND_ITEMS:
 				if (e instanceof PlayerInteractEvent) {

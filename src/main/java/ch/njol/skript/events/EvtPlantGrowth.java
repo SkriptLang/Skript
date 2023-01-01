@@ -31,7 +31,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 public class EvtPlantGrowth extends SkriptEvent {
 	static {
-		Skript.registerEvent("Block Growth", EvtPlantGrowth.class, BlockGrowEvent.class, "(plant|crop|block) grow[(th|ing)] [[of] %itemtypes%]")
+		Skript.registerEvent("Block Growth", EvtPlantGrowth.class, BlockGrowEvent.class, "(plant|crop|block) grow[(th|ing)] [[of] %-itemtypes%]")
 				.description("Called when a crop grows. Alternative to new form of generic grow event.")
 				.examples("on crop growth:")
 				.since("2.2-Fixes-V10");

@@ -20,13 +20,14 @@ package ch.njol.skript.lang;
 
 import java.util.Locale;
 
+import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.SkriptAPIException;
 
-public final class SkriptEventInfo<E extends SkriptEvent> extends SyntaxElementInfo<E> {
+public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> {
 	
 	public Class<? extends Event>[] events;
 	public final String name;
