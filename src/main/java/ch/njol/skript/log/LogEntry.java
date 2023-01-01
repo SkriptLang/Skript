@@ -143,10 +143,8 @@ public class LogEntry {
 	}
 
 	public String toFormattedString() {
-		if (node == null || level.intValue() < Level.WARNING.intValue())
+		if (level.intValue() < Level.WARNING.intValue())
 			return message;
-
-		Config c = node.getConfig();
 
 		ArgsMessage details;
 		ArgsMessage lineInfo = WARNING_LINE_INFO;
@@ -159,14 +157,19 @@ public class LogEntry {
 			details = OTHER_DETAILS;
 		}
 
-		String from = this.from;
-		if (!from.isEmpty())
-			from = "§7   " + from + "\n";
-
 		// Replace configured messages chat styles without user variables
 		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
 		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
 		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
+
+		if (node == null)
+			return String.format(detailsMsg.replaceAll("(\\s){2,}", ""), message); // Remove line beginning spaces
+
+		Config c = node.getConfig();
+		String from = this.from;
+
+		if (!from.isEmpty())
+			from = "§7   " + from + "\n";
 
 		return
 			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is to convert the line number (int) to a String
