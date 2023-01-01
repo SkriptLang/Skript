@@ -39,13 +39,12 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Return")
 @Description("Makes a function return a value")
-@Examples({"function double(i: number) :: number:",
-		"	return 2 * {_i}"})
+@Examples({
+	"function double(i: number) :: number:",
+		"\treturn 2 * {_i}"
+})
 @Since("2.2")
 public class EffReturn extends Effect {
 	
@@ -74,18 +73,18 @@ public class EffReturn extends Effect {
 		}
 		
 		function = f;
-		ClassInfo<?> rt = function.getReturnType();
-		if (rt == null) {
+		ClassInfo<?> returnType = function.getReturnType();
+		if (returnType == null) {
 			Skript.error("This function doesn't return any value. Please use 'stop' or 'exit' if you want to stop the function.");
 			return false;
 		}
 		
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
-		Expression<?> v;
+		Expression<?> convertedExpr;
 		try {
-			v = exprs[0].getConvertedExpression(rt.getC());
-			if (v == null) {
-				log.printErrors("This function is declared to return " + rt.getName().withIndefiniteArticle() + ", but " + exprs[0].toString(null, false) + " is not of that type.");
+			convertedExpr = exprs[0].getConvertedExpression(returnType.getC());
+			if (convertedExpr == null) {
+				log.printErrors("This function is declared to return " + returnType.getName().withIndefiniteArticle() + ", but " + exprs[0].toString(null, false) + " is not of that type.");
 				return false;
 			}
 			log.printLog();
@@ -93,30 +92,30 @@ public class EffReturn extends Effect {
 			log.stop();
 		}
 		
-		if (f.isSingle() && !v.isSingle()) {
-			Skript.error("This function is defined to only return a single " + rt.toString() + ", but this return statement can return multiple values.");
+		if (f.isSingle() && !convertedExpr.isSingle()) {
+			Skript.error("This function is defined to only return a single " + returnType.toString() + ", but this return statement can return multiple values.");
 			return false;
 		}
-		value = v;
+		value = convertedExpr;
 		
 		return true;
 	}
 	
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, false);
-		if (e instanceof FunctionEvent) {
-			((ScriptFunction) function).setReturnValue(value.getArray(e));
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	protected TriggerItem walk(final Event event) {
+		debug(event, false);
+		if (event instanceof FunctionEvent) {
+			((ScriptFunction) function).setReturnValue(value.getArray(event));
 		} else {
-			assert false : e;
+			assert false : event;
 		}
 
 		TriggerSection parent = getParent();
 		while (parent != null) {
 			if (parent instanceof LoopSection)
-				((LoopSection) parent).exit(e);
+				((LoopSection) parent).exit(event);
 
 			parent = parent.getParent();
 		}
@@ -125,13 +124,13 @@ public class EffReturn extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		assert false;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "return " + value.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "return " + value.toString(event, debug);
 	}
 	
 }

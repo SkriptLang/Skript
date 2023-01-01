@@ -39,18 +39,18 @@ import java.util.List;
 @Examples({
 	"# Broadcast online moderators",
 	"loop all players:",
-	"\tif loop-value does not have permission \"moderator\":",
-	"\t\tcontinue # filter out non moderators",
-	"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
+		"\tif loop-value does not have permission \"moderator\":",
+			"\t\tcontinue # filter out non moderators",
+		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
 	" ",
 	"# Game starting counter",
 	"set {_counter} to 11",
 	"while {_counter} > 0:",
-	"\tremove 1 from {_counter}",
-	"\twait a second",
-	"\tif {_counter} != 1, 2, 3, 5 or 10:",
-	"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
-	"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
+		"\tremove 1 from {_counter}",
+		"\twait a second",
+		"\tif {_counter} != 1, 2, 3, 5 or 10:",
+			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
+		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
 })
 @Since("2.2-dev37, INSERT VERSION (while loops)")
 public class EffContinue extends Effect {
@@ -76,18 +76,18 @@ public class EffContinue extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
+	protected TriggerItem walk(Event event) {
 		return loop;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "continue";
 	}
 
