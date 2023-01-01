@@ -37,13 +37,11 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	private static Object[] patterns;
 
 	static {
-		if (Skript.isRunningMinecraft(1, 13)) {
-			register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0,
-					"tropical fish", "kob", "sunstreak", "snooper",
-					"dasher", "brinely", "spotty", "flopper",
-					"stripey", "glitter", "blockfish", "betty", "clayfish");
-			patterns = Pattern.values();
-		}
+		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0,
+				"tropical fish", "kob", "sunstreak", "snooper",
+				"dasher", "brinely", "spotty", "flopper",
+				"stripey", "glitter", "blockfish", "betty", "clayfish");
+		patterns = Pattern.values();
 	}
 
 	public TropicalFishData() {

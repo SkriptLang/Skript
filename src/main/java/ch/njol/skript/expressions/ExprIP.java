@@ -67,13 +67,13 @@ public class ExprIP extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	private Expression<Player> players;
 
-	private boolean isConnectEvent, isProperty;
+	private boolean isProperty;
 
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isProperty = matchedPattern < 2;
-		isConnectEvent = getParser().isCurrentEvent(PlayerLoginEvent.class);
+		boolean isConnectEvent = getParser().isCurrentEvent(PlayerLoginEvent.class);
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
 				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
 		if (isProperty) {
@@ -90,12 +90,14 @@ public class ExprIP extends SimpleExpression<String> {
 	protected String[] get(Event e) {
 		if (!isProperty) {
 			InetAddress address;
-			if (isConnectEvent)
+			if (e instanceof PlayerLoginEvent)
 				// Return IP address of the connected player in connect event
 				address = ((PlayerLoginEvent) e).getAddress();
-			else
+			else if (e instanceof ServerListPingEvent)
 				// Return IP address of the pinger in server list ping event
 				address = ((ServerListPingEvent) e).getAddress();
+			else
+				return null;
 			return CollectionUtils.array(address.getHostAddress());
 		}
 
@@ -111,7 +113,7 @@ public class ExprIP extends SimpleExpression<String> {
 		InetAddress address;
 		// The player has no IP yet in a connect event, but the event has it
 		// It is a "feature" of Spigot, apparently
-		if (isConnectEvent && ((PlayerLoginEvent) e).getPlayer().equals(player)) {
+		if (e instanceof PlayerLoginEvent && ((PlayerLoginEvent) e).getPlayer().equals(player)) {
 			address = ((PlayerLoginEvent) e).getAddress();
 		} else {
 			InetSocketAddress sockAddr = player.getAddress();

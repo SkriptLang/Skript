@@ -350,16 +350,14 @@ public class DefaultConverters {
 		});
 		
 		// EnchantmentOffer Converters
-		if (Skript.isRunningMinecraft(1, 11)) {
-			// EnchantmentOffer - EnchantmentType
-			Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, new Converter<EnchantmentOffer, EnchantmentType>() {
-				@Nullable
-				@Override
-				public EnchantmentType convert(EnchantmentOffer eo) {
-					return new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel());
-				}
-			});
-		}
+		// EnchantmentOffer - EnchantmentType
+		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, new Converter<EnchantmentOffer, EnchantmentType>() {
+			@Nullable
+			@Override
+			public EnchantmentType convert(EnchantmentOffer eo) {
+				return new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel());
+			}
+		});
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 	}
