@@ -37,9 +37,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Repair Cost")
 @Description({
-			  "Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
-			  "The default value of max cost set by vanilla Minecraft is 40."
-			  })
+		"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
+		"The default value of max cost set by vanilla Minecraft is 40."
+})
 @Examples({
 		"on inventory click:",
 		"\tif {AnvilRepairSaleActive} = true:",
@@ -50,14 +50,14 @@ import org.eclipse.jdt.annotation.Nullable;
 		"on inventory click:",
 		"\tplayer have permission \"anvil.repair.max.bypass\"",
 		"\tset max repair cost of event-inventory to 99999"
-		})
+})
 @Since("INSERT VERSION")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
 	static {
-			Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
-				"%inventories%'[s] [item] [:max[imum]] repair cost");
+		Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
+			"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
+			"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
 	boolean isMax = false;
@@ -72,12 +72,12 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	@Nullable
-	public Integer convert(Inventory inv) {
-		if (!(inv instanceof AnvilInventory))
+	public Integer convert(Inventory inventory) {
+		if (!(inventory instanceof AnvilInventory))
 			return null;
 
-		AnvilInventory aInv = (AnvilInventory) inv;
-		return isMax ? aInv.getMaximumRepairCost() : aInv.getRepairCost();
+		AnvilInventory anvilInventory = (AnvilInventory) inventory;
+		return isMax ? anvilInventory.getMaximumRepairCost() : anvilInventory.getRepairCost();
 	}
 
 	@Override
@@ -94,11 +94,11 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null || delta[0] == null)
 			return;
 
-		for (Inventory inv : getExpr().getArray(e)) {
+		for (Inventory inv : getExpr().getArray(event)) {
 			if (inv instanceof AnvilInventory) {
 				AnvilInventory aInv = (AnvilInventory) inv;
 				int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
