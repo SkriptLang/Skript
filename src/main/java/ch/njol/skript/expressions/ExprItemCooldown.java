@@ -92,8 +92,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		int i = 0;
 		for (Player player : players) {
 			for (ItemType itemtype : itemtypes) {
-				timespan[i] = Timespan.fromTicks_i(player.getCooldown(itemtype.getMaterial()));
-				i++;
+				timespan[i++] = Timespan.fromTicks_i(player.getCooldown(itemtype.getMaterial()));
 			}
 		}
 		return timespan;
