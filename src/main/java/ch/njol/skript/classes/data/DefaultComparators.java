@@ -219,6 +219,19 @@ public class DefaultComparators {
 			}
 		});
 
+		// BlockData - BlockData
+		Comparators.registerComparator(BlockData.class, BlockData.class, new Comparator<BlockData, BlockData>() {
+			@Override
+			public Relation compare(BlockData data1, BlockData data2) {
+				return Relation.get(data1.matches(data2));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
 		// ItemType - ItemType
 		Comparators.registerComparator(ItemType.class, ItemType.class, new Comparator<ItemType, ItemType>() {
 			@Override

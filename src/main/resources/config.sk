@@ -31,7 +31,7 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently english, german and korean are included in the download, but custom languages can be created as well.
+# Which language to use. Currently English, German, Korean, French and Polish are included in the download, but custom languages can be created as well.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
 # (open the jar as zip or rename it to Skript.zip to access it)

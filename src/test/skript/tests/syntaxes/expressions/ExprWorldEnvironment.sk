@@ -1,0 +1,5 @@
+test "world environment":
+	assert environment of world "world" is normal with "main overworld was not environment ""normal"""
+	assert environment of world "world_the_end" is the end with "world_the_end was not environment ""the end"""
+	set {_environment} to environment of world "world"
+	assert {_environment} is overworld with "environment of world didn't compare with a variable"
