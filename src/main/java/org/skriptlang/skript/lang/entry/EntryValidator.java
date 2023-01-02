@@ -18,17 +18,20 @@
  */
 package org.skriptlang.skript.lang.entry;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.SimpleNode;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * A validator for storing {@link EntryData}.
@@ -45,13 +48,31 @@ public class EntryValidator {
 		return new EntryValidatorBuilder();
 	}
 
-	private final List<EntryData<?>> entryData;
-	private final boolean allowUnknownEntries, allowUnknownSections;
+	private static final Function<String, String>
+		DEFAULT_UNEXPECTED_ENTRY_MESSAGE =
+			key -> "Unexpected entry '" + key + "'. Check whether it's spelled correctly or remove it",
+		DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE =
+			key -> "Required entry '" + key + "' is missing";
 
-	private EntryValidator(List<EntryData<?>> entryData, boolean allowUnknownEntries, boolean allowUnknownSections) {
+	private final List<EntryData<?>> entryData;
+
+	@Nullable
+	private final Predicate<Node> unexpectedNodeTester;
+
+	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+
+	private EntryValidator(
+		List<EntryData<?>> entryData,
+		@Nullable Predicate<Node> unexpectedNodeTester,
+		@Nullable Function<String, String> unexpectedEntryMessage,
+		@Nullable Function<String, String> missingRequiredEntryMessage
+	) {
 		this.entryData = entryData;
-		this.allowUnknownEntries = allowUnknownEntries;
-		this.allowUnknownSections = allowUnknownSections;
+		this.unexpectedNodeTester = unexpectedNodeTester;
+		this.unexpectedEntryMessage =
+			unexpectedEntryMessage != null ? unexpectedEntryMessage : DEFAULT_UNEXPECTED_ENTRY_MESSAGE;
+		this.missingRequiredEntryMessage =
+			missingRequiredEntryMessage != null ? missingRequiredEntryMessage : DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE;
 	}
 
 	/**
@@ -59,20 +80,6 @@ public class EntryValidator {
 	 */
 	public List<EntryData<?>> getEntryData() {
 		return Collections.unmodifiableList(entryData);
-	}
-
-	/**
-	 * @return Whether this validator allows {@link SimpleNode}-based entries not declared in the entry data map.
-	 */
-	public boolean allowsUnknownEntries() {
-		return allowUnknownEntries;
-	}
-
-	/**
-	 * @return Whether this validator allows {@link SectionNode}-based entries not declared in the entry data map.
-	 */
-	public boolean allowsUnknownSections() {
-		return allowUnknownSections;
 	}
 
 	/**
@@ -94,33 +101,29 @@ public class EntryValidator {
 				continue;
 
 			// The first step is to determine if the node is present in the entry data list
-
-			for (EntryData<?> data : entryData) {
+			Iterator<EntryData<?>> iterator = entries.iterator();
+			while (iterator.hasNext()) {
+				EntryData<?> data = iterator.next();
 				if (data.canCreateWith(node)) { // Determine if it's a match
 					handledNodes.put(data.getKey(), node); // This is a known node, mark it as such
-					entries.remove(data);
+					iterator.remove();
 					continue nodeLoop;
 				}
 			}
 
 			// We found no matching entry data
-
-			if (
-				(!allowUnknownEntries && node instanceof SimpleNode)
-				|| (!allowUnknownSections && node instanceof SectionNode)
-			) {
+			if (unexpectedNodeTester == null || unexpectedNodeTester.test(node)) {
 				ok = false; // Instead of terminating here, we should try and print all errors possible
-				Skript.error("Unexpected entry '" + node.getKey() + "'. Check whether it's spelled correctly or remove it");
+				Skript.error(unexpectedEntryMessage.apply(ScriptLoader.replaceOptions(node.getKey())));
 			} else { // This validator allows this type of node to be unhandled
 				unhandledNodes.add(node);
 			}
 		}
 
 		// Now we're going to check for missing entries that are *required*
-
 		for (EntryData<?> entryData : entries) {
 			if (!entryData.isOptional()) {
-				Skript.error("Required entry '" + entryData.getKey() + "' is missing");
+				Skript.error(missingRequiredEntryMessage.apply(entryData.getKey()));
 				ok = false;
 			}
 		}
@@ -146,7 +149,12 @@ public class EntryValidator {
 
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
-		private boolean allowUnknownEntries, allowUnknownSections;
+
+		@Nullable
+		private Predicate<Node> unexpectedNodeTester;
+
+		@Nullable
+		private Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note
@@ -160,20 +168,38 @@ public class EntryValidator {
 		}
 
 		/**
-		 * Sets that the validator should accept {@link SimpleNode}-based entries not declared in the entry data map.
+		 * A predicate to be supplied for checking whether a Node should be allowed
+		 *  even as an entry not declared in the entry data map.
+		 * The default behavior is that the predicate returns true for every Node tested.
+		 * @param unexpectedNodeTester The predicate to use.
 		 * @return The builder instance.
 		 */
-		public EntryValidatorBuilder allowUnknownEntries() {
-			allowUnknownEntries = true;
+		public EntryValidatorBuilder unexpectedNodeTester(Predicate<Node> unexpectedNodeTester) {
+			this.unexpectedNodeTester = unexpectedNodeTester;
 			return this;
 		}
 
 		/**
-		 * Sets that the validator should accept {@link SectionNode}-based entries not declared in the entry data map.
+		 * A function to be applied when an unexpected Node is encountered during validation.
+		 * A String representing the user input (the Node's key) goes in,
+		 *  and an error message to output comes out.
+		 * @param unexpectedEntryMessage The function to use.
 		 * @return The builder instance.
 		 */
-		public EntryValidatorBuilder allowUnknownSections() {
-			allowUnknownSections = true;
+		public EntryValidatorBuilder unexpectedEntryMessage(Function<String, String> unexpectedEntryMessage) {
+			this.unexpectedEntryMessage = unexpectedEntryMessage;
+			return this;
+		}
+
+		/**
+		 * A function to be applied when a required Node is missing during validation.
+		 * A String representing the key of the missing entry goes in,
+		 *  and an error message to output comes out.
+		 * @param missingRequiredEntryMessage The function to use.
+		 * @return The builder instance.
+		 */
+		public EntryValidatorBuilder missingRequiredEntryMessage(Function<String, String> missingRequiredEntryMessage) {
+			this.missingRequiredEntryMessage = missingRequiredEntryMessage;
 			return this;
 		}
 
@@ -227,7 +253,9 @@ public class EntryValidator {
 		 * @return The final, built entry validator.
 		 */
 		public EntryValidator build() {
-			return new EntryValidator(entryData, allowUnknownEntries, allowUnknownSections);
+			return new EntryValidator(
+				entryData, unexpectedNodeTester, unexpectedEntryMessage, missingRequiredEntryMessage
+			);
 		}
 
 	}
