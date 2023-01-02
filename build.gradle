@@ -22,7 +22,7 @@ allprojects {
 }
 
 dependencies {
-	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.7'
+	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.0'
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.19.3-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
