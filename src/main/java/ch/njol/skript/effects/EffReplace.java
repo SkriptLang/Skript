@@ -123,9 +123,9 @@ public class EffReplace extends Effect {
 					} catch (Exception ignored) {}
 				}
 				for (int i = 0; i < haystack.length; i++) {
-					for (Pattern p : patterns) {
-						assert p != null;
-						haystack[i] = p.matcher((String) haystack[i]).replaceAll((String) replacement);
+					for (Pattern pattern : patterns) {
+						assert pattern != null;
+						haystack[i] = pattern.matcher((String) haystack[i]).replaceAll((String) replacement);
 					}
 				}
 			} else {
