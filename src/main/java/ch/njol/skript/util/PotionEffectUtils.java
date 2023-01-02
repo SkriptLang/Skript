@@ -121,7 +121,7 @@ public abstract class PotionEffectUtils {
 		
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(Timespan.fromTicks_i(potionEffect.getDuration()));
+		builder.append(" for ").append(Timespan.fromTicks(potionEffect.getDuration()));
 		return builder.toString();
 	}
 	

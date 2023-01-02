@@ -209,9 +209,9 @@ public abstract class VariablesStorage implements Closeable {
 	
 	public void startBackupTask(final Timespan t) {
 		final File file = this.file;
-		if (file == null || t.getTicks_i() == 0)
+		if (file == null || t.getTicks() == 0)
 			return;
-		backupTask = new Task(Skript.getInstance(), t.getTicks_i(), t.getTicks_i(), true) {
+		backupTask = new Task(Skript.getInstance(), t.getTicks(), t.getTicks(), true) {
 			@Override
 			public void run() {
 				synchronized (connectionLock) {

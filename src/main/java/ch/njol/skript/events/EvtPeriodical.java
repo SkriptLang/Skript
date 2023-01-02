@@ -107,7 +107,7 @@ public class EvtPeriodical extends SelfRegisteringSkriptEvent {
 				public void run() {
 					execute(null);
 				}
-			}, period.getTicks_i(), period.getTicks_i())};
+			}, period.getTicks(), period.getTicks())};
 		} else {
 			taskIDs = new int[worlds.length];
 			for (int i = 0; i < worlds.length; i++) {
@@ -117,7 +117,7 @@ public class EvtPeriodical extends SelfRegisteringSkriptEvent {
 					public void run() {
 						execute(w);
 					}
-				}, period.getTicks_i() - (w.getFullTime() % period.getTicks_i()), period.getTicks_i());
+				}, period.getTicks() - (w.getFullTime() % period.getTicks()), period.getTicks());
 				assert worlds != null; // FindBugs
 			}
 		}

@@ -145,38 +145,46 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			throw new IllegalArgumentException("millis must be >= 0");
 		this.millis = millis;
 	}
-	
+
 	/**
-	 * @deprecated Use fromTicks_i(long ticks) instead. Since this method limits timespan to 50 * Integer.MAX_VALUE.
-	 * @addon I only keep this to allow for older addons to still work. / Mirre
+	 * Builds a Timespan from the given long parameter.
+	 * 
+	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
+	 * @return Timespan based on the provided long.
+	 */
+	public static Timespan fromTicks(long ticks) {
+		return new Timespan(ticks * 50L);
+	}
+
+	/**
+	 * @deprecated Use fromTicks(long ticks) instead. Old API naming changes.
 	 */
 	@Deprecated
-	public static Timespan fromTicks(final int ticks) {
+	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
-	
-	public static Timespan fromTicks_i(final long ticks) {
-		return new Timespan(ticks * 50L);
-	}
-	
+
 	public long getMilliSeconds() {
 		return millis;
 	}
-	
+
+	/**
+	 * Returns the amount of Minecraft ticks this timespan represents.
+	 * 
+	 * @return
+	 */
+	public long getTicks() {
+		return Math.round((millis / 50.0));
+	}
+
+	/**
+	 * @deprecated Use getTicks() instead. Old API naming changes.
+	 */
+	@Deprecated
 	public long getTicks_i() {
 		return Math.round((millis / 50.0));
 	}
-	
-	/**
-	 * @deprecated Use getTicks_i() instead. Since this method limits timespan to Integer.MAX_VALUE.
-	 * @addon I only keep this to allow for older addons to still work. / Mirre
-	 * @Well if need the ticks because of a method that takes a int input it doesn't really matter.
-	 */
-	@Deprecated
-	public int getTicks() {
-		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / 50f);
-	}
-	
+
 	@Override
 	public String toString() {
 		return toString(millis);
