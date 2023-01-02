@@ -1,0 +1,7 @@
+test "spawn multiple entities" when running minecraft "1.19":
+	clear all entities
+	set {_test} to 2 temperate frog
+	assert {_test} is 2 temperate frog with "Failed to set variable to multiple entity types"
+	spawn {_test} at spawn location of world "world"
+	assert size of entities in world "world" is 2 with "Failed to spawn entities %entities%"
+	clear all entities
