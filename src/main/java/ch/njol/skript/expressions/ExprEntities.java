@@ -18,22 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -50,7 +34,20 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.NonNullIterator;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, " +
@@ -138,7 +135,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 		if (isUsingRadius) {
 			Iterator<? extends Entity> iter = iterator(e);
 			if (iter == null || !iter.hasNext())
-				return new Entity[0];
+				return null;
 
 			List<Entity> l = new ArrayList<>();
 			while (iter.hasNext())
