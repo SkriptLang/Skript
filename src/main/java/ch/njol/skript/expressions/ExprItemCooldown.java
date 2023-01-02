@@ -103,10 +103,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
-		ItemType[] itemTypesArray = this.itemtypes.getArray(event);
-
-		List<ItemType> itemTypes = Arrays.stream(itemTypesArray)
-			.filter(ItemType::hasType).collect(Collectors.toList());
+		List<ItemType> itemTypes = this.itemtypes.stream(event)
+				.filter(ItemType::hasType).collect(Collectors.toList());
 
 		for (Player player : players) {
 			for (ItemType itemtype : itemTypes) {
