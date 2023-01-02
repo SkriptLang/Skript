@@ -48,6 +48,7 @@ import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Endermite;
+import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Evoker;
 import org.bukkit.entity.EvokerFangs;
@@ -314,6 +315,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("spellcaster", Spellcaster.class);
 		if (Skript.classExists("org.bukkit.entity.Raider")) // Introduced in Spigot 1.14
 			addSuperEntity("raider", Raider.class);
+		if (Skript.classExists("org.bukkit.entity.Enemy")) // Introduced in Spigot 1.19.3
+			addSuperEntity("enemy", Enemy.class);
 	}
 	
 	static {

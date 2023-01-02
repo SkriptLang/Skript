@@ -1195,6 +1195,10 @@ entities:
 	warden:
 		name: warden¦s
 		pattern: warden(|1¦s)
+	# 1.19.3 Entities
+	enemy:
+		name: enem¦y¦ies
+		pattern: enem(y|1¦ies)
 
 # -- Heal Reasons --
 heal reasons:
