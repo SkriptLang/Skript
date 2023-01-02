@@ -77,7 +77,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		Player[] players = this.players.getArray(event);
 
 		List<ItemType> itemTypes = this.itemtypes.stream(event)
-			.filter(ItemType::hasType).collect(Collectors.toList());
+				.filter(ItemType::hasType).collect(Collectors.toList());
 
 		Timespan[] timespan = new Timespan[players.length * itemTypes.size()];
 		
