@@ -100,54 +100,54 @@ public class EffReplace extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
-	protected void execute(Event e) {
-		Object[] haystack = this.haystack.getAll(e);
-		Object[] needles = this.needles.getAll(e);
-		Object replacement = this.replacement.getSingle(e);
+	protected void execute(Event event) {
+		Object[] haystack = this.haystack.getAll(event);
+		Object[] needles = this.needles.getAll(event);
+		Object replacement = this.replacement.getSingle(event);
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
 		if (replaceString) {
 			if (replaceFirst) {
-				for (int x = 0; x < haystack.length; x++) {
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replaceFirst((String) haystack[x], (String) n, Matcher.quoteReplacement((String) replacement), caseSensitive);
+				for (int i = 0; i < haystack.length; i++) {
+					for (Object needle : needles) {
+						assert needle != null;
+						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement((String) replacement), caseSensitive);
 					}
 				}
 			} else if (replaceRegex) {
 				List<Pattern> patterns = new ArrayList<>(needles.length);
-				for (Object n : needles) {
-					assert n != null;
+				for (Object needle : needles) {
+					assert needle != null;
 					try {
-						patterns.add(Pattern.compile((String) n));
+						patterns.add(Pattern.compile((String) needle));
 					} catch (Exception ignored) {}
 				}
-				for (int x = 0; x < haystack.length; x++) {
+				for (int i = 0; i < haystack.length; i++) {
 					for (Pattern p : patterns) {
 						assert p != null;
-						haystack[x] = p.matcher((String) haystack[x]).replaceAll((String) replacement);
+						haystack[i] = p.matcher((String) haystack[i]).replaceAll((String) replacement);
 					}
 				}
 			} else {
-				for (int x = 0; x < haystack.length; x++) {
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
+				for (int i = 0; i < haystack.length; i++) {
+					for (Object needle : needles) {
+						assert needle != null;
+						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, (String) replacement, caseSensitive);
 					}
 				}
 			}
-			this.haystack.change(e, haystack, ChangeMode.SET);
+			this.haystack.change(event, haystack, ChangeMode.SET);
 		} else if (replaceItems) {
-			for (Inventory inv : (Inventory[]) haystack) {
+			for (Inventory inventory : (Inventory[]) haystack) {
 				for (ItemType needle : (ItemType[]) needles) {
-					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
+					for (Map.Entry<Integer, ? extends ItemStack> entry : inventory.all(needle.getMaterial()).entrySet()) {
 						int slot = entry.getKey();
 						ItemStack itemStack = entry.getValue();
 
 						if (new ItemType(itemStack).isSimilar(needle)) {
 							ItemStack newItemStack = ((ItemType) replacement).getRandom();
 							newItemStack.setAmount(itemStack.getAmount());
-							inv.setItem(slot, newItemStack);
+							inventory.setItem(slot, newItemStack);
 						}
 					}
 				}
@@ -156,9 +156,9 @@ public class EffReplace extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(e, debug)
-			+ " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
+	public String toString(@Nullable Event event, boolean debug) {
+		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(event, debug)
+			+ " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 			+ (caseSensitive ? " with case sensitivity" : "");
 	}
 	
