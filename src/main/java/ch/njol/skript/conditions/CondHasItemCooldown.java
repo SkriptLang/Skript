@@ -36,15 +36,19 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Item Cooldown")
 @Description("Check whether a cooldown is active on the specified material for a specific player.")
-@Examples({"if player has item cooldown on player's tool:",
-	"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""})
+@Examples({
+	"if player has player's tool on cooldown:",
+		"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""
+})
 @Since("INSERT VERSION")
 public class CondHasItemCooldown extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
-			"%players% (has|have) ([([an] item|a)] cooldown (on|for) %itemtypes%|%itemtypes% on cooldown)",
-			"%players% (doesn't|does not|do not|don't) have ([([an] item|a)] cooldown (on|for) %itemtypes%|%itemtypes% on cooldown)");
+			"%players% (has|have) [([an] item|a)] cooldown (on|for) %itemtypes%",
+			"%players% (has|have) %itemtypes% on cooldown",
+			"%players% (doesn't|does not|do not|don't) have [([an] item|a)] cooldown (on|for) %itemtypes%",
+			"%players% (doesn't|does not|do not|don't) have %itemtypes% on cooldown");
 	}
 
 	private Expression<Player> players;
@@ -55,22 +59,23 @@ public class CondHasItemCooldown extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		itemtypes = (Expression<ItemType>) exprs[1];
-		setNegated(matchedPattern == 1);
+		setNegated(matchedPattern > 1);
 		return true;
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return players.check(e, (p) -> 
-				itemtypes.check(e, (it) -> 
-						p.hasCooldown(it.getMaterial())
+	public boolean check(Event event) {
+		return players.check(event, (player) ->
+				itemtypes.check(event, (itemType) ->
+						itemType.hasType() && player.hasCooldown(itemType.getMaterial())
 				)
 		);
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, players, itemtypes.toString(e, debug) + " on cooldown");
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, players,
+			itemtypes.toString(event, debug) + " on cooldown");
 	}
 
 }

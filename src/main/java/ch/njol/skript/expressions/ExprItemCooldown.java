@@ -39,14 +39,16 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Name("Item Cooldown")
-@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 ticks</code> will remove the cooldown.")
+@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 ticks</code>" +
+	" will remove the cooldown.")
 @Examples({
-	"on right click using stick:" +
-	"\tset item cooldown of player's tool for player to 1 minute",
-	"\tset item cooldown of stone and grass for all players to 20 seconds",
-	"\treset item cooldown of cobblestone and dirt for all players"
+	"on right click using stick:",
+		"\tset item cooldown of player's tool for player to 1 minute",
+		"\tset item cooldown of stone and grass for all players to 20 seconds",
+		"\treset item cooldown of cobblestone and dirt for all players"
 })
 @Since("INSERT VERSION")
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
@@ -73,26 +75,16 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	protected Timespan[] get(Event event) {
 		Player[] players = this.players.getArray(event);
-		ItemType[] itemtypesArray = this.itemtypes.getArray(event);
-		if (players == null || itemtypesArray == null)
-			return null;
 
-		List<ItemType> itemtypes = Arrays.stream(itemtypesArray)
-			.filter(it -> {
-				try {
-					it.getMaterial();
-					return true;
-				} catch (IllegalArgumentException ex) {
-					return false;
-				}
-			}).toList();
+		List<ItemType> itemTypes = this.itemtypes.stream(event)
+			.filter(ItemType::hasType).collect(Collectors.toList());
 
-		Timespan[] timespan = new Timespan[players.length * itemtypes.size()];
+		Timespan[] timespan = new Timespan[players.length * itemTypes.size()];
 		
 		int i = 0;
 		for (Player player : players) {
-			for (ItemType itemtype : itemtypes) {
-				timespan[i++] = Timespan.fromTicks_i(player.getCooldown(itemtype.getMaterial()));
+			for (ItemType itemType : itemTypes) {
+				timespan[i++] = Timespan.fromTicks_i(player.getCooldown(itemType.getMaterial()));
 			}
 		}
 		return timespan;
@@ -101,9 +93,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
-			return null;
-		return CollectionUtils.array(Timespan.class);
+		return mode == ChangeMode.REMOVE_ALL ? null : CollectionUtils.array(Timespan.class);
 	}
 
 	@Override
@@ -113,22 +103,13 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
-		ItemType[] itemtypesArray = this.itemtypes.getArray(event);
-		if (players == null || itemtypesArray == null)
-			return;
+		ItemType[] itemTypesArray = this.itemtypes.getArray(event);
 
-		List<ItemType> itemtypes = Arrays.stream(itemtypesArray)
-			.filter(it -> {
-				try {
-					it.getMaterial();
-					return true;
-				} catch (IllegalArgumentException ex) {
-					return false;
-				}
-			}).toList();
+		List<ItemType> itemTypes = Arrays.stream(itemTypesArray)
+			.filter(ItemType::hasType).collect(Collectors.toList());
 
 		for (Player player : players) {
-			for (ItemType itemtype : itemtypes) {
+			for (ItemType itemtype : itemTypes) {
 				Material material = itemtype.getMaterial();
 				switch (mode) {
 					case RESET:
