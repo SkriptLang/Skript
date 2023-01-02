@@ -83,14 +83,14 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		return get(source, new Converter<LivingEntity, Entity>() {
 			@Override
 			@Nullable
-			public Entity convert(LivingEntity en) {
-				if (event instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+			public Entity convert(LivingEntity entity) {
+				if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
 					Entity target = ((EntityTargetEvent) event).getTarget();
 					if (target == null || type != null && !type.isInstance(target))
 						return null;
 					return target;
 				}
-				return getTarget(en, type);
+				return getTarget(entity, type);
 			}
 		});
 	}
@@ -109,7 +109,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {// null will make the entity target-less (reset target) but for players it will remove them
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) { // null will make the entity target-less (reset target) but for players it will remove them
 			LivingEntity target = delta == null ? null : (LivingEntity) delta[0];
 			for (LivingEntity entity : getExpr().getArray(event)) {
 				if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
