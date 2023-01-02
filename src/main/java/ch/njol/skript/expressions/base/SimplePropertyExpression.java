@@ -28,33 +28,47 @@ import ch.njol.util.Kleenean;
 
 /**
  * A base class for property expressions that requires only few overridden methods
- * 
- * @author Peter Güttinger
+
  * @see PropertyExpression
  * @see PropertyExpression#register(Class, Class, String, String)
  */
 public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<F, T> implements Converter<F, T> {
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	private Event event;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends F>) exprs[0]);
 		return true;
 	}
-	
+
 	protected abstract String getPropertyName();
-	
+
 	@Override
 	@Nullable
 	public abstract T convert(F f);
-	
+
 	@Override
-	protected T[] get(final Event e, final F[] source) {
+	protected T[] get(Event event, F[] source) {
+		this.event = event;
 		return super.get(source, this);
 	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the " + getPropertyName() + " of " + getExpr().toString(e, debug);
+
+	/**
+	 * Returns the Event that was used in this expression.
+	 * Will only be null if called in the init method.
+	 * 
+	 * @return The Event that was used in this expression.
+	 */
+	@Nullable
+	public Event getEvent() {
+		return event;
 	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the " + getPropertyName() + " of " + getExpr().toString(event, debug);
+	}
+
 }
