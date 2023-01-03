@@ -33,6 +33,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -75,7 +76,7 @@ public class CondIsNamed extends Condition {
 	private Expression<String> name;
 
 	static {
-		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "itemtypes/blocks/slots/inventories/offlineplayers/entities");
+		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "itemtypes/blocks/slots/inventories/offlineplayers/entities/worlds");
 
 		MethodHandle _METHOD = null;
 		try {
@@ -131,7 +132,7 @@ public class CondIsNamed extends Condition {
 					if (!viewers.isEmpty()) {
 						if (name != null)
 							return viewers.get(0).getOpenInventory().getTitle().equalsIgnoreCase(name);
-						return viewers.get(0).getOpenInventory().getTitle() != null && !viewers.get(0).getOpenInventory().getTitle().equalsIgnoreCase(defaultTitle);
+						return !viewers.get(0).getOpenInventory().getTitle().equalsIgnoreCase(defaultTitle);
 					}
 				}
 			} else if (object instanceof OfflinePlayer) {
@@ -142,6 +143,10 @@ public class CondIsNamed extends Condition {
 				if (name != null)
 					return ((Entity) object).getCustomName().equalsIgnoreCase(name);
 				return ((Entity) object).getCustomName() != null;
+			} else if (object instanceof World) {
+				if (name != null)
+					return ((World) object).getName().equalsIgnoreCase(name);
+				return true;
 			}
 			return false;
 		}, isNegated() );
