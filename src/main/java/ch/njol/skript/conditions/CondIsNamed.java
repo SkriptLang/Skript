@@ -38,7 +38,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -62,8 +61,8 @@ import java.util.List;
 	"\tcancel event",
 	"",
 	"on inventory click:",
-	"\tevent-inventory is named \"Example Inventory\"",
-	"\tcancel event",
+	"\tevent-inventory is named \"Example Inventory\":",
+	"\t\tcancel event",
 	""
 })
 @Since("INSERT VERSION")
@@ -111,10 +110,11 @@ public class CondIsNamed extends Condition {
 				return itemMeta.hasDisplayName();
 			} else if (object instanceof Block) {
 				BlockState state = ((Block) object).getState();
-				if (state instanceof Nameable)
+				if (state instanceof Nameable) {
 					if (name != null)
 						return ((Nameable) state).getCustomName().equalsIgnoreCase(name);
 					return ((Nameable) state).getCustomName() != null;
+				}
 			} else if (object instanceof Inventory) {
 				if (TITLE_METHOD != null) {
 					try {
@@ -125,7 +125,6 @@ public class CondIsNamed extends Condition {
 						return TITLE_METHOD.invoke(object) != null;
 					} catch (Throwable error) {
 						Skript.exception(error);
-						return false;
 					}
 				} else {
 					List<HumanEntity> viewers = ((Inventory) object).getViewers();
