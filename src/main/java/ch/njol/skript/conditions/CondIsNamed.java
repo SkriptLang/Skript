@@ -119,7 +119,8 @@ public class CondIsNamed extends Condition {
 				if (TITLE_METHOD != null) {
 					try {
 						if (name != null) {
-							return TITLE_METHOD.invoke(object).equals(name);
+							String inventoryTitle = (String) TITLE_METHOD.invoke(object);
+							return inventoryTitle.equalsIgnoreCase(name);
 						}
 						return TITLE_METHOD.invoke(object) != null;
 					} catch (Throwable error) {
