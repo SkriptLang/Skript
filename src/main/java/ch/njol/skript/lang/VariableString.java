@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.ConvertedExpression;
@@ -28,6 +29,7 @@ import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
@@ -40,11 +42,15 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
@@ -52,7 +58,8 @@ import java.util.List;
  * @author Peter Güttinger
  */
 public class VariableString implements Expression<String> {
-	
+
+	private final Script script;
 	private final String orig;
 	
 	@Nullable
@@ -84,6 +91,8 @@ public class VariableString implements Expression<String> {
 		orig = simple;
 		string = null;
 		mode = StringMode.MESSAGE;
+		script = getParser().getCurrentScript();
+		assert script != null;
 		
 		components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
 	}
@@ -98,6 +107,8 @@ public class VariableString implements Expression<String> {
 		this.orig = orig;
 		this.string = new Object[string.length];
 		this.stringUnformatted = new Object[string.length];
+		this.script = getParser().getCurrentScript();
+		assert this.script != null;
 		
 		// Construct unformatted string and components
 		List<MessageComponent> components = new ArrayList<>(string.length);
@@ -369,36 +380,6 @@ public class VariableString implements Expression<String> {
 	
 	/**
 	 * Parses all expressions in the string and returns it.
-	 * If this is a simple string, the event may be null.
-	 * 
-	 * @param e Event to pass to the expressions.
-	 * @return The input string with all expressions replaced.
-	 */
-	public String toString(@Nullable Event e) {
-		if (isSimple) {
-			assert simple != null;
-			return simple;
-		}
-
-		if (e == null) {
-			throw new IllegalArgumentException("Event may not be null in non-simple VariableStrings!");
-		}
-
-		Object[] string = this.string;
-		assert string != null;
-		StringBuilder b = new StringBuilder();
-		for (Object o : string) {
-			if (o instanceof Expression<?>) {
-				b.append(Classes.toString(((Expression<?>) o).getArray(e), true, mode));
-			} else {
-				b.append(o);
-			}
-		}
-		return b.toString();
-	}
-	
-	/**
-	 * Parses all expressions in the string and returns it.
 	 * Does not parse formatting codes!
 	 * @param e Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
@@ -527,12 +508,50 @@ public class VariableString implements Expression<String> {
 	public String toString() {
 		return toString(null, false);
 	}
-	
+
 	/**
-	 * Use {@link #toString(Event)} to get the actual string
+	 * Parses all expressions in the string and returns it.
+	 * If this is a simple string, the event may be null.
+	 * 
+	 * @param e Event to pass to the expressions.
+	 * @return The input string with all expressions replaced.
+	 */
+	public String toString(@Nullable Event event) {
+		if (isSimple) {
+			assert simple != null;
+			return simple;
+		}
+		if (event == null)
+			throw new IllegalArgumentException("Event may not be null in non-simple VariableStrings!");
+
+		Object[] string = this.string;
+		assert string != null;
+		StringBuilder b = new StringBuilder();
+		List<Class<?>> types = new ArrayList<>();
+		for (Object o : string) {
+			if (o instanceof Expression<?>) {
+				Object[] objects = ((Expression<?>) o).getArray(event);
+				if (objects != null && objects.length > 0)
+					types.add(objects[0].getClass());
+				b.append(Classes.toString(objects, true, mode));
+			} else {
+				b.append(o);
+			}
+		}
+		String complete = b.toString();
+		if (!types.isEmpty()) {
+			DefaultVariables data = script.getData(DefaultVariables.class);
+			if (data != null)
+				data.add(complete, types.toArray(new Class<?>[0]));
+		}
+		return complete;
+	}
+
+	/**
+	 * Use {@link #toString(Event)} to get the actual string. This method is for debugging.
 	 */
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (isSimple) {
 			assert simple != null;
 			return '"' + simple + '"';
@@ -542,7 +561,7 @@ public class VariableString implements Expression<String> {
 		StringBuilder b = new StringBuilder("\"");
 		for (Object o : string) {
 			if (o instanceof Expression) {
-				b.append("%").append(((Expression<?>) o).toString(e, debug)).append("%");
+				b.append("%").append(((Expression<?>) o).toString(event, debug)).append("%");
 			} else {
 				b.append(o);
 			}
@@ -550,25 +569,41 @@ public class VariableString implements Expression<String> {
 		b.append('"');
 		return b.toString();
 	}
-	
-	public String getDefaultVariableName() {
+
+	/**
+	 * Builds all possible default variable type hints based on the super type of the expression.
+	 * 
+	 * @return List<String> of all possible super class code names.
+	 */
+	public List<String> getDefaultVariableNames(String variableName, Event event) {
 		if (isSimple) {
 			assert simple != null;
-			return simple;
+			return Lists.newArrayList(simple, "object");
 		}
 		Object[] string = this.string;
 		assert string != null;
-		StringBuilder b = new StringBuilder();
-		for (Object o : string) {
-			if (o instanceof Expression) {
-				b.append("<")
-					.append(Classes.getSuperClassInfo(((Expression<?>) o).getReturnType()).getCodeName())
-					.append(">");
-			} else {
-				b.append(o);
+		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
+		DefaultVariables data = script.getData(DefaultVariables.class);
+		assert data != null : "default variables not present in current script";
+
+		// Represents the index of which expression in a variable string, example name::%entity%::%object% the index of 0 will be entity.
+		int hintIndex = 0;
+		for (Object object : string) {
+			if (!(object instanceof Expression)) {
+				typeHints.forEach(builder -> builder.append(object));
+				continue;
 			}
+			StringBuilder[] current = typeHints.toArray(StringBuilder[]::new);
+			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(data.get(variableName)[hintIndex])) {
+				for (StringBuilder builder : current) {
+					String hint = builder.toString() + "<" + classInfo.getCodeName() + ">";
+					typeHints.add(new StringBuilder(hint));
+					typeHints.remove(builder);
+				}
+			}
+			hintIndex++;
 		}
-		return b.toString();
+		return typeHints.stream().map(builder -> builder.toString()).collect(Collectors.toList());
 	}
 	
 	public boolean isSimple() {
@@ -582,6 +617,7 @@ public class VariableString implements Expression<String> {
 	public VariableString setMode(StringMode mode) {
 		if (this.mode == mode || isSimple)
 			return this;
+		@SuppressWarnings("resource")
 		BlockingLogHandler h = new BlockingLogHandler().start();
 		try {
 			VariableString vs = newInstance(orig, mode);

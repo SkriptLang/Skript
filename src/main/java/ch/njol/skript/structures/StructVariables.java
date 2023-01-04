@@ -31,6 +31,8 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -39,12 +41,20 @@ import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Name("Variables")
 @Description({
@@ -66,16 +76,72 @@ public class StructVariables extends Structure {
 		Skript.registerStructure(StructVariables.class, "variables");
 	}
 
-	private final List<NonNullPair<String, Object>> variables = new ArrayList<>();
+	public static class DefaultVariables implements ScriptData {
+
+		private final List<NonNullPair<String, Object>> variables = new ArrayList<>();
+		private final Deque<Map<String, Class<?>[]>> hints = new ArrayDeque<>();
+
+		public DefaultVariables(Collection<NonNullPair<String, Object>> variables) {
+			this.variables.addAll(variables);
+		}
+
+		@SuppressWarnings("unchecked")
+		public void add(String variable, Class<?>... hints) {
+			if (hints == null || hints.length <= 0)
+				return;
+			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint
+				return;
+			// Take top of stack, without removing it
+			Map<String, Class<?>[]> head = this.hints.getFirst();
+			head.put(variable, hints);
+		}
+
+		public void enterScope() {
+			hints.push(new HashMap<>());
+		}
+
+		public void exitScope() {
+			hints.pop();
+		}
+
+		/**
+		 * Returns the type hints of a variable.
+		 * Can be null if no type hint was saved.
+		 * 
+		 * @param variable The variable string of a variable.
+		 * @return type hints of a variable if found otherwise null.
+		 */
+		@Nullable
+		public Class<?>[] get(String variable) {
+			for (Map<String, Class<?>[]> map : hints) {
+				Class<?>[] hints = map.get(variable);
+				if (hints != null && hints.length > 0)
+					return hints;
+			}
+			return null;
+		}
+
+		public boolean hasDefaultVariables() {
+			return !variables.isEmpty();
+		}
+
+		/**
+		 * @return an unmodifiable list of all the default variables registered for the script.
+		 */
+		public List<NonNullPair<String, Object>> getVariables() {
+			return Collections.unmodifiableList(variables);
+		}
+	}
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-		// TODO allow to make these override existing variables
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(0, "=");
+
+		List<NonNullPair<String, Object>> variables = new ArrayList<>();
 		for (Node n : node) {
 			if (!(n instanceof EntryNode)) {
-				Skript.error("Invalid line in variables section");
+				Skript.error("Invalid line in variables structure");
 				continue;
 			}
 
@@ -83,9 +149,13 @@ public class StructVariables extends Structure {
 			if (name.startsWith("{") && name.endsWith("}"))
 				name = name.substring(1, name.length() - 1);
 
-			String var = name;
+			if (name.startsWith("_")) {
+				Skript.error("'" + name + "' cannot be a local variable in default variables structure");
+				continue;
+			}
 
-			name = StringUtils.replaceAll(name, "%(.+)?%", m -> {
+			String var = name;
+			name = StringUtils.replaceAll(name, "%(.+?)%", m -> {
 				if (m.group(1).contains("{") || m.group(1).contains("}") || m.group(1).contains("%")) {
 					Skript.error("'" + var + "' is not a valid name for a default variable");
 					return null;
@@ -134,15 +204,16 @@ public class StructVariables extends Structure {
 					continue;
 				}
 			}
-
 			variables.add(new NonNullPair<>(name, o));
 		}
+		getParser().getCurrentScript().addData(new DefaultVariables(variables));
 		return true;
 	}
 
 	@Override
 	public boolean load() {
-		for (NonNullPair<String, Object> pair : variables) {
+		DefaultVariables data = getParser().getCurrentScript().getData(DefaultVariables.class);
+		for (NonNullPair<String, Object> pair : data.getVariables()) {
 			String name = pair.getKey();
 			Object o = pair.getValue();
 
@@ -155,12 +226,21 @@ public class StructVariables extends Structure {
 	}
 
 	@Override
+	public void postUnload() {
+		Script script = getParser().getCurrentScript();
+		DefaultVariables data = script.getData(DefaultVariables.class);
+		for (NonNullPair<String, Object> pair : data.getVariables())
+			Variables.setVariable(pair.getKey(), null, null, false);
+		script.removeData(DefaultVariables.class);
+	}
+
+	@Override
 	public Priority getPriority() {
 		return PRIORITY;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "variables";
 	}
 
