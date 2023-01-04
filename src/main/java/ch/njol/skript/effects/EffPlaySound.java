@@ -155,13 +155,16 @@ public class EffPlaySound extends Effect {
 	
 	@FunctionalInterface
 	private interface SoundReceiver<T, S> {
-		void play(@NotNull T receiver, @NotNull Location location, @NotNull S sound,
-	            @NotNull SoundCategory category, float volume, float pitch);
+		void play(
+			@NotNull T receiver, @NotNull Location location, @NotNull S sound,
+			@NotNull SoundCategory category, float volume, float pitch
+		);
 		
-		static <T> void play(@NotNull SoundReceiver<T, String> stringReceiver,
-                @NotNull SoundReceiver<T, Sound> soundReceiver,
-                @NotNull T receiver, @NotNull Location location, @NotNull String[] sounds,
-                @NotNull SoundCategory category, float volume, float pitch
+		static <T> void play(
+			@NotNull SoundReceiver<T, String> stringReceiver,
+			@NotNull SoundReceiver<T, Sound> soundReceiver,
+			@NotNull T receiver, @NotNull Location location, @NotNull String[] sounds,
+			@NotNull SoundCategory category, float volume, float pitch
 		) {	
 			for (String sound : sounds) {
 				try {
