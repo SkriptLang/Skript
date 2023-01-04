@@ -100,10 +100,10 @@ public class EffPlaySound extends Effect {
 	protected void execute(Event event) {
 		SoundCategory category = this.category == null ? SoundCategory.MASTER : this.category.getOptionalSingle(event)
 			.orElse(SoundCategory.MASTER);
-		float volume = this.volume.getOptionalSingle(event)
+		float volume = this.volume == null ? 1 : this.volume.getOptionalSingle(event)
 			.orElse(1)
 			.floatValue();
-		float pitch = this.pitch.getOptionalSingle(event)
+		float pitch = this.pitch == null ? 1 : this.pitch.getOptionalSingle(event)
 			.orElse(1)
 			.floatValue();
 		
