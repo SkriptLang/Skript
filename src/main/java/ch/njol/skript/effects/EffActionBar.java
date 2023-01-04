@@ -43,7 +43,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 public class EffActionBar extends Effect {
 
 	static {
-		Skript.registerEffect(EffActionBar.class, "send [the] action bar [with text] %string% to %players%");
+		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %string% to %players%");
 	}
 
 	@SuppressWarnings("null")

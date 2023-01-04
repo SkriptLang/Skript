@@ -393,7 +393,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 
-		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER + File.separator);
+		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER);
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
@@ -419,16 +419,16 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + File.separator)) {
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
 						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang" + File.separator)
+							&& e.getName().startsWith("lang/")
 							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith(File.separator + "default.lang")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
+							&& !e.getName().endsWith("/default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
