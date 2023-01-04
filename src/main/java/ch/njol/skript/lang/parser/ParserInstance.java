@@ -29,6 +29,7 @@ import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions;
+import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Validate;
 import ch.njol.util.coll.CollectionUtils;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 public final class ParserInstance {
@@ -472,16 +474,17 @@ public final class ParserInstance {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
 	@Deprecated
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
-		HashMap<String, String> options = StructOptions.getOptions(getCurrentScript());
-		if (options == null)
+		OptionsData data = getCurrentScript().getData(OptionsData.class);
+		if (data == null)
 			return new HashMap<>(0);
-		return options;
+		return new HashMap<>(data.getOptions()); // ensure returned map is modifiable
 	}
 
 	/**

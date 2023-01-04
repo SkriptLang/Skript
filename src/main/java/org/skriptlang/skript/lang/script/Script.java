@@ -22,7 +22,6 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -41,19 +40,20 @@ public final class Script {
 
 	private final Config config;
 
-	private final List<Structure> structures = new ArrayList<>();
+	private final List<Structure> structures;
 
 	/**
 	 * Creates a new Script to be used across the API.
-	 * Only one script should be created per Config. A loaded script may be obtained through {@link ch.njol.skript.ScriptLoader}.
-	 * @param config The Config containing the contents of this script.
+	 * Only one Script should be created per Config. A loaded Script may be obtained through {@link ch.njol.skript.ScriptLoader}.
+	 * @param config The Config containing the contents of this Script.
 	 */
-	public Script(Config config) {
+	public Script(Config config, List<Structure> structures) {
 		this.config = config;
+		this.structures = structures;
 	}
 
 	/**
-	 * @return The Config representing the structure of this script.
+	 * @return The Config representing the structure of this Script.
 	 */
 	public Config getConfig() {
 		return config;
@@ -63,7 +63,7 @@ public final class Script {
 	 * @return A list of all Structures within this Script.
 	 */
 	public List<Structure> getStructures() {
-		return structures;
+		return Collections.unmodifiableList(structures);
 	}
 
 	// Warning Suppressions
@@ -71,14 +71,14 @@ public final class Script {
 	private final Set<ScriptWarning> suppressedWarnings = new HashSet<>(ScriptWarning.values().length);
 
 	/**
-	 * @param warning Suppresses the provided warning for this script.
+	 * @param warning Suppresses the provided warning for this Script.
 	 */
 	public void suppressWarning(ScriptWarning warning) {
 		suppressedWarnings.add(warning);
 	}
 
 	/**
-	 * @param warning Allows the provided warning for this script.
+	 * @param warning Allows the provided warning for this Script.
 	 */
 	public void allowWarning(ScriptWarning warning) {
 		suppressedWarnings.remove(warning);
@@ -86,7 +86,7 @@ public final class Script {
 
 	/**
 	 * @param warning The warning to check.
-	 * @return Whether this script suppresses the provided warning.
+	 * @return Whether this Script suppresses the provided warning.
 	 */
 	public boolean suppressesWarning(ScriptWarning warning) {
 		return suppressedWarnings.contains(warning);
