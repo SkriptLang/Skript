@@ -38,12 +38,14 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Name("Stop Sound")
-@Description({"Stops the given sound(s) from playing to the specified players. Both Minecraft sound names and " +
-		"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-		"are supported. Resource pack sounds are supported too. The sound category is 'master' by default. " +
-		"A sound can't be stopped from a different category. ",
-		"",
-		"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."})
+@Description({
+	"Stops specific or all sounds from playing to a group of players. Both Minecraft sound names and " +
+	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
+	"are supported. Resource pack sounds are supported too. The sound category is 'master' by default. " +
+	"A sound can't be stopped from a different category. ",
+	"",
+	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."
+})
 @Examples({
 	"stop sound \"block.chest.open\" for the player",
 	"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player",
@@ -63,7 +65,8 @@ public class EffStopSound extends Effect {
 		
 		Skript.registerEffect(EffStopSound.class,
 			"stop " + stopPattern + " [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-			"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]");
+			"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]"
+		);
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -76,7 +79,7 @@ public class EffStopSound extends Effect {
 	private boolean allSounds;
 
 	@Override
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		allSounds = parseResult.hasTag("all");
 		if (allSounds) {
