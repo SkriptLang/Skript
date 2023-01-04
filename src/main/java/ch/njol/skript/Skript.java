@@ -420,8 +420,9 @@ public final class Skript extends JavaPlugin implements Listener {
 						continue;
 					File saveTo = null;
 					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
-						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+						String fileName = e.getName().substring(e.getName().indexOf("/") + 1);
+						// All example scripts must be disabled for jar security.
+						if (!fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
