@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -30,25 +28,14 @@ import ch.njol.skript.expressions.ExprName;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
-import org.bukkit.Nameable;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.List;
 
 @Name("Is Named")
 @Description("Checks whether or not a item, block, slot, inventory, player or entity is named or has a given name")
@@ -101,7 +88,7 @@ public class CondIsNamed extends Condition {
 		return objects.check(event, object -> {
 			String value = expression.convert(object);
 			return name != null ? value.equalsIgnoreCase(name) : value != null;
-		}, isNegated();
+		}, isNegated());
 	}
 
 	@Override
