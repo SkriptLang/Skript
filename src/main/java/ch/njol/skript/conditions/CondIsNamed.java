@@ -87,6 +87,7 @@ public class CondIsNamed extends Condition {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		objects = (Expression<Object>) exprs[0];
 		name = (Expression<String>) exprs[1];
@@ -108,4 +109,5 @@ public class CondIsNamed extends Condition {
 		return PropertyCondition.toString(this, PropertyType.BE, event, debug, objects,
 			"named" + (name == null ? "" : " " + name.toString(event, debug)));
 	}
+
 }
