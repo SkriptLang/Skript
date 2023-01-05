@@ -15,7 +15,7 @@ skript:
 	invalid reload: Skript may only be reloaded by either Bukkit's '/reload' or Skript's '/skript reload' command.
 	no scripts: No scripts were found, maybe you should write some ;)
 	no errors: All scripts loaded without errors.
-	scripts loaded: Loaded %s script¦¦s¦ with a total of %s trigger¦¦s¦ and %s command¦¦s¦ in %s
+	scripts loaded: Loaded %s script¦¦s¦ with a total of %s structure¦¦s¦ in %s
 	finished loading: Finished loading.
 
 # -- Skript command --
@@ -25,7 +25,7 @@ skript command:
 		description: Skript's main command
 		help: Prints this help message. Use '/skript reload/enable/disable/update' to get more info
 		reload:
-			description: Reloads the config, all scripts, everything, or a specific script
+			description: Reloads a specific script, all scripts, the config, or everything
 			all: Reloads the config, all aliases configs and all scripts
 			config: Reloads the main config
 			aliases: Reloads the aliases configs (aliases-english.zip or plugin jar)
@@ -46,7 +46,7 @@ skript command:
 			download: Download the newest version
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using doc-templates in plugin folder
-		test: Used for running Skript tests
+		test: Used for running internal Skript tests
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
@@ -75,7 +75,7 @@ skript command:
 			enabling: Enabling all disabled scripts...
 			enabled: Successfully enabled & parsed all previously disabled scripts.
 			error: Encountered %s error¦¦s¦ while parsing disabled scripts!
-			io error: Could not load any scripts (some scripts might have been renamed already and will be enabled when the server restarts): %s
+			io error: Could not load one or more scripts - some scripts might have been renamed already and will be enabled when the server restarts: %s
 		single:
 			already enabled: <gold>%s<reset> is already enabled! Use <gray>/<gold>skript <cyan>reload <red>%s<reset> to reload it if it was changed.
 			enabling: Enabling <gold>%s<reset>...
@@ -87,19 +87,19 @@ skript command:
 			enabling: Enabling <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>...
 			enabled: Successfully enabled & parsed <gold>%2$s<reset> previously disabled scripts in <gold>%1$s<reset>.
 			error: Encountered %2$s error¦¦s¦ while parsing scripts in <gold>%1$s<red>!
-			io error: Error while enabling scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
+			io error: Error while enabling one or more scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
 	disable:
 		all:
 			disabled: Successfully disabled all scripts.
-			io error: Could not rename all scripts - some scripts will be enabled again when you restart the server: %s
+			io error: Could not rename one or more scripts - some scripts might have been renamed already and will be disabled when the server restarts: %s
 		single:
 			already disabled: <gold>%s<reset> is already disabled!
 			disabled: Successfully disabled <gold>%s<reset>.
 			io error: Could not rename <gold>%s<red>, it will be enabled again when you restart the server: %s
 		folder:
-			empty: <gold>%s<reset> does not contain any enabled scripts,
+			empty: <gold>%s<reset> does not contain any enabled scripts.
 			disabled: Successfully disabled <gold>%2$s<reset> script(s) in <gold>%1$s<reset>.
-			io error: Could not disable any script in <gold>%s<red> (some scripts might get disabled when the server restarts): %s
+			io error: Could not disable one or more scripts in <gold>%s<red> (some scripts might get disabled when the server restarts): %s
 	update:
 		# check/download: see Updater
 		changes:
