@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprName;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -68,6 +69,7 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class CondIsNamed extends Condition {
 
+	private static final ExprName expression = new ExprName();
 	@Nullable
 	static final MethodHandle TITLE_METHOD;
 	private Expression<Object> objects;
@@ -75,7 +77,7 @@ public class CondIsNamed extends Condition {
 	private Expression<String> name;
 
 	static {
-		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "itemtypes/blocks/slots/inventories/offlineplayers/entities/worlds");
+		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds");
 
 		MethodHandle _METHOD = null;
 		try {
@@ -96,60 +98,9 @@ public class CondIsNamed extends Condition {
 	public boolean check(Event event) {
 		String name = this.name != null ? this.name.getSingle(event) : null;
 		return objects.check(event, object -> {
-			if (object instanceof ItemType) {
-				ItemMeta itemMeta = ((ItemType) object).getItemMeta();
-				if (name != null && itemMeta.hasDisplayName()) {
-					return itemMeta.getDisplayName().equalsIgnoreCase(name);
-				}
-				return itemMeta.hasDisplayName();
-			} else if (object instanceof Slot) {
-				ItemStack itemStack = ((Slot) object).getItem();
-				ItemMeta itemMeta = itemStack.getItemMeta();
-				if (name != null)
-					return itemMeta.getDisplayName().equalsIgnoreCase(name);
-				return itemMeta.hasDisplayName();
-			} else if (object instanceof Block) {
-				BlockState state = ((Block) object).getState();
-				if (state instanceof Nameable) {
-					if (name != null)
-						return ((Nameable) state).getCustomName().equalsIgnoreCase(name);
-					return ((Nameable) state).getCustomName() != null;
-				}
-			} else if (object instanceof Inventory) {
-				if (TITLE_METHOD != null) {
-					try {
-						if (name != null) {
-							String inventoryTitle = (String) TITLE_METHOD.invoke(object);
-							return inventoryTitle.equalsIgnoreCase(name);
-						}
-						return TITLE_METHOD.invoke(object) != null;
-					} catch (Throwable error) {
-						Skript.exception(error);
-					}
-				} else {
-					List<HumanEntity> viewers = ((Inventory) object).getViewers();
-					String defaultTitle = ((Inventory) object).getType().getDefaultTitle();
-					if (!viewers.isEmpty()) {
-						if (name != null)
-							return viewers.get(0).getOpenInventory().getTitle().equalsIgnoreCase(name);
-						return !viewers.get(0).getOpenInventory().getTitle().equalsIgnoreCase(defaultTitle);
-					}
-				}
-			} else if (object instanceof OfflinePlayer) {
-				if (name != null)
-					return ((OfflinePlayer) object).getName().equalsIgnoreCase(name);
-				return true;
-			} else if (object instanceof Entity) {
-				if (name != null)
-					return ((Entity) object).getCustomName().equalsIgnoreCase(name);
-				return ((Entity) object).getCustomName() != null;
-			} else if (object instanceof World) {
-				if (name != null)
-					return ((World) object).getName().equalsIgnoreCase(name);
-				return true;
-			}
-			return false;
-		}, isNegated() );
+			String value = expression.convert(object);
+			return name != null ? value.equalsIgnoreCase(name) : value != null;
+		}, isNegated();
 	}
 
 	@Override
