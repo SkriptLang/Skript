@@ -57,20 +57,12 @@ import java.lang.invoke.MethodType;
 public class CondIsNamed extends Condition {
 
 	private static final ExprName expression = new ExprName();
-	@Nullable
-	static final MethodHandle TITLE_METHOD;
 	private Expression<Object> objects;
 	@Nullable
 	private Expression<String> name;
 
 	static {
 		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds");
-
-		MethodHandle _METHOD = null;
-		try {
-			_METHOD = MethodHandles.lookup().findVirtual(Inventory.class, "getTitle", MethodType.methodType(String.class));
-		} catch (IllegalAccessException | NoSuchMethodException ignored) {}
-		TITLE_METHOD = _METHOD;
 	}
 
 	@Override
