@@ -69,7 +69,7 @@ import ch.njol.yggdrasil.Yggdrasil;
 
 public abstract class Variables {
 
-	// Field order matters!
+	// Field order matters for static Yggdrasil
 
 	public final static short YGGDRASIL_VERSION = 1;
 	public final static Yggdrasil yggdrasil = new Yggdrasil(YGGDRASIL_VERSION);
@@ -197,7 +197,7 @@ public abstract class Variables {
 					VariablesStorage storage;
 					Optional<?> optional = types.entries().stream()
 							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
-							.map(entry -> entry.getKey())
+							.map(Entry::getKey)
 							.findFirst();
 					if (!optional.isPresent()) {
 						if (!type.equalsIgnoreCase("disabled") && !type.equalsIgnoreCase("none")) {
@@ -207,7 +207,9 @@ public abstract class Variables {
 						continue;
 					}
 					try {
-						storage = (VariablesStorage) optional.get().getClass().getConstructor().newInstance();
+						@SuppressWarnings("unchecked")
+						Class<? extends VariablesStorage> storageClass = (Class<? extends VariablesStorage>) optional.get();
+						storage = (VariablesStorage) storageClass.getConstructor(String.class).newInstance(type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 						Skript.error("Failed to initalize database type '" + type + "'");
 						successful = false;

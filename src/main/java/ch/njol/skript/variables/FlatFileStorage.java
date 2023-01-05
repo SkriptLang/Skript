@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -57,7 +58,7 @@ import ch.njol.util.NotifyingReference;
  */
 public class FlatFileStorage extends VariablesStorage {
 	
-	public final static Charset UTF_8 = Charset.forName("UTF-8");
+	public final static Charset UTF_8 = StandardCharsets.UTF_8;
 	
 	/**
 	 * A Lock on this object must be acquired after connectionLock (if that lock is used) (and thus also after {@link Variables#getReadLock()}).

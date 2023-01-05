@@ -20,6 +20,7 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.SkriptLogger;
+import lib.PatPeter.SQLibrary.Database;
 import lib.PatPeter.SQLibrary.MySQL;
 
 public class MySQLStorage extends SQLStorage {
@@ -35,7 +36,7 @@ public class MySQLStorage extends SQLStorage {
 	}
 
 	@Override
-	public Object initialize(SectionNode config) {
+	public Database initialize(SectionNode config) {
 		String host = getValue(config, "host");
 		Integer port = getValue(config, "port", Integer.class);
 		String user = getValue(config, "user");
