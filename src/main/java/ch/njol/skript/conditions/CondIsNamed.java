@@ -56,10 +56,10 @@ import java.lang.invoke.MethodType;
 @Since("INSERT VERSION")
 public class CondIsNamed extends Condition {
 
-	private static final ExprName expression = new ExprName();
-	private Expression<Object> objects;
 	@Nullable
 	private Expression<String> name;
+	private Expression<Object> objects;
+	private static final ExprName exprName = new ExprName();
 
 	static {
 		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds");
@@ -78,7 +78,7 @@ public class CondIsNamed extends Condition {
 	public boolean check(Event event) {
 		String name = this.name != null ? this.name.getSingle(event) : null;
 		return objects.check(event, object -> {
-			String value = expression.convert(object);
+			String value = exprName.convert(object);
 			return name != null ? value.equalsIgnoreCase(name) : value != null;
 		}, isNegated());
 	}
