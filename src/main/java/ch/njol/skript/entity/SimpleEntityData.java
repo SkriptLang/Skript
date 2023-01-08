@@ -31,6 +31,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
+import org.bukkit.entity.Camel;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Chicken;
@@ -288,6 +289,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("tadpole", Tadpole.class);
 			addSimpleEntity("warden", Warden.class);
 		}
+
+		if (Skript.isRunningMinecraft(1,19,3))
+			addSimpleEntity("camel", Camel.class);
 		
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);

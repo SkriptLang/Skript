@@ -1199,6 +1199,9 @@ entities:
 	enemy:
 		name: enem¦y¦ies
 		pattern: enem(y|1¦ies)
+	camel:
+		name: camel¦s
+		pattern: camel(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
