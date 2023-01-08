@@ -21,6 +21,7 @@ package ch.njol.skript.events;
 import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
@@ -61,10 +62,14 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("<i>unknown</i> (before 2.1)");
-		Skript.registerEvent("Drop", EvtItem.class, PlayerDropItemEvent.class, "[player] drop[ing] [[of] %-itemtypes%]")
-				.description("Called when a player drops an item from their inventory.")
-				.examples("on drop:")
-				.since("<i>unknown</i> (before 2.1)");
+		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
+				"[(player|1¦entity)] drop[ing] [[of] %-itemtypes%]")
+				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken spawning an egg.")
+				.examples("on drop:",
+						"on entity drop an egg:",
+						"\tif event-entity is a chicken:",
+						"\t\tset item of event-dropped item to a diamond")
+				.since("<i>unknown</i> (before 2.1), INSERT VERSION (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
@@ -140,6 +145,8 @@ public class EvtItem extends SkriptEvent {
 			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
 		if (hasEntityPickupItemEvent && ((!entity && e instanceof EntityPickupItemEvent) || (entity && e instanceof PlayerPickupItemEvent)))
 			return false;
+		if ((!entity && e instanceof EntityDropItemEvent) || (entity && e instanceof PlayerDropItemEvent))
+			return false;
 		if (types == null)
 			return true;
 		final ItemStack is;
@@ -149,6 +156,8 @@ public class EvtItem extends SkriptEvent {
 			is = ((ItemSpawnEvent) e).getEntity().getItemStack();
 		} else if (e instanceof PlayerDropItemEvent) {
 			is = ((PlayerDropItemEvent) e).getItemDrop().getItemStack();
+		} else if (e instanceof EntityDropItemEvent) {
+			is = ((EntityDropItemEvent) e).getItemDrop().getItemStack();
 		} else if (e instanceof CraftItemEvent) {
 			is = ((CraftItemEvent) e).getRecipe().getResult();
 		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
