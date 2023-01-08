@@ -45,7 +45,6 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	
 	static {
-		// Not supported on 1.14 yet
 		if (Skript.methodExists(Player.class, "getViewDistance"))
 			register(ExprPlayerViewDistance.class, Long.class, "view distance[s]", "players");
 	}
@@ -59,7 +58,7 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	
 	@Override
 	protected Long[] get(Event e, Player[] source) {
-		return get(source, player -> (long) player.getViewDistance());
+		return get(source, player -> (long) getViewDistance(player));
 	}
 	
 	@Override
@@ -101,10 +100,20 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 		}
 	}
 
+	private int getViewDistance(Player player) {
+		try {
+			return player.getViewDistance();
+		} catch (NotImplementedException ignore) {
+			return Bukkit.getViewDistance();
+		}
+	}
+
 	private void setViewDistance(Player player, int distance) {
 		try {
 			player.setViewDistance(distance);
-		} catch (NotImplementedException ignore) {}
+		} catch (NotImplementedException ignore) {
+			Skript.error("'player view distance' is not available on your server version. This is NOT a Skript bug.");
+		}
 	}
 	
 	@Override
