@@ -30,6 +30,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -39,13 +40,13 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The view distance of a player. Can be changed.")
 @Examples({"set view distance of player to 10", "set {_view} to view distance of player",
 		"reset view distance of all players", "add 2 to view distance of player"})
-@RequiredPlugins("Paper 1.9-1.13.2")
+@RequiredPlugins("Paper")
 @Since("2.4")
 public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	
 	static {
 		// Not supported on 1.14 yet
-		if (Skript.methodExists(Player.class, "getViewDistance") && !Skript.isRunningMinecraft(1, 14))
+		if (Skript.methodExists(Player.class, "getViewDistance"))
 			register(ExprPlayerViewDistance.class, Long.class, "view distance[s]", "players");
 	}
 	
@@ -82,22 +83,28 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 			case DELETE:
 			case SET:
 				for (Player player : getExpr().getArray(e))
-					player.setViewDistance(distance);
+					setViewDistance(player, distance);
 				break;
 			case ADD:
 				for (Player player : getExpr().getArray(e))
-					player.setViewDistance(player.getViewDistance() + distance);
+					setViewDistance(player, player.getViewDistance() + distance);
 				break;
 			case REMOVE:
 				for (Player player : getExpr().getArray(e))
-					player.setViewDistance(player.getViewDistance() - distance);
+					setViewDistance(player,player.getViewDistance() - distance);
 				break;
 			case RESET:
 				for (Player player : getExpr().getArray(e))
-					player.setViewDistance(Bukkit.getServer().getViewDistance());
+					setViewDistance(player, Bukkit.getServer().getViewDistance());
 			default:
 				assert false;
 		}
+	}
+
+	private void setViewDistance(Player player, int distance) {
+		try {
+			player.setViewDistance(distance);
+		} catch (NotImplementedException ignore) {}
 	}
 	
 	@Override
