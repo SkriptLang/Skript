@@ -1197,7 +1197,7 @@ entities:
 		pattern: warden(|1¦s)
 	# 1.19.3 Entities
 	enemy:
-		name: enem¦y¦ies
+		name: enem¦y¦ies @an
 		pattern: enem(y|1¦ies)
 	camel:
 		name: camel¦s
