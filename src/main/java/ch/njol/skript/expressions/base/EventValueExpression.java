@@ -181,17 +181,15 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		Changer<? super T> changer = this.changer;
 		if (changer == null)
-			this.changer = changer = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
+			changer = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
 	}
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		Changer<? super T> changer = this.changer;
 		if (changer == null)
-			throw new UnsupportedOperationException();
+			throw new SkriptAPIException("The changer cannot be null");
 		ChangerUtils.change(changer, getArray(event), delta, mode);
 	}
 	
