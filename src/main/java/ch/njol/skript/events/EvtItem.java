@@ -66,7 +66,7 @@ public class EvtItem extends SkriptEvent {
 				"[player|1:entity] drop[ing] [[of] %-itemtypes%]")
 				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
 				.examples("on drop:",
-						"on entity drop an egg:",
+						"on entity drop of an egg:",
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
 				.since("<i>unknown</i> (before 2.1), INSERT VERSION (entity)");
