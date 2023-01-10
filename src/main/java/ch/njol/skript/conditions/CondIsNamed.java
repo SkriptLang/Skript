@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -29,13 +30,9 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 
 @Name("Is Named")
 @Description("Checks whether or not a item, block, slot, inventory, player or entity is named or has a given name")
@@ -59,6 +56,7 @@ public class CondIsNamed extends Condition {
 	@Nullable
 	private Expression<String> name;
 	private Expression<Object> objects;
+	private boolean caseSensitive = false;
 	private static final ExprName exprName = new ExprName();
 
 	static {
@@ -70,6 +68,9 @@ public class CondIsNamed extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		objects = (Expression<Object>) exprs[0];
 		name = (Expression<String>) exprs[1];
+		caseSensitive = SkriptConfig.caseSensitive.value();
+		parseResult.mark = 1;
+		exprName.init(exprs, 0, isDelayed, parseResult);
 		setNegated(matchedPattern == 1);
 		return true;
 	}
@@ -79,7 +80,7 @@ public class CondIsNamed extends Condition {
 		String name = this.name != null ? this.name.getSingle(event) : null;
 		return objects.check(event, object -> {
 			String value = exprName.convert(object);
-			return name != null ? value.equalsIgnoreCase(name) : value != null;
+			return name != null ? StringUtils.equals(name, value, caseSensitive) : value != null;
 		}, isNegated());
 	}
 
