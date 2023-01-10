@@ -39,7 +39,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("View Distance")
 @Description("The view distance of a player. Can be changed.")
 @Examples({"set view distance of player to 10", "set {_view} to view distance of player",
-		"reset view distance of all players", "add 2 to view distance of player"})
+		"reset view distance of all players", "add 2 to view distance of player",
+		"NOTE: This may not work on some versions (such as MC 1.14.x). ",
+		"The return value in this case will be the view distance set in system.properties."})
 @RequiredPlugins("Paper")
 @Since("2.4")
 public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
