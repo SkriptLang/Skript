@@ -143,48 +143,47 @@ public class EvtItem extends SkriptEvent {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean check(final Event e) {
-		if (e instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
-			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
-		if (hasEntityPickupItemEvent && ((!entity && e instanceof EntityPickupItemEvent) || (entity && e instanceof PlayerPickupItemEvent)))
+	public boolean check(final Event event) {
+		if (event instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
+			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) event).getEntity();
+		if (hasEntityPickupItemEvent && ((!entity && event instanceof EntityPickupItemEvent) || (entity && event instanceof PlayerPickupItemEvent)))
 			return false;
-		if ((!entity && e instanceof EntityDropItemEvent) || (entity && e instanceof PlayerDropItemEvent))
+		if ((!entity && event instanceof EntityDropItemEvent) || (entity && event instanceof PlayerDropItemEvent))
 			return false;
 		if (types == null)
 			return true;
 		final ItemStack is;
-		if (e instanceof BlockDispenseEvent) {
-			is = ((BlockDispenseEvent) e).getItem();
-		} else if (e instanceof ItemSpawnEvent) {
-			is = ((ItemSpawnEvent) e).getEntity().getItemStack();
-		} else if (e instanceof PlayerDropItemEvent) {
-			is = ((PlayerDropItemEvent) e).getItemDrop().getItemStack();
-		} else if (e instanceof EntityDropItemEvent) {
-			is = ((EntityDropItemEvent) e).getItemDrop().getItemStack();
-		} else if (e instanceof CraftItemEvent) {
-			is = ((CraftItemEvent) e).getRecipe().getResult();
-		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
-			PrepareItemCraftEvent event = (PrepareItemCraftEvent) e;
-			Recipe recipe = event.getRecipe();
+		if (event instanceof BlockDispenseEvent) {
+			is = ((BlockDispenseEvent) event).getItem();
+		} else if (event instanceof ItemSpawnEvent) {
+			is = ((ItemSpawnEvent) event).getEntity().getItemStack();
+		} else if (event instanceof PlayerDropItemEvent) {
+			is = ((PlayerDropItemEvent) event).getItemDrop().getItemStack();
+		} else if (event instanceof EntityDropItemEvent) {
+			is = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
+		} else if (event instanceof CraftItemEvent) {
+			is = ((CraftItemEvent) event).getRecipe().getResult();
+		} else if (hasPrepareCraftEvent && event instanceof PrepareItemCraftEvent) {
+			Recipe recipe = ((PrepareItemCraftEvent) event).getRecipe();
 			if (recipe != null) {
 				is = recipe.getResult();
 			} else {
 				return false;
 			}
-		} else if (e instanceof EntityPickupItemEvent) {
-			is = ((EntityPickupItemEvent) e).getItem().getItemStack();
-		} else if (e instanceof PlayerPickupItemEvent) {
-			is = ((PlayerPickupItemEvent) e).getItem().getItemStack();
-		} else if (hasConsumeEvent && e instanceof PlayerItemConsumeEvent) {
-			is = ((PlayerItemConsumeEvent) e).getItem();
+		} else if (event instanceof EntityPickupItemEvent) {
+			is = ((EntityPickupItemEvent) event).getItem().getItemStack();
+		} else if (event instanceof PlayerPickupItemEvent) {
+			is = ((PlayerPickupItemEvent) event).getItem().getItemStack();
+		} else if (hasConsumeEvent && event instanceof PlayerItemConsumeEvent) {
+			is = ((PlayerItemConsumeEvent) event).getItem();
 //		} else if (e instanceof BrewEvent)
 //			is = ((BrewEvent) e).getContents().getContents()
-		} else if (e instanceof InventoryClickEvent) {
-			is = ((InventoryClickEvent) e).getCurrentItem();
-		} else if (e instanceof ItemDespawnEvent) {
-			is = ((ItemDespawnEvent) e).getEntity().getItemStack();
-		} else if (e instanceof ItemMergeEvent) {
-			is = ((ItemMergeEvent) e).getTarget().getItemStack();
+		} else if (event instanceof InventoryClickEvent) {
+			is = ((InventoryClickEvent) event).getCurrentItem();
+		} else if (event instanceof ItemDespawnEvent) {
+			is = ((ItemDespawnEvent) event).getEntity().getItemStack();
+		} else if (event instanceof ItemMergeEvent) {
+			is = ((ItemMergeEvent) event).getTarget().getItemStack();
 		} else {
 			assert false;
 			return false;
@@ -193,7 +192,7 @@ public class EvtItem extends SkriptEvent {
 		if (is == null)
 			return false;
 
-		return types.check(e, new Checker<ItemType>() {
+		return types.check(event, new Checker<ItemType>() {
 			@Override
 			public boolean check(final ItemType t) {
 				return t.isOfType(is);
