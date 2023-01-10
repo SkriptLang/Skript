@@ -63,7 +63,7 @@ public class EvtItem extends SkriptEvent {
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("<i>unknown</i> (before 2.1)");
 		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
-				"[player|1:entity] drop[ing] [[of] %-itemtypes%]")
+				"[player|1:entity] drop[ping] [[of] %-itemtypes%]")
 				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
 				.examples("on drop:",
 						"\tif event-item is compass:",
