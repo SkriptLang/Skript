@@ -1289,13 +1289,12 @@ public final class BukkitEventValues {
 				return book;
 			}
 		}, EventValues.TIME_FUTURE);
-		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
 			public String[] get(PlayerEditBookEvent event) {
 				return event.getPreviousBookMeta().getPages().toArray(new String[0]);
 			}
-		}, EventValues.TIME_NOW);
+		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
 			public String[] get(PlayerEditBookEvent event) {
