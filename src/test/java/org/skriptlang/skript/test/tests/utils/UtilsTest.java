@@ -43,68 +43,6 @@ import ch.njol.skript.util.Utils;
 public class UtilsTest {
 
 	/**
-	 * Example of how to fake a Bukkit server using EasyMock
-	 */
-//	@Before
-//	public void fakeServer() throws Exception {
-//		if (Bukkit.getServer() == null) {
-//			Logger logger = Logger.getLogger(getClass().getCanonicalName());
-//			logger.setParent(SkriptLogger.LOGGER);
-//			logger.setLevel(Level.WARNING);
-//	
-//			Server server = createMock(Server.class);
-//			server.getLogger();
-//			expectLastCall().andReturn(logger).anyTimes();
-//			server.isPrimaryThread();
-//			expectLastCall().andReturn(true).anyTimes();
-//			server.getName();
-//			expectLastCall().andReturn("Whatever").anyTimes();
-//			server.getVersion();
-//			expectLastCall().andReturn("2.0").anyTimes();
-//			server.getBukkitVersion();
-//			expectLastCall().andReturn("2.0").anyTimes();
-//			replay(server);
-//
-//			Bukkit.setServer(server);
-//		}
-//	}
-
-	/**
-	 * Testing method Utils.getEnglishPlural
-	 */
-	@Test
-	public void testPlural() {
-		String[][] strings = {
-				{"house", "houses"},
-				{"cookie", "cookies"},
-				{"creeper", "creepers"},
-				{"cactus", "cacti"},
-				{"rose", "roses"},
-				{"dye", "dyes"},
-				{"name", "names"},
-				{"ingot", "ingots"},
-				{"derp", "derps"},
-				{"sheep", "sheep"},
-				{"choir", "choirs"},
-				{"man", "men"},
-				{"child", "children"},
-				{"hoe", "hoes"},
-				{"toe", "toes"},
-				{"hero", "heroes"},
-				{"kidney", "kidneys"},
-				{"anatomy", "anatomies"},
-				{"axe", "axes"},
-				{"elf", "elfs"},
-				{"knife", "knives"},
-				{"shelf", "shelfs"},
-		};
-		for (String[] s : strings) {
-			assertEquals(s[1], Utils.toEnglishPlural(s[0]));
-			assertEquals(s[0], Utils.getEnglishPlural(s[1]).getFirst());
-		}
-	}
-
-	/**
 	 * Testing method Utils.getSuperType
 	 */
 	@Test

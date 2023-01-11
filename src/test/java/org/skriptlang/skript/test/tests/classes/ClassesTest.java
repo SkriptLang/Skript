@@ -45,7 +45,7 @@ import ch.njol.skript.util.WeatherType;
 public class ClassesTest {
 
 	@Test
-	public void classesTest() {
+	public void serializationTest() {
 		Object[] random = {
 				// Java
 				(byte) 127, (short) 2000, -1600000, 1L << 40, -1.5f, 13.37,
