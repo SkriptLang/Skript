@@ -263,7 +263,7 @@ public class SkriptParser {
 							T t = info.c.newInstance();
 							if (getParser().getCurrentStructure() != null) {
 								List<TriggerSection> sections = getParser().getCurrentSections();
-								TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
+								TriggerSection current = sections == null || sections.isEmpty() ? null : sections.get(sections.size() - 1);
 								if (t.getUsableStructures().length > 0 && !CollectionUtils.contains(t.getUsableStructures(), getParser().getCurrentStructure().getClass())) {
 									Skript.error("You cannot use this element in " + Utils.a(getParser().getCurrentStructure().toString(null, false)) + " structure.");
 								} else if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass()))) {
