@@ -16,30 +16,34 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
+package ch.njol.skript.conditions;
 
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.entity.Entity;
 
-/**
- * @author Peter Güttinger
- */
-public abstract class DamageCauseUtils {
-	private DamageCauseUtils() {}
-	
-	private final static EnumUtils<DamageCause> util = new EnumUtils<>(DamageCause.class, "damage causes");
-	
-	@Nullable
-	public static DamageCause parse(final String s) {
-		return util.parse(s);
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+
+@Name("Is Valid")
+@Description("Checks whether an entity has died or been despawned for some other reason.")
+@Examples("if event-entity is valid")
+@Since("INSERT VERSION")
+public class CondIsValid extends PropertyCondition<Entity> {
+
+	static {
+		register(CondIsValid.class, "valid", "entities");
 	}
-	
-	public static String toString(final DamageCause dc, final int flags) {
-		return util.toString(dc, flags);
+
+	@Override
+	public boolean check(Entity entity) {
+		return entity.isValid();
 	}
-	
-	public static String getAllNames() {
-		return util.getAllNames();
+
+	@Override
+	protected String getPropertyName() {
+		return "valid";
 	}
-	
+
 }

@@ -16,27 +16,33 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
+package ch.njol.skript.conditions;
 
-import org.bukkit.event.inventory.InventoryAction;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import org.bukkit.OfflinePlayer;
 
-/**
- * Inventory action utils...
- */
-public class InventoryActions {
-	
-	private final static EnumUtils<InventoryAction> util = new EnumUtils<>(InventoryAction.class, "inventory actions");
-	
-	public static @Nullable InventoryAction parse(String s) {
-		return util.parse(s);
+@Name("Is Operator")
+@Description("Checks whether a player is a server operator.")
+@Examples("player is an operator")
+@Since("INSERT VERSION")
+public class CondIsOp extends PropertyCondition<OfflinePlayer> {
+
+	static {
+		register(CondIsOp.class, PropertyType.BE, "[[a] server|an] op[erator][s]", "offlineplayers");
 	}
-	
-	public static String getAllNames() {
-		return util.getAllNames();
+
+	@Override
+	public boolean check(OfflinePlayer player) {
+		return player.isOp();
 	}
-	
-	public static String toString(final InventoryAction action, final int flags) {
-		return util.toString(action, flags);
+
+	@Override
+	protected String getPropertyName() {
+		return "op";
 	}
+
 }
