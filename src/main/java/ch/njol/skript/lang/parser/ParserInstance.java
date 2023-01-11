@@ -28,7 +28,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
-import ch.njol.skript.structures.StructOptions;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Validate;
@@ -37,13 +36,13 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 public final class ParserInstance {
@@ -115,9 +114,11 @@ public final class ParserInstance {
 
 		// "Script" events
 		if (previous != null)
-			previous.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeInactive(currentScript));
+			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
 		if (currentScript != null)
-			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeActive(previous));
+			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onActive(previous));
 	}
 
 	/**
@@ -414,7 +415,7 @@ public final class ParserInstance {
 		}
 
 		/**
-		 * @deprecated See {@link org.skriptlang.skript.lang.script.ScriptEventHandler}.
+		 * @deprecated See {@link ScriptEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }

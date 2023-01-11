@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Scripts are the primary container of all code.
@@ -46,6 +48,7 @@ public final class Script {
 	 * Creates a new Script to be used across the API.
 	 * Only one Script should be created per Config. A loaded Script may be obtained through {@link ch.njol.skript.ScriptLoader}.
 	 * @param config The Config containing the contents of this Script.
+	 * @param structures The list of Structures contained in this Script.
 	 */
 	public Script(Config config, List<Structure> structures) {
 		this.config = config;
@@ -60,7 +63,7 @@ public final class Script {
 	}
 
 	/**
-	 * @return A list of all Structures within this Script.
+	 * @return An unmodifiable list of all Structures within this Script.
 	 */
 	public List<Structure> getStructures() {
 		return Collections.unmodifiableList(structures);
@@ -137,29 +140,53 @@ public final class Script {
 
 	// Script Events
 
-	private final Set<ScriptEventHandler> eventHandlers = new HashSet<>(5);
+	private final Set<ScriptEvent> eventHandlers = new HashSet<>(5);
 
 	/**
-	 * Adds the provided event handler to this Script.
-	 * @param eventHandler The event handler to add.
+	 * Adds the provided event to this Script.
+	 * @param event The event to add.
 	 */
-	public void addEventHandler(ScriptEventHandler eventHandler) {
-		eventHandlers.add(eventHandler);
+	public void registerEvent(ScriptEvent event) {
+		eventHandlers.add(event);
 	}
 
 	/**
-	 * Removes the provided event handler from this Script.
-	 * @param eventHandler The event handler to remove.
+	 * Adds the provided event to this Script.
+	 * @param eventType The type of event being added. This is useful for registering the event through lambdas.
+	 * @param event The event to add.
 	 */
-	public void removeEventHandler(ScriptEventHandler eventHandler) {
-		eventHandlers.remove(eventHandler);
+	public <T extends ScriptEvent> void registerEvent(Class<T> eventType, T event) {
+		eventHandlers.add(event);
 	}
 
 	/**
-	 * @return An unmodifiable set of all event handlers.
+	 * Removes the provided event from this Script.
+	 * @param event The event to remove.
 	 */
-	public Set<ScriptEventHandler> getEventHandlers() {
+	public void unregisterEvent(ScriptEvent event) {
+		eventHandlers.remove(event);
+	}
+
+	/**
+	 * @return An unmodifiable set of all events.
+	 */
+	@Unmodifiable
+	public Set<ScriptEvent> getEvents() {
 		return Collections.unmodifiableSet(eventHandlers);
+	}
+
+	/**
+	 * @param type The type of events to get.
+	 * @return An unmodifiable set of all events of the specified type.
+	 */
+	@Unmodifiable
+	@SuppressWarnings("unchecked")
+	public <T extends ScriptEvent> Set<T> getEvents(Class<T> type) {
+		return Collections.unmodifiableSet(
+			(Set<T>) eventHandlers.stream()
+				.filter(event -> type.isAssignableFrom(event.getClass()))
+				.collect(Collectors.toSet())
+		);
 	}
 
 }
