@@ -77,7 +77,7 @@ public class Signature<T> {
 
 	public Signature(String script,
 					 String name,
-					 Parameter<?>[] parameters,
+					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
 					 boolean single,
 					 @Nullable String originClassPath) {
@@ -92,8 +92,8 @@ public class Signature<T> {
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable ClassInfo<T> returnType, boolean single) {
-		this(script, name, parameters, returnType, single, null);
+	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, local, returnType, single, null);
 	}
 	
 	public String getName() {
