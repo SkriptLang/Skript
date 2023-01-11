@@ -50,7 +50,7 @@ public class ExprJUnitTest extends SimpleExpression<String>  {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
-		return CollectionUtils.array(SkriptJUnitTest.lastJUnitTest);
+		return CollectionUtils.array(SkriptJUnitTest.getCurrentJUnitTest());
 	}
 
 	@Override

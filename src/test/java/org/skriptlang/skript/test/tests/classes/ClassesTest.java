@@ -45,7 +45,7 @@ import ch.njol.skript.util.WeatherType;
 public class ClassesTest {
 
 	@Test
-	public void test() {
+	public void classesTest() {
 		Object[] random = {
 				// Java
 				(byte) 127, (short) 2000, -1600000, 1L << 40, -1.5f, 13.37,
@@ -67,9 +67,8 @@ public class ClassesTest {
 				
 				// there is also at least one variable for each class on my test server which are tested whenever the server shuts down.
 		};
-		for (Object o : random) {
+		for (Object o : random)
 			Classes.serialize(o); // includes a deserialisation test
-		}
 	}
 
 }

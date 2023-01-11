@@ -128,6 +128,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.test.runner.EffObjectives;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
@@ -646,11 +647,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-						long shutdown = 0;
+						// Delay is in Minecraft ticks.
+						long shutdownDelay = 0;
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
 						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
-							SkriptLogger.setVerbosity(Verbosity.DEBUG);
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
 						} else {
 							info("Loading all tests from " + TestMode.TEST_DIR);
@@ -680,36 +681,40 @@ public final class Skript extends JavaPlugin implements Listener {
 								info("Running all JUnit tests...");
 								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
 								try {
-									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses("org.skriptlang.skript.test", "tests"));
-									// Test that requires package access.
+									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
+									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
 									size = classes.size();
 									for (Class<?> clazz : classes) {
+										// Reset class SkriptJUnitTest which stores test requirements.
 										String test = clazz.getName();
-										SkriptJUnitTest.lastJUnitTest = test;
+										SkriptJUnitTest.setCurrentJUnitTest(test);
+										SkriptJUnitTest.setShutdownDelay(0);
+
 										info("Running JUnit test '" + test + "'");
 										Result junit = JUnitCore.runClasses(clazz);
 										TestTracker.testStarted("JUnit: '" + test + "'");
-										shutdown += SkriptJUnitTest.getDelay();
-										SkriptJUnitTest.setDelay(0);
+
+										// Collect all data from the current JUnit test.
+										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
 										tests += junit.getRunCount();
 										milliseconds += junit.getRunTime();
 										ignored += junit.getIgnoreCount();
-										if (junit.getFailureCount() > 0) {
-											fails += junit.getFailureCount();
-											junit.getFailures().forEach(failure -> {
-												String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-												TestTracker.testFailed("'" + test + "': " + message);
-												Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
-											});
-										}
-										SkriptJUnitTest.lastJUnitTest = null;
+										fails += junit.getFailureCount();
+
+										// If JUnit failures are present, add them to the TestTracker.
+										junit.getFailures().forEach(failure -> {
+											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
+											TestTracker.testFailed("'" + test + "': " + message);
+											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
+										});
+										SkriptJUnitTest.clearJUnitTest();
 									}
 								} catch (IOException e) {
 									Skript.exception(e, "Failed to execute JUnit runtime tests.");
 								} catch (ClassNotFoundException e) {
 									// Should be the Skript test jar gradle task.
-									assert false;
+									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
 								}
 								if (ignored > 0)
 									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
@@ -717,19 +722,23 @@ public final class Skript extends JavaPlugin implements Listener {
 								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
 							}
 						}
-						info("Collecting results to " + TestMode.RESULTS_FILE);
-						String results = new Gson().toJson(TestTracker.collectResults());
-						try {
-							Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-						} catch (IOException e) {
-							Skript.exception(e, "Failed to write test results.");
-						}
-						long seconds = TimeUnit.MILLISECONDS.toSeconds(shutdown);
-						info("Testing done, shutting down the server in " + seconds + " second " + (seconds == 1 ? "" : "s") + "...");
+						double display = shutdownDelay / 20;
+						info("Testing done, shutting down the server in " + display + " second" + (display <= 1D ? "" : "s") + "...");
 						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+								TestTracker.testFailed(EffObjectives.getFailedObjectivesString());
+
+							info("Collecting results to " + TestMode.RESULTS_FILE);
+							String results = new Gson().toJson(TestTracker.collectResults());
+							try {
+								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
+							}
+
 							Bukkit.getServer().shutdown();
-						}, seconds * 20);
+						}, shutdownDelay);
 					}, 100);
 				}
 				

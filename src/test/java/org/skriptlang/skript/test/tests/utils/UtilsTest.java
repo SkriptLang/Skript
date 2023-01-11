@@ -18,9 +18,6 @@
  */
 package org.skriptlang.skript.test.tests.utils;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
@@ -35,43 +32,46 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.junit.Before;
 import org.junit.Test;
 
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Utils;
 
+/**
+ * Test methods from the Utils class.
+ */
 public class UtilsTest {
 
-	@Before
-	public void fakeServer() throws Exception {
-		if (Bukkit.getServer() == null) {
-			Logger logger = Logger.getLogger(getClass().getCanonicalName());
-			logger.setParent(SkriptLogger.LOGGER);
-			logger.setLevel(Level.WARNING);
-	
-			Server server = createMock(Server.class);
-			server.getLogger();
-			expectLastCall().andReturn(logger).anyTimes();
-			server.isPrimaryThread();
-			expectLastCall().andReturn(true).anyTimes();
-			server.getName();
-			expectLastCall().andReturn("Whatever").anyTimes();
-			server.getVersion();
-			expectLastCall().andReturn("2.0").anyTimes();
-			server.getBukkitVersion();
-			expectLastCall().andReturn("2.0").anyTimes();
-			replay(server);
+	/**
+	 * Example of how to fake a Bukkit server using EasyMock
+	 */
+//	@Before
+//	public void fakeServer() throws Exception {
+//		if (Bukkit.getServer() == null) {
+//			Logger logger = Logger.getLogger(getClass().getCanonicalName());
+//			logger.setParent(SkriptLogger.LOGGER);
+//			logger.setLevel(Level.WARNING);
+//	
+//			Server server = createMock(Server.class);
+//			server.getLogger();
+//			expectLastCall().andReturn(logger).anyTimes();
+//			server.isPrimaryThread();
+//			expectLastCall().andReturn(true).anyTimes();
+//			server.getName();
+//			expectLastCall().andReturn("Whatever").anyTimes();
+//			server.getVersion();
+//			expectLastCall().andReturn("2.0").anyTimes();
+//			server.getBukkitVersion();
+//			expectLastCall().andReturn("2.0").anyTimes();
+//			replay(server);
+//
+//			Bukkit.setServer(server);
+//		}
+//	}
 
-			Bukkit.setServer(server);
-		}
-	}
-
+	/**
+	 * Testing method Utils.getEnglishPlural
+	 */
 	@Test
 	public void testPlural() {
 		String[][] strings = {
@@ -104,6 +104,9 @@ public class UtilsTest {
 		}
 	}
 
+	/**
+	 * Testing method Utils.getSuperType
+	 */
 	@Test
 	public void testSuperClass() {
 		Class<?>[][] classes = {

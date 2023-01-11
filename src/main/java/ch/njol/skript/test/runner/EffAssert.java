@@ -41,11 +41,8 @@ public class EffAssert extends Effect  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffAssert.class, "assert <.+> [(1¦to fail)] with %string% [on [test] %-string%]");
+			Skript.registerEffect(EffAssert.class, "assert <.+> [(1¦to fail)] with %string%");
 	}
-
-	@Nullable
-	private Expression<String> junit;
 
 	private Expression<String> errorMsg;
 	private Condition condition;
@@ -56,7 +53,6 @@ public class EffAssert extends Effect  {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		String conditionString = parseResult.regexes.get(0).group();
 		errorMsg = (Expression<String>) exprs[0];
-		junit = (Expression<String>) exprs[1];
 		shouldFail = parseResult.mark != 0;
 		
 		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
@@ -90,10 +86,8 @@ public class EffAssert extends Effect  {
 		if (condition.check(event) == shouldFail) {
 			String message = errorMsg.getSingle(event);
 			assert message != null; // Should not happen, developer needs to fix test.
-			if (junit != null) {
-				String test = junit.getSingle(event);
-				assert test != null;
-				TestTracker.junitTestFailed(test, message);
+			if (SkriptJUnitTest.getCurrentJUnitTest() != null) {
+				TestTracker.junitTestFailed(SkriptJUnitTest.getCurrentJUnitTest(), message);
 			} else {
 				TestTracker.testFailed(message);
 			}

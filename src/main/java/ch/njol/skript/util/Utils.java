@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -159,9 +160,18 @@ public abstract class Utils {
 //		return new AmountResponse(s);
 //	}
 
-	public static Class<?>[] getClasses(String basePackage, String... subPackages) throws IOException {
+	/**
+	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
+	 * 
+	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
+	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
+	 *            as well. Use an empty array to load all subpackages of the base package.
+	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * @return This SkriptAddon
+	 */
+	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
 		assert subPackages != null;
-		JarFile jar = new JarFile(getFile());
+		JarFile jar = new JarFile(getFile(plugin));
 		for (int i = 0; i < subPackages.length; i++)
 			subPackages[i] = subPackages[i].replace('.', '/') + "/";
 		basePackage = basePackage.replace('.', '/') + "/";
@@ -188,7 +198,7 @@ public abstract class Utils {
 
 			for (String c : classNames) {
 				try {
-					classes.add(Class.forName(c, true, Skript.getInstance().getClass().getClassLoader()));
+					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
 				} catch (ClassNotFoundException ex) {
 					Skript.exception(ex, "Cannot load class " + c);
 				} catch (ExceptionInInitializerError err) {
@@ -203,21 +213,26 @@ public abstract class Utils {
 		return classes.toArray(new Class<?>[classes.size()]);
 	}
 
+	/**
+	 * @return The jar file of the plugin.
+	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
+	 * The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
+	 */
 	@Nullable
-	private static File getFile() {
+	public static File getFile(Plugin plugin) {
 		try {
-			final Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
+			Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
 			getFile.setAccessible(true);
-			return (File) getFile.invoke(Skript.getInstance());
-		} catch (final NoSuchMethodException e) {
+			return (File) getFile.invoke(plugin);
+		} catch (NoSuchMethodException e) {
 			Skript.outdatedError(e);
-		} catch (final IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			Skript.outdatedError(e);
-		} catch (final IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			assert false;
-		} catch (final SecurityException e) {
+		} catch (SecurityException e) {
 			throw new RuntimeException(e);
-		} catch (final InvocationTargetException e) {
+		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e.getCause());
 		}
 		return null;

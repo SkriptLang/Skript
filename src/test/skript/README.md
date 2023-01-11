@@ -85,7 +85,7 @@ The server launched will be running at localhost:25565. You can use console
 as normal, though there is some lag due to Gradle. If you're having trouble,
 try without <code>--console=plain</code>.
 
-Server files are located at build/test_runners
+Server files are located at <code>build/test_runners</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.

@@ -35,7 +35,7 @@ public class FlatFileStorageTest {
 	}
 
 	@Test
-	public void testCSV() {
+	public void testSplitCSV() {
 		String[][] vs = {
 				{"", ""},
 				{",", "", ""},

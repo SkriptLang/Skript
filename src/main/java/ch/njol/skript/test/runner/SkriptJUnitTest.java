@@ -19,45 +19,62 @@
 package ch.njol.skript.test.runner;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.junit.After;
+import org.junit.Before;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
  */
 public abstract class SkriptJUnitTest {
 
-	/**
-	 * Used for getting the last ran JUnit test name.
-	 */
-	public static String lastJUnitTest;
+	static {
+		World world = Bukkit.getWorlds().get(0);
+		world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 1000);
+		world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+		world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+		world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+		// Natural entity spawning
+		world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+		world.setGameRule(GameRule.DISABLE_RAIDS, false);
+		world.setGameRule(GameRule.MOB_GRIEFING, false);
+	}
 
-	private static long d;
+	/**
+	 * Used for getting the currently running JUnit test name.
+	 */
+	private static String currentJUnitTest;
+
+	private static long d = 0;
 
 	/**
 	 * The delay this JUnit test is requiring to run.
+	 * Do note this is global to all other tests. The most delay is the final waiting time.
 	 * 
-	 * @return the delay in milliseconds this junit test is requiring to run for.
+	 * @return the delay in Minecraft ticks this junit test is requiring to run for.
 	 */
-	public static long getDelay() {
+	public static long getShutdownDelay() {
 		return d;
 	}
 
 	/**
-	 * @param delay Add a delay in milliseconds for this test to run.
+	 * @param delay Set the delay in Minecraft ticks for this test to run.
 	 */
-	public static void setDelay(long delay) {
+	public static void setShutdownDelay(long delay) {
 		d = delay;
 	}
 
+	@Before
 	@After
 	public final void cleanup() {
-		getTestWorld().getEntities().forEach(entity -> entity.remove());
+		getTestWorld().getEntities().forEach(Entity::remove);
 		setBlock(Material.AIR);
 	}
 
@@ -81,6 +98,8 @@ public abstract class SkriptJUnitTest {
 	 * @return Pig that has been spawned.
 	 */
 	protected Pig spawnTestPig() {
+		if (d <= 0D)
+			d = 1; // A single tick allows the piggy to spawn before server shutdown.
 		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
 	}
 
@@ -102,7 +121,29 @@ public abstract class SkriptJUnitTest {
 	 * @return the Block after it has been updated.
 	 */
 	protected Block getBlock() {
-		return getTestWorld().getBlockAt(getTestLocation());
+		return getTestWorld().getSpawnLocation().add(10, 1, 0).getBlock();
+	}
+
+	/**
+	 * Get the currently running JUnit test name.
+	 */
+	public static String getCurrentJUnitTest() {
+		return currentJUnitTest;
+	}
+
+	/**
+	 * Used internally.
+	 */
+	public static void setCurrentJUnitTest(String currentJUnitTest) {
+		SkriptJUnitTest.currentJUnitTest = currentJUnitTest;
+	}
+
+	/**
+	 * Used internally.
+	 */
+	public static void clearJUnitTest() {
+		SkriptJUnitTest.currentJUnitTest = null;
+		setShutdownDelay(0);
 	}
 
 }
