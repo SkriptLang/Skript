@@ -43,12 +43,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Inventory Slot")
 @Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
-@Examples({"if slot 0 of player is air:",
+@Examples({
+	"if slot 0 of player is air:",
 	"\tset slot 0 of player to 2 stones",
 	"\tremove 1 stone from slot 0 of player",
 	"\tadd 2 stones to slot 0 of inventory of all players",
-	"\tclear slot 1 of player"})
-@Since("2.2-dev24")
+	"\tclear slot 1 of player"
+})
+@Since("2.2-dev24, INSERT VERSION (multiple inventories)")
 public class ExprInventorySlot extends SimpleExpression<Slot> {
 
 	static {
