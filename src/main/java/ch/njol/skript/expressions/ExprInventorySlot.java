@@ -61,17 +61,17 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	@SuppressWarnings("null")
 	private Expression<Number> slots;
 	@SuppressWarnings("null")
-	private Expression<Inventory> invis;
+	private Expression<Inventory> inventories;
 
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0){
 			slots = (Expression<Number>) exprs[0];
-			invis = (Expression<Inventory>) exprs[1];
+			inventories = (Expression<Inventory>) exprs[1];
 		} else {
 			slots = (Expression<Number>) exprs[1];
-			invis = (Expression<Inventory>) exprs[0];
+			inventories = (Expression<Inventory>) exprs[0];
 		}
 		return true;
 	}
@@ -80,19 +80,19 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	@Nullable
 	protected Slot[] get(Event event) {
 		List<Slot> inventorySlots = new ArrayList<>();
-		for (Inventory invi : invis.getArray(event)) {
-			if (invi == null)
+		for (Inventory inventory : inventories.getArray(event)) {
+			if (inventory == null)
 				continue;
 			for (Number slot : slots.getArray(event)) {
 				int slotIndex = slot.intValue();
-				if (slotIndex >= 0 && slotIndex < invi.getSize()) {
+				if (slotIndex >= 0 && slotIndex < inventory.getSize()) {
 					// Not all indices point to inventory slots. Equipment, for example
-					if (invi instanceof PlayerInventory && slotIndex >= 36) {
-						HumanEntity holder = ((PlayerInventory) invi).getHolder();
+					if (inventory instanceof PlayerInventory && slotIndex >= 36) {
+						HumanEntity holder = ((PlayerInventory) inventory).getHolder();
 						assert holder != null;
 						inventorySlots.add(new EquipmentSlot(holder, slotIndex));
 					} else {
-						inventorySlots.add(new InventorySlot(invi, slotIndex));
+						inventorySlots.add(new InventorySlot(inventory, slotIndex));
 					}
 				}
 			}
@@ -104,7 +104,7 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 
 	@Override
 	public boolean isSingle() {
-		return slots.isSingle() || invis.isSingle();
+		return slots.isSingle() || inventories.isSingle();
 	}
 
 	@Override
@@ -114,6 +114,6 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "slots " + slots.toString(event, debug) + " of " + invis.toString(event, debug);
+		return "slots " + slots.toString(event, debug) + " of " + inventories.toString(event, debug);
 	}
 }
