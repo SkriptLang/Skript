@@ -80,7 +80,9 @@ public class EffObjectives extends Effect  {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "ensure junit test " + junit.toString(event, debug) + " completes objectives " + objectives.toString(event, debug);
+		if (setup)
+			return "ensure junit test " + junit.toString(event, debug) + " completes objectives " + objectives.toString(event, debug);
+		return "complete objectives " + objectives.toString(event, debug) + " on junit test " + junit.toString(event, debug);
 	}
 
 	/**
