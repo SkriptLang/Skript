@@ -60,7 +60,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -467,7 +466,7 @@ public class ScriptLoader {
 	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
 	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 */
-	public static CompletableFuture<ScriptInfo> loadScripts(Collection<File> files, OpenCloseable openCloseable) {
+	public static CompletableFuture<ScriptInfo> loadScripts(Set<File> files, OpenCloseable openCloseable) {
 		return loadScripts(files.stream()
 			.sorted()
 			.map(ScriptLoader::loadStructures)
@@ -791,7 +790,7 @@ public class ScriptLoader {
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
-	public static ScriptInfo unloadScripts(Collection<Script> scripts) {
+	public static ScriptInfo unloadScripts(Set<Script> scripts) {
 		ParserInstance parser = getParser();
 		ScriptInfo info = new ScriptInfo();
 
@@ -860,7 +859,7 @@ public class ScriptLoader {
 	 *                         each individual Script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 * @return Info on the loaded Scripts.
 	 */
-	public static CompletableFuture<ScriptInfo> reloadScripts(Collection<Script> scripts, OpenCloseable openCloseable) {
+	public static CompletableFuture<ScriptInfo> reloadScripts(Set<Script> scripts, OpenCloseable openCloseable) {
 		unloadScripts(scripts);
 
 		List<Config> configs = new ArrayList<>();
@@ -1040,7 +1039,7 @@ public class ScriptLoader {
 	 * @param folder The folder containing scripts to unload.
 	 * @return Combined statistics for the unloaded scripts.
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
-	 * @deprecated Use {@link #unloadScripts(Collection)}.
+	 * @deprecated Use {@link #unloadScripts(Set)}.
 	 */
 	@Deprecated
 	private static ScriptInfo unloadScripts(File folder) {
@@ -1089,7 +1088,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Set, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo loadScripts(List<Config> configs) {
@@ -1097,7 +1096,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Set, OpenCloseable)}.
 	 * @see RetainingLogHandler
 	 */
 	@Deprecated
@@ -1111,7 +1110,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Collection, OpenCloseable)}.
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Set, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo loadScripts(Config... configs) {
@@ -1127,7 +1126,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Use {@link #reloadScripts(Collection, OpenCloseable)}.
+	 * @deprecated Use {@link #reloadScripts(Set, OpenCloseable)}.
 	 */
 	@Deprecated
 	public static ScriptInfo reloadScripts(File folder) {

@@ -115,7 +115,7 @@ public class StructOptions extends Structure {
 
 	public static final class OptionsData implements ScriptData {
 
-		private final HashMap<String, String> options = new HashMap<>(15);
+		private final Map<String, String> options = new HashMap<>();
 
 		/**
 		 * Replaces all options in the provided String using the options of this data.
