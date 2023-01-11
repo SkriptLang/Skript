@@ -30,6 +30,8 @@ import org.bukkit.entity.Pig;
 import org.junit.After;
 import org.junit.Before;
 
+import ch.njol.skript.Skript;
+
 /**
  * Class that helps the JUnit test communicate with Skript.
  */
@@ -38,13 +40,16 @@ public abstract class SkriptJUnitTest {
 	static {
 		World world = Bukkit.getWorlds().get(0);
 		world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 1000);
-		world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-		world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
 		world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
 		// Natural entity spawning
 		world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-		world.setGameRule(GameRule.DISABLE_RAIDS, false);
 		world.setGameRule(GameRule.MOB_GRIEFING, false);
+
+		if (Skript.isRunningMinecraft(1, 15)) {
+			world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+			world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+			world.setGameRule(GameRule.DISABLE_RAIDS, false);
+		}
 	}
 
 	/**

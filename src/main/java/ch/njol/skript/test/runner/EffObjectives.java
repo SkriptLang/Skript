@@ -72,10 +72,8 @@ public class EffObjectives extends Effect  {
 		String[] objectives = this.objectives.getArray(event);
 		assert objectives.length > 0;
 		if (setup) {
-			Skript.info("Loaded " + toString(event, true));
 			requirements.putAll(junit, Lists.newArrayList(objectives));
 		} else {
-			Skript.info("Completed " + toString(event, true));
 			completness.putAll(junit, Lists.newArrayList(objectives));
 		}
 	}
