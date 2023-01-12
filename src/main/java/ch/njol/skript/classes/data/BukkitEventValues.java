@@ -305,8 +305,6 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final BlockGrowEvent e) {
-				if (e instanceof BlockSpreadEvent)
-					return e.getBlock();
 				return new BlockStateBlock(e.getNewState());
 			}
 		}, 0);
