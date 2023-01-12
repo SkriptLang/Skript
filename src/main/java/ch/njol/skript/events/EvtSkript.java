@@ -45,12 +45,14 @@ public class EvtSkript extends SelfRegisteringSkriptEvent {
 	}
 	
 	private boolean isStart;
+	private static boolean notified = false;
 	
 	@Override
 	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
 		isStart = matchedPattern == 0;
-		if (parser.mark == 0) {
-			Skript.warning("Server start/stop events are actually called when Skript is started or stopped. It is thus recommended to use 'on Skript start/stop' instead.");
+		if (parser.mark == 0 && notified == false) {
+			Skript.warning("Server start/stop events are actually called when Skript is started or stopped. It is thus recommended to use 'on skript start/stop' instead. (This is a one time message)");
+			notified = true;
 		}
 		return true;
 	}
@@ -58,15 +60,15 @@ public class EvtSkript extends SelfRegisteringSkriptEvent {
 	private final static Collection<Trigger> start = new ArrayList<>(), stop = new ArrayList<>();
 	
 	public static void onSkriptStart() {
-		final Event e = new SkriptStartEvent();
+		final Event event = new SkriptStartEvent();
 		for (final Trigger t : start)
-			t.execute(e);
+			t.execute(event);
 	}
 	
 	public static void onSkriptStop() {
-		final Event e = new SkriptStopEvent();
+		final Event event = new SkriptStopEvent();
 		for (final Trigger t : stop)
-			t.execute(e);
+			t.execute(event);
 	}
 	
 	@Override
@@ -92,7 +94,7 @@ public class EvtSkript extends SelfRegisteringSkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "on server " + (isStart ? "start" : "stop");
 	}
 	
