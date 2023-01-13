@@ -43,33 +43,35 @@ import ch.njol.util.Kleenean;
 
 @Name("Inventory Slot")
 @Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
-@Examples({"if slot 0 of player is air:",
+@Examples({
+	"if slot 0 of player is air:",
 	"\tset slot 0 of player to 2 stones",
 	"\tremove 1 stone from slot 0 of player",
-	"\tadd 2 stones to slot 0 of player",
-	"\tclear slot 1 of player"})
-@Since("2.2-dev24")
+	"\tadd 2 stones to slot 0 of inventory of all players",
+	"\tclear slot 1 of player"
+})
+@Since("2.2-dev24, INSERT VERSION (multiple inventories)")
 public class ExprInventorySlot extends SimpleExpression<Slot> {
 	
 	static {
 		Skript.registerExpression(ExprInventorySlot.class, Slot.class, ExpressionType.COMBINED,
-				"[the] slot[s] %numbers% of %inventory%", "%inventory%'[s] slot[s] %numbers%");
+				"[the] slot[s] %numbers% of %inventories%", "%inventories%'[s] slot[s] %numbers%");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<Number> slots;
 	@SuppressWarnings("null")
-	private Expression<Inventory> invis;
+	private Expression<Inventory> inventories;
 	
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0){
 			 slots = (Expression<Number>) exprs[0];
-			 invis = (Expression<Inventory>) exprs[1];
+			 inventories = (Expression<Inventory>) exprs[1];
 		} else {
 			 slots = (Expression<Number>) exprs[1];
-			 invis = (Expression<Inventory>) exprs[0];			
+			 inventories = (Expression<Inventory>) exprs[0];
 		}
 		return true;
 	}
@@ -77,25 +79,24 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	@Override
 	@Nullable
 	protected Slot[] get(Event event) {
-		Inventory invi = invis.getSingle(event);
-		if (invi == null)
-			return null;
-		
 		List<Slot> inventorySlots = new ArrayList<>();
-		for (Number slot : slots.getArray(event)) {
-			if (slot.intValue() >= 0 && slot.intValue() < invi.getSize()) {
+		for (Inventory inventory : inventories.getArray(event)) {
+			if (inventory == null)
+				continue;
+			for (Number slot : slots.getArray(event)) {
 				int slotIndex = slot.intValue();
-				// Not all indices point to inventory slots. Equipment, for example
-				if (invi instanceof PlayerInventory && slotIndex >= 36) {
-					HumanEntity holder = ((PlayerInventory) invi).getHolder();
-					assert holder != null;
-					inventorySlots.add(new EquipmentSlot(holder, slotIndex));
-				} else {
-					inventorySlots.add(new InventorySlot(invi, slot.intValue()));
+				if (slotIndex >= 0 && slotIndex < inventory.getSize()) {
+					// Not all indices point to inventory slots. Equipment, for example
+					if (inventory instanceof PlayerInventory && slotIndex >= 36) {
+						HumanEntity holder = ((PlayerInventory) inventory).getHolder();
+						assert holder != null;
+						inventorySlots.add(new EquipmentSlot(holder, slotIndex));
+					} else {
+						inventorySlots.add(new InventorySlot(inventory, slotIndex));
+					}
 				}
 			}
 		}
-		
 		if (inventorySlots.isEmpty())
 			return null;
 		return inventorySlots.toArray(new Slot[inventorySlots.size()]);
@@ -103,16 +104,15 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	
 	@Override
 	public boolean isSingle() {
-		return slots.isSingle();
+		return slots.isSingle() || inventories.isSingle();
 	}
-
 	@Override
 	public Class<? extends Slot> getReturnType() {
 		return Slot.class;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "slots " + slots.toString(e, debug) + " of " + invis.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "slots " + slots.toString(event, debug) + " of " + inventories.toString(event, debug);
 	}
 }
