@@ -100,7 +100,10 @@ public class EffAssert extends Effect  {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "assert " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null || condition == null)
+			return "assertion";
+		return "assert " + condition.toString(event, debug);
 	}
+
 }
