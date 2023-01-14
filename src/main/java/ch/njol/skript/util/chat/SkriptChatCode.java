@@ -125,6 +125,14 @@ public enum SkriptChatCode implements ChatCode {
 		}
 	},
 	
+	copy_to_clipboard(true) {
+		@Override
+		public void updateComponent(MessageComponent component, String param) {
+			ClickEvent e = new ClickEvent(ClickEvent.Action.copy_to_clipboard, param);
+			component.clickEvent = e;
+		}
+	},
+
 	// hoverEvent
 	
 	show_text(true) {
