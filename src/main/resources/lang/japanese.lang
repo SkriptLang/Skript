@@ -40,7 +40,7 @@ skript command:
 			all: 全てのスクリプトを無効化します。
 			<script>: 特定のスクリプト、もしくはフォルダ内のスクリプトを無効化します。
 		update:
-			description: アップデートのチェック, 変更履歴を見る, もしくは最新のSkriptをダウンロードします。
+			description: アップデートのチェック, 変更履歴を見る, もしくは最新バージョンのSkriptをダウンロードします。
 			check: 新しいバージョンが存在するか確認します。
 			changes: 現在のバージョンとの変更点を表示します。
 			download: 最新バージョンをダウンロードします。
@@ -99,7 +99,7 @@ skript command:
 		folder:
 			empty: <gold>%s<reset>フォルダ内に有効化されたスクリプトが見つかりませんでした。
 			disabled: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトが無効化されました。
-			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのファイル名が変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): %s
+			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのファイル名を変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): %s
 	update:
 		# check/download: Upadater をご確認ください
 		changes:
@@ -166,11 +166,11 @@ aliases:
 	unknown variation: %sは定義されていません。
 	missing aliases: 以下のIDのエイリアスは定義されていません:
 	empty alias: %sは空の値です。
-	invalid minecraft id: %sは有効なMinecraftのIDではありません。
+	invalid minecraft id: %sは有効なMinecraft IDではありません。
 	useless variation: VariationにMinecraft IDまたはタグが指定されていないため使用できません。
 	invalid tags: 指定されたタグは有効なJSONに定義されていません。
 	unexpected section: このセクションはここでは使用できません。
-	invalid variation section: このセクションはvariationセクションです。 ですが%sは有効なvariationではありません。
+	invalid variation section: このセクションはvariationセクションです。 ですが%sは有効なvariation名ではありません。
 	outside section: エイリアスはセクションに配置する必要があります。
 
 	# Other messages
