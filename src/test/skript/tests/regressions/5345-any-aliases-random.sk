@@ -14,4 +14,3 @@ test "any aliases random":
 
 test "any number random":
 	assert (random number out of 47, a diamond helmet, false and console) is 47 with "Could not grab the number out of the list."
-	
