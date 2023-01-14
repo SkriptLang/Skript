@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
@@ -222,6 +224,13 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		if (rightGrouped)
 			two = '(' + two + ')';
 		return one + ' ' + op + ' ' + two;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (first instanceof Literal<?> && second instanceof Literal<?>)
+			return new SimpleLiteral<>(getArray(null), getReturnType(), false);
+		return this;
 	}
 
 }
