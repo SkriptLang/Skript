@@ -47,7 +47,7 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 			@Override
 			@Nullable
 			public T convert(final F f) {
-				assert false;
+				//assert false;
 				return Converters.convert(f, to);
 			}
 		}, 0));
