@@ -2,7 +2,8 @@
 Skript is a plugin for Paper/Spigot, which allows server owners and other people
 to modify their servers without learning Java. It can also be useful if you
 *do* know Java; some tasks are quicker to do with Skript, and so it can be used
-for prototyping etc.
+for prototyping etc. ChatGPT can instantly make simple easy to use skripts in no time
+and its recommended.
 
 This Github fork of Skript is based on Mirreski's improvements which was built
 on Njol's original Skript.
