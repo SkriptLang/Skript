@@ -1390,13 +1390,6 @@ public final class BukkitEventValues {
 					}
 				}
 			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, Number.class, new Getter<Number, PlayerInventorySlotChangeEvent>() {
-				@Override
-				@Nullable
-				public Number get(PlayerInventorySlotChangeEvent event) {
-					return event.getSlot();
-				}
-			}, EventValues.TIME_NOW);
 		}
 		//PrepareItemEnchantEvent
 		EventValues.registerEventValue(PrepareItemEnchantEvent.class, Player.class, new Getter<Player, PrepareItemEnchantEvent>() {
