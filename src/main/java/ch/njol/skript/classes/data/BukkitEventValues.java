@@ -1358,33 +1358,33 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
-				public ItemStack get(PlayerInventorySlotChangeEvent e) {
-					return e.getNewItemStack();
+				public ItemStack get(PlayerInventorySlotChangeEvent event) {
+					return event.getNewItemStack();
 				}
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
-				public ItemStack get(PlayerInventorySlotChangeEvent e) {
-					return e.getOldItemStack();
+				public ItemStack get(PlayerInventorySlotChangeEvent event) {
+					return event.getOldItemStack();
 				}
 			}, EventValues.TIME_PAST);
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
-				public ItemStack get(PlayerInventorySlotChangeEvent e) {
-					return e.getNewItemStack();
+				public ItemStack get(PlayerInventorySlotChangeEvent event) {
+					return event.getNewItemStack();
 				}
 			}, EventValues.TIME_FUTURE);
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, Slot.class, new Getter<Slot, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
-				public Slot get(PlayerInventorySlotChangeEvent e) {
-					PlayerInventory inv = e.getPlayer().getInventory();
-					int slotIndex = e.getSlot();
+				public Slot get(PlayerInventorySlotChangeEvent event) {
+					PlayerInventory inv = event.getPlayer().getInventory();
+					int slotIndex = event.getSlot();
 					// Not all indices point to inventory slots. Equipment, for example
 					if (slotIndex >= 36) {
-						return new ch.njol.skript.util.slot.EquipmentSlot(e.getPlayer(), slotIndex);
+						return new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer(), slotIndex);
 					} else {
 						return new InventorySlot(inv, slotIndex);
 					}
@@ -1393,8 +1393,8 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, Number.class, new Getter<Number, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
-				public Number get(PlayerInventorySlotChangeEvent e) {
-					return e.getSlot();
+				public Number get(PlayerInventorySlotChangeEvent event) {
+					return event.getSlot();
 				}
 			}, EventValues.TIME_NOW);
 		}
