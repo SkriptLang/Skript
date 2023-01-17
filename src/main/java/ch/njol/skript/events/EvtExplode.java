@@ -73,7 +73,8 @@ public class EvtExplode extends SkriptEvent {
 	}
 
 	@Override
-	public Class<? extends Event> @Nullable [] getEventClasses() {
+	@Nullable
+	public Class<? extends Event>[] getEventClasses() {
 		if (type == BLOCK)
 			return new Class[]{BlockExplodeEvent.class};
 		else if (type == ENTITY)
