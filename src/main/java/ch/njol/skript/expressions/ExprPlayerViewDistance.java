@@ -25,10 +25,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
@@ -44,25 +41,17 @@ import org.eclipse.jdt.annotation.Nullable;
 		"reset view distance of all players", "add 2 to view distance of player"})
 @RequiredPlugins("Paper")
 @Since("2.4")
-public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
-	
+public class ExprPlayerViewDistance extends SimplePropertyExpression<Player, Integer> {
+
 	static {
-		if (Skript.methodExists(Player.class, "getViewDistance"))
-			register(ExprPlayerViewDistance.class, Long.class, "view distance[s]", "players");
+		register(ExprPlayerViewDistance.class, Integer.class, "view distance[s]", "players");
 	}
-	
+
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		setExpr((Expression<Player>) exprs[0]);
-		return true;
+	public @Nullable Integer convert(Player player) {
+		return getViewDistance(player);
 	}
-	
-	@Override
-	protected Long[] get(Event e, Player[] source) {
-		return get(source, player -> (long) getViewDistance(player));
-	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -76,29 +65,28 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 		}
 		return null;
 	}
-	
+
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int distance = delta == null ? 0 : ((Number) delta[0]).intValue();
-		switch (mode) {
-			case DELETE:
-			case SET:
-				for (Player player : getExpr().getArray(e))
+		for (Player player : getExpr().getArray(event)) {
+			int oldDistance = getViewDistance(player);
+			switch (mode) {
+				case DELETE:
+				case SET:
 					setViewDistance(player, distance);
-				break;
-			case ADD:
-				for (Player player : getExpr().getArray(e))
-					setViewDistance(player, player.getViewDistance() + distance);
-				break;
-			case REMOVE:
-				for (Player player : getExpr().getArray(e))
-					setViewDistance(player,player.getViewDistance() - distance);
-				break;
-			case RESET:
-				for (Player player : getExpr().getArray(e))
-					setViewDistance(player, Bukkit.getServer().getViewDistance());
-			default:
-				assert false;
+					break;
+				case ADD:
+					setViewDistance(player, oldDistance + distance);
+					break;
+				case REMOVE:
+					setViewDistance(player, oldDistance - distance);
+					break;
+				case RESET:
+					setViewDistance(player, Bukkit.getViewDistance());
+				default:
+					assert false;
+			}
 		}
 	}
 
@@ -117,15 +105,15 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 			Skript.error("'player view distance' is not available on your server version. This is NOT a Skript bug.");
 		}
 	}
-	
+
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the view distance of " + getExpr().toString(e, debug);
+	protected String getPropertyName() {
+		return "view distance";
 	}
-	
+
 }
