@@ -1369,13 +1369,6 @@ public final class BukkitEventValues {
 					return event.getOldItemStack();
 				}
 			}, EventValues.TIME_PAST);
-			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
-				@Override
-				@Nullable
-				public ItemStack get(PlayerInventorySlotChangeEvent event) {
-					return event.getNewItemStack();
-				}
-			}, EventValues.TIME_FUTURE);
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, Slot.class, new Getter<Slot, PlayerInventorySlotChangeEvent>() {
 				@Override
 				@Nullable
