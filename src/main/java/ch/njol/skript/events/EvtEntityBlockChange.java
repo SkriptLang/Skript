@@ -60,7 +60,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		SILVERFISH_ENTER("silverfish enter", e -> e.getEntity() instanceof Silverfish && !ItemUtils.isAir(e.getTo())),
 		SILVERFISH_EXIT("silverfish exit", e -> e.getEntity() instanceof Silverfish && ItemUtils.isAir(e.getTo())),
 
-		FALLING_BLOCK_LANDING("falling block land[ing]", e -> e.getEntity() instanceof FallingBlock);
+		FALLING_BLOCK_LANDING("falling block land[ing]", e -> e.getEntity() instanceof FallingBlock && e.getTo() != Material.AIR);
 
 		private final String pattern;
 		private final Checker<EntityChangeBlockEvent> checker;
