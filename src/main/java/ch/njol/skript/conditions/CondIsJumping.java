@@ -23,18 +23,25 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.Skript;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Jumping")
 @Description("Checks whether an entity is jumping.")
-@Examples("player is jumping")
+@Examples({
+	"on join:",
+	"\twhile player is not jumping:",
+	"\t\twait 10 ticks",
+	"\tsend \"You have finally jumped!\" to player"
+})
 @Since("INSERT VERSION")
 public class CondIsJumping extends PropertyCondition<LivingEntity> {
 	
 	static {
-		register(CondIsJumping.class, PropertyType.BE, "jumping", "livingentities");
+		if (Skript.methodExists(LivingEntity.class, "isJumping"))
+			register(CondIsJumping.class, "jumping", "livingentities");
 	}
-	
+
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		return livingEntity.isJumping();
