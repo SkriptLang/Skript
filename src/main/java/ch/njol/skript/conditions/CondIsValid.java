@@ -16,34 +16,34 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.classes;
+package ch.njol.skript.conditions;
 
-/**
- * @author Peter Güttinger
- * @deprecated This class is no longer exposed in newer versions. It should not be used or referenced.
- */
-@Deprecated
-public class InverseComparator<T1, T2> implements Comparator<T1, T2> {
+import org.bukkit.entity.Entity;
 
-	private final Comparator<? super T2, ? super T1> comp;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 
-	public InverseComparator(final Comparator<? super T2, ? super T1> c) {
-		comp = c;
+@Name("Is Valid")
+@Description("Checks whether an entity has died or been despawned for some other reason.")
+@Examples("if event-entity is valid")
+@Since("INSERT VERSION")
+public class CondIsValid extends PropertyCondition<Entity> {
+
+	static {
+		register(CondIsValid.class, "valid", "entities");
 	}
 
 	@Override
-	public Relation compare(final T1 o1, final T2 o2) {
-		return comp.compare(o2, o1).getSwitched();
+	public boolean check(Entity entity) {
+		return entity.isValid();
 	}
 
 	@Override
-	public boolean supportsOrdering() {
-		return comp.supportsOrdering();
-	}
-
-	@Override
-	public String toString() {
-		return "InverseComparator(" + comp + ")";
+	protected String getPropertyName() {
+		return "valid";
 	}
 
 }
