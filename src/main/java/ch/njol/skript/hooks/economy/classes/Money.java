@@ -24,15 +24,16 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.StringUtils;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 /**
  * @author Peter Güttinger

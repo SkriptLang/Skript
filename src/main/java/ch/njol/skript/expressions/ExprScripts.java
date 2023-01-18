@@ -21,12 +21,12 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -42,19 +42,21 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("All Scripts")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")
-@Examples({"command /scripts:",
-		"\ttrigger:",
-		"\t\tsend \"All Scripts: %scripts%\" to player",
-		"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
-		"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"})
+@Examples({
+	"command /scripts:",
+	"\ttrigger:",
+	"\t\tsend \"All Scripts: %scripts%\" to player",
+	"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
+	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
+})
 @Since("2.5")
 public class ExprScripts extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprScripts.class, String.class, ExpressionType.SIMPLE,
-				"[all [of the]] scripts [(1¦without ([subdirectory] paths|parents))]",
-				"[all [of the]] (enabled|loaded) scripts [(1¦without ([subdirectory] paths|parents))]",
-				"[all [of the]] (disabled|unloaded) scripts [(1¦without ([subdirectory] paths|parents))]");
+				"[all [of the]] scripts [(1:without ([subdirectory] paths|parents))]",
+				"[all [of the]] (enabled|loaded) scripts [(1:without ([subdirectory] paths|parents))]",
+				"[all [of the]] (disabled|unloaded) scripts [(1:without ([subdirectory] paths|parents))]");
 	}
 
 	private static final String SCRIPTS_PATH = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER).getPath() + File.separator;
@@ -64,7 +66,7 @@ public class ExprScripts extends SimpleExpression<String> {
 	private boolean noPaths;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		includeEnabled = matchedPattern <= 1;
 		includeDisabled = matchedPattern != 1;
 		noPaths = parseResult.mark == 1;
@@ -74,10 +76,12 @@ public class ExprScripts extends SimpleExpression<String> {
 	@Override
 	protected String[] get(Event event) {
 		List<File> scripts = new ArrayList<>();
-		if (includeEnabled)
-			scripts.addAll(ScriptLoader.getLoadedFiles());
+		if (includeEnabled) {
+			for (Script script : ScriptLoader.getLoadedScripts())
+				scripts.add(script.getConfig().getFile());
+		}
 		if (includeDisabled)
-			scripts.addAll(ScriptLoader.getDisabledFiles());
+			scripts.addAll(ScriptLoader.getDisabledScripts());
 		return formatFiles(scripts);
 	}
 
@@ -99,7 +103,7 @@ public class ExprScripts extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "scripts";
 	}
 

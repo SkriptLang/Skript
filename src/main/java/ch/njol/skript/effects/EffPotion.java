@@ -42,25 +42,25 @@ import ch.njol.util.Kleenean;
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
 @Examples({"apply swiftness 2 to the player",
-		"remove haste from the victim",
-		"on join:",
-		"\tapply potion of strength of tier {strength.%player%} to the player for 999 days",
-		"apply potion effects of player's tool to player"})
+	"remove haste from the victim",
+	"on join:",
+	"\tapply potion of strength of tier {strength.%player%} to the player for 999 days",
+	"apply potion effects of player's tool to player"})
 @Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects)")
 public class EffPotion extends Effect {
 	static {
 		Skript.registerEffect(EffPotion.class,
-				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply ambient [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] without [any] particles to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply %potioneffects% to %livingentities%"
-				//, "apply %itemtypes% to %livingentities%"
-				/*,"remove %potioneffecttypes% from %livingentities%"*/);
+			"apply %potioneffects% to %livingentities%",
+			"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
+			"apply ambient [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
+			"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] without [any] particles to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]"
+			//, "apply %itemtypes% to %livingentities%"
+			/*,"remove %potioneffecttypes% from %livingentities%"*/);
 	}
-	
+
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
 	private boolean replaceExisting;
-	
+
 	@SuppressWarnings("null")
 	private Expression<PotionEffectType> potions;
 	@Nullable
@@ -75,12 +75,12 @@ public class EffPotion extends Effect {
 	private boolean ambient; // Ambient means less particles
 	private boolean particles; // Particles or no particles?
 	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		apply = matchedPattern < 3;
-		potionEffect = matchedPattern == 3;
+		apply = matchedPattern > 0;
+		potionEffect = matchedPattern == 0;
 		replaceExisting = parseResult.mark == 1;
 		if (potionEffect) {
 			potionEffects = (Expression<PotionEffect>) exprs[0];
@@ -94,26 +94,26 @@ public class EffPotion extends Effect {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			entities = (Expression<LivingEntity>) exprs[1];
 		}
-		
+
 		// Ambience and particles
 		switch (matchedPattern) {
-			case 0:
+			case 1:
 				ambient = false;
 				particles = true;
 				break;
-			case 1:
+			case 2:
 				ambient = true;
 				particles = true;
 				break;
-			case 2:
+			case 3:
 				ambient = false;
 				particles = false;
 				break;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(final Event e) {
 		if (potionEffect) {
@@ -164,7 +164,7 @@ public class EffPotion extends Effect {
 			}
 		}
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		if (potionEffect)
@@ -174,5 +174,5 @@ public class EffPotion extends Effect {
 		else
 			return "remove " + potions.toString(e, debug) + " from " + entities.toString(e, debug);
 	}
-	
+
 }

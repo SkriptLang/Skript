@@ -23,9 +23,7 @@ jobs:
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-            - name: Build Skript
-              run: ./gradlew nightlyRelease
-            - name: Run test scripts
+            - name: Build Skript and run test scripts
               run: ./gradlew clean skriptTestJava17
             - name: Upload Nightly Build
               uses: actions/upload-artifact@v3

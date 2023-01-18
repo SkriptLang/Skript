@@ -6,10 +6,10 @@ test "freeze time" when running minecraft "1.18":
 		add 2 seconds to freeze time of entity
 		assert freeze time of entity is 5 seconds with "freeze time add ##1 failed"
 		add 10 seconds to freeze time of entity
-		assert freeze time of entity is 7 seconds with "freeze time add ##2 failed" # freeze time should be capped at entity's max freeze time (7 seconds for a cow)
+		assert freeze time of entity is 15 seconds with "freeze time add ##2 failed" # freeze time should not be capped at entity's max freeze time (7 seconds for a cow)
 	
-		remove 4 seconds from freeze time of entity
-		assert freeze time of entity is 3 seconds with "freeze time remove ##1 failed"
+		remove 6 seconds from freeze time of entity
+		assert freeze time of entity is 9 seconds with "freeze time remove ##1 failed"
 		remove 10 seconds from freeze time of entity
 		assert freeze time of entity is 0 seconds with "freeze time remove ##2 failed" # freeze time should not be negative
 		delete freeze time of entity

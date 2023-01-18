@@ -18,8 +18,12 @@
  */
 package ch.njol.skript.bukkitutil.block;
 
-import java.util.Map;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.aliases.MatchQuality;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,12 +38,11 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.aliases.MatchQuality;
+import java.io.StreamCorruptedException;
+import java.util.Map;
 
 /**
  * 1.13+ block compat.
@@ -48,15 +51,26 @@ public class NewBlockCompat implements BlockCompat {
 
 	private static class NewBlockValues extends BlockValues {
 
+		static {
+			Variables.yggdrasil.registerSingleClass(NewBlockValues.class, "NewBlockValues");
+		}
+
 		Material type;
 		BlockData data;
 		boolean isDefault;
 		
 		public NewBlockValues(Material type, BlockData data, boolean isDefault) {
+			if (type != data.getMaterial())
+				throw new IllegalArgumentException("'type' does not match material of 'data'");
 			this.type = type;
 			this.data = data;
 			this.isDefault = isDefault;
 		}
+
+		/**
+		 * For Serialization - INTERNAL USAGE ONLY!!
+		 */
+		private NewBlockValues() { }
 		
 		@Override
 		public boolean isDefault() {
@@ -104,7 +118,26 @@ public class NewBlockCompat implements BlockCompat {
 				return MatchQuality.DIFFERENT;
 			}
 		}
-		
+
+		@Override
+		public Fields serialize() {
+			Fields fields = new Fields();
+			fields.putObject("data", data.getAsString());
+			fields.putPrimitive("isDefault", isDefault);
+			return fields;
+		}
+
+		@Override
+		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
+			String data = fields.getObject("data", String.class);
+			boolean isDefault = fields.getPrimitive("isDefault", Boolean.class);
+			if (data == null)
+				throw new StreamCorruptedException("'data' is missing.");
+
+			this.data = Bukkit.createBlockData(data);
+			this.type = this.data.getMaterial();
+			this.isDefault = isDefault;
+		}
 	}
 	
 	private static class NewBlockSetter implements BlockSetter {

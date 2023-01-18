@@ -38,6 +38,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -45,6 +46,7 @@ import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -59,6 +61,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -70,7 +73,6 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -238,6 +240,30 @@ public final class BukkitEventValues {
 				return e.getPlayer();
 			}
 		}, 0);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				return event.getItemInHand();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				return event.getItemInHand();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				ItemStack item = event.getItemInHand().clone();
+				if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
+					item.setAmount(item.getAmount() - 1);
+				return item;
+			}
+		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(BlockPlaceEvent.class, Block.class, new Getter<Block, BlockPlaceEvent>() {
 			@Override
 			public Block get(final BlockPlaceEvent e) {
@@ -280,8 +306,6 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final BlockGrowEvent e) {
-				if (e instanceof BlockSpreadEvent)
-					return e.getBlock();
 				return new BlockStateBlock(e.getNewState());
 			}
 		}, 0);
@@ -1185,12 +1209,20 @@ public final class BukkitEventValues {
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
 			@Override
-			public ItemStack get(PlayerEditBookEvent e) {
-				ItemStack book = new ItemStack(e.getPlayer().getItemInHand().getType());
-				book.setItemMeta(e.getNewBookMeta());
-				return book; // TODO: Find better way to derive this event value
+			public ItemStack get(PlayerEditBookEvent event) {
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+				book.setItemMeta(event.getPreviousBookMeta());
+				return book;
 			}
-		}, 0);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
+			@Override
+			public ItemStack get(PlayerEditBookEvent event) {
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+				book.setItemMeta(event.getNewBookMeta());
+				return book;
+			}
+		}, EventValues.TIME_FUTURE);
 		//ItemDespawnEvent
 		EventValues.registerEventValue(ItemDespawnEvent.class, Item.class, new Getter<Item, ItemDespawnEvent>() {
 			@Override
@@ -1370,6 +1402,16 @@ public final class BukkitEventValues {
 				return evt.getEntity();
 			}
 		}, 0);
+		// PlayerTradeEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			EventValues.registerEventValue(PlayerTradeEvent.class, AbstractVillager.class, new Getter<AbstractVillager, PlayerTradeEvent>() {
+				@Override
+				@Nullable
+				public AbstractVillager get(PlayerTradeEvent event) {
+					return event.getVillager();
+				}
+			}, EventValues.TIME_NOW);
+		}
 		// PlayerChangedWorldEvent
 		EventValues.registerEventValue(PlayerChangedWorldEvent.class, World.class, new Getter<World, PlayerChangedWorldEvent>() {
 			@Nullable
