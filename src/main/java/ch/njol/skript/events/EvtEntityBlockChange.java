@@ -41,15 +41,15 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
 			.description(
 				"Called when an enderman places or picks up a block, a sheep eats grass, ",
-				"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively.")
-			.examples(
+				"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
+			).examples(
 				"on sheep eat:",
 				"\tkill entity",
 				"\tbroadcast \"A sheep stole some grass!\"",
 				"on falling block land:",
 				"\tif event-entity is a falling dirt:",
-				"\t\tcancel event")
-			.since("<i>unknown</i>, 2.5.2 (falling block)");
+				"\t\tcancel event"
+			).since("<i>unknown</i>, 2.5.2 (falling block)");
 	}
 	
 	private enum ChangeEvent {
@@ -62,7 +62,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		SILVERFISH_ENTER("silverfish enter", event -> event.getEntity() instanceof Silverfish && !ItemUtils.isAir(event.getTo())),
 		SILVERFISH_EXIT("silverfish exit", event -> event.getEntity() instanceof Silverfish && ItemUtils.isAir(event.getTo())),
 
-		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && event.getTo() != Material.AIR);
+		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && ItemUtils.isAir(event.getTo()));
 
 		private final String pattern;
 		private final Checker<EntityChangeBlockEvent> checker;
