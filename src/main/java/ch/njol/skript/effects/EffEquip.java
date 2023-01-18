@@ -82,7 +82,6 @@ public class EffEquip extends Effect {
 	private static final boolean SUPPORTS_LLAMAS = Skript.classExists("org.bukkit.entity.Llama");
 	private static final boolean SUPPORTS_STEERABLE = Skript.classExists("org.bukkit.entity.Steerable");
 
-	private static final ItemType HELMET = Aliases.javaItemType("helmet");
 	private static final ItemType CHESTPLATE = Aliases.javaItemType("chestplate");
 	private static final ItemType LEGGINGS = Aliases.javaItemType("leggings");
 	private static final ItemType BOOTS = Aliases.javaItemType("boots");
@@ -111,11 +110,11 @@ public class EffEquip extends Effect {
 				}
 				continue;
 			} else if (SUPPORTS_LLAMAS && en instanceof Llama) {
-				LlamaInventory invi = ((Llama) en).getInventory();
+				LlamaInventory inv = ((Llama) en).getInventory();
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (CARPET.isOfType(item)) {
-							invi.setDecor(item);
+							inv.setDecor(item);
 						} else if (CHEST.isOfType(item)) {
 							((Llama) en).setCarryingChest(true);
 						}
@@ -124,13 +123,13 @@ public class EffEquip extends Effect {
 				continue;
 			} else if (NEW_HORSES && en instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
-				Inventory invi = ((AbstractHorse) en).getInventory();
+				Inventory inv = ((AbstractHorse) en).getInventory();
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
-							invi.setItem(0, item); // Slot 0=saddle
+							inv.setItem(0, item); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							invi.setItem(1, item); // Slot 1=armor
+							inv.setItem(1, item); // Slot 1=armor
 						} else if (CHEST.isOfType(item) && en instanceof ChestedHorse) {
 							((ChestedHorse) en).setCarryingChest(true);
 						}
@@ -138,13 +137,13 @@ public class EffEquip extends Effect {
 				}
 				continue;
 			} else if (SUPPORTS_HORSES && en instanceof Horse) {
-				HorseInventory invi = ((Horse) en).getInventory();
+				HorseInventory inv = ((Horse) en).getInventory();
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
-							invi.setSaddle(item);
+							inv.setSaddle(item);
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							invi.setArmor(item);
+							inv.setArmor(item);
 						} else if (CHEST.isOfType(item)) {
 							((Horse) en).setCarryingChest(true);
 						}
