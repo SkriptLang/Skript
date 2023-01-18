@@ -18,6 +18,18 @@
  */
 package ch.njol.skript.lang;
 
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.reflect.TypeToken;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -28,17 +40,9 @@ import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Represents an expression. Expressions are used within conditions, effects and other expressions.
@@ -64,7 +68,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 */
 	@Nullable
 	T getSingle(Event e);
-
+	
 	/**
 	 * Get an optional of the single value of this expression.
 	 * <p>
@@ -77,7 +81,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	default Optional<T> getOptionalSingle(Event e) {
 		return Optional.ofNullable(getSingle(e));
 	}
-	
+
 	/**
 	 * Get all the values of this expression. The returned array is empty if this expression doesn't have any values for the given event.
 	 * <p>
@@ -85,20 +89,36 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
 	 * 
-	 * @param e The event
+	 * @param event The event the expression is being used in.
 	 * @return An array of values of this expression which must neither be null nor contain nulls, and which must not be an internal array.
 	 */
-	public T[] getArray(final Event e);
-	
+	public T[] getArray(Event event);
+
+	/**
+	 * Get all the values of this expression and then converts them using the provided converter.
+	 * <p>
+	 * This method will use {@link Expression#getArray(Event)} to use non null values in the Converter.
+	 * 
+	 * @param <G> The returning type of the converter.
+	 * @param event The event the expression is being used in.
+	 * @param converter The converter to do the convertering to the type.
+	 * @return The values completed by the converter.
+	 */
+	@SuppressWarnings("serial")
+	default <G> G[] getArray(Event event, Converter<T, G> converter) {
+		assert converter != null;
+		return Converters.convertUnsafe(getArray(event), new TypeToken<G>(converter.getClass()){}.getRawType(), converter);
+	}
+
 	/**
 	 * Gets all possible return values of this expression, i.e. it returns the same as {@link #getArray(Event)} if {@link #getAnd()} is true, otherwise all possible values for
 	 * {@link #getSingle(Event)}.
 	 * 
-	 * @param e The event
+	 * @param event The event the expression is being used in.
 	 * @return An array of all possible values of this expression for the given event which must neither be null nor contain nulls, and which must not be an internal array.
 	 */
-	public T[] getAll(final Event e);
-	
+	public T[] getAll(Event event);
+
 	/**
 	 * Gets a non-null stream of this expression's values.
 	 *
