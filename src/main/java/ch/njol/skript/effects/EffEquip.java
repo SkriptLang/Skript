@@ -157,19 +157,16 @@ public class EffEquip extends Effect {
 				continue;
 			for (ItemType t : ts) {
 				for (ItemStack item : t.getAll()) {
-					// Blocks are visible in head slot, too
-					// TODO skulls; waiting for decoration aliases
-					if (HELMET.isOfType(item) || item.getType().isBlock())
-						equip.setHelmet(item);
-					else if (CHESTPLATE.isOfType(item))
+					if (CHESTPLATE.isOfType(item)) {
 						equip.setChestplate(item);
-					else if (LEGGINGS.isOfType(item))
+					} else if (LEGGINGS.isOfType(item)) {
 						equip.setLeggings(item);
-					else if (BOOTS.isOfType(item))
+					} else if (BOOTS.isOfType(item)) {
 						equip.setBoots(item);
-					
-					// We have no idea where to equip other items
-					// User can set them to slot they need custom hats etc.
+					} else {
+						// Apply all other items to head, as all items will appear on a player's head
+						equip.setHelmet(item);
+					}
 				}
 			}
 			if (en instanceof Player)
