@@ -106,13 +106,7 @@ public class EffToggle extends Effect {
 
 		if (containsBoolean) {
 			List<Object> filterdValues = toggledValues.stream().filter(
-				obj -> {
-					if (obj instanceof Block && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Block.class)) {
-						return true;
-					}
-					return false;
-				}
-			).toList();
+				obj -> obj instanceof Block && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Block.class)).toList();
 			toggledExpr.change(event, filterdValues.toArray(), ChangeMode.SET);
 		}
 		
