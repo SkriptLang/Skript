@@ -1,0 +1,14 @@
+test "inline loop times":
+	do add loop-value to {_sum} 5 times
+	assert {_sum} is (1 + 2 + 3 + 4 + 5) with "inline loop times failed"
+
+test "inline loop foreach":
+	spawn a chicken at spawn of "world"
+	set {_first} to last spawned chicken
+	spawn a chicken at spawn of "world"
+	set {_second} to last spawned chicken
+	do add uuid of loop-entity to {_uuids::*} for every element of all chickens
+	assert size of {_uuids::*} is 2 with "inline loop foreach failed"
+	loop {_uuids::*}:
+		assert loop-value is (uuid of {_first}) or (uuid of {_second}) with "inline loop foreach content failed"
+	clear entities

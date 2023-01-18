@@ -1183,7 +1183,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Use {@link ParserInstance#getCurrentSections(Class)}.
+	 * @deprecated Use {@link ParserInstance#getCurrentLoops()}.
 	 */
 	@Deprecated
 	public static List<SecLoop> getCurrentLoops() {

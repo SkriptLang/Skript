@@ -1,0 +1,10 @@
+test "inline while":
+	set {_i} to 0
+	set {_j} to 0
+	set {_k} to 0
+	do add 10 to {_i} while {_i} < 100
+	assert {_i} is 100 with "inline while failed"
+	do add 3 to {_j} once and then while {_undefined} is set
+	assert {_j} is 3 with "inline do while single failed"
+	do add 10 to {_k} once and then while {_k} < 100
+	assert {_k} is 100 with "inline do while multi failed"

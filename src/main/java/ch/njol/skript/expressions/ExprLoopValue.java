@@ -27,6 +27,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Loopable;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ConvertedExpression;
@@ -34,7 +35,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -72,7 +72,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	private String name;
 	
 	@SuppressWarnings("null")
-	private SecLoop loop;
+	private Loopable loop;
 	
 	// whether this loops a variable
 	boolean isVariableLoop = false;
@@ -81,42 +81,51 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		String type = "" + parser.regexes.get(0).group();
+		Matcher matcher = Pattern.compile("^(.+)-(\\d+)$").matcher(type);
+		int scope = -1;
 		name = parser.expr;
-		String s = "" + parser.regexes.get(0).group();
-		int i = -1;
-		Matcher m = Pattern.compile("^(.+)-(\\d+)$").matcher(s);
-		if (m.matches()) {
-			s = "" + m.group(1);
-			i = Utils.parseInt("" + m.group(2));
+		
+		if (matcher.matches()) {
+			type = "" + matcher.group(1);
+			scope = Utils.parseInt("" + matcher.group(2));
 		}
-		Class<?> c = Classes.getClassFromUserInput(s);
-		int j = 1;
-		SecLoop loop = null;
-
-		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equals(s) || l.getLoopedExpression().isLoopOf(s)) {
-				if (j < i) {
-					j++;
+		
+		Class<?> classType = Classes.getClassFromUserInput(type);
+		int scopeIterator = 1;
+		Loopable loop = null;
+		
+		for (Loopable loopable : getParser().getCurrentLoops()) {
+			if ((classType != null && classType.isAssignableFrom(loopable.getLoopedExpression().getReturnType()))
+					|| "value".equals(type) || loopable.getLoopedExpression().isLoopOf(type)) {
+				
+				if (scopeIterator < scope) {
+					scopeIterator++;
 					continue;
 				}
+				
 				if (loop != null) {
-					Skript.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify which loop's value you want.", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error("There are multiple loops that match loop-" + type + ". Use loop-" + type + "-1/2/3/etc. to specify which loop's value you want.", ErrorQuality.SEMANTIC_ERROR);
 					return false;
 				}
-				loop = l;
-				if (j == i)
+				
+				loop = loopable;
+				if (scopeIterator == scope)
 					break;
 			}
 		}
+		
 		if (loop == null) {
-			Skript.error("There's no loop that matches 'loop-" + s + "'", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("There's no loop that matches 'loop-" + type + "'", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
+		
 		if (loop.getLoopedExpression() instanceof Variable) {
 			isVariableLoop = true;
-			if (((Variable<?>) loop.getLoopedExpression()).isIndexLoop(s))
+			if (((Variable<?>) loop.getLoopedExpression()).isIndexLoop(type))
 				isIndex = true;
 		}
+		
 		this.loop = loop;
 		return true;
 	}

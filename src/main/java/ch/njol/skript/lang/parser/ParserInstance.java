@@ -23,6 +23,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Loopable;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
@@ -35,10 +36,12 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -320,6 +323,40 @@ public final class ParserInstance {
 				return true;
 		}
 		return false;
+	}
+	
+	// Loop API
+	
+	private final List<Loopable> currentLoops = new ArrayList<>();
+	
+	/**
+	 * @param loops A new list of loops to handle.
+	 */
+	public void setCurrentLoops(@NotNull List<Loopable> loops) {
+		currentLoops.clear();
+		currentLoops.addAll(loops);
+	}
+	
+	/**
+	 * @return A list of all loops this ParserInstance is currently within.
+	 */
+	public @NotNull @Unmodifiable List<Loopable> getCurrentLoops() {
+		return Collections.unmodifiableList(currentLoops);
+	}
+	
+	/**
+	 * Adds the loop to the current loops list.
+	 * @param loopable The loop to add.
+	 */
+	public void pushLoop(Loopable loopable) {
+		currentLoops.add(loopable);
+	}
+	
+	/**
+	 * Removes the last loop from the current loops list.
+	 */
+	public void popLoop() {
+		currentLoops.remove(currentLoops.size() - 1);
 	}
 
 	// Delay API
