@@ -19,10 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.Skript;
 import org.bukkit.entity.LivingEntity;
 
@@ -35,6 +32,7 @@ import org.bukkit.entity.LivingEntity;
 	"\tsend \"You have finally jumped!\" to player"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("Paper 1.15+")
 public class CondIsJumping extends PropertyCondition<LivingEntity> {
 	
 	static {
