@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -101,7 +102,19 @@ public class EffToggle extends Effect {
 			}
 		}
 
-		toggledExpr.change(event, toggledValues.toArray(), ChangeMode.SET);
+		Boolean containsBoolean = toggledValues.stream().anyMatch(obj -> obj instanceof Boolean);
+
+		if (containsBoolean) {
+			List<Object> filterdValues = toggledValues.stream().filter(
+				obj -> {
+					if (obj instanceof Block && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Block.class)) {
+						return true;
+					}
+					return false;
+				}
+			).toList();
+			toggledExpr.change(event, filterdValues.toArray(), ChangeMode.SET);
+		}
 		
 	}
 	@Override
