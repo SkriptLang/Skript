@@ -21,7 +21,7 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.classes.data.BukkitEventValues;
@@ -59,7 +59,7 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.tests.runner.SkriptTestEvent;
@@ -380,8 +380,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		getAddonInstance();
-		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
 		try {
@@ -420,8 +418,9 @@ public final class Skript extends JavaPlugin implements Listener {
 						continue;
 					File saveTo = null;
 					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
-						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+						String fileName = e.getName().substring(e.getName().indexOf("/") + 1);
+						// All example scripts must be disabled for jar security.
+						if (!fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
@@ -462,6 +461,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			}
 		}
+
+		// initialize the Skript addon instance
+		getAddonInstance();
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
