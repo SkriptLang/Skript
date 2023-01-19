@@ -61,19 +61,28 @@ public class EffEquip extends Effect {
 	static {
 		Skript.registerEffect(EffEquip.class,
 				"equip [%livingentities%] with %itemtypes%",
-				"make %livingentities% wear %itemtypes%");
+				"make %livingentities% wear %itemtypes%",
+				"unequip %itemtypes% [from %livingentities%]");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
 	@SuppressWarnings("null")
-	private Expression<ItemType> types;
+	private Expression<ItemType> itemTypes;
+
+	private boolean equip = true;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		entities = (Expression<LivingEntity>) exprs[0];
-		types = (Expression<ItemType>) exprs[1];
+		if (matchedPattern == 0 || matchedPattern == 1) {
+			entities = (Expression<LivingEntity>) exprs[0];
+			itemTypes = (Expression<ItemType>) exprs[1];
+		} else if (matchedPattern == 2) {
+			itemTypes = (Expression<ItemType>) exprs[0];
+			entities = (Expression<LivingEntity>) exprs[1];
+			equip = false;
+		}
 		return true;
 	}
 
@@ -93,18 +102,19 @@ public class EffEquip extends Effect {
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
-		ItemType[] ts = types.getArray(event);
+		ItemType[] ts = itemTypes.getArray(event);
 		for (LivingEntity en : entities.getArray(event)) {
 			if (SUPPORTS_STEERABLE && en instanceof Steerable) {
 				for (ItemType it : ts) {
 					if (SADDLE.isOfType(it.getMaterial())) {
-						((Steerable) en).setSaddle(true);
+						((Steerable) en).setSaddle(equip);
 					}
 				}
+				continue;
 			} else if (en instanceof Pig) {
 				for (ItemType t : ts) {
 					if (t.isOfType(Material.SADDLE)) {
-						((Pig) en).setSaddle(true);
+						((Pig) en).setSaddle(equip);
 						break;
 					}
 				}
@@ -114,9 +124,9 @@ public class EffEquip extends Effect {
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (CARPET.isOfType(item)) {
-							inv.setDecor(item);
+							inv.setDecor(equip ? item : new ItemStack(Material.AIR));
 						} else if (CHEST.isOfType(item)) {
-							((Llama) en).setCarryingChest(true);
+							((Llama) en).setCarryingChest(equip);
 						}
 					}
 				}
@@ -127,11 +137,11 @@ public class EffEquip extends Effect {
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
-							inv.setItem(0, item); // Slot 0=saddle
+							inv.setItem(0, equip ? item : new ItemStack(Material.AIR)); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							inv.setItem(1, item); // Slot 1=armor
+							inv.setItem(1, equip ? item : new ItemStack(Material.AIR)); // Slot 1=armor
 						} else if (CHEST.isOfType(item) && en instanceof ChestedHorse) {
-							((ChestedHorse) en).setCarryingChest(true);
+							((ChestedHorse) en).setCarryingChest(equip);
 						}
 					}
 				}
@@ -141,30 +151,30 @@ public class EffEquip extends Effect {
 				for (ItemType t : ts) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
-							inv.setSaddle(item);
+							inv.setSaddle(equip ? item : new ItemStack(Material.AIR));
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							inv.setArmor(item);
+							inv.setArmor(equip ? item : new ItemStack(Material.AIR));
 						} else if (CHEST.isOfType(item)) {
-							((Horse) en).setCarryingChest(true);
+							((Horse) en).setCarryingChest(equip);
 						}
 					}
 				}
 				continue;
 			}
-			EntityEquipment equip = en.getEquipment();
-			if (equip == null)
+			EntityEquipment equipment = en.getEquipment();
+			if (equipment == null)
 				continue;
 			for (ItemType t : ts) {
 				for (ItemStack item : t.getAll()) {
 					if (CHESTPLATE.isOfType(item)) {
-						equip.setChestplate(item);
+						equipment.setChestplate(equip ? item : new ItemStack(Material.AIR));
 					} else if (LEGGINGS.isOfType(item)) {
-						equip.setLeggings(item);
+						equipment.setLeggings(equip ? item : new ItemStack(Material.AIR));
 					} else if (BOOTS.isOfType(item)) {
-						equip.setBoots(item);
+						equipment.setBoots(equip ? item : new ItemStack(Material.AIR));
 					} else {
 						// Apply all other items to head, as all items will appear on a player's head
-						equip.setHelmet(item);
+						equipment.setHelmet(equip ? item : new ItemStack(Material.AIR));
 					}
 				}
 			}
@@ -175,7 +185,7 @@ public class EffEquip extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "equip " + entities.toString(event, debug) + " with " + types.toString(event, debug);
+		return "equip " + entities.toString(event, debug) + " with " + itemTypes.toString(event, debug);
 	}
 
 }
