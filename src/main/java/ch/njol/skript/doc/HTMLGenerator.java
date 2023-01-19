@@ -337,7 +337,7 @@ public class HTMLGenerator {
 					List<ClassInfo<?>> classes = new ArrayList<>(Classes.getClassInfos());
 					classes.sort(classInfoComparator);
 					for (ClassInfo<?> info : classes) {
-						if (info.hasDocs())
+						if (!info.hasDocs())
 							continue;
 						assert info != null;
 						generated.append(generateClass(descTemp, info, generated.toString()));
@@ -622,7 +622,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + line : line);
+				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
