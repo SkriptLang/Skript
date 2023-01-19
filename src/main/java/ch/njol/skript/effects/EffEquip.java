@@ -104,8 +104,6 @@ public class EffEquip extends Effect {
 	private static final ItemType CHEST = Aliases.javaItemType("chest");
 	private static final ItemType CARPET = Aliases.javaItemType("carpet");
 
-	private static final ItemStack AIR = new ItemStack(Material.AIR);
-
 	@Override
 	protected void execute(Event event) {
 		ItemType[] itemTypes;
@@ -135,7 +133,7 @@ public class EffEquip extends Effect {
 				for (ItemType t : itemTypes) {
 					for (ItemStack item : t.getAll()) {
 						if (CARPET.isOfType(item)) {
-							inv.setDecor(equip ? item : AIR);
+							inv.setDecor(equip ? item : null);
 						} else if (CHEST.isOfType(item)) {
 							((Llama) en).setCarryingChest(equip);
 						}
@@ -147,9 +145,9 @@ public class EffEquip extends Effect {
 				for (ItemType t : itemTypes) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
-							inv.setItem(0, equip ? item : AIR); // Slot 0=saddle
+							inv.setItem(0, equip ? item : null); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							inv.setItem(1, equip ? item : AIR); // Slot 1=armor
+							inv.setItem(1, equip ? item : null); // Slot 1=armor
 						} else if (CHEST.isOfType(item) && en instanceof ChestedHorse) {
 							((ChestedHorse) en).setCarryingChest(equip);
 						}
@@ -162,18 +160,18 @@ public class EffEquip extends Effect {
 				for (ItemType t : itemTypes) {
 					for (ItemStack item : t.getAll()) {
 						if (CHESTPLATE.isOfType(item)) {
-							equipment.setChestplate(equip ? item : AIR);
+							equipment.setChestplate(equip ? item : null);
 						} else if (LEGGINGS.isOfType(item)) {
-							equipment.setLeggings(equip ? item : AIR);
+							equipment.setLeggings(equip ? item : null);
 						} else if (BOOTS.isOfType(item)) {
-							equipment.setBoots(equip ? item : AIR);
+							equipment.setBoots(equip ? item : null);
 						} else {
 							// Apply all other items to head, as all items will appear on a player's head
-							equipment.setHelmet(equip ? item : AIR);
+							equipment.setHelmet(equip ? item : null);
 						}
 					}
 					if (unequipHelmet) { // Since players can wear any helmet, ts won't have the item in the array every time
-						equipment.setHelmet(AIR);
+						equipment.setHelmet(null);
 					}
 				}
 				if (en instanceof Player)
