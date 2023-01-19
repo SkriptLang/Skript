@@ -95,7 +95,7 @@ public class EffCancelEvent extends Effect {
 		} else if (e instanceof PlayerDropItemEvent) {
 			PlayerUtils.updateInventory(((PlayerDropItemEvent) e).getPlayer());
 		} else if (e instanceof InventoryInteractEvent) {
-			((Player) ((InventoryInteractEvent) e).getWhoClicked()).updateInventory();
+			PlayerUtils.updateInventory(((Player) ((InventoryInteractEvent) e).getWhoClicked()));
 		}
 	}
 	
