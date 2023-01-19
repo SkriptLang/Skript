@@ -52,10 +52,12 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Equip")
-@Description("Equips an entity with some given armor. This will replace any armor that the entity is wearing.")
+@Description("Equips or unequips an entity with some given armor. This will replace any armor that the entity is wearing.")
 @Examples({"equip player with diamond helmet",
-		"equip player with all diamond armor"})
-@Since("1.0, INSERT VERSION (multiple entities)")
+		"equip player with all diamond armor",
+		"unequip diamond chestplate from player",
+		"unequip all armor from player"})
+@Since("1.0, INSERT VERSION (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
 	static {
@@ -185,7 +187,11 @@ public class EffEquip extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "equip " + entities.toString(event, debug) + " with " + itemTypes.toString(event, debug);
+		if (equip) {
+			return "equip " + entities.toString(event, debug) + " with " + itemTypes.toString(event, debug);
+		} else {
+			return "unequip " + itemTypes.toString(event, debug) + " from " + entities.toString(event, debug);
+		}
 	}
 
 }
