@@ -68,7 +68,7 @@ public class EffEquip extends Effect {
 				"equip [%livingentities%] with %itemtypes%",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%['s] (armor|equipment)");
+				"unequip %livingentities%'[s] (armor|equipment)");
 	}
 
 	@SuppressWarnings("null")
