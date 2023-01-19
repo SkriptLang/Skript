@@ -71,7 +71,6 @@ public class EffEquip extends Effect {
 				"unequip %livingentities%'[s] (armor|equipment)");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<ItemType> itemTypes;
@@ -109,33 +108,31 @@ public class EffEquip extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		ItemType[] ts;
+		ItemType[] itemTypes;
 		boolean unequipHelmet = false;
-		if (itemTypes != null) {
-			ts = itemTypes.getArray(event);
+		if (this.itemTypes != null) {
+			itemTypes = this.itemTypes.getArray(event);
 		} else {
-			ts = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
+			itemTypes = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
 			unequipHelmet = true;
 		}
 		for (LivingEntity en : entities.getArray(event)) {
 			if (SUPPORTS_STEERABLE && en instanceof Steerable) {
-				for (ItemType it : ts) {
+				for (ItemType it : itemTypes) {
 					if (SADDLE.isOfType(it.getMaterial())) {
 						((Steerable) en).setSaddle(equip);
 					}
 				}
-				continue;
 			} else if (en instanceof Pig) {
-				for (ItemType t : ts) {
+				for (ItemType t : itemTypes) {
 					if (t.isOfType(Material.SADDLE)) {
 						((Pig) en).setSaddle(equip);
 						break;
 					}
 				}
-				continue;
 			} else if (en instanceof Llama) {
 				LlamaInventory inv = ((Llama) en).getInventory();
-				for (ItemType t : ts) {
+				for (ItemType t : itemTypes) {
 					for (ItemStack item : t.getAll()) {
 						if (CARPET.isOfType(item)) {
 							inv.setDecor(equip ? item : AIR);
@@ -144,11 +141,10 @@ public class EffEquip extends Effect {
 						}
 					}
 				}
-				continue;
 			} else if (en instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
 				Inventory inv = ((AbstractHorse) en).getInventory();
-				for (ItemType t : ts) {
+				for (ItemType t : itemTypes) {
 					for (ItemStack item : t.getAll()) {
 						if (SADDLE.isOfType(item)) {
 							inv.setItem(0, equip ? item : AIR); // Slot 0=saddle
@@ -159,30 +155,30 @@ public class EffEquip extends Effect {
 						}
 					}
 				}
-				continue;
-			}
-			EntityEquipment equipment = en.getEquipment();
-			if (equipment == null)
-				continue;
-			for (ItemType t : ts) {
-				for (ItemStack item : t.getAll()) {
-					if (CHESTPLATE.isOfType(item)) {
-						equipment.setChestplate(equip ? item : AIR);
-					} else if (LEGGINGS.isOfType(item)) {
-						equipment.setLeggings(equip ? item : AIR);
-					} else if (BOOTS.isOfType(item)) {
-						equipment.setBoots(equip ? item : AIR);
-					} else {
-						// Apply all other items to head, as all items will appear on a player's head
-						equipment.setHelmet(equip ? item : AIR);
+			} else {
+				EntityEquipment equipment = en.getEquipment();
+				if (equipment == null)
+					continue;
+				for (ItemType t : itemTypes) {
+					for (ItemStack item : t.getAll()) {
+						if (CHESTPLATE.isOfType(item)) {
+							equipment.setChestplate(equip ? item : AIR);
+						} else if (LEGGINGS.isOfType(item)) {
+							equipment.setLeggings(equip ? item : AIR);
+						} else if (BOOTS.isOfType(item)) {
+							equipment.setBoots(equip ? item : AIR);
+						} else {
+							// Apply all other items to head, as all items will appear on a player's head
+							equipment.setHelmet(equip ? item : AIR);
+						}
+					}
+					if (unequipHelmet) { // Since players can wear any helmet, ts won't have the item in the array every time
+						equipment.setHelmet(AIR);
 					}
 				}
-				if (unequipHelmet) { // Since players can wear any helmet, ts won't have the item in the array every time
-					equipment.setHelmet(AIR);
-				}
+				if (en instanceof Player)
+					PlayerUtils.updateInventory((Player) en);
 			}
-			if (en instanceof Player)
-				PlayerUtils.updateInventory((Player) en);
 		}
 	}
 
