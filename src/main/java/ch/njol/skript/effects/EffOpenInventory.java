@@ -144,10 +144,8 @@ public class EffOpenInventory extends Effect {
 							p.openInventory(Bukkit.createInventory(p, InventoryType.DISPENSER));
 					
 					}
-				} else {
+				} else
 					p.closeInventory();
-					p.updateInventory();
-				}
 			}
 		}
 	}
