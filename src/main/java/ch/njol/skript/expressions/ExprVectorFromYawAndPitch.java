@@ -62,9 +62,9 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number y = yaw.getSingle(e);
-		Number p = pitch.getSingle(e);
+	protected Vector[] get(Event event) {
+		Number y = yaw.getSingle(event);
+		Number p = pitch.getSingle(event);
 		if (y == null || p == null)
 			return null;
 		float yaw = VectorMath.fromSkriptYaw(VectorMath.wrapAngleDeg(y.floatValue()));
@@ -83,8 +83,8 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from yaw " + yaw.toString(e, debug) + " and pitch " + pitch.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from yaw " + yaw.toString(event, debug) + " and pitch " + pitch.toString(event, debug);
 	}
 
 }

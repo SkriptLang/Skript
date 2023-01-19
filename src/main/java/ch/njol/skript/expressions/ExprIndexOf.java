@@ -63,8 +63,8 @@ public class ExprIndexOf extends SimpleExpression<Long> {
 	
 	@Override
 	@Nullable
-	protected Long[] get(final Event e) {
-		final String h = haystack.getSingle(e), n = needle.getSingle(e);
+	protected Long[] get(final Event event) {
+		final String h = haystack.getSingle(event), n = needle.getSingle(event);
 		if (h == null || n == null)
 			return new Long[0];
 		final int i = first ? h.indexOf(n) : h.lastIndexOf(n);
@@ -82,8 +82,8 @@ public class ExprIndexOf extends SimpleExpression<Long> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the " + (first ? "first" : "last") + " index of " + needle.toString(e, debug) + " in " + haystack.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the " + (first ? "first" : "last") + " index of " + needle.toString(event, debug) + " in " + haystack.toString(event, debug);
 	}
 	
 }

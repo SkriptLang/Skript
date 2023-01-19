@@ -55,23 +55,23 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 	}
 	
 	@Override
-	protected Entity[] get(final Event e, final Entity[] source) {
+	protected Entity[] get(final Event event, final Entity[] source) {
 		return get(source, new Converter<Entity, Entity>() {
 			@Override
 			@Nullable
 			public Entity convert(final Entity p) {
-				if (getTime() >= 0 && e instanceof VehicleEnterEvent && p.equals(((VehicleEnterEvent) e).getEntered()) && !Delay.isDelayed(e)) {
-					return ((VehicleEnterEvent) e).getVehicle();
+				if (getTime() >= 0 && event instanceof VehicleEnterEvent && p.equals(((VehicleEnterEvent) event).getEntered()) && !Delay.isDelayed(event)) {
+					return ((VehicleEnterEvent) event).getVehicle();
 				}
-				if (getTime() >= 0 && e instanceof VehicleExitEvent && p.equals(((VehicleExitEvent) e).getExited()) && !Delay.isDelayed(e)) {
-					return ((VehicleExitEvent) e).getVehicle();
+				if (getTime() >= 0 && event instanceof VehicleExitEvent && p.equals(((VehicleExitEvent) event).getExited()) && !Delay.isDelayed(event)) {
+					return ((VehicleExitEvent) event).getVehicle();
 				}
 				if (hasMountEvents) {
-					if (getTime() >= 0 && e instanceof EntityMountEvent && p.equals(((EntityMountEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-						return ((EntityMountEvent) e).getMount();
+					if (getTime() >= 0 && event instanceof EntityMountEvent && p.equals(((EntityMountEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+						return ((EntityMountEvent) event).getMount();
 					}
-					if (getTime() >= 0 && e instanceof EntityDismountEvent && p.equals(((EntityDismountEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-						return ((EntityDismountEvent) e).getDismounted();
+					if (getTime() >= 0 && event instanceof EntityDismountEvent && p.equals(((EntityDismountEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+						return ((EntityDismountEvent) event).getDismounted();
 					}
 				}
 				return p.getVehicle();
@@ -106,10 +106,10 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			assert delta != null;
-			final Entity[] ps = getExpr().getArray(e);
+			final Entity[] ps = getExpr().getArray(event);
 			if (ps.length == 0)
 				return;
 			final Object o = delta[0];
@@ -130,7 +130,7 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 				assert false;
 			}
 		} else {
-			super.change(e, delta, mode);
+			super.change(event, delta, mode);
 		}
 	}
 	

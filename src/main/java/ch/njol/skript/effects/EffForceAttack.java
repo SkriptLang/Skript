@@ -68,18 +68,18 @@ public class EffForceAttack extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		Entity target = this.target.getSingle(e);
+	protected void execute(Event event) {
+		Entity target = this.target.getSingle(event);
 		if (target != null) {
-			for (LivingEntity entity : entities.getArray(e)) {
+			for (LivingEntity entity : entities.getArray(event)) {
 				entity.attack(target);
 			}
 		}
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + " attack " + target.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + " attack " + target.toString(event, debug);
 	}
 	
 }

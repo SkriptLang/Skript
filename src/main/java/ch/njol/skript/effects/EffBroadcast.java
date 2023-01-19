@@ -77,27 +77,27 @@ public class EffBroadcast extends Effect {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void execute(Event e) {
+	public void execute(Event event) {
 		List<CommandSender> receivers = new ArrayList<>();
 		if (worlds == null) {
 			receivers.addAll(Bukkit.getOnlinePlayers());
 			receivers.add(Bukkit.getConsoleSender());
 		} else {
-			for (World world : worlds.getArray(e))
+			for (World world : worlds.getArray(event))
 				receivers.addAll(world.getPlayers());
 		}
 
 		for (Expression<?> message : getMessages()) {
 			if (message instanceof VariableString) {
-				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
+				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(event));
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
-				for (Object realMessage : message.getArray(e)) {
+				for (Object realMessage : message.getArray(event)) {
 					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 				}
 			} else {
-				for (Object messageObject : message.getArray(e)) {
+				for (Object messageObject : message.getArray(event)) {
 					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
 					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
 				}
@@ -113,8 +113,8 @@ public class EffBroadcast extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "broadcast " + messageExpr.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return "broadcast " + messageExpr.toString(event, debug) + (worlds == null ? "" : " to " + worlds.toString(event, debug));
 	}
 	
 }

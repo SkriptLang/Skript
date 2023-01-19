@@ -62,7 +62,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 	}
 
 	@Override
-	protected Block[] get(Event e, Player[] source) {
+	protected Block[] get(Event event, Player[] source) {
 		return get(source, p -> {
 			Block block = p.getTargetBlock(null, SkriptConfig.maxTargetBlockDistance.value());
 			if (block.getType() == Material.AIR)
@@ -83,8 +83,8 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the targeted block" + (getExpr().isSingle() ? "" : "s") + " of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the targeted block" + (getExpr().isSingle() ? "" : "s") + " of " + getExpr().toString(event, debug);
 	}
 
 }

@@ -62,9 +62,9 @@ public class EffBreakNaturally extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		ItemType tool = this.tool != null ? this.tool.getSingle(e) : null;
-		for (Block block : this.blocks.getArray(e)) {
+	protected void execute(final Event event) {
+		ItemType tool = this.tool != null ? this.tool.getSingle(event) : null;
+		for (Block block : this.blocks.getArray(event)) {
 			if (tool != null) {
 				ItemStack is = tool.getRandom();
 				if (is != null)
@@ -78,7 +78,7 @@ public class EffBreakNaturally extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "break " + blocks.toString(e, debug) + " naturally" + (tool != null ? " using " + tool.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "break " + blocks.toString(event, debug) + " naturally" + (tool != null ? " using " + tool.toString(event, debug) : "");
 	}
 }

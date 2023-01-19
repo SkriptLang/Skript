@@ -73,10 +73,10 @@ public class ExprCustomModelData extends SimplePropertyExpression<ItemType, Long
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		long data = delta == null ? 0 : ((Number) delta[0]).intValue();
 		if (data > 99999999 || data < 0) data = 0;
-		for (ItemType item : getExpr().getArray(e)) {
+		for (ItemType item : getExpr().getArray(event)) {
 			long oldData = 0;
 			ItemMeta meta = item.getItemMeta();
 			if (meta.hasCustomModelData())
@@ -99,8 +99,8 @@ public class ExprCustomModelData extends SimplePropertyExpression<ItemType, Long
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
-		return "custom model data of " + getExpr().toString(e, d);
+	public String toString(@Nullable Event event, boolean d) {
+		return "custom model data of " + getExpr().toString(event, d);
 	}
 	
 }

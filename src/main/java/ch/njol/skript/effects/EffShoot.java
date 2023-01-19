@@ -82,16 +82,16 @@ public class EffShoot extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		lastSpawned = null;
-		final Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
+		final Number v = velocity != null ? velocity.getSingle(event) : DEFAULT_SPEED;
 		if (v == null)
 			return;
-		final Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
+		final Direction dir = direction != null ? direction.getSingle(event) : Direction.IDENTITY;
 		if (dir == null)
 			return;
-		for (final Object shooter : shooters.getArray(e)) {
-			for (final EntityData<?> d : types.getArray(e)) {
+		for (final Object shooter : shooters.getArray(event)) {
+			for (final EntityData<?> d : types.getArray(event)) {
 				if (shooter instanceof LivingEntity) {
 					final Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
 					final Class<? extends Entity> type = d.getType();
@@ -131,8 +131,8 @@ public class EffShoot extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " + velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "shoot " + types.toString(event, debug) + " from " + shooters.toString(event, debug) + (velocity != null ? " at speed " + velocity.toString(event, debug) : "") + (direction != null ? " " + direction.toString(event, debug) : "");
 	}
 	
 }

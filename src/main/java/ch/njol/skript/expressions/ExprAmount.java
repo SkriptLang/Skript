@@ -95,18 +95,18 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Long[] get(Event e) {
+	protected Long[] get(Event event) {
 		if (recursive) {
 			int currentSize = 0;
 			for (Expression<?> expr : exprs.getExpressions()) {
-				Object var = ((Variable<?>) expr).getRaw(e);
+				Object var = ((Variable<?>) expr).getRaw(event);
 				if (var != null) { // Should already be a map
 					currentSize += getRecursiveSize((Map<String, ?>) var);
 				}
 			}
 			return new Long[]{(long) currentSize};
 		}
-		return new Long[]{(long) exprs.getArray(e).length};
+		return new Long[]{(long) exprs.getArray(event).length};
 	}
 
 	@SuppressWarnings("unchecked")
@@ -133,8 +133,8 @@ public class ExprAmount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(event, debug);
 	}
 
 }

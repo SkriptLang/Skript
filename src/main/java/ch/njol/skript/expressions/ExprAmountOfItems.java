@@ -58,10 +58,10 @@ public class ExprAmountOfItems extends SimpleExpression<Long> {
 	}
 	
 	@Override
-	protected Long[] get(Event e) {
-		ItemType[] itemTypes = items.getArray(e);
+	protected Long[] get(Event event) {
+		ItemType[] itemTypes = items.getArray(event);
 		long amount = 0;
-		for (Inventory inventory : inventories.getArray(e)) {
+		for (Inventory inventory : inventories.getArray(event)) {
 			itemsLoop: for (ItemStack itemStack : inventory.getContents()) {
 				if (itemStack != null) {
 					for (ItemType itemType : itemTypes) {
@@ -87,8 +87,8 @@ public class ExprAmountOfItems extends SimpleExpression<Long> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the number of " + items.toString(e, debug) + " in " + inventories.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the number of " + items.toString(event, debug) + " in " + inventories.toString(event, debug);
 	}
 
 }

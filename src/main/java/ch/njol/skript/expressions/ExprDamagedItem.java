@@ -60,8 +60,8 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	}
 	
 	@Override
-	protected ItemType[] get(Event e, ItemType[] source) {
-		Number damage = this.damage.getSingle(e);
+	protected ItemType[] get(Event event, ItemType[] source) {
+		Number damage = this.damage.getSingle(event);
 		if (damage == null)
 			return source;
 		return get(source.clone(), item -> {
@@ -76,8 +76,8 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " with damage value " + damage.toString(e, debug);
+	public String toString(final @Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " with damage value " + damage.toString(event, debug);
 	}
 	
 }

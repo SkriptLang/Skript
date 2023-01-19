@@ -60,15 +60,15 @@ public class EffChargeCreeper extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (LivingEntity le : entities.getArray(e)) {
+	protected void execute(Event event) {
+		for (LivingEntity le : entities.getArray(event)) {
 			if (le instanceof Creeper)
 				((Creeper) le).setPowered(charge);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + (charge == true ? " charged" : " not charged");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + (charge == true ? " charged" : " not charged");
 	}
 }

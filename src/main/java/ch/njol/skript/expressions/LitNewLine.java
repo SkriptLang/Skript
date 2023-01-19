@@ -52,7 +52,7 @@ public class LitNewLine extends SimpleLiteral<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "newline";
 	}
 }

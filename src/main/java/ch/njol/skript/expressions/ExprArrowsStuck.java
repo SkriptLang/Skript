@@ -59,9 +59,9 @@ public class ExprArrowsStuck extends SimplePropertyExpression<LivingEntity, Long
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		int d = delta == null ? 0 : ((Number) delta[0]).intValue();
-		for (LivingEntity le : getExpr().getArray(e)) {
+		for (LivingEntity le : getExpr().getArray(event)) {
 			switch (mode) {
 				case ADD:
 					int r1 = le.getArrowsStuck() + d;

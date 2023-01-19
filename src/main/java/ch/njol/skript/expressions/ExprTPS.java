@@ -65,7 +65,7 @@ public class ExprTPS extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected Number[] get(Event e) {
+	protected Number[] get(Event event) {
 		double[] tps = Bukkit.getServer().getTPS();
 		if (index != 3) {
 			return new Number[] { tps[index] };
@@ -84,7 +84,7 @@ public class ExprTPS extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return expr;
 	}
 

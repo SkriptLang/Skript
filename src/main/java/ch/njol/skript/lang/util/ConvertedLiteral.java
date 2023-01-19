@@ -65,7 +65,7 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return Classes.toString(data, getAnd());
 	}
 	
@@ -80,7 +80,7 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 	
 	@Override
-	public T[] getArray(final Event e) {
+	public T[] getArray(final Event event) {
 		return getArray();
 	}
 	
@@ -93,24 +93,24 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 	
 	@Override
-	public T getSingle(final Event e) {
+	public T getSingle(final Event event) {
 		return getSingle();
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<T> iterator(final Event e) {
+	public Iterator<T> iterator(final Event event) {
 		return new ArrayIterator<>(data);
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c) {
-		return SimpleExpression.check(data, c, false, getAnd());
+	public boolean check(final Event event, final Checker<? super T> checker) {
+		return SimpleExpression.check(data, checker, false, getAnd());
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c, final boolean negated) {
-		return SimpleExpression.check(data, c, negated, getAnd());
+	public boolean check(final Event event, final Checker<? super T> checker, final boolean negated) {
+		return SimpleExpression.check(data, checker, negated, getAnd());
 	}
 	
 }

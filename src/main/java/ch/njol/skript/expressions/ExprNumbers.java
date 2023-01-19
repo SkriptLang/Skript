@@ -177,8 +177,8 @@ public class ExprNumbers extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return mode == 1 && (s.equalsIgnoreCase("integer") || s.equalsIgnoreCase("int"));
+	public boolean isLoopOf(final String string) {
+		return mode == 1 && (string.equalsIgnoreCase("integer") || string.equalsIgnoreCase("int"));
 	}
 	
 	@Override
@@ -192,9 +192,9 @@ public class ExprNumbers extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final String modeString = mode == 0 ? "numbers" : (mode == 1 ? "integers" : "decimals");
-		return modeString + " from " + start.toString(e, debug) + " to " + end.toString(e, debug);
+		return modeString + " from " + start.toString(event, debug) + " to " + end.toString(event, debug);
 	}
 	
 }

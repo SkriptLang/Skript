@@ -54,8 +54,8 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	
 	@Override
 	@Nullable
-	public final T getSingle(final Event e) {
-		final T[] all = getArray(e);
+	public final T getSingle(final Event event) {
+		final T[] all = getArray(event);
 		if (all.length == 0)
 			return null;
 		if (all.length > 1)
@@ -70,8 +70,8 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public T[] getAll(final Event e) {
-		final T[] all = get(e);
+	public T[] getAll(final Event event) {
+		final T[] all = get(event);
 		if (all == null) {
 			final T[] r = (T[]) Array.newInstance(getReturnType(), 0);
 			assert r != null;
@@ -96,8 +96,8 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public final T[] getArray(final Event e) {
-		final T[] all = get(e);
+	public final T[] getArray(final Event event) {
+		final T[] all = get(event);
 		if (all == null) {
 			final T[] r = (T[]) Array.newInstance(getReturnType(), 0);
 			assert r != null;
@@ -143,24 +143,24 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * This is the internal method to get an expression's values.<br>
 	 * To get the expression's value from the outside use {@link #getSingle(Event)} or {@link #getArray(Event)}.
 	 * 
-	 * @param e The event
+	 * @param event The event
 	 * @return An array of values for this event. May not contain nulls.
 	 */
 	@Nullable
-	protected abstract T[] get(Event e);
+	protected abstract T[] get(Event event);
 	
 	@Override
-	public final boolean check(final Event e, final Checker<? super T> c) {
-		return check(e, c, false);
+	public final boolean check(final Event event, final Checker<? super T> checker) {
+		return check(event, checker, false);
 	}
 	
 	@Override
-	public final boolean check(final Event e, final Checker<? super T> c, final boolean negated) {
-		return check(get(e), c, negated, getAnd());
+	public final boolean check(final Event event, final Checker<? super T> checker, final boolean negated) {
+		return check(get(event), checker, negated, getAnd());
 	}
 	
 	// TODO return a kleenean (UNKNOWN if 'all' is null or empty)
-	public static <T> boolean check(final @Nullable T[] all, final Checker<? super T> c, final boolean invert, final boolean and) {
+	public static <T> boolean check(final @Nullable T[] all, final Checker<? super T> checker, final boolean invert, final boolean and) {
 		if (all == null)
 			return invert;
 		boolean hasElement = false;
@@ -168,7 +168,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (t == null)
 				continue;
 			hasElement = true;
-			final boolean b = c.check(t);
+			final boolean b = checker.check(t);
 			if (and && !b)
 				return invert;
 			if (!and && b)
@@ -231,14 +231,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		final ClassInfo<?> rti = returnTypeInfo;
 		if (rti == null)
 			throw new UnsupportedOperationException();
 		final Changer<?> c = rti.getChanger();
 		if (c == null)
 			throw new UnsupportedOperationException();
-		((Changer<T>) c).change(getArray(e), delta, mode);
+		((Changer<T>) c).change(getArray(event), delta, mode);
 	}
 
 	/**
@@ -329,14 +329,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
+	public boolean isLoopOf(final String string) {
 		return false;
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<? extends T> iterator(final Event e) {
-		return new ArrayIterator<>(getArray(e));
+	public Iterator<? extends T> iterator(final Event event) {
+		return new ArrayIterator<>(getArray(event));
 	}
 	
 	@Override

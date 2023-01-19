@@ -65,11 +65,11 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	
 	@Nullable
 	@Override
-	protected Number[] get(Event e) {
-		if (!(e instanceof EntityRegainHealthEvent))
+	protected Number[] get(Event event) {
+		if (!(event instanceof EntityRegainHealthEvent))
 			return null;
 
-		return new Number[]{((EntityRegainHealthEvent) e).getAmount()};
+		return new Number[]{((EntityRegainHealthEvent) event).getAmount()};
 	}
 	
 	@Nullable
@@ -85,21 +85,21 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (!(e instanceof EntityRegainHealthEvent))
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		if (!(event instanceof EntityRegainHealthEvent))
 			return;
 
 		double value = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case SET:
 			case DELETE:
-				((EntityRegainHealthEvent) e).setAmount(value);
+				((EntityRegainHealthEvent) event).setAmount(value);
 				break;
 			case ADD:
-				((EntityRegainHealthEvent) e).setAmount(((EntityRegainHealthEvent) e).getAmount() + value);
+				((EntityRegainHealthEvent) event).setAmount(((EntityRegainHealthEvent) event).getAmount() + value);
 				break;
 			case REMOVE:
-				((EntityRegainHealthEvent) e).setAmount(((EntityRegainHealthEvent) e).getAmount() - value);
+				((EntityRegainHealthEvent) event).setAmount(((EntityRegainHealthEvent) event).getAmount() - value);
 				break;
 			default:
 				break;
@@ -117,7 +117,7 @@ public class ExprHealAmount extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "heal amount";
 	}
 	

@@ -72,9 +72,9 @@ public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	
 	@Nullable
 	@Override
-	protected PotionEffect[] get(Event e) {
+	protected PotionEffect[] get(Event event) {
 		List<PotionEffect> effects = new ArrayList<>();
-		for (Object object : this.objects.getArray(e)) {
+		for (Object object : this.objects.getArray(event)) {
 			if (object instanceof LivingEntity)
 				effects.addAll(((LivingEntity) object).getActivePotionEffects());
 			else if (object instanceof ItemType)
@@ -97,8 +97,8 @@ public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		for (Object object : this.objects.getArray(e)) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		for (Object object : this.objects.getArray(event)) {
 			switch (mode) {
 				case DELETE:
 					if (object instanceof LivingEntity)
@@ -137,8 +137,8 @@ public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
-		return "active potion effects of " + objects.toString(e, d);
+	public String toString(@Nullable Event event, boolean d) {
+		return "active potion effects of " + objects.toString(event, d);
 	}
 	
 }

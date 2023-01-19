@@ -90,29 +90,29 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	@SuppressWarnings({"null", "unused"})
 	@Override
 	@Nullable
-	protected EnchantmentOffer[] get(Event e) {
-		if (!(e instanceof PrepareItemEnchantEvent))
+	protected EnchantmentOffer[] get(Event event) {
+		if (!(event instanceof PrepareItemEnchantEvent))
 			return null;
 
 		if (all)
-			return ((PrepareItemEnchantEvent) e).getOffers();
+			return ((PrepareItemEnchantEvent) event).getOffers();
 		if (exprOfferNumber == null)
 			return new EnchantmentOffer[0];
 		if (exprOfferNumber.isSingle()) {
-			Number offerNumber = exprOfferNumber.getSingle(e);
+			Number offerNumber = exprOfferNumber.getSingle(event);
 			if (offerNumber == null)
 				return new EnchantmentOffer[0];
 			int offer = offerNumber.intValue();
-			if (offer < 1 || offer > ((PrepareItemEnchantEvent) e).getOffers().length)
+			if (offer < 1 || offer > ((PrepareItemEnchantEvent) event).getOffers().length)
 				return new EnchantmentOffer[0];
-			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) e).getOffers()[offer - 1]};
+			return new EnchantmentOffer[]{((PrepareItemEnchantEvent) event).getOffers()[offer - 1]};
 		}
 		List<EnchantmentOffer> offers = new ArrayList<>();
 		int i;
-		for (Number n : exprOfferNumber.getArray(e)) {
+		for (Number n : exprOfferNumber.getArray(event)) {
 			i = n.intValue();
-			if (i >= 1 || i <= ((PrepareItemEnchantEvent) e).getOffers().length)
-				offers.add(((PrepareItemEnchantEvent) e).getOffers()[i - 1]);
+			if (i >= 1 || i <= ((PrepareItemEnchantEvent) event).getOffers().length)
+				offers.add(((PrepareItemEnchantEvent) event).getOffers()[i - 1]);
 		}
 		return offers.toArray(new EnchantmentOffer[0]);
 	}
@@ -188,8 +188,8 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return all ? "the enchantment offers" : "enchantment offer(s) " + exprOfferNumber.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return all ? "the enchantment offers" : "enchantment offer(s) " + exprOfferNumber.toString(event, debug);
 	}
 
 	/**

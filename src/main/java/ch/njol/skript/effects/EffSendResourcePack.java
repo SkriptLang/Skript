@@ -82,16 +82,16 @@ public class EffSendResourcePack extends Effect {
 	// Player#setResourcePack(String) is deprecated on Paper
 	@SuppressWarnings({"deprecation"})
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		assert url != null;
 		String hash = null;
 		if (this.hash != null)
-			hash = this.hash.getSingle(e);
-		String address = url.getSingle(e);
+			hash = this.hash.getSingle(event);
+		String address = url.getSingle(event);
 		if (address == null) {
 			return; // Can't send, URL not valid
 		}
-		for (Player p : recipients.getArray(e)) {
+		for (Player p : recipients.getArray(event)) {
 			try {
 				if (hash == null) {
 					p.setResourcePack(address);
@@ -106,10 +106,10 @@ public class EffSendResourcePack extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "send the resource pack from " + url.toString(e, debug) +
-				(hash != null ? " with hash " + hash.toString(e, debug) : "") +
-				" to " + recipients.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "send the resource pack from " + url.toString(event, debug) +
+				(hash != null ? " with hash " + hash.toString(event, debug) : "") +
+				" to " + recipients.toString(event, debug);
 	}
 
 }

@@ -71,16 +71,16 @@ public class EffPoison extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "poison " + entites.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "poison " + entites.toString(event, debug);
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final LivingEntity le : entites.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final LivingEntity le : entites.getArray(event)) {
 			if (!cure) {
 				Timespan dur;
-				int d = (int) (duration != null && (dur = duration.getSingle(e)) != null ? 
+				int d = (int) (duration != null && (dur = duration.getSingle(event)) != null ?
 						(dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks_i()) : DEFAULT_DURATION);
 				if (le.hasPotionEffect(PotionEffectType.POISON)) {
 					for (final PotionEffect pe : le.getActivePotionEffects()) {

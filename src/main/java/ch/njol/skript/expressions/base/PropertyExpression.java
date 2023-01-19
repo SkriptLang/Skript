@@ -69,13 +69,13 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	protected final T[] get(final Event e) {
-		return get(e, expr.getArray(e));
+	protected final T[] get(final Event event) {
+		return get(event, expr.getArray(event));
 	}
 	
 	@Override
-	public final T[] getAll(final Event e) {
-		return get(e, expr.getAll(e));
+	public final T[] getAll(final Event event) {
+		return get(event, expr.getAll(event));
 	}
 	
 	/**
@@ -83,12 +83,12 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * <p>
 	 * Please note that the returned array must neither be null nor contain any null elements!
 	 * 
-	 * @param e
+	 * @param event
 	 * @param source
 	 * @return An array of the converted objects, which may contain less elements than the source array, but must not be null.
 	 * @see Converters#convert(Object[], Class, Converter)
 	 */
-	protected abstract T[] get(Event e, F[] source);
+	protected abstract T[] get(Event event, F[] source);
 	
 	/**
 	 * @param source

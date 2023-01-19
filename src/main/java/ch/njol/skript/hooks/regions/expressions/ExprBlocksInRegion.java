@@ -68,8 +68,8 @@ public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Block[] get(final Event e) {
-		final Iterator<Block> iter = iterator(e);
+	protected Block[] get(final Event event) {
+		final Iterator<Block> iter = iterator(event);
 		final ArrayList<Block> r = new ArrayList<>();
 		while (iter.hasNext())
 			r.add(iter.next());
@@ -78,8 +78,8 @@ public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	
 	@Override
 	@NonNull
-	public Iterator<Block> iterator(final Event e) {
-		final Region[] rs = regions.getArray(e);
+	public Iterator<Block> iterator(final Event event) {
+		final Region[] rs = regions.getArray(event);
 		if (rs.length == 0)
 			return EmptyIterator.get();
 		return new Iterator<Block>() {
@@ -122,8 +122,8 @@ public class ExprBlocksInRegion extends SimpleExpression<Block> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "all blocks in " + regions.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "all blocks in " + regions.toString(event, debug);
 	}
 	
 }

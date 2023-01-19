@@ -56,11 +56,11 @@ public class ExprTamer extends SimpleExpression<Player> {
 	}
 	
 	@Override
-	protected Player[] get(final Event e) {
-		if (!(e instanceof EntityTameEvent))
+	protected Player[] get(final Event event) {
+		if (!(event instanceof EntityTameEvent))
 			return null;
 
-		return new Player[] {((EntityTameEvent) e).getOwner() instanceof Player ? (Player) ((EntityTameEvent) e).getOwner() : null};
+		return new Player[] {((EntityTameEvent) event).getOwner() instanceof Player ? (Player) ((EntityTameEvent) event).getOwner() : null};
 	}
 	
 	@Override
@@ -74,7 +74,7 @@ public class ExprTamer extends SimpleExpression<Player> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the tamer";
 	}
 }

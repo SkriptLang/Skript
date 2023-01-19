@@ -347,7 +347,7 @@ public class StructCommand extends Structure {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "command";
 	}
 

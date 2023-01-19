@@ -68,10 +68,10 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	@Override
 	@Nullable
-	protected EnchantmentType[] get(Event e) {
+	protected EnchantmentType[] get(Event event) {
 		List<EnchantmentType> enchantments = new ArrayList<>();
 		
-		for (ItemType item : items.getArray(e)) {
+		for (ItemType item : items.getArray(event)) {
 			EnchantmentType[] enchants = item.getEnchantmentTypes();
 			
 			if (enchants == null)
@@ -93,8 +93,8 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		ItemType[] source = items.getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		ItemType[] source = items.getArray(event);
 		
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
 		
@@ -149,8 +149,8 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the enchantments of " + items.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the enchantments of " + items.toString(event, debug);
 	}
 	
 }

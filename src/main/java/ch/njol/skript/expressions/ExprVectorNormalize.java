@@ -61,8 +61,8 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Vector v = vector.getSingle(e);
+	protected Vector[] get(Event event) {
+		Vector v = vector.getSingle(event);
 		if (v == null)
 			return null;
 		return CollectionUtils.array(v.clone().normalize());
@@ -79,8 +79,8 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "normalized " + vector.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "normalized " + vector.toString(event, debug);
 	}
 
 }

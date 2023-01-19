@@ -91,48 +91,48 @@ public class EffSendTitle extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
-		String title = this.title != null ? this.title.getSingle(e) : null;
-		String subtitle = this.subtitle != null ? this.subtitle.getSingle(e) : null;
+	protected void execute(final Event event) {
+		String title = this.title != null ? this.title.getSingle(event) : null;
+		String subtitle = this.subtitle != null ? this.subtitle.getSingle(event) : null;
 		
 		if (TIME_SUPPORTED) {
 			int fadeIn, stay, fadeOut;
 			fadeIn = stay = fadeOut = -1;
 
 			if (this.fadeIn != null) {
-				Timespan t = this.fadeIn.getSingle(e);
+				Timespan t = this.fadeIn.getSingle(event);
 				fadeIn = t != null ? (int) t.getTicks_i() : -1;
 			}
 
 			if (this.stay != null) {
-				Timespan t = this.stay.getSingle(e);
+				Timespan t = this.stay.getSingle(event);
 				stay = t != null ? (int) t.getTicks_i() : -1;
 			}
 
 			if (this.fadeOut != null) {
-				Timespan t = this.fadeOut.getSingle(e);
+				Timespan t = this.fadeOut.getSingle(event);
 				fadeOut = t != null ? (int) t.getTicks_i() : -1;
 			}
 			
-			for (Player p : recipients.getArray(e))
+			for (Player p : recipients.getArray(event))
 				p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		} else {
-			for (Player p : recipients.getArray(e))
+			for (Player p : recipients.getArray(event))
 				p.sendTitle(title, subtitle);
 		}
 	}
 	
 	// TODO: util method to simplify this
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		String title = this.title != null ? this.title.toString(e, debug) : "",
-		sub = subtitle != null ? subtitle.toString(e, debug) : "",
-		in = fadeIn != null ? fadeIn.toString(e, debug) : "",
-		stay = this.stay != null ? this.stay.toString(e, debug) : "",
-		out = fadeOut != null ? this.fadeOut.toString(e, debug) : "";
+	public String toString(final @Nullable Event event, final boolean debug) {
+		String title = this.title != null ? this.title.toString(event, debug) : "",
+		sub = subtitle != null ? subtitle.toString(event, debug) : "",
+		in = fadeIn != null ? fadeIn.toString(event, debug) : "",
+		stay = this.stay != null ? this.stay.toString(event, debug) : "",
+		out = fadeOut != null ? this.fadeOut.toString(event, debug) : "";
 		return ("send title " + title +
 				sub == "" ? "" : " with subtitle " + sub) + " to " +
-				recipients.toString(e, debug) + (TIME_SUPPORTED ?
+				recipients.toString(event, debug) + (TIME_SUPPORTED ?
 				" for " + stay + " with fade in " + in + " and fade out" + out : "");
 	}
 	

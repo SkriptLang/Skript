@@ -64,8 +64,8 @@ public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
-		for (final Entity entity : getExpr().getArray(e))
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+		for (final Entity entity : getExpr().getArray(event))
 			entity.setGravity(delta == null ? true : (Boolean) delta[0]);
 	}
 }

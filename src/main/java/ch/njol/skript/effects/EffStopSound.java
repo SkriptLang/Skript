@@ -87,35 +87,35 @@ public class EffStopSound extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		Object category = null;
 		if (SOUND_CATEGORIES_EXIST) {
 			category = SoundCategory.MASTER;
 			if (this.category != null) {
-				category = this.category.getSingle(e);
+				category = this.category.getSingle(event);
 				if (category == null)
 					return;
 			}
 		}
-		for (String sound : sounds.getArray(e)) {
+		for (String sound : sounds.getArray(event)) {
 			Sound soundEnum = null;
 			try {
 				soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
 			} catch (IllegalArgumentException ignored) {}
 			if (soundEnum == null) {
 				if (SOUND_CATEGORIES_EXIST) {
-					for (Player p : players.getArray(e))
+					for (Player p : players.getArray(event))
 						p.stopSound(sound, (SoundCategory) category);
 				} else {
-					for (Player p : players.getArray(e))
+					for (Player p : players.getArray(event))
 						p.stopSound(sound);
 				}
 			} else {
 				if (SOUND_CATEGORIES_EXIST) {
-					for (Player p : players.getArray(e))
+					for (Player p : players.getArray(event))
 						p.stopSound(soundEnum, (SoundCategory) category);
 				} else {
-					for (Player p : players.getArray(e))
+					for (Player p : players.getArray(event))
 						p.stopSound(soundEnum);
 				}
 			}
@@ -123,10 +123,10 @@ public class EffStopSound extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "stop sound " + sounds.toString(e, debug) +
-				(category != null ? " in " + category.toString(e, debug) : "") +
-				" from playing to " + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "stop sound " + sounds.toString(event, debug) +
+				(category != null ? " in " + category.toString(event, debug) : "") +
+				" from playing to " + players.toString(event, debug);
 	}
 
 }

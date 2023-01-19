@@ -74,11 +74,11 @@ public class EffExplosion extends Effect {
 	}
 
 	@Override
-	public void execute(final Event e) {
-		final Number power = force != null ? force.getSingle(e) : 0;
+	public void execute(final Event event) {
+		final Number power = force != null ? force.getSingle(event) : 0;
 		if (power == null)
 			return;
-		for (final Location l : locations.getArray(e)) {
+		for (final Location l : locations.getArray(event)) {
 			if (!blockDamage)
 				l.getWorld().createExplosion(l.getX(), l.getY(), l.getZ(), power.floatValue(), false, false);
 			else
@@ -87,11 +87,11 @@ public class EffExplosion extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (force != null)
-			return "create explosion of force " + force.toString(e, debug) + " " + locations.toString(e, debug);
+			return "create explosion of force " + force.toString(event, debug) + " " + locations.toString(event, debug);
 		else
-			return "create explosion effect " + locations.toString(e, debug);
+			return "create explosion effect " + locations.toString(event, debug);
 	}
 
 }

@@ -57,7 +57,7 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	}
 	
 	@Override
-	protected Long[] get(Event e, Player[] source) {
+	protected Long[] get(Event event, Player[] source) {
 		return get(source, player -> (long) player.getViewDistance());
 	}
 	
@@ -76,24 +76,24 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int distance = delta == null ? 0 : ((Number) delta[0]).intValue();
 		switch (mode) {
 			case DELETE:
 			case SET:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setViewDistance(distance);
 				break;
 			case ADD:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setViewDistance(player.getViewDistance() + distance);
 				break;
 			case REMOVE:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setViewDistance(player.getViewDistance() - distance);
 				break;
 			case RESET:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setViewDistance(Bukkit.getServer().getViewDistance());
 			default:
 				assert false;
@@ -106,8 +106,8 @@ public class ExprPlayerViewDistance extends PropertyExpression<Player, Long> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the view distance of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the view distance of " + getExpr().toString(event, debug);
 	}
 	
 }

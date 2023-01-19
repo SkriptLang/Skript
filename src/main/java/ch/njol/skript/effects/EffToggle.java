@@ -70,8 +70,8 @@ public class EffToggle extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (Block b : blocks.getArray(e)) {
+	protected void execute(final Event event) {
+		for (Block b : blocks.getArray(event)) {
 			BlockData data = b.getBlockData();
 			if (toggle == -1) {
 				if (data instanceof Openable)
@@ -95,8 +95,8 @@ public class EffToggle extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "toggle " + blocks.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "toggle " + blocks.toString(event, debug);
 	}
 	
 }

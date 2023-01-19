@@ -87,8 +87,8 @@ public class CondCanBuild extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return players.toString(e, debug) + " can build " + locations.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return players.toString(event, debug) + " can build " + locations.toString(event, debug);
 	}
 	
 }

@@ -130,8 +130,8 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	
 	@Override
 	@Nullable
-	protected Direction[] get(final Event e) {
-		final Number n = amount != null ? amount.getSingle(e) : 1;
+	protected Direction[] get(final Event event) {
+		final Number n = amount != null ? amount.getSingle(event) : 1;
 		if (n == null)
 			return new Direction[0];
 		final double ln = n.doubleValue();
@@ -139,7 +139,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			final Vector v = direction.clone().multiply(ln);
 			ExprDirection d = next;
 			while (d != null) {
-				final Number n2 = d.amount != null ? d.amount.getSingle(e) : 1;
+				final Number n2 = d.amount != null ? d.amount.getSingle(event) : 1;
 				if (n2 == null)
 					return new Direction[0];
 				assert d.direction != null; // checked in init()
@@ -149,7 +149,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			assert v != null;
 			return new Direction[] {new Direction(v)};
 		} else if (relativeTo != null) {
-			final Object o = relativeTo.getSingle(e);
+			final Object o = relativeTo.getSingle(event);
 			if (o == null)
 				return new Direction[0];
 			if (o instanceof Block) {
@@ -202,10 +202,10 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Expression<?> relativeTo = this.relativeTo;
-		return (amount != null ? amount.toString(e, debug) + " meter(s) " : "") + (direction != null ? Direction.toString(direction) :
-				relativeTo != null ? " in " + (horizontal ? "horizontal " : "") + (facing ? "facing" : "direction") + " of " + relativeTo.toString(e, debug) :
+		return (amount != null ? amount.toString(event, debug) + " meter(s) " : "") + (direction != null ? Direction.toString(direction) :
+				relativeTo != null ? " in " + (horizontal ? "horizontal " : "") + (facing ? "facing" : "direction") + " of " + relativeTo.toString(event, debug) :
 						(horizontal ? "horizontally " : "") + Direction.toString(0, yaw, 1));
 	}
 	

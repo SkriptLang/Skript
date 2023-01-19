@@ -92,8 +92,8 @@ public class ExprIndices extends SimpleExpression<String> {
 	@Nullable
 	@Override
 	@SuppressWarnings({"unchecked", "ConstantConditions"})
-	protected String[] get(Event e) {
-		Map<String, Object> variable = (Map<String, Object>) list.getRaw(e);
+	protected String[] get(Event event) {
+		Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
 
 		if (variable == null) {
 			return null;
@@ -121,8 +121,8 @@ public class ExprIndices extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		String text = "indices of " + list.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		String text = "indices of " + list.toString(event, debug);
 
 		if (sort)
 			text = "sorted " + text + " in " + (descending ? "descending" : "ascending") + " order";

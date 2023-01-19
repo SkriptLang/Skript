@@ -64,7 +64,7 @@ public class CondPvP extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "PvP is " + (enabled ? "enabled" : "disabled") + " in " + worlds.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "PvP is " + (enabled ? "enabled" : "disabled") + " in " + worlds.toString(event, debug);
 	}
 }

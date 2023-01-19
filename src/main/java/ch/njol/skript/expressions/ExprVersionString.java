@@ -70,10 +70,10 @@ public class ExprVersionString extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	public String[] get(Event e) {
-		if (!(e instanceof PaperServerListPingEvent))
+	public String[] get(Event event) {
+		if (!(event instanceof PaperServerListPingEvent))
 			return null;
-		return CollectionUtils.array(((PaperServerListPingEvent) e).getVersion());
+		return CollectionUtils.array(((PaperServerListPingEvent) event).getVersion());
 	}
 
 	@Override
@@ -90,11 +90,11 @@ public class ExprVersionString extends SimpleExpression<String> {
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(e instanceof PaperServerListPingEvent))
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PaperServerListPingEvent))
 			return;
 
-		((PaperServerListPingEvent) e).setVersion(((String) delta[0]));
+		((PaperServerListPingEvent) event).setVersion(((String) delta[0]));
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class ExprVersionString extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the version string";
 	}
 

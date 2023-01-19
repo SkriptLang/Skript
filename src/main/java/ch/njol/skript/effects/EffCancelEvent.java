@@ -81,22 +81,22 @@ public class EffCancelEvent extends Effect {
 	}
 	
 	@Override
-	public void execute(final Event e) {
-		if (e instanceof Cancellable)
-			((Cancellable) e).setCancelled(cancel);
-		if (e instanceof PlayerInteractEvent) {
-			EvtClick.interactTracker.eventModified((Cancellable) e);
-			((PlayerInteractEvent) e).setUseItemInHand(cancel ? Result.DENY : Result.DEFAULT);
-			((PlayerInteractEvent) e).setUseInteractedBlock(cancel ? Result.DENY : Result.DEFAULT);
-		} else if (e instanceof BlockCanBuildEvent) {
-			((BlockCanBuildEvent) e).setBuildable(!cancel);
-		} else if (e instanceof PlayerDropItemEvent) {
-			PlayerUtils.updateInventory(((PlayerDropItemEvent) e).getPlayer());
+	public void execute(final Event event) {
+		if (event instanceof Cancellable)
+			((Cancellable) event).setCancelled(cancel);
+		if (event instanceof PlayerInteractEvent) {
+			EvtClick.interactTracker.eventModified((Cancellable) event);
+			((PlayerInteractEvent) event).setUseItemInHand(cancel ? Result.DENY : Result.DEFAULT);
+			((PlayerInteractEvent) event).setUseInteractedBlock(cancel ? Result.DENY : Result.DEFAULT);
+		} else if (event instanceof BlockCanBuildEvent) {
+			((BlockCanBuildEvent) event).setBuildable(!cancel);
+		} else if (event instanceof PlayerDropItemEvent) {
+			PlayerUtils.updateInventory(((PlayerDropItemEvent) event).getPlayer());
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return (cancel ? "" : "un") + "cancel event";
 	}
 	

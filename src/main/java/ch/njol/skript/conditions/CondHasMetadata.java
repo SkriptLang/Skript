@@ -68,9 +68,9 @@ public class CondHasMetadata extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, holders,
-				"metadata " + (values.isSingle() ? "value " : "values ") + values.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, holders,
+				"metadata " + (values.isSingle() ? "value " : "values ") + values.toString(event, debug));
 	}
 	
 }

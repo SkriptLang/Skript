@@ -55,9 +55,9 @@ public class ExprFallDistance extends SimplePropertyExpression<Entity, Number> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null) {
-			Entity[] entities = getExpr().getArray(e);
+			Entity[] entities = getExpr().getArray(event);
 			if (entities.length < 1)
 				return;
 			Float number = ((Number) delta[0]).floatValue();

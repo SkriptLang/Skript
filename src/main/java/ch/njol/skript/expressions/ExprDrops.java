@@ -71,11 +71,11 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
-		if (!(e instanceof EntityDeathEvent))
+	protected ItemType[] get(Event event) {
+		if (!(event instanceof EntityDeathEvent))
 			return null;
 
-		return ((EntityDeathEvent) e).getDrops()
+		return ((EntityDeathEvent) event).getDrops()
 			.stream()
 			.map(ItemType::new)
 			.toArray(ItemType[]::new);
@@ -102,20 +102,20 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(e instanceof EntityDeathEvent))
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof EntityDeathEvent))
 			return;
 
-		List<ItemStack> drops = ((EntityDeathEvent) e).getDrops();
+		List<ItemStack> drops = ((EntityDeathEvent) event).getDrops();
 		assert delta != null;
 		for (Object o : delta) {
 			if (o instanceof Experience) {
 				if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.REMOVE && ((Experience) o).getInternalXP() == -1) {
-					((EntityDeathEvent) e).setDroppedExp(0);
+					((EntityDeathEvent) event).setDroppedExp(0);
 				} else if (mode == ChangeMode.SET) {
-					((EntityDeathEvent) e).setDroppedExp(((Experience) o).getXP());
+					((EntityDeathEvent) event).setDroppedExp(((Experience) o).getXP());
 				} else {
-					((EntityDeathEvent) e).setDroppedExp(Math.max(0, ((EntityDeathEvent) e).getDroppedExp() + (mode == ChangeMode.ADD ? 1 : -1) * ((Experience) o).getXP()));
+					((EntityDeathEvent) event).setDroppedExp(Math.max(0, ((EntityDeathEvent) event).getDroppedExp() + (mode == ChangeMode.ADD ? 1 : -1) * ((Experience) o).getXP()));
 				}
 			} else {
 				switch (mode) {
@@ -169,7 +169,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the drops";
 	}
 

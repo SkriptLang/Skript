@@ -104,10 +104,10 @@ public class EffMessage extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Player sender = this.sender != null ? this.sender.getSingle(e) : null;
+	protected void execute(Event event) {
+		Player sender = this.sender != null ? this.sender.getSingle(event) : null;
 
-		CommandSender[] commandSenders = recipients.getArray(e);
+		CommandSender[] commandSenders = recipients.getArray(event);
 
 		for (Expression<?> message : getMessages()) {
 
@@ -117,10 +117,10 @@ public class EffMessage extends Effect {
 			for (CommandSender receiver : commandSenders) {
 				if (receiver instanceof Player && message instanceof VariableString) {
 					if (messageComponents == null)
-						messageComponents = ((VariableString) message).getMessageComponents(e);
+						messageComponents = ((VariableString) message).getMessageComponents(event);
 				} else {
 					if (messageArray == null)
-						messageArray = message.getArray(e);
+						messageArray = message.getArray(event);
 				}
 
 				if (receiver instanceof Player) { // Can use JSON formatting
@@ -166,9 +166,9 @@ public class EffMessage extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "send " + messageExpr.toString(e, debug) + " to " + recipients.toString(e, debug) +
-			(sender != null ? " from " + sender.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "send " + messageExpr.toString(event, debug) + " to " + recipients.toString(event, debug) +
+			(sender != null ? " from " + sender.toString(event, debug) : "");
 	}
 	
 }

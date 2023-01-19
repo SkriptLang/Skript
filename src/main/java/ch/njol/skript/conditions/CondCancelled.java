@@ -59,7 +59,7 @@ public class CondCancelled extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return isNegated() ? "event is not cancelled" : "event is cancelled";
 	}
 

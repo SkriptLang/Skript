@@ -54,7 +54,7 @@ public class EffStopServer extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (restart)
 			Bukkit.spigot().restart();
 		else
@@ -63,7 +63,7 @@ public class EffStopServer extends Effect {
 	
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (restart ? "restart" : "stop") + " the server";
 	}
 	

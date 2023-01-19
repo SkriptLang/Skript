@@ -70,9 +70,9 @@ public class CondHasScoreboardTag extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, entities,
-				"the scoreboard " + (tags.isSingle() ? "tag " : "tags ") + tags.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, entities,
+				"the scoreboard " + (tags.isSingle() ? "tag " : "tags ") + tags.toString(event, debug));
 	}
 	
 }

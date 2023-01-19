@@ -71,9 +71,9 @@ public class CondHasPotion extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, livingEntities,
-				"potion " + potionEffects.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, livingEntities,
+				"potion " + potionEffects.toString(event, debug));
 	}
 
 }

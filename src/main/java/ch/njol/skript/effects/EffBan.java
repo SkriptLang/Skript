@@ -84,12 +84,12 @@ public class EffBan extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
-		final String reason = this.reason != null ? this.reason.getSingle(e) : null; // don't check for null, just ignore an invalid reason
-		Timespan ts = this.expires != null ? this.expires.getSingle(e) : null;
+	protected void execute(final Event event) {
+		final String reason = this.reason != null ? this.reason.getSingle(event) : null; // don't check for null, just ignore an invalid reason
+		Timespan ts = this.expires != null ? this.expires.getSingle(event) : null;
 		final Date expires = ts != null ? new Date(System.currentTimeMillis() + ts.getMilliSeconds()) : null;
 		final String source = "Skript ban effect";
-		for (final Object o : players.getArray(e)) {
+		for (final Object o : players.getArray(event)) {
 			if (o instanceof Player) {
 				if (ipBan) {
 					InetSocketAddress addr = ((Player) o).getAddress();
@@ -130,9 +130,9 @@ public class EffBan extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (ipBan ? "IP-" : "") + (ban ? "" : "un") + "ban " + players.toString(e, debug) +
-			(reason != null ? " on account of " + reason.toString(e, debug) : "") + (expires != null ? " for " + expires.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (ipBan ? "IP-" : "") + (ban ? "" : "un") + "ban " + players.toString(event, debug) +
+			(reason != null ? " on account of " + reason.toString(event, debug) : "") + (expires != null ? " for " + expires.toString(event, debug) : "");
 	}
 	
 }

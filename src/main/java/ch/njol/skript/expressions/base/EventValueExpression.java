@@ -81,8 +81,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	
 	@Override
 	@Nullable
-	protected T[] get(final Event e) {
-		final T o = getValue(e);
+	protected T[] get(final Event event) {
+		final T o = getValue(event);
 		if (o == null)
 			return null;
 		@SuppressWarnings("unchecked")
@@ -162,10 +162,10 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (!debug || e == null)
+	public String toString(final @Nullable Event event, final boolean debug) {
+		if (!debug || event == null)
 			return "event-" + Classes.getSuperClassInfo(c).getName();
-		return Classes.getDebugMessage(getValue(e));
+		return Classes.getDebugMessage(getValue(event));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -179,11 +179,11 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		final Changer<? super T> ch = changer;
 		if (ch == null)
 			throw new UnsupportedOperationException();
-		ChangerUtils.change(ch, getArray(e), delta, mode);
+		ChangerUtils.change(ch, getArray(event), delta, mode);
 	}
 	
 	@Override

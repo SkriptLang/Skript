@@ -268,38 +268,38 @@ public class EffChange extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		Object[] delta = changer == null ? null : changer.getArray(e);
+	protected void execute(Event event) {
+		Object[] delta = changer == null ? null : changer.getArray(event);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
 			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
-				changed.change(e, null, ChangeMode.DELETE);
+				changed.change(event, null, ChangeMode.DELETE);
 			return;
 		}
-		changed.change(e, delta, mode);
+		changed.change(event, delta, mode);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Expression<?> changer = this.changer;
 		switch (mode) {
 			case ADD:
 				assert changer != null;
-				return "add " + changer.toString(e, debug) + " to " + changed.toString(e, debug);
+				return "add " + changer.toString(event, debug) + " to " + changed.toString(event, debug);
 			case SET:
 				assert changer != null;
-				return "set " + changed.toString(e, debug) + " to " + changer.toString(e, debug);
+				return "set " + changed.toString(event, debug) + " to " + changer.toString(event, debug);
 			case REMOVE:
 				assert changer != null;
-				return "remove " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
+				return "remove " + changer.toString(event, debug) + " from " + changed.toString(event, debug);
 			case REMOVE_ALL:
 				assert changer != null;
-				return "remove all " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
+				return "remove all " + changer.toString(event, debug) + " from " + changed.toString(event, debug);
 			case DELETE:
-				return "delete/clear " + changed.toString(e, debug);
+				return "delete/clear " + changed.toString(event, debug);
 			case RESET:
-				return "reset " + changed.toString(e, debug);
+				return "reset " + changed.toString(event, debug);
 		}
 		assert false;
 		return "";

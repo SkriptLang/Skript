@@ -82,9 +82,9 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Location loc = delta == null ? null : (Location) delta[0];
-		for (OfflinePlayer p : getExpr().getArray(e)) {
+		for (OfflinePlayer p : getExpr().getArray(event)) {
 			Player op = p.getPlayer();
 			if (op != null) // is online
 				op.setBedSpawnLocation(loc, !isSafe);

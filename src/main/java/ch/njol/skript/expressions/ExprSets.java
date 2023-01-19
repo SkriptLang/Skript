@@ -183,8 +183,8 @@ public class ExprSets extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public boolean isLoopOf(String s) {
-		return pattern == 4 && (s.equalsIgnoreCase("color") || s.equalsIgnoreCase("colour"))|| pattern >= 2 && s.equalsIgnoreCase("block") || pattern < 2 && s.equalsIgnoreCase("item");
+	public boolean isLoopOf(String string) {
+		return pattern == 4 && (string.equalsIgnoreCase("color") || string.equalsIgnoreCase("colour"))|| pattern >= 2 && string.equalsIgnoreCase("block") || pattern < 2 && string.equalsIgnoreCase("item");
 	}
 	
 }

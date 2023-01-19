@@ -71,19 +71,19 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	
 	@Override
 	@Nullable
-	protected PotionEffect[] get(final Event e) {
-		PotionEffectType potionEffectType = this.potionEffectType.getSingle(e);
+	protected PotionEffect[] get(final Event event) {
+		PotionEffectType potionEffectType = this.potionEffectType.getSingle(event);
 		if (potionEffectType == null)
 			return null;
 		int tier = 0;
 		if (this.tier != null) {
-			Number n = this.tier.getSingle(e);
+			Number n = this.tier.getSingle(event);
 			if (n != null)
 				tier = n.intValue() - 1;
 		}
 		int ticks = 15 * 20; // 15 second default potion length
 		if (this.timespan != null) {
-			Timespan timespan = this.timespan.getSingle(e);
+			Timespan timespan = this.timespan.getSingle(event);
 			if (timespan != null)
 				ticks = (int) timespan.getTicks_i();
 		}
@@ -101,20 +101,20 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		StringBuilder builder = new StringBuilder();
 		if (ambient)
 			builder.append("ambient ");
-		builder.append("potion of ").append(potionEffectType.toString(e, debug));
+		builder.append("potion of ").append(potionEffectType.toString(event, debug));
 		if (tier != null) {
-			String t = tier.toString(e, debug);
+			String t = tier.toString(event, debug);
 			builder.append(" of tier/amp ").append(t);
 		}
 		if (!particles)
 			builder.append(" without particles");
 		builder.append(" for ");
 		if (timespan != null)
-			builder.append(timespan.toString(e, debug));
+			builder.append(timespan.toString(event, debug));
 		else
 			builder.append("15 seconds");
 		return builder.toString();

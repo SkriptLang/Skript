@@ -65,9 +65,9 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	}
 
 	@Override
-	protected Inventory[] get(Event e) {
-		String name = this.name != null ? this.name.getSingle(e) : DEFAULT_CHEST_TITLE;
-		Number rows = this.rows != null ? this.rows.getSingle(e) : DEFAULT_CHEST_ROWS;
+	protected Inventory[] get(Event event) {
+		String name = this.name != null ? this.name.getSingle(event) : DEFAULT_CHEST_TITLE;
+		Number rows = this.rows != null ? this.rows.getSingle(event) : DEFAULT_CHEST_ROWS;
 
 		rows = rows == null ? DEFAULT_CHEST_ROWS : rows;
 		name = name == null ? DEFAULT_CHEST_TITLE : name;
@@ -97,11 +97,11 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "chest inventory named "
-			+ (name != null ? name.toString(e, debug) : "\"" + DEFAULT_CHEST_TITLE + "\"") +
+			+ (name != null ? name.toString(event, debug) : "\"" + DEFAULT_CHEST_TITLE + "\"") +
 			" with "
-			+ (rows != null ? rows.toString(e, debug) : "" + DEFAULT_CHEST_ROWS + " rows");
+			+ (rows != null ? rows.toString(event, debug) : "" + DEFAULT_CHEST_ROWS + " rows");
 	}
 
 }

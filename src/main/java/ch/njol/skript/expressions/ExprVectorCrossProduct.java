@@ -60,9 +60,9 @@ public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Vector v1 = first.getSingle(e);
-		Vector v2 = second.getSingle(e);
+	protected Vector[] get(Event event) {
+		Vector v1 = first.getSingle(event);
+		Vector v2 = second.getSingle(event);
 		if (v1 == null || v2 == null)
 			return null;
 		return CollectionUtils.array(v1.clone().crossProduct(v2));
@@ -79,8 +79,8 @@ public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " cross " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return first.toString(event, debug) + " cross " + second.toString(event, debug);
 	}
 
 }

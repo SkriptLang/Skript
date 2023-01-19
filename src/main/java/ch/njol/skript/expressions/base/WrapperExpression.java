@@ -75,10 +75,10 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 				continue;
 			return new ConvertedExpression<T, R>(expr, c, conv) {
 				@Override
-				public String toString(final @Nullable Event e, final boolean debug) {
-					if (debug && e == null)
-						return "(" + WrapperExpression.this.toString(e, debug) + ")->" + to.getName();
-					return WrapperExpression.this.toString(e, debug);
+				public String toString(final @Nullable Event event, final boolean debug) {
+					if (debug && event == null)
+						return "(" + WrapperExpression.this.toString(event, debug) + ")->" + to.getName();
+					return WrapperExpression.this.toString(event, debug);
 				}
 			};
 		}
@@ -86,14 +86,14 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	protected T[] get(final Event e) {
-		return expr.getArray(e);
+	protected T[] get(final Event event) {
+		return expr.getArray(event);
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<? extends T> iterator(final Event e) {
-		return expr.iterator(e);
+	public Iterator<? extends T> iterator(final Event event) {
+		return expr.iterator(event);
 	}
 	
 	@Override
@@ -118,8 +118,8 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		expr.change(e, delta, mode);
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
+		expr.change(event, delta, mode);
 	}
 	
 	@Override

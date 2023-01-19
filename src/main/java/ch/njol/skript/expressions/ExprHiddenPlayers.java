@@ -63,9 +63,9 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 
 	@Override
 	@Nullable
-	public Player[] get(Event e) {
+	public Player[] get(Event event) {
 		List<Player> list = new ArrayList<>();
-		for (Player player : players.getArray(e)) {
+		for (Player player : players.getArray(event)) {
 			list.addAll(player.spigot().getHiddenPlayers());
 		}
 		return list.toArray(new Player[list.size()]);
@@ -82,8 +82,8 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "hidden players for " + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hidden players for " + players.toString(event, debug);
 	}
 
 }

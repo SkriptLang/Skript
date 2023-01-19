@@ -67,12 +67,12 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	@SuppressWarnings("null")
 	@Override
-	protected Location[] get(Event e) {
-		Location l = location.getSingle(e);
+	protected Location[] get(Event event) {
+		Location l = location.getSingle(event);
 		if (l == null)
 			return null;
 		Location clone = l.clone();
-		for (Vector v : vectors.getArray(e))
+		for (Vector v : vectors.getArray(event))
 			clone.add(v);
 		return CollectionUtils.array(clone);
 	}
@@ -88,7 +88,7 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return location.toString() + " offset by " + vectors.toString();
 	}
 

@@ -56,8 +56,8 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 
 	@Override
 	@Nullable
-	protected World[] get(Event e) {
-		String worldName = this.worldName.getSingle(e);
+	protected World[] get(Event event) {
+		String worldName = this.worldName.getSingle(event);
 		if (worldName == null)
 			return null;
 		World world = Bukkit.getWorld(worldName);
@@ -78,8 +78,8 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the world with name " + worldName.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the world with name " + worldName.toString(event, debug);
 	}
 
 }

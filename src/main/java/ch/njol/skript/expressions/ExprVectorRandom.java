@@ -57,7 +57,7 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event e) {
+	protected Vector[] get(Event event) {
 		return CollectionUtils.array(new Vector(randomSignedDouble(), randomSignedDouble(), randomSignedDouble()));
 	}
 
@@ -72,7 +72,7 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "random vector";
 	}
 	

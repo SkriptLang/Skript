@@ -55,10 +55,10 @@ public class ExprProjectileBounceState extends SimplePropertyExpression<Projecti
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null) return;
 		boolean state = (Boolean) delta[0];
-		for (Projectile entity : getExpr().getArray(e))
+		for (Projectile entity : getExpr().getArray(event))
 			entity.setBounce(state);
 	}
 	

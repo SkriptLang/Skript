@@ -71,13 +71,13 @@ public class Trigger extends TriggerSection {
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		return walk(e, true);
+	protected TriggerItem walk(final Event event) {
+		return walk(event, true);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return name + " (" + event.toString(e, debug) + ")";
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return name + " (" + this.event.toString(event, debug) + ")";
 	}
 	
 	/**

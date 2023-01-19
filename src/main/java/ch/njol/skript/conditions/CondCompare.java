@@ -329,13 +329,13 @@ public class CondCompare extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		String s;
 		final Expression<?> third = this.third;
 		if (third == null)
-			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(e, debug);
+			s = first.toString(event, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(event, debug);
 		else
-			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
+			s = first.toString(event, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(event, debug) + " and " + third.toString(event, debug);
 		if (debug)
 			s += " (comparator: " + comp + ")";
 		return s;

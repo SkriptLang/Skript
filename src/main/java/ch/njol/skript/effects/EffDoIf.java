@@ -65,12 +65,12 @@ public class EffDoIf extends Effect  {
 	}
 
 	@Override
-	protected void execute(Event e) {}
+	protected void execute(Event event) {}
 	
 	@Nullable
 	@Override
-	public TriggerItem walk(Event e) {
-		if (condition.check(e)) {
+	public TriggerItem walk(Event event) {
+		if (condition.check(event)) {
 			effect.setParent(getParent());
 			effect.setNext(getNext());
 			return effect;
@@ -79,8 +79,8 @@ public class EffDoIf extends Effect  {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return effect.toString(e, debug) + " if " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return effect.toString(event, debug) + " if " + condition.toString(event, debug);
 	}
 
 }

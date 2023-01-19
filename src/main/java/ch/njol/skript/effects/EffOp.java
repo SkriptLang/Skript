@@ -59,15 +59,15 @@ public class EffOp extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final OfflinePlayer p : players.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final OfflinePlayer p : players.getArray(event)) {
 			p.setOp(op);
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (op ? "" : "de") + "op " + players.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (op ? "" : "de") + "op " + players.toString(event, debug);
 	}
 	
 }

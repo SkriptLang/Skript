@@ -58,8 +58,8 @@ public class ExprRawName extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		return Arrays.stream(types.getAll(e))
+	protected String[] get(final Event event) {
+		return Arrays.stream(types.getAll(event))
 				.map(ItemType::getRawNames)
 				.flatMap(List::stream)
 				.toArray(String[]::new);
@@ -77,8 +77,8 @@ public class ExprRawName extends SimpleExpression<String> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "minecraft name of " + types.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "minecraft name of " + types.toString(event, debug);
 	}
 	
 }

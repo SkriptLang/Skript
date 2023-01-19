@@ -107,13 +107,13 @@ public class EffVisualEffect extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		VisualEffect[] effects = this.effects.getArray(e);
-		Direction[] directions = direction.getArray(e);
-		Object[] os = where.getArray(e);
-		Player[] ps = players != null ? players.getArray(e) : null;
-		Number rad = radius != null ? radius.getSingle(e) : 32; // 32=default particle radius
-		Number cnt = count != null ? count.getSingle(e) : 0;
+	protected void execute(Event event) {
+		VisualEffect[] effects = this.effects.getArray(event);
+		Direction[] directions = direction.getArray(event);
+		Object[] os = where.getArray(event);
+		Player[] ps = players != null ? players.getArray(event) : null;
+		Number rad = radius != null ? radius.getSingle(event) : 32; // 32=default particle radius
+		Number cnt = count != null ? count.getSingle(event) : 0;
 
 		// noinspection ConstantConditions
 		if (effects == null || directions == null || os == null || rad == null || cnt == null)
@@ -139,9 +139,9 @@ public class EffVisualEffect extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "play " + effects.toString(e, debug) + " " + direction.toString(e, debug) + " "
-			+ where.toString(e, debug) + (players != null ? " to " + players.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "play " + effects.toString(event, debug) + " " + direction.toString(event, debug) + " "
+			+ where.toString(event, debug) + (players != null ? " to " + players.toString(event, debug) : "");
 	}
 	
 }

@@ -62,10 +62,10 @@ public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number x = this.x.getSingle(e);
-		Number y = this.y.getSingle(e);
-		Number z = this.z.getSingle(e);
+	protected Vector[] get(Event event) {
+		Number x = this.x.getSingle(event);
+		Number y = this.y.getSingle(event);
+		Number z = this.z.getSingle(event);
 		if (x == null || y == null || z == null)
 			return null;
 		return CollectionUtils.array(new Vector(x.doubleValue(), y.doubleValue(), z.doubleValue()));
@@ -82,8 +82,8 @@ public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from x " + x.toString(e, debug) + ", y " + y.toString(e, debug) + ", z " + z.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from x " + x.toString(event, debug) + ", y " + y.toString(event, debug) + ", z " + z.toString(event, debug);
 	}
 
 }

@@ -82,9 +82,9 @@ public class CondIsWearing extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, entities,
-				"wearing " + types.toString(e, debug));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, entities,
+				"wearing " + types.toString(event, debug));
 	}
 	
 }

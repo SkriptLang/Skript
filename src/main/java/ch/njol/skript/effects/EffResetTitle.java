@@ -55,14 +55,14 @@ public class EffResetTitle extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		for (Player recipient : recipients.getArray(e))
+	protected void execute(Event event) {
+		for (Player recipient : recipients.getArray(event))
 			recipient.resetTitle();
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "reset the title of " + recipients.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "reset the title of " + recipients.toString(event, debug);
 	}
 	
 }

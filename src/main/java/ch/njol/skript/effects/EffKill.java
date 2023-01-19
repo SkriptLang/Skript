@@ -66,8 +66,8 @@ public class EffKill extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (Entity entity : entities.getArray(e)) {
+	protected void execute(final Event event) {
+		for (Entity entity : entities.getArray(event)) {
 
 			if (entity instanceof EnderDragonPart) {
 				entity = ((EnderDragonPart) entity).getParent();
@@ -93,8 +93,8 @@ public class EffKill extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "kill" + entities.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "kill" + entities.toString(event, debug);
 	}
 
 }

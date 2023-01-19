@@ -213,16 +213,16 @@ public class ExprArgument extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
+	protected Object[] get(final Event event) {
 		if (argument != null) {
-			return argument.getCurrent(e);
+			return argument.getCurrent(event);
 		}
 
 		String fullCommand;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
-			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			fullCommand = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
+			fullCommand = ((ServerCommandEvent) event).getCommand().trim();
 		} else {
 			return new Object[0];
 		}
@@ -267,12 +267,12 @@ public class ExprArgument extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public boolean isLoopOf(String s) {
-		return s.equalsIgnoreCase("argument");
+	public boolean isLoopOf(String string) {
+		return string.equalsIgnoreCase("argument");
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		switch (what) {
 			case LAST:
 				return "the last argument";

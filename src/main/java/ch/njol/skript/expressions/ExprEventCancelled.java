@@ -59,10 +59,10 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 	
 	@Override
 	@Nullable
-	protected Boolean[] get(final Event e) {
-		if (!(e instanceof Cancellable))
+	protected Boolean[] get(final Event event) {
+		if (!(event instanceof Cancellable))
 			return new Boolean[0];
-		return new Boolean[] {((Cancellable) e).isCancelled()};
+		return new Boolean[] {((Cancellable) event).isCancelled()};
 	}
 	
 	@Override
@@ -71,7 +71,7 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "is event cancelled";
 	}
 	
@@ -89,16 +89,16 @@ public class ExprEventCancelled extends SimpleExpression<Boolean> {
 	
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		if (!(e instanceof Cancellable))
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
+		if (!(event instanceof Cancellable))
 			return;
 		switch (mode) {
 			case DELETE:
-				((Cancellable) e).setCancelled(false);
+				((Cancellable) event).setCancelled(false);
 				break;
 			case SET:
 				assert delta != null;
-				((Cancellable) e).setCancelled((Boolean) delta[0]);
+				((Cancellable) event).setCancelled((Boolean) delta[0]);
 		}
 	}
 	

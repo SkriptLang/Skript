@@ -79,9 +79,9 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 	@Nullable
 	@Override
 	@SuppressWarnings("null")
-	protected ItemType[] get(Event e) {
+	protected ItemType[] get(Event event) {
 		@Nullable
-		Block[] blocks = this.block.getArray(e);
+		Block[] blocks = this.block.getArray(event);
 		if (block != null) {
 			if (this.item == null) {
 				ArrayList<ItemType> list = new ArrayList<>();
@@ -93,8 +93,8 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 				}
 				return list.toArray(new ItemType[0]);
 			} else if (this.entity != null) {
-				ItemType item = this.item.getSingle(e);
-				Entity entity = this.entity.getSingle(e);
+				ItemType item = this.item.getSingle(event);
+				Entity entity = this.entity.getSingle(event);
 				ArrayList<ItemType> list = new ArrayList<>();
 				for (Block block : blocks) {
 					ItemStack[] drops = block.getDrops(item.getRandom(), entity).toArray(new ItemStack[0]);
@@ -104,7 +104,7 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 				}
 				return list.toArray(new ItemType[0]);
 			} else {
-				ItemType item = this.item.getSingle(e);
+				ItemType item = this.item.getSingle(event);
 				ArrayList<ItemType> list = new ArrayList<>();
 				for (Block block : blocks) {
 					ItemStack[] drops = block.getDrops(item.getRandom()).toArray(new ItemStack[0]);
@@ -129,8 +129,8 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "drops of " + block.toString(e, debug) + (item != null ? (" using " + item.toString(e, debug) + (entity != null ? " as " + entity.toString(e, debug) : null)) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "drops of " + block.toString(event, debug) + (item != null ? (" using " + item.toString(event, debug) + (entity != null ? " as " + entity.toString(event, debug) : null)) : "");
 	}
 	
 }

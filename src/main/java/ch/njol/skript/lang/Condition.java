@@ -50,8 +50,8 @@ public abstract class Condition extends Statement {
 	public abstract boolean check(Event e);
 	
 	@Override
-	public final boolean run(Event e) {
-		return check(e);
+	public final boolean run(Event event) {
+		return check(event);
 	}
 	
 	/**

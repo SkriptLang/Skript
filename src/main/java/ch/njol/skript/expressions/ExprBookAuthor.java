@@ -64,10 +64,10 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String author = delta == null ? null : (String) delta[0];
 		
-		for (ItemType item : getExpr().getArray(e)) {
+		for (ItemType item : getExpr().getArray(event)) {
 			ItemMeta meta = item.getItemMeta();
 			
 			if (meta instanceof BookMeta) {

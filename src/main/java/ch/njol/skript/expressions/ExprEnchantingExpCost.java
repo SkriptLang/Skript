@@ -63,8 +63,8 @@ public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 
 	@Override
 	@Nullable
-	protected Long[] get(Event e) {
-		return new Long[]{(long) ((EnchantItemEvent) e).getExpLevelCost()};
+	protected Long[] get(Event event) {
+		return new Long[]{(long) ((EnchantItemEvent) event).getExpLevelCost()};
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the displayed cost of enchanting";
 	}
 

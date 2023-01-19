@@ -108,8 +108,8 @@ public class ExprEntity extends SimpleExpression<Entity> {
 	
 	@Override
 	@Nullable
-	protected Entity[] get(final Event e) {
-		final Entity[] es = entity.getArray(e);
+	protected Entity[] get(final Event event) {
+		final Entity[] es = entity.getArray(event);
 		if (es.length == 0 || type.isInstance(es[0]))
 			return es;
 		return null;
@@ -128,7 +128,7 @@ public class ExprEntity extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the " + type;
 	}
 	

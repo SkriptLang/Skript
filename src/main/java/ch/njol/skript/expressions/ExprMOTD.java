@@ -68,14 +68,14 @@ public class ExprMOTD extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	public String[] get(Event e) {
-		if (!isDefault && !(e instanceof ServerListPingEvent))
+	public String[] get(Event event) {
+		if (!isDefault && !(event instanceof ServerListPingEvent))
 			return null;
 
 		if (isDefault)
 			return CollectionUtils.array(Bukkit.getMotd());
 		else
-			return CollectionUtils.array(((ServerListPingEvent) e).getMotd());
+			return CollectionUtils.array(((ServerListPingEvent) event).getMotd());
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class ExprMOTD extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + (isDefault ? "default MOTD" : "MOTD");
 	}
 

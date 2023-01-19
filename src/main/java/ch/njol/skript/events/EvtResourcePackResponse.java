@@ -71,8 +71,8 @@ public class EvtResourcePackResponse extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return states != null ? "resource pack " + states.toString(e, debug) : "resource pack request response";
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return states != null ? "resource pack " + states.toString(event, debug) : "resource pack request response";
 	}
 
 }

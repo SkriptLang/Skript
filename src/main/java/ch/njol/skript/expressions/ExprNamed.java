@@ -68,8 +68,8 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	protected Object[] get(final Event e, final Object[] source) {
-		String name = this.name.getSingle(e);
+	protected Object[] get(final Event event, final Object[] source) {
+		String name = this.name.getSingle(event);
 		if (name == null)
 			return get(source, obj -> obj); // No name provided, do nothing
 		return get(source, new Getter<Object, Object>() {
@@ -104,8 +104,8 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return getExpr().toString(e, debug) + " named " + name;
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return getExpr().toString(event, debug) + " named " + name;
 	}
 	
 }

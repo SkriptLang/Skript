@@ -90,7 +90,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected String[] get(final Event e, final String[] source) {
+	protected String[] get(final Event event, final String[] source) {
 		// These can't be null
 		assert md5 != null;
 		assert sha256 != null;
@@ -123,7 +123,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "hash of " + getExpr();
 	}
 	

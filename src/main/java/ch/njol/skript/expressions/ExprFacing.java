@@ -99,11 +99,11 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		assert mode == ChangeMode.SET;
 		assert delta != null;
 		
-		final Block b = (Block) getExpr().getSingle(e);
+		final Block b = (Block) getExpr().getSingle(event);
 		if (b == null)
 			return;
 		BlockData data = b.getBlockData();

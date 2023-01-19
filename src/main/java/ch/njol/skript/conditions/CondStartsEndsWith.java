@@ -100,11 +100,11 @@ public class CondStartsEndsWith extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (isNegated())
-			return strings.toString(e, debug) + " doesn't " + (usingEnds ? "end" : "start") + " with " + affix.toString(e, debug);
+			return strings.toString(event, debug) + " doesn't " + (usingEnds ? "end" : "start") + " with " + affix.toString(event, debug);
 		else
-			return strings.toString(e, debug) + (usingEnds ? " ends" : " starts") + " with " + affix.toString(e, debug);
+			return strings.toString(event, debug) + (usingEnds ? " ends" : " starts") + " with " + affix.toString(event, debug);
 	}
 	
 }

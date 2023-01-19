@@ -65,8 +65,8 @@ public class EffLightning extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final Location l : locations.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final Location l : locations.getArray(event)) {
 			if (effectOnly)
 				lastSpawned = l.getWorld().strikeLightningEffect(l);
 			else
@@ -75,8 +75,8 @@ public class EffLightning extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "strike lightning " + (effectOnly ? "effect " : "") + locations.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "strike lightning " + (effectOnly ? "effect " : "") + locations.toString(event, debug);
 	}
 	
 }

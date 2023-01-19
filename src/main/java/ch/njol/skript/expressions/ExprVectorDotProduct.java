@@ -67,9 +67,9 @@ public class ExprVectorDotProduct extends SimpleExpression<Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Number[] get(Event e) {
-		Vector v1 = first.getSingle(e);
-		Vector v2 = second.getSingle(e);
+	protected Number[] get(Event event) {
+		Vector v1 = first.getSingle(event);
+		Vector v2 = second.getSingle(event);
 		if (v1 == null || v2 == null)
 			return null;
 		return CollectionUtils.array(v1.getX() * v2.getX() + v1.getY() * v2.getY() + v1.getZ() * v2.getZ());
@@ -86,8 +86,8 @@ public class ExprVectorDotProduct extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " dot " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return first.toString(event, debug) + " dot " + second.toString(event, debug);
 	}
 
 }

@@ -56,12 +56,12 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		
 		Difficulty difficulty = (Difficulty) delta[0];
-		for (World world : getExpr().getArray(e)) {
+		for (World world : getExpr().getArray(event)) {
 			world.setDifficulty(difficulty);
 			if (difficulty != Difficulty.PEACEFUL)
 				world.setSpawnFlags(true, world.getAllowAnimals()); // Force enable spawn monsters as changing difficulty won't change this by itself

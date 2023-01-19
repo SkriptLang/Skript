@@ -373,9 +373,9 @@ public class Direction implements YggdrasilRobustSerializable {
 		return new SimpleExpression<Location>() {
 			@SuppressWarnings("null")
 			@Override
-			protected Location[] get(final Event e) {
-				final Direction[] ds = dirs.getArray(e);
-				final Location[] ls = locs.getArray(e);
+			protected Location[] get(final Event event) {
+				final Direction[] ds = dirs.getArray(event);
+				final Location[] ls = locs.getArray(event);
 				final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
 				for (int i = 0; i < ds.length; i++) {
 					for (int j = 0; j < ls.length; j++) {
@@ -388,9 +388,9 @@ public class Direction implements YggdrasilRobustSerializable {
 			
 			@SuppressWarnings("null")
 			@Override
-			public Location[] getAll(final Event e) {
-				final Direction[] ds = dirs.getAll(e);
-				final Location[] ls = locs.getAll(e);
+			public Location[] getAll(final Event event) {
+				final Direction[] ds = dirs.getAll(event);
+				final Location[] ls = locs.getAll(event);
 				final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
 				for (int i = 0; i < ds.length; i++) {
 					for (int j = 0; j < ls.length; j++) {
@@ -424,8 +424,8 @@ public class Direction implements YggdrasilRobustSerializable {
 			}
 			
 			@Override
-			public String toString(final @Nullable Event e, final boolean debug) {
-				return dirs.toString(e, debug) + " " + locs.toString(e, debug);
+			public String toString(final @Nullable Event event, final boolean debug) {
+				return dirs.toString(event, debug) + " " + locs.toString(event, debug);
 			}
 			
 			@Override

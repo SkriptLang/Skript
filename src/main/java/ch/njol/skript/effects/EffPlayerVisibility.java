@@ -79,10 +79,10 @@ public class EffPlayerVisibility extends Effect {
 
     @Override
     @SuppressWarnings("null")
-    protected void execute(Event e) {
-        Player[] targets = targetPlayers == null ? Bukkit.getOnlinePlayers().toArray(new Player[0]) : targetPlayers.getArray(e);
+    protected void execute(Event event) {
+        Player[] targets = targetPlayers == null ? Bukkit.getOnlinePlayers().toArray(new Player[0]) : targetPlayers.getArray(event);
         for (Player targetPlayer : targets) {
-            for (Player player : players.getArray(e)) {
+            for (Player player : players.getArray(event)) {
                 if (reveal) {
                     if (USE_DEPRECATED_METHOD)
                         targetPlayer.showPlayer(player);
@@ -99,8 +99,8 @@ public class EffPlayerVisibility extends Effect {
     }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (reveal ? "show " : "hide ") + players.toString(e, debug) + (reveal ? " to " : " from ") + (targetPlayers != null ? targetPlayers.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return (reveal ? "show " : "hide ") + players.toString(event, debug) + (reveal ? " to " : " from ") + (targetPlayers != null ? targetPlayers.toString(event, debug) : "");
 	}
 
 }

@@ -85,8 +85,8 @@ public class ExprTimes extends SimpleExpression<Long> {
 
 	@Nullable
 	@Override
-	protected Long[] get(final Event e) {
-		Iterator<? extends Long> iter = iterator(e);
+	protected Long[] get(final Event event) {
+		Iterator<? extends Long> iter = iterator(event);
 		if (iter == null) {
 			return null;
 		}
@@ -95,8 +95,8 @@ public class ExprTimes extends SimpleExpression<Long> {
 
 	@Nullable
 	@Override
-	public Iterator<? extends Long> iterator(final Event e) {
-		Number end = this.end.getSingle(e);
+	public Iterator<? extends Long> iterator(final Event event) {
+		Number end = this.end.getSingle(event);
 		if (end == null)
 			return null;
 
@@ -114,8 +114,8 @@ public class ExprTimes extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return end.toString(e, debug) + " times";
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return end.toString(event, debug) + " times";
 	}
 
 }

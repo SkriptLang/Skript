@@ -92,8 +92,8 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected T[] get(Event e) {
-		Object[] values = condition.check(e) ? ifTrue.getArray(e) : ifFalse.getArray(e);
+	protected T[] get(Event event) {
+		Object[] values = condition.check(event) ? ifTrue.getArray(event) : ifFalse.getArray(event);
 		try {
 			return Converters.convertArray(values, types, superType);
 		} catch (ClassCastException e1) {
@@ -122,8 +122,8 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return ifTrue.toString(e, debug) + " if " + condition + " otherwise " + ifFalse.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return ifTrue.toString(event, debug) + " if " + condition + " otherwise " + ifFalse.toString(event, debug);
 	}
 
 }

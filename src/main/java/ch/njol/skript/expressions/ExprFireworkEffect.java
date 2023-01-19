@@ -80,16 +80,16 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 	
 	@Override
 	@Nullable
-	protected FireworkEffect[] get(Event e) {
-		FireworkEffect.Type type = this.type.getSingle(e);
+	protected FireworkEffect[] get(Event event) {
+		FireworkEffect.Type type = this.type.getSingle(event);
 		if (type == null)
 			return null;
 		FireworkEffect.Builder builder = FireworkEffect.builder().with(type);
 		
-		for (Color colour : color.getArray(e))
+		for (Color colour : color.getArray(event))
 			builder.withColor(colour.asBukkitColor());
 		if (hasFade)
-			for (Color colour : fade.getArray(e))
+			for (Color colour : fade.getArray(event))
 				builder.withFade(colour.asBukkitColor());
 		
 		builder.flicker(flicker);
@@ -98,8 +98,8 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "Firework effect " + type.toString(e, debug) + " with color " + color.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "Firework effect " + type.toString(event, debug) + " with color " + color.toString(event, debug);
 	}	
 	
 }

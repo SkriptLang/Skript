@@ -59,11 +59,11 @@ public class ExprHealReason extends SimpleExpression<RegainReason> {
 	
 	@Nullable
 	@Override
-	protected RegainReason[] get(Event e) {
-		if (!(e instanceof EntityRegainHealthEvent))
+	protected RegainReason[] get(Event event) {
+		if (!(event instanceof EntityRegainHealthEvent))
 			return null;
 
-		return new RegainReason[]{((EntityRegainHealthEvent) e).getRegainReason()};
+		return new RegainReason[]{((EntityRegainHealthEvent) event).getRegainReason()};
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ public class ExprHealReason extends SimpleExpression<RegainReason> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "heal reason";
 	}
 	

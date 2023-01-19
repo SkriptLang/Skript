@@ -103,7 +103,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public T[] getArray(final Event e) {
+	public T[] getArray(final Event event) {
 		return data;
 	}
 	
@@ -113,7 +113,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public T[] getAll(final Event e) {
+	public T[] getAll(final Event event) {
 		return data;
 	}
 	
@@ -124,7 +124,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public T getSingle(final Event e) {
+	public T getSingle(final Event event) {
 		return getSingle();
 	}
 	
@@ -146,7 +146,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return "[" + Classes.toString(data, getAnd(), StringMode.DEBUG) + "]";
 		return Classes.toString(data, getAnd());
@@ -168,13 +168,13 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c, final boolean negated) {
-		return SimpleExpression.check(data, c, negated, getAnd());
+	public boolean check(final Event event, final Checker<? super T> checker, final boolean negated) {
+		return SimpleExpression.check(data, checker, negated, getAnd());
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c) {
-		return SimpleExpression.check(data, c, false, getAnd());
+	public boolean check(final Event event, final Checker<? super T> checker) {
+		return SimpleExpression.check(data, checker, false, getAnd());
 	}
 	
 	@Nullable
@@ -191,7 +191,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		final ClassInfo<? super T> rti = returnTypeInfo;
 		if (rti == null)
 			throw new UnsupportedOperationException();
@@ -217,7 +217,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public NonNullIterator<T> iterator(final Event e) {
+	public NonNullIterator<T> iterator(final Event event) {
 		return new NonNullIterator<T>() {
 			private int i = 0;
 			
@@ -232,7 +232,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
+	public boolean isLoopOf(final String string) {
 		return false;
 	}
 	

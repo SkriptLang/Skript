@@ -64,19 +64,19 @@ public class EffTree extends Effect {
 	}
 	
 	@Override
-	public void execute(final Event e) {
-		final StructureType type = this.type.getSingle(e);
+	public void execute(final Event event) {
+		final StructureType type = this.type.getSingle(event);
 		if (type == null)
 			return;
-		for (final Location l : blocks.getArray(e)) {
+		for (final Location l : blocks.getArray(event)) {
 			assert l != null : blocks;
 			type.grow(l.getBlock());
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "grow tree of type " + type.toString(e, debug) + " " + blocks.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "grow tree of type " + type.toString(event, debug) + " " + blocks.toString(event, debug);
 	}
 	
 }

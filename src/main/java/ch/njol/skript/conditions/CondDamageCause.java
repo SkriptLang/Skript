@@ -83,8 +83,8 @@ public class CondDamageCause extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "damage was" + (isNegated() ? " not" : "") + " caused by " + expected.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "damage was" + (isNegated() ? " not" : "") + " caused by " + expected.toString(event, debug);
 	}
 	
 }

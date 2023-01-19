@@ -79,29 +79,29 @@ public class EffTeleport extends Effect {
 	
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		debug(e, true);
+	protected TriggerItem walk(Event event) {
+		debug(event, true);
 
 		TriggerItem next = getNext();
 
-		boolean delayed = Delay.isDelayed(e);
+		boolean delayed = Delay.isDelayed(event);
 		
-		Location loc = location.getSingle(e);
+		Location loc = location.getSingle(event);
 		if (loc == null)
 			return next;
 
-		Entity[] entityArray = entities.getArray(e); // We have to fetch this before possible async execution to avoid async local variable access.
+		Entity[] entityArray = entities.getArray(event); // We have to fetch this before possible async execution to avoid async local variable access.
 		if (entityArray.length == 0)
 			return next;
 
 		if (!delayed) {
-			if (e instanceof PlayerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerRespawnEvent) e).getPlayer())) {
-				((PlayerRespawnEvent) e).setRespawnLocation(loc);
+			if (event instanceof PlayerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerRespawnEvent) event).getPlayer())) {
+				((PlayerRespawnEvent) event).setRespawnLocation(loc);
 				return next;
 			}
 
-			if (e instanceof PlayerMoveEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerMoveEvent) e).getPlayer())) {
-				((PlayerMoveEvent) e).setTo(loc);
+			if (event instanceof PlayerMoveEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerMoveEvent) event).getPlayer())) {
+				((PlayerMoveEvent) event).setTo(loc);
 				return next;
 			}
 		}
@@ -113,8 +113,8 @@ public class EffTeleport extends Effect {
 			return next;
 		}
 
-		Delay.addDelayedEvent(e);
-		Object localVars = Variables.removeLocals(e);
+		Delay.addDelayedEvent(event);
+		Object localVars = Variables.removeLocals(event);
 		
 		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
 		PaperLib.getChunkAtAsync(loc).thenAccept(chunk -> {
@@ -125,7 +125,7 @@ public class EffTeleport extends Effect {
 
 			// Re-set local variables
 			if (localVars != null)
-				Variables.setLocalVariables(e, localVars);
+				Variables.setLocalVariables(event, localVars);
 			
 			// Continue the rest of the trigger if there is one
 			Object timing = null;
@@ -137,22 +137,22 @@ public class EffTeleport extends Effect {
 					}
 				}
 
-				TriggerItem.walk(next, e);
+				TriggerItem.walk(next, event);
 			}
-			Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 			SkriptTimings.stop(timing);
 		});
 		return null;
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		// Nothing needs to happen here, we're executing in walk
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "teleport " + entities.toString(e, debug) + " to " + location.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "teleport " + entities.toString(event, debug) + " to " + location.toString(event, debug);
 	}
 
 }

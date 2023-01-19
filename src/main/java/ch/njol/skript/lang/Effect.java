@@ -41,13 +41,13 @@ public abstract class Effect extends Statement {
 	/**
 	 * Executes this effect.
 	 * 
-	 * @param e
+	 * @param event
 	 */
-	protected abstract void execute(Event e);
+	protected abstract void execute(Event event);
 	
 	@Override
-	public final boolean run(final Event e) {
-		execute(e);
+	public final boolean run(final Event event) {
+		execute(event);
 		return true;
 	}
 	

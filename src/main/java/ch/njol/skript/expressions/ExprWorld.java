@@ -71,7 +71,7 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 	
 	@Override
-	protected World[] get(final Event e, final Object[] source) {
+	protected World[] get(final Event event, final Object[] source) {
 		if (source instanceof World[]) // event value (see init)
 			return (World[]) source;
 		return get(source, new Converter<Object, World>() {
@@ -79,8 +79,8 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 			@Nullable
 			public World convert(final Object o) {
 				if (o instanceof Entity) {
-					if (getTime() > 0 && e instanceof PlayerTeleportEvent && o.equals(((PlayerTeleportEvent) e).getPlayer()) && !Delay.isDelayed(e))
-						return ((PlayerTeleportEvent) e).getTo().getWorld();
+					if (getTime() > 0 && event instanceof PlayerTeleportEvent && o.equals(((PlayerTeleportEvent) event).getPlayer()) && !Delay.isDelayed(event))
+						return ((PlayerTeleportEvent) event).getTo().getWorld();
 					else
 						return ((Entity) o).getWorld();
 				} else if (o instanceof Location) {
@@ -103,11 +103,11 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 
-		for (Object o : getExpr().getArray(e)) {
+		for (Object o : getExpr().getArray(event)) {
 			if (o instanceof Location) {
 				((Location) o).setWorld((World) delta[0]);
 			}
@@ -126,8 +126,8 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 }

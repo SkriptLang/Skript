@@ -88,16 +88,16 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
 		Entity entity;
-		if (e instanceof EntityEvent)
-			if (SUPPORT_PROJECTILE_HIT && e instanceof ProjectileHitEvent)
-				entity = ((ProjectileHitEvent) e).getHitEntity();
+		if (event instanceof EntityEvent)
+			if (SUPPORT_PROJECTILE_HIT && event instanceof ProjectileHitEvent)
+				entity = ((ProjectileHitEvent) event).getHitEntity();
 			else
-				entity = ((EntityEvent) e).getEntity();
-		else if (e instanceof VehicleEvent)
-			entity = ((VehicleEvent) e).getVehicle();
+				entity = ((EntityEvent) event).getEntity();
+		else if (event instanceof VehicleEvent)
+			entity = ((VehicleEvent) event).getVehicle();
 		else
 			return null;
 		if (type.isInstance(entity)) {
@@ -118,10 +118,10 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
 			return "the attacked " + type;
-		return Classes.getDebugMessage(getSingle(e));
+		return Classes.getDebugMessage(getSingle(event));
 	}
 
 }

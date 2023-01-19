@@ -43,11 +43,11 @@ public abstract class AsyncEffect extends Effect {
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(Event e) {
-		debug(e, true);
+	protected TriggerItem walk(Event event) {
+		debug(event, true);
 		
-		Delay.addDelayedEvent(e); // Mark this event as delayed
-		Object localVars = Variables.removeLocals(e); // Back up local variables
+		Delay.addDelayedEvent(event); // Mark this event as delayed
+		Object localVars = Variables.removeLocals(event); // Back up local variables
 
 		if (!Skript.getInstance().isEnabled()) // See https://github.com/SkriptLang/Skript/issues/3702
 			return null;
@@ -55,9 +55,9 @@ public abstract class AsyncEffect extends Effect {
 		Bukkit.getScheduler().runTaskAsynchronously(Skript.getInstance(), () -> {
 			// Re-set local variables
 			if (localVars != null)
-				Variables.setLocalVariables(e, localVars);
+				Variables.setLocalVariables(event, localVars);
 			
-			execute(e); // Execute this effect
+			execute(event); // Execute this effect
 			
 			if (getNext() != null) {
 				Bukkit.getScheduler().runTask(Skript.getInstance(), () -> { // Walk to next item synchronously
@@ -69,14 +69,14 @@ public abstract class AsyncEffect extends Effect {
 						}
 					}
 					
-					TriggerItem.walk(getNext(), e);
+					TriggerItem.walk(getNext(), event);
 					
-					Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+					Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 					
 					SkriptTimings.stop(timing); // Stop timing if it was even started
 				});
 			} else {
-				Variables.removeLocals(e);
+				Variables.removeLocals(event);
 			}
 		});
 		return null;

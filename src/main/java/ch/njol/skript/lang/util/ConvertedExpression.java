@@ -92,11 +92,11 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (debug && e == null)
-			return "(" + source.toString(e, debug) + " >> " + conv + ": "
-				+ converterInfo.toString(e, true) + ")";
-		return source.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		if (debug && event == null)
+			return "(" + source.toString(event, debug) + " >> " + conv + ": "
+				+ converterInfo.toString(event, true) + ")";
+		return source.toString(event, debug);
 	}
 	
 	@Override
@@ -140,51 +140,51 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		final ClassInfo<? super T> rti = returnTypeInfo;
 		if (rti != null) {
 			final Changer<? super T> c = rti.getChanger();
 			if (c != null)
-				c.change(getArray(e), delta, mode);
+				c.change(getArray(event), delta, mode);
 		} else {
-			source.change(e, delta, mode);
+			source.change(event, delta, mode);
 		}
 	}
 	
 	@Override
 	@Nullable
-	public T getSingle(final Event e) {
-		final F f = source.getSingle(e);
+	public T getSingle(final Event event) {
+		final F f = source.getSingle(event);
 		if (f == null)
 			return null;
 		return conv.convert(f);
 	}
 	
 	@Override
-	public T[] getArray(final Event e) {
-		return Converters.convert(source.getArray(e), to, conv);
+	public T[] getArray(final Event event) {
+		return Converters.convert(source.getArray(event), to, conv);
 	}
 	
 	@Override
-	public T[] getAll(final Event e) {
-		return Converters.convert(source.getAll(e), to, conv);
+	public T[] getAll(final Event event) {
+		return Converters.convert(source.getAll(event), to, conv);
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c, final boolean negated) {
-		return negated ^ check(e, c);
+	public boolean check(final Event event, final Checker<? super T> checker, final boolean negated) {
+		return negated ^ check(event, checker);
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super T> c) {
-		return source.check(e, new Checker<F>() {
+	public boolean check(final Event event, final Checker<? super T> checker) {
+		return source.check(event, new Checker<F>() {
 			@Override
 			public boolean check(final F f) {
 				final T t = conv.convert(f);
 				if (t == null) {
 					return false;
 				}
-				return c.check(t);
+				return checker.check(t);
 			}
 		});
 	}
@@ -210,14 +210,14 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
+	public boolean isLoopOf(final String string) {
 		return false;// A loop does not convert the expression to loop
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<T> iterator(final Event e) {
-		final Iterator<? extends F> iter = source.iterator(e);
+	public Iterator<T> iterator(final Event event) {
+		final Iterator<? extends F> iter = source.iterator(event);
 		if (iter == null)
 			return null;
 		return new Iterator<T>() {

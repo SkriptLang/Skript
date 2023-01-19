@@ -57,8 +57,8 @@ public class ExprPlain extends SimpleExpression<ItemType> {
 	
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
-		ItemType itemType = item.getSingle(e);
+	protected ItemType[] get(Event event) {
+		ItemType itemType = item.getSingle(event);
 		if (itemType == null)
 			return new ItemType[0];
 		ItemData data = new ItemData(itemType.getMaterial());
@@ -78,8 +78,8 @@ public class ExprPlain extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "plain " + item.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "plain " + item.toString(event, debug);
 	}
 	
 }

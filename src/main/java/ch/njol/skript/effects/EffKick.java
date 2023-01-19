@@ -63,20 +63,20 @@ public class EffKick extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "kick " + players.toString(e, debug) + (reason != null ? " on account of " + reason.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "kick " + players.toString(event, debug) + (reason != null ? " on account of " + reason.toString(event, debug) : "");
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final String r = reason != null ? reason.getSingle(e) : "";
+	protected void execute(final Event event) {
+		final String r = reason != null ? reason.getSingle(event) : "";
 		if (r == null)
 			return;
-		for (final Player p : players.getArray(e)) {
-			if (e instanceof PlayerLoginEvent && p.equals(((PlayerLoginEvent) e).getPlayer()) && !Delay.isDelayed(e)) {
-				((PlayerLoginEvent) e).disallow(Result.KICK_OTHER, r);
-			} else if (e instanceof PlayerKickEvent && p.equals(((PlayerKickEvent) e).getPlayer()) && !Delay.isDelayed(e)) {
-				((PlayerKickEvent) e).setLeaveMessage(r);
+		for (final Player p : players.getArray(event)) {
+			if (event instanceof PlayerLoginEvent && p.equals(((PlayerLoginEvent) event).getPlayer()) && !Delay.isDelayed(event)) {
+				((PlayerLoginEvent) event).disallow(Result.KICK_OTHER, r);
+			} else if (event instanceof PlayerKickEvent && p.equals(((PlayerKickEvent) event).getPlayer()) && !Delay.isDelayed(event)) {
+				((PlayerKickEvent) event).setLeaveMessage(r);
 			} else {
 				p.kickPlayer(r);
 			}

@@ -65,11 +65,11 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
-		if (e instanceof PrepareItemEnchantEvent)
-			return new ItemType[]{new ItemType(((PrepareItemEnchantEvent) e).getItem())};
-		else if (e instanceof EnchantItemEvent)
-			return new ItemType[]{new ItemType(((EnchantItemEvent) e).getItem())};
+	protected ItemType[] get(Event event) {
+		if (event instanceof PrepareItemEnchantEvent)
+			return new ItemType[]{new ItemType(((PrepareItemEnchantEvent) event).getItem())};
+		else if (event instanceof EnchantItemEvent)
+			return new ItemType[]{new ItemType(((EnchantItemEvent) event).getItem())};
 		else
 			return null;
 	}
@@ -121,7 +121,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "enchanted item";
 	}
 

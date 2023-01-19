@@ -83,8 +83,8 @@ public class CondIsWhitelisted extends Condition {
 	
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		return (player.getSingle(e) != null ? "player" : "server") + (isNegated() ? "not" : "") + "  whitelisted";
+	public String toString(@Nullable Event event, boolean debug) {
+		return (player.getSingle(event) != null ? "player" : "server") + (isNegated() ? "not" : "") + "  whitelisted";
 	}
 	
 }

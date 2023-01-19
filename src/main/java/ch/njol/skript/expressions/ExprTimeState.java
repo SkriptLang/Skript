@@ -73,8 +73,8 @@ public class ExprTimeState extends WrapperExpression<Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the " + (getTime() == -1 ? "past" : "future") + " state of " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the " + (getTime() == -1 ? "past" : "future") + " state of " + getExpr().toString(event, debug);
 	}
 	
 	@Override

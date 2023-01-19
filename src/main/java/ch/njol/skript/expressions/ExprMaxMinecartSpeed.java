@@ -64,10 +64,10 @@ public class ExprMaxMinecartSpeed extends SimplePropertyExpression<Entity, Numbe
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null) {
 			if (mode == ChangeMode.RESET)
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					if (entity instanceof Minecart)
 						((Minecart) entity).setMaxSpeed(0.4);
 				}
@@ -76,7 +76,7 @@ public class ExprMaxMinecartSpeed extends SimplePropertyExpression<Entity, Numbe
 		int mod = 1;
 		switch (mode) {
 			case SET:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					if (entity instanceof Minecart)
 						((Minecart) entity).setMaxSpeed(((Number) delta[0]).doubleValue());
 				}
@@ -84,7 +84,7 @@ public class ExprMaxMinecartSpeed extends SimplePropertyExpression<Entity, Numbe
 			case REMOVE:
 				mod = -1;
 			case ADD:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					if (entity instanceof Minecart) {
 						Minecart minecart = (Minecart) entity;
 						minecart.setMaxSpeed(minecart.getMaxSpeed() + ((Number) delta[0]).doubleValue() * mod);

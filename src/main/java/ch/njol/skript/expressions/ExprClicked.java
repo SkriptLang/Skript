@@ -174,16 +174,16 @@ public class ExprClicked extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
-		if (!(e instanceof InventoryClickEvent) && clickable != ClickableType.BLOCK_AND_ITEMS && clickable != ClickableType.ENCHANT_BUTTON)
+	protected Object[] get(Event event) {
+		if (!(event instanceof InventoryClickEvent) && clickable != ClickableType.BLOCK_AND_ITEMS && clickable != ClickableType.ENCHANT_BUTTON)
 			return null;
 
 		switch (clickable) {
 			case BLOCK_AND_ITEMS:
-				if (e instanceof PlayerInteractEvent) {
+				if (event instanceof PlayerInteractEvent) {
 					if (entityType != null) // This is supposed to be null as this event should be for blocks
 						return null;
-					Block block = ((PlayerInteractEvent) e).getClickedBlock();
+					Block block = ((PlayerInteractEvent) event).getClickedBlock();
 					
 					if (itemType == null)
 						return new Block[] {block};
@@ -191,10 +191,10 @@ public class ExprClicked extends SimpleExpression<Object> {
 					if (itemType.isOfType(block))
 						return new Block[] {block};
 					return null;
-				} else if (e instanceof PlayerInteractEntityEvent) {
+				} else if (event instanceof PlayerInteractEntityEvent) {
 					if (entityType == null) //We're testing for the entity in this event
 						return null;
-					Entity entity = ((PlayerInteractEntityEvent) e).getRightClicked();
+					Entity entity = ((PlayerInteractEntityEvent) event).getRightClicked();
 					
 					assert entityType != null;
 					if (entityType.isInstance(entity)) {
@@ -207,28 +207,28 @@ public class ExprClicked extends SimpleExpression<Object> {
 				}
 				break;
 			case TYPE:
-				return new ClickType[] {((InventoryClickEvent) e).getClick()};
+				return new ClickType[] {((InventoryClickEvent) event).getClick()};
 			case ACTION:
-				return new InventoryAction[] {((InventoryClickEvent) e).getAction()};
+				return new InventoryAction[] {((InventoryClickEvent) event).getAction()};
 			case INVENTORY:
-				return new Inventory[] {((InventoryClickEvent) e).getClickedInventory()};
+				return new Inventory[] {((InventoryClickEvent) event).getClickedInventory()};
 			case SLOT:
 				// Slots are specific to inventories, so refering to wrong one is impossible
 				// (as opposed to using the numbers directly)
-				Inventory invi = ((InventoryClickEvent) e).getClickedInventory();
+				Inventory invi = ((InventoryClickEvent) event).getClickedInventory();
 				if (invi != null) // Inventory is technically not guaranteed to exist...
-					return CollectionUtils.array(new InventorySlot(invi, ((InventoryClickEvent) e).getSlot()));
+					return CollectionUtils.array(new InventorySlot(invi, ((InventoryClickEvent) event).getSlot()));
 				break;
 			case ENCHANT_BUTTON:
-				if (e instanceof EnchantItemEvent)
-					return new Number[]{((EnchantItemEvent) e).whichButton() + 1};
+				if (event instanceof EnchantItemEvent)
+					return new Number[]{((EnchantItemEvent) event).whichButton() + 1};
 				break;
 		}
 		return null;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + (clickable != ClickableType.BLOCK_AND_ITEMS ? clickable.getName() : "clicked " + (entityType != null ? entityType : itemType != null ? itemType : "block"));
 	}
 	

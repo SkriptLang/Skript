@@ -55,9 +55,9 @@ public class ExprHotbarButton extends SimpleExpression<Long> {
 	
 	@Nullable
 	@Override
-	protected Long[] get(Event e) {
-		if (e instanceof InventoryClickEvent)
-			return new Long[] {(long) ((InventoryClickEvent) e).getHotbarButton()};
+	protected Long[] get(Event event) {
+		if (event instanceof InventoryClickEvent)
+			return new Long[] {(long) ((InventoryClickEvent) event).getHotbarButton()};
 		return null;
 	}
 	
@@ -72,7 +72,7 @@ public class ExprHotbarButton extends SimpleExpression<Long> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the hotbar button";
 	}
 

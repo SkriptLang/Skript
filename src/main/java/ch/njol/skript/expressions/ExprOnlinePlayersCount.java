@@ -78,14 +78,14 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	@Override
 	@Nullable
-	public Long[] get(Event e) {
-		if (!isReal && !(e instanceof PaperServerListPingEvent))
+	public Long[] get(Event event) {
+		if (!isReal && !(event instanceof PaperServerListPingEvent))
 			return null;
 
 		if (isReal)
 			return CollectionUtils.array((long) Bukkit.getOnlinePlayers().size());
 		else
-			return CollectionUtils.array((long) ((PaperServerListPingEvent) e).getNumPlayers());
+			return CollectionUtils.array((long) ((PaperServerListPingEvent) event).getNumPlayers());
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the count of " + (isReal ? "real max players" : "max players");
 	}
 

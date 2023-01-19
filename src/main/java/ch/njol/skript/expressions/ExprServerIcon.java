@@ -75,12 +75,12 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 
 	@Override
 	@Nullable
-	public CachedServerIcon[] get(Event e) {
+	public CachedServerIcon[] get(Event event) {
 		CachedServerIcon icon = null;
 		if ((isServerPingEvent && !isDefault) && PAPER_EVENT_EXISTS) {
-			if (!(e instanceof PaperServerListPingEvent))
+			if (!(event instanceof PaperServerListPingEvent))
 				return null;
-			icon = ((PaperServerListPingEvent) e).getServerIcon();
+			icon = ((PaperServerListPingEvent) event).getServerIcon();
 		} else {
 			icon = Bukkit.getServerIcon();
 		}
@@ -130,7 +130,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + (!isServerPingEvent || isDefault ? "default" : "shown") + " server icon";
 	}
 

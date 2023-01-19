@@ -58,7 +58,7 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 	}
 	
 	@Override
-	protected DamageCause[] get(Event e, LivingEntity[] source) {
+	protected DamageCause[] get(Event event, LivingEntity[] source) {
 		return get(source, new Getter<DamageCause, LivingEntity>() {
 			@Override
 			public DamageCause get(LivingEntity entity) {
@@ -70,8 +70,8 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the damage cause " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the damage cause " + getExpr().toString(event, debug);
 	}
 	
 	@Override
@@ -83,19 +83,19 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		DamageCause d = delta == null ? DamageCause.CUSTOM : (DamageCause) delta[0];
 		assert d != null;
 		switch (mode) {
 			case DELETE:
 			case RESET: // Reset damage cause? Umm, maybe it is custom.
-				for (LivingEntity entity : getExpr().getArray(e)) {
+				for (LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.setDamageCause(entity, DamageCause.CUSTOM);
 				}
 				break;
 			case SET:
-				for (LivingEntity entity : getExpr().getArray(e)) {
+				for (LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.setDamageCause(entity, d);
 				}

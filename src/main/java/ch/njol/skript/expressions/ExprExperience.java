@@ -67,11 +67,11 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	@Nullable
-	protected Experience[] get(final Event e) {
-		if (e instanceof ExperienceSpawnEvent)
-			return new Experience[] {new Experience(((ExperienceSpawnEvent) e).getSpawnedXP())};
-		else if (e instanceof BlockBreakEvent)
-			return new Experience[] {new Experience(((BlockBreakEvent) e).getExpToDrop())};
+	protected Experience[] get(final Event event) {
+		if (event instanceof ExperienceSpawnEvent)
+			return new Experience[] {new Experience(((ExperienceSpawnEvent) event).getSpawnedXP())};
+		else if (event instanceof BlockBreakEvent)
+			return new Experience[] {new Experience(((BlockBreakEvent) event).getExpToDrop())};
 		else
 			return new Experience[0];
 	}
@@ -94,12 +94,12 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		double d;
-		if (e instanceof ExperienceSpawnEvent)
-			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		else if (e instanceof BlockBreakEvent)
-			d = ((BlockBreakEvent) e).getExpToDrop();
+		if (event instanceof ExperienceSpawnEvent)
+			d = ((ExperienceSpawnEvent) event).getSpawnedXP();
+		else if (event instanceof BlockBreakEvent)
+			d = ((BlockBreakEvent) event).getExpToDrop();
 		else
 			return;
 		
@@ -127,10 +127,10 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			d = 0;
 		
 		d = Math.max(0, Math.round(d));
-		if (e instanceof ExperienceSpawnEvent)
-			((ExperienceSpawnEvent) e).setSpawnedXP((int) d);
+		if (event instanceof ExperienceSpawnEvent)
+			((ExperienceSpawnEvent) event).setSpawnedXP((int) d);
 		else
-			((BlockBreakEvent) e).setExpToDrop((int) d);
+			((BlockBreakEvent) event).setExpToDrop((int) d);
 	}
 	
 	@Override
@@ -144,7 +144,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the experience";
 	}
 	

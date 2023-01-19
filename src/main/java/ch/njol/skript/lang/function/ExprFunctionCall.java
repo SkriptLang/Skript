@@ -56,8 +56,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
 	@Override
 	@Nullable
-	protected T[] get(Event e) {
-		Object[] returnValue = function.execute(e);
+	protected T[] get(Event event) {
+		Object[] returnValue = function.execute(event);
 		function.resetReturnValue();
 		return Converters.convertArray(returnValue, returnTypes, returnType);
 	}
@@ -86,8 +86,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return function.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return function.toString(event, debug);
 	}
 
 	@Override

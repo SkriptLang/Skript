@@ -201,7 +201,7 @@ public class EvtItem extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge" + (types == null ? "" : " of " + types);
 	}
 	

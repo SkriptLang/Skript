@@ -75,22 +75,22 @@ public class ExprSubstring extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	protected String[] get(final Event e) {
+	protected String[] get(final Event event) {
 		final List<String> parts = new ArrayList<>();
-		final String[] strings = string.getArray(e);
+		final String[] strings = string.getArray(event);
 		if (strings == null)
 			return new String[0];
 		for (String string : strings) {
 			if (start != null && !start.isSingle()) {
-				Number[] i = start.getArray(e);
+				Number[] i = start.getArray(event);
 				if (i == null) return new String[0];
 				for (Number p : i) {
 					if (p.intValue() > string.length() || p.intValue() < 1) continue;
 					parts.add(string.substring(p.intValue() - 1, p.intValue()));
 				}
 			} else {
-				Number d1 = start != null ? start.getSingle(e) : 1;
-				Number d2 = end != null ? end.getSingle(e) : string.length();
+				Number d1 = start != null ? start.getSingle(event) : 1;
+				Number d2 = end != null ? end.getSingle(event) : string.length();
 				if (d1 == null || d2 == null) continue;
 				if (end == null) d1 = string.length() - d1.intValue() + 1;
 				int i1 = Math.max(d1.intValue() - 1, 0);
@@ -115,17 +115,17 @@ public class ExprSubstring extends SimpleExpression<String> {
 	
 	@Override
 	@SuppressWarnings("null")
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (start == null) {
 			assert end != null;
-			return "the first " + end.toString(e, debug) + " characters of " + string.toString(e, debug);
+			return "the first " + end.toString(event, debug) + " characters of " + string.toString(event, debug);
 		} else if (end == null) {
 			assert start != null;
-			return "the last " + start.toString(e, debug) + " characters of " + string.toString(e, debug);
+			return "the last " + start.toString(event, debug) + " characters of " + string.toString(event, debug);
 		} else if (usedSubstring) {
-			return "the substring of " + string.toString(e, debug) + " from index " + start.toString(e, debug) + " to " + end.toString(e, debug);
+			return "the substring of " + string.toString(event, debug) + " from index " + start.toString(event, debug) + " to " + end.toString(event, debug);
 		} else {
-			return "the character at " + (start.isSingle() ? "index " : "indexes ") + start.toString(e, debug) + " in " + string.toString(e, debug);
+			return "the character at " + (start.isSingle() ? "index " : "indexes ") + start.toString(event, debug) + " in " + string.toString(event, debug);
 		}
 	}
 	

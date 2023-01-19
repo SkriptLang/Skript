@@ -64,11 +64,11 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected EnchantmentType[] get(Event e) {
-		if (!(e instanceof EnchantItemEvent))
+	protected EnchantmentType[] get(Event event) {
+		if (!(event instanceof EnchantItemEvent))
 			return null;
 
-		return ((EnchantItemEvent) e).getEnchantsToAdd().entrySet().stream()
+		return ((EnchantItemEvent) event).getEnchantsToAdd().entrySet().stream()
 				.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
 				.toArray(EnchantmentType[]::new);
 	}
@@ -127,7 +127,7 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "applied enchantments";
 	}
 

@@ -69,8 +69,8 @@ public class ExprTimeSince extends SimplePropertyExpression<Date, Timespan> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the time since " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the time since " + getExpr().toString(event, debug);
 	}
 
 }

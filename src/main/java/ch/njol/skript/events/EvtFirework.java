@@ -76,8 +76,8 @@ public class EvtFirework extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "Firework explode " + (colors != null ? " with colors " + colors.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "Firework explode " + (colors != null ? " with colors " + colors.toString(event, debug) : "");
 	}
 
 }

@@ -61,9 +61,9 @@ public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET || delta != null;
-		for (final Entity entity : getExpr().getArray(e)) {
+		for (final Entity entity : getExpr().getArray(event)) {
 			if (entity == null)
 				return;
 			switch (mode) {

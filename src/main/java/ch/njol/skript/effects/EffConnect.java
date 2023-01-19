@@ -57,9 +57,9 @@ public class EffConnect extends Effect {
 	private Expression<String> server;
 
 	@Override
-	protected void execute(Event e) {
-		String server = this.server.getSingle(e);
-		Player[] players = this.players.stream(e)
+	protected void execute(Event event) {
+		String server = this.server.getSingle(event);
+		Player[] players = this.players.stream(event)
 			.filter(Player::isOnline)
 			.toArray(Player[]::new);
 		if (server == null || players.length == 0)
@@ -80,8 +80,8 @@ public class EffConnect extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "connect " + players.toString(e, debug) + " to " + server.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "connect " + players.toString(event, debug) + " to " + server.toString(event, debug);
 	}
 
 	@Override

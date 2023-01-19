@@ -62,8 +62,8 @@ public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, It
 	}
 	
 	@Override
-	protected ItemType[] get(Event e, ItemType[] source) {
-		Number data = this.data.getSingle(e);
+	protected ItemType[] get(Event event, ItemType[] source) {
+		Number data = this.data.getSingle(event);
 		if (data == null)
 			return source;
 		return get(source.clone(), item -> {
@@ -80,8 +80,8 @@ public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, It
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
-		return getExpr().toString(e, d) + " with custom model data " + data.toString(e, d);
+	public String toString(@Nullable Event event, boolean d) {
+		return getExpr().toString(event, d) + " with custom model data " + data.toString(event, d);
 	}
 	
 }

@@ -62,11 +62,11 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	@Nullable
-	protected BlockStateBlock[] get(Event e) {
-		if (!(e instanceof SpongeAbsorbEvent))
+	protected BlockStateBlock[] get(Event event) {
+		if (!(event instanceof SpongeAbsorbEvent))
 			return null;
 
-		List<BlockState> bs = ((SpongeAbsorbEvent) e).getBlocks();
+		List<BlockState> bs = ((SpongeAbsorbEvent) event).getBlocks();
 		return bs.stream()
 			.map(BlockStateBlock::new)
 			.toArray(BlockStateBlock[]::new);
@@ -74,11 +74,11 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	@Nullable
-	public Iterator<BlockStateBlock> iterator(Event e) {
-		if (!(e instanceof SpongeAbsorbEvent))
+	public Iterator<BlockStateBlock> iterator(Event event) {
+		if (!(event instanceof SpongeAbsorbEvent))
 			return null;
 
-		List<BlockState> bs = ((SpongeAbsorbEvent) e).getBlocks();
+		List<BlockState> bs = ((SpongeAbsorbEvent) event).getBlocks();
 		return bs.stream()
 			.map(BlockStateBlock::new)
 			.iterator();
@@ -95,7 +95,7 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "absorbed blocks";
 	}
 	

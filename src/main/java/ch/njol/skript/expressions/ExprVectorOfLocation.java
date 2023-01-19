@@ -62,8 +62,8 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Location l = location.getSingle(e);
+	protected Vector[] get(Event event) {
+		Location l = location.getSingle(event);
 		if (l == null)
 			return null;
 		return CollectionUtils.array(l.toVector());
@@ -80,8 +80,8 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from " + location.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from " + location.toString(event, debug);
 	}
 
 }

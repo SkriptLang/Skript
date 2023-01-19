@@ -66,7 +66,7 @@ public class EvtPressurePlate extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return tripwire ? "trip" : "stepping on a pressure plate";
 	}
 	

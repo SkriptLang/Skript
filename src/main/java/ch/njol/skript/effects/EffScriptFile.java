@@ -70,8 +70,8 @@ public class EffScriptFile extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		String name = fileName.getSingle(e);
+	protected void execute(Event event) {
+		String name = fileName.getSingle(event);
 		if (name == null)
 			return;
 		File scriptFile = SkriptCommand.getScriptFromName(name);
@@ -137,9 +137,9 @@ public class EffScriptFile extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (mark == ENABLE ? "enable" : mark == RELOAD ? "disable" : mark == DISABLE ? "unload" : "")
-			+ " script file " + fileName.toString(e, debug);
+			+ " script file " + fileName.toString(event, debug);
 	}
 
 }

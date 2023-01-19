@@ -91,10 +91,10 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 
 	@Override
 	@Nullable
-	protected T[] get(Event e) {
+	protected T[] get(Event event) {
 		List<Object> values = new ArrayList<>();
-		for (String value : this.values.getArray(e)) {
-			for (Metadatable holder : holders.getArray(e)) {
+		for (String value : this.values.getArray(event)) {
+			for (Metadatable holder : holders.getArray(event)) {
 				List<MetadataValue> metadata = holder.getMetadata(value);
 				if (!metadata.isEmpty())
 					values.add(metadata.get(metadata.size() - 1).value()); // adds the most recent metadata value
@@ -116,9 +116,9 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		for (String value : values.getArray(e)) {
-			for (Metadatable holder : holders.getArray(e)) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		for (String value : values.getArray(event)) {
+			for (Metadatable holder : holders.getArray(event)) {
 				switch (mode) {
 					case SET:
 						holder.setMetadata(value, new FixedMetadataValue(Skript.getInstance(), delta[0]));
@@ -151,8 +151,8 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "metadata values " + values.toString(e, debug) + " of " + holders.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "metadata values " + values.toString(event, debug) + " of " + holders.toString(event, debug);
 	}
 
 }

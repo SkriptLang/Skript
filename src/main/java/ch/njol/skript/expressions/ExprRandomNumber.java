@@ -68,9 +68,9 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	
 	@Override
 	@Nullable
-	protected Number[] get(final Event e) {
-		final Number l = lower.getSingle(e);
-		final Number u = upper.getSingle(e);
+	protected Number[] get(final Event event) {
+		final Number l = lower.getSingle(event);
+		final Number u = upper.getSingle(event);
 		if (u == null || l == null)
 			return null;
 		final double ll = Math.min(l.doubleValue(), u.doubleValue());
@@ -88,8 +88,8 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "a random " + (integer ? "integer" : "number") + " between " + lower.toString(e, debug) + " and " + upper.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "a random " + (integer ? "integer" : "number") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
 	}
 	
 	@Override

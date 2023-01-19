@@ -106,18 +106,18 @@ public class EffReturn extends Effect {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, false);
-		if (e instanceof FunctionEvent) {
-			((ScriptFunction) function).setReturnValue(value.getArray(e));
+	protected TriggerItem walk(final Event event) {
+		debug(event, false);
+		if (event instanceof FunctionEvent) {
+			((ScriptFunction) function).setReturnValue(value.getArray(event));
 		} else {
-			assert false : e;
+			assert false : event;
 		}
 
 		TriggerSection parent = getParent();
 		while (parent != null) {
 			if (parent instanceof SecLoop) {
-				((SecLoop) parent).exit(e);
+				((SecLoop) parent).exit(event);
 			} else if (parent instanceof SecWhile) {
 				((SecWhile) parent).reset();
 			}
@@ -128,13 +128,13 @@ public class EffReturn extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		assert false;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "return " + value.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "return " + value.toString(event, debug);
 	}
 	
 }

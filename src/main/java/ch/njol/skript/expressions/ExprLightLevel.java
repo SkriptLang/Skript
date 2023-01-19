@@ -71,7 +71,7 @@ public class ExprLightLevel extends PropertyExpression<Location, Byte> {
 	}
 	
 	@Override
-	protected Byte[] get(final Event e, final Location[] source) {
+	protected Byte[] get(final Event event, final Location[] source) {
 		return get(source, new Converter<Location, Byte>() {
 			@Override
 			public Byte convert(final Location l) {
@@ -82,8 +82,8 @@ public class ExprLightLevel extends PropertyExpression<Location, Byte> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (whatLight == BLOCK ? "block " : whatLight == SKY ? "sky " : "") + "light level " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (whatLight == BLOCK ? "block " : whatLight == SKY ? "sky " : "") + "light level " + getExpr().toString(event, debug);
 	}
 	
 }

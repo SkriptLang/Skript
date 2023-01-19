@@ -532,7 +532,7 @@ public class VariableString implements Expression<String> {
 	 * Use {@link #toString(Event)} to get the actual string
 	 */
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (isSimple) {
 			assert simple != null;
 			return '"' + simple + '"';
@@ -542,7 +542,7 @@ public class VariableString implements Expression<String> {
 		StringBuilder b = new StringBuilder("\"");
 		for (Object o : string) {
 			if (o instanceof Expression) {
-				b.append("%").append(((Expression<?>) o).toString(e, debug)).append("%");
+				b.append("%").append(((Expression<?>) o).toString(event, debug)).append("%");
 			} else {
 				b.append(o);
 			}
@@ -601,18 +601,18 @@ public class VariableString implements Expression<String> {
 	}
 	
 	@Override
-	public String getSingle(Event e) {
-		return toString(e);
+	public String getSingle(Event event) {
+		return toString(event);
 	}
 	
 	@Override
-	public String[] getArray(Event e) {
-		return new String[] {toString(e)};
+	public String[] getArray(Event event) {
+		return new String[] {toString(event)};
 	}
 	
 	@Override
-	public String[] getAll(Event e) {
-		return new String[] {toString(e)};
+	public String[] getAll(Event event) {
+		return new String[] {toString(event)};
 	}
 	
 	@Override
@@ -621,13 +621,13 @@ public class VariableString implements Expression<String> {
 	}
 	
 	@Override
-	public boolean check(Event e, Checker<? super String> c, boolean negated) {
-		return SimpleExpression.check(getAll(e), c, negated, false);
+	public boolean check(Event event, Checker<? super String> checker, boolean negated) {
+		return SimpleExpression.check(getAll(event), checker, negated, false);
 	}
 	
 	@Override
-	public boolean check(Event e, Checker<? super String> c) {
-		return SimpleExpression.check(getAll(e), c, false, false);
+	public boolean check(Event event, Checker<? super String> checker) {
+		return SimpleExpression.check(getAll(event), checker, false, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -651,7 +651,7 @@ public class VariableString implements Expression<String> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -676,12 +676,12 @@ public class VariableString implements Expression<String> {
 	}
 	
 	@Override
-	public Iterator<? extends String> iterator(Event e) {
-		return new SingleItemIterator<>(toString(e));
+	public Iterator<? extends String> iterator(Event event) {
+		return new SingleItemIterator<>(toString(event));
 	}
 	
 	@Override
-	public boolean isLoopOf(String s) {
+	public boolean isLoopOf(String string) {
 		return false;
 	}
 	

@@ -65,10 +65,10 @@ public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number r = radius.getSingle(e);
-		Number y = yaw.getSingle(e);
-		Number h = height.getSingle(e);
+	protected Vector[] get(Event event) {
+		Number r = radius.getSingle(event);
+		Number y = yaw.getSingle(event);
+		Number h = height.getSingle(event);
 		if (r == null || y == null || h == null)
 			return null;
 		return CollectionUtils.array(VectorMath.fromCylindricalCoordinates(r.doubleValue(), VectorMath.fromSkriptYaw(y.floatValue()), h.doubleValue()));
@@ -85,9 +85,9 @@ public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "cylindrical vector with radius " + radius.toString(e, debug) + ", yaw " +
-				yaw.toString(e, debug) + " and height " + height.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "cylindrical vector with radius " + radius.toString(event, debug) + ", yaw " +
+				yaw.toString(event, debug) + " and height " + height.toString(event, debug);
 	}
 
 }

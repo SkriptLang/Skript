@@ -73,13 +73,13 @@ public class ExprPlayerWeather extends SimplePropertyExpression<Player, WeatherT
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		if (delta == null) {
-			for (Player p : getExpr().getArray(e))
+			for (Player p : getExpr().getArray(event))
 				p.resetPlayerWeather();
 		} else {
 			WeatherType type = (WeatherType) delta[0];
-			for (Player p : getExpr().getArray(e))
+			for (Player p : getExpr().getArray(event))
 				type.setWeather(p);
 		}
 	}

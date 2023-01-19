@@ -61,9 +61,9 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert delta != null;
-		final Vector v = getExpr().getSingle(e);
+		final Vector v = getExpr().getSingle(event);
 		if (v == null)
 			return;
 		double n = ((Number) delta[0]).doubleValue();
@@ -75,7 +75,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 					double l = n + v.length();
 					v.normalize().multiply(l);
 				}
-				getExpr().change(e, new Vector[]{v}, ChangeMode.SET);
+				getExpr().change(event, new Vector[]{v}, ChangeMode.SET);
 				break;
 			case REMOVE:
 				n = -n;
@@ -85,7 +85,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 					v.zero();
 				else
 					v.normalize().multiply(n);
-				getExpr().change(e, new Vector[]{v}, ChangeMode.SET);
+				getExpr().change(event, new Vector[]{v}, ChangeMode.SET);
 				break;
 		}
 	}

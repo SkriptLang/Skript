@@ -97,12 +97,12 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	}
 
 	@Override
-	protected String[] get(Event e, Date[] source) {
+	protected String[] get(Event event, Date[] source) {
 		SimpleDateFormat format;
 		String formatString;
 
 		if (customFormat != null && this.format == null) { // customFormat is not Literal or VariableString
-			formatString = customFormat.getSingle(e);
+			formatString = customFormat.getSingle(event);
 			if (formatString == null)
 				return null;
 
@@ -129,8 +129,8 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug)
+	public String toString(@Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " formatted as " + (customFormat != null ? customFormat.toString(event, debug)
 			: (format != null ? format.toPattern() : DEFAULT_FORMAT.toPattern()));
 	}
 

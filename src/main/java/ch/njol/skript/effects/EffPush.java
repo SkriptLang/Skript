@@ -64,14 +64,14 @@ public class EffPush extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final Direction d = direction.getSingle(e);
+	protected void execute(final Event event) {
+		final Direction d = direction.getSingle(event);
 		if (d == null)
 			return;
-		final Number v = speed != null ? speed.getSingle(e) : null;
+		final Number v = speed != null ? speed.getSingle(event) : null;
 		if (speed != null && v == null)
 			return;
-		final Entity[] ents = entities.getArray(e);
+		final Entity[] ents = entities.getArray(event);
 		for (final Entity en : ents) {
 			assert en != null;
 			final Vector mod = d.getDirection(en);
@@ -82,8 +82,8 @@ public class EffPush extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "push " + entities.toString(e, debug) + " " + direction.toString(e, debug) + (speed != null ? " at speed " + speed.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "push " + entities.toString(event, debug) + " " + direction.toString(event, debug) + (speed != null ? " at speed " + speed.toString(event, debug) : "");
 	}
 	
 }

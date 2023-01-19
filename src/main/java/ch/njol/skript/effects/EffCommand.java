@@ -71,13 +71,13 @@ public class EffCommand extends Effect {
 	}
 	
 	@Override
-	public void execute(final Event e) {
-		for (String command : commands.getArray(e)) {
+	public void execute(final Event event) {
+		for (String command : commands.getArray(event)) {
 			assert command != null;
 			if (command.startsWith("/"))
 				command = "" + command.substring(1);
 			if (senders != null) {
-				for (final CommandSender sender : senders.getArray(e)) {
+				for (final CommandSender sender : senders.getArray(event)) {
 					assert sender != null;
 					Skript.dispatchCommand(sender, command);
 				}
@@ -88,8 +88,8 @@ public class EffCommand extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "make " + (senders != null ? senders.toString(e, debug) : "the console") + " execute the command " + commands.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "make " + (senders != null ? senders.toString(event, debug) : "the console") + " execute the command " + commands.toString(event, debug);
 	}
 	
 }

@@ -66,25 +66,25 @@ public class EffVehicle extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		final Expression<?> vehicles = this.vehicles;
 		final Expression<Entity> passengers = this.passengers;
 		if (vehicles == null) {
 			assert passengers != null;
-			for (final Entity p : passengers.getArray(e))
+			for (final Entity p : passengers.getArray(event))
 				p.leaveVehicle();
 			return;
 		}
 		if (passengers == null) {
 			assert vehicles != null;
-			for (final Object v : vehicles.getArray(e))
+			for (final Object v : vehicles.getArray(event))
 				((Entity) v).eject();
 			return;
 		}
-		final Object[] vs = vehicles.getArray(e);
+		final Object[] vs = vehicles.getArray(event);
 		if (vs.length == 0)
 			return;
-		final Entity[] ps = passengers.getArray(e);
+		final Entity[] ps = passengers.getArray(event);
 		if (ps.length == 0)
 			return;
 		for (final Object v : vs) {
@@ -108,18 +108,18 @@ public class EffVehicle extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Expression<?> vehicles = this.vehicles;
 		final Expression<Entity> passengers = this.passengers;
 		if (vehicles == null) {
 			assert passengers != null;
-			return "make " + passengers.toString(e, debug) + " dismount";
+			return "make " + passengers.toString(event, debug) + " dismount";
 		}
 		if (passengers == null) {
 			assert vehicles != null;
-			return "eject passenger" + (vehicles.isSingle() ? "" : "s") + " of " + vehicles.toString(e, debug);
+			return "eject passenger" + (vehicles.isSingle() ? "" : "s") + " of " + vehicles.toString(event, debug);
 		}
-		return "make " + passengers.toString(e, debug) + " ride " + vehicles.toString(e, debug);
+		return "make " + passengers.toString(event, debug) + " ride " + vehicles.toString(event, debug);
 	}
 	
 }

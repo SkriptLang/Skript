@@ -69,9 +69,9 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 	}
 	
 	@Override
-	public Iterator<Block> iterator(final Event e) {
-		final Location l = center.getSingle(e);
-		final Number r = radius.getSingle(e);
+	public Iterator<Block> iterator(final Event event) {
+		final Location l = center.getSingle(event);
+		final Number r = radius.getSingle(event);
 		if (l == null || r == null)
 			return new EmptyIterator<>();
 		return new BlockSphereIterator(l, r.doubleValue());
@@ -79,12 +79,12 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 	
 	@Override
 	@Nullable
-	protected Block[] get(final Event e) {
-		final Number r = radius.getSingle(e);
+	protected Block[] get(final Event event) {
+		final Number r = radius.getSingle(event);
 		if (r == null)
 			return new Block[0];
 		final ArrayList<Block> list = new ArrayList<>((int) (1.1 * 4 / 3. * Math.PI * Math.pow(r.doubleValue(), 3)));
-		for (final Block b : new IteratorIterable<>(iterator(e)))
+		for (final Block b : new IteratorIterable<>(iterator(event)))
 			list.add(b);
 		return list.toArray(new Block[list.size()]);
 	}
@@ -95,13 +95,13 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the blocks in radius " + radius + " around " + center.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the blocks in radius " + radius + " around " + center.toString(event, debug);
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("block");
+	public boolean isLoopOf(final String string) {
+		return string.equalsIgnoreCase("block");
 	}
 	
 	@Override

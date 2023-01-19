@@ -466,7 +466,7 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Override
 	@NonNull
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();

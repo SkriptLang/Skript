@@ -82,11 +82,11 @@ public class ExprHoverList extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	public String[] get(Event e) {
-		if (!(e instanceof PaperServerListPingEvent))
+	public String[] get(Event event) {
+		if (!(event instanceof PaperServerListPingEvent))
 			return null;
 
-		return ((PaperServerListPingEvent) e).getPlayerSample().stream()
+		return ((PaperServerListPingEvent) event).getPlayerSample().stream()
 				.map(PlayerProfile::getName)
 				.toArray(String[]::new);
 	}
@@ -111,8 +111,8 @@ public class ExprHoverList extends SimpleExpression<String> {
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(e instanceof PaperServerListPingEvent))
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PaperServerListPingEvent))
 			return;
 
 		List<PlayerProfile> values = new ArrayList<>();
@@ -127,7 +127,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 			}
 		}
 
-		List<PlayerProfile> sample = ((PaperServerListPingEvent) e).getPlayerSample();
+		List<PlayerProfile> sample = ((PaperServerListPingEvent) event).getPlayerSample();
 		switch (mode){
 			case SET:
 				sample.clear();
@@ -156,7 +156,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the hover list";
 	}
 

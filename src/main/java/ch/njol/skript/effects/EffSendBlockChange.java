@@ -86,19 +86,19 @@ public class EffSendBlockChange extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Object object = this.as.getSingle(e);
+	protected void execute(Event event) {
+		Object object = this.as.getSingle(event);
 		if (object instanceof ItemType) {
 			ItemType itemType = (ItemType) object;
-			for (Player player : players.getArray(e)) {
-				for (Block block : blocks.getArray(e)) {
+			for (Player player : players.getArray(event)) {
+				for (Block block : blocks.getArray(event)) {
 					itemType.sendBlockChange(player, block.getLocation());
 				}
 			}
 		} else if (BLOCK_DATA_SUPPORT && object instanceof BlockData) {
 			BlockData blockData = (BlockData) object;
-			for (Player player : players.getArray(e)) {
-				for (Block block : blocks.getArray(e)) {
+			for (Player player : players.getArray(event)) {
+				for (Block block : blocks.getArray(event)) {
 					player.sendBlockChange(block.getLocation(), blockData);
 				}
 			}
@@ -106,12 +106,12 @@ public class EffSendBlockChange extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return String.format(
 				"make %s see %s as %s",
-				players.toString(e, debug),
-				blocks.toString(e, debug),
-				as.toString(e, debug)
+				players.toString(event, debug),
+				blocks.toString(event, debug),
+				as.toString(event, debug)
 		);
 	}
 

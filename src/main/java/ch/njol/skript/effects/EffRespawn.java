@@ -67,8 +67,8 @@ public class EffRespawn extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (final Player p : players.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final Player p : players.getArray(event)) {
 			if (forceDelay) { // Use Bukkit runnable
 				new BukkitRunnable() {
 
@@ -85,8 +85,8 @@ public class EffRespawn extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "force " + players.toString(e, debug) + " to respawn";
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "force " + players.toString(event, debug) + " to respawn";
 	}
 
 }

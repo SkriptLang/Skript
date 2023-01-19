@@ -65,9 +65,9 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     @Override
     @Nullable
     @SuppressWarnings("null")
-    protected Date[] get(Event e) {
-        Timespan timespan = this.timespan.getSingle(e);
-		Date date = this.date != null ? this.date.getSingle(e) : new Date();
+    protected Date[] get(Event event) {
+        Timespan timespan = this.timespan.getSingle(event);
+		Date date = this.date != null ? this.date.getSingle(event) : new Date();
 		if (timespan == null || date == null)
 			return null;
 
@@ -85,8 +85,8 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return timespan.toString(e, debug) + " " + (ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
-			: (date != null ? "after " + date.toString(e, debug) : "later"));
+    public String toString(@Nullable Event event, boolean debug) {
+        return timespan.toString(event, debug) + " " + (ago ? (date != null ? "before " + date.toString(event, debug) : "ago")
+			: (date != null ? "after " + date.toString(event, debug) : "later"));
     }
 }

@@ -81,12 +81,12 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	}
 
 	@Override
-	protected Timespan[] get(Event e, Block[] source) {
+	protected Timespan[] get(Event event, Block[] source) {
 		if (isEvent) {
-			if (!(e instanceof FurnaceBurnEvent))
+			if (!(event instanceof FurnaceBurnEvent))
 				return null;
 
-			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) e).getBurnTime()));
+			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) event).getBurnTime()));
 		} else {
 			Timespan[] result = Arrays.stream(source)
 					.filter(block -> anyFurnace.isOfType(block))
@@ -101,8 +101,8 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return isEvent ? "the burning time" : "" + String.format("the %sing time of %s", cookTime ? "cook" : "burn", getExpr().toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return isEvent ? "the burning time" : "" + String.format("the %sing time of %s", cookTime ? "cook" : "burn", getExpr().toString(event, debug));
 	}
 
 	@Override

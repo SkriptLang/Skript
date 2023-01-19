@@ -109,11 +109,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected Block[] get(final Event e) {
+	protected Block[] get(final Event event) {
 		final Expression<Direction> direction = this.direction;
 		if (direction != null && !from.isSingle()) {
-			final Location[] ls = (Location[]) from.getArray(e);
-			final Direction d = direction.getSingle(e);
+			final Location[] ls = (Location[]) from.getArray(event);
+			final Direction d = direction.getSingle(event);
 			if (ls.length == 0 || d == null)
 				return new Block[0];
 			final Block[] bs = new Block[ls.length];
@@ -123,7 +123,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return bs;
 		}
 		final ArrayList<Block> r = new ArrayList<>();
-		final Iterator<Block> iter = iterator(e);
+		final Iterator<Block> iter = iterator(event);
 		if (iter == null)
 			return new Block[0];
 		for (final Block b : new IteratorIterable<>(iter))
@@ -133,31 +133,31 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	@Nullable
-	public Iterator<Block> iterator(final Event e) {
+	public Iterator<Block> iterator(final Event event) {
 		try {
 			final Expression<Direction> direction = this.direction;
 			if (chunk != null) {
-				Chunk chunk = this.chunk.getSingle(e);
+				Chunk chunk = this.chunk.getSingle(event);
 				if (chunk != null)
 					return new AABB(chunk).iterator();
 			} else if (direction != null) {
 				if (!from.isSingle()) {
-					return new ArrayIterator<>(get(e));
+					return new ArrayIterator<>(get(event));
 				}
-				final Object o = from.getSingle(e);
+				final Object o = from.getSingle(event);
 				if (o == null)
 					return null;
 				final Location l = o instanceof Location ? (Location) o : ((Block) o).getLocation().add(0.5, 0.5, 0.5);
-				final Direction d = direction.getSingle(e);
+				final Direction d = direction.getSingle(event);
 				if (d == null)
 					return null;
 				return new BlockLineIterator(l, o != l ? d.getDirection((Block) o) : d.getDirection(l), SkriptConfig.maxTargetBlockDistance.value());
 			} else {
-				final Location loc = (Location) from.getSingle(e);
+				final Location loc = (Location) from.getSingle(event);
 				if (loc == null)
 					return null;
 				assert end != null;
-				final Location loc2 = end.getSingle(e);
+				final Location loc2 = end.getSingle(event);
 				if (loc2 == null || loc2.getWorld() != loc.getWorld())
 					return null;
 				if (pattern == 4)
@@ -183,19 +183,19 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Expression<Location> end = this.end;
 		if (chunk != null) {
-			return "blocks within chunk " + chunk.toString(e, debug);
+			return "blocks within chunk " + chunk.toString(event, debug);
 		} else if (pattern == 4) {
 			assert end != null;
-			return "blocks within " + from.toString(e, debug) + " and " + end.toString(e, debug);
+			return "blocks within " + from.toString(event, debug) + " and " + end.toString(event, debug);
 		} else if (end != null) {
-			return "blocks from " + from.toString(e, debug) + " to " + end.toString(e, debug);
+			return "blocks from " + from.toString(event, debug) + " to " + end.toString(event, debug);
 		} else {
 			final Expression<Direction> direction = this.direction;
 			assert direction != null;
-			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(e, debug) + " " + from.toString(e, debug);
+			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(event, debug) + " " + from.toString(event, debug);
 		}
 	}
 	

@@ -68,13 +68,13 @@ public class ExprDamage extends SimpleExpression<Number> {
 	
 	@Override
 	@Nullable
-	protected Number[] get(final Event e) {
-		if (!(e instanceof EntityDamageEvent || e instanceof VehicleDamageEvent))
+	protected Number[] get(final Event event) {
+		if (!(event instanceof EntityDamageEvent || event instanceof VehicleDamageEvent))
 			return new Number[0];
 		
-		if (e instanceof VehicleDamageEvent)
-			return CollectionUtils.array(((VehicleDamageEvent) e).getDamage());
-		return CollectionUtils.array(HealthUtils.getDamage((EntityDamageEvent) e));
+		if (event instanceof VehicleDamageEvent)
+			return CollectionUtils.array(((VehicleDamageEvent) event).getDamage());
+		return CollectionUtils.array(HealthUtils.getDamage((EntityDamageEvent) event));
 	}
 	
 	@Override
@@ -90,26 +90,26 @@ public class ExprDamage extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
-		if (!(e instanceof EntityDamageEvent || e instanceof VehicleDamageEvent))
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+		if (!(event instanceof EntityDamageEvent || event instanceof VehicleDamageEvent))
 			return;
 		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case SET:
 			case DELETE:
-				if (e instanceof VehicleDamageEvent)
-					((VehicleDamageEvent) e).setDamage(d);
+				if (event instanceof VehicleDamageEvent)
+					((VehicleDamageEvent) event).setDamage(d);
 				else
-					HealthUtils.setDamage((EntityDamageEvent) e, d);
+					HealthUtils.setDamage((EntityDamageEvent) event, d);
 				break;
 			case REMOVE:
 				d = -d;
 				//$FALL-THROUGH$
 			case ADD:
-				if (e instanceof VehicleDamageEvent)
-					((VehicleDamageEvent) e).setDamage(((VehicleDamageEvent) e).getDamage() + d);
+				if (event instanceof VehicleDamageEvent)
+					((VehicleDamageEvent) event).setDamage(((VehicleDamageEvent) event).getDamage() + d);
 				else
-					HealthUtils.setDamage((EntityDamageEvent) e, HealthUtils.getDamage((EntityDamageEvent) e) + d);
+					HealthUtils.setDamage((EntityDamageEvent) event, HealthUtils.getDamage((EntityDamageEvent) event) + d);
 				break;
 			case REMOVE_ALL:
 			case RESET:
@@ -128,7 +128,7 @@ public class ExprDamage extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the damage";
 	}
 	

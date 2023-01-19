@@ -101,7 +101,7 @@ public final class EvtEntity extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return (spawn ? "spawn" : "death") + (types != null ? " of " + Classes.toString(types, false) : "");
 	}
 	

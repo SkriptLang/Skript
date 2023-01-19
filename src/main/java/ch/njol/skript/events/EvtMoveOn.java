@@ -188,7 +188,7 @@ public class EvtMoveOn extends SelfRegisteringSkriptEvent { // TODO on jump
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "walk on " + Classes.toString(types, false);
 	}
 

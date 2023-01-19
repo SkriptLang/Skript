@@ -60,7 +60,7 @@ public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon>
 
 	@Override
 	@Nullable
-	public CachedServerIcon[] get(Event e) {
+	public CachedServerIcon[] get(Event event) {
 		return CollectionUtils.array(EffLoadServerIcon.lastLoaded);
 	}
 
@@ -75,7 +75,7 @@ public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon>
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the last loaded server icon";
 	}
 

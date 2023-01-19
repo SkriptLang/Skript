@@ -112,7 +112,7 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "slots " + slots.toString(e, debug) + " of " + invis.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "slots " + slots.toString(event, debug) + " of " + invis.toString(event, debug);
 	}
 }

@@ -58,7 +58,7 @@ public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 	}
 	
 	@Override
-	protected Number[] get(final Event e, final LivingEntity[] source) {
+	protected Number[] get(final Event event, final LivingEntity[] source) {
 //		if (e instanceof EntityDamageEvent && getTime() > 0 && entities.getSource() instanceof ExprAttacked && !Delay.isDelayed(e)) {
 //			return ConverterUtils.convert(entities.getArray(e), Number.class, new Getter<Number, LivingEntity>() {
 //				@Override
@@ -76,8 +76,8 @@ public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the health of " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the health of " + getExpr().toString(event, debug);
 	}
 	
 //	@Override
@@ -105,12 +105,12 @@ public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case DELETE:
 			case SET:
-				for (final LivingEntity entity : getExpr().getArray(e)) {
+				for (final LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.setHealth(entity, d);
 				}
@@ -119,13 +119,13 @@ public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 				d = -d;
 				//$FALL-THROUGH$
 			case ADD:
-				for (final LivingEntity entity : getExpr().getArray(e)) {
+				for (final LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.heal(entity, d);
 				}
 				break;
 			case RESET:
-				for (final LivingEntity entity : getExpr().getArray(e)) {
+				for (final LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.setHealth(entity, HealthUtils.getMaxHealth(entity));
 				}

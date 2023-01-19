@@ -53,8 +53,8 @@ public class ExprValue extends SimpleExpression<Unit> {
 	
 	@Override
 	@Nullable
-	protected Unit[] get(final Event e) {
-		final Number a = amount.getSingle(e);
+	protected Unit[] get(final Event event) {
+		final Number a = amount.getSingle(event);
 		if (a == null)
 			return null;
 		final Unit u = unit.clone();
@@ -75,8 +75,8 @@ public class ExprValue extends SimpleExpression<Unit> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return amount.toString(e, debug) + " " + unit.toString();
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return amount.toString(event, debug) + " " + unit.toString();
 	}
 	
 }

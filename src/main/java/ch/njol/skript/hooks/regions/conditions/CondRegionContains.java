@@ -88,8 +88,8 @@ public class CondRegionContains extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return regions.toString(e, debug) + " contain" + (regions.isSingle() ? "s" : "") + " " + locs.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return regions.toString(event, debug) + " contain" + (regions.isSingle() ? "s" : "") + " " + locs.toString(event, debug);
 	}
 	
 }

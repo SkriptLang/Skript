@@ -80,8 +80,8 @@ public class EffLoadServerIcon extends AsyncEffect {
 	}
 
     @Override
-    protected void execute(Event e) {
-		String pathString = path.getSingle(e);
+    protected void execute(Event event) {
+		String pathString = path.getSingle(event);
 		if (pathString == null)
 			return;
 		
@@ -97,8 +97,8 @@ public class EffLoadServerIcon extends AsyncEffect {
     }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "load server icon from file " + path.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "load server icon from file " + path.toString(event, debug);
 	}
 
 }

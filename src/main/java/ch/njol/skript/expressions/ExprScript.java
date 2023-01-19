@@ -65,7 +65,7 @@ public class ExprScript extends SimpleExpression<String> {
 	}
 	
 	@Override
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		return new String[]{name};
 	}
 	
@@ -80,7 +80,7 @@ public class ExprScript extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the script's name";
 	}
 	

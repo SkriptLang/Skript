@@ -74,13 +74,13 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	}
 
 	@Override
-	protected Entity[] get(Event e, LivingEntity[] source) {
+	protected Entity[] get(Event event, LivingEntity[] source) {
 		return get(source, new Converter<LivingEntity, Entity>() {
 			@Override
 			@Nullable
 			public Entity convert(LivingEntity en) {
-				if (getTime() >= 0 && e instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					Entity target = ((EntityTargetEvent) e).getTarget();
+				if (getTime() >= 0 && event instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+					Entity target = ((EntityTargetEvent) event).getTarget();
 					if (target == null || type != null && !type.isInstance(target))
 						return null;
 					return target;
@@ -96,10 +96,10 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
-			return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
-		return Classes.getDebugMessage(getAll(e));
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
+			return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
+		return Classes.getDebugMessage(getAll(event));
 	}
 
 	@Override
@@ -116,19 +116,19 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			LivingEntity target = delta == null ? null : (LivingEntity) delta[0];
-			for (LivingEntity entity : getExpr().getArray(e)) {
-				if (getTime() >= 0 && e instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					((EntityTargetEvent) e).setTarget(target);
+			for (LivingEntity entity : getExpr().getArray(event)) {
+				if (getTime() >= 0 && event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+					((EntityTargetEvent) event).setTarget(target);
 				} else if (entity instanceof Mob) {
 					((Mob) entity).setTarget(target);
 				}
 			}
 			return;
 		}
-		super.change(e, delta, mode);
+		super.change(event, delta, mode);
 	}
 
 	/**

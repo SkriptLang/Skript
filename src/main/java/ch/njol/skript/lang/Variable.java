@@ -259,18 +259,18 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		StringBuilder stringBuilder = new StringBuilder()
 			.append("{");
 		if (local)
 			stringBuilder.append(LOCAL_VARIABLE_TOKEN);
-		stringBuilder.append(StringUtils.substring(name.toString(e, debug), 1, -1))
+		stringBuilder.append(StringUtils.substring(name.toString(event, debug), 1, -1))
 			.append("}");
 
 		if (debug) {
 			stringBuilder.append(" (");
-			if (e != null) {
-				stringBuilder.append(Classes.toString(get(e)))
+			if (event != null) {
+				stringBuilder.append(Classes.toString(get(event)))
 					.append(", ");
 			}
 			stringBuilder.append("as ")
@@ -396,13 +396,13 @@ public class Variable<T> implements Expression<T> {
 
 	@Override
 	@Nullable
-	public Iterator<T> iterator(Event e) {
+	public Iterator<T> iterator(Event event) {
 		if (!list) {
-			T item = getSingle(e);
+			T item = getSingle(event);
 			return item != null ? new SingleItemIterator<>(item) : null;
 		}
-		String name = StringUtils.substring(this.name.toString(e), 0, -1);
-		Object val = Variables.getVariable(name + "*", e, local);
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object val = Variables.getVariable(name + "*", event, local);
 		if (val == null)
 			return new EmptyIterator<>();
 		assert val instanceof TreeMap;
@@ -423,8 +423,8 @@ public class Variable<T> implements Expression<T> {
 				while (keys.hasNext()) {
 					key = keys.next();
 					if (key != null) {
-						next = Converters.convert(Variables.getVariable(name + key, e, local), types);
-						next = (T) convertIfOldPlayer(name + key, e, next);
+						next = Converters.convert(Variables.getVariable(name + key, event, local), types);
+						next = (T) convertIfOldPlayer(name + key, event, next);
 						if (next != null && !(next instanceof TreeMap))
 							return true;
 					}
@@ -481,12 +481,12 @@ public class Variable<T> implements Expression<T> {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		switch (mode) {
 			case DELETE:
 				if (list) {
 					ArrayList<String> rem = new ArrayList<>();
-					Map<String, Object> o = (Map<String, Object>) getRaw(e);
+					Map<String, Object> o = (Map<String, Object>) getRaw(event);
 					if (o == null)
 						return;
 					for (Entry<String, Object> i : o.entrySet()) {
@@ -496,33 +496,33 @@ public class Variable<T> implements Expression<T> {
 					}
 					for (String r : rem) {
 						assert r != null;
-						setIndex(e, r, null);
+						setIndex(event, r, null);
 					}
 				}
 
-				set(e, null);
+				set(event, null);
 				break;
 			case SET:
 				assert delta != null;
 				if (list) {
-					set(e, null);
+					set(event, null);
 					int i = 1;
 					for (Object d : delta) {
 						if (d instanceof Object[]) {
 							for (int j = 0; j < ((Object[]) d).length; j++) {
-								setIndex(e, "" + i + SEPARATOR + j, ((Object[]) d)[j]);
+								setIndex(event, "" + i + SEPARATOR + j, ((Object[]) d)[j]);
 							}
 						} else {
-							setIndex(e, "" + i, d);
+							setIndex(event, "" + i, d);
 						}
 						i++;
 					}
 				} else {
-					set(e, delta[0]);
+					set(event, delta[0]);
 				}
 				break;
 			case RESET:
-				Object x = getRaw(e);
+				Object x = getRaw(event);
 				if (x == null)
 					return;
 				for (Object o : x instanceof Map ? ((Map<?, ?>) x).values() : Arrays.asList(x)) {
@@ -542,7 +542,7 @@ public class Variable<T> implements Expression<T> {
 			case REMOVE_ALL:
 				assert delta != null;
 				if (list) {
-					Map<String, Object> o = (Map<String, Object>) getRaw(e);
+					Map<String, Object> o = (Map<String, Object>) getRaw(event);
 					if (mode == ChangeMode.REMOVE) {
 						if (o == null)
 							return;
@@ -562,7 +562,7 @@ public class Variable<T> implements Expression<T> {
 						}
 						for (String r : rem) {
 							assert r != null;
-							setIndex(e, r, null);
+							setIndex(event, r, null);
 						}
 					} else if (mode == ChangeMode.REMOVE_ALL) {
 						if (o == null)
@@ -576,7 +576,7 @@ public class Variable<T> implements Expression<T> {
 						}
 						for (String r : rem) {
 							assert r != null;
-							setIndex(e, r, null);
+							setIndex(event, r, null);
 						}
 					} else {
 						assert mode == ChangeMode.ADD;
@@ -585,12 +585,12 @@ public class Variable<T> implements Expression<T> {
 							if (o != null)
 								while (o.containsKey("" + i))
 									i++;
-							setIndex(e, "" + i, d);
+							setIndex(event, "" + i, d);
 							i++;
 						}
 					}
 				} else {
-					Object o = get(e);
+					Object o = get(event);
 					ClassInfo<?> ci;
 					if (o == null) {
 						ci = null;
@@ -633,7 +633,7 @@ public class Variable<T> implements Expression<T> {
 							}
 						}
 						if (changed)
-							set(e, o);
+							set(event, o);
 					} else if ((changer = ci.getChanger()) != null && (cs = changer.acceptChange(mode)) != null) {
 						Object[] one = (Object[]) Array.newInstance(o.getClass(), 1);
 						one[0] = o;
@@ -659,23 +659,23 @@ public class Variable<T> implements Expression<T> {
 
 	@Override
 	@Nullable
-	public T getSingle(Event e) {
+	public T getSingle(Event event) {
 		if (list)
 			throw new SkriptAPIException("Invalid call to getSingle");
-		return getConverted(e);
+		return getConverted(event);
 	}
 
 	@Override
-	public T[] getArray(Event e) {
-		return getAll(e);
+	public T[] getArray(Event event) {
+		return getAll(event);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T[] getAll(Event e) {
+	public T[] getAll(Event event) {
 		if(list)
-			return getConvertedArray(e);
-		T o = getConverted(e);
+			return getConvertedArray(event);
+		T o = getConverted(event);
 		if (o == null) {
 			T[] r = (T[]) Array.newInstance(superType, 0);
 			assert r != null;
@@ -687,8 +687,8 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean isLoopOf(String s) {
-		return s.equalsIgnoreCase("var") || s.equalsIgnoreCase("variable") || s.equalsIgnoreCase("value") || s.equalsIgnoreCase("index");
+	public boolean isLoopOf(String string) {
+		return string.equalsIgnoreCase("var") || string.equalsIgnoreCase("variable") || string.equalsIgnoreCase("value") || string.equalsIgnoreCase("index");
 	}
 
 	public boolean isIndexLoop(String s) {
@@ -696,13 +696,13 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
-		return SimpleExpression.check(getAll(e), c, negated, getAnd());
+	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+		return SimpleExpression.check(getAll(event), checker, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c) {
-		return SimpleExpression.check(getAll(e), c, false, getAnd());
+	public boolean check(Event event, Checker<? super T> checker) {
+		return SimpleExpression.check(getAll(event), checker, false, getAnd());
 	}
 
 	public VariableString getName() {

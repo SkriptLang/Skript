@@ -69,7 +69,7 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 	}
 	
 	@Override
-	protected ItemType[] get(final Event e, final ItemType[] source) {
+	protected ItemType[] get(final Event event, final ItemType[] source) {
 		return get(source, itemType -> {
 			ItemType clone = itemType.clone();
 
@@ -87,9 +87,9 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
 			return "unbreakable items";
-		return "unbreakable " + Arrays.toString(getExpr().getAll(e));
+		return "unbreakable " + Arrays.toString(getExpr().getAll(event));
 	}
 }

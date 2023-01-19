@@ -68,28 +68,28 @@ public class EffVectorRotateXYZ extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
-	protected void execute(Event e) {
-		Number d = degree.getSingle(e);
+	protected void execute(Event event) {
+		Number d = degree.getSingle(event);
 		if (d == null)
 			return;
 		switch (axis) {
 			case 1:
-				for (Vector v : vectors.getArray(e))
+				for (Vector v : vectors.getArray(event))
 					VectorMath.rotX(v, d.doubleValue());
 				break;
 			case 2:
-				for (Vector v : vectors.getArray(e))
+				for (Vector v : vectors.getArray(event))
 					VectorMath.rotY(v, d.doubleValue());
 				break;
 			case 3:
-				for (Vector v : vectors.getArray(e))
+				for (Vector v : vectors.getArray(event))
 					VectorMath.rotZ(v, d.doubleValue());
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "rotate " + vectors.toString(e, debug) + " around " + axes[axis] + "-axis" + " by " + degree + "degrees";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "rotate " + vectors.toString(event, debug) + " around " + axes[axis] + "-axis" + " by " + degree + "degrees";
 	}
 
 }

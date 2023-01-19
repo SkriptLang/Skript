@@ -74,17 +74,17 @@ public class ExprLastDamage extends SimplePropertyExpression<LivingEntity, Numbe
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null) {
 			switch (mode) {
 				case SET:
-					for (LivingEntity entity : getExpr().getArray(e))
+					for (LivingEntity entity : getExpr().getArray(event))
 						entity.setLastDamage((Long) delta[0]);
 					break;
 				case REMOVE:
 					delta[0] = (Long) delta[0] * -1;
 				case ADD:
-					for (LivingEntity entity : getExpr().getArray(e))
+					for (LivingEntity entity : getExpr().getArray(event))
 						entity.setLastDamage((Long) delta[0] + entity.getLastDamage());
 					break;
 				default:

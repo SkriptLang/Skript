@@ -86,9 +86,9 @@ public class ExprLore extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		final Object i = item.getSingle(e);
-		final Number n = lineNumber != null ? lineNumber.getSingle(e) : null;
+	protected String[] get(final Event event) {
+		final Object i = item.getSingle(event);
+		final Number n = lineNumber != null ? lineNumber.getSingle(event) : null;
 		if (n == null && lineNumber != null)
 			return null;
 		if (i == null || i instanceof ItemStack && ((ItemStack) i).getType() == Material.AIR)
@@ -128,8 +128,8 @@ public class ExprLore extends SimpleExpression<String> {
 	}
 
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
-		Object i = item.getSingle(e);
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+		Object i = item.getSingle(event);
 
 		String[] stringDelta = delta == null ? null : Arrays.copyOf(delta, delta.length, String[].class);
 
@@ -141,7 +141,7 @@ public class ExprLore extends SimpleExpression<String> {
 		if (meta == null)
 			meta = Bukkit.getItemFactory().getItemMeta(Material.STONE);
 
-		Number lineNumber = this.lineNumber != null ? this.lineNumber.getSingle(e) : null;
+		Number lineNumber = this.lineNumber != null ? this.lineNumber.getSingle(event) : null;
 		List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
 		if (lineNumber == null) {
@@ -228,11 +228,11 @@ public class ExprLore extends SimpleExpression<String> {
 
 		if (ChangerUtils.acceptsChange(item, ChangeMode.SET, i.getClass())) {
 			Object[] itemDelta = i instanceof ItemStack ? new ItemStack[]{(ItemStack) i} : new ItemType[]{(ItemType) i};
-			item.change(e, itemDelta, ChangeMode.SET);
+			item.change(event, itemDelta, ChangeMode.SET);
 		} else {
 			Object[] itemDelta = i instanceof ItemStack ? new ItemType[]{new ItemType((ItemStack) i)} :
 					new ItemStack[]{((ItemType) i).getRandom()};
-			item.change(e, itemDelta, ChangeMode.SET);
+			item.change(event, itemDelta, ChangeMode.SET);
 		}
 	}
 
@@ -262,7 +262,7 @@ public class ExprLore extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (lineNumber != null ? "the line " + lineNumber.toString(e, debug) + " of " : "") + "the lore of " + item.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (lineNumber != null ? "the line " + lineNumber.toString(event, debug) + " of " : "") + "the lore of " + item.toString(event, debug);
 	}
 }

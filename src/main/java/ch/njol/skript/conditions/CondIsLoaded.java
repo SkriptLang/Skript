@@ -96,11 +96,11 @@ public class CondIsLoaded extends Condition {
 	
 	@SuppressWarnings("null")
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
+	public String toString(@Nullable Event event, boolean d) {
 		String neg = isNegated() ? " not " : " ";
-		String chunk = pattern == 0 ? "chunk[s] at " + locations.toString(e, d) + (locations.isSingle() ? " is" : " are") + neg + "loaded" : "";
-		String chunkC = pattern == 1 ? "chunk (x:" + x.toString(e, d) + ",z:" + z.toString(e, d) + ",w:" + world.toString(e,d) + ") is" + neg + "loaded" : "";
-		String world = pattern == 2 ? "world[s] " + this.world.toString(e, d) + (this.world.isSingle() ? " is" : " are") + neg + "loaded" : "";
+		String chunk = pattern == 0 ? "chunk[s] at " + locations.toString(event, d) + (locations.isSingle() ? " is" : " are") + neg + "loaded" : "";
+		String chunkC = pattern == 1 ? "chunk (x:" + x.toString(event, d) + ",z:" + z.toString(event, d) + ",w:" + world.toString(event,d) + ") is" + neg + "loaded" : "";
+		String world = pattern == 2 ? "world[s] " + this.world.toString(event, d) + (this.world.isSingle() ? " is" : " are") + neg + "loaded" : "";
 		return chunk + chunkC + world;
 	}
 	

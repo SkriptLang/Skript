@@ -57,7 +57,7 @@ public class ExprPlugins extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		return Arrays.stream(Bukkit.getPluginManager().getPlugins())
 			.map(Plugin::getName)
 			.toArray(String[]::new);
@@ -74,7 +74,7 @@ public class ExprPlugins extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the loaded plugins";
 	}
 

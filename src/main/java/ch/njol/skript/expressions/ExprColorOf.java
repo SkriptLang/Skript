@@ -69,7 +69,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Color[] get(Event e, Object[] source) {
+	protected Color[] get(Event event, Object[] source) {
 		if (source instanceof FireworkEffect[]) {
 			List<Color> colors = new ArrayList<>();
 			
@@ -101,8 +101,8 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "colour of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "colour of " + getExpr().toString(event, debug);
 	}
 
 	@Override
@@ -127,12 +127,12 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@SuppressWarnings("deprecated")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		DyeColor color = ((Color) delta[0]).asDyeColor();
 
-		for (Object o : getExpr().getArray(e)) {
+		for (Object o : getExpr().getArray(event)) {
 			if (o instanceof Item || o instanceof ItemType) {
 				ItemStack stack = o instanceof Item ? ((Item) o).getItemStack() : ((ItemType) o).getRandom();
 

@@ -55,7 +55,7 @@ public class ExprAllCommands extends SimpleExpression<String> {
 	@Nullable
 	@Override
 	@SuppressWarnings("null")
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		if (scriptCommandsOnly) {
 			return Commands.getScriptCommands().toArray(new String[0]);
 		} else {
@@ -80,7 +80,7 @@ public class ExprAllCommands extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "all " + (scriptCommandsOnly ? "script " : " ") + "commands";
 	}
 	

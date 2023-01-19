@@ -71,12 +71,12 @@ public class EffEnchant extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final ItemType i = item.getSingle(e);
+	protected void execute(final Event event) {
+		final ItemType i = item.getSingle(event);
 		if (i == null)
 			return;
 		if (enchs != null) {
-			final EnchantmentType[] types = enchs.getArray(e);
+			final EnchantmentType[] types = enchs.getArray(event);
 			if (types.length == 0)
 				return;
 			
@@ -85,7 +85,7 @@ public class EffEnchant extends Effect {
 				assert ench != null;
 				i.addEnchantments(new EnchantmentType(ench, type.getLevel()));
 			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
+			item.change(event, new ItemType[] {i}, ChangeMode.SET);
 		} else {
 			final EnchantmentType[] types = i.getEnchantmentTypes();
 			if (types == null)
@@ -95,13 +95,13 @@ public class EffEnchant extends Effect {
 				assert ench != null;
 				i.removeEnchantments(ench);
 			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
+			item.change(event, new ItemType[] {i}, ChangeMode.SET);
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return enchs == null ? "disenchant " + item.toString(e, debug) : "enchant " + item.toString(e, debug) + " with " + enchs;
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return enchs == null ? "disenchant " + item.toString(event, debug) : "enchant " + item.toString(event, debug) + " with " + enchs;
 	}
 	
 }

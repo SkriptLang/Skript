@@ -96,7 +96,7 @@ public interface Converter<F, T> {
 		}
 
 		@Override
-		public String toString(@Nullable Event e, boolean debug) {
+		public String toString(@Nullable Event event, boolean debug) {
 			if (debug) {
 				String str = Arrays.stream(chain).map(c -> Classes.getExactClassName(c)).collect(Collectors.joining(" -> "));
 				assert str != null;

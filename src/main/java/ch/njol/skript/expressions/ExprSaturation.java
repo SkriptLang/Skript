@@ -54,25 +54,25 @@ public class ExprSaturation extends SimplePropertyExpression<Player, Number> {
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		Float value = delta != null ? ((Number)delta[0]).floatValue() : null;
 		switch (mode) {
 			case ADD:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setSaturation(player.getSaturation() + value);
 				break;
 			case REMOVE:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setSaturation(player.getSaturation() - value);
 				break;
 			case SET:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setSaturation(value);
 				break;
 			case DELETE:
 			case REMOVE_ALL:
 			case RESET:
-				for (Player player : getExpr().getArray(e))
+				for (Player player : getExpr().getArray(event))
 					player.setSaturation(0);
 				break;
 		}

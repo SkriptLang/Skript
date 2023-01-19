@@ -143,17 +143,17 @@ public class ExprFilter extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public boolean isLoopOf(String s) {
+	public boolean isLoopOf(String string) {
 		for (ExprInput<?> child : children) { // if they used player input, let's assume loop-player is valid
 			if (child.getClassInfo() == null || child.getClassInfo().getUserInputPatterns() == null)
 				continue;
 
 			for (Pattern pattern : child.getClassInfo().getUserInputPatterns()) {
-				if (pattern.matcher(s).matches())
+				if (pattern.matcher(string).matches())
 					return true;
 			}
 		}
-		return objects.isLoopOf(s); // nothing matched, so we'll rely on the object expression's logic
+		return objects.isLoopOf(string); // nothing matched, so we'll rely on the object expression's logic
 	}
 
 	@Name("Filter Input")

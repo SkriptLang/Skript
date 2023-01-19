@@ -58,8 +58,8 @@ public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 
 	@Override
 	@Nullable
-	protected Long[] get(Event e) {
-		return new Long[]{(long) ((PrepareItemEnchantEvent) e).getEnchantmentBonus()};
+	protected Long[] get(Event event) {
+		return new Long[]{(long) ((PrepareItemEnchantEvent) event).getEnchantmentBonus()};
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "enchantment bonus";
 	}
 

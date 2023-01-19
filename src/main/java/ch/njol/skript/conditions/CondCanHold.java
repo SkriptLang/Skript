@@ -92,9 +92,9 @@ public class CondCanHold extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.CAN, e, debug, invis,
-				"hold " + items.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, invis,
+				"hold " + items.toString(event, debug));
 	}
 	
 }

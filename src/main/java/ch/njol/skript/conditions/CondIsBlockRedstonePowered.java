@@ -71,8 +71,8 @@ public class CondIsBlockRedstonePowered extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyCondition.PropertyType.BE, e, debug, blocks, (isIndirectlyPowered ? "indirectly " : "") + "powered");
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyCondition.PropertyType.BE, event, debug, blocks, (isIndirectlyPowered ? "indirectly " : "") + "powered");
 	}
 	
 }

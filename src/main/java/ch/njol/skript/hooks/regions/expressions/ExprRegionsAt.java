@@ -73,8 +73,8 @@ public class ExprRegionsAt extends SimpleExpression<Region> {
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected Region[] get(final Event e) {
-		final Location[] ls = locs.getArray(e);
+	protected Region[] get(final Event event) {
+		final Location[] ls = locs.getArray(event);
 		if (ls.length == 0)
 			return new Region[0];
 		final ArrayList<Region> r = new ArrayList<>();
@@ -94,8 +94,8 @@ public class ExprRegionsAt extends SimpleExpression<Region> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the regions at " + locs.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the regions at " + locs.toString(event, debug);
 	}
 	
 }

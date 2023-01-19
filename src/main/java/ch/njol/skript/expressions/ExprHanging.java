@@ -68,16 +68,16 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	
 	@Override
 	@Nullable
-	public Entity[] get(Event e) {
-		if (!(e instanceof HangingEvent))
+	public Entity[] get(Event event) {
+		if (!(event instanceof HangingEvent))
 			return null;
 
 		Entity entity = null;
 
 		if (!isRemover)
-			entity = ((HangingEvent) e).getEntity();
-		else if (e instanceof HangingBreakByEntityEvent)
-			entity = ((HangingBreakByEntityEvent) e).getRemover();
+			entity = ((HangingEvent) event).getEntity();
+		else if (event instanceof HangingBreakByEntityEvent)
+			entity = ((HangingBreakByEntityEvent) event).getRemover();
 
 		return new Entity[] { entity };
 	}
@@ -94,7 +94,7 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "hanging " + (isRemover ? "remover" : "entity");
 	}
 	

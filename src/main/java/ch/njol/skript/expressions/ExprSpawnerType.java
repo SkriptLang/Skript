@@ -68,8 +68,8 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 	
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		for (Block b : getExpr().getArray(e)) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
+		for (Block b : getExpr().getArray(event)) {
 			if (b.getType() != MATERIAL_SPAWNER)
 				continue;
 			CreatureSpawner s = (CreatureSpawner) b.getState();

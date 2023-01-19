@@ -70,9 +70,9 @@ public class CondIsRiding extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, entities,
-				"riding " + types.toString(e, debug));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, entities,
+				"riding " + types.toString(event, debug));
 	}
 	
 }

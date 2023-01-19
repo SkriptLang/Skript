@@ -58,7 +58,7 @@ public class EvtLevel extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "level " + (leveling.isTrue() ? "up" : leveling.isFalse() ? "down" : "change");
 	}
 }

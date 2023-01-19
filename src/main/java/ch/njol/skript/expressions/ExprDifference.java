@@ -116,8 +116,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
-		final Object f = first.getSingle(e), s = second.getSingle(e);
+	protected Object[] get(final Event event) {
+		final Object f = first.getSingle(event), s = second.getSingle(event);
 		if (f == null || s == null)
 			return null;
 		final Object[] one = (Object[]) Array.newInstance(relativeType, 1);
@@ -143,8 +143,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "difference between " + first.toString(e, debug) + " and " + second.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "difference between " + first.toString(event, debug) + " and " + second.toString(event, debug);
 	}
 	
 	@Override

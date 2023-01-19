@@ -58,13 +58,13 @@ public class EffToggleFlight extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (Player player : players.getArray(e))
+	protected void execute(final Event event) {
+		for (Player player : players.getArray(event))
 			player.setAllowFlight(allow);
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "allow flight to " + players.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "allow flight to " + players.toString(event, debug);
 	}
 }

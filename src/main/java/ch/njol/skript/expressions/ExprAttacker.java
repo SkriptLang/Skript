@@ -69,8 +69,8 @@ public class ExprAttacker extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	protected Entity[] get(Event e) {
-		return new Entity[] {getAttacker(e)};
+	protected Entity[] get(Event event) {
+		return new Entity[] {getAttacker(event)};
 	}
 	
 	@Nullable
@@ -105,10 +105,10 @@ public class ExprAttacker extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
 			return "the attacker";
-		return Classes.getDebugMessage(getSingle(e));
+		return Classes.getDebugMessage(getSingle(event));
 	}
 	
 	@Override

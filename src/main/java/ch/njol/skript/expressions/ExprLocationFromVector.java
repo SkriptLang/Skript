@@ -79,11 +79,11 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 
 	@SuppressWarnings("null")
 	@Override
-	protected Location[] get(Event e) {
-		Vector v = vector.getSingle(e);
-		World w = world.getSingle(e);
-		Number y = yaw != null ? yaw.getSingle(e) : null;
-		Number p = pitch != null ? pitch.getSingle(e) : null;
+	protected Location[] get(Event event) {
+		Vector v = vector.getSingle(event);
+		World w = world.getSingle(event);
+		Number y = yaw != null ? yaw.getSingle(event) : null;
+		Number p = pitch != null ? pitch.getSingle(event) : null;
 		if (v == null || w == null)
 			return null;
 		if (y == null || p == null)
@@ -103,10 +103,10 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (yawpitch)
-			return "location from " + vector.toString(e, debug) + " with yaw " + yaw.toString() + " and pitch " + pitch.toString(e, debug);
-		return "location from " + vector.toString(e, debug);
+			return "location from " + vector.toString(event, debug) + " with yaw " + yaw.toString() + " and pitch " + pitch.toString(event, debug);
+		return "location from " + vector.toString(event, debug);
 	}
 
 }

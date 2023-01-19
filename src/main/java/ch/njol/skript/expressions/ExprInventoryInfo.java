@@ -68,8 +68,8 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	}
 
 	@Override
-	protected Object[] get(Event e) {
-		Inventory[] inventories = this.inventories.getArray(e);
+	protected Object[] get(Event event) {
+		Inventory[] inventories = this.inventories.getArray(event);
 		List<Object> objects = new ArrayList<>();
 		switch (type) {
 			case HOLDER:
@@ -116,8 +116,8 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : type == SLOTS ? "slots of " : "viewers of ") + inventories.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : type == SLOTS ? "slots of " : "viewers of ") + inventories.toString(event, debug);
 	}
 
 }

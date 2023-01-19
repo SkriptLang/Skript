@@ -82,12 +82,12 @@ public class CondIncendiary extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (isEvent)
 			return "the event-explosion " + (isNegated() == false ? "is" : "is not") + " incendiary";
 		if (entities.isSingle())
-			return entities.toString(e, debug) + (isNegated() == false ? " is" : " is not") + " incendiary";
-		return entities.toString(e, debug) + (isNegated() == false ? " are" : " are not") + " incendiary";
+			return entities.toString(event, debug) + (isNegated() == false ? " is" : " is not") + " incendiary";
+		return entities.toString(event, debug) + (isNegated() == false ? " are" : " are not") + " incendiary";
 	}
 
 }

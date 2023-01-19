@@ -62,9 +62,9 @@ public class ExprPermissions extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		final Set<String> permissions = new HashSet<>();
-		for (Player player : players.getArray(e))
+		for (Player player : players.getArray(event))
 			for (final PermissionAttachmentInfo permission : player.getEffectivePermissions())
 				permissions.add(permission.getPermission());
 		return permissions.toArray(new String[permissions.size()]);

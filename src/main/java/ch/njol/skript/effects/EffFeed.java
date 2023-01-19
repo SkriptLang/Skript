@@ -54,23 +54,23 @@ public class EffFeed extends Effect {
     }
 
     @Override
-    protected void execute(Event e) {
+    protected void execute(Event event) {
         int level = 20;
 
         if (beefs != null) {
-            Number n = beefs.getSingle(e);
+            Number n = beefs.getSingle(event);
             if (n == null)
                 return;
             level = n.intValue();
         }
-        for (Player player : players.getArray(e)) {
+        for (Player player : players.getArray(event)) {
             player.setFoodLevel(player.getFoodLevel() + level);
         }
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return "feed " + players.toString(e, debug) + (beefs != null ? " by " + beefs.toString(e, debug) : "");
+    public String toString(@Nullable Event event, boolean debug) {
+        return "feed " + players.toString(event, debug) + (beefs != null ? " by " + beefs.toString(event, debug) : "");
     }
 
 

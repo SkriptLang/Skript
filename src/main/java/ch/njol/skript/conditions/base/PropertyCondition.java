@@ -129,8 +129,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 	
 	@Override
-	public final boolean check(final Event e) {
-		return expr.check(e, this, isNegated());
+	public final boolean check(final Event event) {
+		return expr.check(event, this, isNegated());
 	}
 	
 	@Override
@@ -152,8 +152,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return toString(this, getPropertyType(), e, debug, expr, getPropertyName());
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return toString(this, getPropertyType(), event, debug, expr, getPropertyName());
 	}
 	
 	public static String toString(Condition condition, PropertyType propertyType, @Nullable Event e,

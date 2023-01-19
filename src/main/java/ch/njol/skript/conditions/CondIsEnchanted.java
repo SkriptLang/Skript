@@ -72,11 +72,11 @@ public class CondIsEnchanted extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Expression<EnchantmentType> es = enchs;
 		
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, items,
-				"enchanted" + (es == null ? "" : " with " + es.toString(e, debug)));
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, items,
+				"enchanted" + (es == null ? "" : " with " + es.toString(event, debug)));
 	}
 	
 }

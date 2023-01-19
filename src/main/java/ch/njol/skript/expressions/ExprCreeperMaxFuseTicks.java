@@ -57,9 +57,9 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		int d = delta == null ? 0 : ((Number) delta[0]).intValue();
-		for (LivingEntity le : getExpr().getArray(e)) {
+		for (LivingEntity le : getExpr().getArray(event)) {
 			if (le instanceof Creeper) {
 				Creeper c = (Creeper) le;
 				switch (mode) {

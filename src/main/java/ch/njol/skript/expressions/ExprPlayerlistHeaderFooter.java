@@ -84,9 +84,9 @@ public class ExprPlayerlistHeaderFooter extends SimplePropertyExpression<Player,
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		final String text = delta == null ? "" : (String) delta[0];
-		for (Player player : getExpr().getArray(e)) {
+		for (Player player : getExpr().getArray(event)) {
 			if (mark == HEADER) {
 				player.setPlayerListHeader(text);
 			} else if (mark == FOOTER) {

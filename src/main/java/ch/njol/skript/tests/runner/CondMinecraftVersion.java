@@ -60,8 +60,8 @@ public class CondMinecraftVersion extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "is running minecraft " + version.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "is running minecraft " + version.toString(event, debug);
 	}
 	
 }

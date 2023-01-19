@@ -80,18 +80,18 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null) {
 			if (flying) {
 				switch (mode) {
 					case SET:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart)
 								((Minecart) entity).setFlyingVelocityMod((Vector) delta[0]);
 						}
 						break;
 					case ADD:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart) {
 								Minecart minecart = (Minecart) entity;
 								minecart.setFlyingVelocityMod(((Vector) delta[0]).add(minecart.getFlyingVelocityMod()));
@@ -99,7 +99,7 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 						}
 						break;
 					case REMOVE:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart) {
 								Minecart minecart = (Minecart) entity;
 								minecart.setFlyingVelocityMod(((Vector) delta[0]).subtract(minecart.getFlyingVelocityMod()));
@@ -112,13 +112,13 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 			} else {
 				switch (mode) {
 					case SET:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart)
 								((Minecart) entity).setDerailedVelocityMod((Vector) delta[0]);
 						}
 						break;
 					case ADD:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart) {
 								Minecart minecart = (Minecart) entity;
 								minecart.setDerailedVelocityMod(((Vector) delta[0]).add(minecart.getDerailedVelocityMod()));
@@ -126,7 +126,7 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 						}
 						break;
 					case REMOVE:
-						for (Entity entity : getExpr().getArray(e)) {
+						for (Entity entity : getExpr().getArray(event)) {
 							if (entity instanceof Minecart) {
 								Minecart minecart = (Minecart) entity;
 								minecart.setDerailedVelocityMod(((Vector) delta[0]).subtract(minecart.getDerailedVelocityMod()));

@@ -72,17 +72,17 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 	
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
-		Entity[] source = vehicle.getAll(e);
+	protected Entity[] get(Event event) {
+		Entity[] source = vehicle.getAll(event);
 		Converter<Entity, Entity[]> conv = new Converter<Entity, Entity[]>(){
 			@Override
 			@Nullable
 			public Entity[] convert(Entity v) {
-				if (getTime() >= 0 && e instanceof VehicleEnterEvent && v.equals(((VehicleEnterEvent) e).getVehicle()) && !Delay.isDelayed(e)) {
-					return new Entity[] {((VehicleEnterEvent) e).getEntered()};
+				if (getTime() >= 0 && event instanceof VehicleEnterEvent && v.equals(((VehicleEnterEvent) event).getVehicle()) && !Delay.isDelayed(event)) {
+					return new Entity[] {((VehicleEnterEvent) event).getEntered()};
 				}
-				if (getTime() >= 0 && e instanceof VehicleExitEvent && v.equals(((VehicleExitEvent) e).getVehicle()) && !Delay.isDelayed(e)) {
-					return new Entity[] {((VehicleExitEvent) e).getExited()};
+				if (getTime() >= 0 && event instanceof VehicleExitEvent && v.equals(((VehicleExitEvent) event).getVehicle()) && !Delay.isDelayed(event)) {
+					return new Entity[] {((VehicleExitEvent) event).getExited()};
 				}
 				return PassengerUtils.getPassenger(v);
 			}};
@@ -118,8 +118,8 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		Entity[] vehicles = this.vehicle.getArray(e);
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
+		Entity[] vehicles = this.vehicle.getArray(event);
 		if (!isSingle() || mode == ChangeMode.SET) {
 			for (Entity vehicle: vehicles){
 				if (vehicle == null)
@@ -161,7 +161,7 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 				}
 			}
 		} else {
-			super.change(e, delta, mode);
+			super.change(event, delta, mode);
 		}
 		
 	}
@@ -172,8 +172,8 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the passenger of " + vehicle.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the passenger of " + vehicle.toString(event, debug);
 	}
 	
 	@Override

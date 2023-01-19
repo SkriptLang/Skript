@@ -55,7 +55,7 @@ public class ExprParseError extends SimpleExpression<String> {
 	}
 	
 	@Override
-	protected String[] get(final Event e) {
+	protected String[] get(final Event event) {
 		return ExprParse.lastError == null ? new String[0] : new String[] {ExprParse.lastError};
 	}
 	
@@ -70,7 +70,7 @@ public class ExprParseError extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the last parse error";
 	}
 	

@@ -111,11 +111,11 @@ public class ExprEntities extends SimpleExpression<Entity> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean isLoopOf(String s) {
+	public boolean isLoopOf(String string) {
 		if (!(types instanceof Literal<?>))
 			return false;
 		try (LogHandler ignored = new BlockingLogHandler().start()) {
-			EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(s);
+			EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(string);
 			if (d != null) {
 				for (EntityData<?> t : ((Literal<EntityData<?>>) types).getAll()) {
 					assert t != null;
@@ -131,9 +131,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		if (isUsingRadius) {
-			Iterator<? extends Entity> iter = iterator(e);
+			Iterator<? extends Entity> iter = iterator(event);
 			if (iter == null || !iter.hasNext())
 				return null;
 
@@ -143,9 +143,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			return l.toArray((Entity[]) Array.newInstance(returnType, l.size()));
 		} else {
 			if (chunks != null) {
-				return EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e));
+				return EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event));
 			} else {
-				return EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null);
+				return EntityData.getAll(types.getAll(event), returnType, worlds != null ? worlds.getArray(event) : null);
 			}
 		}
 	}
@@ -153,14 +153,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	public Iterator<? extends Entity> iterator(Event e) {
+	public Iterator<? extends Entity> iterator(Event event) {
 		if (isUsingRadius) {
 			assert center != null;
-			Location l = center.getSingle(e);
+			Location l = center.getSingle(event);
 			if (l == null)
 				return null;
 			assert radius != null;
-			Number n = radius.getSingle(e);
+			Number n = radius.getSingle(event);
 			if (n == null)
 				return null;
 			double d = n.doubleValue();
@@ -170,7 +170,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 
 			Collection<Entity> es = l.getWorld().getNearbyEntities(l, d, d, d);
 			double radiusSquared = d * d * Skript.EPSILON_MULT;
-			EntityData<?>[] ts = types.getAll(e);
+			EntityData<?>[] ts = types.getAll(event);
 			return new CheckedIterator<>(es.iterator(), e1 -> {
 					if (e1 == null || e1.getLocation().distanceSquared(l) > radiusSquared)
 						return false;
@@ -182,9 +182,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				});
 		} else {
 			if (chunks == null || returnType == Player.class)
-				return super.iterator(e);
+				return super.iterator(event);
 
-			return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
+			return Arrays.stream(EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event))).iterator();
 		}
 	}
 
@@ -200,9 +200,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		return "all entities of type " + types.toString(e, debug) + (worlds != null ? " in " + worlds.toString(e, debug) :
-				radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "all entities of type " + types.toString(event, debug) + (worlds != null ? " in " + worlds.toString(event, debug) :
+				radius != null && center != null ? " in radius " + radius.toString(event, debug) + " around " + center.toString(event, debug) : "");
 	}
 
 }

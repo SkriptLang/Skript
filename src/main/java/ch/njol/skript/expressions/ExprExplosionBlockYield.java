@@ -65,11 +65,11 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event e) {
-		if (!(e instanceof EntityExplodeEvent))
+	protected Number[] get(Event event) {
+		if (!(event instanceof EntityExplodeEvent))
 			return null;
 
-		return new Number[]{((EntityExplodeEvent) e).getYield()};
+		return new Number[]{((EntityExplodeEvent) event).getYield()};
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the explosion's block yield";
 	}
 

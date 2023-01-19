@@ -65,10 +65,10 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number r = radius.getSingle(e);
-		Number y = yaw.getSingle(e);
-		Number p = pitch.getSingle(e);
+	protected Vector[] get(Event event) {
+		Number r = radius.getSingle(event);
+		Number y = yaw.getSingle(event);
+		Number p = pitch.getSingle(event);
 		if (r == null || y == null || p == null)
 			return null;
 		return CollectionUtils.array(VectorMath.fromSphericalCoordinates(r.doubleValue(), VectorMath.fromSkriptYaw(y.floatValue()), p.floatValue() + 90));
@@ -85,9 +85,9 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "spherical vector with radius " + radius.toString(e, debug) + ", yaw " + yaw.toString(e, debug) +
-				" and pitch" + pitch.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "spherical vector with radius " + radius.toString(event, debug) + ", yaw " + yaw.toString(event, debug) +
+				" and pitch" + pitch.toString(event, debug);
 	}
 
 }

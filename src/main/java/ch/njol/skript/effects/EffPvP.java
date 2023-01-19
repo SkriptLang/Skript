@@ -59,15 +59,15 @@ public class EffPvP extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final World w : worlds.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final World w : worlds.getArray(event)) {
 			w.setPVP(enable);
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(event, debug);
 	}
 	
 }

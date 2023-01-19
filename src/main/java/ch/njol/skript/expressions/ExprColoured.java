@@ -77,7 +77,7 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	}
 	
 	@Override
-	protected String[] get(final Event e, final String[] source) {
+	protected String[] get(final Event event, final String[] source) {
 		return get(source, new Converter<String, String>() {
 			@Override
 			public String convert(final String s) {
@@ -92,8 +92,8 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (color ? "" : "un") + "coloured " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (color ? "" : "un") + "coloured " + getExpr().toString(event, debug);
 	}
 	
 	/**

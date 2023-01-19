@@ -49,7 +49,7 @@ public class ExprNow extends SimpleExpression<Date> {
 	}
 	
 	@Override
-	protected Date[] get(final Event e) {
+	protected Date[] get(final Event event) {
 		return new Date[] {new Date()};
 	}
 	
@@ -64,7 +64,7 @@ public class ExprNow extends SimpleExpression<Date> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "now";
 	}
 	

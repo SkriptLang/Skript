@@ -62,12 +62,12 @@ public class ExprBlockData extends SimplePropertyExpression<Block, BlockData> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		
 		BlockData blockData = ((BlockData) delta[0]);
-		for (Block block : getExpr().getArray(e)) {
+		for (Block block : getExpr().getArray(event)) {
 			block.setBlockData(blockData);
 		}
 	}

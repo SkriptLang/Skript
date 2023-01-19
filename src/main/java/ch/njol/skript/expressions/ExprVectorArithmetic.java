@@ -119,8 +119,8 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event e) {
-		Vector v1 = first.getSingle(e), v2 = second.getSingle(e);
+	protected Vector[] get(Event event) {
+		Vector v1 = first.getSingle(event), v2 = second.getSingle(event);
 		if (v1 == null)
 			v1 = new Vector();
 		if (v2 == null)
@@ -139,8 +139,8 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " " + op +  " " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return first.toString(event, debug) + " " + op +  " " + second.toString(event, debug);
 	}
 
 }

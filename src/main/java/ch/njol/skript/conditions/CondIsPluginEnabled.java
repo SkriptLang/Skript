@@ -80,11 +80,11 @@ public class CondIsPluginEnabled extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String plugin = plugins.isSingle() ? "plugin " : "plugins ";
 		String plural = plugins.isSingle() ? " is" : " are";
 		String pattern = this.pattern == 0 ? " enabled" : this.pattern == 1 ? " not enabled" : " disabled";
-		return plugin + plugins.toString(e, debug) + plural + pattern;
+		return plugin + plugins.toString(event, debug) + plural + pattern;
 	}
 
 }

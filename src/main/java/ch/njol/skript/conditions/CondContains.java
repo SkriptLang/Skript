@@ -158,8 +158,8 @@ public class CondContains extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return containers.toString(e, debug) + (isNegated() ? " doesn't contain " : " contains ") + items.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return containers.toString(event, debug) + (isNegated() ? " doesn't contain " : " contains ") + items.toString(event, debug);
 	}
 
 }

@@ -64,12 +64,12 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	}
 
 	@Override
-	protected WeatherType[] get(final Event e, final World[] source) {
+	protected WeatherType[] get(final Event event, final World[] source) {
 		return get(source, new Getter<WeatherType, World>() {
 			@Override
 			public WeatherType get(final World w) {
-				if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
-					return WeatherType.fromEvent((WeatherEvent) e);
+				if (getTime() >= 0 && event instanceof WeatherEvent && w.equals(((WeatherEvent) event).getWorld()) && !Delay.isDelayed(event))
+					return WeatherType.fromEvent((WeatherEvent) event);
 				else
 					return WeatherType.fromWorld(w);
 			}
@@ -77,8 +77,8 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the weather in " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the weather in " + getExpr().toString(event, debug);
 	}
 	
 	@Override
@@ -90,21 +90,21 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		final WeatherType t = delta == null ? WeatherType.CLEAR : (WeatherType) delta[0];
-		for (final World w : getExpr().getArray(e)) {
+		for (final World w : getExpr().getArray(event)) {
 			assert w != null : getExpr();
-			if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e)) {
-				if (e instanceof WeatherChangeEvent) {
-					if (((WeatherChangeEvent) e).toWeatherState() && t == WeatherType.CLEAR)
-						((WeatherChangeEvent) e).setCancelled(true);
-					if (((WeatherChangeEvent) e).getWorld().isThundering() != (t == WeatherType.THUNDER))
-						((WeatherChangeEvent) e).getWorld().setThundering(t == WeatherType.THUNDER);
-				} else if (e instanceof ThunderChangeEvent) {
-					if (((ThunderChangeEvent) e).toThunderState() && t != WeatherType.THUNDER)
-						((ThunderChangeEvent) e).setCancelled(true);
-					if (((ThunderChangeEvent) e).getWorld().hasStorm() == (t == WeatherType.CLEAR))
-						((ThunderChangeEvent) e).getWorld().setStorm(t != WeatherType.CLEAR);
+			if (getTime() >= 0 && event instanceof WeatherEvent && w.equals(((WeatherEvent) event).getWorld()) && !Delay.isDelayed(event)) {
+				if (event instanceof WeatherChangeEvent) {
+					if (((WeatherChangeEvent) event).toWeatherState() && t == WeatherType.CLEAR)
+						((WeatherChangeEvent) event).setCancelled(true);
+					if (((WeatherChangeEvent) event).getWorld().isThundering() != (t == WeatherType.THUNDER))
+						((WeatherChangeEvent) event).getWorld().setThundering(t == WeatherType.THUNDER);
+				} else if (event instanceof ThunderChangeEvent) {
+					if (((ThunderChangeEvent) event).toThunderState() && t != WeatherType.THUNDER)
+						((ThunderChangeEvent) event).setCancelled(true);
+					if (((ThunderChangeEvent) event).getWorld().hasStorm() == (t == WeatherType.CLEAR))
+						((ThunderChangeEvent) event).getWorld().setStorm(t != WeatherType.CLEAR);
 				}
 			} else {
 				t.setWeather(w);

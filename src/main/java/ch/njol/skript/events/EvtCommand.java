@@ -76,7 +76,7 @@ public class EvtCommand extends SkriptEvent { // TODO condition to check whether
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "command" + (command != null ? " /" + command : "");
 	}
 	

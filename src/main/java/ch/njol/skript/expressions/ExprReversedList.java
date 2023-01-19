@@ -64,8 +64,8 @@ public class ExprReversedList extends SimpleExpression<Object> {
 
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
-		Object[] inputArray = list.getArray(e).clone();
+	protected Object[] get(Event event) {
+		Object[] inputArray = list.getArray(event).clone();
 		Object[] array = (Object[]) Array.newInstance(getReturnType(), inputArray.length);
 		System.arraycopy(inputArray, 0, array, 0, inputArray.length);
 		reverse(array);
@@ -106,8 +106,8 @@ public class ExprReversedList extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "reversed " + list.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "reversed " + list.toString(event, debug);
 	}
 
 }

@@ -37,11 +37,11 @@ public class EffectSectionEffect extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) { }
+	protected void execute(Event event) { }
 
 	@Override
-	protected @Nullable TriggerItem walk(Event e) {
-		return effectSection.walk(e);
+	protected @Nullable TriggerItem walk(Event event) {
+		return effectSection.walk(event);
 	}
 
 	@Override
@@ -65,8 +65,8 @@ public class EffectSectionEffect extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return effectSection.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return effectSection.toString(event, debug);
 	}
 
 }

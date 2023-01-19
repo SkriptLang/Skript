@@ -113,8 +113,8 @@ public class ExprStringCase extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		String[] strs = expr.getArray(e);
+	protected String[] get(Event event) {
+		String[] strs = expr.getArray(event);
 		for (int i = 0; i < strs.length; i++) {
 			if (strs[i] != null) {
 				switch (type) {
@@ -153,7 +153,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		switch (type) {
 			case 0: // Basic Case Change 
 				return (casemode == 1) ? "uppercase" : "lowercase";

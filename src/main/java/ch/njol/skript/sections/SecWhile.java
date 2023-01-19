@@ -68,13 +68,13 @@ public class SecWhile extends Section {
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		if ((doWhile && !ranDoWhile) || condition.check(e)) {
+	protected TriggerItem walk(Event event) {
+		if ((doWhile && !ranDoWhile) || condition.check(event)) {
 			ranDoWhile = true;
-			return walk(e, true);
+			return walk(event, true);
 		} else {
 			reset();
-			debug(e, false);
+			debug(event, false);
 			return actualNext;
 		}
 	}
@@ -91,8 +91,8 @@ public class SecWhile extends Section {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (doWhile ? "do " : "") + "while " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (doWhile ? "do " : "") + "while " + condition.toString(event, debug);
 	}
 
 	public void reset() {

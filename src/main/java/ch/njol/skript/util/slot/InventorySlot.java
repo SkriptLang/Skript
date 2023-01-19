@@ -89,7 +89,7 @@ public class InventorySlot extends SlotWithIndex {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		InventoryHolder holder = invi != null ? invi.getHolder() : null;
 		
 		if (holder instanceof BlockState)

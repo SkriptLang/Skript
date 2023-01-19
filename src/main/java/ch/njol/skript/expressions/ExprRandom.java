@@ -64,8 +64,8 @@ public class ExprRandom extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	protected Object[] get(final Event e) {
-		final Object[] set = expr.getAll(e);
+	protected Object[] get(final Event event) {
+		final Object[] set = expr.getAll(event);
 		if (set.length <= 1)
 			return set;
 		final Object[] one = (Object[]) Array.newInstance(set.getClass().getComponentType(), 1);
@@ -79,8 +79,8 @@ public class ExprRandom extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "a random element out of " + expr.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "a random element out of " + expr.toString(event, debug);
 	}
 	
 	@Override

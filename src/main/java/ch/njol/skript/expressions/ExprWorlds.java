@@ -67,18 +67,18 @@ public class ExprWorlds extends SimpleExpression<World> {
 	
 	@Override
 	@Nullable
-	protected World[] get(final Event e) {
+	protected World[] get(final Event event) {
 		return Bukkit.getWorlds().toArray(new World[0]);
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<World> iterator(final Event e) {
+	public Iterator<World> iterator(final Event event) {
 		return Bukkit.getWorlds().iterator();
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "worlds";
 	}
 	

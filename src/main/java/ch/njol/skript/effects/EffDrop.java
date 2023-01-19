@@ -73,9 +73,9 @@ public class EffDrop extends Effect {
 	}
 
 	@Override
-	public void execute(Event e) {
-		Object[] os = drops.getArray(e);
-		for (Location l : locations.getArray(e)) {
+	public void execute(Event event) {
+		Object[] os = drops.getArray(event);
+		for (Location l : locations.getArray(event)) {
 			Location itemDropLoc = l.clone().subtract(0.5, 0.5, 0.5); // dropItemNaturally adds 0.15 to 0.85 randomly to all coordinates
 			for (Object o : os) {
 				if (o instanceof Experience) {
@@ -103,8 +103,8 @@ public class EffDrop extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "drop " + drops.toString(e, debug) + " " + locations.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "drop " + drops.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }

@@ -74,11 +74,11 @@ public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> 
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert mode != ChangeMode.REMOVE_ALL;
 		
 		final float d = delta == null ? 0 : ((Number) delta[0]).floatValue();
-		for (final Player p : getExpr().getArray(e)) {
+		for (final Player p : getExpr().getArray(event)) {
 			final float c;
 			switch (mode) {
 				case SET:

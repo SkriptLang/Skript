@@ -98,12 +98,12 @@ public class EffOpenInventory extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		if (invi != null) {
 			Inventory i;
 			
 			assert invi != null;
-			Object o = invi.getSingle(e);
+			Object o = invi.getSingle(event);
 			if (o instanceof Inventory) {
 				i = (Inventory) o;
 			} else if (o instanceof InventoryType) {
@@ -114,7 +114,7 @@ public class EffOpenInventory extends Effect {
 			
 			if (i == null)
 				return;
-			for (final Player p : players.getArray(e)) {
+			for (final Player p : players.getArray(event)) {
 				try {
 					p.openInventory(i);
 				} catch (IllegalArgumentException ex){
@@ -122,7 +122,7 @@ public class EffOpenInventory extends Effect {
 				}
 			}
 		} else {
-			for (final Player p : players.getArray(e)) {
+			for (final Player p : players.getArray(event)) {
 				if (open) {
 					switch (invType) {
 						case WORKBENCH:
@@ -151,8 +151,8 @@ public class EffOpenInventory extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (open ? "open " + (invi != null ? invi.toString(e, debug) : "crafting table") + " to " : "close inventory view of ") + players.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (open ? "open " + (invi != null ? invi.toString(event, debug) : "crafting table") + " to " : "close inventory view of ") + players.toString(event, debug);
 	}
 	
 }

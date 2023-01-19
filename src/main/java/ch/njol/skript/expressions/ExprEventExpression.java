@@ -53,8 +53,8 @@ public class ExprEventExpression extends WrapperExpression<Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return getExpr().toString(event, debug);
 	}
 	
 }

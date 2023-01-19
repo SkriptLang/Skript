@@ -160,10 +160,10 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Number[] get(final Event e) {
+	protected Number[] get(final Event event) {
 		Number[] one = (Number[]) Array.newInstance(returnType, 1);
 		
-		one[0] = arithmeticGettable.get(e, returnType == Long.class);
+		one[0] = arithmeticGettable.get(event, returnType == Long.class);
 		
 		return one;
 	}
@@ -179,8 +179,8 @@ public class ExprArithmetic extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return first.toString(event, debug) + " " + op + " " + second.toString(event, debug);
 	}
 	
 	@SuppressWarnings("null")

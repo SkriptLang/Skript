@@ -81,10 +81,10 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert mode == ChangeMode.SET;
 		assert delta != null;
-		for (final Player p : getExpr().getArray(e)) {
+		for (final Player p : getExpr().getArray(event)) {
 			if (prefix)
 				VaultHook.chat.setPlayerPrefix(p, (String) delta[0]);
 			else

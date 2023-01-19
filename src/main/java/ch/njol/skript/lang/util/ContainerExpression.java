@@ -43,14 +43,14 @@ public class ContainerExpression extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	protected Object[] get(final Event e) {
+	protected Object[] get(final Event event) {
 		throw new UnsupportedOperationException("ContanerExpression must only be used by Loops");
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<Object> iterator(final Event e) {
-		final Iterator<? extends Container<?>> iter = expr.iterator(e);
+	public Iterator<Object> iterator(final Event event) {
+		final Iterator<? extends Container<?>> iter = expr.iterator(event);
 		if (iter == null)
 			return null;
 		return new Iterator<Object>() {
@@ -101,8 +101,8 @@ public class ContainerExpression extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return expr.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return expr.toString(event, debug);
 	}
 	
 }

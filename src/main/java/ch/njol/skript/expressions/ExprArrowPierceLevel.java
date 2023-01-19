@@ -71,14 +71,14 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int strength = delta != null ? Math.max(((Number) delta[0]).intValue(), 0) : 0;
 		int mod = 1;
 		switch (mode) {
 			case REMOVE:
 				mod = -1;
 			case ADD:
-				for (Projectile entity : getExpr().getArray(e)) {
+				for (Projectile entity : getExpr().getArray(event)) {
 					if (entity instanceof Arrow) {
 						Arrow arrow = (Arrow) entity;
 						int dmg = Math.round(arrow.getPierceLevel() + strength * mod);
@@ -89,7 +89,7 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 				break;
 			case RESET:
 			case SET:
-				for (Projectile entity : getExpr().getArray(e)) {
+				for (Projectile entity : getExpr().getArray(event)) {
 					((Arrow) entity).setPierceLevel(strength);
 				}
 				break;

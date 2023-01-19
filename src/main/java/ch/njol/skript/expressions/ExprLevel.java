@@ -50,10 +50,10 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	}
 	
 	@Override
-	protected Long[] get(final Event e, final Player[] source) {
+	protected Long[] get(final Event event, final Player[] source) {
 		return super.get(source, p -> {
-			if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
-				return (long) (getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel());
+			if (event instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) event).getPlayer() == p && !Delay.isDelayed(event)) {
+				return (long) (getTime() < 0 ? ((PlayerLevelChangeEvent) event).getOldLevel() : ((PlayerLevelChangeEvent) event).getNewLevel());
 			}
 			return (long) p.getLevel();
 		});
@@ -90,15 +90,15 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert mode != ChangeMode.REMOVE_ALL;
 		
 		final int l = delta == null ? 0 : ((Number) delta[0]).intValue();
 		
-		for (final Player p : getExpr().getArray(e)) {
+		for (final Player p : getExpr().getArray(event)) {
 			int level;
-			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
-				level = ((PlayerDeathEvent) e).getNewLevel();
+			if (getTime() > 0 && event instanceof PlayerDeathEvent && ((PlayerDeathEvent) event).getEntity() == p && !Delay.isDelayed(event)) {
+				level = ((PlayerDeathEvent) event).getNewLevel();
 			} else {
 				level = p.getLevel();
 			}
@@ -122,8 +122,8 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 			}
 			if (level < 0)
 				continue;
-			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
-				((PlayerDeathEvent) e).setNewLevel(level);
+			if (getTime() > 0 && event instanceof PlayerDeathEvent && ((PlayerDeathEvent) event).getEntity() == p && !Delay.isDelayed(event)) {
+				((PlayerDeathEvent) event).setNewLevel(level);
 			} else {
 				p.setLevel(level);
 			}

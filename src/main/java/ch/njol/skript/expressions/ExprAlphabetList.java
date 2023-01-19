@@ -56,8 +56,8 @@ public class ExprAlphabetList extends SimpleExpression<String>{
 	
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		String[] sorted = texts.getAll(e).clone(); // Not yet sorted
+	protected String[] get(Event event) {
+		String[] sorted = texts.getAll(event).clone(); // Not yet sorted
 		Arrays.sort(sorted); // Now sorted
 		return sorted;
 	}
@@ -73,8 +73,8 @@ public class ExprAlphabetList extends SimpleExpression<String>{
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "alphabetically sorted strings: " + texts.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "alphabetically sorted strings: " + texts.toString(event, debug);
 	}
 	
 }

@@ -73,9 +73,9 @@ public class ExprGroup extends SimpleExpression<String> {
 
 	@SuppressWarnings("null")
 	@Override
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		List<String> groups = new ArrayList<>();
-		for (OfflinePlayer player : players.getArray(e)) {
+		for (OfflinePlayer player : players.getArray(event)) {
 			if (primary)
 				groups.add(VaultHook.permission.getPrimaryGroup(null, player));
 			else
@@ -99,9 +99,9 @@ public class ExprGroup extends SimpleExpression<String> {
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		Permission api = VaultHook.permission;
-		for (OfflinePlayer player : players.getArray(e)) {
+		for (OfflinePlayer player : players.getArray(event)) {
 			switch (mode) {
 				case ADD:
 					for (Object o : delta)
@@ -139,8 +139,8 @@ public class ExprGroup extends SimpleExpression<String> {
 
 	@SuppressWarnings("null")
 	@Override
-	public String toString(Event e, boolean debug) {
-		return "group" + (primary ? "" : "s") + " of " + players.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return "group" + (primary ? "" : "s") + " of " + players.toString(event, debug);
 	}
 
 }

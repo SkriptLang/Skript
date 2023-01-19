@@ -71,14 +71,14 @@ public class ExprRawString extends SimpleExpression<String> {
 	}
 
 	@Override
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		List<String> strings = new ArrayList<>();
 		for (Expression<? extends String> message : messages) {
 			if (message instanceof VariableString) {
-				strings.add(((VariableString) message).toUnformattedString(e));
+				strings.add(((VariableString) message).toUnformattedString(event));
 				continue;
 			}
-			strings.addAll(Arrays.asList(message.getArray(e)));
+			strings.addAll(Arrays.asList(message.getArray(event)));
 		}
 		return strings.toArray(new String[0]);
 	}
@@ -94,7 +94,7 @@ public class ExprRawString extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "raw " + expr.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "raw " + expr.toString(event, debug);
 	}
 }

@@ -59,11 +59,11 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	protected Long[] get(final Event e) {
-		if (!(e instanceof PlayerItemMendEvent))
+	protected Long[] get(final Event event) {
+		if (!(event instanceof PlayerItemMendEvent))
 			return null;
 
-		return new Long[]{(long) ((PlayerItemMendEvent) e).getRepairAmount()};
+		return new Long[]{(long) ((PlayerItemMendEvent) event).getRepairAmount()};
 	}
 
 	@Nullable
@@ -118,7 +118,7 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the mending repair amount";
 	}
 

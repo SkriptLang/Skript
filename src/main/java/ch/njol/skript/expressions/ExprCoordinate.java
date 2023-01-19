@@ -82,9 +82,9 @@ public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		assert delta != null;
-		final Location l = getExpr().getSingle(e);
+		final Location l = getExpr().getSingle(event);
 		if (l == null)
 			return;
 		double n = ((Number) delta[0]).doubleValue();
@@ -100,7 +100,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 				} else {
 					l.setZ(l.getZ() + n);
 				}
-				getExpr().change(e, new Location[] {l}, ChangeMode.SET);
+				getExpr().change(event, new Location[] {l}, ChangeMode.SET);
 				break;
 			case SET:
 				if (axis == 0) {
@@ -110,7 +110,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 				} else {
 					l.setZ(n);
 				}
-				getExpr().change(e, new Location[] {l}, ChangeMode.SET);
+				getExpr().change(event, new Location[] {l}, ChangeMode.SET);
 				break;
 			case DELETE:
 			case REMOVE_ALL:

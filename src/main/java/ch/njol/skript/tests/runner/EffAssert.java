@@ -82,17 +82,17 @@ public class EffAssert extends Effect  {
 	}
 
 	@Override
-	protected void execute(Event e) {}
+	protected void execute(Event event) {}
 	
 	@Nullable
 	@Override
-	public TriggerItem walk(Event e) {
+	public TriggerItem walk(Event event) {
 		if (shouldFail && condition == null) {
 			return getNext();
 		}
 		
-		if (condition.check(e) == shouldFail) {
-			String msg = errorMsg.getSingle(e);
+		if (condition.check(event) == shouldFail) {
+			String msg = errorMsg.getSingle(event);
 			TestTracker.testFailed(msg != null ? msg : "assertation failed");
 			return null;
 		}
@@ -100,7 +100,7 @@ public class EffAssert extends Effect  {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "assert " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "assert " + condition.toString(event, debug);
 	}
 }

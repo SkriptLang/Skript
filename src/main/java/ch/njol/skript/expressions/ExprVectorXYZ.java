@@ -82,9 +82,9 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert delta != null;
-		final Vector v = getExpr().getSingle(e);
+		final Vector v = getExpr().getSingle(event);
 		if (v == null)
 			return;
 		double n = ((Number) delta[0]).doubleValue();
@@ -99,7 +99,7 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 					v.setY(v.getY() + n);
 				else
 					v.setZ(v.getZ() + n);
-				getExpr().change(e, new Vector[] {v}, ChangeMode.SET);
+				getExpr().change(event, new Vector[] {v}, ChangeMode.SET);
 				break;
 			case SET:
 				if (axis == 0)
@@ -108,7 +108,7 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 					v.setY(n);
 				else
 					v.setZ(n);
-				getExpr().change(e, new Vector[] {v}, ChangeMode.SET);
+				getExpr().change(event, new Vector[] {v}, ChangeMode.SET);
 		}
 	}
 	

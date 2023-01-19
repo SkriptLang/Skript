@@ -74,9 +74,9 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Slot[] get(final Event e) {
+	protected Slot[] get(final Event event) {
 		final ArrayList<Slot> r = new ArrayList<>();
-		for (final Inventory invi : invis.getArray(e)) {
+		for (final Inventory invi : invis.getArray(event)) {
 			for (int i = 0; i < invi.getSize(); i++) {
 				if (invi.getItem(i) != null)
 					r.add(new InventorySlot(invi, i));
@@ -87,8 +87,8 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	
 	@Override
 	@Nullable
-	public Iterator<Slot> iterator(final Event e) {
-		final Iterator<? extends Inventory> is = invis.iterator(e);
+	public Iterator<Slot> iterator(final Event event) {
+		final Iterator<? extends Inventory> is = invis.iterator(event);
 		if (is == null || !is.hasNext())
 			return null;
 		return new Iterator<Slot>() {
@@ -126,13 +126,13 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("item");
+	public boolean isLoopOf(final String string) {
+		return string.equalsIgnoreCase("item");
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "items in " + invis.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "items in " + invis.toString(event, debug);
 	}
 	
 	@Override

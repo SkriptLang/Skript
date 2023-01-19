@@ -71,12 +71,12 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int strength = delta != null ? ((Number) delta[0]).intValue() : 0;
 		switch (mode) {
 			case REMOVE:
 				if (abstractArrowExists) {
-					for (Projectile entity : getExpr().getArray(e)) {
+					for (Projectile entity : getExpr().getArray(event)) {
 						if (entity instanceof AbstractArrow) {
 							AbstractArrow abstractArrow = (AbstractArrow) entity;
 							int dmg = abstractArrow.getKnockbackStrength() - strength;
@@ -85,7 +85,7 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 						}
 					}
 				} else {
-					for (Projectile entity : getExpr().getArray(e)) {
+					for (Projectile entity : getExpr().getArray(event)) {
 						if (entity instanceof Arrow) {
 							Arrow arrow = (Arrow) entity;
 							int dmg = arrow.getKnockbackStrength() - strength;
@@ -97,7 +97,7 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 				break;
 			case ADD:
 				if (abstractArrowExists)
-					for (Projectile entity : getExpr().getArray(e)) {
+					for (Projectile entity : getExpr().getArray(event)) {
 						if (entity instanceof AbstractArrow) {
 							AbstractArrow abstractArrow = (AbstractArrow) entity;
 							int dmg = abstractArrow.getKnockbackStrength() + strength;
@@ -106,7 +106,7 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 						}
 					}
 				else
-					for (Projectile entity : getExpr().getArray(e)) {
+					for (Projectile entity : getExpr().getArray(event)) {
 						if (entity instanceof Arrow) {
 							Arrow arrow = (Arrow) entity;
 							int dmg = arrow.getKnockbackStrength() + strength;
@@ -117,7 +117,7 @@ public class ExprArrowKnockbackStrength extends SimplePropertyExpression<Project
 				break;
 			case RESET:
 			case SET:
-				for (Projectile entity : getExpr().getArray(e)) {
+				for (Projectile entity : getExpr().getArray(event)) {
 					if (abstractArrowExists) {
 						if (entity instanceof AbstractArrow) ((AbstractArrow) entity).setKnockbackStrength(strength);
 					} else if (entity instanceof Arrow) {

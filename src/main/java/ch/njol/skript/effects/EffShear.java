@@ -61,8 +61,8 @@ public class EffShear extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final LivingEntity en : sheep.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final LivingEntity en : sheep.getArray(event)) {
 			if (en instanceof Sheep) {
 				((Sheep) en).setSheared(shear);
 			}
@@ -70,8 +70,8 @@ public class EffShear extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (shear ? "" : "un") + "shear " + sheep.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (shear ? "" : "un") + "shear " + sheep.toString(event, debug);
 	}
 	
 }

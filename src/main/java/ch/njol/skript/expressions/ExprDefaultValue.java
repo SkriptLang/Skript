@@ -81,9 +81,9 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected T[] get(Event e) {
-		Object[] first = this.first.getArray(e);
-		Object values[] = first.length != 0 ? first : second.getArray(e);
+	protected T[] get(Event event) {
+		Object[] first = this.first.getArray(event);
+		Object values[] = first.length != 0 ? first : second.getArray(event);
 		try {
 			return Converters.convertArray(values, types, superType);
 		} catch (ClassCastException e1) {
@@ -112,8 +112,8 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return first.toString(e, debug) + " or else " + second.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return first.toString(event, debug) + " or else " + second.toString(event, debug);
 	}
 
 }

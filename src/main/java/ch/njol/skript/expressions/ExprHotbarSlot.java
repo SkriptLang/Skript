@@ -70,7 +70,7 @@ public class ExprHotbarSlot extends SimplePropertyExpression<Player, Slot> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		assert delta != null;
 		Slot slot = (Slot) delta[0];
 		if (!(slot instanceof InventorySlot))
@@ -80,7 +80,7 @@ public class ExprHotbarSlot extends SimplePropertyExpression<Player, Slot> {
 		if (index > 8) // Only slots in hotbar can be current hotbar slot
 			return;
 		
-		for (Player p : getExpr().getArray(e)) {
+		for (Player p : getExpr().getArray(event)) {
 			p.getInventory().setHeldItemSlot(index);
 		}
 	}

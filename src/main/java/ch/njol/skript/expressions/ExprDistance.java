@@ -60,16 +60,16 @@ public class ExprDistance extends SimpleExpression<Number> {
 	
 	@Override
 	@Nullable
-	protected Number[] get(final Event e) {
-		final Location l1 = loc1.getSingle(e), l2 = loc2.getSingle(e);
+	protected Number[] get(final Event event) {
+		final Location l1 = loc1.getSingle(event), l2 = loc2.getSingle(event);
 		if (l1 == null || l2 == null || l1.getWorld() != l2.getWorld())
 			return new Number[0];
 		return new Number[] {l1.distance(l2)};
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "distance between " + loc1.toString(e, debug) + " and " + loc2.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "distance between " + loc1.toString(event, debug) + " and " + loc2.toString(event, debug);
 	}
 	
 	@Override

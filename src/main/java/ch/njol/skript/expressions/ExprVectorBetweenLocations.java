@@ -62,9 +62,9 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Location l1 = from.getSingle(e);
-		Location l2 = to.getSingle(e);
+	protected Vector[] get(Event event) {
+		Location l1 = from.getSingle(event);
+		Location l2 = to.getSingle(event);
 		if (l1 == null || l2 == null)
 			return null;
 		return CollectionUtils.array(new Vector(l2.getX() - l1.getX(), l2.getY() - l1.getY(), l2.getZ() - l1.getZ()));
@@ -80,8 +80,8 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from " + from.toString(e, debug) + " to " + to.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from " + from.toString(event, debug) + " to " + to.toString(event, debug);
 	}
 
 }

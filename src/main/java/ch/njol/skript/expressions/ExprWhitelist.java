@@ -59,7 +59,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	
 	@Nullable
 	@Override
-	protected OfflinePlayer[] get(Event e) {
+	protected OfflinePlayer[] get(Event event) {
 		return Bukkit.getServer().getWhitelistedPlayers().toArray(new OfflinePlayer[0]);
 	}
 	
@@ -75,7 +75,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
 			case SET:
 				if (delta != null)
@@ -113,7 +113,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "whitelist";
 	}
 	

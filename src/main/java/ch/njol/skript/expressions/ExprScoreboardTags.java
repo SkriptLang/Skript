@@ -75,8 +75,8 @@ public class ExprScoreboardTags extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	public String[] get(Event e) {
-		return Stream.of(entities.getArray(e))
+	public String[] get(Event event) {
+		return Stream.of(entities.getArray(event))
 				.map(Entity::getScoreboardTags)
 				.flatMap(Set::stream)
 				.toArray(String[]::new);
@@ -98,8 +98,8 @@ public class ExprScoreboardTags extends SimpleExpression<String> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		for (Entity entity : entities.getArray(e)) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		for (Entity entity : entities.getArray(event)) {
 			switch (mode) {
 				case SET:
 					assert delta != null;
@@ -135,8 +135,8 @@ public class ExprScoreboardTags extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the scoreboard tags of " + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the scoreboard tags of " + entities.toString(event, debug);
 	}
 
 }

@@ -58,30 +58,30 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		int newTime;
 		switch (mode) {
 			case ADD:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					newTime = entity.getFreezeTicks() + time;
 					setFreezeTicks(entity, newTime);
 				}
 				break;
 			case REMOVE:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					newTime = entity.getFreezeTicks() - time;
 					setFreezeTicks(entity, newTime);
 				}
 				break;
 			case SET:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					setFreezeTicks(entity, time);
 				}
 				break;
 			case DELETE:
 			case RESET:
-				for (Entity entity : getExpr().getArray(e)) {
+				for (Entity entity : getExpr().getArray(event)) {
 					setFreezeTicks(entity, 0);
 				}
 				break;

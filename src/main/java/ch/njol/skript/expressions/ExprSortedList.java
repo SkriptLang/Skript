@@ -67,8 +67,8 @@ public class ExprSortedList extends SimpleExpression<Object> {
 
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
-		Object[] unsorted = list.getArray(e);
+	protected Object[] get(Event event) {
+		Object[] unsorted = list.getArray(event);
 		Object[] sorted = (Object[]) Array.newInstance(getReturnType(), unsorted.length); // Not yet sorted...
 		
 		for (int i = 0; i < sorted.length; i++) {
@@ -115,8 +115,8 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "sorted " + list.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "sorted " + list.toString(event, debug);
 	}
 
 }

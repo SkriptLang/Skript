@@ -115,43 +115,43 @@ public class EffPlaySound extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		Object category = null;
 		if (SOUND_CATEGORIES_EXIST) {
 			category = SoundCategory.MASTER;
 			if (this.category != null) {
-				category = this.category.getSingle(e);
+				category = this.category.getSingle(event);
 				if (category == null)
 					return;
 			}
 		}
 		float volume = 1, pitch = 1;
 		if (this.volume != null) {
-			Number volumeNumber = this.volume.getSingle(e);
+			Number volumeNumber = this.volume.getSingle(event);
 			if (volumeNumber == null)
 				return;
 			volume = volumeNumber.floatValue();
 		}
 		if (this.pitch != null) {
-			Number pitchNumber = this.pitch.getSingle(e);
+			Number pitchNumber = this.pitch.getSingle(event);
 			if (pitchNumber == null)
 				return;
 			pitch = pitchNumber.floatValue();
 		}
 		if (players != null) {
 			if (locations == null) {
-				for (Player p : players.getArray(e))
-					playSound(p, p.getLocation(), sounds.getArray(e), (SoundCategory) category,  volume, pitch);
+				for (Player p : players.getArray(event))
+					playSound(p, p.getLocation(), sounds.getArray(event), (SoundCategory) category,  volume, pitch);
 			} else {
-				for (Player p : players.getArray(e)) {
-					for (Location location : locations.getArray(e))
-						playSound(p, location, sounds.getArray(e), (SoundCategory) category, volume, pitch);
+				for (Player p : players.getArray(event)) {
+					for (Location location : locations.getArray(event))
+						playSound(p, location, sounds.getArray(event), (SoundCategory) category, volume, pitch);
 				}
 			}
 		} else {
 			if (locations != null) {
-				for (Location location : locations.getArray(e))
-					playSound(location, sounds.getArray(e), (SoundCategory) category, volume, pitch);
+				for (Location location : locations.getArray(event))
+					playSound(location, sounds.getArray(event), (SoundCategory) category, volume, pitch);
 			}
 		}
 	}
@@ -214,19 +214,19 @@ public class EffPlaySound extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (locations != null)
-			return "play sound " + sounds.toString(e, debug) +
-					(category != null ? " in " + category.toString(e, debug) : "") +
-					(volume != null ? " at volume " + volume.toString(e, debug) : "") +
-					(pitch != null ? " at pitch " + pitch.toString(e, debug) : "") +
-					(locations != null ? " at " + locations.toString(e, debug) : "") +
-					(players != null ? " for " + players.toString(e, debug) : "");
+			return "play sound " + sounds.toString(event, debug) +
+					(category != null ? " in " + category.toString(event, debug) : "") +
+					(volume != null ? " at volume " + volume.toString(event, debug) : "") +
+					(pitch != null ? " at pitch " + pitch.toString(event, debug) : "") +
+					(locations != null ? " at " + locations.toString(event, debug) : "") +
+					(players != null ? " for " + players.toString(event, debug) : "");
 		else
-			return "play sound " + sounds.toString(e, debug) +
-					(volume != null ? " at volume " + volume.toString(e, debug) : "") +
-					(pitch != null ? " at pitch " + pitch.toString(e, debug) : "") +
-					(players != null ? " to " + players.toString(e, debug) : "");
+			return "play sound " + sounds.toString(event, debug) +
+					(volume != null ? " at volume " + volume.toString(event, debug) : "") +
+					(pitch != null ? " at pitch " + pitch.toString(event, debug) : "") +
+					(players != null ? " to " + players.toString(event, debug) : "");
 	}
 
 }

@@ -63,8 +63,8 @@ public class ExprItemWithLore extends PropertyExpression<ItemType, ItemType> {
 	}
 
 	@Override
-	protected ItemType[] get(Event e, ItemType[] source) {
-		List<String> lore = this.lore.stream(e)
+	protected ItemType[] get(Event event, ItemType[] source) {
+		List<String> lore = this.lore.stream(event)
 			.flatMap(l -> Arrays.stream(l.split("\n")))
 			.collect(Collectors.toList());
 
@@ -84,7 +84,7 @@ public class ExprItemWithLore extends PropertyExpression<ItemType, ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " with lore " + lore.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " with lore " + lore.toString(event, debug);
 	}
 }

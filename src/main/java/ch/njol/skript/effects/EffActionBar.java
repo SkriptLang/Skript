@@ -62,17 +62,17 @@ public class EffActionBar extends Effect {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	protected void execute(final Event e) {
-		String msg = message.getSingle(e);
+	protected void execute(final Event event) {
+		String msg = message.getSingle(event);
 		assert msg != null;
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
-		for (Player player : recipients.getArray(e))
+		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "send action bar " + message.toString(e, debug) + " to " + recipients.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "send action bar " + message.toString(event, debug) + " to " + recipients.toString(event, debug);
 	}
 
 }

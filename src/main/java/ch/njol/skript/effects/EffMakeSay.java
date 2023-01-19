@@ -58,16 +58,16 @@ public class EffMakeSay extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (Player player : players.getArray(e)) {
-			for (String message : messages.getArray(e)) {
+	protected void execute(Event event) {
+		for (Player player : players.getArray(event)) {
+			for (String message : messages.getArray(event)) {
 				player.chat(message);
 			}
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + players.toString(e, debug) + " say " + messages.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + players.toString(event, debug) + " say " + messages.toString(event, debug);
 	}
 }

@@ -58,11 +58,11 @@ public class ExprHostname extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		if (!(e instanceof PlayerLoginEvent))
+	protected String[] get(Event event) {
+		if (!(event instanceof PlayerLoginEvent))
 			return null;
 
-		return new String[] {((PlayerLoginEvent) e).getHostname()};
+		return new String[] {((PlayerLoginEvent) event).getHostname()};
 	}
 	
 	@Override
@@ -76,7 +76,7 @@ public class ExprHostname extends SimpleExpression<String> {
 	}	
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "hostname";
 	}
 	

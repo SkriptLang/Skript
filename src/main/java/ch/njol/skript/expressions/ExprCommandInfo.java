@@ -92,9 +92,9 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	@Nullable
 	@Override
 	@SuppressWarnings("null")
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		CommandMap map = Commands.getCommandMap();
-		Command[] commands = this.commandName.stream(e).map(map::getCommand).filter(Objects::nonNull).toArray(Command[]::new);
+		Command[] commands = this.commandName.stream(event).map(map::getCommand).filter(Objects::nonNull).toArray(Command[]::new);
 		ArrayList<String> result = new ArrayList<>();
 		switch (type) {
 			case NAME:
@@ -153,7 +153,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the " + type.name().toLowerCase(Locale.ENGLISH).replace("_", " ") + " of command " + commandName.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the " + type.name().toLowerCase(Locale.ENGLISH).replace("_", " ") + " of command " + commandName.toString(event, debug);
 	}
 }

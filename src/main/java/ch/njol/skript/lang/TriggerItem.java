@@ -54,16 +54,16 @@ public abstract class TriggerItem implements Debuggable {
 	 * <p>
 	 * Overriding classes must call {@link #debug(Event, boolean)}. If this method is overridden, {@link #run(Event)} is not used anymore and can be ignored.
 	 * 
-	 * @param e
+	 * @param event
 	 * @return The next item to run or null to stop execution
 	 */
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		if (run(e)) {
-			debug(e, true);
+	protected TriggerItem walk(final Event event) {
+		if (run(event)) {
+			debug(event, true);
 			return next;
 		} else {
-			debug(e, false);
+			debug(event, false);
 			final TriggerSection parent = this.parent;
 			return parent == null ? null : parent.getNext();
 		}
@@ -72,22 +72,22 @@ public abstract class TriggerItem implements Debuggable {
 	/**
 	 * Executes this item.
 	 * 
-	 * @param e
+	 * @param event
 	 * @return True if the next item should be run, or false for the item following this item's parent.
 	 */
-	protected abstract boolean run(Event e);
+	protected abstract boolean run(Event event);
 	
 	/**
 	 * @param start
-	 * @param e
+	 * @param event
 	 * @return false if an exception occurred
 	 */
-	public static boolean walk(final TriggerItem start, final Event e) {
-		assert start != null && e != null;
+	public static boolean walk(final TriggerItem start, final Event event) {
+		assert start != null && event != null;
 		TriggerItem i = start;
 		try {
 			while (i != null)
-				i = i.walk(e);
+				i = i.walk(event);
 			
 			return true;
 		} catch (final StackOverflowError err) {
@@ -135,10 +135,10 @@ public abstract class TriggerItem implements Debuggable {
 		return ind;
 	}
 	
-	protected final void debug(final Event e, final boolean run) {
+	protected final void debug(final Event event, final boolean run) {
 		if (!Skript.debug())
 			return;
-		Skript.debug(SkriptColor.replaceColorChar(getIndentation() + (run ? "" : "-") + toString(e, true)));
+		Skript.debug(SkriptColor.replaceColorChar(getIndentation() + (run ? "" : "-") + toString(event, true)));
 	}
 	
 	@Override

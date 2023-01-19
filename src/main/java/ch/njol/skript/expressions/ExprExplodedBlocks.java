@@ -61,11 +61,11 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 	
 	@Nullable
 	@Override
-	protected Block[] get(Event e) {
-		if (!(e instanceof EntityExplodeEvent))
+	protected Block[] get(Event event) {
+		if (!(event instanceof EntityExplodeEvent))
 			return null;
 
-		List<Block> blockList = ((EntityExplodeEvent) e).blockList();
+		List<Block> blockList = ((EntityExplodeEvent) event).blockList();
 		return blockList.toArray(new Block[blockList.size()]);
 	}
 	
@@ -80,7 +80,7 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
+	public String toString(@Nullable Event event, boolean d) {
 		return "exploded blocks";
 	}
 	

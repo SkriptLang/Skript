@@ -58,24 +58,24 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
 	 * 
-	 * @param e The event
+	 * @param event The event
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
 	@Nullable
-	T getSingle(Event e);
+	T getSingle(Event event);
 
 	/**
 	 * Get an optional of the single value of this expression.
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
 	 *
-	 * @param e the event
+	 * @param event the event
 	 * @return an {@link Optional} containing the {@link #getSingle(Event) single value} of this expression for this event.
 	 * @see #getSingle(Event)
 	 */
-	default Optional<T> getOptionalSingle(Event e) {
-		return Optional.ofNullable(getSingle(e));
+	default Optional<T> getOptionalSingle(Event event) {
+		return Optional.ofNullable(getSingle(event));
 	}
 	
 	/**
@@ -85,28 +85,28 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
 	 * 
-	 * @param e The event
+	 * @param event The event
 	 * @return An array of values of this expression which must neither be null nor contain nulls, and which must not be an internal array.
 	 */
-	public T[] getArray(final Event e);
+	public T[] getArray(final Event event);
 	
 	/**
 	 * Gets all possible return values of this expression, i.e. it returns the same as {@link #getArray(Event)} if {@link #getAnd()} is true, otherwise all possible values for
 	 * {@link #getSingle(Event)}.
 	 * 
-	 * @param e The event
+	 * @param event The event
 	 * @return An array of all possible values of this expression for the given event which must neither be null nor contain nulls, and which must not be an internal array.
 	 */
-	public T[] getAll(final Event e);
+	public T[] getAll(final Event event);
 	
 	/**
 	 * Gets a non-null stream of this expression's values.
 	 *
-	 * @param e The event
+	 * @param event The event
 	 * @return A non-null stream of this expression's values
 	 */
-	default public Stream<? extends T> stream(final Event e) {
-		Iterator<? extends T> iter = iterator(e);
+	default public Stream<? extends T> stream(final Event event) {
+		Iterator<? extends T> iter = iterator(event);
 		if (iter == null) {
 			return Stream.empty();
 		}
@@ -128,24 +128,24 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * return negated ^ {@link #check(Event, Checker)};
 	 * </pre>
 	 * 
-	 * @param e The event
-	 * @param c A checker
+	 * @param event The event
+	 * @param checker A checker
 	 * @param negated The checking condition's negated state. This is used to invert the output of the checker if set to true (i.e. <tt>negated ^ checker.check(...)</tt>)
 	 * @return Whether this expression matches or doesn't match the given checker depending on the condition's negated state.
 	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
 	 */
-	public boolean check(final Event e, final Checker<? super T> c, final boolean negated);
+	public boolean check(final Event event, final Checker<? super T> checker, final boolean negated);
 	
 	/**
 	 * Checks this expression against the given checker. This method must only be used around other checks, use {@link #check(Event, Checker, boolean)} for a simple ckeck or the
 	 * innermost check of a nested check.
 	 * 
-	 * @param e The event
-	 * @param c A checker
+	 * @param event The event
+	 * @param checker A checker
 	 * @return Whether this expression matches the given checker
 	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
 	 */
-	public boolean check(final Event e, final Checker<? super T> c);
+	public boolean check(final Event event, final Checker<? super T> checker);
 	
 	/**
 	 * Tries to convert this expression to the given type. This method can print an error prior to returning null to specify the cause.
@@ -220,11 +220,11 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	/**
 	 * Returns the same as {@link #getArray(Event)} but as an iterator. This method should be overriden by expressions intended to be looped to increase performance.
 	 * 
-	 * @param e The event
+	 * @param event The event
 	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
 	 */
 	@Nullable
-	public Iterator<? extends T> iterator(Event e);
+	public Iterator<? extends T> iterator(Event event);
 	
 	/**
 	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
@@ -232,10 +232,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * <p>
 	 * You should usually just return false as e.g. loop-block will automatically match the expression if its returnType is Block or a subtype of it.
 	 * 
-	 * @param s The entered string
+	 * @param string The entered string
 	 * @return Whether this loop matches the given string
 	 */
-	public boolean isLoopOf(String s);
+	public boolean isLoopOf(String string);
 	
 	/**
 	 * Returns the original expression that was parsed, i.e. without any conversions done.
@@ -281,13 +281,13 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * Changes the expression's value by the given amount. This will only be called on supported modes and with the desired <code>delta</code> type as returned by
 	 * {@link #acceptChange(ChangeMode)}
 	 * 
-	 * @param e
+	 * @param event
 	 * @param delta An array with one or more instances of one or more of the the classes returned by {@link #acceptChange(ChangeMode)} for the given change mode (null for
 	 *            {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}). <b>This can be a Object[], thus casting is not allowed.</b>
 	 * @param mode
 	 * @throws UnsupportedOperationException (optional) - If this method was called on an unsupported ChangeMode.
 	 */
-	public void change(Event e, final @Nullable Object[] delta, final ChangeMode mode);
+	public void change(Event event, final @Nullable Object[] delta, final ChangeMode mode);
 	
 	/**
 	 * This method is called before this expression is set to another one.

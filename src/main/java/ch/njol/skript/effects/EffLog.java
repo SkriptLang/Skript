@@ -88,10 +88,10 @@ public class EffLog extends Effect {
 	
 	@SuppressWarnings("resource")
 	@Override
-	protected void execute(final Event e) {
-		for (final String message : messages.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final String message : messages.getArray(event)) {
 			if (files != null) {
-				for (String s : files.getArray(e)) {
+				for (String s : files.getArray(event)) {
 					s = s.toLowerCase(Locale.ENGLISH);
 					if (!s.endsWith(".log"))
 						s += ".log";
@@ -128,7 +128,7 @@ public class EffLog extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "log " + messages.toString(event, debug) + (files != null ? " to " + files.toString(event, debug) : "");
 	}
 }

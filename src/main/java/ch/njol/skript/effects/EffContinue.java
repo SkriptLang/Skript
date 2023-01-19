@@ -70,18 +70,18 @@ public class EffContinue extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
+	protected TriggerItem walk(Event event) {
 		return section;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "continue";
 	}
 

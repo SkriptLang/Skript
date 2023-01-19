@@ -69,9 +69,9 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	}
 
 	@Override
-	protected Long[] get(Event e) {
-		Enchantment[] enchantments = enchants.getArray(e);
-		return Stream.of(items.getArray(e))
+	protected Long[] get(Event event) {
+		Enchantment[] enchantments = enchants.getArray(event);
+		return Stream.of(items.getArray(event))
 			.map(ItemType::getEnchantmentTypes)
 			.flatMap(Stream::of)
 			.filter(enchantment -> CollectionUtils.contains(enchantments, enchantment.getType()))
@@ -94,9 +94,9 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		ItemType[] itemTypes = items.getArray(e);
-		Enchantment[] enchantments = enchants.getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		ItemType[] itemTypes = items.getArray(event);
+		Enchantment[] enchantments = enchants.getArray(event);
 		int changeValue = ((Number) delta[0]).intValue();
 
 		for (ItemType itemType : itemTypes) {
@@ -140,8 +140,8 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the level of " + enchants.toString(e, debug) + " of " + items.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the level of " + enchants.toString(event, debug) + " of " + items.toString(event, debug);
 	}
 
 }

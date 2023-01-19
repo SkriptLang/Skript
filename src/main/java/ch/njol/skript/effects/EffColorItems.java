@@ -86,10 +86,10 @@ public class EffColorItems extends Effect {
 				
 				@Nullable
 				@Override
-				protected Color[] get(Event e) {
-					Number r = red.getSingle(e),
-						g = green.getSingle(e),
-						b = blue.getSingle(e);
+				protected Color[] get(Event event) {
+					Number r = red.getSingle(event),
+						g = green.getSingle(event),
+						b = blue.getSingle(event);
 					
 					if (r == null || g == null || b == null)
 						return null;
@@ -108,8 +108,8 @@ public class EffColorItems extends Effect {
 				}
 				
 				@Override
-				public String toString(@Nullable Event e, boolean debug) {
-					return "RED: " + red.toString(e, debug) + ", GREEN: " + green.toString(e, debug) + "BLUE: " + blue.toString(e, debug);
+				public String toString(@Nullable Event event, boolean debug) {
+					return "RED: " + red.toString(event, debug) + ", GREEN: " + green.toString(event, debug) + "BLUE: " + blue.toString(event, debug);
 				}
 			};
 			color.init(CollectionUtils.array(exprs[1], exprs[2], exprs[3]), 0, isDelayed, parser);
@@ -118,9 +118,9 @@ public class EffColorItems extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		Color color = this.color.getSingle(e);
-		ItemType[] items = this.items.getArray(e);
+	protected void execute(Event event) {
+		Color color = this.color.getSingle(event);
+		ItemType[] items = this.items.getArray(event);
 		org.bukkit.Color c;
 		
 		if (color == null) {
@@ -152,7 +152,7 @@ public class EffColorItems extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "dye " + items.toString(e, debug) + " " + color.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "dye " + items.toString(event, debug) + " " + color.toString(event, debug);
 	}
 }

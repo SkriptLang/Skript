@@ -65,11 +65,11 @@ public class ExprEntityTamer extends SimplePropertyExpression<LivingEntity, Offl
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		OfflinePlayer player = delta == null ? null : ((OfflinePlayer) delta[0]);
 		switch (mode) {
 			case SET:
-				for (LivingEntity entity : getExpr().getAll(e)) {
+				for (LivingEntity entity : getExpr().getAll(event)) {
 					if (!(entity instanceof Tameable))
 						continue;
 					((Tameable) entity).setOwner(player);
@@ -77,7 +77,7 @@ public class ExprEntityTamer extends SimplePropertyExpression<LivingEntity, Offl
 				break;
 			case DELETE:
 			case RESET:
-				for (LivingEntity entity : getExpr().getAll(e)) {
+				for (LivingEntity entity : getExpr().getAll(event)) {
 					if (!(entity instanceof Tameable))
 						continue;
 					((Tameable) entity).setOwner(null);
@@ -96,8 +96,8 @@ public class ExprEntityTamer extends SimplePropertyExpression<LivingEntity, Offl
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean d) {
-		return "owner of " + getExpr().toString(e, d);
+	public String toString(@Nullable Event event, boolean d) {
+		return "owner of " + getExpr().toString(event, d);
 	}
 	
 }

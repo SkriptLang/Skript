@@ -60,18 +60,18 @@ public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 
 	@Nullable
 	@Override
-	protected LivingEntity[] get(Event e) {
-		if (e instanceof AreaEffectCloudApplyEvent)
-			return ((AreaEffectCloudApplyEvent) e).getAffectedEntities().toArray(new LivingEntity[0]);
+	protected LivingEntity[] get(Event event) {
+		if (event instanceof AreaEffectCloudApplyEvent)
+			return ((AreaEffectCloudApplyEvent) event).getAffectedEntities().toArray(new LivingEntity[0]);
 		return null;
 	}
 
 	@Nullable
 	@Override
-	public Iterator<? extends LivingEntity> iterator(Event e) {
-		if (e instanceof AreaEffectCloudApplyEvent)
-			return ((AreaEffectCloudApplyEvent) e).getAffectedEntities().iterator();
-		return super.iterator(e);
+	public Iterator<? extends LivingEntity> iterator(Event event) {
+		if (event instanceof AreaEffectCloudApplyEvent)
+			return ((AreaEffectCloudApplyEvent) event).getAffectedEntities().iterator();
+		return super.iterator(event);
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the affected entities";
 	}
 

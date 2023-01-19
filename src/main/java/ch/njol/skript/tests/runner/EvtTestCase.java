@@ -72,9 +72,9 @@ public class EvtTestCase extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e != null)
-			return "test " + name.getSingle(e);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event != null)
+			return "test " + name.getSingle(event);
 		return "test case";
 	}
 }

@@ -83,15 +83,15 @@ public class EffHealth extends Effect {
 	}
 
 	@Override
-	public void execute(Event e) {
+	public void execute(Event event) {
 		double damage = 0;
 		if (this.damage != null) {
-			Number number = this.damage.getSingle(e);
+			Number number = this.damage.getSingle(event);
 			if (number == null)
 				return;
 			damage = number.doubleValue();
 		}
-		Object[] array = damageables.getArray(e);
+		Object[] array = damageables.getArray(event);
 		Object[] newArray = new Object[array.length];
 
 		boolean requiresChange = false;
@@ -124,12 +124,12 @@ public class EffHealth extends Effect {
 		}
 
 		if (requiresChange)
-			damageables.change(e, newArray, ChangeMode.SET);
+			damageables.change(event, newArray, ChangeMode.SET);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (heal ? "heal" : "damage") + " " + damageables.toString(e, debug) + (damage != null ? " by " + damage.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return (heal ? "heal" : "damage") + " " + damageables.toString(event, debug) + (damage != null ? " by " + damage.toString(event, debug) : "");
 	}
 
 }

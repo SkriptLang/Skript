@@ -83,9 +83,9 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
-		final Object[] os = getExpr().getArray(e);
+		final Object[] os = getExpr().getArray(event);
 		for (final Object o : os) {
 			ItemStack itemStack = null;
 			Block block = null;

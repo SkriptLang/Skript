@@ -187,7 +187,7 @@ public class EvtAtTime extends SelfRegisteringSkriptEvent implements Comparable<
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "at " + Time.toString(tick) + " in worlds " + Classes.toString(worlds, true);
 	}
 	

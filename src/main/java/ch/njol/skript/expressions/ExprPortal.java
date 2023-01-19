@@ -67,11 +67,11 @@ public class ExprPortal extends SimpleExpression<Block> {
 
 	@Nullable
 	@Override
-	protected Block[] get(Event e) {
-		if (!(e instanceof PortalCreateEvent))
+	protected Block[] get(Event event) {
+		if (!(event instanceof PortalCreateEvent))
 			return null;
 
-		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
+		List<?> blocks = ((PortalCreateEvent) event).getBlocks();
 		if (USING_BLOCKSTATE)
 			return blocks.stream()
 					.map(block -> ((BlockState) block).getBlock())
@@ -83,11 +83,11 @@ public class ExprPortal extends SimpleExpression<Block> {
 
 	@Nullable
 	@Override
-	public Iterator<Block> iterator(Event e) {
-		if (!(e instanceof PortalCreateEvent))
+	public Iterator<Block> iterator(Event event) {
+		if (!(event instanceof PortalCreateEvent))
 			return null;
 
-		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
+		List<?> blocks = ((PortalCreateEvent) event).getBlocks();
 		if (USING_BLOCKSTATE) 
 			return blocks.stream()
 					.map(block -> ((BlockState) block).getBlock())
@@ -111,7 +111,7 @@ public class ExprPortal extends SimpleExpression<Block> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the portal blocks";
 	}
 

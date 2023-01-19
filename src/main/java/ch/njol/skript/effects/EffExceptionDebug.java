@@ -42,12 +42,12 @@ public class EffExceptionDebug extends Effect {
 	
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		Skript.exception("Created by a script (debugging)...");
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "cause exception";
 	}
 	

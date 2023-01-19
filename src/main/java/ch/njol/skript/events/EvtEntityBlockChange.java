@@ -96,8 +96,8 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return event.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+	public String toString(@Nullable Event event, boolean debug) {
+		return this.event.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 	}
 	
 }

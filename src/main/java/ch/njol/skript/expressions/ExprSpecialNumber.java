@@ -55,7 +55,7 @@ public class ExprSpecialNumber extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected Number[] get(Event e) {
+	protected Number[] get(Event event) {
 		return new Number[]{value == 0 ? Double.NaN : value == 1 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY};
 	}
 
@@ -70,7 +70,7 @@ public class ExprSpecialNumber extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return value == 0 ? "NaN value" : value == 1 ? "infinity value" : "-infinity value";
 	}
 }

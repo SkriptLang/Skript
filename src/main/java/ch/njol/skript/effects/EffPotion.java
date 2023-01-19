@@ -115,18 +115,18 @@ public class EffPotion extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		if (potionEffect) {
-			for (LivingEntity livingEntity : entities.getArray(e)) {
-				PotionEffect[] potionEffects = this.potionEffects.getArray(e);
+			for (LivingEntity livingEntity : entities.getArray(event)) {
+				PotionEffect[] potionEffects = this.potionEffects.getArray(event);
 				PotionEffectUtils.addEffects(livingEntity, potionEffects);
 			}
 		} else {
-			final PotionEffectType[] ts = potions.getArray(e);
+			final PotionEffectType[] ts = potions.getArray(event);
 			if (ts.length == 0)
 				return;
 			if (!apply) {
-				for (LivingEntity en : entities.getArray(e)) {
+				for (LivingEntity en : entities.getArray(event)) {
 					for (final PotionEffectType t : ts)
 						en.removePotionEffect(t);
 				}
@@ -134,19 +134,19 @@ public class EffPotion extends Effect {
 			}
 			int a = 0;
 			if (tier != null) {
-				final Number amp = tier.getSingle(e);
+				final Number amp = tier.getSingle(event);
 				if (amp == null)
 					return;
 				a = amp.intValue() - 1;
 			}
 			int d = DEFAULT_DURATION;
 			if (duration != null) {
-				final Timespan dur = duration.getSingle(e);
+				final Timespan dur = duration.getSingle(event);
 				if (dur == null)
 					return;
 				d = (int) (dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks_i());
 			}
-			for (final LivingEntity en : entities.getArray(e)) {
+			for (final LivingEntity en : entities.getArray(event)) {
 				for (final PotionEffectType t : ts) {
 					int duration = d;
 					if (!replaceExisting) {
@@ -166,13 +166,13 @@ public class EffPotion extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (potionEffect)
-			return "apply " + potionEffects.toString(e, debug) + " to " + entities.toString(e, debug);
+			return "apply " + potionEffects.toString(event, debug) + " to " + entities.toString(event, debug);
 		else if (apply)
-			return "apply " + potions.toString(e, debug) + (tier != null ? " of tier " + tier.toString(e, debug) : "") + " to " + entities.toString(e, debug) + (duration != null ? " for " + duration.toString(e, debug) : "");
+			return "apply " + potions.toString(event, debug) + (tier != null ? " of tier " + tier.toString(event, debug) : "") + " to " + entities.toString(event, debug) + (duration != null ? " for " + duration.toString(event, debug) : "");
 		else
-			return "remove " + potions.toString(e, debug) + " from " + entities.toString(e, debug);
+			return "remove " + potions.toString(event, debug) + " from " + entities.toString(event, debug);
 	}
 
 }

@@ -65,11 +65,11 @@ public class ExprExplosionYield extends SimpleExpression<Number> {
 
 	@Override
 	@Nullable
-	protected Number[] get(Event e) {
-		if (!(e instanceof ExplosionPrimeEvent))
+	protected Number[] get(Event event) {
+		if (!(event instanceof ExplosionPrimeEvent))
 			return null;
 
-		return new Number[]{((ExplosionPrimeEvent) e).getRadius()};
+		return new Number[]{((ExplosionPrimeEvent) event).getRadius()};
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class ExprExplosionYield extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the yield of the explosion";
 	}
 

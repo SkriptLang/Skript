@@ -52,11 +52,11 @@ public class ExprMe extends SimpleExpression<Player> {
 
 	@Override
 	@Nullable
-	protected Player[] get(Event e) {
-		if (!(e instanceof EffectCommandEvent))
+	protected Player[] get(Event event) {
+		if (!(event instanceof EffectCommandEvent))
 			return null;
 
-		CommandSender commandSender = ((EffectCommandEvent) e).getSender();
+		CommandSender commandSender = ((EffectCommandEvent) event).getSender();
 		if (commandSender instanceof Player)
 			return new Player[] {(Player) commandSender};
 		return null;
@@ -73,7 +73,7 @@ public class ExprMe extends SimpleExpression<Player> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "me";
 	}
 

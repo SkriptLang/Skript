@@ -154,9 +154,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
+	protected Object[] get(Event event) {
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(event);
 			if (current == null)
 				return null;
 			if (isIndex)
@@ -166,21 +166,21 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			return one;
 		}
 		Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
-		one[0] = loop.getCurrent(e);
+		one[0] = loop.getCurrent(event);
 		return one;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null)
 			return name;
 		if (isVariableLoop) {
-			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(e);
+			@SuppressWarnings("unchecked") Entry<String, Object> current = (Entry<String, Object>) loop.getCurrent(event);
 			if (current == null)
 				return Classes.getDebugMessage(null);
 			return isIndex ? "\"" + current.getKey() + "\"" : Classes.getDebugMessage(current.getValue());
 		}
-		return Classes.getDebugMessage(loop.getCurrent(e));
+		return Classes.getDebugMessage(loop.getCurrent(event));
 	}
 	
 }

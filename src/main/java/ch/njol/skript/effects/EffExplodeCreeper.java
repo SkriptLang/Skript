@@ -84,8 +84,8 @@ public class EffExplodeCreeper extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (final LivingEntity le : entities.getArray(e)) {
+	protected void execute(final Event event) {
+		for (final LivingEntity le : entities.getArray(event)) {
 			if (le instanceof Creeper) {
 				if (instant) {
 					((Creeper) le).explode();
@@ -103,8 +103,8 @@ public class EffExplodeCreeper extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (instant == true ? "instantly explode " : "start the explosion process of ") + entities.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (instant == true ? "instantly explode " : "start the explosion process of ") + entities.toString(event, debug);
 	}
 
 }

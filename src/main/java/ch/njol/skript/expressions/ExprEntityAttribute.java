@@ -72,8 +72,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Number[] get(Event e, Entity[] entities) {
-		Attribute a = attributes.getSingle(e);
+	protected Number[] get(Event event, Entity[] entities) {
+		Attribute a = attributes.getSingle(event);
 		return Stream.of(entities)
 		    .map(ent -> getAttribute(ent, a))
 		    .map(att -> withModifiers ? att.getValue() : att.getBaseValue())
@@ -90,10 +90,10 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		Attribute a = attributes.getSingle(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Attribute a = attributes.getSingle(event);
 		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
-		for (Entity entity : getExpr().getArray(e)) {
+		for (Entity entity : getExpr().getArray(event)) {
 			AttributeInstance ai = getAttribute(entity, a);
 			if(ai != null) {
 				switch(mode) {
@@ -126,8 +126,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		return "entity " + getExpr().toString(e, debug) + "'s " + (attributes == null ? "" : attributes.toString(e, debug)) + "attribute";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "entity " + getExpr().toString(event, debug) + "'s " + (attributes == null ? "" : attributes.toString(event, debug)) + "attribute";
 	}
 	
 	@Nullable

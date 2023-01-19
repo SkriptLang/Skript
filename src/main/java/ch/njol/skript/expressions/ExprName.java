@@ -220,9 +220,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
-		for (Object o : getExpr().getArray(e)) {
+		for (Object o : getExpr().getArray(event)) {
 			if (o instanceof Player) {
 				switch (mark) {
 					case 2:

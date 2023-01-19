@@ -65,8 +65,8 @@ public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 	@Override
 	@SuppressWarnings("null")
 	@Nullable
-	protected Long[] get(Event e) {
-		String str = expr.getSingle(e);
+	protected Long[] get(Event event) {
+		String str = expr.getSingle(event);
 		if (str == null)
 			return null;
 		long size = 0;
@@ -97,7 +97,7 @@ public class ExprNumberOfCharacters extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (pattern == 0) {
 			return "number of uppercase characters";
 		} else if (pattern == 1) {

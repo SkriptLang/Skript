@@ -60,16 +60,16 @@ public class EffMakeFly extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (Player player : players.getArray(e)) {
+	protected void execute(Event event) {
+		for (Player player : players.getArray(event)) {
 			player.setAllowFlight(flying);
 			player.setFlying(flying);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + players.toString(e, debug) + (flying ? " start " : " stop ") + "flying";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + players.toString(event, debug) + (flying ? " start " : " stop ") + "flying";
 	}
 
 }

@@ -156,16 +156,16 @@ public class ExprFurnaceSlot extends PropertyExpression<Block, Slot> {
 	}
 	
 	@Override
-	protected Slot[] get(final Event e, final Block[] source) {
+	protected Slot[] get(final Event event, final Block[] source) {
 		return get(source, new Getter<Slot, Block>() {
 			@Override
 			@Nullable
 			public Slot get(final Block b) {
 				if (!ExprBurnCookTime.anyFurnace.isOfType(b))
 					return null;
-				if (isEvent && getTime() > -1 && !Delay.isDelayed(e)) {
+				if (isEvent && getTime() > -1 && !Delay.isDelayed(event)) {
 					FurnaceInventory invi = ((Furnace) b.getState()).getInventory();
-					return new FurnaceEventSlot(e, invi);
+					return new FurnaceEventSlot(event, invi);
 				} else {
 					FurnaceInventory invi = ((Furnace) b.getState()).getInventory();
 					return new InventorySlot(invi, slot);
@@ -180,10 +180,10 @@ public class ExprFurnaceSlot extends PropertyExpression<Block, Slot> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (e == null)
-			return "the " + (getTime() == -1 ? "past " : getTime() == 1 ? "future " : "") + slotNames[slot] + " slot of " + getExpr().toString(e, debug);
-		return Classes.getDebugMessage(getSingle(e));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		if (event == null)
+			return "the " + (getTime() == -1 ? "past " : getTime() == 1 ? "future " : "") + slotNames[slot] + " slot of " + getExpr().toString(event, debug);
+		return Classes.getDebugMessage(getSingle(event));
 	}
 	
 	@SuppressWarnings("unchecked")

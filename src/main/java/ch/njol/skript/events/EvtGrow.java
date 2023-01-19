@@ -92,11 +92,11 @@ public class EvtGrow extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (evtType == STRUCTURE)
-			return "grow" + (types != null ? " of " + types.toString(e, debug) : "");
+			return "grow" + (types != null ? " of " + types.toString(event, debug) : "");
 		else if (evtType == BLOCK)
-			return "grow" + (blocks != null ? " of " + blocks.toString(e, debug) : "");
+			return "grow" + (blocks != null ? " of " + blocks.toString(event, debug) : "");
 		return "grow";
 	}
 	

@@ -142,7 +142,7 @@ public class ExprElement extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String prefix;
 		switch (type) {
 			case FIRST:
@@ -161,17 +161,17 @@ public class ExprElement extends SimpleExpression<Object> {
 				if (number instanceof Literal) {
 					Number number = ((Literal<Number>) this.number).getSingle();
 					if (number == null)
-						prefix += this.number.toString(e, debug) + "th";
+						prefix += this.number.toString(event, debug) + "th";
 					else
 						prefix += StringUtils.fancyOrderNumber(number.intValue());
 				} else {
-					prefix += number.toString(e, debug) + "th";
+					prefix += number.toString(event, debug) + "th";
 				}
 				break;
 			default:
 				throw new IllegalStateException();
 		}
-		return prefix + " element of " + expr.toString(e, debug);
+		return prefix + " element of " + expr.toString(event, debug);
 	}
 
 }

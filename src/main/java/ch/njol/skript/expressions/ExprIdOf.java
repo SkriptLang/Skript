@@ -98,9 +98,9 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Long[] get(final Event e, final ItemType[] source) {
+	protected Long[] get(final Event event, final ItemType[] source) {
 		if (single) {
-			final ItemType t = getExpr().getSingle(e);
+			final ItemType t = getExpr().getSingle(event);
 			if (t == null)
 				return new Long[0];
 			return new Long[] {(long) t.getTypes().get(0).getType().getId()};
@@ -115,8 +115,8 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the id" + (single ? "" : "s") + " of " + getExpr().toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the id" + (single ? "" : "s") + " of " + getExpr().toString(event, debug);
 	}
 	
 	boolean changeItemStack;
@@ -144,10 +144,10 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert delta != null;
 		final int i = ((Number) delta[0]).intValue();
-		final ItemType it = getExpr().getSingle(e);
+		final ItemType it = getExpr().getSingle(event);
 		if (it == null)
 			return;
 		final ItemStack is = it.getRandom();
@@ -181,24 +181,24 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 		if (m != null) {
 			is.setType(m);
 			if (changeItemStack)
-				getExpr().change(e, new ItemStack[] {is}, ChangeMode.SET);
+				getExpr().change(event, new ItemStack[] {is}, ChangeMode.SET);
 			else
-				getExpr().change(e, new ItemType[] {new ItemType(is)}, ChangeMode.SET);
+				getExpr().change(event, new ItemType[] {new ItemType(is)}, ChangeMode.SET);
 		}
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<Long> iterator(final Event e) {
+	public Iterator<Long> iterator(final Event event) {
 		if (single) {
-			final ItemType t = getExpr().getSingle(e);
+			final ItemType t = getExpr().getSingle(event);
 			if (t == null)
 				return null;
 			if (t.numTypes() == 0)
 				return null;
 			return new SingleItemIterator<>((long) t.getTypes().get(0).getType().getId());
 		}
-		final Iterator<? extends ItemType> iter = getExpr().iterator(e);
+		final Iterator<? extends ItemType> iter = getExpr().iterator(event);
 		if (iter == null || !iter.hasNext())
 			return null;
 		return new Iterator<Long>() {
@@ -232,8 +232,8 @@ public class ExprIdOf extends PropertyExpression<ItemType, Long> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
-		return s.equalsIgnoreCase("id");
+	public boolean isLoopOf(final String string) {
+		return string.equalsIgnoreCase("id");
 	}
 	
 }

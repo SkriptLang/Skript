@@ -66,25 +66,25 @@ public class EffLeash extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (leash) {
-			Entity holder = this.holder.getSingle(e);
+			Entity holder = this.holder.getSingle(event);
 			if (holder == null)
 				return;
-			for (LivingEntity target : targets.getArray(e))
+			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(holder);
 		} else {
-			for (LivingEntity target : targets.getArray(e))
+			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(null);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (leash)
-			return "leash " + targets.toString(e, debug) + " to " + holder.toString(e, debug);
+			return "leash " + targets.toString(event, debug) + " to " + holder.toString(event, debug);
 		else
-			return "unleash " + targets.toString(e, debug);
+			return "unleash " + targets.toString(event, debug);
 	}
 
 }

@@ -67,8 +67,8 @@ public class ExprShuffledList extends SimpleExpression<Object> {
 
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
-		Object[] origin = list.getArray(e).clone();
+	protected Object[] get(Event event) {
+		Object[] origin = list.getArray(event).clone();
 		List<Object> shuffled = Arrays.asList(origin); // Not yet shuffled...
 		Collections.shuffle(shuffled);
 
@@ -101,8 +101,8 @@ public class ExprShuffledList extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "shuffled " + list.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "shuffled " + list.toString(event, debug);
 	}
 
 }

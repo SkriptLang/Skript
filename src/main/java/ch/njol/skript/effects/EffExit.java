@@ -112,8 +112,8 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, false);
+	protected TriggerItem walk(final Event event) {
+		debug(event, false);
 		TriggerItem n = this;
 		for (int i = breakLevels; i > 0;) {
 			n = n.getParent();
@@ -122,7 +122,7 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 				return null;
 			}
 			if (n instanceof SecLoop) {
-				((SecLoop) n).exit(e);
+				((SecLoop) n).exit(event);
 			} else if (n instanceof SecWhile) {
 				((SecWhile) n).reset();
 			}
@@ -134,12 +134,12 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		assert false;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "stop " + breakLevels + " " + names[type];
 	}
 	

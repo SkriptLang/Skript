@@ -65,12 +65,12 @@ public class EffOpenBook extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		ItemType itemType = book.getSingle(e);
+	protected void execute(final Event event) {
+		ItemType itemType = book.getSingle(event);
 		if (itemType != null) {
 			ItemStack itemStack = itemType.getRandom();
 			if (itemStack != null && bookItemType.isOfType(itemStack)) {
-				for (Player player : players.getArray(e)) {
+				for (Player player : players.getArray(event)) {
 					player.openBook(itemStack);
 				}
 			}
@@ -78,8 +78,8 @@ public class EffOpenBook extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "open book " + book.toString(e, debug) + " to " + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "open book " + book.toString(event, debug) + " to " + players.toString(event, debug);
 	}
 	
 }

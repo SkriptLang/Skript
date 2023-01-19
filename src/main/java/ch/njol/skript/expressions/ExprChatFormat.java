@@ -74,23 +74,23 @@ public class ExprChatFormat extends SimpleExpression<String>{
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "chat format";
 	}
 	
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		if (!(e instanceof AsyncPlayerChatEvent))
+	protected String[] get(Event event) {
+		if (!(event instanceof AsyncPlayerChatEvent))
 			return null;
 
-		return new String[]{convertToFriendly(((AsyncPlayerChatEvent) e).getFormat())};
+		return new String[]{convertToFriendly(((AsyncPlayerChatEvent) event).getFormat())};
 	}
 	
 	//delta[0] has to be a String unless Skript has horribly gone wrong
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (delta == null || !(e instanceof AsyncPlayerChatEvent)){
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		if (delta == null || !(event instanceof AsyncPlayerChatEvent)){
 			return;
 		}
 		String format = null;
@@ -106,7 +106,7 @@ public class ExprChatFormat extends SimpleExpression<String>{
 		if (format == null){
 			return;
 		}
-		((AsyncPlayerChatEvent) e).setFormat(format);
+		((AsyncPlayerChatEvent) event).setFormat(format);
 	}
 	
 	@SuppressWarnings({"null"}) //First parameter is marked as @NonNull and String#replaceAll won't return null

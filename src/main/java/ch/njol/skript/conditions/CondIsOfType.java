@@ -86,9 +86,9 @@ public class CondIsOfType extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, what,
-				"of " + (types.isSingle() ? "type " : "types") + types.toString(e, debug));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, what,
+				"of " + (types.isSingle() ? "type " : "types") + types.toString(event, debug));
 	}
 	
 }

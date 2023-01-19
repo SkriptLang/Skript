@@ -87,9 +87,9 @@ public class EvtRegionBorder extends SelfRegisteringSkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		final Literal<Region> r = regions;
-		return (enter ? "enter" : "leave") + " of " + (r == null ? "a region" : r.toString(e, debug));
+		return (enter ? "enter" : "leave") + " of " + (r == null ? "a region" : r.toString(event, debug));
 	}
 	
 	private final static Collection<Trigger> triggers = new ArrayList<>();

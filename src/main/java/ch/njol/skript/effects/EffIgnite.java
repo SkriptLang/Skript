@@ -70,18 +70,18 @@ public class EffIgnite extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(final Event event) {
 		final int d;
 		if (duration != null) {
-			final Timespan t = duration.getSingle(e);
+			final Timespan t = duration.getSingle(event);
 			if (t == null)
 				return;
 			d = (int) (t.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : t.getTicks_i());
 		} else {
 			d = ignite ? DEFAULT_DURATION : 0;
 		}
-		for (final Entity en : entities.getArray(e)) {
-			if (e instanceof EntityDamageEvent && ((EntityDamageEvent) e).getEntity() == en && !Delay.isDelayed(e)) {
+		for (final Entity en : entities.getArray(event)) {
+			if (event instanceof EntityDamageEvent && ((EntityDamageEvent) event).getEntity() == en && !Delay.isDelayed(event)) {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 					@Override
 					public void run() {
@@ -89,19 +89,19 @@ public class EffIgnite extends Effect {
 					}
 				});
 			} else {
-				if (e instanceof EntityCombustEvent && ((EntityCombustEvent) e).getEntity() == en && !Delay.isDelayed(e))
-					((EntityCombustEvent) e).setCancelled(true);// can't change the duration, thus simply cancel the event (and create a new one)
+				if (event instanceof EntityCombustEvent && ((EntityCombustEvent) event).getEntity() == en && !Delay.isDelayed(event))
+					((EntityCombustEvent) event).setCancelled(true);// can't change the duration, thus simply cancel the event (and create a new one)
 				en.setFireTicks(d);
 			}
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (ignite)
-			return "set " + entities.toString(e, debug) + " on fire for " + (duration != null ? duration.toString(e, debug) : Timespan.fromTicks(DEFAULT_DURATION).toString());
+			return "set " + entities.toString(event, debug) + " on fire for " + (duration != null ? duration.toString(event, debug) : Timespan.fromTicks(DEFAULT_DURATION).toString());
 		else
-			return "extinguish " + entities.toString(e, debug);
+			return "extinguish " + entities.toString(event, debug);
 	}
 	
 }

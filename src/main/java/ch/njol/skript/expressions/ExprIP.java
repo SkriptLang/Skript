@@ -87,24 +87,24 @@ public class ExprIP extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		if (!isProperty) {
 			InetAddress address;
-			if (e instanceof PlayerLoginEvent)
+			if (event instanceof PlayerLoginEvent)
 				// Return IP address of the connected player in connect event
-				address = ((PlayerLoginEvent) e).getAddress();
-			else if (e instanceof ServerListPingEvent)
+				address = ((PlayerLoginEvent) event).getAddress();
+			else if (event instanceof ServerListPingEvent)
 				// Return IP address of the pinger in server list ping event
-				address = ((ServerListPingEvent) e).getAddress();
+				address = ((ServerListPingEvent) event).getAddress();
 			else
 				return null;
 			return CollectionUtils.array(address.getHostAddress());
 		}
 
-		return Stream.of(players.getArray(e))
+		return Stream.of(players.getArray(event))
 				.map(player -> {
 					assert player != null;
-					return getIP(player, e);
+					return getIP(player, event);
 				})
 				.toArray(String[]::new);
 	}
@@ -137,10 +137,10 @@ public class ExprIP extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null || !isProperty)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (event == null || !isProperty)
 			return "the IP address";
-		return "the IP address of " + players.toString(e, debug);
+		return "the IP address of " + players.toString(event, debug);
 	}
 
 }

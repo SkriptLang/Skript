@@ -239,7 +239,7 @@ public class UnparsedLiteral implements Literal<Object> {
 //	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "'" + data + "'";
 	}
 	
@@ -278,7 +278,7 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public Object[] getAll(final Event e) {
+	public Object[] getAll(final Event event) {
 		throw invalidAccessException();
 	}
 	
@@ -288,7 +288,7 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public Object[] getArray(final Event e) {
+	public Object[] getArray(final Event event) {
 		throw invalidAccessException();
 	}
 	
@@ -298,17 +298,17 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public Object getSingle(final Event e) {
+	public Object getSingle(final Event event) {
 		throw invalidAccessException();
 	}
 	
 	@Override
-	public NonNullIterator<Object> iterator(final Event e) {
+	public NonNullIterator<Object> iterator(final Event event) {
 		throw invalidAccessException();
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		throw invalidAccessException();
 	}
 	
@@ -318,12 +318,12 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super Object> c) {
+	public boolean check(final Event event, final Checker<? super Object> checker) {
 		throw invalidAccessException();
 	}
 	
 	@Override
-	public boolean check(final Event e, final Checker<? super Object> c, final boolean negated) {
+	public boolean check(final Event event, final Checker<? super Object> checker, final boolean negated) {
 		throw invalidAccessException();
 	}
 	
@@ -343,7 +343,7 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 	
 	@Override
-	public boolean isLoopOf(final String s) {
+	public boolean isLoopOf(final String string) {
 		throw invalidAccessException();
 	}
 	

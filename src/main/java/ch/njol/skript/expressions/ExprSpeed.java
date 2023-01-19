@@ -72,10 +72,10 @@ public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		float input = delta == null ? 0 : ((Number) delta[0]).floatValue();
 		
-		for (final Player p : getExpr().getArray(e)) {
+		for (final Player p : getExpr().getArray(event)) {
 			float oldSpeed = walk ? p.getWalkSpeed() : p.getFlySpeed();
 			
 			float newSpeed;

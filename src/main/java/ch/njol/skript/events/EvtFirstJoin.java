@@ -50,7 +50,7 @@ public class EvtFirstJoin extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "first join";
 	}
 	

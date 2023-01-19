@@ -179,10 +179,10 @@ public class ExprMessage extends SimpleExpression<String> {
 	}
 	
 	@Override
-	protected String[] get(final Event e) {
+	protected String[] get(final Event event) {
 		for (final Class<? extends Event> c : type.events) {
-			if (c.isInstance(e))
-				return new String[] {type.get(e)};
+			if (c.isInstance(event))
+				return new String[] {type.get(event)};
 		}
 		return new String[0];
 	}
@@ -196,12 +196,12 @@ public class ExprMessage extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert mode == ChangeMode.SET;
 		assert delta != null;
 		for (final Class<? extends Event> c : type.events) {
-			if (c.isInstance(e))
-				type.set(e, "" + delta[0]);
+			if (c.isInstance(event))
+				type.set(event, "" + delta[0]);
 		}
 	}
 	
@@ -216,7 +216,7 @@ public class ExprMessage extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the " + type.name + " message";
 	}
 	

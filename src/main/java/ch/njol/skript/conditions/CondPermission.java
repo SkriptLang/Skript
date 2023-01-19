@@ -85,8 +85,8 @@ public class CondPermission extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, senders,
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, senders,
 				"the permission" + (permissions.isSingle() ? " " : "s ") + permissions.toString());
 	}
 	

@@ -59,8 +59,8 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
-	protected Object[] get(Event e, Object[] source) {
-		Number a = amount.getSingle(e);
+	protected Object[] get(Event event, Object[] source) {
+		Number a = amount.getSingle(event);
 		if (a == null)
 			return new Object[0];
 
@@ -107,8 +107,8 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return amount.toString(e, debug) + " of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return amount.toString(event, debug) + " of " + getExpr().toString(event, debug);
 	}
 
 }

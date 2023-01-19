@@ -92,12 +92,12 @@ public class ExprVersion extends SimpleExpression<String> {
 	}
 	
 	@Override
-	protected String[] get(final Event e) {
+	protected String[] get(final Event event) {
 		return new String[] {type.get()};
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return type + " version";
 	}
 	

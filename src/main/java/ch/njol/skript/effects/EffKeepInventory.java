@@ -77,7 +77,7 @@ public class EffKeepInventory extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (keepItems && !keepExp)
 			return "keep the inventory";
 		else

@@ -86,17 +86,17 @@ public class ExprSignText extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		final Number l = line.getSingle(e);
+	protected String[] get(final Event event) {
+		final Number l = line.getSingle(event);
 		if (l == null)
 			return new String[0];
 		final int line = l.intValue() - 1;
 		if (line < 0 || line > 3)
 			return new String[0];
-		if (getTime() >= 0 && block.isDefault() && e instanceof SignChangeEvent && !Delay.isDelayed(e)) {
-			return new String[] {((SignChangeEvent) e).getLine(line)};
+		if (getTime() >= 0 && block.isDefault() && event instanceof SignChangeEvent && !Delay.isDelayed(event)) {
+			return new String[] {((SignChangeEvent) event).getLine(line)};
 		}
-		final Block b = block.getSingle(e);
+		final Block b = block.getSingle(event);
 		if (b == null)
 			return new String[0];
 		if (!sign.isOfType(b))
@@ -105,8 +105,8 @@ public class ExprSignText extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "line " + line.toString(e, debug) + " of " + block.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "line " + line.toString(event, debug) + " of " + block.toString(event, debug);
 	}
 	
 	// TODO allow add, remove, and remove all (see ExprLore)
@@ -122,24 +122,24 @@ public class ExprSignText extends SimpleExpression<String> {
 	
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
-		final Number l = line.getSingle(e);
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+		final Number l = line.getSingle(event);
 		if (l == null)
 			return;
 		final int line = l.intValue() - 1;
 		if (line < 0 || line > 3)
 			return;
-		final Block b = block.getSingle(e);
+		final Block b = block.getSingle(event);
 		if (b == null)
 			return;
-		if (getTime() >= 0 && e instanceof SignChangeEvent && b.equals(((SignChangeEvent) e).getBlock()) && !Delay.isDelayed(e)) {
+		if (getTime() >= 0 && event instanceof SignChangeEvent && b.equals(((SignChangeEvent) event).getBlock()) && !Delay.isDelayed(event)) {
 			switch (mode) {
 				case DELETE:
-					((SignChangeEvent) e).setLine(line, "");
+					((SignChangeEvent) event).setLine(line, "");
 					break;
 				case SET:
 					assert delta != null;
-					((SignChangeEvent) e).setLine(line, (String) delta[0]);
+					((SignChangeEvent) event).setLine(line, (String) delta[0]);
 					break;
 			}
 		} else {

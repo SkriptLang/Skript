@@ -129,10 +129,10 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (!(e instanceof ScriptCommandEvent))
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		if (!(event instanceof ScriptCommandEvent))
 			return;
-		ScriptCommandEvent commandEvent = (ScriptCommandEvent) e;
+		ScriptCommandEvent commandEvent = (ScriptCommandEvent) event;
 		ScriptCommand command = commandEvent.getScriptCommand();
 		Timespan cooldown = command.getCooldown();
 		CommandSender sender = commandEvent.getSender();
@@ -201,7 +201,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + getExpressionName() + " of the cooldown";
 	}
 

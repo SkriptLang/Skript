@@ -95,17 +95,17 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 	
 	@Override
-	protected final boolean run(Event e) {
+	protected final boolean run(Event event) {
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	@Nullable
-	protected abstract TriggerItem walk(Event e);
+	protected abstract TriggerItem walk(Event event);
 	
 	@Nullable
-	protected final TriggerItem walk(Event e, boolean run) {
-		debug(e, run);
+	protected final TriggerItem walk(Event event, boolean run) {
+		debug(event, run);
 		if (run && first != null) {
 			return first;
 		} else {

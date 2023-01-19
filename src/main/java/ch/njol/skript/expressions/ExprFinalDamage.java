@@ -59,10 +59,10 @@ public class ExprFinalDamage extends SimpleExpression<Number> {
 	
 	@Override
 	@Nullable
-	protected Number[] get(final Event e) {
-		if (!(e instanceof EntityDamageEvent))
+	protected Number[] get(final Event event) {
+		if (!(event instanceof EntityDamageEvent))
 			return new Number[0];
-		return new Number[] {HealthUtils.getFinalDamage((EntityDamageEvent) e)};
+		return new Number[] {HealthUtils.getFinalDamage((EntityDamageEvent) event)};
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class ExprFinalDamage extends SimpleExpression<Number> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		return "the final damage";
 	}
 	

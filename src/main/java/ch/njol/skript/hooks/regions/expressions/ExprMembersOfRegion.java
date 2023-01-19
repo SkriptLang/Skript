@@ -66,9 +66,9 @@ public class ExprMembersOfRegion extends SimpleExpression<OfflinePlayer> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected OfflinePlayer[] get(final Event e) {
+	protected OfflinePlayer[] get(final Event event) {
 		final ArrayList<OfflinePlayer> r = new ArrayList<>();
-		for (final Region region : regions.getArray(e)) {
+		for (final Region region : regions.getArray(event)) {
 			r.addAll(owners ? region.getOwners() : region.getMembers());
 		}
 		return r.toArray(new OfflinePlayer[r.size()]);
@@ -85,8 +85,8 @@ public class ExprMembersOfRegion extends SimpleExpression<OfflinePlayer> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the " + (owners ? "owner" + (isSingle() ? "" : "s") : "members") + " of " + regions.toString(e, debug);
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return "the " + (owners ? "owner" + (isSingle() ? "" : "s") : "members") + " of " + regions.toString(event, debug);
 	}
 	
 }

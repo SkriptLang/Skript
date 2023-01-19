@@ -73,24 +73,24 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert delta != null;
 		if (mode == ChangeMode.SET) {
-			GameRule bukkitGamerule = gamerule.getSingle(e);
+			GameRule bukkitGamerule = gamerule.getSingle(event);
 			if (bukkitGamerule == null) 
                 return;
-			for (World gameruleWorld : world.getArray(e))
+			for (World gameruleWorld : world.getArray(event))
                 gameruleWorld.setGameRule(bukkitGamerule, delta[0]);
 		}
 	}
 		
 	@Nullable
 	@Override
-	protected GameruleValue[] get(Event e) {
-		GameRule<?> bukkitGamerule = gamerule.getSingle(e);
+	protected GameruleValue[] get(Event event) {
+		GameRule<?> bukkitGamerule = gamerule.getSingle(event);
 		if (bukkitGamerule == null) 
             return null;
-		World[] gameruleWorlds = world.getArray(e);
+		World[] gameruleWorlds = world.getArray(event);
 		GameruleValue[] gameruleValues = new GameruleValue[gameruleWorlds.length];
 		int index = 0;
 		for (World gameruleWorld : gameruleWorlds) {
@@ -112,7 +112,7 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the gamerule value of " + gamerule.toString(e, debug) + " for world " + world.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the gamerule value of " + gamerule.toString(event, debug) + " for world " + world.toString(event, debug);
 	}
 }

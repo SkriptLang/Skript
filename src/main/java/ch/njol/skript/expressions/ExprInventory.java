@@ -72,9 +72,9 @@ public class ExprInventory extends SimpleExpression<Object> {
 
 
 	@Override
-	protected Object[] get(Event e) {
+	protected Object[] get(Event event) {
 		List<Inventory> inventories = new ArrayList<>();
-		for (InventoryHolder holder : holders.getArray(e)) {
+		for (InventoryHolder holder : holders.getArray(event)) {
 			inventories.add(holder.getInventory());
 		}
 		Inventory[] invArray = inventories.toArray(new Inventory[0]);
@@ -87,7 +87,7 @@ public class ExprInventory extends SimpleExpression<Object> {
 			expr.init(new Expression[] {
 					new SimpleExpression() {
 						@Override
-						protected Object[] get(Event e) {
+						protected Object[] get(Event event) {
 							return invArray;
 						}
 
@@ -102,7 +102,7 @@ public class ExprInventory extends SimpleExpression<Object> {
 						}
 
 						@Override
-						public String toString(@Nullable Event e, boolean debug) {
+						public String toString(@Nullable Event event, boolean debug) {
 							return "loop of inventory expression";
 						}
 
@@ -112,7 +112,7 @@ public class ExprInventory extends SimpleExpression<Object> {
 						}
 					}
 			}, 0, Kleenean.FALSE, null);
-			return expr.get(e);
+			return expr.get(event);
 		}
 		return invArray;
 	}
@@ -128,8 +128,8 @@ public class ExprInventory extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "inventor" + (holders.isSingle() ? "y" : "ies") + " of " + holders.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "inventor" + (holders.isSingle() ? "y" : "ies") + " of " + holders.toString(event, debug);
 	}
 	
 }

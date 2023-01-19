@@ -63,10 +63,10 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null) return;
 		boolean state = (Boolean) delta[0];
-		for (Projectile entity : getExpr().getAll(e)) {
+		for (Projectile entity : getExpr().getAll(event)) {
 			if (abstractArrowExists && entity instanceof AbstractArrow) {
 				((AbstractArrow) entity).setCritical(state);
 			} else if (entity instanceof Arrow) {

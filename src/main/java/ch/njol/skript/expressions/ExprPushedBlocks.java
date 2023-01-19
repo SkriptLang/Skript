@@ -59,12 +59,12 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	@Nullable
-	protected Block[] get(Event e) {
-		if (!CollectionUtils.isAnyInstanceOf(e, BlockPistonExtendEvent.class, BlockPistonRetractEvent.class))
+	protected Block[] get(Event event) {
+		if (!CollectionUtils.isAnyInstanceOf(event, BlockPistonExtendEvent.class, BlockPistonRetractEvent.class))
 			return null;
 
-		return (e instanceof BlockPistonExtendEvent) ? ((BlockPistonExtendEvent) e).getBlocks().toArray(new Block[0])
-				: ((BlockPistonRetractEvent) e).getBlocks().toArray(new Block[0]);
+		return (event instanceof BlockPistonExtendEvent) ? ((BlockPistonExtendEvent) event).getBlocks().toArray(new Block[0])
+				: ((BlockPistonRetractEvent) event).getBlocks().toArray(new Block[0]);
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "moved blocks";
 	}
 	
