@@ -114,7 +114,7 @@ public class EffEquip extends Effect {
 		if (itemTypes != null) {
 			ts = itemTypes.getArray(event);
 		} else {
-			ts = new ItemType[]{CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
+			ts = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
 			unequipHelmet = true;
 		}
 		for (LivingEntity en : entities.getArray(event)) {
