@@ -72,11 +72,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 			String rawParameters = sigMatcher.group("params");
 			if (!rawParameters.isBlank()) {
 				for (String parameter : rawParameters.split(",")) {
-					try {
-						parameters.add(Class.forName(parameter.trim()));
-					} catch (ClassNotFoundException exception) {
-						return false;
-					}
+					parameters.add(Class.forName(parameter.trim()));
 				}
 			}
 			return Skript.methodExists(clazz, sigMatcher.group("name"), parameters.toArray(new Class[0]));
