@@ -124,7 +124,7 @@ public class EffEquip extends Effect {
 					}
 				}
 			} else if (entity instanceof Pig) {
-				for (ItemType t : itemTypes) {
+				for (ItemType itemType : itemTypes) {
 					if (t.isOfType(Material.SADDLE)) {
 						((Pig) entity).setSaddle(equip);
 						break;
