@@ -45,7 +45,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 	private final static Pattern SIGNATURE_PATTERN = Pattern.compile("(?<class>.+)#(?<name>.+)\\((?<params>.*)\\)");
 
 	static {
-		Skript.registerCondition(CondMethodExists.class, "method[s] %strings% [(1¦don't|1¦doesn't)] exist[s]");
+		Skript.registerCondition(CondMethodExists.class, "method[s] %strings% [dont:do(esn't|n't)] exist[s]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -56,7 +56,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		signatures = (Expression<String>) exprs[0];
 		setExpr(signatures);
-		setNegated(parseResult.mark == 1);
+		setNegated(parseResult.hasTag("dont"));
 		return true;
 	}
 
