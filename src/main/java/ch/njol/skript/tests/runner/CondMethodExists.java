@@ -32,6 +32,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -73,7 +74,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 			String rawParameters = sigMatcher.group("params");
 			if (!StringUtils.isBlank(rawParameters)) {
 				for (String parameter : rawParameters.split(",")) {
-					parameters.add(Class.forName(parameter.trim()));
+					parameters.add(parseClass(parameter.trim()));
 				}
 			}
 			return Skript.methodExists(clazz, sigMatcher.group("name"), parameters.toArray(new Class[0]));
@@ -90,6 +91,33 @@ public class CondMethodExists extends PropertyCondition<String> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "method " + signatures.toString(event, debug) + " exists";
+	}
+
+	private Class<?> parseClass(String clazz) throws ClassNotFoundException {
+		if (clazz.endsWith("[]")) {
+			Class<?> baseClass = parseClass(clazz.substring(0, clazz.length() - 2));
+			return Array.newInstance(baseClass, 0).getClass();
+		}
+		switch (clazz) {
+			case "byte":
+				return byte.class;
+			case "short":
+				return short.class;
+			case "int":
+				return int.class;
+			case "long":
+				return long.class;
+			case "float":
+				return float.class;
+			case "double":
+				return double.class;
+			case "boolean":
+				return boolean.class;
+			case "char":
+				return char.class;
+			default:
+				return Class.forName(clazz);
+		}
 	}
 
 }
