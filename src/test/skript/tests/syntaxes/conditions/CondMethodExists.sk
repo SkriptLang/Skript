@@ -1,0 +1,4 @@
+test "method exists":
+	assert method "org.bukkit.Bukkit##getServer()" exists with "Existing method was not found"
+	assert method "org.fake.class##notReal()" doesn't exist with "Fake method was found"
+	assert method "org.bukkit.Bukkit##getEntity(java.util.UUID)" exists with "Existing method with args was not found"
