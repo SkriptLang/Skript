@@ -30,15 +30,15 @@ jobs:
                   path: skript-docs
             - name: Setup documentation environment
               run: |
-                  - echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
-                  - echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly" >> $GITHUB_ENV
-                  - echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-                  - ssh-keyscan www.github.com >> ~/.ssh/known_hosts
-                  - rm -rf ./skript-docs/docs/nightly/*
+                echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
+                echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly" >> $GITHUB_ENV
+                echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+                ssh-keyscan www.github.com >> ~/.ssh/known_hosts
+                rm -rf ./skript-docs/docs/nightly/*
             - name: Build Skript and generate docs
               run: ./skript/gradlew clean genDocs
             - name: Push nightly docs
               if: success()
               run: |
-                  - git commit -m "Update nightly docs"
-                  - git show
+                git commit -m "Update nightly docs"
+                git show
