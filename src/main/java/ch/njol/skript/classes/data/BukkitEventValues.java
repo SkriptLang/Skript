@@ -1428,14 +1428,5 @@ public final class BukkitEventValues {
 				return event.getEgg();
 			}
 		}, EventValues.TIME_NOW);
-
-		// BlockSpreadEvent
-		EventValues.registerEventValue(BlockSpreadEvent.class, Block.class, new Getter<Block, BlockSpreadEvent>() {
-			@Override
-			@Nullable
-			public Block get(BlockSpreadEvent event) {
-				return event.getSource();
-			}
-		}, EventValues.TIME_NOW);
 	}
 }
