@@ -73,7 +73,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 			if (!rawParameters.isBlank()) {
 				for (String parameter : rawParameters.split(",")) {
 					try {
-						parameters.add(Class.forName(parameter));
+						parameters.add(Class.forName(parameter.trim()));
 					} catch (ClassNotFoundException exception) {
 						return false;
 					}
