@@ -95,6 +95,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -646,6 +647,21 @@ public class SimpleEvents {
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+				.description(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.requiredPlugins("1.16+")
+				.examples(
+					"on loot generate:",
+					"\tchance of %10",
+					"\tadd 64 diamonds",
+					"\tsend \"You hit the jackpot!!\""
+				)
 				.since("INSERT VERSION");
 		}
 	}
