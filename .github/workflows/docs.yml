@@ -1,0 +1,44 @@
+name: Java 17 CI (MC 1.17+)
+
+on:
+    push:
+        branches:
+            - master
+            - 'dev/**'
+
+jobs:
+    build:
+        if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+                  path: skript
+            - name: Set up JDK 17
+              uses: actions/setup-java@v3
+              with:
+                  java-version: '17'
+                  distribution: 'adopt'
+                  cache: gradle
+            - name: Grant execute permission for gradlew
+              run: chmod +x ./skript/gradlew
+            - name: Checkout skript-docs
+                uses: actions/checkout@v3
+                with:
+                    repository: 'SkriptLang/skript-docs'
+                    path: skript-docs
+            - name: Setup documentation environment
+              run: |
+                  - echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
+                  - echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly" >> $GITHUB_ENV
+                  - echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+                  - ssh-keyscan www.github.com >> ~/.ssh/known_hosts
+                  - rm -rf ./skript-docs/docs/nightly/*
+            - name: Build Skript and generate docs
+              run: ./skript/gradlew clean genDocs
+            - name: Push nightly docs
+              if: success()
+              run: |
+                  - git commit -m "Update nightly docs"
+                  - git push
