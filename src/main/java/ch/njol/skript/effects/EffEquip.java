@@ -173,7 +173,7 @@ public class EffEquip extends Effect {
 						}
 					}
 					if (unequipHelmet) { // Since players can wear any helmet, itemTypes won't have the item in the array every time
-						equipment.setHelmet(AIR);
+						equipment.setHelmet(null);
 					}
 				}
 				if (entity instanceof Player)
