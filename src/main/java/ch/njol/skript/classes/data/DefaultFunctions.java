@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 import ch.njol.skript.lang.function.FunctionEvent;
@@ -39,7 +40,9 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.checkerframework.checker.units.qual.N;
 import org.eclipse.jdt.annotation.Nullable;
+import org.flywaydb.core.internal.util.logging.Log;
 
 /**
  * @author Peter Güttinger
@@ -56,6 +59,27 @@ public class DefaultFunctions {
 		Parameter<?>[] numbersParam = new Parameter[] {new Parameter<>("ns", DefaultClasses.NUMBER, false, null)};
 		
 		// basic math functions
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("average", new Parameter[] {new Parameter<>("list", DefaultClasses.NUMBER, false, null)}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number[] executeSimple(Object[][] params) {
+				Double sum = 0.0;
+				if (params[0][0] instanceof Number) {
+					for (int i = 0; i < params[0].length; i++) {
+						if (params[0][i] instanceof Double) {
+							sum += (Double) params[0][i];
+						} else if (params[0][i] instanceof Integer) {
+							sum += ((Integer) params[0][i]).doubleValue();
+						} else if (params[0][i] instanceof Long) {
+							sum += ((Long) params[0][i]).doubleValue();
+						}
+					}
+				}
+				return new Number[] {(sum/params[0].length)};
+			}
+		}.description("Returns the average of all numbers in the list")
+			.examples("average(10,20) = 15", "average(11,99) = 41", "average(10,190,299.20) = 166.2")
+			.since("2.6.4"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
 			@Override
