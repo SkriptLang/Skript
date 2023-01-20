@@ -164,8 +164,7 @@ public class EvtMoveOn extends SkriptEvent {
 		for (Material material : materialSet)
 			ITEM_TYPE_TRIGGERS.computeIfAbsent(material, k -> new ArrayList<>()).add(trigger);
 
-		if (!REGISTERED_EXECUTOR.get()) {
-			REGISTERED_EXECUTOR.set(true);
+		if (REGISTERED_EXECUTOR.compareAndSet(false, true)) {
 			Bukkit.getPluginManager().registerEvent(
 				PlayerMoveEvent.class, new Listener(){}, SkriptConfig.defaultEventPriority.value(), EXECUTOR, Skript.getInstance(), true
 			);

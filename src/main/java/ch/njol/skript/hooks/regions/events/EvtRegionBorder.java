@@ -80,14 +80,14 @@ public class EvtRegionBorder extends SkriptEvent {
 		Event last = null;
 
 		@Override
-		public void execute(@Nullable Listener listener, Event e) {
-			if (e == last)
+		public void execute(@Nullable Listener listener, Event event) {
+			if (event == last)
 				return;
-			last = e;
+			last = event;
 
-			PlayerMoveEvent event = (PlayerMoveEvent) e;
-			Location to = event.getTo();
-			Location from = event.getFrom();
+			PlayerMoveEvent moveEvent = (PlayerMoveEvent) event;
+			Location to = moveEvent.getTo();
+			Location from = moveEvent.getFrom();
 
 			if (to.equals(from))
 				return;
@@ -97,12 +97,12 @@ public class EvtRegionBorder extends SkriptEvent {
 
 			for (Region oldRegion : oldRegions) {
 				if (!newRegions.contains(oldRegion))
-					callEvent(oldRegion, event, false);
+					callEvent(oldRegion, moveEvent, false);
 			}
 
 			for (Region newRegion : newRegions) {
 				if (!oldRegions.contains(newRegion))
-					callEvent(newRegion, event, true);
+					callEvent(newRegion, moveEvent, true);
 			}
 		}
 	};
@@ -110,9 +110,11 @@ public class EvtRegionBorder extends SkriptEvent {
 	private static void callEvent(Region region, PlayerMoveEvent event, boolean enter) {
 		RegionBorderEvent regionEvent = new RegionBorderEvent(region, event.getPlayer(), enter);
 		regionEvent.setCancelled(event.isCancelled());
-		for (Trigger trigger : TRIGGERS) {
-			if (((EvtRegionBorder) trigger.getEvent()).applies(regionEvent))
-				trigger.execute(regionEvent);
+		synchronized (TRIGGERS) {
+			for (Trigger trigger : TRIGGERS) {
+				if (((EvtRegionBorder) trigger.getEvent()).applies(regionEvent))
+					trigger.execute(regionEvent);
+			}
 		}
 		event.setCancelled(regionEvent.isCancelled());
 	}
@@ -137,8 +139,7 @@ public class EvtRegionBorder extends SkriptEvent {
 	@Override
 	public boolean postLoad() {
 		TRIGGERS.add(trigger);
-		if (!REGISTERED_EXECUTORS.get()) {
-			REGISTERED_EXECUTORS.set(true);
+		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
 			Bukkit.getPluginManager().registerEvent(PlayerMoveEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
 			Bukkit.getPluginManager().registerEvent(PlayerTeleportEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);

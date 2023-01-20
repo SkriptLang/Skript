@@ -792,11 +792,10 @@ public final class BukkitEventValues {
 		// PlayerMoveEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Block.class, new Getter<Block, PlayerMoveEvent>() {
 			@Override
-			@Nullable
-			public Block get(final PlayerMoveEvent e) {
-				return e.getTo().clone().subtract(0, 0.5, 0).getBlock();
+			public Block get(PlayerMoveEvent event) {
+				return event.getTo().clone().subtract(0, 0.5, 0).getBlock();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		// PlayerItemDamageEvent
 		EventValues.registerEventValue(PlayerItemDamageEvent.class, ItemStack.class, new Getter<ItemStack, PlayerItemDamageEvent>() {
 			@Override

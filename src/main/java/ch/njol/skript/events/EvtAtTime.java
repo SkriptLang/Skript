@@ -35,6 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,7 +56,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	private static final class EvtAtInfo {
 		private int lastTick; // as Bukkit's scheduler is inconsistent this saves the exact tick when the events were last checked
 		private int currentIndex;
-		private final ArrayList<EvtAtTime> instances = new ArrayList<>();
+		private final List<EvtAtTime> instances = new ArrayList<>();
 	}
 
 	private int tick;

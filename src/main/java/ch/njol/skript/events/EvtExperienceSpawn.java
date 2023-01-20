@@ -108,10 +108,12 @@ public class EvtExperienceSpawn extends SkriptEvent {
 		}
 
 		SkriptEventHandler.logEventStart(event);
-		for (Trigger trigger : TRIGGERS) {
-			SkriptEventHandler.logTriggerStart(trigger);
-			trigger.execute(experienceEvent);
-			SkriptEventHandler.logTriggerEnd(trigger);
+		synchronized (TRIGGERS) {
+			for (Trigger trigger : TRIGGERS) {
+				SkriptEventHandler.logTriggerStart(trigger);
+				trigger.execute(experienceEvent);
+				SkriptEventHandler.logTriggerEnd(trigger);
+			}
 		}
 		SkriptEventHandler.logEventEnd();
 
@@ -137,8 +139,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 	@Override
 	public boolean postLoad() {
 		TRIGGERS.add(trigger);
-		if (!REGISTERED_EXECUTORS.get()) {
-			REGISTERED_EXECUTORS.set(true);
+		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
 			//noinspection unchecked
 			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})

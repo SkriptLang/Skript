@@ -50,16 +50,20 @@ public class EvtSkript extends SkriptEvent {
 
 	public static void onSkriptStart() {
 		Event event = new SkriptStartEvent();
-		for (Trigger trigger : START)
-			trigger.execute(event);
-		START.clear();
+		synchronized (START) {
+			for (Trigger trigger : START)
+				trigger.execute(event);
+			START.clear();
+		}
 	}
 
 	public static void onSkriptStop() {
 		Event event = new SkriptStopEvent();
-		for (Trigger trigger : STOP)
-			trigger.execute(event);
-		STOP.clear();
+		synchronized (STOP) {
+			for (Trigger trigger : STOP)
+				trigger.execute(event);
+			STOP.clear();
+		}
 	}
 	
 	private boolean isStart;
