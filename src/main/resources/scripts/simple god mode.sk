@@ -1,8 +1,0 @@
-#
-# Makes a player invulnerable if he has the permission 'skript.god'
-#
-
-on damage:
-	victim is a player
-	victim has permission "skript.god"
-	cancel event

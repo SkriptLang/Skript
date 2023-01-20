@@ -1,9 +1,0 @@
-#
-# Allows players with the 'skript.teleport' permission to be able to teleport
-# with a compass like in WorldEdit.
-#
-
-on rightclick with compass:
-	loop blocks above targeted block:
-		teleport player to loop-block
-		stop trigger

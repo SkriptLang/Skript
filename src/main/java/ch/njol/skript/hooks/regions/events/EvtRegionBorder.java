@@ -58,7 +58,8 @@ public class EvtRegionBorder extends SkriptEvent {
 				).examples(
 					"on region exit:",
 					"\tmessage \"Leaving %region%.\""
-				).since("2.1");
+				).since("2.1")
+				.requiredPlugins("Supported regions plugin");
 		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, new Getter<Region, RegionBorderEvent>() {
 			@Override
 			public Region get(RegionBorderEvent e) {

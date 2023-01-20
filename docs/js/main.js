@@ -1,32 +1,38 @@
+const siteVersion = "2.2.0"; // site version is different from skript version
+const ghAPI = "https://api.github.com/repos/SkriptLang/Skript";
+
 // ID Scroll
 const links = document.querySelectorAll("div.item-wrapper");
-const contents = document.querySelectorAll("#content")[0];
+const contents = document.querySelector("#content");
 
-lastActive = null;
+lastActiveSideElement = null;
+navContents = document.getElementById("nav-contents");
 
 if (contents) {
-  contents.addEventListener('scroll', (e) => {
-    links.forEach((ha) => {
-      const rect = ha.getBoundingClientRect();
-      if (rect.top > 0 && rect.top < 150) {
-        const location = window.location.toString().split("#")[0];
-        history.replaceState(null, null, location + "#" + ha.id);
-        
-        if (lastActive != null) {
-          lastActive.classList.remove("active-item");
+  setTimeout(() => {
+    contents.addEventListener('scroll', (e) => {
+      links.forEach((ha) => {
+        const rect = ha.getBoundingClientRect();
+        if (rect.top > 0 && rect.top < 350) {
+          // const location = window.location.toString().split("#")[0];
+          // history.replaceState(null, null, location + "#" + ha.id); // Not needed since lastActiveSideElement + causes history spam
+          
+          if (lastActiveSideElement != null) {
+            lastActiveSideElement.classList.remove("active-item");
         }
         
-        lastActive = document.querySelectorAll(`#nav-contents a[href="#${ha.id}"]`)[0];
-        if (lastActive != null) {
-          lastActive.classList.add("active-item");
+        lastActiveSideElement = document.querySelectorAll(`#nav-contents a[href="#${ha.id}"]`)[0];
+        if (lastActiveSideElement != null) {
+          lastActiveSideElement.classList.add("active-item");
+          navContents.scroll(0, lastActiveSideElement.offsetTop - 100);
         }
       }
     });
-  });
+  })}, 50); // respect auto hash scroll
 }
   
   
-  // Active Tab
+// Active Tab
 const pageLink = window.location.toString().replaceAll(/(.*)\/(.+?).html(.*)/gi, '$2');
 if (pageLink === "" || pageLink == window.location.toString()) // home page - when there is no `.+?.html` pageLink will = windown.location due to current regex
   document.querySelectorAll('#global-navigation a[href="index.html"]')[0].classList.add("active-tab");
@@ -41,100 +47,59 @@ for (e in {"content-no-docs": 0, "content": 1}) {
     document.querySelectorAll('#side-nav')[0].classList.add('no-left-panel');
 }
 
-// <> Magic Text
-function getRandomChar() {
-  chars = "ÂÃÉÊÐÑÙÚÛÜéêëãòóôēĔąĆćŇň1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()-=_+{}[";
-  return chars.charAt(Math.floor(Math.random() * chars.length) + 1)
-}
-
-function magicTextGen(element) {
-  var msg = element.textContent;
-  var length = msg.length;
-
-  setInterval(() => {
-    var newMsg = "";
-    for (i = 0; i <= length; i++) {
-      newMsg += getRandomChar(msg.charAt(i));
-    }
-    element.textContent = newMsg;
-
-  }, 30)
-}
-
-function renderMagicText() {
-  document.querySelectorAll('.magic-text').forEach((e) => {
-    magicTextGen(e);
-  })
-}
+// Magic Text
 renderMagicText();
 
-// Magic Text </>
-
-// <> Mobile anchor correction due to doubled size header)
-function offsetAnchor(event, element) {
-  if (window.innerWidth <= 768) {
-    event.preventDefault();
-    content = document.querySelectorAll("#content")[0];
-    actualElement = document.getElementById(element.getAttribute("href").replace("#", ""));
-    content.scroll(0, actualElement.offsetTop - 15);
-  }
-}
-
-document.querySelectorAll("#nav-contents a").forEach((e) => {
+// Anchor scroll correction
+document.querySelectorAll(".link-icon").forEach((e) => {
   e.addEventListener("click", (event) => {
-    offsetAnchor(event, e);
+    let id = e.getAttribute("href").replace("#", "");
+    if (id != "" && id != null) {
+      // offsetAnchor(event, id);
+      event.preventDefault();
+      toggleSyntax(id);
+    }
   });
 })
-// Mobile anchor correction </>
 
-// <> Anchor click copy link
-function copyToClipboard() {
-  setTimeout(() => {
-    var cb = document.body.appendChild(document.createElement("input"));
-    cb.value = window.location.href;
-    cb.focus();
-    cb.select();
-    document.execCommand('copy');
-    cb.parentNode.removeChild(cb);
-  }, 50)
-}
-function showNotification(text, bgColor, color) {
-  var noti = document.body.appendChild(document.createElement("span"));
-  noti.id = "notification-box";
+// Open description/pattern links in same tab rather than scrolling because hash links uses search bar
+document.querySelectorAll(".item-wrapper a:not(.link-icon)").forEach((e) => {
+  e.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.open(e.href);
+  });
+})
 
-  setTimeout(() => {
-    noti.textContent = text;
-    if (bgColor)
-      noti.styles.backgroundColor = bgColor;
-    if (color)
-      noti.styles.backgroundColor = color;
-    noti.classList.add("activate-notification");
-    setTimeout(() => {
-      noti.classList.remove("activate-notification");
-      setTimeout(() => {
-        noti.parentNode.removeChild(noti);
-      }, 200);
-    }, 1500);
-  }, 50);
-}
 
+// Anchor click copy link
 const currentPageLink = window.location.toString().replaceAll(/(.+?.html)(.*)/gi, '$1');
 document.querySelectorAll(".item-title > a").forEach((e) => {
   e.addEventListener("click", (event) => {
-    copyToClipboard();
+    copyToClipboard(window.location.toString().split(/[?#]/g)[0] + "?search=#" + e.parentElement.parentElement.id);
     showNotification("✅ Link copied successfully.")
   });
 })
-// Anchor click copy link </>
+
+// New element label click
+document.querySelectorAll(".new-element").forEach((e) => {
+  e.addEventListener("click", (event) => {
+    searchNow("is:new");
+  });
+})
 
 // <> Search Bar
+const versionComparePattern = /.*?(\d\.\d(?:\.\d|))(\+|-|).*/gi;
+const versionPattern = / ?v(?:ersion|):(\d\.\d(?:\.\d|-(?:beta|alpha|dev)\d*|))(\+|-|)/gi;
+const typePattern = / ?t(?:ype|):(condition|expression|type|effect|event|section|effectsection|function)/gi;
+const newPattern = / ?is:(new)/gi;
+const resultsFoundText = "result(s) found";
+
 function versionCompare(base, target) { // Return -1, 0, 1
-  base = base.replaceAll(/(\d\.\d(\.\d|)).*/gi, "$1").replaceAll(/[^0-9]/gi, ""); // Handle special chars and versions like -dev21 and filter non digits
-  target = target.replaceAll(/(\d\.\d(\.\d|)).*/gi, "$1").replaceAll(/[^0-9]/gi, "");
+  base = base.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
+  target = target.replaceAll(versionComparePattern, "$1").replaceAll(/[^0-9]/gi, "");
 
-  base = parseInt(base) < 100 ? parseInt(base) * 10 : parseInt(base); // convert ten's to hundred's to fix (2.5.1+ not reiggering 2.6 by converting 26 -> 260)
+  base = parseInt(base) < 100 ? parseInt(base) * 10 : parseInt(base); // convert ten's to hundred's to fix (2.5.1+ not triggering 2.6 by converting 26 -> 260)
   target = parseInt(target) < 100 ? parseInt(target) * 10 : parseInt(target);
-
 
   if (target > base)
     return 1
@@ -144,112 +109,300 @@ function versionCompare(base, target) { // Return -1, 0, 1
     return -1
 }
 
-var content = document.getElementById("content");
-if (content) {
-  content.insertAdjacentHTML('afterbegin', '<input id="search-bar" type="text" placeholder="🔍 Search the documents.. (filters: v:1.0[.0][+])">');
+var searchBar;
+var searchIcon;
+
+// Load search link
+var linkParams = new URLSearchParams(window.location.href.replace("+", "%2B").split("?")[1]) // URLSearchParams decode '+' as space while encodeURI keeps + as is
+if (linkParams && linkParams.get("search")) {
+  setTimeout(() => {
+    searchNow(linkParams.get("search")) // anchor link sometimes appear after the search param so filter it
+  }, 20) // Until searchBar is loaded
+} else {
+  // Search the hash value if available
+  requestedElementID = window.location.hash;
+  if (requestedElementID != undefined && requestedElementID != "") {
+    setTimeout(() => {
+      searchNow(requestedElementID);
+    }, 20) // Until searchBar is loaded
+  }
 }
 
-var searchBar = document.getElementById("search-bar");
-if (searchBar) {
-  searchBar.focus() // To easily search without the need to click
-  searchBar.addEventListener('keydown', (event) => {
-    setTimeout(() => { // Important to actually get the value after typing or deleting
-      let allElements = document.querySelectorAll(".item-wrapper");
-      let searchValue = searchBar.value;
-      let count = 0; // Check if any matches found
-      let pass;
+var content = document.getElementById("content");
+if (content) {
+  let isNewPage = linkParams.get("isNew") != null;
+  content.insertAdjacentHTML('afterbegin', `<a id="search-icon" ${isNewPage ? 'class="search-icon-new"' : ""} title="Copy the search link."><img style="width: 28px;" src="./assets/search.svg"></a>`);
+  content.insertAdjacentHTML('afterbegin', `<span><input id="search-bar" ${isNewPage ? 'class="search-bar-version"' : ""} type="text" placeholder="Search the docs 🔍" title="Available Filters:&#13;&#10;&#13;&#10;Version:   v:2.5.3 v:2.2+ v:2.4-&#13;&#10;Type:      t:expression t:condition etc.&#13;&#10;New:       is:new"><span id="search-bar-after" style="display: none;">0 ${resultsFoundText}</span></span>`);
+  searchBar = document.getElementById("search-bar");
+  searchIcon = document.getElementById("search-icon");
+
+  if (isNewPage) {
+    let tags = []
+    let options = "<select id='search-version' name='versions' id='versions' onchange='checkVersionFilter()'></select>"
+    content.insertAdjacentHTML('afterbegin', `<span>${options}</span>`);
+    options = document.getElementById("search-version");
+    
+    getApiValue(null, "skript-versions", "tags?per_page=83&page=2", (data, isCached) => { // 83 and page 2 matters to filter dev branches (temporary solution)
+      if (isCached)
+        data = data.split(",");
+
+      for (let i = 0; i < data.length; i++) {
+        let tag;
+          if (isCached) {
+            tag = data[i];
+          } else {
+            tag = data[i]["name"];
+          }
+          tags.push(tag.replaceAll(/(.*)-(dev|beta|alpha).*/gi, "$1"));
+        }
+
+      tags = [...new Set(tags)] // remove duplicates
+
+      for (let i = 0; i < tags.length; i++) {
+        let option = document.createElement('option')
+        option.value = tags[i]
+        option.textContent = "Since v" + tags[i]
+        options.appendChild(option)
+      }
+
+      if (!linkParams.get("search") && !window.location.href.match(/.*?#.+/))
+        searchNow(`v:${tags[0]}+`)
+
+      return tags;
+    }, true)
       
-      let version = searchValue.replaceAll(/v(?:ersion|)\:(\d\.\d(?:\.\d)?)\+?/gi, "$1").replaceAll(/[^0-9.]/gi, "");
-      let versionAndUp = searchValue.replaceAll(/v(?:ersion|)\:\d\.\d(?:\.\d)?(\+?)/gi, "$1").replaceAll(/[^+]/g, "") == "+";
-      searchValue = searchValue.replaceAll(/ ?v(ersion|)\:(\d\.\d(\.\d)?)\+?/gi, "") // Don't include filters in the search
-      searchValue = searchValue.replaceAll(/( ){2,}/gi, " ") // Filter duplicate spaces
+  }
+} else {
+  content = document.getElementById("content-no-docs")
+}
 
-      searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 ]/gi, ""); // Filter none alphabet and digits to avoid regex errors
+// Copy search link
+if (searchIcon) {
+  searchIcon.addEventListener('click', (event) => {
+    let link = window.location.href.split(/[?#]/g)[0] // link without search param
+    link += `?search=${encodeURI(searchBar.value)}`
+    copyToClipboard(link)
+    showNotification("✅ Search link copied.")
+  })
+}
 
-      allElements.forEach((e) => {
-        let patterns = document.querySelectorAll(`#${e.id} .item-details .skript-code-block`);
-        for (let i = 0; i < patterns.length; i++) { // Search in the patterns for better results
-          let pattern = patterns[i];
-          // let regex = new RegExp("\\b" + searchValue + "\\b", "gi") // Makes live character update useless
-          let regex = new RegExp(searchValue, "gi")
-          let name = document.querySelectorAll(`#${e.id} .item-title h1`)[0].textContent // Syntax Name
-          let versionFound;
+// Used when selecting a version from the dropdown
+function checkVersionFilter() {
+  let el = document.getElementById("search-version")
+  if (el) {
+    searchNow(`v:${el.value}+`)
+  }
+}
 
-          if (version != "") {
-            versionFound = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.includes(version);
-            
+function searchNow(value = "") {
+  if (value != "") // Update searchBar value
+    searchBar.value = value;
+
+  let allElements = document.querySelectorAll(".item-wrapper");
+  let searchValue = searchBar.value;
+  let count = 0; // Check if any matches found
+  let pass;
+
+  // version
+  let version = "";
+  let versionAndUp = false;
+  let versionAndDown = false;
+  if (searchValue.match(versionPattern)) {
+    let verExec = versionPattern.exec(searchValue);
+    version = verExec[1];
+    if (verExec.length > 2) {
+      versionAndUp = verExec[2] == "+" == true;
+      versionAndDown = verExec[2] == "-" == true;
+    }
+    searchValue = searchValue.replaceAll(versionPattern, "") // Don't include filters in the search
+  }
+
+  // Type
+  let filterType;
+  if (searchValue.match(typePattern)) {
+    filterType = typePattern.exec(searchValue)[1];
+    searchValue = searchValue.replaceAll(typePattern, "")
+  }
+
+  // News
+  let filterNew;
+  if (searchValue.match(newPattern)) {
+    filterNew = newPattern.exec(searchValue)[1] == "new";
+    searchValue = searchValue.replaceAll(newPattern, "")
+  }
+
+  searchValue = searchValue.replaceAll(/( ){2,}/gi, " ") // Filter duplicate spaces
+  searchValue = searchValue.replaceAll(/[^a-zA-Z0-9 #_]/gi, ""); // Filter none alphabet and digits to avoid regex errors
+
+  allElements.forEach((e) => {
+    let patterns = document.querySelectorAll(`#${e.id} .item-details .skript-code-block`);
+    for (let i = 0; i < patterns.length; i++) { // Search in the patterns for better results
+      let pattern = patterns[i];
+      let regex = new RegExp(searchValue, "gi")
+      let name = document.querySelectorAll(`#${e.id} .item-title h1`)[0].textContent // Syntax Name
+      let desc = document.querySelectorAll(`#${e.id} .item-description`)[0].textContent // Syntax Desc
+	  let keywords = e.getAttribute("data-keywords")
+      let id = e.id // Syntax ID
+      let filtersFound = false;
+
+      // Version check
+      let versionFound;
+      if (version != "") {
+        versionFound = versionCompare(version, document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent) == 0;
+
+        if (versionAndUp || versionAndDown) {
+          let versions = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.split(",");
+          for (const v in versions) { // split on ',' without space in case some version didn't have space and versionCompare will handle it
             if (versionAndUp) {
-              let versions = document.querySelectorAll(`#${e.id} .item-details:nth-child(2) td:nth-child(2)`)[0].textContent.split(",");
-              for (const v in versions) { // split on ',' without space in case some version didn't have space and versionCompare will handle it
-                if (versionCompare(version, versions[v]) == 1 == true) {
-                  versionFound = true;
-                  break; // Performance
-                }
+              if (versionCompare(version, versions[v]) == 1) {
+                versionFound = true;
+                break; // Performance
+              }
+            } else if (versionAndDown) {
+              if (versionCompare(version, versions[v]) == -1) {
+                versionFound = true;
+                break; // Performance
               }
             }
-          } else {
-            versionFound = true;
-          }
-          if ((regex.test(pattern.textContent) || regex.test(name) || searchValue == "") && versionFound) {
-            pass = true
-            break; // Performance
           }
         }
-
-        // Filter
-        let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`)[0];
-        if (pass) {
-          e.style.display = null;
-          if (sideNavItem)
-            sideNavItem.style.display = null;
-          count++;
-        } else {
-          e.style.display = "none";
-          if (sideNavItem)
-            sideNavItem.style.display = "none";
-        }
-
-        pass = false; // reset
-      })
-
-      if (count == 0) {
-        if (document.getElementById("no-matches") == null)
-        document.getElementById("content").insertAdjacentHTML('beforeend', '<p id="no-matches" style="text-align: center;">No matches found.</p>');
       } else {
-        if (document.getElementById("no-matches") != null)
-          document.getElementById("no-matches").remove();
+        versionFound = true;
       }
-  
-      count = 0; // reset
-    }, 100); // Spam delay for better performance
 
-  }); 
+      let filterNewFound = true;
+      if (filterNew) {
+        filterNewFound = document.querySelector(`#${e.id} .item-title .new-element`) != null
+      }
+
+      let filterTypeFound = true;
+      let filterTypeEl = document.querySelector(`#${e.id} .item-title .item-type`);
+      if (filterType) {
+        filterTypeFound = filterType.toLowerCase() === filterTypeEl.textContent.toLowerCase()
+      }
+
+      if (filterNewFound && versionFound && filterTypeFound)
+        filtersFound = true
+
+      if ((regex.test(pattern.textContent.replaceAll("[ ]", " ")) || regex.test(name) ||
+           regex.test(desc) || regex.test(keywords) || "#" + id == searchValue || searchValue == "") && filtersFound) { // Replacing '[ ]' will improve some searching cases such as 'off[ ]hand'
+        pass = true
+        break; // Performance
+      }
+    }
+
+    // Filter
+    let sideNavItem = document.querySelectorAll(`#nav-contents a[href="#${e.id}"]`); // Since we have new addition filter we need to loop this
+    if (pass) {
+      e.style.display = null;
+      if (sideNavItem)
+        sideNavItem.forEach(e => {
+          e.style.display = null;
+        })
+      count++;
+    } else {
+      e.style.display = "none";
+      if (sideNavItem)
+        sideNavItem.forEach(e => {
+          e.style.display = "none";
+        })
+    }
+
+    pass = false; // Reset
+  })
+
+  searchResultBox = document.getElementById("search-bar-after");
+  if (count > 0 && (version != "" || searchValue != "" || filterType || filterNew)) {
+    searchResultBox.textContent = `${count} ${resultsFoundText}`
+    searchResultBox.style.display = null;
+  } else {
+    searchResultBox.style.display = "none";
+  }
+
+  if (count == 0) {
+    if (document.getElementById("no-matches") == null)
+    document.getElementById("content").insertAdjacentHTML('beforeend', '<p id="no-matches" style="text-align: center;">No matches found.</p>');
+  } else {
+    if (document.getElementById("no-matches") != null)
+      document.getElementById("no-matches").remove();
+  }
+
+  count = 0; // reset
+}
+
+if (searchBar) {
+  searchBar.focus() // To easily search after page loading without the need to click
+  searchBar.addEventListener('keydown', (event) => {
+    setTimeout(() => { // Important to actually get the value after typing or deleting + better performance
+      searchNow();
+    }, 100);
+  });
 }
 // Search Bar </>
 
-// <> HighlightJS 
-document.querySelectorAll('pre.code').forEach(el => { // Apply the code formatting on the same <pre> not the <code> inside to not break the styling
-  hljs.highlightElement(el);
-});
-document.querySelectorAll('div .skript-code-block').forEach(el => { // This lags the docs pages due to the huge amount of elements being parsed, we can disable this if lag is so bad for some people or keep it because it looks AMAZING!
-  hljs.highlightElement(el);
-});
-// HighlightJS </>
-
 // <> Placeholders
-function replacePlaceholders(html) {
-  let innerHTML = html.innerHTML;
-  if (innerHTML.includes("${latest-version}")) {
-    let lv = $.getJSON("https://api.github.com/repos/SkriptLang/Skript/releases?per_page=1", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${latest-version}", data[0]["tag_name"]);
-    })
-  }
-  if (innerHTML.includes("${contributors-size}")) {
-    let lv = $.getJSON("https://api.github.com/repos/SkriptLang/Skript/contributors?per_page=500", (data) => {
-      html.innerHTML = html.innerHTML.replaceAll("${contributors-size}", data.length);
-    })
-  }
-}
-replacePlaceholders(document.querySelector("body"));
+// To save performance we use the class "placeholder" on the wrapper element of elements that contains the placeholder
+// To only select those elements and replace their innerHTML
+document.querySelectorAll(".placeholder").forEach(e => {
+  replacePlaceholders(e);
+});
 // Placeholders </>
 
+// <> Syntax Highlighting
+document.addEventListener("DOMContentLoaded", function (event) {
+  setTimeout(() => {
+    document.querySelectorAll('.item-examples .skript-code-block').forEach(el => {
+      highlightElement(el);
+    });
+    document.querySelectorAll('pre code').forEach(el => {
+      highlightElement(el);
+    });
+    document.querySelectorAll('.box.skript-code-block').forEach(el => {
+      highlightElement(el);
+    });
+  }, 100);
+});
+// Syntax Highlighting </>
+
+
+// <> Example Collapse
+var examples = document.querySelectorAll(".item-examples p");
+if (examples) {
+  setTimeout(() => {
+    examples.forEach(e => {
+      let pElement = e;
+      let divElement = e.parentElement.children[1];
+      pElement.addEventListener("click", ev => {
+        if (pElement.classList.contains("example-details-opened")) {
+          pElement.classList.remove("example-details-opened");
+          pElement.classList.add("example-details-closed");
+          divElement.style.display = "none";
+        } else {
+          pElement.classList.remove("example-details-closed");
+          pElement.classList.add("example-details-opened");
+          divElement.style.display = "block";
+        }
+      })
+    })
+  }, 50)
+}
+// Example Collapse </>
+
+// <> Cookies Accecpt
+if (!isCookiesAccepted) {
+  content.insertAdjacentHTML('beforeend', `<div id="cookies-bar"> <p> We use cookies and local storage to enhance your browsing experience and store github related statistics. By clicking "Accept", you consent to our use of cookies and local storage. </p><div style="padding: 10px; white-space: nowrap;"> <button id="cookies-accept">Accept</button> <button id="cookies-deny">Deny</button> </div></div>`);
+}
+
+let cookiesBar = document.querySelector("#cookies-bar");;
+let cookiesAccept = document.querySelector("#cookies-accept");
+let cookiesDeny = document.querySelector("#cookies-deny");
+if (cookiesAccept && cookiesDeny) {
+  cookiesAccept.addEventListener('click', () => {
+    setCookie('cookies-accepted', true, 99, true);
+    cookiesBar.remove();
+  });
+  cookiesDeny.addEventListener('click', () => {
+    cookiesBar.remove();
+  });
+}
+// Cookies Accecpt </>

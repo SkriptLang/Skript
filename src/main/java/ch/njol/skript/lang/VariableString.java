@@ -159,7 +159,7 @@ public class VariableString implements Expression<String> {
 	 * @return Whether the string is quoted correctly
 	 */
 	public static boolean isQuotedCorrectly(String s, boolean withQuotes) {
-		if (withQuotes && (!s.startsWith("\"") || !s.endsWith("\"")))
+		if (withQuotes && (!s.startsWith("\"") || !s.endsWith("\"") || s.length() < 2))
 			return false;
 		boolean quote = false;
 		boolean percentage = false;
