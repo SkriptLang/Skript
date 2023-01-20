@@ -29,6 +29,8 @@ jobs:
                   repository: 'SkriptLang/skript-docs'
                   path: skript-docs
             - name: Setup documentation environment
+              env:
+                  DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
               run: |
                 echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
                 echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly" >> $GITHUB_ENV
