@@ -72,6 +72,7 @@ public class EffEquip extends Effect {
 			);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<ItemType> itemTypes;
