@@ -107,8 +107,8 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 
 				if (loop != null) { // The user was not specific enough - we can't determine which to use
 					Skript.error(
-						"There are multiple loops that match loop-" + type + "."
-						+ " Use loop-" + type + "-1/2/3/etc. to specify which loop's value you want."
+						"There are multiple loops that match loop-" + type + "." +
+						" Use loop-" + type + "-1/2/3/etc. to specify which loop's value you want."
 					);
 					return false;
 				}
