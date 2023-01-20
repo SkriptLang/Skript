@@ -55,7 +55,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tsend \"Back up!\" to attacker and victim",
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("1.17 or newer (for within block)")
+@RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 
 	static {
@@ -71,7 +71,7 @@ public class CondIsWithin extends Condition {
 	}
 
 	private Expression<Location> locsToCheck, loc1, loc2;
-	private Expression<Object> area;
+	private Expression<?> area;
 	private boolean withinLocations;
 
 	@Override
