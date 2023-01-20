@@ -37,6 +37,7 @@ jobs:
                 echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly" >> $GITHUB_ENV
                 echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
                 mkdir ~/.ssh
+                ls -lr
                 ssh-keyscan www.github.com >> ~/.ssh/known_hosts
                 rm -rf ./skript-docs/docs/nightly/*
             - name: Build Skript and generate docs
