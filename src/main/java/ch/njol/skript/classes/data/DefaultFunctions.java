@@ -65,15 +65,13 @@ public class DefaultFunctions {
 			public Number[] executeSimple(Object[][] params) {
 				Double sum = 0.0;
 				int length = params[0].length
-				if (params[0][1] instanceof Number) {
-					for (int i = 0; i <length; i++) {
-						if (params[0][i] instanceof Double) {
-							sum += (Double) params[0][i];
-						} else if (params[0][i] instanceof Integer) {
-							sum += ((Integer) params[0][i]).doubleValue();
-						} else if (params[0][i] instanceof Long) {
-							sum += ((Long) params[0][i]).doubleValue();
-						}
+				for (int i = 0; i < length; i++) {
+					if (params[0][i] instanceof Double) {
+						sum += (Double) params[0][i];
+					} else if (params[0][i] instanceof Integer) {
+						sum += ((Integer) params[0][i]).doubleValue();
+					} else if (params[0][i] instanceof Long) {
+						sum += ((Long) params[0][i]).doubleValue();
 					}
 				}
 				return new Number[] {sum / length};
