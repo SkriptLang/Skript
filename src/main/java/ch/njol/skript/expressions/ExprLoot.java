@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.inventory.ItemStack;
 import ch.njol.skript.lang.Expression;
@@ -34,6 +35,16 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Name("Loot")
+@Description("The loot that will be generated in a 'loot generate' event.")
+@Examples({
+	"on loot generate:",
+	"\tchance of %10",
+	"\tadd 64 diamonds",
+	"\tsend \"You hit the jackpot!!\""
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	static {
