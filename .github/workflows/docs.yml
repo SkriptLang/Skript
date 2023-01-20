@@ -7,7 +7,7 @@ on:
             - 'dev/**'
 
 jobs:
-    build:
+    docs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         steps:
