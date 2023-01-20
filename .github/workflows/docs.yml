@@ -41,9 +41,13 @@ jobs:
                 ssh-keyscan www.github.com >> ~/.ssh/known_hosts
                 rm -rf ./skript-docs/docs/nightly/*
             - name: Build Skript and generate docs
-              run: ./skript/gradlew clean genDocs
+              run: |
+                cd ./skript
+                ./gradlew clean genDocs
+                cd ..
             - name: Push nightly docs
               if: success()
               run: |
+                cd ./skript-docs
                 git commit -m "Update nightly docs"
                 git show
