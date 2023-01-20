@@ -80,7 +80,8 @@ public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (minimum || maximum)
 			return null;
 		switch (mode) {
