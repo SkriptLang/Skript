@@ -19,6 +19,7 @@
 package ch.njol.skript.tests.runner;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -70,7 +71,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 			Class<?> clazz = Class.forName(sigMatcher.group("class"));
 			List<Class<?>> parameters = new ArrayList<>();
 			String rawParameters = sigMatcher.group("params");
-			if (!rawParameters.isBlank()) {
+			if (!StringUtils.isBlank(rawParameters)) {
 				for (String parameter : rawParameters.split(",")) {
 					parameters.add(Class.forName(parameter.trim()));
 				}
