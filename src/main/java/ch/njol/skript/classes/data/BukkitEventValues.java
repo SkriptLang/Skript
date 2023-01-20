@@ -73,6 +73,7 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -1425,6 +1426,15 @@ public final class BukkitEventValues {
 			@Nullable
 			public Egg get(PlayerEggThrowEvent event) {
 				return event.getEgg();
+			}
+		}, EventValues.TIME_NOW);
+
+		// BlockSpreadEvent
+		EventValues.registerEventValue(BlockSpreadEvent.class, Block.class, new Getter<Block, BlockSpreadEvent>() {
+			@Override
+			@Nullable
+			public Block get(BlockSpreadEvent event) {
+				return event.getSource();
 			}
 		}, EventValues.TIME_NOW);
 	}
