@@ -64,8 +64,9 @@ public class DefaultFunctions {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Double sum = 0.0;
-				if (params[0][0] instanceof Number) {
-					for (int i = 0; i < params[0].length; i++) {
+				int length = params[0].length
+				if (params[0][1] instanceof Number) {
+					for (int i = 0; i <length; i++) {
 						if (params[0][i] instanceof Double) {
 							sum += (Double) params[0][i];
 						} else if (params[0][i] instanceof Integer) {
@@ -75,7 +76,7 @@ public class DefaultFunctions {
 						}
 					}
 				}
-				return new Number[] {(sum/params[0].length)};
+				return new Number[] {sum / length};
 			}
 		}.description("Returns the average of all numbers in the list")
 			.examples("average(10, 20) = 15", "average(11, 99) = 41", "average(10, 190, 299.20) = 166.2")
