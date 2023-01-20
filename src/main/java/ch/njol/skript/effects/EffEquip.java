@@ -21,7 +21,6 @@ package ch.njol.skript.effects;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Pig;
@@ -29,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Steerable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.LlamaInventory;
@@ -104,6 +102,8 @@ public class EffEquip extends Effect {
 	private static final ItemType CHEST = Aliases.javaItemType("chest");
 	private static final ItemType CARPET = Aliases.javaItemType("carpet");
 
+	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
+
 	@Override
 	protected void execute(Event event) {
 		ItemType[] itemTypes;
@@ -111,54 +111,54 @@ public class EffEquip extends Effect {
 		if (this.itemTypes != null) {
 			itemTypes = this.itemTypes.getArray(event);
 		} else {
-			itemTypes = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
+			itemTypes = ALL_EQUIPMENT;
 			unequipHelmet = true;
 		}
-		for (LivingEntity en : entities.getArray(event)) {
-			if (SUPPORTS_STEERABLE && en instanceof Steerable) {
-				for (ItemType it : itemTypes) {
-					if (SADDLE.isOfType(it.getMaterial())) {
-						((Steerable) en).setSaddle(equip);
+		for (LivingEntity entity : entities.getArray(event)) {
+			if (SUPPORTS_STEERABLE && entity instanceof Steerable) {
+				for (ItemType itemType : itemTypes) {
+					if (SADDLE.isOfType(itemType.getMaterial())) {
+						((Steerable) entity).setSaddle(equip);
 					}
 				}
-			} else if (en instanceof Pig) {
+			} else if (entity instanceof Pig) {
 				for (ItemType t : itemTypes) {
 					if (t.isOfType(Material.SADDLE)) {
-						((Pig) en).setSaddle(equip);
+						((Pig) entity).setSaddle(equip);
 						break;
 					}
 				}
-			} else if (en instanceof Llama) {
-				LlamaInventory inv = ((Llama) en).getInventory();
-				for (ItemType t : itemTypes) {
-					for (ItemStack item : t.getAll()) {
+			} else if (entity instanceof Llama) {
+				LlamaInventory inv = ((Llama) entity).getInventory();
+				for (ItemType itemType : itemTypes) {
+					for (ItemStack item : itemType.getAll()) {
 						if (CARPET.isOfType(item)) {
 							inv.setDecor(equip ? item : null);
 						} else if (CHEST.isOfType(item)) {
-							((Llama) en).setCarryingChest(equip);
+							((Llama) entity).setCarryingChest(equip);
 						}
 					}
 				}
-			} else if (en instanceof AbstractHorse) {
+			} else if (entity instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
-				Inventory inv = ((AbstractHorse) en).getInventory();
-				for (ItemType t : itemTypes) {
-					for (ItemStack item : t.getAll()) {
+				Inventory inv = ((AbstractHorse) entity).getInventory();
+				for (ItemType itemType : itemTypes) {
+					for (ItemStack item : itemType.getAll()) {
 						if (SADDLE.isOfType(item)) {
 							inv.setItem(0, equip ? item : null); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
 							inv.setItem(1, equip ? item : null); // Slot 1=armor
-						} else if (CHEST.isOfType(item) && en instanceof ChestedHorse) {
-							((ChestedHorse) en).setCarryingChest(equip);
+						} else if (CHEST.isOfType(item) && entity instanceof ChestedHorse) {
+							((ChestedHorse) entity).setCarryingChest(equip);
 						}
 					}
 				}
 			} else {
-				EntityEquipment equipment = en.getEquipment();
+				EntityEquipment equipment = entity.getEquipment();
 				if (equipment == null)
 					continue;
-				for (ItemType t : itemTypes) {
-					for (ItemStack item : t.getAll()) {
+				for (ItemType itemType : itemTypes) {
+					for (ItemStack item : itemType.getAll()) {
 						if (CHESTPLATE.isOfType(item)) {
 							equipment.setChestplate(equip ? item : null);
 						} else if (LEGGINGS.isOfType(item)) {
@@ -174,8 +174,8 @@ public class EffEquip extends Effect {
 						equipment.setHelmet(null);
 					}
 				}
-				if (en instanceof Player)
-					PlayerUtils.updateInventory((Player) en);
+				if (entity instanceof Player)
+					PlayerUtils.updateInventory((Player) entity);
 			}
 		}
 	}
