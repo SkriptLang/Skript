@@ -82,8 +82,9 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 			case SET:
 			case DELETE:
 				return CollectionUtils.array(ItemStack[].class);
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
