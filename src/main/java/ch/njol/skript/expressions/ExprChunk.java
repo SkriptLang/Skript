@@ -41,7 +41,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Chunk")
-@Description("The <a href='../classes.html#chunk'>chunk</a> a block, location or entity is in.")
+@Description("The <a href='./classes.html#chunk'>chunk</a> a block, location or entity is in.")
 @Examples("add the chunk at the player to {protected chunks::*}")
 @Since("2.0")
 public class ExprChunk extends PropertyExpression<Location, Chunk> {
