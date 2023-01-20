@@ -655,14 +655,14 @@ public class SimpleEvents {
 					"Called when a loot table of an inventory is generated in the world.",
 					"For example, when opening a shipwreck chest."
 				)
-				.requiredPlugins("1.16+")
 				.examples(
 					"on loot generate:",
 					"\tchance of %10",
 					"\tadd 64 diamonds",
 					"\tsend \"You hit the jackpot!!\""
 				)
-				.since("INSERT VERSION");
+				.since("INSERT VERSION")
+				.requiredPlugins("MC 1.16+");
 		}
 	}
 

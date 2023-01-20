@@ -48,7 +48,7 @@ import java.util.List;
 	"\tsend \"You hit the jackpot!!\""
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("1.16+")
+@RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	static {
