@@ -1,5 +1,6 @@
 test "method exists":
-	assert method "org.bukkit.Bukkit##getServer()" exists with "Existing method was not found"
-	assert method "org.fake.class##notReal()" doesn't exist with "Fake method was found"
-	assert method "org.bukkit.Bukkit##getEntity(java.util.UUID)" exists with "Existing method with args was not found"
-	assert method "org.bukkit.Bukkit##createPlayerProfile(java.util.UUID,java.lang.String)" exists with "Existing method with multiple args not found"
+	assert method "java.lang.String##length()" exists with "Existing method was not found"
+	assert method "java.lang.String##notReal()" doesn't exist with "Fake method was found"
+	assert method "java.lang.SuperFakeClass##notReal()" doesn't exist with "Fake method was found"
+	assert method "java.lang.String##indexOf(java.lang.String)" exists with "Existing method with args was not found"
+	assert method "java.lang.String##replace(java.lang.CharSequence,java.lang.CharSequence)" exists with "Existing method with multiple args not found"
