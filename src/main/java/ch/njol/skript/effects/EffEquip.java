@@ -66,9 +66,11 @@ public class EffEquip extends Effect {
 				"equip [%livingentities%] with %itemtypes%",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armor|equipment)");
+				"unequip %livingentities%'[s] (armor|equipment)"
+			);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<ItemType> itemTypes;
@@ -170,8 +172,8 @@ public class EffEquip extends Effect {
 							equipment.setHelmet(equip ? item : null);
 						}
 					}
-					if (unequipHelmet) { // Since players can wear any helmet, ts won't have the item in the array every time
-						equipment.setHelmet(null);
+					if (unequipHelmet) { // Since players can wear any helmet, itemTypes won't have the item in the array every time
+						equipment.setHelmet(AIR);
 					}
 				}
 				if (entity instanceof Player)
