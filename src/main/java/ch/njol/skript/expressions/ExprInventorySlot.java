@@ -42,7 +42,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 
 @Name("Inventory Slot")
-@Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
+@Description("Represents a slot in an inventory. It can be used to change the item in an inventory too.")
 @Examples({
 	"if slot 0 of player is air:",
 	"\tset slot 0 of player to 2 stones",
