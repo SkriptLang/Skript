@@ -54,4 +54,3 @@ test "within condition" when running below minecraft "1.17":
 	assert {_loc1} is not within {_pig} with "failed within entity ##2"
 
 	delete random entity of {_pig}
-	
