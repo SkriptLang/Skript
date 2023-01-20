@@ -64,7 +64,7 @@ public class DefaultFunctions {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Double sum = 0.0;
-				int length = params[0].length
+				int length = params[0].length;
 				for (int i = 0; i < length; i++) {
 					if (params[0][i] instanceof Double) {
 						sum += (Double) params[0][i];
