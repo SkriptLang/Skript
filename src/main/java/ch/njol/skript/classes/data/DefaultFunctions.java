@@ -57,7 +57,7 @@ public class DefaultFunctions {
 		
 		// basic math functions
 
-		Functions.registerFunction(new SimpleJavaFunction<Number>("average", new Parameter[] {new Parameter<>("list", DefaultClasses.NUMBER, false, null)}, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("average", numbersParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				double sum = 0.0;
