@@ -60,7 +60,7 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Number>("average", new Parameter[] {new Parameter<>("list", DefaultClasses.NUMBER, false, null)}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
-				Double sum = 0.0;
+				double sum = 0.0;
 				int length = params[0].length;
 				for (int i = 0; i < length; i++) {
 					if (params[0][i] instanceof Number)
