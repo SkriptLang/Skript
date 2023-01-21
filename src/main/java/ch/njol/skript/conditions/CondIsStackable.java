@@ -18,7 +18,7 @@
  */
 
 package ch.njol.skript.conditions;
-import ch.njol.skript.aliases.ItemType;
+import org.bukkit.inventory.ItemStack;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,10 +30,10 @@ import ch.njol.skript.doc.Since;
 @Examples({"diamond axe is stackable","birch wood is stackable"})
 @Since("INSERT VERSION")
 
-public class CondIsStackable extends PropertyCondition<ItemType> {
+public class CondIsStackable extends PropertyCondition<ItemStack> {
 
 	static {
-		register(CondIsStackable.class, "stackable", "itemtypes");
+		register(CondIsStackable.class, "stackable", "itemstacks");
 	}
 
 	@Override
