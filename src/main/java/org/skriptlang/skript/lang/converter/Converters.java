@@ -49,7 +49,7 @@ public final class Converters {
 	 * When traversing this list, please refer to {@link Collections#synchronizedList(List)} to ensure that
 	 *  the list is properly traversed due to its synchronized status.
 	 * Please note that this does not include any special Converters resolved by Skript during runtime.
-	 * This method ONLY returns Comparators explicitly registered during registration.
+	 * This method ONLY returns converters explicitly registered during registration.
 	 * Thus, it is recommended to use {@link #getConverter(Class, Class)}.
 	 */
 	public static List<ConverterInfo<?, ?>> getConverterInfo() {
