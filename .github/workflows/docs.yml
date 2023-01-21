@@ -45,7 +45,7 @@ jobs:
               run: |
                 cd ./skript
                 ./gradlew clean genDocs
-                javadoc -d "${DOC_DIR}/javadocs" ${GITHUB_WORKSPACE}/skript/src/main/java/
+                javadoc -d "${DOC_DIR}/javadocs" -sourcepath "${GITHUB_WORKSPACE}/skript/src/main/java/" -subpackages ch:org
                 cd ..
             - name: Push nightly docs
               if: success()
