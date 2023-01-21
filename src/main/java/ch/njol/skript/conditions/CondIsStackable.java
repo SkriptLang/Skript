@@ -27,7 +27,10 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Stackable")
 @Description("Checks whether an item is stackable.")
-@Examples({"diamond axe is stackable","birch wood is stackable"})
+@Examples({
+	"diamond axe is stackable",
+	"birch wood is stackable"
+})
 @Since("INSERT VERSION")
 
 public class CondIsStackable extends PropertyCondition<ItemStack> {
