@@ -138,6 +138,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.ChunkEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
@@ -1427,5 +1428,23 @@ public final class BukkitEventValues {
 				return event.getEgg();
 			}
 		}, EventValues.TIME_NOW);
+
+		// LootGenerateEvent
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public Entity get(LootGenerateEvent event) {
+					return event.getEntity();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(LootGenerateEvent.class, Location.class, new Getter<Location, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public Location get(LootGenerateEvent event) {
+					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
 	}
 }
