@@ -35,7 +35,7 @@ jobs:
               run: |
                 eval `ssh-agent`
                 echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
-                echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF}" >> $GITHUB_ENV
+                echo "SKRIPT_DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
                 echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
                 mkdir ~/.ssh
                 ssh-keyscan www.github.com >> ~/.ssh/known_hosts
