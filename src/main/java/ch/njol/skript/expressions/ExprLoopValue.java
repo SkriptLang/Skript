@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
 	"loop 10 times:",
 	"\tmessage \"%11 - loop-number%\"",
 	"\twait a second",
-	"# Generate a 10x10 floor made of randomly coloured wool below the player",
+	"# Generate a 10x10 floor made of randomly colored wool below the player",
 	"loop blocks from the block below the player to the block 10 east of the block below the player:",
 	"\tloop blocks from the loop-block to the block 10 north of the loop-block:",
 	"\t\tset loop-block-2 to any wool"

@@ -10,3 +10,5 @@ test "block data" when running minecraft "1.15.2":
 
 	set {_data} to block data of block at {_b}
 	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "block data for campfire did not match"
+
+	set block at {_b} to air

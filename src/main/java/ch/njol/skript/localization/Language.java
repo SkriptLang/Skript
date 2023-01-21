@@ -297,7 +297,8 @@ public class Language {
 		try {
 			Config langConfig = new Config(in, name + ".lang", false, false, ":");
 
-			if (tryUpdate && !Skript.getVersion().toString().equals(langConfig.get("version"))) {
+			String langVersion = langConfig.get("version");
+			if (tryUpdate && (langVersion == null || Skript.getVersion().compareTo(new Version(langVersion)) != 0)) {
 				String langFileName = "lang/" + name + ".lang";
 
 				InputStream newConfigIn = Skript.getInstance().getResource(langFileName);
