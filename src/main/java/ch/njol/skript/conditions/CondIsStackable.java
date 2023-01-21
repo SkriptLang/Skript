@@ -25,23 +25,25 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-
-@Name("is Stackable")
+@Name("Is Stackable")
 @Description("Check if item is stackable.")
 @Examples({"diamond axe is stackable","birch wood is stackable"})
 @Since("INSERT VERSION")
 
-
 public class CondIsStackable extends PropertyCondition<ItemType> {
+
 	static {
 		register(CondIsStackable.class, "stackable", "itemtypes");
 	}
+
 	@Override
 	public boolean check(ItemType itemType) {
 		return itemType.getMaterial().getMaxStackSize() > 1;
 	}
+
 	@Override
 	protected String getPropertyName() {
 		return "stackable";
 	}
+
 }
