@@ -425,8 +425,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
 							&& e.getName().startsWith("lang/")
-							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
+							&& !e.getName().endsWith("default.lang")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
