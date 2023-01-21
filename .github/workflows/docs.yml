@@ -44,10 +44,8 @@ jobs:
             - name: Build Skript and generate docs
               run: |
                 cd ./skript
-                ./gradlew clean genDocs
-                jarPattern="${GITHUB_WORKSPACE}/skript/build/libs/*.jar"
-                jars=($jarPattern)
-                javadoc -d "${DOC_DIR}/javadocs" -classpath "${jars[0]}" -sourcepath "${GITHUB_WORKSPACE}/skript/src/main/java/" -subpackages ch:org
+                ./gradlew clean genDocs javadoc
+                mv "${GITHUB_WORKSPACE}/skript/build/docs/javadoc" "${DOC_DIR}/javadocs"
                 cd ..
             - name: Push nightly docs
               if: success()
