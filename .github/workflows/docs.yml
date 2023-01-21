@@ -28,6 +28,7 @@ jobs:
               with:
                   repository: 'SkriptLang/skript-docs'
                   path: skript-docs
+                  ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
             - name: Setup documentation environment
               env:
                   DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
