@@ -70,7 +70,7 @@ public class ExprRandom extends SimpleExpression<Object> {
 						.filter(Objects::nonNull)
 						.collect(Collectors.toList());
 				if (list.isEmpty()) {
-					Skript.error("There was no objects of type '" + exprs[0].toString() + "' in the list " + exprs[1].toString());
+					Skript.error("There are no objects of type '" + exprs[0].toString() + "' in the list " + exprs[1].toString());
 					return false;
 				}
 				expr = CollectionUtils.getRandom(list);
