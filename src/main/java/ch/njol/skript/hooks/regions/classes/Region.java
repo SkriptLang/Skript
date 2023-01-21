@@ -53,6 +53,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 				.after("string", "world", "offlineplayer", "player")
 				.since("2.1")
 				.user("regions?")
+				.requiredPlugins("Supported regions plugin")
 				.parser(new Parser<Region>() {
 					@Override
 					@Nullable

@@ -292,7 +292,7 @@ public abstract class Commands {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			scriptCommand.unregister(commandMap, cmKnownCommands, cmAliases);
 		}
-		commands.values().remove(scriptCommand);
+		commands.values().removeIf(command -> command == scriptCommand);
 	}
 	
 	private static boolean registeredListeners = false;
