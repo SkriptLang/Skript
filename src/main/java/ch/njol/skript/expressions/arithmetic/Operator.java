@@ -18,8 +18,11 @@
  */
 package ch.njol.skript.expressions.arithmetic;
 
+import ch.njol.skript.util.MarkedForRemoval;
+
 @SuppressWarnings("UnnecessaryBoxing")
 @Deprecated
+@MarkedForRemoval
 public enum Operator {
 	
 	PLUS('+') {

@@ -19,10 +19,13 @@
 package ch.njol.skript.classes;
 
 
+import ch.njol.skript.util.MarkedForRemoval;
+
 /**
  * @author Peter Güttinger
  */
 @Deprecated
+@MarkedForRemoval
 public class NumberArithmetic implements Arithmetic<Number, Number> {
 	
 	@Override

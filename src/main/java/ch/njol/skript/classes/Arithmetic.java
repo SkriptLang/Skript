@@ -18,12 +18,16 @@
  */
 package ch.njol.skript.classes;
 
+import ch.njol.skript.util.MarkedForRemoval;
+
 /**
  * Represents arithmetic for certain two types. Multiplication, division and
  * power of methods are optional and may throw UnsupportedOperationExceptions.
  * @param <A> the type of the absolute value
  * @param <R> the type of the relative value
  */
+@Deprecated
+@MarkedForRemoval
 public interface Arithmetic<A, R> {
 	
 	public R difference(A first, A second);
