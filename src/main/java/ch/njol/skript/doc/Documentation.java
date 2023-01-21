@@ -52,10 +52,40 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * TODO list special expressions for events and event values
  * TODO compare doc in code with changed one of the webserver and warn about differences?
  *
- * @author Peter Güttinger
  */
 @SuppressFBWarnings("ES_COMPARING_STRINGS_WITH_EQ")
 public class Documentation {
+
+	private static final Pattern CP_PARSE_MARKS_PATTERN = Pattern.compile("(?<=[(|])[-0-9]+?¦");
+	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
+	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
+	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
+	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "doc-templates");
+	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs");
+
+	/**
+	 * Force register hooks even if their plugins are not present in the server
+	 */
+	public static final boolean FORCE_HOOKS_SYSTEM_PROPERTY = "true".equals(System.getProperty("skript.forceregisterhooks"));
+
+	public static boolean isDocsTemplateFound() {
+		return getDocsTemplateDirectory().isDirectory();
+	}
+
+	/**
+	 * Checks if server java args have 'skript.forceregisterhooks' property set to true and docs template folder is found
+	 */
+	public static boolean canGenerateUnsafeDocs() {
+		return isDocsTemplateFound() && FORCE_HOOKS_SYSTEM_PROPERTY;
+	}
+
+	public static File getDocsTemplateDirectory() {
+		return DOCS_TEMPLATE_DIRECTORY;
+	}
+
+	public static File getDocsOutputDirectory() {
+		return DOCS_OUTPUT_DIRECTORY;
+	}
 
 	public static void generate() {
 		if (!generate)
@@ -165,12 +195,14 @@ public class Documentation {
 		return cleanPatterns(patterns, true);
 	}
 
-	protected static String cleanPatterns(final String patterns, boolean escapeHTML) {
+	protected static String cleanPatterns(String patterns, boolean escapeHTML) {
 
-		String cleanedPatterns =
-				(escapeHTML ? escapeHTML(patterns) : patterns) // Escape HTML if escapeHTML == true
-				.replaceAll("(?<=[(|])[-0-9]+?¦", "") // Remove marks
-				.replace("()", ""); // Remove empty mark setting groups (mark¦)
+		String cleanedPatterns = escapeHTML ? escapeHTML(patterns) : patterns;
+
+		cleanedPatterns = CP_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove marks
+		cleanedPatterns = CP_EMPTY_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove empty mark setting groups (mark¦)
+		cleanedPatterns = CP_PARSE_TAGS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove new parse tags, see https://regex101.com/r/mTebpn/1
+		cleanedPatterns = CP_EXTRA_OPTIONAL_PATTERN.matcher(cleanedPatterns).replaceAll("[$1]"); // Remove unnecessary parentheses such as [(script)]
 
 		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
@@ -221,7 +253,7 @@ public class Documentation {
 		cleanedPatterns = cleanedPatterns.replaceAll("\\(([^()]+?)\\|\\)", "[($1)]"); // Matches optional syntaxes that doesn't have nested parentheses
 		cleanedPatterns = cleanedPatterns.replaceAll("\\(\\|([^()]+?)\\)", "[($1)]");
 
-		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses at has nested parentheses
+		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+)\\|\\)", callback); // Matches complex optional parentheses that has nested parentheses
 		assert cleanedPatterns != null;
 		cleanedPatterns = StringUtils.replaceAll(cleanedPatterns, "\\((.+?)\\|\\)", callback);
 		assert cleanedPatterns != null;
@@ -255,11 +287,11 @@ public class Documentation {
 						first = false;
 						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
 						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-						if (ci != null && ci.getDocName() != null && ci.getDocName() != ClassInfo.NO_DOC) {
+						if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
 							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
 						} else {
 							b.append(c);
-							if (ci != null && !ci.getDocName().equals(ClassInfo.NO_DOC))
+							if (ci != null && ci.hasDocs())
 								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
 						}
 					}

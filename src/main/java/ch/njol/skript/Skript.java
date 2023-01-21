@@ -479,7 +479,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
-		
+
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded

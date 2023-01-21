@@ -16,69 +16,69 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
+
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockSpreadEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
+@Name("Source Block")
+@Description("The source block in a spread event.")
+@Events("Spread")
+@Examples({
+	"on spread:",
+		"\tif the source block is a grass block:",
+			"\t\tset the source block to a dirt block"
+})
+@Since("INSERT VERSION")
+public class ExprSourceBlock extends SimpleExpression<Block> {
 
-@Name("Heal Reason")
-@Description("The <a href='./classes.html#healreason'>heal reason</a> of a heal event. Please click on the link for more information.")
-@Examples({"on heal:",
-	"\tif heal reason = satiated:",
-	"\t\tsend \"You ate enough food and gained health back!\" to player"})
-@Since("2.5")
-public class ExprHealReason extends SimpleExpression<RegainReason> {
-	
 	static {
-		Skript.registerExpression(ExprHealReason.class, RegainReason.class, ExpressionType.SIMPLE, "(regen|health regain|heal) (reason|cause)");
+		Skript.registerExpression(ExprSourceBlock.class, Block.class, ExpressionType.SIMPLE, "[the] source block");
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
-			Skript.error("Heal reason can only be used in an on heal event", ErrorQuality.SEMANTIC_ERROR);
+		if (!getParser().isCurrentEvent(BlockSpreadEvent.class)) {
+			Skript.error("The 'source block' is only usable in a spread event");
 			return false;
 		}
 		return true;
 	}
-	
-	@Nullable
-	@Override
-	protected RegainReason[] get(Event e) {
-		if (!(e instanceof EntityRegainHealthEvent))
-			return null;
 
-		return new RegainReason[]{((EntityRegainHealthEvent) e).getRegainReason()};
+	@Override
+	protected Block[] get(Event event) {
+		if (!(event instanceof BlockSpreadEvent))
+			return new Block[0];
+		return new Block[]{((BlockSpreadEvent) event).getSource()};
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
-	public Class<? extends RegainReason> getReturnType() {
-		return RegainReason.class;
+	public Class<? extends Block> getReturnType() {
+		return Block.class;
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "heal reason";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the source block";
 	}
-	
+
 }
