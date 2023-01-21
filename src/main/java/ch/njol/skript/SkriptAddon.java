@@ -68,14 +68,17 @@ public final class SkriptAddon {
 		}
 		this.version = version;
 	}
-	
-	@Override
-	public String toString() {
-		return plugin.getName();
-	}
-	
+
+	/**
+	 * @return The name of the {@link JavaPlugin} responsible for this addon.
+	 */
 	public String getName() {
 		return plugin.getName();
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 	/**
@@ -83,7 +86,7 @@ public final class SkriptAddon {
 	 *
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
-	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
+	 *  If no subpackages are provided, all subpackages of the base package will be searched.
 	 * @return This SkriptAddon.
 	 */
 	public SkriptAddon loadClasses(String basePackage, String... subPackages) {
@@ -103,11 +106,11 @@ public final class SkriptAddon {
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript.
 	 *
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
-	 * @param initialize  Whether classes found in the package search should be initialized.
-	 * @param recursive   Whether to recursively search through the subpackages provided.
-	 * @param withClass   A consumer that will run with each found class.
+	 * @param initialize Whether classes found in the package search should be initialized.
+	 * @param recursive Whether to recursively search through the subpackages provided.
+	 * @param withClass A consumer that will run with each found class.
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions')
-	 *                    If no subpackages are provided, all subpackages of the base package will be searched.
+	 *  If no subpackages are provided, all subpackages of the base package will be searched.
 	 * @return This SkriptAddon
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
@@ -136,11 +139,11 @@ public final class SkriptAddon {
 		}
 
 		List<String> classNames = new ArrayList<>();
-		for (JarEntry e : entryCache) {
-			if (e == null) // This entry has already been loaded before
+		for (JarEntry entry : entryCache) {
+			if (entry == null) // This entry has already been loaded before
 				continue;
 
-			String name = e.getName();
+			String name = entry.getName();
 			if (name.startsWith(basePackage) && name.endsWith(".class")) {
 				boolean load = subPackages.length == 0;
 
@@ -151,7 +154,7 @@ public final class SkriptAddon {
 						if (
 							// We also need to account for subpackage depths when not doing a recursive search
 							(recursive || StringUtils.count(name, '/') <= initialDepth + StringUtils.count(subPackage, '/'))
-								&& name.startsWith(subPackage, basePackage.length())
+							&& name.startsWith(subPackage, basePackage.length())
 						) {
 							load = true;
 							break;
@@ -185,10 +188,8 @@ public final class SkriptAddon {
 	 * Loads all module classes found in the package search.
 	 * @param basePackage The base package to start searching in (e.g. 'ch.njol.skript').
 	 * @param subPackages Specific subpackages to search in (e.g. 'conditions').
-	 *                    If no subpackages are provided, all subpackages will be searched.
-	 *                    Note that the search will go no further than the first layer of subpackages.
-	 *                    Note that this method will also clear the entry cache of ALL checked classes,
-	 *                    	even those that are not actually a Module.
+	 * If no subpackages are provided, all subpackages will be searched.
+	 * Note that the search will go no further than the first layer of subpackages.
 	 * @return This SkriptAddon.
 	 */
 	@SuppressWarnings("ThrowableNotThrown")
@@ -210,7 +211,7 @@ public final class SkriptAddon {
 	/**
 	 * Loads language files from the specified directory (e.g. "lang") into Skript.
 	 * Localized files will be read from the plugin's jar and the plugin's data file,
-	 * but the <b>default.lang</b> file is only taken from the jar and <b>must</b> exist!
+	 *  but the <b>default.lang</b> file is only taken from the jar and <b>must</b> exist!
 	 * 
 	 * @param directory The directory containing language files.
 	 * @return This SkriptAddon.
@@ -240,7 +241,7 @@ public final class SkriptAddon {
 	
 	/**
 	 * @return The jar file of the plugin.
-	 * 			After this method is first called, the file will be cached for future use.
+	 * After this method is first called, the file will be cached for future use.
 	 */
 	@Nullable
 	public File getFile() {

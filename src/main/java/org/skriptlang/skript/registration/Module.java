@@ -39,22 +39,22 @@ import ch.njol.skript.SkriptAddon;
  * <b>MyPlugin.java</b>
  * </pre>
  */
-public abstract class Module {
+public interface Module {
 
 	/**
 	 * @param addon The addon responsible for registering this module.
-	 *              To be used for registering syntax, classinfos, etc.
+	 * To be used for registering syntax, classinfos, etc.
 	 */
-	public abstract void register(SkriptAddon addon);
+	void register(SkriptAddon addon);
 
 	/**
 	 * Loads syntax elements for this module.
 	 * @param loader The SkriptAddon to load syntax with.
 	 * @param subPackageName The location of syntax elements (ex: "elements")
-	 *                    Elements should <b>not</b> be contained within the main module package.
-	 *                    They should be within a subpackage of the package containing the Module class.
+	 * Elements should <b>not</b> be contained within the main module package.
+	 * They should be within a subpackage of the package containing the Module class.
 	 */
-	public void loadSyntax(SkriptAddon loader, String subPackageName) {
+	default void loadSyntax(SkriptAddon loader, String subPackageName) {
 		loader.loadClasses(getClass().getPackage().getName() + "." + subPackageName);
 	}
 
