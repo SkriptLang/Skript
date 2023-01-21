@@ -228,8 +228,8 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 
 	@Override
 	public Expression<?> simplify() {
-		if (first instanceof Literal<?> && second instanceof Literal<?>)
-			return new SimpleLiteral<>(getArray(null), getReturnType(), false);
+		if (first instanceof Literal && second instanceof Literal)
+			return new SimpleLiteral<>(getArray(null), Object.class, false);
 		return this;
 	}
 
