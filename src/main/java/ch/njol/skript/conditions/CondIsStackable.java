@@ -16,7 +16,6 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-
 package ch.njol.skript.conditions;
 
 import org.bukkit.inventory.ItemStack;
