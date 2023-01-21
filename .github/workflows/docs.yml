@@ -49,5 +49,7 @@ jobs:
               if: success()
               run: |
                 cd ./skript-docs
+                git config user.email "nightlydocs@skriptlang.org"
+                git config user.name "Nightly Doc Bot"
                 git commit -m "Update nightly docs"
                 git show
