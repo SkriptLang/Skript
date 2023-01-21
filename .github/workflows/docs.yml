@@ -53,4 +53,4 @@ jobs:
                 git config user.name "Nightly Doc Bot"
                 git add docs/nightly
                 git commit -m "Update nightly docs"
-                git show
+                git push origin main
