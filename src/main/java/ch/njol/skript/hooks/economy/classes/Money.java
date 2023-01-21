@@ -22,15 +22,16 @@ import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.classes.Converter;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.util.StringUtils;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 /**
  * @author Peter Güttinger
@@ -41,13 +42,14 @@ public class Money {
 				.user("money")
 				.name("Money")
 				.description("A certain amount of money. Please note that this differs from <a href='#number'>numbers</a> as it includes a currency symbol or name, but usually the two are interchangeable, e.g. you can both <code>add 100$ to the player's balance</code> and <code>add 100 to the player's balance</code>.")
-				.usage("<code>&lt;number&gt; $</code> or <code>$ &lt;number&gt;</code>, where '$' is your server's currency, e.g. '10 rupees' or '£5.00'")
+				.usage("&lt;number&gt; $ or $ &lt;number&gt;, where '$' is your server's currency, e.g. '10 rupees' or '£5.00'")
 				.examples("add 10£ to the player's account",
 						"remove Fr. 9.95 from the player's money",
 						"set the victim's money to 0",
 						"increase the attacker's balance by the level of the victim * 100")
 				.since("2.0")
 				.before("itemtype", "itemstack")
+				.requiredPlugins("Vault", "an economy plugin that supports Vault")
 				.parser(new Parser<Money>() {
 					@Override
 					@Nullable

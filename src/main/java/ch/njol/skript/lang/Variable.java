@@ -29,13 +29,14 @@ import ch.njol.skript.classes.Comparator.Relation;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
@@ -551,7 +552,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Object d : delta) {
 							for (Entry<String, Object> i : o.entrySet()) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
+								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), d))) {
 									String key = i.getKey();
 									if (key == null)
 										continue; // This is NOT a part of list variable
@@ -572,7 +573,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Entry<String, Object> i : o.entrySet()) {
 							for (Object d : delta) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
+								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), d)))
 									rem.add(i.getKey());
 							}
 						}
