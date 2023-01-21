@@ -51,5 +51,6 @@ jobs:
                 cd ./skript-docs
                 git config user.email "nightlydocs@skriptlang.org"
                 git config user.name "Nightly Doc Bot"
+                git add docs/nightly
                 git commit -m "Update nightly docs"
                 git show
