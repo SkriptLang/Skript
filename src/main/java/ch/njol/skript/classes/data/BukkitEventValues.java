@@ -46,6 +46,7 @@ import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -72,7 +73,6 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -138,6 +138,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.ChunkEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
@@ -238,6 +239,30 @@ public final class BukkitEventValues {
 				return e.getPlayer();
 			}
 		}, 0);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				return event.getItemInHand();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				return event.getItemInHand();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockPlaceEvent.class, ItemStack.class, new Getter<ItemStack, BlockPlaceEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(BlockPlaceEvent event) {
+				ItemStack item = event.getItemInHand().clone();
+				if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
+					item.setAmount(item.getAmount() - 1);
+				return item;
+			}
+		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(BlockPlaceEvent.class, Block.class, new Getter<Block, BlockPlaceEvent>() {
 			@Override
 			public Block get(final BlockPlaceEvent e) {
@@ -280,8 +305,6 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final BlockGrowEvent e) {
-				if (e instanceof BlockSpreadEvent)
-					return e.getBlock();
 				return new BlockStateBlock(e.getNewState());
 			}
 		}, 0);
@@ -1185,12 +1208,20 @@ public final class BukkitEventValues {
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
 			@Override
-			public ItemStack get(PlayerEditBookEvent e) {
-				ItemStack book = new ItemStack(e.getPlayer().getItemInHand().getType());
-				book.setItemMeta(e.getNewBookMeta());
-				return book; // TODO: Find better way to derive this event value
+			public ItemStack get(PlayerEditBookEvent event) {
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+				book.setItemMeta(event.getPreviousBookMeta());
+				return book;
 			}
-		}, 0);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerEditBookEvent>() {
+			@Override
+			public ItemStack get(PlayerEditBookEvent event) {
+				ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+				book.setItemMeta(event.getNewBookMeta());
+				return book;
+			}
+		}, EventValues.TIME_FUTURE);
 		//ItemDespawnEvent
 		EventValues.registerEventValue(ItemDespawnEvent.class, Item.class, new Getter<Item, ItemDespawnEvent>() {
 			@Override
@@ -1397,5 +1428,23 @@ public final class BukkitEventValues {
 				return event.getEgg();
 			}
 		}, EventValues.TIME_NOW);
+
+		// LootGenerateEvent
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public Entity get(LootGenerateEvent event) {
+					return event.getEntity();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(LootGenerateEvent.class, Location.class, new Getter<Location, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public Location get(LootGenerateEvent event) {
+					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
 	}
 }
