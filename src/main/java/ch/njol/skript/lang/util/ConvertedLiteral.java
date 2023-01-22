@@ -34,7 +34,6 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 
 /**
- * @author Peter Güttinger
  * @see SimpleLiteral
  */
 public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements Literal<T> {
@@ -47,7 +46,6 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 			@Override
 			@Nullable
 			public T convert(final F f) {
-				assert false;
 				return Converters.convert(f, to);
 			}
 		}, 0));
