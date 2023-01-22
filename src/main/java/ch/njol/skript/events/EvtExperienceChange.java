@@ -22,6 +22,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -39,6 +42,13 @@ public class EvtExperienceChange extends SkriptEvent {
 				)
 				.requiredPlugins("MC 1.14+")
 				.since("INSERT VERSION");
+			EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
+				@Override
+				@Nullable
+				public Experience get(PlayerExpChangeEvent event) {
+					return new Experience(event.getAmount());
+				}
+			}, EventValues.TIME_NOW);
 		}
 	}
 
