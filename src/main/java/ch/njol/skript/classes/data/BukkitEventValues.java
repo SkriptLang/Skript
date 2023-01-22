@@ -32,6 +32,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.DelayedChangeBlock;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
@@ -117,6 +118,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
@@ -1529,6 +1531,17 @@ public final class BukkitEventValues {
 				@Nullable
 				public Location get(LootGenerateEvent event) {
 					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
+
+		// PlayerExpChangeEvent
+		if (Skript.classExists("org.bukkit.event.player.PlayerExpChangeEvent")) {
+			EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
+				@Override
+				@Nullable
+				public Experience get(PlayerExpChangeEvent event) {
+					return new Experience(event.getAmount());
 				}
 			}, EventValues.TIME_NOW);
 		}
