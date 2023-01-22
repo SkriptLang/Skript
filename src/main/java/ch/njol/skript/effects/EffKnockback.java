@@ -26,7 +26,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
@@ -46,42 +46,39 @@ public class EffKnockback extends Effect {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "knockback", double.class, double.class, double.class))
-			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% %direction% [with (strength|force) %-number%]");
+			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% [%direction%] [with (strength|force) %-number%]");
 	}
 
 	@SuppressWarnings("null")
-	private Expression<LivingEntity> entityExpr;
+	private Expression<LivingEntity> entities;
 	@SuppressWarnings("null")
-	private Expression<Direction> directionExpr;
+	private Expression<Direction> direction;
 	@Nullable
-	private Expression<Number> strengthExpr;
+	private Expression<Number> strength;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, final ParseResult parseResult) {
-		entityExpr = (Expression<LivingEntity>) exprs[0];
-		directionExpr = (Expression<Direction>) exprs[1];
-		strengthExpr = (Expression<Number>) exprs[2];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		entities = (Expression<LivingEntity>) exprs[0];
+		direction = (Expression<Direction>) exprs[1];
+		strength = (Expression<Number>) exprs[2];
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		Direction direction = directionExpr.getSingle(event);
+		Direction direction = this.direction.getSingle(event);
 		if (direction == null)
 			return;
 
-		final Number strength = strengthExpr != null ? strengthExpr.getSingle(event) : 1;
-		if (strength == null)
-			return;
+		double strength = this.strength.getOptionalSingle(event).orElse(1).doubleValue();
 
-		final LivingEntity[] entities = entityExpr.getArray(event);
-		for (final LivingEntity livingEntity : entities) {
+		for (LivingEntity livingEntity : entities.getArray(event)) {
 			final Vector directionVector = direction.getDirection(livingEntity);
 			// Flip the direction, because LivingEntity#knockback() takes the direction of the source of the knockback,
 			// not the direction of the actual knockback.
 			directionVector.multiply(-1);
-			livingEntity.knockback(strength.doubleValue(), directionVector.getX(), directionVector.getZ());
+			livingEntity.knockback(strength, directionVector.getX(), directionVector.getZ());
 			// ensure velocity is sent to client
 			livingEntity.setVelocity(livingEntity.getVelocity());
 		}
@@ -89,7 +86,7 @@ public class EffKnockback extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "knockback " + entityExpr.toString(event, debug) + " " + directionExpr.toString(event, debug) + " with strength " + (strengthExpr != null ? strengthExpr.toString(event, debug) : "1");
+		return "knockback " + entities.toString(event, debug) + " " + direction.toString(event, debug) + " with strength " + (strength != null ? strength.toString(event, debug) : "1");
 	}
 
 }
