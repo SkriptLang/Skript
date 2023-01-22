@@ -29,13 +29,15 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EvtExperienceChange extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] level progress (change|update|:increase|:decrease)")
+		if (Skript.classExists("org.bukkit.event.player.PlayerExpChangeEvent")) {
+			Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] level progress (change|update|:increase|:decrease)")
 				.description("Called when a player's experience changes.")
 				.examples(
 					"on level progress change:",
 						"\tset {_xp} to event-exp",
 						"\tbroadcast \"%{_xp}%\""
 				);
+		}
 	}
 
 	private static final int ANY = 0, UP = 1, DOWN = 2;
