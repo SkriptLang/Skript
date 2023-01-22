@@ -36,7 +36,9 @@ public class EvtExperienceChange extends SkriptEvent {
 					"on level progress change:",
 						"\tset {_xp} to event-exp",
 						"\tbroadcast \"%{_xp}%\""
-				);
+				)
+				.requiredPlugins("MC 1.14+")
+				.since("INSERT VERSION");
 		}
 	}
 
