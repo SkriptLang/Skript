@@ -55,7 +55,7 @@ import ch.njol.util.Kleenean;
 @Description("Equips an entity with some given armor. This will replace any armor that the entity is wearing.")
 @Examples({"equip player with diamond helmet",
 		"equip player with all diamond armor"})
-@Since("1.0, INSERT VERSION (multiple entities)")
+@Since("1.0, 2.7 (multiple entities)")
 public class EffEquip extends Effect {
 
 	static {

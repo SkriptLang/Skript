@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({"on rightclick on an entity:",
 	"\tmessage \"This is a %type of clicked entity%!\""})
-@Since("1.4, 2.5.2 (potion effect), INSERT VERSION (block datas)")
+@Since("1.4, 2.5.2 (potion effect), 2.7 (block datas)")
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	static {

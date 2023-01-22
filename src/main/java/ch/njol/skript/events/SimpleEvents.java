@@ -620,7 +620,7 @@ public class SimpleEvents {
 				"\tchance of 5%:",
 				"\t\tset repair cost to repair cost * 50%",
 				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
-			.since("INSERT VERSION");
+			.since("2.7");
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
 				.description("Called when a player has traded with a villager.")
@@ -629,7 +629,7 @@ public class SimpleEvents {
 					"\tchance of 50%:",
 					"\t\tcancel event",
 					"\t\tsend \"The trade was somehow denied!\" to player")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
 			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
@@ -638,7 +638,7 @@ public class SimpleEvents {
 				.examples("on entity jump:",
 					"\tif entity is a wither skeleton:",
 					"\t\tcancel event")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
@@ -647,7 +647,7 @@ public class SimpleEvents {
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
@@ -661,7 +661,7 @@ public class SimpleEvents {
 					"\tadd 64 diamonds",
 					"\tsend \"You hit the jackpot!!\""
 				)
-				.since("INSERT VERSION")
+				.since("2.7")
 				.requiredPlugins("MC 1.16+");
 		}
 	}

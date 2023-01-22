@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if player's location is within {_loc1} and {_loc2}:",
 		"\tsend \"You are in a PvP zone!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsWithinLocation extends Condition {
 
 	static {
