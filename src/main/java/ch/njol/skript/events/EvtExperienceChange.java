@@ -32,24 +32,21 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EvtExperienceChange extends SkriptEvent {
 
 	static {
-		if (Skript.classExists("org.bukkit.event.player.PlayerExpChangeEvent")) {
-			Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] level progress (change|update|:increase|:decrease)")
-				.description("Called when a player's experience changes.")
-				.examples(
-					"on level progress change:",
-						"\tset {_xp} to event-exp",
-						"\tbroadcast \"%{_xp}%\""
-				)
-				.requiredPlugins("MC 1.14+")
-				.since("INSERT VERSION");
-			EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
-				@Override
-				@Nullable
-				public Experience get(PlayerExpChangeEvent event) {
-					return new Experience(event.getAmount());
-				}
-			}, EventValues.TIME_NOW);
-		}
+		Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] level progress (change|update|:increase|:decrease)")
+			.description("Called when a player's experience changes.")
+			.examples(
+				"on level progress change:",
+					"\tset {_xp} to event-exp",
+					"\tbroadcast \"%{_xp}%\""
+			)
+			.since("INSERT VERSION");
+		EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
+			@Override
+			@Nullable
+			public Experience get(PlayerExpChangeEvent event) {
+				return new Experience(event.getAmount());
+			}
+		}, EventValues.TIME_NOW);
 	}
 
 	private static final int ANY = 0, UP = 1, DOWN = 2;
