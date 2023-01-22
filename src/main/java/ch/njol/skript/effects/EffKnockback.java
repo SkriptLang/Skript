@@ -65,16 +65,16 @@ public class EffKnockback extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		final Direction direction = directionExpr.getSingle(e);
+	protected void execute(Event event) {
+		final Direction direction = directionExpr.getSingle(event);
 		if (direction == null)
 			return;
 
-		final Number strength = strengthExpr != null ? strengthExpr.getSingle(e) : 1;
+		final Number strength = strengthExpr != null ? strengthExpr.getSingle(event) : 1;
 		if (strength == null)
 			return;
 
-		final LivingEntity[] entities = entityExpr.getArray(e);
+		final LivingEntity[] entities = entityExpr.getArray(event);
 		for (final LivingEntity livingEntity : entities) {
 			final Vector directionVector = direction.getDirection(livingEntity);
 			// Flip the direction, because LivingEntity#knockback() takes the direction of the source of the knockback,
@@ -87,7 +87,7 @@ public class EffKnockback extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "knockback " + entityExpr.toString(e, debug) + " " + directionExpr.toString(e, debug) + " with strength " + (strengthExpr != null ? strengthExpr.toString(e, debug) : "1");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "knockback " + entityExpr.toString(event, debug) + " " + directionExpr.toString(event, debug) + " with strength " + (strengthExpr != null ? strengthExpr.toString(event, debug) : "1");
 	}
 }
