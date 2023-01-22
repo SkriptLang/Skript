@@ -72,7 +72,7 @@ public class EvtExperienceChange extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "player level progress change " + (mode == UP ? "increase" : mode == DOWN ? "decrease" : "");
+		return "player level progress " + (mode == ANY ? "change" : mode == UP ? "increase" : mode == DOWN ? "decrease" : "");
 	}
 
 }
