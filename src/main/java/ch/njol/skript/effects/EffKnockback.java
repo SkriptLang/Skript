@@ -34,18 +34,19 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-
 @Name("Knockback")
-@Description("Knocks a living entity in a direction. Mechanics such as knockback resistance will be factored in.")
-@Examples({"knockback player north",
-	"knock victim (vector from attacker to victim) with strength 10"})
+@Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
+@Examples({
+	"knockback player north",
+	"knock victim (vector from attacker to victim) with strength 10"
+})
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.19.2+")
 public class EffKnockback extends Effect {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "knockback", double.class, double.class, double.class))
-			Skript.registerEffect(EffKnockback.class, "knock[back] %livingentities% %direction% [with (strength|force) %-number%]");
+			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% %direction% [with (strength|force) %-number%]");
 	}
 
 	@SuppressWarnings("null")
@@ -55,9 +56,9 @@ public class EffKnockback extends Effect {
 	@Nullable
 	private Expression<Number> strengthExpr;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, final ParseResult parseResult) {
 		entityExpr = (Expression<LivingEntity>) exprs[0];
 		directionExpr = (Expression<Direction>) exprs[1];
 		strengthExpr = (Expression<Number>) exprs[2];
@@ -66,7 +67,7 @@ public class EffKnockback extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		final Direction direction = directionExpr.getSingle(event);
+		Direction direction = directionExpr.getSingle(event);
 		if (direction == null)
 			return;
 
@@ -90,4 +91,5 @@ public class EffKnockback extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "knockback " + entityExpr.toString(event, debug) + " " + directionExpr.toString(event, debug) + " with strength " + (strengthExpr != null ? strengthExpr.toString(event, debug) : "1");
 	}
+
 }
