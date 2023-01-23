@@ -191,8 +191,10 @@ void createTestTask(String name, String environments, int javaVersion, Modifiers
 		]
 
 		if (modifiers.contains(Modifiers.PROFILE)) {
-			if (project.property('profiler') == null) logger.error('Add parameter -Pprofiler=<path to profiler>')
-			else args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
+			if (!project.hasProperty('profiler'))
+				throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
+
+			args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
 		}
 	}
 }
@@ -206,14 +208,15 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // Register different Skript testing tasks
+String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, latestJava)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', latestJava)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', oldestJava)
-createTestTask('skriptTestDev', 'src/test/skript/environments/' + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
-createTestTask('skriptProfile', 'src/test/skript/environments/' + latestEnv, latestJava, Modifiers.PROFILE)
-createTestTask('genDocs', 'src/test/skript/environments/' + env, envJava, Modifiers.GEN_DOCS)
+createTestTask('quickTest', environments + latestEnv, latestJava)
+createTestTask('skriptTestJava17', environments + 'java17', latestJava)
+createTestTask('skriptTestJava8', environments + 'java8', oldestJava)
+createTestTask('skriptTestDev', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
+createTestTask('skriptProfile', environments + latestEnv, latestJava, Modifiers.PROFILE)
+createTestTask('genDocs', '' + env, envJava, Modifiers.GEN_DOCS)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 
 // Build flavor configurations
