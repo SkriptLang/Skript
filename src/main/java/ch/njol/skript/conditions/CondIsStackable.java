@@ -29,7 +29,8 @@ import ch.njol.skript.doc.Since;
 @Description("Checks whether an item is stackable.")
 @Examples({
 	"diamond axe is stackable",
-	"birch wood is stackable"
+	"birch wood is stackable",
+	"torch is stackable"
 })
 @Since("INSERT VERSION")
 
