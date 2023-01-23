@@ -36,7 +36,7 @@ public class EvtExperienceChange extends SkriptEvent {
 			.description("Called when a player's experience changes.")
 			.examples(
 				"on level progress change:",
-					"\tset {_xp} to event-exp",
+					"\tset {_xp} to event-experience",
 					"\tbroadcast \"%{_xp}%\""
 			)
 			.since("INSERT VERSION");
