@@ -39,6 +39,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -225,7 +226,7 @@ public class Environment {
 
 	@Nullable
 	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean debug,
-	                            String verbosity, List<String> jvmArgs) throws IOException, InterruptedException {
+	                            String verbosity, Set<String> jvmArgs) throws IOException, InterruptedException {
 		
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");

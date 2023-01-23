@@ -159,7 +159,7 @@ tasks.register('testNaming') {
 }
 
 enum Modifiers {
-	DevMode, GenDocs, Debug, Profile
+	DEV_MODE, GEN_DOCS, DEBUG, PROFILE
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
@@ -169,7 +169,7 @@ void createTestTask(String name, String environments, int javaVersion, Modifiers
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
-		if (modifiers.contains(Modifiers.DevMode)) {
+		if (modifiers.contains(Modifiers.DEV_MODE)) {
 			standardInput = System.in
 		}
 		group = 'execution'
@@ -184,13 +184,13 @@ void createTestTask(String name, String environments, int javaVersion, Modifiers
 			'src/test/skript/tests',
 			'src/test/resources/runner_data',
 			environments,
-			modifiers.contains(Modifiers.DevMode),
-			modifiers.contains(Modifiers.GenDocs),
-			modifiers.contains(Modifiers.Debug),
+			modifiers.contains(Modifiers.DEV_MODE),
+			modifiers.contains(Modifiers.GEN_DOCS),
+			modifiers.contains(Modifiers.DEBUG),
 			project.findProperty('verbosity') ?: "null"
 		]
 
-		if (modifiers.contains(Modifiers.Profile)) {
+		if (modifiers.contains(Modifiers.PROFILE)) {
 			if (project.property('profiler') == null) logger.error('Add parameter -Pprofiler=<path to profiler>')
 			else args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
 		}
@@ -211,9 +211,9 @@ int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Inte
 createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, latestJava)
 createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', latestJava)
 createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', oldestJava)
-createTestTask('skriptTestDev', 'src/test/skript/environments/' + env, envJava, Modifiers.DevMode, Modifiers.Debug)
-createTestTask('skriptProfile', 'src/test/skript/environments/' + latestEnv, latestJava, Modifiers.Profile)
-createTestTask('genDocs', 'src/test/skript/environments/' + env, envJava, Modifiers.GenDocs)
+createTestTask('skriptTestDev', 'src/test/skript/environments/' + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
+createTestTask('skriptProfile', 'src/test/skript/environments/' + latestEnv, latestJava, Modifiers.PROFILE)
+createTestTask('genDocs', 'src/test/skript/environments/' + env, envJava, Modifiers.GEN_DOCS)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 
 // Build flavor configurations

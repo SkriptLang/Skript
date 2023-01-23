@@ -18,6 +18,14 @@
  */
 package ch.njol.skript.tests.platform;
 
+import ch.njol.skript.tests.TestResults;
+import ch.njol.util.NonNullPair;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,16 +42,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
-import ch.njol.skript.tests.TestResults;
-import ch.njol.util.NonNullPair;
 
 /**
  * Main entry point of test platform. It allows running this Skript on
@@ -67,7 +65,7 @@ public class PlatformMain {
 		boolean genDocs = "true".equals(args[5]);
 		boolean debug = "true".equals(args[6]);
 		String verbosity = args[7].toUpperCase(Locale.ENGLISH);
-		List<String> jvmArgs = Lists.newArrayList(Arrays.copyOfRange(args, 8, args.length));
+		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 8, args.length));
 		jvmArgs.add("-Xmx5G");
 		
 		// Load environments
