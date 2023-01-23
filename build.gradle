@@ -216,7 +216,7 @@ createTestTask('skriptTestJava17', environments + 'java17', latestJava)
 createTestTask('skriptTestJava8', environments + 'java8', oldestJava)
 createTestTask('skriptTestDev', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', environments + latestEnv, latestJava, Modifiers.PROFILE)
-createTestTask('genDocs', '' + env, envJava, Modifiers.GEN_DOCS)
+createTestTask('genDocs', environments + env, envJava, Modifiers.GEN_DOCS)
 tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
 
 // Build flavor configurations
