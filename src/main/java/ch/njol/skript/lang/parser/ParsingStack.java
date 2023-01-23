@@ -25,6 +25,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.util.Kleenean;
 
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
