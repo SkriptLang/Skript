@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -58,7 +59,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class)) {
 			Skript.error("The experience expression can only be used in experience spawn and block break events");
 			return false;
 		}
@@ -72,6 +73,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			return new Experience[] {new Experience(((ExperienceSpawnEvent) e).getSpawnedXP())};
 		else if (e instanceof BlockBreakEvent)
 			return new Experience[] {new Experience(((BlockBreakEvent) e).getExpToDrop())};
+		else if (e instanceof PlayerExpChangeEvent)
+			return new Experience[] {new Experience(((PlayerExpChangeEvent) e).getAmount())};
 		else
 			return new Experience[0];
 	}
@@ -100,6 +103,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
 		else if (e instanceof BlockBreakEvent)
 			d = ((BlockBreakEvent) e).getExpToDrop();
+		else if (e instanceof PlayerExpChangeEvent)
+			d = ((PlayerExpChangeEvent) e).getAmount();
 		else
 			return;
 		
@@ -129,6 +134,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		d = Math.max(0, Math.round(d));
 		if (e instanceof ExperienceSpawnEvent)
 			((ExperienceSpawnEvent) e).setSpawnedXP((int) d);
+		if (e instanceof PlayerExpChangeEvent)
+			((PlayerExpChangeEvent) e).setAmount((int) d);
 		else
 			((BlockBreakEvent) e).setExpToDrop((int) d);
 	}
