@@ -71,6 +71,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	 * Returns the element at the given index in the stack,
 	 * starting with the top element at index 0.
 	 *
+	 * @param index the index in stack.
+	 *
 	 * @throws IndexOutOfBoundsException if the index is not appointed
 	 * 									  to an element in the stack.
 	 */
@@ -119,6 +121,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 
 	/**
 	 * Prints this stack to the given {@link PrintStream}.
+	 *
+	 * @param printStream a {@link PrintStream} to print the stack to.
 	 */
 	public void print(PrintStream printStream) {
 		// Synchronized to assure it'll all be printed at once,
