@@ -63,8 +63,7 @@ public class DefaultFunctions {
 				double sum = 0.0;
 				int length = params[0].length;
 				for (int i = 0; i < length; i++) {
-					if (params[0][i] instanceof Number)
-						sum += ((Number) params[0][i]).doubleValue();
+					sum += ((Number) params[0][i]).doubleValue();
 				}
 				return new Number[] {sum / length};
 			}
