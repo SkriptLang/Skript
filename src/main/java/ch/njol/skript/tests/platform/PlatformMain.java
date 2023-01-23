@@ -66,7 +66,8 @@ public class PlatformMain {
 		boolean debug = "true".equals(args[6]);
 		String verbosity = args[7].toUpperCase(Locale.ENGLISH);
 		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 8, args.length));
-		jvmArgs.add("-Xmx5G");
+		if (jvmArgs.stream().noneMatch(arg -> arg.contains("-Xmx")))
+			jvmArgs.add("-Xmx5G");
 		
 		// Load environments
 		List<Environment> envs;
