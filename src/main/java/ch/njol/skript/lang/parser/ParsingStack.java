@@ -144,20 +144,7 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	 */
 	@Override
 	public Iterator<Element> iterator() {
-		Iterator<Element> iterator = stack.iterator();
-
-		// Wrap iterator to disable element removal support
-		return new Iterator<Element>() {
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-
-			@Override
-			public Element next() {
-				return iterator.next();
-			}
-		};
+		return Collections.unmodifiableList(stack).iterator();
 	}
 
 	/**
