@@ -71,7 +71,7 @@ public class EffKnockback extends Effect {
 		if (direction == null)
 			return;
 
-		double strength = this.strength.getOptionalSingle(event).orElse(1).doubleValue();
+		double strength = this.strength != null ? this.strength.getOptionalSingle(event).orElse(1).doubleValue() : 1.0;
 
 		for (LivingEntity livingEntity : entities.getArray(event)) {
 			final Vector directionVector = direction.getDirection(livingEntity);
