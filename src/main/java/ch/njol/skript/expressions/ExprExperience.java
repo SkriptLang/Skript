@@ -99,45 +99,43 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
 		double d;
-		if (e instanceof ExperienceSpawnEvent)
+		if (e instanceof ExperienceSpawnEvent) {
 			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		else if (e instanceof BlockBreakEvent)
+		} else if (e instanceof BlockBreakEvent)
 			d = ((BlockBreakEvent) e).getExpToDrop();
-		else if (e instanceof PlayerExpChangeEvent)
+		else if (e instanceof PlayerExpChangeEvent) {
 			d = ((PlayerExpChangeEvent) e).getAmount();
-		else
+		} else {
 			return;
-		
-		if (delta != null)
-			for (final Object o : delta) {
-				final double v = o instanceof Experience ? ((Experience) o).getXP() : ((Number) o).doubleValue();
-				switch (mode) {
-					case ADD:
-						d += v;
-						break;
-					case SET:
-						d = v;
-						break;
-					case REMOVE:
-					case REMOVE_ALL:
-						d -= v;
-						break;
-					case RESET:
-					case DELETE:
-						assert false;
-						break;
-				}
+		}
+		for (final Object o : delta) {
+			final double v = o instanceof Experience ? ((Experience) o).getXP() : ((Number) o).doubleValue();
+			switch (mode) {
+				case ADD:
+					d += v;
+					break;
+				case SET:
+					d = v;
+					break;
+				case REMOVE:
+				case REMOVE_ALL:
+					d -= v;
+					break;
+				case RESET:
+				case DELETE:
+					assert false;
+					break;
 			}
-		else
-			d = 0;
+		}
 		
 		d = Math.max(0, Math.round(d));
-		if (e instanceof ExperienceSpawnEvent)
+		if (e instanceof ExperienceSpawnEvent) {
 			((ExperienceSpawnEvent) e).setSpawnedXP((int) d);
-		if (e instanceof PlayerExpChangeEvent)
-			((PlayerExpChangeEvent) e).setAmount((int) d);
-		else
+		} else if (e instanceof BlockBreakEvent)
 			((BlockBreakEvent) e).setExpToDrop((int) d);
+		else {
+			((PlayerExpChangeEvent) e).setAmount((int) d);
+		}
 	}
 	
 	@Override
