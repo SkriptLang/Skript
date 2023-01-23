@@ -40,8 +40,8 @@ public class CondIsStackable extends PropertyCondition<ItemStack> {
 	}
 
 	@Override
-	public boolean check(ItemType itemType) {
-		return itemType.getMaterial().getMaxStackSize() > 1;
+	public boolean check(ItemStack itemType) {
+		return itemType.getMaxStackSize() > 1;
 	}
 
 	@Override
