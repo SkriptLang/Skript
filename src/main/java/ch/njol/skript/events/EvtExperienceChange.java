@@ -32,7 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EvtExperienceChange extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] level progress (change|update|:increase|:decrease)")
+		Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] (level progress|[e]xp|experience) (change|update|:increase|:decrease)")
 			.description("Called when a player's experience changes.")
 			.examples(
 				"on level progress change:",
