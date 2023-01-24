@@ -12,9 +12,9 @@ please add your name below in your pull request.
 
 When adding your name, please follow the example format showcased below:
 
-`<GitHub name> (<email>)`
+`<GitHub name>`
 
 ```text
-APickledWalrus (apickledwalrus@gmail.com)
-Moderocky (admin@moderocky.com)
+APickledWalrus
+Moderocky
 ```
