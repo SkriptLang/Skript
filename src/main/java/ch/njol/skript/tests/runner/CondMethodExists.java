@@ -53,8 +53,8 @@ public class CondMethodExists extends PropertyCondition<String> {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> signatures;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		signatures = (Expression<String>) exprs[0];
 		setExpr(signatures);
