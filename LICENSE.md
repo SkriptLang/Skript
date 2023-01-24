@@ -16,4 +16,5 @@ When adding your name, please follow the example format showcased below:
 
 ```text
 APickledWalrus (apickledwalrus@gmail.com)
+Moderocky (admin@moderocky.com)
 ```
