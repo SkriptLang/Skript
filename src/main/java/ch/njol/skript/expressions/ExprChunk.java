@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -41,7 +41,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Chunk")
-@Description("The <a href='../classes.html#chunk'>chunk</a> a block, location or entity is in.")
+@Description("The <a href='./classes.html#chunk'>chunk</a> a block, location or entity is in.")
 @Examples("add the chunk at the player to {protected chunks::*}")
 @Since("2.0")
 public class ExprChunk extends PropertyExpression<Location, Chunk> {
