@@ -181,7 +181,7 @@ public class SkriptClasses {
 				.serializer(new EnumSerializer<>(WeatherType.class)));
 		
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
-				.user("item ?types?", "items", "materials")
+				.user("item ?types?", "materials?")
 				.name("Item Type")
 				.description("An item type is an alias, e.g. 'a pickaxe', 'all plants', etc., and can result in different items when added to an inventory, " +
 						"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",

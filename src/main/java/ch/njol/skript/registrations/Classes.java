@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.command.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -46,8 +47,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.Converter.ConverterInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.DefaultExpression;
@@ -66,6 +65,9 @@ import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
 
 /**
  * @author Peter Güttinger
@@ -475,14 +477,14 @@ public abstract class Classes {
 				log.printLog();
 				return t;
 			}
-			for (final ConverterInfo<?, ?> conv : Converters.getConverters()) {
-				if (context == ParseContext.COMMAND && (conv.options & Converter.NO_COMMAND_ARGUMENTS) != 0)
+			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
-				if (c.isAssignableFrom(conv.to)) {
+				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();
-					final Object o = parseSimple(s, conv.from, context);
+					final Object o = parseSimple(s, conv.getFrom(), context);
 					if (o != null) {
-						t = (T) ((Converter) conv.converter).convert(o);
+						t = (T) ((Converter) conv.getConverter()).convert(o);
 						if (t != null) {
 							log.printLog();
 							return t;
@@ -515,13 +517,13 @@ public abstract class Classes {
 			if (to.isAssignableFrom(ci.getC()) && ci.getParser() != null)
 				return (Parser<? extends T>) ci.getParser();
 		}
-		for (final ConverterInfo<?, ?> conv : Converters.getConverters()) {
-			if (to.isAssignableFrom(conv.to)) {
+		for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+			if (to.isAssignableFrom(conv.getTo())) {
 				for (int i = classInfos.length - 1; i >= 0; i--) {
 					final ClassInfo<?> ci = classInfos[i];
 					final Parser<?> parser = ci.getParser();
-					if (conv.from.isAssignableFrom(ci.getC()) && parser != null)
-						return Classes.createConvertedParser(parser, (Converter<?, ? extends T>) conv.converter);
+					if (conv.getFrom().isAssignableFrom(ci.getC()) && parser != null)
+						return Classes.createConvertedParser(parser, (Converter<?, ? extends T>) conv.getConverter());
 				}
 			}
 		}
