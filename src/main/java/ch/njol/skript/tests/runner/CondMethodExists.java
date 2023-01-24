@@ -93,7 +93,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 		return "method " + signatures.toString(event, debug) + " exists";
 	}
 
-	private Class<?> parseClass(String clazz) throws ClassNotFoundException {
+	private static Class<?> parseClass(String clazz) throws ClassNotFoundException {
 		if (clazz.endsWith("[]")) {
 			Class<?> baseClass = parseClass(clazz.substring(0, clazz.length() - 2));
 			return Array.newInstance(baseClass, 0).getClass();
