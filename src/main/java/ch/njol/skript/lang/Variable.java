@@ -63,9 +63,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-/**
- * @author Peter Güttinger
- */
 public class Variable<T> implements Expression<T> {
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
@@ -98,8 +95,11 @@ public class Variable<T> implements Expression<T> {
 
 		assert name.isSimple() || name.getMode() == StringMode.VARIABLE_NAME;
 
-		this.script = getParser().getCurrentScript();
-		assert this.script != null;
+		ParserInstance parser = getParser();
+		if (!parser.isActive())
+			throw new IllegalStateException("Variable attempted to use constructor without a ParserInstance present at execution.");
+
+		this.script = parser.getCurrentScript();
 
 		this.local = local;
 		this.list = list;
@@ -190,14 +190,17 @@ public class Variable<T> implements Expression<T> {
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
 		ParserInstance parser = ParserInstance.get();
-		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
-		if (currentScript != null
-				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+		if (!parser.isActive()) {
+			Skript.error("A variable must only be created during parsing time.");
+			return null;
+		}
+		Script currentScript = parser.getCurrentScript();
+		if (!SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
 				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
 				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + "::" + name + "}");
+				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
 		}
 
 		// Check for local variable type hints

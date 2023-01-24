@@ -23,6 +23,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.BlockingLogHandler;
@@ -54,25 +55,26 @@ import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
- * 
- * @author Peter Güttinger
  */
 public class VariableString implements Expression<String> {
 
 	private final Script script;
 	private final String orig;
-	
+
 	@Nullable
 	private final Object[] string;
+
 	@Nullable
 	private Object[] stringUnformatted;
 	private final boolean isSimple;
+
 	@Nullable
 	private final String simple;
+
 	@Nullable
 	private final String simpleUnformatted;
 	private final StringMode mode;
-	
+
 	/**
 	 * Message components that this string consists of. Only simple parts have
 	 * been evaluated here.
@@ -81,24 +83,30 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * @param s Content for string.
+	 * 
+	 * @param input Content for string.
 	 */
-	private VariableString(String s) {
-		isSimple = true;
-		simpleUnformatted = s.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
-		simple = Utils.replaceChatStyles(simpleUnformatted);
+	private VariableString(String input) {
+		this.isSimple = true;
+		this.simpleUnformatted = input.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
+		this.simple = Utils.replaceChatStyles(simpleUnformatted);
 				
-		orig = simple;
-		string = null;
-		mode = StringMode.MESSAGE;
-		script = getParser().getCurrentScript();
-		assert script != null;
+		this.orig = simple;
+		this.string = null;
+		this.mode = StringMode.MESSAGE;
 		
-		components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
+		ParserInstance parser = getParser();
+		if (!parser.isActive())
+			throw new IllegalStateException("VariableString attempted to use constructor without a ParserInstance present at execution.");
+
+		this.script = parser.getCurrentScript();
+		
+		this.components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
 	}
-	
+
 	/**
 	 * Creates a new VariableString which contains variables.
+	 * 
 	 * @param orig Original string (unparsed).
 	 * @param string Objects, some of them are variables.
 	 * @param mode String mode.
@@ -107,9 +115,13 @@ public class VariableString implements Expression<String> {
 		this.orig = orig;
 		this.string = new Object[string.length];
 		this.stringUnformatted = new Object[string.length];
-		this.script = getParser().getCurrentScript();
-		assert this.script != null;
-		
+	
+		ParserInstance parser = getParser();
+		if (!parser.isActive())
+			throw new IllegalStateException("VariableString attempted to use constructor without a ParserInstance present at execution.");
+
+		this.script = parser.getCurrentScript();
+	
 		// Construct unformatted string and components
 		List<MessageComponent> components = new ArrayList<>(string.length);
 		for (int i = 0; i < string.length; i++) {
@@ -121,25 +133,143 @@ public class VariableString implements Expression<String> {
 				this.string[i] = o;
 				components.add(null); // Not known parse-time
 			}
-			
+
 			// For unformatted string, don't format stuff
 			this.stringUnformatted[i] = o;
 		}
 		this.components = components.toArray(new MessageComponent[0]);
-		
+
 		this.mode = mode;
-		
-		isSimple = false;
-		simple = null;
-		simpleUnformatted = null;
+
+		this.isSimple = false;
+		this.simple = null;
+		this.simpleUnformatted = null;
 	}
-	
+
 	/**
 	 * Prints errors
 	 */
 	@Nullable
-	public static VariableString newInstance(String s) {
-		return newInstance(s, StringMode.MESSAGE);
+	public static VariableString newInstance(String input) {
+		return newInstance(input, StringMode.MESSAGE);
+	}
+
+	/**
+	 * Creates an instance of VariableString by parsing given string.
+	 * Prints errors and returns null if it is somehow invalid.
+	 * 
+	 * @param orig Unquoted string to parse.
+	 * @return A new VariableString instance.
+	 */
+	@Nullable
+	public static VariableString newInstance(String orig, StringMode mode) {
+		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(orig, false))
+			return null;
+		int n = StringUtils.count(orig, '%');
+		if (n % 2 != 0) {
+			Skript.error("The percent sign is used for expressions (e.g. %player%). To insert a '%' type it twice: %%.");
+			return null;
+		}
+
+		// We must not parse color codes yet, as JSON support would be broken :(
+		String s;
+		if (mode != StringMode.VARIABLE_NAME) {
+			// Replace every double " character with a single ", except for those in expressions (between %)
+			StringBuilder stringBuilder = new StringBuilder();
+			
+			boolean expression = false;
+			for (int i = 0; i < orig.length(); i++) {
+				char c = orig.charAt(i);
+				stringBuilder.append(c);
+				
+				if (c == '%')
+					expression = !expression;
+				
+				if (!expression && c == '"')
+					i++;
+			}
+			s = stringBuilder.toString();
+		} else {
+			s = orig;
+		}
+
+		List<Object> string = new ArrayList<>(n / 2 + 2); // List of strings and expressions
+		int c = s.indexOf('%');
+		if (c != -1) {
+			if (c != 0)
+				string.add(s.substring(0, c));
+			while (c != s.length()) {
+				int c2 = s.indexOf('%', c + 1);
+				
+				int a = c;
+				int b;
+				while (c2 != -1 && (b = s.indexOf('{', a + 1)) != -1 && b < c2) {
+					a = nextVariableBracket(s, b + 1);
+					if (a == -1) {
+						Skript.error("Missing closing bracket '}' to end variable");
+						return null;
+					}
+					c2 = s.indexOf('%', a + 1);
+				}
+				if (c2 == -1) {
+					assert false;
+					return null;
+				}
+				if (c + 1 == c2) {
+					// %% escaped -> one % in result string
+					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
+						string.set(string.size() - 1, (String) string.get(string.size() - 1) + "%");
+					} else {
+						string.add("%");
+					}
+				} else {
+					RetainingLogHandler log = SkriptLogger.startRetainingLog();
+					try {
+						Expression<?> expr =
+							new SkriptParser(s.substring(c + 1, c2), SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT)
+								.parseExpression(Object.class);
+						if (expr == null) {
+							log.printErrors("Can't understand this expression: " + s.substring(c + 1, c2));
+							return null;
+						} else {
+							string.add(expr);
+						}
+						log.printLog();
+					} finally {
+						log.stop();
+					}
+				}
+				c = s.indexOf('%', c2 + 1);
+				if (c == -1)
+					c = s.length();
+				String l = s.substring(c2 + 1, c); // Try to get string (non-variable) part
+				if (!l.isEmpty()) { // This is string part (no variables)
+					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
+						// We can append last string part in the list, so let's do so
+						string.set(string.size() - 1, (String) string.get(string.size() - 1) + l);
+					} else { // Can't append, just add new part
+						string.add(l);
+					}
+				}
+			}
+		} else {
+			// Only one string, no variable parts
+			string.add(s);
+		}
+
+		// Check if this isn't actually variable string, and return
+		if (string.size() == 1 && string.get(0) instanceof String)
+			return new VariableString(s);
+
+		Object[] sa = string.toArray();
+		if (string.size() == 1 && string.get(0) instanceof Expression &&
+				((Expression<?>) string.get(0)).getReturnType() == String.class &&
+				((Expression<?>) string.get(0)).isSingle() &&
+				mode == StringMode.MESSAGE) {
+			String expr = ((Expression<?>) string.get(0)).toString(null, false);
+			Skript.warning(expr + " is already a text, so you should not put it in one (e.g. " + expr + " instead of " + "\"%" + expr.replace("\"", "\"\"") + "%\")");
+		}
+		return new VariableString(orig, sa, mode);
 	}
 
 	/**
@@ -206,125 +336,6 @@ public class VariableString implements Expression<String> {
 		if (surroundingQuotes)
 			return s.substring(1, s.length() - 1).replace("\"\"", "\"");
 		return s.replace("\"\"", "\"");
-	}
-	
-	/**
-	 * Creates an instance of VariableString by parsing given string.
-	 * Prints errors and returns null if it is somehow invalid.
-	 * 
-	 * @param orig Unquoted string to parse.
-	 * @return A new VariableString instance.
-	 */
-	@Nullable
-	public static VariableString newInstance(String orig, StringMode mode) {
-		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(orig, false))
-			return null;
-		int n = StringUtils.count(orig, '%');
-		if (n % 2 != 0) {
-			Skript.error("The percent sign is used for expressions (e.g. %player%). To insert a '%' type it twice: %%.");
-			return null;
-		}
-		
-		// We must not parse color codes yet, as JSON support would be broken :(
-		String s;
-		if (mode != StringMode.VARIABLE_NAME) {
-			// Replace every double " character with a single ", except for those in expressions (between %)
-			StringBuilder stringBuilder = new StringBuilder();
-			
-			boolean expression = false;
-			for (int i = 0; i < orig.length(); i++) {
-				char c = orig.charAt(i);
-				stringBuilder.append(c);
-				
-				if (c == '%')
-					expression = !expression;
-				
-				if (!expression && c == '"')
-					i++;
-			}
-			s = stringBuilder.toString();
-		} else {
-			s = orig;
-		}
-		
-		List<Object> string = new ArrayList<>(n / 2 + 2); // List of strings and expressions
-		
-		int c = s.indexOf('%');
-		if (c != -1) {
-			if (c != 0)
-				string.add(s.substring(0, c));
-			while (c != s.length()) {
-				int c2 = s.indexOf('%', c + 1);
-				
-				int a = c;
-				int b;
-				while (c2 != -1 && (b = s.indexOf('{', a + 1)) != -1 && b < c2) {
-					a = nextVariableBracket(s, b + 1);
-					if (a == -1) {
-						Skript.error("Missing closing bracket '}' to end variable");
-						return null;
-					}
-					c2 = s.indexOf('%', a + 1);
-				}
-				if (c2 == -1) {
-					assert false;
-					return null;
-				}
-				if (c + 1 == c2) {
-					// %% escaped -> one % in result string
-					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
-						string.set(string.size() - 1, (String) string.get(string.size() - 1) + "%");
-					} else {
-						string.add("%");
-					}
-				} else {
-					RetainingLogHandler log = SkriptLogger.startRetainingLog();
-					try {
-						Expression<?> expr =
-							new SkriptParser(s.substring(c + 1, c2), SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT)
-								.parseExpression(Object.class);
-						if (expr == null) {
-							log.printErrors("Can't understand this expression: " + s.substring(c + 1, c2));
-							return null;
-						} else {
-							string.add(expr);
-						}
-						log.printLog();
-					} finally {
-						log.stop();
-					}
-				}
-				c = s.indexOf('%', c2 + 1);
-				if (c == -1)
-					c = s.length();
-				String l = s.substring(c2 + 1, c); // Try to get string (non-variable) part
-				if (!l.isEmpty()) { // This is string part (no variables)
-					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
-						// We can append last string part in the list, so let's do so
-						string.set(string.size() - 1, (String) string.get(string.size() - 1) + l);
-					} else { // Can't append, just add new part
-						string.add(l);
-					}
-				}
-			}
-		} else {
-			// Only one string, no variable parts
-			string.add(s);
-		}
-		
-		// Check if this isn't actually variable string, and return
-		if (string.size() == 1 && string.get(0) instanceof String)
-			return new VariableString(s);
-		
-		Object[] sa = string.toArray();
-		if (string.size() == 1 && string.get(0) instanceof Expression &&
-				((Expression<?>) string.get(0)).getReturnType() == String.class &&
-				((Expression<?>) string.get(0)).isSingle() &&
-				mode == StringMode.MESSAGE) {
-			String expr = ((Expression<?>) string.get(0)).toString(null, false);
-			Skript.warning(expr + " is already a text, so you should not put it in one (e.g. " + expr + " instead of " + "\"%" + expr.replace("\"", "\"\"") + "%\")");
-		}
-		return new VariableString(orig, sa, mode);
 	}
 
 	/**

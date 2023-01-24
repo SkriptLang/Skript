@@ -30,6 +30,8 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Variable;
+
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
@@ -149,7 +151,7 @@ public class StructVariables extends Structure {
 			if (name.startsWith("{") && name.endsWith("}"))
 				name = name.substring(1, name.length() - 1);
 
-			if (name.startsWith("_")) {
+			if (name.startsWith(Variable.LOCAL_VARIABLE_TOKEN)) {
 				Skript.error("'" + name + "' cannot be a local variable in default variables structure");
 				continue;
 			}
