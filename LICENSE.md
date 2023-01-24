@@ -18,5 +18,4 @@ When adding your name, please follow the example format showcased below:
 APickledWalrus
 Moderocky
 TPGamesNL
-AyhamAl-Ali
 ```
