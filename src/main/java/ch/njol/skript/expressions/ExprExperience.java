@@ -108,7 +108,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		} else {
 			return;
 		}
-		for (final Object o : delta) {
+		for (Object obj : delta) {
 			final double v = o instanceof Experience ? ((Experience) o).getXP() : ((Number) o).doubleValue();
 			switch (mode) {
 				case ADD:
