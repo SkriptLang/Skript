@@ -112,14 +112,14 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
 			switch (mode) {
 				case ADD:
-					d += v;
+					d += value;
 					break;
 				case SET:
-					d = v;
+					d = value;
 					break;
 				case REMOVE:
 				case REMOVE_ALL:
-					d -= v;
+					d -= value;
 					break;
 				case RESET:
 				case DELETE:
