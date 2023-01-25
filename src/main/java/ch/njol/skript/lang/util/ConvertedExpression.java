@@ -27,12 +27,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.Converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -65,7 +65,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 		
 		this.source = source;
 		this.to = to;
-		this.conv = info.converter;
+		this.conv = info.getConverter();
 		this.converterInfo = info;
 	}
 	
@@ -95,7 +95,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public String toString(final @Nullable Event e, final boolean debug) {
 		if (debug && e == null)
 			return "(" + source.toString(e, debug) + " >> " + conv + ": "
-				+ converterInfo.toString(e, true) + ")";
+				+ converterInfo + ")";
 		return source.toString(e, debug);
 	}
 	

@@ -37,7 +37,7 @@ import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
 
 /**

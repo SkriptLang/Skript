@@ -35,7 +35,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.comparator.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
@@ -468,7 +468,7 @@ public class Variable<T> implements Expression<T> {
 
 	private T[] getConvertedArray(Event e) {
 		assert list;
-		return Converters.convertArray((Object[]) get(e), types, superType);
+		return Converters.convert((Object[]) get(e), types, superType);
 	}
 
 	private void set(Event e, @Nullable Object value) {

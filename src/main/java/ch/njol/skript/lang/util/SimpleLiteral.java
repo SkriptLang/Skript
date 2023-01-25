@@ -32,7 +32,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
@@ -139,7 +139,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	public <R> Literal<? extends R> getConvertedExpression(final Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, c))
 			return (Literal<? extends R>) this;
-		final R[] parsedData = Converters.convertArray(data, to, (Class<R>) Utils.getSuperType(to));
+		final R[] parsedData = Converters.convert(data, to, (Class<R>) Utils.getSuperType(to));
 		if (parsedData.length != data.length)
 			return null;
 		return new ConvertedLiteral<>(this, parsedData, (Class<R>) Utils.getSuperType(to));
