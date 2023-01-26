@@ -33,7 +33,6 @@ import ch.njol.skript.doc.Since;
 	"torch is stackable"
 })
 @Since("INSERT VERSION")
-
 public class CondIsStackable extends PropertyCondition<ItemStack> {
 
 	static {
