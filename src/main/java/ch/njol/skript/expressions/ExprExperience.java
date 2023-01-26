@@ -129,7 +129,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		}
 		
 		eventExp = Math.max(0, Math.round(eventExp));
-		int i = (int) eventExp;
+		int roundedEventExp = (int) eventExp;
 		if (e instanceof ExperienceSpawnEvent) {
 			((ExperienceSpawnEvent) e).setSpawnedXP(i);
 		} else if (e instanceof BlockBreakEvent) {
