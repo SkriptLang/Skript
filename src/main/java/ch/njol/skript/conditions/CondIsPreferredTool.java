@@ -55,13 +55,13 @@ public class CondIsPreferredTool extends Condition {
 	static {
 		String types = "blocks";
 		if (Skript.methodExists(BlockData.class, "isPreferredTool", ItemStack.class))
-			types = "blocks/blockdatas";
+			types += "/blockdatas";
 
 		Skript.registerCondition(CondIsPreferredTool.class,
-				"%itemtypes% (is|are) %" + types + "%'s preferred tool",
-				"%itemtypes% (is|are) [the|a] preferred tool (for|of) %" + types + "%",
-			"%itemtypes% (is|are)(n't| not) %" + types + "%'s preferred tool",
-			"%itemtypes% (is|are)(n't| not) [the|a] preferred tool (for|of) %" + types + "%"
+				"%itemtypes% (is|are) %" + types + "%'s preferred tool[s]",
+				"%itemtypes% (is|are) [the|a] preferred tool[s] (for|of) %" + types + "%",
+				"%itemtypes% (is|are)(n't| not) %" + types + "%'s preferred tool[s]",
+				"%itemtypes% (is|are)(n't| not) [the|a] preferred tool[s] (for|of) %" + types + "%"
 		);
 	}
 
@@ -96,6 +96,6 @@ public class CondIsPreferredTool extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return items.toString(event, debug) + " is the preferred tool of " + blocks.toString(event, debug);
+		return items.toString(event, debug) + " is the preferred tool for " + blocks.toString(event, debug);
 	}
 }
