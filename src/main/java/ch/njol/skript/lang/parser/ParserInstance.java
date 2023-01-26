@@ -399,6 +399,19 @@ public final class ParserInstance {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	/**
+	 * Gets the current parsing stack.
+	 * <p>
+	 * Although the stack can be modified, doing so is not recommended.
+	 */
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// ParserInstance Data API
 
 	/**

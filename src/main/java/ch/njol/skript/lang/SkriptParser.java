@@ -30,7 +30,9 @@ import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -212,40 +214,70 @@ public class SkriptParser {
 		}
 	}
 
+	/**
+	 * Attempts parsing into one of the given syntax element classes.
+	 */
 	@Nullable
 	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParsingStack parsingStack = getParser().getParsingStack();
+
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
+			// Iterate over all SyntaxElementInfos
 			while (source.hasNext()) {
 				SyntaxElementInfo<? extends T> info = source.next();
+
+				// Iterate over its patterns
 				patternsLoop: for (int i = 0; i < info.patterns.length; i++) {
 					log.clear();
 					try {
 						String pattern = info.patterns[i];
 						assert pattern != null;
+
 						ParseResult res;
 						try {
+							// Push the element onto the parsing stack
+							parsingStack.push(new ParsingStack.Element(info, i));
+
 							res = parse_i(pattern, 0, 0);
 						} catch (MalformedPatternException e) {
+							// Malformed pattern, add more context and propagate exception upwards
 							String message = "pattern compiling exception, element class: " + info.c.getName();
+
 							try {
 								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.c);
 								message += " (provided by " + providingPlugin.getName() + ")";
-							} catch (IllegalArgumentException | IllegalStateException ignored) {}
-							throw new RuntimeException(message, e);
+							} catch (IllegalArgumentException | IllegalStateException ignored) { }
 
+							throw new RuntimeException(message, e);
+						} catch (StackOverflowError e) {
+							// Parsing caused a stack overflow, possibly due to too long lines
+							throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
+						} finally {
+							// Recursive parsing call done, pop the element from the parsing stack
+							ParsingStack.Element stackElement = parsingStack.pop();
+
+							assert stackElement.getSyntaxElementInfo() == info && stackElement.getPatternIndex() == i;
 						}
+
 						if (res != null) {
+							// Fill in default expressions
 							int x = -1;
+							// Loop over all %<type>% in the pattern string
 							for (int j = 0; (x = nextUnescaped(pattern, '%', x + 1)) != -1; j++) {
 								int x2 = nextUnescaped(pattern, '%', x + 1);
+
 								if (res.exprs[j] == null) {
 									String name = pattern.substring(x + 1, x2);
 									if (!name.startsWith("-")) {
+										// Attempt filling in a default expression
 										ExprInfo vi = getExprInfo(name);
+
 										DefaultExpression<?> expr = vi.classes[0].getDefaultExpression();
 										if (expr == null)
 											throw new SkriptAPIException("The class '" + vi.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + vi.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[i] + "]");
+
+										// Check a bunch of erroneous cases
 										if (!(expr instanceof Literal) && (vi.flagMask & PARSE_EXPRESSIONS) == 0)
 											throw new SkriptAPIException("The default expression of '" + vi.classes[0].getCodeName() + "' is not a literal. Either allow null (with %-*" + vi.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[i] + "]");
 										if (expr instanceof Literal && (vi.flagMask & PARSE_LITERALS) == 0)
@@ -254,24 +286,31 @@ public class SkriptParser {
 											throw new SkriptAPIException("The default expression of '" + vi.classes[0].getCodeName() + "' is not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + info.patterns[i] + "]");
 										if (vi.time != 0 && !expr.setTime(vi.time))
 											throw new SkriptAPIException("The default expression of '" + vi.classes[0].getCodeName() + "' does not have distinct time states. [pattern: " + info.patterns[i] + "]");
+
 										if (!expr.init())
 											continue patternsLoop;
+
+										// Replace the null expression with the default expression
 										res.exprs[j] = expr;
 									}
 								}
 								x = x2;
 							}
+
+							// Instantiate and initialize the syntax element
 							T t = info.c.newInstance();
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
 						}
-					} catch (final InstantiationException | IllegalAccessException e) {
+					} catch (InstantiationException | IllegalAccessException e) {
 						assert false;
 					}
 				}
 			}
+
+			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
 		} finally {
