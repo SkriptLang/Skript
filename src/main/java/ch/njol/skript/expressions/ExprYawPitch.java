@@ -18,8 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.util.VectorMath;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -35,15 +38,19 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.util.Vector;
 
 @Name("Yaw / Pitch")
-@Description("The yaw or pitch of a location or vector.")
+@Description("The yaw or pitch of an entity, location or vector.")
 @Examples({"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
 	"set {_yaw} to yaw of player",
-	"set {_p} to pitch of target entity"})
+	"set {_p} to pitch of target entity",
+	"set yaw of all players to 0"})
 @Since("2.0, 2.2-dev28 (vector yaw/pitch)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
+	static final boolean PLAYER_SUPPORT;
+
 	static {
-		register(ExprYawPitch.class, Number.class, "(0¦yaw|1¦pitch)", "locations/vectors");
+		PLAYER_SUPPORT = Skript.methodExists(Player.class, "setRotation", float.class, float.class);
+		register(ExprYawPitch.class, Number.class, "(0¦yaw|1¦pitch)", "entities/locations/vectors");
 	}
 
 	private boolean usesYaw;
@@ -55,7 +62,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public Number convert(final Object object) {
+	public Number convert(Object object) {
+		if (object instanceof Entity)
+			object = ((Entity) object).getLocation();
 		if (object instanceof Location) {
 			Location l = ((Location) object);
 			return usesYaw ? convertToPositive(l.getYaw()) : l.getPitch();
@@ -71,24 +80,60 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	@SuppressWarnings({"null"})
 	@Override
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+			if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
+				if (!PLAYER_SUPPORT) {
+					Skript.error("Changing a rotation of a player requires Paper 1.19 and above.");
+					return null;
+				}
+			}
 			return CollectionUtils.array(Number.class);
+		}
 		return null;
 	}
 
 	@SuppressWarnings("null")
 	@Override
-	public void change(Event e, Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		float value = ((Number) delta[0]).floatValue();
-		for (Object single : getExpr().getArray(e)) {
-			if (single instanceof Location) {
+		for (Object single : getExpr().getArray(event)) {
+			if (single instanceof Entity) {
+				changeEntity(((Entity) single), value, mode);
+			} else if (single instanceof Location) {
 				changeLocation(((Location) single), value, mode);
 			} else if (single instanceof Vector) {
 				changeVector(((Vector) single), value, mode);
 			}
 		}
+	}
+
+	private void changeEntity(Entity entity, float value, ChangeMode mode) {
+		if (entity instanceof Player && !PLAYER_SUPPORT)
+			return;
+		float yaw = entity.getLocation().getYaw();
+		float pitch = entity.getLocation().getPitch();
+		switch (mode) {
+			case SET:
+				if (usesYaw)
+					yaw = convertToPositive(value);
+				else
+					pitch = value;
+			case ADD:
+				if (usesYaw)
+					yaw = convertToPositive(yaw) + value;
+				else
+					pitch += value;
+			case REMOVE:
+				if (usesYaw)
+					yaw = convertToPositive(yaw) - value;
+				else
+					pitch -= value;
+			default:
+				break;
+		}
+		entity.setRotation(yaw, pitch);
 	}
 
 	private void changeLocation(Location l, float value, ChangeMode mode) {
