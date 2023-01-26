@@ -101,9 +101,9 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		double eventExp;
 		if (e instanceof ExperienceSpawnEvent) {
 			eventExp = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		} else if (e instanceof BlockBreakEvent)
+		} else if (e instanceof BlockBreakEvent) {
 			eventExp = ((BlockBreakEvent) e).getExpToDrop();
-		else if (e instanceof PlayerExpChangeEvent) {
+		} else if (e instanceof PlayerExpChangeEvent) {
 			eventExp = ((PlayerExpChangeEvent) e).getAmount();
 		} else {
 			return;
@@ -134,7 +134,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			((ExperienceSpawnEvent) e).setSpawnedXP(roundedEventExp);
 		} else if (e instanceof BlockBreakEvent) {
 			((BlockBreakEvent) e).setExpToDrop(roundedEventExp);
-		} else {
+		} else if (e instanceof PlayerExpChangeEvent) {
 			((PlayerExpChangeEvent) e).setAmount(roundedEventExp);
 		}
 	}
