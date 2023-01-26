@@ -98,13 +98,13 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		double d;
+		double eventExp;
 		if (e instanceof ExperienceSpawnEvent) {
-			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
+			eventExp = ((ExperienceSpawnEvent) e).getSpawnedXP();
 		} else if (e instanceof BlockBreakEvent)
-			d = ((BlockBreakEvent) e).getExpToDrop();
+			eventExp = ((BlockBreakEvent) e).getExpToDrop();
 		else if (e instanceof PlayerExpChangeEvent) {
-			d = ((PlayerExpChangeEvent) e).getAmount();
+			eventExp = ((PlayerExpChangeEvent) e).getAmount();
 		} else {
 			return;
 		}
@@ -112,14 +112,14 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
 			switch (mode) {
 				case ADD:
-					d += value;
+					eventExp += value;
 					break;
 				case SET:
-					d = value;
+					eventExp = value;
 					break;
 				case REMOVE:
 				case REMOVE_ALL:
-					d -= value;
+					eventExp -= value;
 					break;
 				case RESET:
 				case DELETE:
@@ -128,8 +128,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			}
 		}
 		
-		d = Math.max(0, Math.round(d));
-		int i = (int) d;
+		eventExp = Math.max(0, Math.round(eventExp));
+		int i = (int) eventExp;
 		if (e instanceof ExperienceSpawnEvent) {
 			((ExperienceSpawnEvent) e).setSpawnedXP(i);
 		} else if (e instanceof BlockBreakEvent)
