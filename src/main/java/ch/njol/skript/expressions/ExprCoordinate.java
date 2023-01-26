@@ -59,7 +59,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
 	@Override
 	public Number convert(Object obj) {
-		return (int) (o instanceof Location ? axis == 0 ? ((Location) o).getX() : axis == 1 ? ((Location) o).getY() : ((Location) o).getZ() : axis == 0 ? ((Chunk) o).getX() : axis == 1 ? 0 : ((Chunk) o).getZ());
+		return (int) (obj instanceof Location ? axis == 0 ? ((Location) obj).getX() : axis == 1 ? ((Location) obj).getY() : ((Location) obj).getZ() : axis == 0 ? ((Chunk) obj).getX() : axis == 1 ? 0 : ((Chunk) obj).getZ());
 	}
 	
 	@Override
@@ -75,43 +75,55 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle() && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class))
-			return new Class[] {Number.class};
-		return null;
+		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle()) {
+			if (
+				getExpr() instanceof Location && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class) ||
+					getExpr() instanceof Chunk && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Chunk.class)
+			) {
+				return new Class[] {Number.class};
+			}
+		}
+		return new Class[0];
 	}
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		assert delta != null;
-		final Location l = getExpr().getSingle(e) instanceof Location ? (Location) getExpr().getSingle(e) : null;
-		if (l == null)
+		final Object o = getExpr().getSingle(event);
+		if (o == null)
 			return;
-		assert delta[0] != null;
+		assert delta != null;
 		double n = ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case REMOVE:
 				n = -n;
 				//$FALL-THROUGH$
 			case ADD:
-				if (axis == 0) {
-					l.setX(l.getX() + n);
-				} else if (axis == 1) {
-					l.setY(l.getY() + n);
-				} else {
-					l.setZ(l.getZ() + n);
+				if (o instanceof Location) {
+					Location l = (Location) o;
+					if (axis == 0) {
+						l.setX(l.getX() + n);
+					} else if (axis == 1) {
+						l.setY(l.getY() + n);
+					} else {
+						l.setZ(l.getZ() + n);
+					}
+					getExpr().change(event, new Location[]{l}, ChangeMode.SET);
+					break;
 				}
-				getExpr().change(e, new Location[]{l}, ChangeMode.SET);
-				break;
 			case SET:
-				if (axis == 0) {
-					l.setX(n);
-				} else if (axis == 1) {
-					l.setY(n);
-				} else {
-					l.setZ(n);
+				if (o instanceof Location) {
+					Location l = (Location) o;
+					if (axis == 0) {
+						l.setX(n);
+					} else if (axis == 1) {
+						l.setY(n);
+					} else {
+						l.setZ(n);
+					}
+					getExpr().change(event, new Location[]{l}, ChangeMode.SET);
+					break;
 				}
-				getExpr().change(e, new Location[] {l}, ChangeMode.SET);
-				break;
 			case DELETE:
 			case REMOVE_ALL:
 			case RESET:
