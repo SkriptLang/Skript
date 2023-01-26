@@ -18,32 +18,35 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
-import ch.njol.util.VectorMath;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.Skript;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.Kleenean;
+import ch.njol.util.VectorMath;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 @Name("Yaw / Pitch")
 @Description("The yaw or pitch of an entity, location or vector.")
-@Examples({"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
+@Examples({
+	"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
 	"set {_yaw} to yaw of player",
 	"set {_p} to pitch of target entity",
-	"set yaw of all players to 0"})
-@Since("2.0, 2.2-dev28 (vector yaw/pitch)")
+	"set yaw of all players to 0"
+})
+@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (change support for entities)")
+@RequiredPlugins("Minecraft 1.13 (change support for non-player entities), Paper 1.19 (change support for players)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
 	static final boolean PLAYER_SUPPORT;
@@ -81,11 +84,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
-			if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
-				if (!PLAYER_SUPPORT) {
-					Skript.error("Changing a rotation of a player requires Paper 1.19 and above.");
-					return null;
-				}
+			if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !PLAYER_SUPPORT) {
+				Skript.error("Changing a rotation of a player requires Paper 1.19 and above.");
+				return null;
 			}
 			return CollectionUtils.array(Number.class);
 		}
