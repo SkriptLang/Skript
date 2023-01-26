@@ -78,13 +78,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (getExpr() instanceof Location) {
-			if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle() && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class))
-				return new Class[] {Number.class};
-		} else if (getExpr() instanceof Chunk) {
-			if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle() && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Chunk.class))
-				return new Class[] {Number.class};
-		}
+		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle() && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class))
+			return new Class[] {Number.class};
 		return null;
 	}
 	
@@ -111,8 +106,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 						l.setZ(l.getZ() + n);
 					}
 					getExpr().change(e, new Location[]{l}, ChangeMode.SET);
-					break;
 				}
+				break;
 			case SET:
 				if (o instanceof Location) {
 					Location l = (Location) o;
@@ -124,8 +119,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 						l.setZ(n);
 					}
 					getExpr().change(e, new Location[] {l}, ChangeMode.SET);
-					break;
 				}
+				break;
 			case DELETE:
 			case REMOVE_ALL:
 			case RESET:
