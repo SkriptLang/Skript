@@ -265,14 +265,13 @@ public abstract class Functions {
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
-	public static Function<?> getLocalFunction(String name, @Nullable String script) {
+	public static Function<?> getLocalFunction(String name, String script) {
 		Namespace namespace = null;
 		Function<?> function = null;
-		if (script != null) {
-			namespace = getScriptNamespace(script);
-			if (namespace != null)
-				function = namespace.getFunction(name);
-		}
+		assert script != null;
+		namespace = getScriptNamespace(script);
+		if (namespace != null)
+			function = namespace.getFunction(name);
 		return function;
 	}
 
@@ -311,14 +310,13 @@ public abstract class Functions {
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable
-	public static Signature<?> getLocalSignature(String name, @Nullable String script) {
+	public static Signature<?> getLocalSignature(String name, String script) {
 		Namespace namespace = null;
 		Signature<?> signature = null;
-		if (script != null) {
-			namespace = getScriptNamespace(script);
-			if (namespace != null)
-				signature = namespace.getSignature(name);
-		}
+		assert script != null;
+		namespace = getScriptNamespace(script);
+		if (namespace != null)
+			signature = namespace.getSignature(name);
 		return signature;
 	}
 
