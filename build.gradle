@@ -79,7 +79,7 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 
 task sourceJar(type: Jar) {
 	from sourceSets.main.allJava
-	archiveClassifier = "sources"
+	archiveClassifier = 'sources'
 }
 
 tasks.withType(ShadowJar) {
@@ -121,8 +121,8 @@ processResources {
 publishing {
 	publications {
 		maven(MavenPublication) {
-			groupId "com.github.SkriptLang"
-			artifactId "Skript"
+			groupId 'com.github.SkriptLang'
+			artifactId 'Skript'
 			version project.version
 			artifact sourceJar
 			artifact tasks.jar
@@ -131,11 +131,11 @@ publishing {
 
 	repositories {
 		maven {
-			name = "repo"
-			url = "https://repo.skriptlang.org/releases"
+			name = 'repo'
+			url = 'https://repo.skriptlang.org/releases'
 			credentials {
-				username = System.getenv("MAVEN_USERNAME")
-				password = System.getenv("MAVEN_PASSWORD")
+				username = System.getenv('MAVEN_USERNAME')
+				password = System.getenv('MAVEN_PASSWORD')
 			}
 		}
 	}
@@ -174,8 +174,9 @@ tasks.register('testNaming') {
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environment, boolean devMode, int javaVersion, boolean genDocs, boolean junit) {
+void createTestTask(String name, String desc, String environment, boolean devMode, int javaVersion, boolean genDocs, boolean junit) {
 	tasks.register(name, JavaExec) {
+		description = desc;
 		if (junit) {
 			dependsOn testJar
 		} else {
@@ -211,23 +212,29 @@ def latestJava = 17
 def oldestJava = 8
 
 tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs += ["-source", "" + oldestJava, "-target", "" + oldestJava]
+	options.compilerArgs += ['-source', '' + oldestJava, '-target', '' + oldestJava]
 }
 
-createTestTask('JUnitQuick','src/test/skript/environments/' + latestEnv, false, latestJava, false, true)
-createTestTask('JUnitJava17', 'src/test/skript/environments/java17', false, latestJava, false, true)
-createTestTask('JUnitJava8','src/test/skript/environments/java8', false, oldestJava, false, true)
-tasks.register('JUnit') {dependsOn JUnitJava8, JUnitJava17}
+createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, true)
+createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', 'src/test/skript/environments/java17', false, latestJava, false, true)
+createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', 'src/test/skript/environments/java8', false, oldestJava, false, true)
+tasks.register('JUnit') {
+	description = 'Runs JUnit tests on all environments.'
+	dependsOn JUnitJava8, JUnitJava17
+}
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false, false)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false, false)
-createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
+createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
+createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', 'src/test/skript/environments/java17', false, latestJava, false, false)
+createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', 'src/test/skript/environments/java8', false, oldestJava, false, false)
+createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
 	? latestJava : project.property('testEnvJavaVersion')), false, false)
-tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
-createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
+tasks.register('skriptTest') {
+	description = 'Runs tests on all environments.'
+	dependsOn skriptTestJava8, skriptTestJava17
+}
+createTestTask('genDocs', 'Generates the Skript documentation website html files.', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
 	? latestJava : project.property('testEnvJavaVersion')), true, false)
 
