@@ -39,7 +39,7 @@ public class ExprJUnitTest extends SimpleExpression<String>  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerExpression(ExprJUnitTest.class, String.class, ExpressionType.SIMPLE, "[the] [current[ly [running]]] junit test [name]");
+			Skript.registerExpression(ExprJUnitTest.class, String.class, ExpressionType.SIMPLE, "[the] [current[[ly] running]] junit test [name]");
 	}
 
 	@Override
