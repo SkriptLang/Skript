@@ -95,7 +95,7 @@ public class ExprPlayerViewDistance extends SimplePropertyExpression<Player, Int
 		}
 	}
 
-	private int getViewDistance(Player player) {
+	private static int getViewDistance(Player player) {
 		try {
 			return player.getViewDistance();
 		} catch (NotImplementedException ignore) {
@@ -103,7 +103,7 @@ public class ExprPlayerViewDistance extends SimplePropertyExpression<Player, Int
 		}
 	}
 
-	private void setViewDistance(Player player, int distance) {
+	private static void setViewDistance(Player player, int distance) {
 		try {
 			player.setViewDistance(distance);
 		} catch (NotImplementedException ignore) {
