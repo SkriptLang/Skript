@@ -30,7 +30,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -42,6 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -91,11 +92,14 @@ public class ExprFilter extends SimpleExpression<Object> {
 
 	@NonNull
 	@Override
-	public Iterator<?> iterator(Event e) {
+	public Iterator<?> iterator(Event event) {
+		Iterator<?> objIterator = this.objects.iterator(event);
+		if (objIterator == null)
+			return Collections.emptyIterator();
 		try {
-			return Iterators.filter(new ArrayIterator<>(this.objects.getArray(e)), object -> {
+			return Iterators.filter(objIterator, object -> {
 				current = object;
-				return condition.check(e);
+				return condition.check(event);
 			});
 		} finally {
 			current = null;
@@ -103,9 +107,9 @@ public class ExprFilter extends SimpleExpression<Object> {
 	}
 
 	@Override
-	protected Object[] get(Event e) {
+	protected Object[] get(Event event) {
 		try {
-			return Converters.convertStrictly(Iterators.toArray(iterator(e), Object.class), getReturnType());
+			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
 		} catch (ClassCastException e1) {
 			return null;
 		}
@@ -134,8 +138,8 @@ public class ExprFilter extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return String.format("%s where [%s]", objects.toString(e, debug), rawCond);
+	public String toString(Event event, boolean debug) {
+		return String.format("%s where [%s]", objects.toString(event, debug), rawCond);
 	}
 
 	@Override
@@ -206,14 +210,14 @@ public class ExprFilter extends SimpleExpression<Object> {
 		}
 
 		@Override
-		protected T[] get(Event e) {
+		protected T[] get(Event event) {
 			Object current = parent.getCurrent();
 			if (inputType != null && !inputType.getC().isInstance(current)) {
 				return null;
 			}
 
 			try {
-				return Converters.convertArray(new Object[]{current}, types, superType);
+				return Converters.convert(new Object[]{current}, types, superType);
 			} catch (ClassCastException e1) {
 				return (T[]) Array.newInstance(superType, 0);
 			}
@@ -249,7 +253,7 @@ public class ExprFilter extends SimpleExpression<Object> {
 		}
 
 		@Override
-		public String toString(Event e, boolean debug) {
+		public String toString(Event event, boolean debug) {
 			return inputType == null ? "input" : inputType.getCodeName() + " input";
 		}
 
