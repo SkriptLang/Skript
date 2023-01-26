@@ -268,7 +268,6 @@ public abstract class Functions {
 	public static Function<?> getLocalFunction(String name, String script) {
 		Namespace namespace = null;
 		Function<?> function = null;
-		assert script != null;
 		namespace = getScriptNamespace(script);
 		if (namespace != null)
 			function = namespace.getFunction(name);
@@ -313,7 +312,6 @@ public abstract class Functions {
 	public static Signature<?> getLocalSignature(String name, String script) {
 		Namespace namespace = null;
 		Signature<?> signature = null;
-		assert script != null;
 		namespace = getScriptNamespace(script);
 		if (namespace != null)
 			signature = namespace.getSignature(name);
