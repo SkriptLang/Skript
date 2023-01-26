@@ -50,8 +50,8 @@ public class EffObjectives extends Effect  {
 			);
 	}
 
-	private final static Multimap<String, String> requirements = HashMultimap.create();
-	private final static Multimap<String, String> completness = HashMultimap.create();
+	private static final Multimap<String, String> requirements = HashMultimap.create();
+	private static final Multimap<String, String> completeness = HashMultimap.create();
 
 	private Expression<String> junit, objectives;
 	private boolean setup;
@@ -74,7 +74,7 @@ public class EffObjectives extends Effect  {
 		if (setup) {
 			requirements.putAll(junit, Lists.newArrayList(objectives));
 		} else {
-			completness.putAll(junit, Lists.newArrayList(objectives));
+			completeness.putAll(junit, Lists.newArrayList(objectives));
 		}
 	}
 
@@ -94,9 +94,9 @@ public class EffObjectives extends Effect  {
 	public static boolean isJUnitComplete() {
 		if (requirements.isEmpty())
 			return true;
-		if (completness.isEmpty() && !requirements.isEmpty())
+		if (completeness.isEmpty() && !requirements.isEmpty())
 			return false;
-		return completness.equals(requirements);
+		return completeness.equals(requirements);
 	}
 
 	/**
@@ -108,12 +108,12 @@ public class EffObjectives extends Effect  {
 	public static String getFailedObjectivesString() {
 		StringBuilder builder = new StringBuilder();
 		for (String test : requirements.keySet()) {
-			if (!completness.containsKey(test)) {
+			if (!completeness.containsKey(test)) {
 				builder.append("JUnit test '" + test + "' didn't complete any objectives.");
 				continue;
 			}
 			List<String> failures = Lists.newArrayList(requirements.get(test));
-			failures.removeAll(completness.get(test));
+			failures.removeAll(completeness.get(test));
 			builder.append("JUnit test '" + test + "' failed objectives: " + Arrays.toString(failures.toArray(new String[0])));
 		}
 		return builder.toString();
