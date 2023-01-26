@@ -86,8 +86,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		assert delta != null;
-		final Object o = getExpr().getSingle(e);
-		if (o == null)
+		final Location l = getExpr().getSingle(e) instanceof Location ? (Location) getExpr().getSingle(e) : null;
+		if (l == null)
 			return;
 		assert delta[0] != null;
 		double n = ((Number) delta[0]).doubleValue();
@@ -96,30 +96,24 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 				n = -n;
 				//$FALL-THROUGH$
 			case ADD:
-				if (o instanceof Location) {
-					Location l = (Location) o;
-					if (axis == 0) {
-						l.setX(l.getX() + n);
-					} else if (axis == 1) {
-						l.setY(l.getY() + n);
-					} else {
-						l.setZ(l.getZ() + n);
-					}
-					getExpr().change(e, new Location[]{l}, ChangeMode.SET);
+				if (axis == 0) {
+					l.setX(l.getX() + n);
+				} else if (axis == 1) {
+					l.setY(l.getY() + n);
+				} else {
+					l.setZ(l.getZ() + n);
 				}
+				getExpr().change(e, new Location[]{l}, ChangeMode.SET);
 				break;
 			case SET:
-				if (o instanceof Location) {
-					Location l = (Location) o;
-					if (axis == 0) {
-						l.setX(n);
-					} else if (axis == 1) {
-						l.setY(n);
-					} else {
-						l.setZ(n);
-					}
-					getExpr().change(e, new Location[] {l}, ChangeMode.SET);
+				if (axis == 0) {
+					l.setX(n);
+				} else if (axis == 1) {
+					l.setY(n);
+				} else {
+					l.setZ(n);
 				}
+				getExpr().change(e, new Location[] {l}, ChangeMode.SET);
 				break;
 			case DELETE:
 			case REMOVE_ALL:
