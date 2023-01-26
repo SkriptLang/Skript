@@ -18,15 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.PlayerInventory;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -40,6 +31,15 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Inventory Slot")
 @Description("Represents a slot in an inventory. It can be used to change the item in an inventory too.")
@@ -62,9 +62,9 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	private Expression<Number> slots;
 	@SuppressWarnings("null")
 	private Expression<Inventory> inventories;
-	
-	@SuppressWarnings({"null", "unchecked"})
+
 	@Override
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0){
 			 slots = (Expression<Number>) exprs[0];
@@ -80,10 +80,9 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	@Nullable
 	protected Slot[] get(Event event) {
 		List<Slot> inventorySlots = new ArrayList<>();
+		Number[] slotsArray = slots.getArray(event);
 		for (Inventory inventory : inventories.getArray(event)) {
-			if (inventory == null)
-				continue;
-			for (Number slot : slots.getArray(event)) {
+			for (Number slot : slotsArray) {
 				int slotIndex = slot.intValue();
 				if (slotIndex >= 0 && slotIndex < inventory.getSize()) {
 					// Not all indices point to inventory slots. Equipment, for example
@@ -98,13 +97,13 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 			}
 		}
 		if (inventorySlots.isEmpty())
-			return null;
-		return inventorySlots.toArray(new Slot[inventorySlots.size()]);
+			return new Slot[0];
+		return inventorySlots.toArray(new Slot[0]);
 	}
 	
 	@Override
 	public boolean isSingle() {
-		return slots.isSingle() || inventories.isSingle();
+		return slots.isSingle() && inventories.isSingle();
 	}
 	@Override
 	public Class<? extends Slot> getReturnType() {
@@ -115,4 +114,5 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "slots " + slots.toString(event, debug) + " of " + inventories.toString(event, debug);
 	}
+
 }
