@@ -41,7 +41,8 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({
 	"set view distance of player to 10", "set {_view} to view distance of player",
-	"reset view distance of all players", "add 2 to view distance of player"})
+	"reset view distance of all players", "add 2 to view distance of player"
+})
 @RequiredPlugins("Paper")
 @Since("2.4")
 public class ExprPlayerViewDistance extends SimplePropertyExpression<Player, Integer> {
