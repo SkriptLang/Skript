@@ -76,10 +76,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle()) {
-			if (
-				getExpr() instanceof Location && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class) ||
-					getExpr() instanceof Chunk && ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Chunk.class)
-			) {
+			if (ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class)) {
 				return new Class[] {Number.class};
 			}
 		}
@@ -88,7 +85,6 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
-		assert delta != null;
 		final Object o = getExpr().getSingle(event);
 		if (o == null)
 			return;
