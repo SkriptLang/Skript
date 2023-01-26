@@ -58,7 +58,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	}
 	
 	@Override
-	public Number convert(final Object o) {
+	public Number convert(Object obj) {
 		return (int) (o instanceof Location ? axis == 0 ? ((Location) o).getX() : axis == 1 ? ((Location) o).getY() : ((Location) o).getZ() : axis == 0 ? ((Chunk) o).getX() : axis == 1 ? 0 : ((Chunk) o).getZ());
 	}
 	
