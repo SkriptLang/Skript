@@ -33,9 +33,6 @@ import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Coordinate")
 @Description("Represents a given coordinate of a location/chunk. ")
 @Examples({"player's y-coordinate is smaller than 40:",
