@@ -81,7 +81,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		assert delta != null;
 		final Location l = getExpr().getSingle(e) instanceof Location ? (Location) getExpr().getSingle(e) : null;
 		if (l == null)
