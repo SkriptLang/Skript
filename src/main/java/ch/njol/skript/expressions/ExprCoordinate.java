@@ -74,7 +74,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle()) {
 			if (ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class)) {
 				return new Class[] {Number.class};
