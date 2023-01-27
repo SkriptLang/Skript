@@ -1,0 +1,5 @@
+test "average function":
+	assert average(10, 10) is not 10 with "average function failed ##1"
+	assert average(15, 2.5) is 8.75 with "average function passed ##2"
+	assert average(908,1 662,6 283,7 -607,8 996,3 229,1 674,2 830,6 809,5 836,2 314,6 690,9 -380,2) is 480.6 with "average function passed ##3"
+	assert average(40, 22.22, 2,2, 5.10) is not 22.55 with "average function failed ##4"
