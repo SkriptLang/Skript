@@ -42,7 +42,7 @@ public final class Converters {
 	/**
 	 * A List containing information for all registered converters.
 	 */
-	private static final List<ConverterInfo<?, ?>> CONVERTERS = Collections.synchronizedList(new ArrayList<>(50));
+	private static final List<ConverterInfo<?, ?>> CONVERTERS = new ArrayList<>(50);
 
 	/**
 	 * @return An unmodifiable, synchronized list containing all registered {@link ConverterInfo}s.
@@ -53,6 +53,7 @@ public final class Converters {
 	 * Thus, it is recommended to use {@link #getConverter(Class, Class)}.
 	 */
 	public static List<ConverterInfo<?, ?>> getConverterInfos() {
+		assertIsDoneLoading();
 		return Collections.unmodifiableList(CONVERTERS);
 	}
 
@@ -61,7 +62,7 @@ public final class Converters {
 	 * Some pairs may point to a null value, indicating that no converter exists between the two types.
 	 * This is useful for skipping complex lookups that may require chaining.
 	 */
-	private static final Map<Pair<Class<?>, Class<?>>, ConverterInfo<?, ?>> QUICK_ACCESS_CONVERTERS = Collections.synchronizedMap(new HashMap<>(50));
+	private static final Map<Pair<Class<?>, Class<?>>, ConverterInfo<?, ?>> QUICK_ACCESS_CONVERTERS = new HashMap<>(50);
 
 	/**
 	 * Registers a new Converter with Skript's collection of Converters.
@@ -103,6 +104,7 @@ public final class Converters {
 	// REMIND how to manage overriding of converters? - shouldn't actually matter
 	@SuppressWarnings("unchecked")
 	public static <F, M, T> void createChainedConverters() {
+		Skript.checkAcceptRegistrations();
 		synchronized (CONVERTERS) {
 			for (int i = 0; i < CONVERTERS.size(); i++) {
 
@@ -160,7 +162,7 @@ public final class Converters {
 	 * @return Whether a Converter exists that EXACTLY matches the provided types.
 	 */
 	private static boolean exactConverterExists(Class<?> from, Class<?> to) {
-		synchronized (CONVERTERS) {
+		synchronized (CONVERTERS) { // this method will only be called during registration when list is mutable
 			for (ConverterInfo<?, ?> info : CONVERTERS) {
 				if (from == info.getFrom() && to == info.getTo()) {
 					return true;
@@ -174,6 +176,7 @@ public final class Converters {
 	 * @return Whether a Converter capable of converting 'fromType' to 'toType' exists.
 	 */
 	public static boolean converterExists(Class<?> fromType, Class<?> toType) {
+		assertIsDoneLoading();
 		if (toType.isAssignableFrom(fromType) || fromType.isAssignableFrom(toType)) {
 			return true;
 		}
@@ -184,6 +187,7 @@ public final class Converters {
 	 * @return Whether a Converter capable of converting 'fromType' to one of the provided 'toTypes' exists.
 	 */
 	public static boolean converterExists(Class<?> fromType, Class<?>... toTypes) {
+		assertIsDoneLoading();
 		for (Class<?> toType : toTypes) {
 			if (converterExists(fromType, toType)) {
 				return true;
@@ -216,18 +220,18 @@ public final class Converters {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <F, T> ConverterInfo<F, T> getConverterInfo(Class<F> fromType, Class<T> toType) {
-		if (Skript.isAcceptRegistrations()) {
-			throw new SkriptAPIException("Converters cannot be retrieved until Skript has finished registrations.");
-		}
+		assertIsDoneLoading();
 
 		Pair<Class<?>, Class<?>> pair = new Pair<>(fromType, toType);
 		ConverterInfo<F, T> converter;
 
-		if (QUICK_ACCESS_CONVERTERS.containsKey(pair)) {
-			converter = (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.get(pair);
-		} else { // Compute QUICK_ACCESS for provided types
-			converter = getConverter_i(fromType, toType);
-			QUICK_ACCESS_CONVERTERS.put(pair, converter);
+		synchronized (QUICK_ACCESS_CONVERTERS) {
+			if (QUICK_ACCESS_CONVERTERS.containsKey(pair)) {
+				converter = (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.get(pair);
+			} else { // Compute QUICK_ACCESS for provided types
+				converter = getConverter_i(fromType, toType);
+				QUICK_ACCESS_CONVERTERS.put(pair, converter);
+			}
 		}
 
 		return converter;
@@ -254,77 +258,75 @@ public final class Converters {
 		Class<F> fromType,
 		Class<T> toType
 	) {
-		synchronized (CONVERTERS) {
-			// Check for an exact match
-			for (ConverterInfo<?, ?> info : CONVERTERS) {
-				if (fromType == info.getFrom() && toType == info.getTo()) {
-					return (ConverterInfo<F, T>) info;
-				}
+		// Check for an exact match
+		for (ConverterInfo<?, ?> info : CONVERTERS) {
+			if (fromType == info.getFrom() && toType == info.getTo()) {
+				return (ConverterInfo<F, T>) info;
 			}
+		}
 
-			// Check for an almost perfect match
-			for (ConverterInfo<?, ?> info : CONVERTERS) {
-				if (info.getFrom().isAssignableFrom(fromType) && toType.isAssignableFrom(info.getTo())) {
-					return (ConverterInfo<F, T>) info;
-				}
+		// Check for an almost perfect match
+		for (ConverterInfo<?, ?> info : CONVERTERS) {
+			if (info.getFrom().isAssignableFrom(fromType) && toType.isAssignableFrom(info.getTo())) {
+				return (ConverterInfo<F, T>) info;
 			}
+		}
 
-			// We don't want to create "maybe" converters for 'Object -> X' conversions
-			// Instead, we should just try and convert during runtime when we have a better idea of the fromType
-			if (fromType == Object.class) {
-				return new ConverterInfo<>(fromType, toType, fromObject -> Converters.convert(fromObject, toType), 0);
-			}
+		// We don't want to create "maybe" converters for 'Object -> X' conversions
+		// Instead, we should just try and convert during runtime when we have a better idea of the fromType
+		if (fromType == Object.class) {
+			return new ConverterInfo<>(fromType, toType, fromObject -> Converters.convert(fromObject, toType), 0);
+		}
 
-			// Attempt to find converters that have either 'from' OR 'to' not exactly matching
-			for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
-				if (unknownInfo.getFrom().isAssignableFrom(fromType) && unknownInfo.getTo().isAssignableFrom(toType)) {
-					ConverterInfo<F, ParentType> info = (ConverterInfo<F, ParentType>) unknownInfo;
+		// Attempt to find converters that have either 'from' OR 'to' not exactly matching
+		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
+			if (unknownInfo.getFrom().isAssignableFrom(fromType) && unknownInfo.getTo().isAssignableFrom(toType)) {
+				ConverterInfo<F, ParentType> info = (ConverterInfo<F, ParentType>) unknownInfo;
 
-					// 'to' doesn't exactly match and needs to be filtered
-					// Basically, this converter might convert 'F' into something that's shares a parent with 'T'
-					return new ConverterInfo<>(fromType, toType, fromObject -> {
-						Object converted = info.getConverter().convert(fromObject);
-						if (toType.isInstance(converted)) {
-							return (T) converted;
-						}
+				// 'to' doesn't exactly match and needs to be filtered
+				// Basically, this converter might convert 'F' into something that's shares a parent with 'T'
+				return new ConverterInfo<>(fromType, toType, fromObject -> {
+					Object converted = info.getConverter().convert(fromObject);
+					if (toType.isInstance(converted)) {
+						return (T) converted;
+					}
+					return null;
+				}, 0);
+
+			} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
+				ConverterInfo<SubType, T> info = (ConverterInfo<SubType, T>) unknownInfo;
+
+				// 'from' doesn't exactly match and needs to be filtered
+				// Basically, this converter will only convert certain 'F' objects
+				return new ConverterInfo<>(fromType, toType, fromObject -> {
+					if (!info.getFrom().isInstance(fromType)) {
 						return null;
-					}, 0);
+					}
+					return info.getConverter().convert((SubType) fromObject);
+				}, 0);
 
-				} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
-					ConverterInfo<SubType, T> info = (ConverterInfo<SubType, T>) unknownInfo;
-
-					// 'from' doesn't exactly match and needs to be filtered
-					// Basically, this converter will only convert certain 'F' objects
-					return new ConverterInfo<>(fromType, toType, fromObject -> {
-						if (!info.getFrom().isInstance(fromType)) {
-							return null;
-						}
-						return info.getConverter().convert((SubType) fromObject);
-					}, 0);
-
-				}
 			}
+		}
 
-			// At this point, accept both 'from' AND 'to' not exactly matching
-			for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
-				if (fromType.isAssignableFrom(unknownInfo.getFrom()) && unknownInfo.getTo().isAssignableFrom(toType)) {
-					ConverterInfo<SubType, ParentType> info = (ConverterInfo<SubType, ParentType>) unknownInfo;
+		// At this point, accept both 'from' AND 'to' not exactly matching
+		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
+			if (fromType.isAssignableFrom(unknownInfo.getFrom()) && unknownInfo.getTo().isAssignableFrom(toType)) {
+				ConverterInfo<SubType, ParentType> info = (ConverterInfo<SubType, ParentType>) unknownInfo;
 
-					// 'from' and 'to' both don't exactly match and need to be filtered
-					// Basically, this converter will only convert certain 'F' objects
-					//   and some conversion results will only share a parent with 'T'
-					return new ConverterInfo<>(fromType, toType, fromObject -> {
-						if (!info.getFrom().isInstance(fromObject)) {
-							return null;
-						}
-						Object converted = info.getConverter().convert((SubType) fromObject);
-						if (toType.isInstance(converted)) {
-							return (T) converted;
-						}
+				// 'from' and 'to' both don't exactly match and need to be filtered
+				// Basically, this converter will only convert certain 'F' objects
+				//   and some conversion results will only share a parent with 'T'
+				return new ConverterInfo<>(fromType, toType, fromObject -> {
+					if (!info.getFrom().isInstance(fromObject)) {
 						return null;
-					}, 0);
+					}
+					Object converted = info.getConverter().convert((SubType) fromObject);
+					if (toType.isInstance(converted)) {
+						return (T) converted;
+					}
+					return null;
+				}, 0);
 
-				}
 			}
 		}
 
@@ -342,6 +344,7 @@ public final class Converters {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <From, To> To convert(@Nullable From from, Class<To> toType) {
+		assertIsDoneLoading();
 		if (from == null) {
 			return null;
 		}
@@ -367,6 +370,7 @@ public final class Converters {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <From, To> To convert(@Nullable From from, Class<? extends To>[] toTypes) {
+		assertIsDoneLoading();
 		if (from == null) {
 			return null;
 		}
@@ -398,6 +402,7 @@ public final class Converters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <To> To[] convert(Object @Nullable [] from, Class<To> toType) {
+		assertIsDoneLoading();
 		if (from == null) {
 			return (To[]) Array.newInstance(toType, 0);
 		}
@@ -429,6 +434,7 @@ public final class Converters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <To> To[] convert(Object @Nullable [] from, Class<? extends To>[] toTypes, Class<To> superType) {
+		assertIsDoneLoading();
 		if (from == null) {
 			return (To[]) Array.newInstance(superType, 0);
 		}
@@ -463,6 +469,7 @@ public final class Converters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <From, To> To[] convert(From[] from, Class<To> toType, Converter<? super From, ? extends To> converter) {
+		assertIsDoneLoading();
 		To[] converted = (To[]) Array.newInstance(toType, from.length);
 
 		int j = 0;
@@ -504,6 +511,7 @@ public final class Converters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <To> To[] convertStrictly(Object[] from, Class<To> toType) {
+		assertIsDoneLoading();
 		To[] converted = (To[]) Array.newInstance(toType, from.length);
 
 		for (int i = 0; i < from.length; i++) {
@@ -531,6 +539,12 @@ public final class Converters {
 	@SuppressWarnings("unchecked")
 	public static <From, To> To[] convertUnsafe(From[] from, Class<?> toType, Converter<? super From, ? extends To> converter) {
 		return convert(from, (Class<To>) toType, converter);
+	}
+
+	private static void assertIsDoneLoading() {
+		if (Skript.isAcceptRegistrations()) {
+			throw new SkriptAPIException("Converters cannot be retrieved until Skript has finished registrations.");
+		}
 	}
 
 }
