@@ -35,7 +35,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("View Distance")
 @Description({
-	"The view distance of a player. Can be changed.",
+	"The view distance of a player as set by the server. Can be changed.",
+	"NOTE: This is the view distance sent by the server to the player.",
+	"This has nothing to do with client side view distance settings",
 	"NOTE: This may not work on some versions (such as MC 1.14.x).",
 	"The return value in this case will be the view distance set in system.properties."
 })
@@ -48,7 +50,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprPlayerViewDistance extends SimplePropertyExpression<Player, Integer> {
 
 	static {
-		register(ExprPlayerViewDistance.class, Integer.class, "view distance[s]", "players");
+		if (Skript.methodExists(Player.class, "getViewDistance"))
+			register(ExprPlayerViewDistance.class, Integer.class, "view distance[s]", "players");
 	}
 
 	@Override
