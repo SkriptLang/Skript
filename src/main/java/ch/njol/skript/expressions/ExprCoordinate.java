@@ -39,7 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"	message \"Watch out for lava!\"",
 		"player's chunk's z-coordinate is bigger than 10",
 		"	message \"You're leaving the underground!\""})
-@Since("INSERT VERSION")
+@Since("1.4.3, INSERT VERSION (chunks)")
 public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
 	static {
