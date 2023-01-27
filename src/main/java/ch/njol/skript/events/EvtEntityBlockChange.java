@@ -24,7 +24,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Checker;
-import org.bukkit.Material;
+
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Sheep;
@@ -40,7 +40,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	static {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
 			.description(
-				"Called when an enderman places or picks up a block, a sheep eats grass, ",
+				"Called when an enderman places or picks up a block, a sheep eats grass, " +
 				"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
 			).examples(
 				"on sheep eat:",
@@ -54,8 +54,8 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	
 	private enum ChangeEvent {
 
-		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && event.getTo() != Material.AIR),
-		ENDERMAN_PICKUP("enderman pickup", event -> event.getEntity() instanceof Enderman && event.getTo() == Material.AIR),
+		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
+		ENDERMAN_PICKUP("enderman pickup", event -> event.getEntity() instanceof Enderman && ItemUtils.isAir(event.getTo())),
 
 		SHEEP_EAT("sheep eat", event -> event.getEntity() instanceof Sheep),
 
