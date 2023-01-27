@@ -53,12 +53,12 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Change: Set/Add/Remove/Delete/Reset")
-@Description("A very general effect that can change many <a href='../expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
+@Description("A very general effect that can change many <a href='./expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
 @Examples({"# set:",
 		"Set the player's display name to \"&lt;red&gt;%name of player%\"",
 		"set the block above the victim to lava",
 		"# add:",
-		"add 2 to the player's health # preferably use '<a href='#heal'>heal</a>' for this",
+		"add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this",
 		"add argument to {blacklist::*}",
 		"give a diamond pickaxe of efficiency 5 to the player",
 		"increase the data value of the clicked block by 1",

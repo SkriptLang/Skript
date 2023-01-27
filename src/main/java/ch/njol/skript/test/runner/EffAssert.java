@@ -44,8 +44,10 @@ public class EffAssert extends Effect  {
 			Skript.registerEffect(EffAssert.class, "assert <.+> [(1¦to fail)] with %string%");
 	}
 
-	private Expression<String> errorMsg;
+	@Nullable
 	private Condition condition;
+
+	private Expression<String> errorMsg;
 	private boolean shouldFail;
 
 	@Override
@@ -98,6 +100,8 @@ public class EffAssert extends Effect  {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (condition == null)
+			return "assertion";
 		return "assert " + condition.toString(event, debug);
 	}
 

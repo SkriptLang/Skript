@@ -1,6 +1,7 @@
-<div class="item-wrapper" id="${element.id}">
+<div class="item-wrapper type-${element.type}" id="${element.id}" data-keywords="${element.keywords}">
   <div class="item-title">
-    <h1 style="display: inline-block">${element.name}</h1> <a href="#${element.id}">&#128279;</a>
+    <h1 style="display: inline-block">${element.name}</h1> <a href="#${element.id}" class="link-icon">&#128279;</a> ${if new-element} <p class="new-element">New</p> ${end}
+    <p class="item-type">${element.type}</p>
   </div>
   <div class="item-content">
     <table>
@@ -29,6 +30,17 @@
         <td class="item-table-label">Requirements:</td>
         <td>${element.required-plugins}</td>
       </tr>
+
+      ${end} ${if by-addon}
+      <tr class="item-details">
+        <td class="item-table-label">By Addon:</td>
+        <td>${element.by-addon}</td>
+      </tr>
+      ${end} ${if return-type}
+      <tr class="item-details">
+        <td class="item-table-label">Return Type:</td>
+        <td><a href="classes.html#${element.return-type-linkcheck}">${element.return-type}</a></td>
+      </tr>
       ${end}
     </table>
 
@@ -37,7 +49,7 @@
     </div>
 
     <div class="item-examples">
-      <p>Examples:</p>
+      <p class="example-details-closed">Examples:</p>
 
       <div class="skript-code-block">
         ${element.examples}
