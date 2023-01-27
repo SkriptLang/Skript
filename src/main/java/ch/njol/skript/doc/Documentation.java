@@ -457,7 +457,7 @@ public class Documentation {
 							continue linkLoop;
 					}
 				} else if (s[0].equals("../functions/")) {
-					if (Functions.getFunction("" + s[1], null) != null)
+					if (Functions.getGlobalFunction("" + s[1]) != null)
 						continue;
 				} else {
 					final int i = CollectionUtils.indexOf(urls, s[0].substring("../".length(), s[0].length() - 1));
