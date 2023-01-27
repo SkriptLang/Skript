@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public final class Converters {
 	 * This method ONLY returns converters explicitly registered during registration.
 	 * Thus, it is recommended to use {@link #getConverter(Class, Class)}.
 	 */
+	@Unmodifiable
 	public static List<ConverterInfo<?, ?>> getConverterInfos() {
 		assertIsDoneLoading();
 		return Collections.unmodifiableList(CONVERTERS);

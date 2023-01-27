@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -63,6 +64,7 @@ public final class Comparators {
 	 * This method ONLY returns Comparators explicitly registered during registration.
 	 * Thus, it is recommended to use {@link #getComparator(Class, Class)} if possible.
 	 */
+	@Unmodifiable
 	public static List<ComparatorInfo<?, ?>> getComparatorInfos() {
 		assertIsDoneLoading();
 		return Collections.unmodifiableList(COMPARATORS);
