@@ -32,7 +32,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Save World")
-@Description("Saves a world manually")
+@Description({"Save all worlds or a given world manually.","note: saving many worlds at once may possible cause a server to freeze."})
 @Examples({
 	"save \"world_nether\"",
 	"save all worlds"
@@ -53,15 +53,15 @@ public class EffWorldSave extends Effect {
 	}
 
 	@Override
+	protected void execute(Event event) {
+		for (World world : worlds.getArray(event))
+			world.save();
+		return;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "save world(s) " + worlds.toString(event, debug);
 	}
 
-	@Override
-	protected void execute(Event event) {
-		for (World world : worlds.getArray(event)) {
-			world.save();
-		}
-		return;
-	}
 }

@@ -33,7 +33,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unload World")
-@Description({"Unload a world"})
+@Description({"Unload a given world with optional saving"})
 @Examples({
 	"unload \"world_nether\" and save",
 	"unload \"world_the_end\" and don't save",
@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffWorldUnload extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [and (:save)]");
+		Skript.registerEffect(EffWorldUnload.class, "unload %worlds% [:without saving]");
 	}
 
 	private boolean save;
@@ -52,7 +52,7 @@ public class EffWorldUnload extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
-		save = parseResult.hasTag("save");
+		save = !parseResult.hasTag("without saving");
 		return true;
 	}
 
@@ -60,9 +60,10 @@ public class EffWorldUnload extends Effect {
 	protected void execute(Event event) {
 		World mainWorld = Bukkit.getWorlds().get(0);
 		for (World world : this.worlds.getArray(event)) {
-			if (mainWorld != null && world != mainWorld)
-				world.getPlayers().forEach(player -> player.teleport(mainWorld.getSpawnLocation()));
 			Bukkit.unloadWorld(world, save);
+//			if (mainWorld != null && world != mainWorld) {
+//				world.getPlayers().forEach(player -> player.teleport(mainWorld.getSpawnLocation()));
+//			}
 		}
 		return;
 	}
@@ -71,4 +72,5 @@ public class EffWorldUnload extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "unload world(s) " + worlds.toString(event, debug) + " " + (save ? "with saving" : "without saving");
 	}
+
 }
