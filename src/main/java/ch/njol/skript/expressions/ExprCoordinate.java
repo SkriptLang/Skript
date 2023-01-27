@@ -96,7 +96,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 				//$FALL-THROUGH$
 			case ADD:
 				if (o instanceof Location) {
-					Location l = (Location) o;
+					Location loc = (Location) obj;
 					if (axis == 0) {
 						l.setX(l.getX() + n);
 					} else if (axis == 1) {
