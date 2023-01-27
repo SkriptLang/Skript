@@ -95,6 +95,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -108,6 +109,7 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
@@ -629,6 +631,15 @@ public class SimpleEvents {
 					"\t\tsend \"The trade was somehow denied!\" to player")
 				.since("INSERT VERSION");
 		}
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
+				.description("Called when an entity jumps.")
+				.requiredPlugins("Paper 1.15.2+")
+				.examples("on entity jump:",
+					"\tif entity is a wither skeleton:",
+					"\t\tcancel event")
+				.since("INSERT VERSION");
+		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
@@ -637,6 +648,21 @@ public class SimpleEvents {
 				.examples("on anvil damage:",
 					"\tcancel the event")
 				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+				.description(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.examples(
+					"on loot generate:",
+					"\tchance of %10",
+					"\tadd 64 diamonds",
+					"\tsend \"You hit the jackpot!!\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("MC 1.16+");
 		}
 	}
 

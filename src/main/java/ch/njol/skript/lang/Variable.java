@@ -26,15 +26,15 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
@@ -458,7 +458,7 @@ public class Variable<T> implements Expression<T> {
 
 	private T[] getConvertedArray(Event e) {
 		assert list;
-		return Converters.convertArray((Object[]) get(e), types, superType);
+		return Converters.convert((Object[]) get(e), types, superType);
 	}
 
 	private void set(Event e, @Nullable Object value) {
@@ -549,7 +549,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Object d : delta) {
 							for (Entry<String, Object> i : o.entrySet()) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d))) {
+								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), d))) {
 									String key = i.getKey();
 									if (key == null)
 										continue; // This is NOT a part of list variable
@@ -570,7 +570,7 @@ public class Variable<T> implements Expression<T> {
 						ArrayList<String> rem = new ArrayList<>(); // prevents CMEs
 						for (Entry<String, Object> i : o.entrySet()) {
 							for (Object d : delta) {
-								if (Relation.EQUAL.is(Comparators.compare(i.getValue(), d)))
+								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), d)))
 									rem.add(i.getKey());
 							}
 						}
