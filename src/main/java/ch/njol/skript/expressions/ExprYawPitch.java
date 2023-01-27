@@ -33,8 +33,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.entity.Player;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
