@@ -89,7 +89,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 		if (o == null)
 			return;
 		assert delta != null;
-		double n = ((Number) delta[0]).doubleValue();
+		double value = ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case REMOVE:
 				n = -n;
