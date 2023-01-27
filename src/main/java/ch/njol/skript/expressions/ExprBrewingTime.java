@@ -35,7 +35,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Brewing Time")
-@Description("How much time is left in the brewing cycle.")
+@Description("The time until the contents of a brewing stand will finish brewing.")
 @Examples("send brewing time of target block")
 @Since("INSERT VERSION")
 public class ExprBrewingTime extends SimplePropertyExpression<Block, Timespan> {

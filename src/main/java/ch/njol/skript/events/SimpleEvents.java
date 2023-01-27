@@ -651,12 +651,12 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 		}
 		Skript.registerEvent("Potion Brewing", SimpleEvent.class, BrewEvent.class, "[potion] brew[ing]")
-			.description("Called when the brewing of the contents inside the Brewing Stand is complete.")
-			.examples("on brewing event",
+			.description("Called when the contents of a brewing stand having finished brewing.")
+			.examples("on potion brew:",
 				"\tcancel the event")
 			.since("INSERT VERSION");
-		Skript.registerEvent("Fuel Brewing", SimpleEvent.class, BrewingStandFuelEvent.class, "[potion] fuel brew[ing]")
-			.description("Called when an ItemStack is about to increase the fuel level of a brewing stand.")
+		Skript.registerEvent("Fuel Brewing", SimpleEvent.class, BrewingStandFuelEvent.class, "brewing stand fuel[ing]")
+			.description("Called when the fuel level of a brewing stand is going to increase.")
 			.examples("on fuel brewing:",
 				"\tadd 10 to fuel power")
 			.since("INSERT VERSION");

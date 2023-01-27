@@ -38,8 +38,8 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Fuel Level")
-@Description("Get the level of current fuel of a brewing stand. can be modified")
+@Name("Brewing Stand Fuel Level")
+@Description("The current fuel level of a brewing stand.")
 @Examples({
 	"on fuel brewing:",
 		"\tset fuel level of target block to 100"
@@ -85,4 +85,5 @@ public class ExprFuelLevel extends SimpleExpression<Integer> {
 	public String toString(Event event, boolean debug) {
 		return "the fuel power of " + block.toString(event, debug);
 	}
+
 }

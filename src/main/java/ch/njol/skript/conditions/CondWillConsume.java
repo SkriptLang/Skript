@@ -33,7 +33,7 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fuel Will Consume")
-@Description("Gets whether the brewing stand's fuel will be reduced / consumed or not.")
+@Description("Whether a brewing stand's fuel will be consumed/used in a brewing stand fueling event")
 @Examples({
 	"on fuel brewing:",
 	"\tif fuel will be consumed:",
@@ -44,12 +44,12 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondWillConsume extends Condition {
 
 	static {
-		Skript.registerCondition(CondWillConsume.class, "[the] fuel (:will|will not|won't) [be] consume[d]");
+		Skript.registerCondition(CondWillConsume.class, "[the] fuel (:will|will not|won't) be consumed");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if(getParser().isCurrentEvent(BrewingStandFuelEvent.class)) {
+		if (getParser().isCurrentEvent(BrewingStandFuelEvent.class)) {
 			Skript.error("You can't use the 'fuel will consume' condition outside of a fuel brewing event.");
 			return false;
 		}
@@ -66,6 +66,6 @@ public class CondWillConsume extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the fuel " + (isNegated() ? "will" : "will not") + " consume";
+		return "the fuel " + (isNegated() ? "will" : "will not") + " be consumed";
 	}
 }

@@ -36,7 +36,7 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fuel Power")
-@Description("Gets the fuel power for this fuel. Each unit of power can fuel one brewing operation. can be modified")
+@Description("The fuel power of each fuel item. One unit of power can fuel one brewing operation.")
 @Examples({
 	"on fuel brewing:",
 	"\tset fuel power to 100"
@@ -74,8 +74,9 @@ public class ExprFuelPower extends SimpleExpression<Integer> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof BrewingStandFuelEvent)) return;
-		int integer = delta[0] == null ? 0 : ((Number) delta[0]).intValue();
+		if (!(event instanceof BrewingStandFuelEvent))
+			return;
+		int integer = delta == null ? 0 : ((Number) delta[0]).intValue();
 		int value = ((BrewingStandFuelEvent) event).getFuelPower();
 		switch (mode) {
 			case RESET:
@@ -105,7 +106,8 @@ public class ExprFuelPower extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the fuel power";
 	}
+
 }
