@@ -110,16 +110,20 @@ public final class SkriptAddon {
 	}
 
 	@Nullable
-	private File file = null;
+	private File file;
 
 	/**
-	 * @return The jar file of the plugin.
 	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
 	 * The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
+	 * Only nullable if there was an exception thrown.
+	 * 
+	 * @return The jar file of the plugin.
 	 */
 	@Nullable
 	public File getFile() {
-		return Utils.getFile(plugin);
+		if (file == null)
+			file = Utils.getFile(plugin);
+		return file;
 	}
 
 }

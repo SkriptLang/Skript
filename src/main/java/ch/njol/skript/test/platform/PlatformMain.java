@@ -137,29 +137,29 @@ public class PlatformMain {
 		Collections.sort(succeeded);
 		List<String> failNames = new ArrayList<>(failures.keySet());
 		Collections.sort(failNames);
-		
+
 		// All succeeded tests in a single line
-		System.out.printf("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25));
-		System.out.println("\nTested environments: " + String.join(", ",
+		StringBuilder output = new StringBuilder(String.format("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25)));
+		output.append("\nTested environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		System.out.println("\nSucceeded:\n  " + String.join((junit ? "\n  " : ", "), succeeded));
+		output.append("\nSucceeded:\n  " + String.join((junit ? "\n  " : ", "), succeeded));
 
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
-			Thread.sleep(1); // speed at which system prints fails without this, and can look like successful tests failed.
-			System.err.println("\nFailed:");
+			output.append("\nFailed:");
 			for (String failed : failNames) {
 				List<NonNullPair<Environment, String>> errors = failures.get(failed);
-				System.err.println("  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
+				output.append("  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
 				for (NonNullPair<Environment, String> error : errors) {
-					System.err.println("    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
+					output.append("    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
 				}
 			}
-			Thread.sleep(1);
-			System.out.printf("%n%s", StringUtils.repeat("-", 60));
+			output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));
+			System.err.print(output.toString());
 			System.exit(failNames.size()); // Error code to indicate how many tests failed.
 			return;
 		}
-		System.out.printf("%n%s", StringUtils.repeat("-", 60));
+		output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));
+		System.out.print(output.toString());
 	}
 
 }

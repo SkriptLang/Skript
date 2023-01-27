@@ -57,7 +57,7 @@ public abstract class SkriptJUnitTest {
 	 */
 	private static String currentJUnitTest;
 
-	private static long d = 0;
+	private static long delay = 0;
 
 	/**
 	 * The delay this JUnit test is requiring to run.
@@ -66,14 +66,14 @@ public abstract class SkriptJUnitTest {
 	 * @return the delay in Minecraft ticks this junit test is requiring to run for.
 	 */
 	public static long getShutdownDelay() {
-		return d;
+		return delay;
 	}
 
 	/**
 	 * @param delay Set the delay in Minecraft ticks for this test to run.
 	 */
 	public static void setShutdownDelay(long delay) {
-		d = delay;
+		SkriptJUnitTest.delay = delay;
 	}
 
 	@Before
@@ -103,8 +103,8 @@ public abstract class SkriptJUnitTest {
 	 * @return Pig that has been spawned.
 	 */
 	protected Pig spawnTestPig() {
-		if (d <= 0D)
-			d = 1; // A single tick allows the piggy to spawn before server shutdown.
+		if (delay <= 0D)
+			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
 		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
 	}
 
