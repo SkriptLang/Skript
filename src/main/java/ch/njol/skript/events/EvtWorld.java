@@ -74,9 +74,8 @@ public class EvtWorld extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		worlds = (Literal<World>) args[0];
 		if (worlds != null) {
-			boolean isAnd = worlds.getAnd();
-			if (isAnd) {
-				Skript.error("An \"and\" list cannot be used in this event as multiple worlds cannot load at the same time");
+			if (worlds.getAnd()) {
+				Skript.error("An \"and\" list cannot be used in this event as multiple worlds cannot be called at the same time");
 				return false;
 			}
 		}
