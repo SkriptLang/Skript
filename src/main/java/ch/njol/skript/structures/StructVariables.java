@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
@@ -129,6 +130,7 @@ public class StructVariables extends Structure {
 		/**
 		 * @return an unmodifiable list of all the default variables registered for the script.
 		 */
+		@Unmodifiable
 		public List<NonNullPair<String, Object>> getVariables() {
 			return Collections.unmodifiableList(variables);
 		}
@@ -152,6 +154,11 @@ public class StructVariables extends Structure {
 
 			if (name.startsWith(Variable.LOCAL_VARIABLE_TOKEN)) {
 				Skript.error("'" + name + "' cannot be a local variable in default variables structure");
+				continue;
+			}
+
+			if (name.contains("<") || name.contains(">")) {
+				Skript.error("'" + name + "' cannot have symbol '<' or '>' within the definition");
 				continue;
 			}
 

@@ -309,13 +309,10 @@ public class VariableString implements Expression<String> {
 			if (percentage) {
 				if (s.charAt(i) == '%')
 					percentage = false;
-				
 				continue;
 			}
-			
 			if (quote && s.charAt(i) != '"')
 				return false;
-			
 			if (s.charAt(i) == '"') {
 				quote = !quote;
 			} else if (s.charAt(i) == '%') {
@@ -324,7 +321,7 @@ public class VariableString implements Expression<String> {
 		}
 		return !quote;
 	}
-	
+
 	/**
 	 * Removes quoted quotes from a string.
 	 * 
@@ -615,6 +612,7 @@ public class VariableString implements Expression<String> {
 			}
 			hintIndex++;
 		}
+		Skript.info(Arrays.toString(typeHints.stream().map(builder -> builder.toString()).toArray(String[]::new)));
 		return typeHints.stream().map(builder -> builder.toString()).collect(Collectors.toList());
 	}
 	
