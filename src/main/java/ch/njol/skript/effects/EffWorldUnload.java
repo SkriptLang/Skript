@@ -35,8 +35,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Unload World")
 @Description({"Unload a given world with optional saving"})
 @Examples({
-	"unload \"world_nether\" and save",
-	"unload \"world_the_end\" and don't save",
+	"unload \"world_nether\"",
+	"unload \"world_the_end\" without saving",
 	"unload all worlds"
 })
 @Since("INSERT VERSION")
