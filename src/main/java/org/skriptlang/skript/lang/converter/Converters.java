@@ -86,13 +86,14 @@ public final class Converters {
 
 		ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, flags);
 
-		if (exactConverterExists(from, to)) {
-			throw new SkriptAPIException(
-				"A Converter from '" + from + "' to '" + to + " already exists!"
-			);
+		synchronized (CONVERTERS) {
+			if (exactConverterExists(from, to)) {
+				throw new SkriptAPIException(
+					"A Converter from '" + from + "' to '" + to + " already exists!"
+				);
+			}
+			CONVERTERS.add(info);
 		}
-
-		CONVERTERS.add(info);
 	}
 
 	/**
@@ -158,15 +159,13 @@ public final class Converters {
 	}
 
 	/**
-	 * Internal method.
+	 * Internal method. All calling locations are expected to manually synchronize this method if necessary.
 	 * @return Whether a Converter exists that EXACTLY matches the provided types.
 	 */
 	private static boolean exactConverterExists(Class<?> from, Class<?> to) {
-		synchronized (CONVERTERS) { // this method will only be called during registration when list is mutable
-			for (ConverterInfo<?, ?> info : CONVERTERS) {
-				if (from == info.getFrom() && to == info.getTo()) {
-					return true;
-				}
+		for (ConverterInfo<?, ?> info : CONVERTERS) {
+			if (from == info.getFrom() && to == info.getTo()) {
+				return true;
 			}
 		}
 		return false;
