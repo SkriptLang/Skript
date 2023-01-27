@@ -84,9 +84,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle()) {
 			if (ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class))
 				return new Class[] {Number.class};
-			else if (getExpr().getReturnType().equals(Chunk.class))
-				Skript.error("Can't set X/Z coordinates of chunks");
 		}
+		Skript.error("Can't set X/Z coordinates of chunks");
 		return new Class[0];
 	}
 	
