@@ -22,7 +22,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.log.ErrorQuality;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.WorldInitEvent;
