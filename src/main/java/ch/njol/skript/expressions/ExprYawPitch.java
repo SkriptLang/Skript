@@ -33,8 +33,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -46,22 +46,22 @@ import org.bukkit.util.Vector;
 	"set {_p} to pitch of target entity",
 	"set yaw of all players to 0"
 })
-@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (change support for entities)")
-@RequiredPlugins("Minecraft 1.13 (change support for non-player entities), Paper 1.19 (change support for players)")
+@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers for entities)")
+@RequiredPlugins("MC 1.13+ (changers for non-player entities), Paper 1.19+ (changers for players)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
-	static final boolean PLAYER_SUPPORT;
+	private static final boolean PLAYER_SUPPORT;
 
 	static {
 		PLAYER_SUPPORT = Skript.methodExists(Player.class, "setRotation", float.class, float.class);
-		register(ExprYawPitch.class, Number.class, "(0¦yaw|1¦pitch)", "entities/locations/vectors");
+		register(ExprYawPitch.class, Number.class, "(:yaw|pitch)", "entities/locations/vectors");
 	}
 
 	private boolean usesYaw;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		usesYaw = parseResult.mark == 0;
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		usesYaw = parseResult.hasTag("yaw");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -70,8 +70,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		if (object instanceof Entity)
 			object = ((Entity) object).getLocation();
 		if (object instanceof Location) {
-			Location l = ((Location) object);
-			return usesYaw ? convertToPositive(l.getYaw()) : l.getPitch();
+			Location loc = ((Location) object);
+			return usesYaw ? convertToPositive(loc.getYaw()) : loc.getPitch();
 		} else if (object instanceof Vector) {
 			Vector vector = ((Vector) object);
 			if (usesYaw)
@@ -81,12 +81,12 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		return null;
 	}
 
-	@SuppressWarnings({"null"})
 	@Override
+	@SuppressWarnings({"null"})
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !PLAYER_SUPPORT) {
-				Skript.error("Changing a rotation of a player requires Paper 1.19 and above.");
+				Skript.error("Changing the rotation of a player requires Paper 1.19+");
 				return null;
 			}
 			return CollectionUtils.array(Number.class);
@@ -94,19 +94,19 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		return null;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public void change(Event event, Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 		float value = ((Number) delta[0]).floatValue();
-		for (Object single : getExpr().getArray(event)) {
-			if (single instanceof Entity) {
-				changeEntity(((Entity) single), value, mode);
-			} else if (single instanceof Location) {
-				changeLocation(((Location) single), value, mode);
-			} else if (single instanceof Vector) {
-				changeVector(((Vector) single), value, mode);
+		for (Object obj : getExpr().getArray(event)) {
+			if (obj instanceof Entity) {
+				changeEntity(((Entity) obj), value, mode);
+			} else if (obj instanceof Location) {
+				changeLocation(((Location) obj), value, mode);
+			} else if (obj instanceof Vector) {
+				changeVector(((Vector) obj), value, mode);
 			}
 		}
 	}
@@ -118,20 +118,23 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		float pitch = entity.getLocation().getPitch();
 		switch (mode) {
 			case SET:
-				if (usesYaw)
+				if (usesYaw) {
 					yaw = convertToPositive(value);
-				else
+				} else {
 					pitch = value;
+				}
 			case ADD:
-				if (usesYaw)
+				if (usesYaw) {
 					yaw = convertToPositive(yaw) + value;
-				else
+				} else {
 					pitch += value;
+				}
 			case REMOVE:
-				if (usesYaw)
+				if (usesYaw) {
 					yaw = convertToPositive(yaw) - value;
-				else
+				} else {
 					pitch -= value;
+				}
 			default:
 				break;
 		}
