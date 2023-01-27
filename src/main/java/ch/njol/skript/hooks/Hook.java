@@ -20,6 +20,7 @@ package ch.njol.skript.hooks;
 
 import java.io.IOException;
 
+import ch.njol.skript.doc.Documentation;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -45,15 +46,25 @@ public abstract class Hook<P extends Plugin> {
 		@SuppressWarnings("unchecked")
 		final P p = (P) Bukkit.getPluginManager().getPlugin(getName());
 		plugin = p;
-		if (p == null)
+		if (p == null) {
+			if (Documentation.canGenerateUnsafeDocs()) {
+				loadClasses();
+				if (Skript.logHigh())
+					Skript.info(m_hooked.toString(getName()));
+			}
 			return;
+		}
+
 		if (!init()) {
 			Skript.error(m_hook_error.toString(p.getName()));
 			return;
 		}
+
 		loadClasses();
+
 		if (Skript.logHigh())
 			Skript.info(m_hooked.toString(p.getName()));
+
 		return;
 	}
 	
