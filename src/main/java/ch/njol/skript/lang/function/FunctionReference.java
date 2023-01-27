@@ -25,14 +25,12 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -73,7 +71,7 @@ public class FunctionReference<T> {
 	 * Definitions of function parameters.
 	 */
 	private final Expression<?>[] parameters;
-	
+
 	/**
 	 * Indicates if the caller expects this function to return a single value.
 	 * Used for verifying correctness of the function signature.
@@ -100,7 +98,10 @@ public class FunctionReference<T> {
 	@Nullable
 	public final String script;
 	
-	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script, @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
+	public FunctionReference(
+			String functionName, @Nullable Node node, @Nullable String script,
+			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+	) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
@@ -116,11 +117,15 @@ public class FunctionReference<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean validateFunction(boolean first) {
+		if (!first && script == null)
+			return false;
 		Function<? extends T> previousFunction = function;
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName);
+		Signature<?> sign = Functions.getLocalSignature(functionName, script);
+		if (sign == null)
+			sign = Functions.getGlobalSignature(functionName);
 		
 		// Check if the requested function exists
 		if (sign == null) {
@@ -264,11 +269,13 @@ public class FunctionReference<T> {
 	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
-			function = (Function<? extends T>) Functions.getFunction(functionName);
+			function = (Function<? extends T>) Functions.getLocalFunction(functionName, script);
 		
+		if (function == null)
+			function = (Function<? extends T>) Functions.getGlobalFunction(functionName);
+
 		if (function == null) { // It might be impossible to resolve functions in some cases!
-			Skript.error("Couldn't resolve call for '" + functionName +
-				"'. Be careful when using functions in 'script load' events!");
+			Skript.error("Couldn't resolve call for '" + functionName + "'.");
 			return null; // Return nothing and hope it works
 		}
 		

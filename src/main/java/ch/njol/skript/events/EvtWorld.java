@@ -77,7 +77,7 @@ public class EvtWorld extends SkriptEvent {
 		if (worlds != null) {
 			boolean isAnd = worlds.getAnd();
 			if (isAnd) {
-				Skript.error("An \"and\" list cannot be used in this event as multiple worlds cannot load at the same time", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("An \"and\" list cannot be used in this event as multiple worlds cannot load at the same time");
 				return false;
 			}
 		}

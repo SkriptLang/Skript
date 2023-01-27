@@ -87,7 +87,7 @@ public class StructCommand extends Structure {
 		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
 		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
-	private static final AtomicBoolean syncCommands = new AtomicBoolean();
+	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
 	static {
 		Skript.registerStructure(
@@ -95,6 +95,7 @@ public class StructCommand extends Structure {
 			EntryValidator.builder()
 				.addEntry("usage", null, true)
 				.addEntry("description", "", true)
+				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
 				.addEntryData(new VariableStringEntryData("permission message", null, true, CommandEvent.class))
 				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
@@ -132,9 +133,12 @@ public class StructCommand extends Structure {
 				})
 				.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
 				.addEntryData(new VariableStringEntryData("cooldown message", null, true, CommandEvent.class))
-				.addEntry("cooldown bypass", null,true)
+				.addEntry("cooldown bypass", null, true)
 				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
 				.addSection("trigger", false)
+				.unexpectedEntryMessage(key ->
+					"Unexpected entry '" + key + "'. Check that it's spelled correctly, and ensure that you have put all code into a trigger."
+				)
 				.build(),
 			"command <.+>"
 		);
@@ -259,6 +263,7 @@ public class StructCommand extends Structure {
 		}
 
 		String description = entryContainer.get("description", String.class, true);
+		String prefix = entryContainer.getOptional("prefix", String.class, false);
 
 		String permission = entryContainer.get("permission", String.class, true);
 		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);
@@ -289,8 +294,8 @@ public class StructCommand extends Structure {
 
 		Commands.currentArguments = currentArguments;
 		try {
-			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, usage,
-				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
+			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, prefix,
+				usage, aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
 				executableBy, entryContainer.get("trigger", SectionNode.class, false));
 		} finally {
 			Commands.currentArguments = null;
@@ -302,7 +307,7 @@ public class StructCommand extends Structure {
 		getParser().deleteCurrentEvent();
 
 		Commands.registerCommand(scriptCommand);
-		syncCommands.set(true);
+		SYNC_COMMANDS.set(true);
 
 		return true;
 	}
@@ -315,10 +320,9 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void unload() {
-		if (scriptCommand != null) {
-			Commands.unregisterCommand(scriptCommand);
-			syncCommands.set(true);
-		}
+		assert scriptCommand != null; // This method should never be called if one of the loading methods fail
+		Commands.unregisterCommand(scriptCommand);
+		SYNC_COMMANDS.set(true);
 	}
 
 	@Override
@@ -327,8 +331,8 @@ public class StructCommand extends Structure {
 	}
 
 	private void attemptCommandSync() {
-		if (syncCommands.get()) {
-			syncCommands.set(false);
+		if (SYNC_COMMANDS.get()) {
+			SYNC_COMMANDS.set(false);
 			if (CommandReloader.syncCommands(Bukkit.getServer())) {
 				Skript.debug("Commands synced to clients");
 			} else {

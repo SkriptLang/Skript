@@ -54,7 +54,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.variables.DatabaseStorage.Type;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
@@ -346,14 +346,27 @@ public abstract class Variables {
 			}
 		}
 	}
-	
+
+	/**
+	 * Deletes a variable.
+	 * 
+	 * @param name The variable's name.
+	 * @param event if <tt>local</tt> is true, this is the event the local variable resides.
+	 * @param local if this variable is a local or global variable.
+	 */
+	public static void deleteVariable(String name, @Nullable Event event, boolean local) {
+		setVariable(name, null, event, local);
+	}
+
 	/**
 	 * Sets a variable.
 	 *
 	 * @param name The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
+	 * @param event if <tt>local</tt> is true, this is the event the local variable resides.
+	 * @param local if this variable is a local or global variable.
 	 */
-	public static void setVariable(final String name, @Nullable Object value, final @Nullable Event e, final boolean local) {
+	public static void setVariable(String name, @Nullable Object value, @Nullable Event event, boolean local) {
         String n = name;
         if (caseInsensitiveVariables) {
             n = name.toLowerCase(Locale.ENGLISH);
@@ -369,8 +382,8 @@ public abstract class Variables {
 			}
 		}
 		if (local) {
-			assert e != null : n;
-			VariablesMap map = localVariables.computeIfAbsent(e, event -> new VariablesMap());
+			assert event != null : n;
+			VariablesMap map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
 			map.setVariable(n, value);
 		} else {
 			setVariable(n, value);

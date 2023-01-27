@@ -33,7 +33,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unload World")
-@Description({"Unload a given world with optional saving"})
+@Description("Unload a given world with optional saving")
 @Examples({
 	"unload \"world_nether\"",
 	"unload \"world_the_end\" without saving",

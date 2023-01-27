@@ -32,7 +32,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Save World")
-@Description({"Save all worlds or a given world manually.","note: saving many worlds at once may possible cause a server to freeze."})
+@Description({
+	"Save all worlds or a given world manually.",
+	"Note: saving many worlds at once may possibly cause the server to freeze."
+})
 @Examples({
 	"save \"world_nether\"",
 	"save all worlds"

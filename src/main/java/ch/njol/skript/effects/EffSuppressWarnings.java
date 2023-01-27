@@ -51,6 +51,11 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		if (!getParser().isActive()) {
+			Skript.error("You can't suppress warnings outside of a script!");
+			return false;
+		}
+
 		mark = parseResult.mark;
 		if (mark == 1) {
 			Skript.warning("Variable conflict warnings no longer need suppression, as they have been removed altogether");
@@ -61,10 +66,10 @@ public class EffSuppressWarnings extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) { }
+	protected void execute(Event event) { }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String word;
 		switch (mark) {
 			case CONFLICT:
