@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
@@ -35,10 +36,12 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Coordinate")
 @Description("Represents a given coordinate of a location/chunk. ")
-@Examples({"player's y-coordinate is smaller than 40:",
-		"	message \"Watch out for lava!\"",
-		"player's chunk's z-coordinate is bigger than 10",
-		"	message \"You're leaving the underground!\""})
+@Examples({
+	"player's y-coordinate is smaller than 40:",
+	"\tmessage \"Watch out for lava!\"",
+	"player's chunk's z-coordinate is bigger than 10",
+	"\tmessage \"You're leaving the underground!\""
+})
 @Since("1.4.3, INSERT VERSION (chunks)")
 public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
@@ -59,7 +62,10 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	
 	@Override
 	public Number convert(Object obj) {
-		return (int) (obj instanceof Location ? axis == 0 ? ((Location) obj).getX() : axis == 1 ? ((Location) obj).getY() : ((Location) obj).getZ() : axis == 0 ? ((Chunk) obj).getX() : axis == 1 ? 0 : ((Chunk) obj).getZ());
+		if (obj instanceof Location)
+			return axis == 0 ? ((Location) obj).getX() : axis == 1 ? ((Location) obj).getY() : ((Location) obj).getZ();
+		else
+			return axis == 0 ? ((Chunk) obj).getX() : axis == 1 ? 0 : ((Chunk) obj).getZ();
 	}
 	
 	@Override
@@ -76,9 +82,10 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) && getExpr().isSingle()) {
-			if (ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class)) {
+			if (ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Location.class))
 				return new Class[] {Number.class};
-			}
+			else if (getExpr().getReturnType().equals(Chunk.class))
+				Skript.error("Can't set X/Z coordinates of chunks");
 		}
 		return new Class[0];
 	}
@@ -86,38 +93,38 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		Object obj = getExpr().getSingle(event);
-		if (o == null)
+		if (obj == null)
 			return;
 		assert delta != null;
 		double value = ((Number) delta[0]).doubleValue();
 		switch (mode) {
 			case REMOVE:
-				n = -n;
+				value = -value;
 				//$FALL-THROUGH$
 			case ADD:
-				if (o instanceof Location) {
+				if (obj instanceof Location) {
 					Location loc = (Location) obj;
 					if (axis == 0) {
-						l.setX(l.getX() + n);
+						loc.setX(loc.getX() + value);
 					} else if (axis == 1) {
-						l.setY(l.getY() + n);
+						loc.setY(loc.getY() + value);
 					} else {
-						l.setZ(l.getZ() + n);
+						loc.setZ(loc.getZ() + value);
 					}
-					getExpr().change(event, new Location[]{l}, ChangeMode.SET);
+					getExpr().change(event, new Location[]{loc}, ChangeMode.SET);
 					break;
 				}
 			case SET:
-				if (o instanceof Location) {
-					Location l = (Location) o;
+				if (obj instanceof Location) {
+					Location loc = (Location) obj;
 					if (axis == 0) {
-						l.setX(n);
+						loc.setX(value);
 					} else if (axis == 1) {
-						l.setY(n);
+						loc.setY(value);
 					} else {
-						l.setZ(n);
+						loc.setZ(value);
 					}
-					getExpr().change(event, new Location[]{l}, ChangeMode.SET);
+					getExpr().change(event, new Location[]{loc}, ChangeMode.SET);
 					break;
 				}
 			case DELETE:
