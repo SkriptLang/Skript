@@ -612,7 +612,6 @@ public class VariableString implements Expression<String> {
 			}
 			hintIndex++;
 		}
-		Skript.info(Arrays.toString(typeHints.stream().map(builder -> builder.toString()).toArray(String[]::new)));
 		return typeHints.stream().map(builder -> builder.toString()).collect(Collectors.toList());
 	}
 	
