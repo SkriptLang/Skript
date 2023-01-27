@@ -25,7 +25,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.bukkit.event.world.*;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.event.world.WorldEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class EvtWorld extends SkriptEvent {
@@ -41,7 +45,7 @@ public class EvtWorld extends SkriptEvent {
 
 		// World Init Event
 		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
-			.description("Called when a world is initialised. As all default worlds are initialised before",
+			.description("Called when a world is initialized. As all default worlds are initialized before",
 				"any scripts are loaded, this event is only called for newly created worlds.",
 				"World management plugins might change the behaviour of this event though.")
 			.examples("on world init of \"world_the_end\":")

@@ -56,7 +56,6 @@ public class EffWorldSave extends Effect {
 	protected void execute(Event event) {
 		for (World world : worlds.getArray(event))
 			world.save();
-		return;
 	}
 
 	@Override
