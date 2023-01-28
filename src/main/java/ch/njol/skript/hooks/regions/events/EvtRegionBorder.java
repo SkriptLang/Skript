@@ -164,17 +164,17 @@ public class EvtRegionBorder extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (enter ? "enter" : "leave") + " of " + (regions == null ? "a region" : regions.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return (enter ? "enter" : "leave") + " of " + (regions == null ? "a region" : regions.toString(event, debug));
 	}
 	
-	private boolean applies(RegionBorderEvent e) {
-		if (enter != e.isEntering())
+	private boolean applies(RegionBorderEvent event) {
+		if (enter != event.isEntering())
 			return false;
 		if (regions == null)
 			return true;
-		Region region = e.getRegion();
-		return regions.check(e, r -> r.equals(region));
+		Region region = event.getRegion();
+		return regions.check(event, r -> r.equals(region));
 	}
 	
 }

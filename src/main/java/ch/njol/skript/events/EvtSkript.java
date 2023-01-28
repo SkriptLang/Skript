@@ -44,9 +44,8 @@ public class EvtSkript extends SkriptEvent {
 			.since("2.0");
 	}
 
-	private static final List<Trigger>
-		START = Collections.synchronizedList(new ArrayList<>()),
-		STOP = Collections.synchronizedList(new ArrayList<>());
+	private static final List<Trigger> START = Collections.synchronizedList(new ArrayList<>());
+	private static final List<Trigger> STOP = Collections.synchronizedList(new ArrayList<>());
 
 	public static void onSkriptStart() {
 		Event event = new SkriptStartEvent();

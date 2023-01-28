@@ -95,13 +95,13 @@ public class EvtMoveOn extends SkriptEvent {
 			}
 
 			SkriptEventHandler.logEventStart(event);
-			triggersLoop: for (Trigger trigger : triggers) {
+			for (Trigger trigger : triggers) {
 				for (ItemType type : ((EvtMoveOn) trigger.getEvent()).types) {
 					if (type.isOfType(block)) {
 						SkriptEventHandler.logTriggerStart(trigger);
 						trigger.execute(event);
 						SkriptEventHandler.logTriggerEnd(trigger);
-						continue triggersLoop;
+						break;
 					}
 				}
 			}

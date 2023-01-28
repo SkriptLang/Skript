@@ -72,14 +72,13 @@ public class ExprMessage extends SimpleExpression<String> {
 	private static enum MessageType {
 		CHAT("chat", "[chat( |-)]message", AsyncPlayerChatEvent.class) {
 			@Override
-			@Nullable
-			String get(final Event e) {
-				return ((AsyncPlayerChatEvent) e).getMessage();
+			String get(Event event) {
+				return ((AsyncPlayerChatEvent) event).getMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				((AsyncPlayerChatEvent) e).setMessage(message);
+			void set(Event event, String message) {
+				((AsyncPlayerChatEvent) event).setMessage(message);
 			}
 		},
 		JOIN("join", "(join|log[ ]in)( |-)message", PlayerJoinEvent.class) {
