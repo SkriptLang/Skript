@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Data/Damage Value")
 @Description({"The data/damage value of an item/block. Data values of blocks are only supported on 1.12.2 and below.",
 		"You usually don't need this expression as you can check and set items with aliases easily, ",
-		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colours."})
+		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colors."})
 @Examples({"set damage value of player's tool to 10",
 		"set data value of target block of player to 3",
 		"add 1 to the data value of the clicked block",
