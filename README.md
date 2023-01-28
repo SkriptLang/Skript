@@ -162,7 +162,7 @@ Or, if you use Maven:
     <groupId>com.github.SkriptLang</groupId>
     <artifactId>Skript</artifactId>
     <version>[versionTag]</version>
-	<scope>provided</scope>
+    <scope>provided</scope>
 </dependency>
 ```
 
