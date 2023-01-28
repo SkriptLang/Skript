@@ -24,17 +24,16 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.classes.Converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 
 /**
- * @author Peter Güttinger
  * @see SimpleLiteral
  */
 public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements Literal<T> {
@@ -47,7 +46,6 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 			@Override
 			@Nullable
 			public T convert(final F f) {
-				assert false;
 				return Converters.convert(f, to);
 			}
 		}, 0));

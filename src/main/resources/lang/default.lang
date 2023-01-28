@@ -526,6 +526,9 @@ entities:
 	ender pearl:
 		name: ender pearl¦s @an
 		pattern: ender[ ]pearl(|1¦s)
+	ender eye:
+		name: ender eye¦s @an
+		pattern: ender eye(|1¦s)|eye(|1¦s) of ender
 	fireball:
 		name: fireball¦s
 		pattern: [(ghast|big)] fire[ ]ball(|1¦s)
@@ -592,6 +595,9 @@ entities:
 	iron golem:
 		name: iron golem¦s @an
 		pattern: iron golem(|1¦s)
+	lightning bolt:
+		name: lightning bolt¦s
+		pattern: lightning bolt(|1¦s)
 	item frame:
 		name: item frame¦s @an
 		pattern: item[ ]frame(|1¦s)
@@ -1195,6 +1201,13 @@ entities:
 	warden:
 		name: warden¦s
 		pattern: warden(|1¦s)
+	# 1.19.3 Entities
+	enemy:
+		name: enem¦y¦ies @an
+		pattern: enem(y|1¦ies)
+	camel:
+		name: camel¦s
+		pattern: camel(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
