@@ -68,7 +68,7 @@ public class DefaultFunctions {
 				return new Number[] {sum / length};
 			}
 		}.description("Returns the average of all numbers in the list.")
-			.examples("average(10, 20) = 15", "average(11, 99) = 41", "average(10, 190, 299.20) = 166.2")
+			.examples("average(10, 20) = 15", "average(11, 99) = 55", "average(10, 190, 299.20) = 166.4")
 			.since("INSERT VERSION"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
