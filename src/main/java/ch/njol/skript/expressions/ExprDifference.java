@@ -30,7 +30,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
@@ -82,20 +81,31 @@ public class ExprDifference extends SimpleExpression<Object> {
 		if (classInfo.getC() == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
 			// These two types may not be compatible
 			if (firstReturnType != Object.class && secondReturnType != Object.class) {
-				// Let's see if we can find something equivalent using converters
-				Expression<?> secondConverted = second.getConvertedExpression(firstReturnType);
-				if (secondConverted == null) {
-					Expression<?> firstConverted = first.getConvertedExpression(secondReturnType);
-					if (firstConverted == null) {
-						// Not even converters could save them :(
-						// Because we have two known types, we need to fail
-						fail = true;
-					} else {
-						first = firstConverted;
+
+				// We will need to escape failure
+				fail = true;
+
+				// Attempt to use first type's math
+				classInfo = Classes.getSuperClassInfo(firstReturnType);
+				if (classInfo.getMath() != null) { // Try to convert second to first
+					Expression<?> secondConverted = second.getConvertedExpression(firstReturnType);
+					if (secondConverted != null) {
+						second = secondConverted;
+						fail = false;
 					}
-				} else {
-					second = secondConverted;
 				}
+
+				if (fail) { // First type won't work, try second type
+					classInfo = Classes.getSuperClassInfo(secondReturnType);
+					if (classInfo.getMath() != null) { // Try to convert first to second
+						Expression<?> firstConverted = first.getConvertedExpression(secondReturnType);
+						if (firstConverted != null) {
+							first = firstConverted;
+							fail = false;
+						}
+					}
+				}
+
 			} else { // Avoid converting an actual type into Object.class
 				Expression<?> converted;
 				if (firstReturnType == Object.class) {
@@ -112,11 +122,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 				if (converted == null) { // It's unlikely that these two can be compared
 					fail = true;
+				} else { // Attempt to resolve a better class info
+					classInfo = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
 				}
-			}
-
-			if (!fail) { // Now that we've converted, let's aim for a better class info
-				classInfo = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
 			}
 
 		}
@@ -135,7 +143,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 		this.second = second;
 
 		if (fail) {
-			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second), ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second));
 			return false;
 		}
 
@@ -148,8 +156,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 	protected Object[] get(Event event) {
 		Object first = this.first.getSingle(event);
 		Object second = this.second.getSingle(event);
-		if (first == null || second == null)
+		if (first == null || second == null) {
 			return new Object[0];
+		}
 
 		Object[] one = (Object[]) Array.newInstance(relativeType, 1);
 		
