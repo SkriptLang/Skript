@@ -276,7 +276,15 @@ public final class Converters {
 		// We don't want to create "maybe" converters for 'Object -> X' conversions
 		// Instead, we should just try and convert during runtime when we have a better idea of the fromType
 		if (fromType == Object.class) {
-			return new ConverterInfo<>(fromType, toType, fromObject -> Converters.convert(fromObject, toType), 0);
+			// Make sure there is at *least* one converter to 'toType'
+			for (ConverterInfo<?, ?> info : CONVERTERS) {
+				if (toType.isAssignableFrom(info.getTo())) {
+					return new ConverterInfo<>(
+						fromType, toType, fromObject -> Converters.convert(fromObject, toType), Converter.ALL_CHAINING
+					);
+				}
+			}
+			return null;
 		}
 
 		// Attempt to find converters that have either 'from' OR 'to' not exactly matching
@@ -292,7 +300,7 @@ public final class Converters {
 						return (T) converted;
 					}
 					return null;
-				}, 0);
+				}, Converter.ALL_CHAINING);
 
 			} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
 				ConverterInfo<SubType, T> info = (ConverterInfo<SubType, T>) unknownInfo;
@@ -304,7 +312,7 @@ public final class Converters {
 						return null;
 					}
 					return info.getConverter().convert((SubType) fromObject);
-				}, 0);
+				}, Converter.ALL_CHAINING);
 
 			}
 		}
@@ -326,7 +334,7 @@ public final class Converters {
 						return (T) converted;
 					}
 					return null;
-				}, 0);
+				}, Converter.ALL_CHAINING);
 
 			}
 		}
