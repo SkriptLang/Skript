@@ -354,8 +354,6 @@ public class FlatFileStorage extends VariablesStorage {
 					return true;
 				}
 
-				assert value != null;
-
 				// Get the PrintWriter, waiting for it to be available if needed
 				PrintWriter printWriter;
 				while ((printWriter = changesWriter.get()) == null) {
@@ -367,7 +365,7 @@ public class FlatFileStorage extends VariablesStorage {
 					}
 				}
 
-				writeCSV(printWriter, name, type, encode(value));
+				writeCSV(printWriter, name, type, value == null ? "" : encode(value));
 				printWriter.flush();
 
 				changes.incrementAndGet();
