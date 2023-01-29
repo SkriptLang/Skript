@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
 
-import ch.njol.skript.classes.Comparator.Relation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;

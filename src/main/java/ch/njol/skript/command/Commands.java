@@ -75,7 +75,12 @@ public abstract class Commands {
 	public final static ArgsMessage m_too_many_arguments = new ArgsMessage("commands.too many arguments");
 	public final static Message m_internal_error = new Message("commands.internal error");
 	public final static Message m_correct_usage = new Message("commands.correct usage");
-	
+
+	/**
+	 * A Converter flag declaring that a Converter cannot be used for parsing command arguments.
+	 */
+	public static final int CONVERTER_NO_COMMAND_ARGUMENTS = 4;
+
 	private final static Map<String, ScriptCommand> commands = new HashMap<>();
 	
 	@Nullable
@@ -287,7 +292,7 @@ public abstract class Commands {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			scriptCommand.unregister(commandMap, cmKnownCommands, cmAliases);
 		}
-		commands.values().remove(scriptCommand);
+		commands.values().removeIf(command -> command == scriptCommand);
 	}
 	
 	private static boolean registeredListeners = false;

@@ -64,6 +64,26 @@ public class MatchResult {
 		return parseResult;
 	}
 
+	public Expression<?>[] getExpressions() {
+		return expressions;
+	}
+
+	public String getExpr() {
+		return expr;
+	}
+
+	public int getMark() {
+		return mark;
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public List<java.util.regex.MatchResult> getRegexResults() {
+		return regexResults;
+	}
+
 	@Override
 	public String toString() {
 		return "MatchResult{" +
