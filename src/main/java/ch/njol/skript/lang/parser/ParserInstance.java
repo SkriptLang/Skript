@@ -255,7 +255,7 @@ public final class ParserInstance {
 			if (isCurrentEvent(event))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 	// Section API
