@@ -585,8 +585,9 @@ public class ChatMessages {
 			
 			List<MessageComponent> components = parse(result);
 			StringBuilder builder = new StringBuilder();
-			for (MessageComponent component : components) // This also strips bracket tags ex. <red> <ttp:..> etc.
+			for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
 				builder.append(component.text);
+			}
 			String plain = builder.toString();
 			
 			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
