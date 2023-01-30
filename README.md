@@ -34,8 +34,8 @@ before reporting issues.
 Wanting to help test Skript's new features and releases?
 You can head on over to our [Official Testing Discord](https://discord.gg/ZPsZAg6ygu), and whenever we start testing new features/releases you will be the first to know.
 
-Please note this is not a HELP discord!
-If you require assistance with how to use Skript please check out the [Relevant Links](https://github.com/SkriptLang/Skript#relevant-links) section for a list of available discords/docs to assist you.
+Please note this is not a help Discord.
+If you require assistance with how to use Skript please check out the [Relevant Links](https://github.com/SkriptLang/Skript#relevant-links) section for a list of available resources to assist you.
 
 ## A Note About Add-ons
 We don't support add-ons here, even though some of Skript developers have also
@@ -172,8 +172,8 @@ Or, if you use Maven:
 
 ## Relevant Links
 * [skUnity forums](https://forums.skunity.com)
-* [skUnity Add-on releases](https://forums.skunity.com/forums/addon-releases)
-* [skUnity Discord invite](https://discord.gg/skript)
+* [skUnity addon releases](https://forums.skunity.com/forums/addon-releases)
+* [skUnity Discord invite](https://discord.gg/0l3WlzBPKX7WNjkf)
 * [Skript Chat Discord invite](https://discord.gg/0lx4QhQvwelCZbEX)
 * [Skript Hub](https://skripthub.net)
 * [Original Skript at Bukkit](https://dev.bukkit.org/bukkit-plugins/skript) (inactive)
