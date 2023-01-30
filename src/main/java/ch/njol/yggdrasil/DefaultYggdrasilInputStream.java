@@ -132,10 +132,10 @@ public final class DefaultYggdrasilInputStream extends YggdrasilInputStream {
 	}
 	
 	private long readLong() throws IOException {
-		return (long) read() << 56 | (long) read() << 48
-				| (long) read() << 40 | (long) read() << 32
-				| (long) read() << 24 | (long) read() << 16
-				| (long) read() << 8 | read();
+		return (long) in.read() << 56 | (long) in.read() << 48
+				| (long) in.read() << 40 | (long) in.read() << 32
+				| (long) in.read() << 24 | (long) in.read() << 16
+				| (long) in.read() << 8 | read();
 	}
 	
 	private float readFloat() throws IOException {
