@@ -572,6 +572,9 @@ public class ChatMessages {
 		registerChatCode(code);
 	}
 	
+	private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("[§&]x");
+	private static final Pattern ANY_COLOR_PATTERN = Pattern.compile("(?i)[&§][0-9a-folkrnm]");
+	
 	/**
 	 * Strips all styles from given string.
 	 * @param text String to strip styles from.
@@ -591,9 +594,9 @@ public class ChatMessages {
 			String plain = builder.toString();
 			
 			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-				plain = plain.replaceAll("[§&]x", "");
+				plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
 			
-			result = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
+			result = ANY_COLOR_PATTERN.matcher(plain).replaceAll(""); // strips colors & or § (ex. &5)
 		} while (!previous.equals(result));
 		
 		return result;
