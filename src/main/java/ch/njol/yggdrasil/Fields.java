@@ -253,7 +253,7 @@ public final class Fields implements Iterable<FieldContext> {
 			Field[] declaredFields = superClass.getDeclaredFields();
 			for (Field field : declaredFields) {
 				int modifiers = field.getModifiers();
-				if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))
+				if (field.isSynthetic() || Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))
 					continue;
 				String id = Yggdrasil.getID(field);
 				if (ids.contains(id))

@@ -18,11 +18,12 @@
  */
 package ch.njol.yggdrasil;
 
+import ch.njol.util.coll.CollectionUtils;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -257,7 +258,7 @@ public final class DefaultYggdrasilInputStream extends YggdrasilInputStream {
 				throw new YggdrasilException("Internal error; " + type);
 		}
 		while (dimensions-- > 0)
-			clazz = Array.newInstance(clazz, 0).getClass();
+			clazz = CollectionUtils.arrayType(clazz);
 		return clazz;
 	}
 	
