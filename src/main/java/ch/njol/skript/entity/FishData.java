@@ -38,12 +38,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public class FishData extends EntityData<Fish> {
 
 	private static final boolean HAS_TADPOLE = Skript.classExists("org.bukkit.entity.Tadpole");
+	private static final List<String> PATTERNS;
 
 	static {
-		List<String> patterns = new ArrayList<>(Arrays.asList("fish", "cod", "puffer fish", "salmon", "tropical fish"));
+		PATTERNS = new ArrayList<>(Arrays.asList("fish", "cod", "puffer fish", "salmon", "tropical fish"));
 		if (HAS_TADPOLE)
-			patterns.add("tadpole");
-		register(FishData.class, "fish", Fish.class, 0, patterns.toArray(new String[0]));
+			PATTERNS.add("tadpole");
+		register(FishData.class, "fish", Fish.class, 0, PATTERNS.toArray(new String[0]));
 	}
 	
 	private boolean init = true;
@@ -61,7 +62,7 @@ public class FishData extends EntityData<Fish> {
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 0)
 			wildcard = true;
-		pattern = (matchedPattern == 0) ? ThreadLocalRandom.current().nextInt(1, HAS_TADPOLE ? 6 : 5) : matchedPattern;
+		pattern = (matchedPattern == 0) ? ThreadLocalRandom.current().nextInt(1, PATTERNS.size()) : matchedPattern;
 		return true;
 	}
 
@@ -70,7 +71,7 @@ public class FishData extends EntityData<Fish> {
 		int matchedPattern = getInitPattern(e);
 		if (matchedPattern == 0)
 			wildcard = true;
-		pattern = (matchedPattern == 0) ? ThreadLocalRandom.current().nextInt(1, HAS_TADPOLE ? 6 : 5) : matchedPattern;
+		pattern = (matchedPattern == 0) ? ThreadLocalRandom.current().nextInt(1, PATTERNS.size()) : matchedPattern;
 		return true;
 	}
 
