@@ -23,7 +23,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -77,7 +77,7 @@ public class CondIsOfType extends Condition {
 							} else if (o2 instanceof EntityData && o1 instanceof Entity) {
 								return ((EntityData<?>) o2).isInstance((Entity) o1);
 							} else if (o2 instanceof ItemType && o1 instanceof Entity) {
-								return Relation.EQUAL.is(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity((Entity) o1), (ItemType) o2));
+								return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity((Entity) o1), (ItemType) o2));
 							} else {
 								return false;
 							}

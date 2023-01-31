@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Heal Reason")
-@Description("The <a href='../classes.html#healreason'>heal reason</a> of a heal event. Please click on the link for more information.")
+@Description("The <a href='./classes.html#healreason'>heal reason</a> of a heal event. Please click on the link for more information.")
 @Examples({"on heal:",
 	"\tif heal reason = satiated:",
 	"\t\tsend \"You ate enough food and gained health back!\" to player"})

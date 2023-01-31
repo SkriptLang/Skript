@@ -18,11 +18,22 @@
  */
 package ch.njol.skript.lang;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.conditions.CondIsSet;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -276,6 +287,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 */
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode);
+
+	/**
+	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
+	 * @return A Map contains ChangeMode as the key and accepted types of that mode as the value
+	 */
+	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
+		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
+		for (ChangeMode cm : ChangeMode.values()) {
+			Class<?>[] ac = acceptChange(cm);
+			if (ac != null)
+				map.put(cm, ac);
+		}
+		return map;
+	}
 	
 	/**
 	 * Changes the expression's value by the given amount. This will only be called on supported modes and with the desired <code>delta</code> type as returned by
