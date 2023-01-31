@@ -330,7 +330,7 @@ final class VariablesMap {
 	 *
 	 * @return the copy.
 	 */
-    public VariablesMap copy() {
+	public VariablesMap copy() {
 		VariablesMap copy = new VariablesMap();
 
 		copy.hashMap.putAll(hashMap);
@@ -339,7 +339,7 @@ final class VariablesMap {
 		copy.treeMap.putAll(treeMapCopy);
 
 		return copy;
-    }
+	}
 
 	/**
 	 * Makes a deep copy of the given {@link TreeMap}.

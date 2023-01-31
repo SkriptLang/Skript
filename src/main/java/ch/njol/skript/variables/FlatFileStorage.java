@@ -162,11 +162,11 @@ public class FlatFileStorage extends VariablesStorage {
 		Version v2_1 = new Version(2, 1);
 		boolean update2_1 = false;
 
-		try (BufferedReader r = new BufferedReader(
+		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
 			String line;
 			int lineNum = 0;
-			while ((line = r.readLine()) != null) {
+			while ((line = reader.readLine()) != null) {
 				lineNum++;
 
 				line = line.trim();
@@ -237,7 +237,8 @@ public class FlatFileStorage extends VariablesStorage {
 		if (ioException != null || unsuccessfulVariableCount > 0 || update2_1) {
 			// Something's wrong (or just an old version)
 			if (unsuccessfulVariableCount > 0) {
-				Skript.error(unsuccessfulVariableCount + " variable" + (unsuccessfulVariableCount == 1 ? "" : "s") + " could not be loaded!");
+				Skript.error(unsuccessfulVariableCount + " variable" + (unsuccessfulVariableCount == 1 ? "" : "s") +
+						" could not be loaded!");
 				Skript.error("Affected variables: " + invalid.toString());
 			}
 
@@ -273,6 +274,8 @@ public class FlatFileStorage extends VariablesStorage {
 		saveTask = new Task(Skript.getInstance(), SAVE_TASK_DELAY, SAVE_TASK_PERIOD, true) {
 			@Override
 			public void run() {
+				// Due to concurrency, the amount of changes may change between the get and set call
+				//  but that's not a big issue
 				if (changes.get() >= REQUIRED_CHANGES_FOR_RESAVE) {
 					saveVariables(false);
 					changes.set(0);
@@ -472,7 +475,7 @@ public class FlatFileStorage extends VariablesStorage {
 	@SuppressWarnings("unchecked")
 	private void save(PrintWriter pw, String parent, TreeMap<String, Object> map) {
 		// Iterate over all children
-		outer: for (Entry<String, Object> childEntry : map.entrySet()) {
+		for (Entry<String, Object> childEntry : map.entrySet()) {
 			Object childNode = childEntry.getValue();
 			String childKey = childEntry.getKey();
 
@@ -499,7 +502,7 @@ public class FlatFileStorage extends VariablesStorage {
 									writeCSV(pw, name, serializedValue.type, encode(serializedValue.data));
 							}
 
-							continue outer;
+							break;
 						}
 					}
 				} catch (Exception ex) {
