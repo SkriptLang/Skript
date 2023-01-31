@@ -29,7 +29,7 @@ public class SerializedVariable {
 	/**
 	 * The name of the variable.
 	 */
-	public String name;
+	public final String name;
 
 	/**
 	 * The serialized value of the variable.
@@ -37,7 +37,7 @@ public class SerializedVariable {
 	 * A value of {@code null} indicates the variable will be deleted.
 	 */
 	@Nullable
-	public Value value;
+	public final Value value;
 
 	/**
 	 * Creates a new serialized variable with the given name and value.
@@ -58,12 +58,12 @@ public class SerializedVariable {
 		/**
 		 * The type of this value.
 		 */
-		public String type;
+		public final String type;
 
 		/**
 		 * The serialized value data.
 		 */
-		public byte[] data;
+		public final byte[] data;
 
 		/**
 		 * Creates a new serialized value.
