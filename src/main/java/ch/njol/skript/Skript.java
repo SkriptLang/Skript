@@ -22,7 +22,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import org.skriptlang.skript.lang.comparator.Comparator;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
@@ -60,7 +60,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.comparator.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.tests.runner.SkriptTestEvent;
 import ch.njol.skript.tests.runner.TestMode;
@@ -425,8 +425,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
 							&& e.getName().startsWith("lang/")
-							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
+							&& !e.getName().endsWith("default.lang")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
@@ -1221,7 +1220,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static void stopAcceptingRegistrations() {
 		acceptRegistrations = false;
 		
-		Converters.createMissingConverters();
+		Converters.createChainedConverters();
 		
 		Classes.onRegistrationsStop();
 	}
