@@ -56,10 +56,11 @@ public abstract class SkriptEvent extends Structure {
 	@Nullable
 	protected EventPriority eventPriority;
 	private SkriptEventInfo<?> skriptEventInfo;
-	@Nullable
-	private List<TriggerItem> items;
-	@Nullable
-	private Trigger trigger;
+
+	/**
+	 * The Trigger containing this SkriptEvent's code.
+	 */
+	protected Trigger trigger;
 
 	@Override
 	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
@@ -106,6 +107,16 @@ public abstract class SkriptEvent extends Structure {
 	 * Only override this method if you know what you are doing!
 	 */
 	@Override
+	public boolean preLoad() {
+		// Implemented just for javadoc
+		return super.preLoad();
+	}
+
+	/**
+	 * This method handles the loading of the Structure's syntax elements.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
 	public boolean load() {
 		if (!shouldLoadEvent())
 			return false;
@@ -119,7 +130,13 @@ public abstract class SkriptEvent extends Structure {
 		try {
 			getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), eventClasses);
 
-			items = ScriptLoader.loadItems(source);
+			@Nullable List<TriggerItem> items = ScriptLoader.loadItems(source);
+			Script script = getParser().getCurrentScript();
+
+			trigger = new Trigger(script, expr, this, items);
+			int lineNumber = getEntryContainer().getSource().getLine();
+			trigger.setLineNumber(lineNumber); // Set line number for debugging
+			trigger.setDebugLabel(script + ": line " + lineNumber);
 		} finally {
 			getParser().deleteCurrentEvent();
 		}
@@ -133,28 +150,7 @@ public abstract class SkriptEvent extends Structure {
 	 */
 	@Override
 	public boolean postLoad() {
-		getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), getEventClasses());
-
-		Script script = getParser().getCurrentScript();
-
-		try {
-			assert items != null; // This method will only be called if 'load' was successful, meaning 'items' will be set
-			trigger = new Trigger(script, expr, this, items);
-			int lineNumber = getEntryContainer().getSource().getLine();
-			trigger.setLineNumber(lineNumber); // Set line number for debugging
-			trigger.setDebugLabel(script + ": line " + lineNumber);
-		} finally {
-			getParser().deleteCurrentEvent();
-		}
-
-		if (this instanceof SelfRegisteringSkriptEvent) {
-			((SelfRegisteringSkriptEvent) this).register(trigger);
-		} else {
-			SkriptEventHandler.registerBukkitEvents(trigger, getEventClasses());
-		}
-
-		getParser().deleteCurrentEvent();
-
+		SkriptEventHandler.registerBukkitEvents(trigger, getEventClasses());
 		return true;
 	}
 
@@ -164,14 +160,17 @@ public abstract class SkriptEvent extends Structure {
 	 */
 	@Override
 	public void unload() {
-		if (trigger == null)
-			return;
+		SkriptEventHandler.unregisterBukkitEvents(trigger);
+	}
 
-		if (this instanceof SelfRegisteringSkriptEvent) {
-			((SelfRegisteringSkriptEvent) this).unregister(trigger);
-		} else {
-			SkriptEventHandler.unregisterBukkitEvents(trigger);
-		}
+	/**
+	 * This method handles the unregistration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public void postUnload() {
+		// Implemented just for javadoc
+		super.postUnload();
 	}
 
 	@Override
@@ -184,7 +183,7 @@ public abstract class SkriptEvent extends Structure {
 	 * will only be called for events this SkriptEvent is registered for.
 	 * @return true if this is SkriptEvent is represented by the Bukkit Event or false if not
 	 */
-	public abstract boolean check(Event e);
+	public abstract boolean check(Event event);
 
 	/**
 	 * Script loader checks this before loading items in event. If false is
