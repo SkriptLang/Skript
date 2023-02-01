@@ -30,6 +30,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Kleenean;
 
+import java.util.Arrays;
+
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
  * {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult) init()}.
@@ -75,7 +77,8 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	
 	@Override
 	public final T[] getAll(final Event e) {
-		return get(e, expr.getAll(e));
+		T[] result = get(e, expr.getAll(e));
+		return Arrays.copyOf(result, result.length);
 	}
 	
 	/**
