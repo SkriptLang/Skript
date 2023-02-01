@@ -8,7 +8,7 @@ This Github fork of Skript is based on Mirreski's improvements which was built
 on Njol's original Skript.
 
 ## Requirements
-Skript requires **Spigot** to work. You heard it right, Bukkit does *not* work.
+Skript requires **Spigot** to work. You heard it right, **CraftBukkit** does *not* work.
 **Paper**, which is a fork of Spigot, is recommended; it is required for some
 parts of Skript to be available.
 
