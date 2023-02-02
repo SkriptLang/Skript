@@ -28,7 +28,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -123,7 +123,9 @@ public class FunctionReference<T> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, script);
+		Signature<?> sign = Functions.getLocalSignature(functionName, script);
+		if (sign == null)
+			sign = Functions.getGlobalSignature(functionName);
 		
 		// Check if the requested function exists
 		if (sign == null) {
@@ -267,7 +269,10 @@ public class FunctionReference<T> {
 	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) Functions.getLocalFunction(functionName, script);
+		
+		if (function == null)
+			function = (Function<? extends T>) Functions.getGlobalFunction(functionName);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
