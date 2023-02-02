@@ -40,7 +40,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Whitelist")
-@Description({"A server's whitelist." +
+@Description({
+	"A server's whitelist or whitelist enforcement.",
 	"This expression can be used to add/remove players to/from the whitelist.",
 	"To enable and disable it (set whitelist to true / set whitelist to false), and to empty it (reset whitelist)",
 	"To enable and disable enforcement (set whitelist enforcement to true / set whitelist enforcement to false),",
@@ -70,7 +71,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	protected OfflinePlayer[] get(Event e) {
+	protected OfflinePlayer[] get(Event event) {
 		return (!isEnforce ? Bukkit.getServer().getWhitelistedPlayers().toArray(new OfflinePlayer[0]) : new OfflinePlayer[0]);
 	}
 
@@ -93,7 +94,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
 			case SET:
 				boolean value = (boolean) delta[0];
@@ -143,7 +144,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "whitelist" + (isEnforce ? " enforcement" : "");
 	}
 

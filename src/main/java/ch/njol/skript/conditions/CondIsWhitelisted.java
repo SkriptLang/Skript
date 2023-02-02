@@ -74,15 +74,15 @@ public class CondIsWhitelisted extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
+	public boolean check(Event event) {
 		if (isServer)
 			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
 
-		return player.check(e, OfflinePlayer::isWhitelisted, isNegated());
+		return player.check(event, OfflinePlayer::isWhitelisted, isNegated());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (isServer ? "server" : "player") + " is " + (isNegated() ? "not" : "") + " "
 			+ (isEnforce ? "whitelist enforced" : "whitelisted");
 	}
