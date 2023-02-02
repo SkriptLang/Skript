@@ -82,10 +82,9 @@ public class StructCommand extends Structure {
 
 	public static final Priority PRIORITY = new Priority(500);
 
-	private static final Pattern
-		COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$"),
-		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
-		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$");
+	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>");
+	private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
