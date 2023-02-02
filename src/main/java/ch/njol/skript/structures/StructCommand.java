@@ -184,7 +184,10 @@ public class StructCommand extends Structure {
 
 		Matcher matcher = COMMAND_PATTERN.matcher(fullCommand);
 		boolean matches = matcher.matches();
-		assert matches;
+		if (!matches) {
+			Skript.error("Invalid command structure pattern");
+			return false;
+		}
 
 		String command = matcher.group(1).toLowerCase();
 		ScriptCommand existingCommand = Commands.getScriptCommand(command);
