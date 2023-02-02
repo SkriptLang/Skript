@@ -18,38 +18,6 @@
  */
 package ch.njol.skript.aliases;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemFactory;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.inventory.meta.SpawnEggMeta;
-import org.bukkit.potion.PotionData;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
@@ -59,6 +27,28 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
@@ -79,36 +69,15 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	static final ItemFactory itemFactory = Bukkit.getServer().getItemFactory();
 	
-	static final MaterialRegistry materialRegistry;
-	
 	// Load or create material registry
 	static {
-		Gson gson = new GsonBuilder().registerTypeAdapterFactory(EnumTypeAdapter.factory).serializeNulls().create();
 		Path materialsFile = Paths.get(Skript.getInstance().getDataFolder().getAbsolutePath(), "materials.json");
 		if (Files.exists(materialsFile)) {
-			String content = null;
 			try {
-				content = new String(Files.readAllBytes(materialsFile), StandardCharsets.UTF_8);
+				Files.delete(materialsFile);
 			} catch (IOException e) {
-				Skript.exception(e, "Loading material registry failed!");
+				Skript.exception(e, "Failed to remove legacy material registry file!");
 			}
-			if (content != null) {
-				String[] names = gson.fromJson(content, String[].class);
-				assert names != null;
-				materialRegistry = MaterialRegistry.load(names);
-			} else {
-				materialRegistry = new MaterialRegistry();
-			}
-		} else {
-			materialRegistry = new MaterialRegistry();
-		}
-		
-		// Always rewrite material registry, in case some updates got applied to it
-		String content = gson.toJson(materialRegistry.getMaterials());
-		try {
-			Files.write(materialsFile, content.getBytes(StandardCharsets.UTF_8));
-		} catch (IOException e) {
-			Skript.exception(e, "Saving material registry failed!");
 		}
 	}
 	
@@ -142,7 +111,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 * allow comparing it against other blocks.
 	 */
 	@Nullable
-	transient BlockValues blockValues;
+	BlockValues blockValues;
 	
 	/**
 	 * Whether this represents an item (that definitely cannot have
@@ -399,8 +368,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	/**
 	 * Compares {@link ItemMeta}s for {@link #matchAlias(ItemData)}.
-	 * Note that this does NOT compare everything; only the most
-	 * important bits.
+	 * Note that this method assumes the metas are coming from similar types.
 	 * @param first Meta of this item.
 	 * @param second Meta of given item.
 	 * @return Match quality of metas.
@@ -445,30 +413,22 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			if (!newQuality.isBetter(quality))
 				quality = newQuality;
 		}
-		
-		// Potion data
-		if (second instanceof PotionMeta) {
-			if (!(first instanceof PotionMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a potion, first is clearly not
-			}
-			// Compare potion type, including extended and level 2 attributes
-			PotionData ourPotion = ((PotionMeta) first).getBasePotionData();
-			PotionData theirPotion = ((PotionMeta) second).getBasePotionData();
-			return !Objects.equals(ourPotion, theirPotion) ? MatchQuality.SAME_MATERIAL : quality;
-		}
 
-		// Skull owner
-		if (second instanceof SkullMeta) {
-			if (!(first instanceof SkullMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a skull, first is clearly not
-			}
-			// Compare skull owners
-			OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
-			OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
-			return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-		}
-		
-		return quality;
+		// awful but we have to make these values the same so that they don't matter for comparison
+		second = second.clone(); // don't actually change it
+
+		second.setDisplayName(ourName); // set our name
+		second.setLore(ourLore); // set our lore
+		for (Enchantment theirEnchant : theirEnchants.keySet()) // remove their enchants
+			second.removeEnchant(theirEnchant);
+		for (Entry<Enchantment, Integer> ourEnchant : ourEnchants.entrySet()) // add our enchants
+			second.addEnchant(ourEnchant.getKey(), ourEnchant.getValue(), true);
+		for (ItemFlag theirFlag : theirFlags) // remove their flags
+			second.removeItemFlags(theirFlag);
+		for (ItemFlag ourFlag : ourFlags) // add our flags
+			second.addItemFlags(ourFlag);
+
+		return first.equals(second) ? quality : MatchQuality.SAME_MATERIAL;
 	}
 	
 	/**
@@ -590,20 +550,23 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		Fields fields = new Fields(this); // ItemStack is transient, will be ignored
-		fields.putPrimitive("id", materialRegistry.getId(type));
+		fields.putPrimitive("id", type.ordinal());
 		fields.putObject("meta", stack.getItemMeta());
 		return fields;
 	}
 
+	private static final Material[] materials = Material.values();
+
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-		this.type = materialRegistry.getMaterial(fields.getAndRemovePrimitive("id", int.class));
+		this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
 		ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
-		fields.setFields(this); // Everything but ItemStack and Material
-		
+
 		// Initialize ItemStack
 		this.stack = new ItemStack(type);
 		stack.setItemMeta(meta); // Just set meta to it
+
+		fields.setFields(this); // Everything but ItemStack and Material
 	}
 	
 	/**

@@ -96,5 +96,14 @@ public class ItemUtils {
 		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
 			&& is1.getItemMeta().equals(is2.getItemMeta());
 	}
+
+	// Only 1.15 and versions after have Material#isAir method
+	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
+
+	public static boolean isAir(Material type) {
+		if (IS_AIR_EXISTS)
+			return type.isAir();
+		return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+	}
 	
 }
