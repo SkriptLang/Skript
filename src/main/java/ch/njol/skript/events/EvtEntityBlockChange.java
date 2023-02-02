@@ -40,15 +40,15 @@ public class EvtEntityBlockChange extends SkriptEvent {
 	static {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
 			.description(
-				"Called when an enderman places or picks up a block, a sheep eats grass, " +
-				"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
+					"Called when an enderman places or picks up a block, a sheep eats grass, " +
+					"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
 			).examples(
-				"on sheep eat:",
-				"\tkill entity",
-				"\tbroadcast \"A sheep stole some grass!\"",
-				"on falling block land:",
-				"\tif event-entity is a falling dirt:",
-				"\t\tcancel event"
+					"on sheep eat:",
+					"\tkill entity",
+					"\tbroadcast \"A sheep stole some grass!\"",
+					"on falling block land:",
+					"\tif event-entity is a falling dirt:",
+					"\t\tcancel event"
 			).since("<i>unknown</i>, 2.5.2 (falling block)");
 	}
 	
