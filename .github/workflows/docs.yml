@@ -55,5 +55,5 @@ jobs:
                 git config user.email "nightlydocs@skriptlang.org"
                 git config user.name "Nightly Doc Bot"
                 git add docs/nightly
-                git commit -m "Update nightly docs"
+                git commit -m "Update nightly docs" || (echo "Nothing to push!" && exit 0)
                 git push origin main
