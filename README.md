@@ -1,4 +1,4 @@
-![Skript Language](https://user-images.githubusercontent.com/20037329/216742600-d328dc7d-75c7-4111-923c-f4c7f48e1a63.jpg)
+![Skript Language](.github/assets/Cover.jpg)
 
 ---
 
