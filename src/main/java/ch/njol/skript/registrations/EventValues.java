@@ -27,7 +27,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.util.Getter;
 

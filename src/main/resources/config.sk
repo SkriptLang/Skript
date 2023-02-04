@@ -31,11 +31,11 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently English, German, Korean, French and Polish are included in the download, but custom languages can be created as well.
+# Which language to use. Currently English, German, Korean, French, Polish, Japanese and Simplified Chinese
+# are included in the download, but custom languages can be created as well. Use the name in lowercase and no spaces as the value.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
 # (open the jar as zip or rename it to Skript.zip to access it)
-
 
 check for new version: true
 # Whether Skript should check for whether a new version of Skript is available when the server starts.
@@ -325,7 +325,7 @@ databases:
 
 # ==== Settings that should not be changed ====
 
-version: ${project.version}
+version: @version@
 # DO NOT CHANGE THIS VALUE MANUALLY!
 # This saves for which version of Skript this configuration was written for.
 # If it does not match the version of the .jar file then the config will be updated automatically.

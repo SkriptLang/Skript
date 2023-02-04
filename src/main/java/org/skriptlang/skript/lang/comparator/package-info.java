@@ -16,12 +16,8 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-/**
- * @author Peter Güttinger
- */
 @NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
-package ch.njol.skript.events.util;
+package org.skriptlang.skript.lang.comparator;
 
 import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-
