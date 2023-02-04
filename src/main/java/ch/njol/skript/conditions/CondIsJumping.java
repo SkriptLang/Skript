@@ -50,12 +50,11 @@ public class CondIsJumping extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		super.init(exprs, matchedPattern, isDelayed, parseResult);
 		if (Player.class.isAssignableFrom(exprs[0].getReturnType())) {
 			Skript.error("This condition only works on mobs.");
 			return false;
 		}
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -67,4 +66,5 @@ public class CondIsJumping extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return "jumping";
 	}
+
 }
