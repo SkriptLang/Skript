@@ -62,23 +62,21 @@ public class ExprBreakSpeed extends SimpleExpression<Float> {
 	}
 
 	private Expression<Block> block;
-	private Expression<Player> player;
+	private Expression<Player> players;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		block = (Expression<Block>) exprs[0];
-		player = (Expression<Player>) exprs[1];
+		players = (Expression<Player>) exprs[1];
 		return true;
 	}
 
 	@Override
 	@Nullable
 	protected Float[] get(Event event) {
-		Block[] blocks = this.block.getArray(event);
-		Player[] players = this.player.getArray(event);
 		ArrayList<Float> speeds = new ArrayList<>();
-		for (Block block : blocks) {
-			for (Player player : players) {
+		for (Block block : this.block.getArray(event)) {
+			for (Player player : this.players.getArray(event)) {
 				speeds.add(block.getBreakSpeed(player));
 			}
 		}
@@ -98,6 +96,6 @@ public class ExprBreakSpeed extends SimpleExpression<Float> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "break speed of " + block.toString(event, debug) + " for " + player.toString(event, debug);
+		return "break speed of " + block.toString(event, debug) + " for " + players.toString(event, debug);
 	}
 }
