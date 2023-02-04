@@ -34,10 +34,11 @@ jobs:
                   DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
               run: |
                 eval `ssh-agent`
-                DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}/"
+                DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}"
+                rm -r ${DOC_DIR}/* || true
                 echo "DOC_DIR=${DOC_DIR}" >> $GITHUB_ENV
                 echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
-                echo "SKRIPT_DOCS_OUTPUT_DIR=${DOC_DIR}" >> $GITHUB_ENV
+                echo "SKRIPT_DOCS_OUTPUT_DIR=${DOC_DIR}/" >> $GITHUB_ENV
                 echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
                 mkdir ~/.ssh
                 ssh-keyscan www.github.com >> ~/.ssh/known_hosts
@@ -54,5 +55,5 @@ jobs:
                 git config user.email "nightlydocs@skriptlang.org"
                 git config user.name "Nightly Doc Bot"
                 git add docs/nightly
-                git commit -m "Update nightly docs"
+                git commit -m "Update nightly docs" || (echo "Nothing to push!" && exit 0)
                 git push origin main
