@@ -55,12 +55,12 @@ public class CondIsNamed extends Condition {
 
 	@Nullable
 	private Expression<String> name;
-	private Expression<Object> objects;
-	private boolean caseSensitive = false;
+	private Expression<?> objects;
+	private static final boolean caseSensitive = SkriptConfig.caseSensitive.value();
 	private static final ExprName exprName = new ExprName();
 
 	static {
-		PropertyCondition.register(CondIsNamed.class, PropertyType.BE, "named [%-string%]", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds");
+		PropertyCondition.register(CondIsNamed.class, "named [%-string%]", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds");
 	}
 
 	@Override
@@ -68,7 +68,6 @@ public class CondIsNamed extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		objects = (Expression<Object>) exprs[0];
 		name = (Expression<String>) exprs[1];
-		caseSensitive = SkriptConfig.caseSensitive.value();
 		parseResult.mark = 1;
 		exprName.init(exprs, 0, isDelayed, parseResult);
 		setNegated(matchedPattern == 1);
