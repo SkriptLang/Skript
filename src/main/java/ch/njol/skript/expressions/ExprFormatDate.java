@@ -47,7 +47,7 @@ import ch.njol.util.Kleenean;
 	"command /date:",
 	"\ttrigger:",
 	"\t\tsend \"Full date: %now formatted human-readable%\" to sender",
-	"\t\tsend \"Short date: %now formatted as \"\"yyyy-MM-dd\"\"%\" to sender"
+	"\t\tsend \"Short date: %now formatted as \"yyyy-MM-dd\"%\" to sender"
 })
 @Since("2.2-dev31, INSERT VERSION (support variables in format)")
 public class ExprFormatDate extends PropertyExpression<Date, String> {
