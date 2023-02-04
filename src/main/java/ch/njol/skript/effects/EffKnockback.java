@@ -74,7 +74,7 @@ public class EffKnockback extends Effect {
 		double strength = this.strength != null ? this.strength.getOptionalSingle(event).orElse(1).doubleValue() : 1.0;
 
 		for (LivingEntity livingEntity : entities.getArray(event)) {
-			final Vector directionVector = direction.getDirection(livingEntity);
+			Vector directionVector = direction.getDirection(livingEntity);
 			// Flip the direction, because LivingEntity#knockback() takes the direction of the source of the knockback,
 			// not the direction of the actual knockback.
 			directionVector.multiply(-1);
