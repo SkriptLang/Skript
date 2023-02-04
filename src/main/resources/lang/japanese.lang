@@ -1,0 +1,190 @@
+# Default Japanese language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ created by & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] # not used
+	quotes error: クオーテーション(")の使い方が正しくありません。 クオーテーションをテキストに対して使用したい場合 "このように" ２つの "" で囲ってください。
+	brackets error: セクションが正しく閉じられていません。 カッコの配置か量を見直してみてください。
+	invalid reload: Skriptの再読み込みは Bukkit側の '/reload' もしくは Skript側の '/skript reload' でのみ再読み込みが可能です。
+	no scripts: スクリプトが見つかりませんでした。 新しく書いてみてはいかがでしょうか。
+	no errors: 全てのスクリプトはエラー無しでロードされました。
+	scripts loaded: %s 個のスクリプトが読み込まれ %s 個の構造体が %s 個の中から読み込まれました。
+	finished loading: 読み込みが完了しました。
+
+# -- Skript command --
+skript command:
+	usage: 使用方法:
+	help:
+		description: Skriptのメインコマンドです。
+		help: このメッセージを表示します。 '/skript reload/enable/disable/update' を使用してより詳細な情報を入手できます。
+		reload:
+			description: 指定されたスクリプト, 全てのスクリプト, コンフィグ, または全てを再読み込みします。
+			all: コンフィグ, 全てのエイリアス設定, 全てのスクリプトを再読み込みします。
+			config: コンフィグを再読み込みします。
+			aliases: 全てのエイリアス設定を再読み込みします。 (aliases-english.zip もしくは plugin jar)
+			scripts: 全てのスクリプトを再読み込みします。
+			<script>: 特定のスクリプト、もしくはフォルダ内のスクリプトを再読み込みします。
+		enable:
+			description: 指定されたスクリプト、もしくは全てのスクリプトを有効化します。
+			all: 全てのスクリプトを有効化します。
+			<script>: 特定のスクリプト、もしくはフォルダ内のスクリプトを有効化します。
+		disable:
+			description: 指定されたスクリプト、もしくは全てのスクリプトを無効化します。
+			all: 全てのスクリプトを無効化します。
+			<script>: 特定のスクリプト、もしくはフォルダ内のスクリプトを無効化します。
+		update:
+			description: アップデートのチェック, 変更履歴を見る, もしくは最新バージョンのSkriptをダウンロードします。
+			check: 新しいバージョンが存在するか確認します。
+			changes: 現在のバージョンとの変更点を表示します。
+			download: 最新バージョンをダウンロードします。
+		info: Skriptのエイリアスとドキュメントをリンク付きで表示します。
+		gen-docs: pluginフォルダ内にテンプレートを使用してドキュメントを生成します。
+		test: 内部テストを実行するために使用します。
+
+	invalid script: 指定されたスクリプト <grey>'<gold>%s<grey>'<red> はscriptsフォルダ内では見つかりませんでした！
+	invalid folder: 指定されたフォルダ <grey>'<gold>%s<grey>'<red> はscriptsフォルダ内では見つかりませんでした！
+	reload:
+		warning line info: <gold><bold>%s行目:<gray> (%s)<reset>\n
+		error line info: <light red><bold>%s行目:<gray> (%s)<reset>\n
+		reloading: <gold>%s<reset>を読み込み中...
+		reloaded: <gold>%s<lime>の読み込みに成功しました。<gray>(<gold>%2$sms<gray>)
+		error: <gold>%2$s <light red>個のエラーが<gold>%1$s<light red>の読み込み中に発見されました！ <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset>は現在無効化されています。<gray>/<gold>skript <cyan>enable <red>%s<reset>を使用して有効化できます。
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    該当部分: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: コンフィグ, エイリアスと全てのスクリプト
+		scripts: 全てのスクリプト
+		main config: コンフィグ
+		aliases: エイリアス
+		script: <gold>%s<reset>
+		scripts in folder: <gold>%s<reset>フォルダ内の全てのスクリプト
+		x scripts in folder: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプト
+		empty folder: 有効化されたスクリプトが<gold>%s<reset>フォルダ内にありませんでした。
+	enable:
+		all:
+			enabling: 無効化された全てのスクリプトを有効化しています...
+			enabled: 全ての無効化されていたスクリプトの解析・有効化に成功しました。
+			error: 解析中に%s個のエラーが見つかりました！
+			io error: 一つもしくは複数のスクリプトがロードできませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に有効化されます: %s
+		single:
+			already enabled: <gold>%s<reset>はすでに有効化されています! もし変更を反映したい場合は<gray>/<gold>skript <cyan>reload <red>%s<reset>を使用して再読み込みします。
+			enabling: <gold>%s<reset>を有効化しています...
+			enabled: <gold>%s<reset>の解析・有効化に成功しました。
+			error: <gold>%1$s<red>を解析中に%2$s個のエラーが見つかりました！
+			io error: <gold>%s<red>は有効化できませんでした。: %s
+		folder:
+			empty: <gold>%s<reset>フォルダ内に無効化されたスクリプトが見つかりませんでした。
+			enabling: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトを有効化しています...
+			enabled: <gold>%1$s<reset>フォルダ内にある無効化されていた<gold>%2$s<reset>の解析・有効化に成功しました。
+			error: <gold>%1$s<red>フォルダ内のスクリプトを解析中に%2$s個のエラーが見つかりました！
+			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのロード時にエラーが発生しました。 (一部のスクリプトはサーバー再起動時に有効になる場合があります): %s
+	disable:
+		all:
+			disabled: 全てのスクリプトの無効化に成功しました。
+			io error: 一つもしくは複数のスクリプトのファイル名を変更できませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に無効化されます: %s
+		single:
+			already disabled: <gold>%s<reset>はすでに無効化されています！
+			disabled: <gold>%s<reset>の無効化に成功しました。
+			io error: <gold>%s<red>のファイル名の変更ができませんでした。 サーバー再起動時に再度有効化されます: %s
+		folder:
+			empty: <gold>%s<reset>フォルダ内に有効化されたスクリプトが見つかりませんでした。
+			disabled: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトが無効化されました。
+			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのファイル名を変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): %s
+	update:
+		# check/download: Upadater をご確認ください
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r>個のアップデートが 現在のSkriptバージョン (<gold>%s<r>) に存在します:
+			# 	footer: このバージョンの変更履歴を確認したい場合は<gold>/skript update changes <version><reset>を実行してください。
+			# invalid version: バージョン<gold>%s<red>の変更履歴はありません。
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>(%s/%s) <gold>/skript update changes %s<gray> で次のページを表示します。 (ヒント: 上矢印キーを押すと良いかもしれません)
+	info:
+		aliases: Skriptのエイリアス一覧はこちらからご覧いただけます: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skriptのドキュメントはこちらからご覧いただけます: <aqua>https://docs.skriptlang.org/
+		tutorials: Skriptのチュートリアルはこちらからご覧いただけます: <aqua>https://docs.skriptlang.org/tutorials
+		version: Skriptのバージョン: <aqua>%s
+		server: サーバーのバージョン: <aqua>%s
+		addons: インストール済みのSkriptアドオン: <aqua>%s
+		dependencies: インストール済みの依存関係: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skriptは最新バージョンの確認をしていません。 確認をするには<gold>/skript update check<reset>を使用してください。
+	checking: Skriptの最新バージョンを確認中...
+	check in progress: 最新バージョンは現在確認中です。
+	updater disabled: 更新が無効化されているため、Skriptの最新バージョンの確認は行われませんでした。
+	check error: <red>Skriptの最新バージョンの確認中にエラーが発生しました:<light red> %s
+	running latest version: 最新安定版のSkriptが動作しています。
+	running latest version (beta): <i>ベータ版<r>のSkriptが動作しています。 また新しい<i>安定版<r>のSkriptはありません。 新しいベータ版へのアップデートは手動で行う必要があるためご注意ください！
+	update available: 新しいバージョンのSkriptが存在します: <gold>%s<reset> (現在は<gold>%s<reset>が動作しています。)
+	downloading: Skript <gold>%s<reset>をダウンロード中...
+	download in progress: Skriptの最新バージョンは現在ダウンロード中です。
+	download error: <red>Skriptの最新バージョンをダウンロード中にエラーが発生しました:<light red> %s
+	downloaded: Skriptの最新バージョンがダウンロードされました！ サーバーを再起動、または/reloadを使用し更新を適用してください。
+	internal error: 内部エラーが発生したためSkriptの最新バージョンの確認に失敗しました。 詳細はサーバーログをご確認ください。
+	custom version: カスタマイズされたSkriptが動作しています。 アップデートは自動的にインストールされません。
+	nightly build: 開発版のSkriptが動作しています。 アップデートは自動的にインストールされません。
+
+# -- Commands --
+commands:
+	no permission message: このコマンドを使用するための権限がありません。
+	cooldown message: このコマンドを使用しすぎたため現在使用できません、時間を開けて再度お試しください。
+	executable by players: このコマンドはプレイヤーのみ実行できます。
+	executable by console: このコマンドはコンソールのみ実行できます。
+	correct usage: 使用方法:
+	invalid argument: 引数<gray>'%s<gray>'<reset>は使用できません。 使用可能な引数:
+	too many arguments: このコマンドは引数%2$sのみ使用できます。
+	internal error: このコマンドを実行中に内部エラーが発生しました。
+	no player starts with: '%s'で始まるプレイヤーが見つかりませんでした。
+	multiple players start with: '%s'で始まるプレイヤーが複数存在します。
+
+# -- Hooks --
+hooks:
+	hooked: %sのフックに成功しました。
+	error: %1$sのフックに失敗しました。 Skriptが%1$sのバージョンをサポートしていない場合に発生する可能性があります。
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: ''はitem typeではありません。
+	invalid item type: '%s'はitem typeではありません。
+	empty name: エイリアスは名前を付ける必要があります。
+	brackets error: カッコの使い方が間違っています。
+	not enough brackets:  %s ('%s')で始まったセクションは閉じる必要があります。
+	too many brackets: %s ('%s')は存在しないセクションを閉じています。
+	unknown variation: %sは定義されていません。
+	missing aliases: 以下のIDのエイリアスは定義されていません:
+	empty alias: %sは空の値です。
+	invalid minecraft id: %sは有効なMinecraft IDではありません。
+	useless variation: VariationにMinecraft IDまたはタグが指定されていないため使用できません。
+	invalid tags: 指定されたタグは有効なJSONに定義されていません。
+	unexpected section: このセクションはここでは使用できません。
+	invalid variation section: このセクションはvariationセクションです。 ですが%sは有効なvariation名ではありません。
+	outside section: エイリアスはセクションに配置する必要があります。
+
+	# Other messages
+	loaded x aliases from: %s のエイリアスを %s からロードしました。
+	loaded x aliases: %s 個のエイリアスをロードしました。
+
+# -- Time --
+time:
+	errors:
+		24 hours: 1日は24時間しかありません。
+		12 hours: 12時間制では12時間以上を指定できません
+		60 minutes: 1時間は60分しかありません
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: %s への接続に失敗しました
+	accessdeniedexception: %s へのアクセスが拒否されました
