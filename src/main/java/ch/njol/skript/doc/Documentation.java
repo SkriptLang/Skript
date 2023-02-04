@@ -80,11 +80,13 @@ public class Documentation {
 	}
 
 	public static File getDocsTemplateDirectory() {
-		return DOCS_TEMPLATE_DIRECTORY;
+		String environmentTemplateDir = System.getenv("SKRIPT_DOCS_TEMPLATE_DIR");
+		return environmentTemplateDir == null ? DOCS_TEMPLATE_DIRECTORY : new File(environmentTemplateDir);
 	}
 
 	public static File getDocsOutputDirectory() {
-		return DOCS_OUTPUT_DIRECTORY;
+		String environmentOutputDir = System.getenv("SKRIPT_DOCS_OUTPUT_DIR");
+		return environmentOutputDir == null ? DOCS_OUTPUT_DIRECTORY : new File(environmentOutputDir);
 	}
 
 	public static void generate() {
@@ -457,7 +459,7 @@ public class Documentation {
 							continue linkLoop;
 					}
 				} else if (s[0].equals("../functions/")) {
-					if (Functions.getFunction("" + s[1], null) != null)
+					if (Functions.getGlobalFunction("" + s[1]) != null)
 						continue;
 				} else {
 					final int i = CollectionUtils.indexOf(urls, s[0].substring("../".length(), s[0].length() - 1));
