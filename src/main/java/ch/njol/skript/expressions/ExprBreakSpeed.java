@@ -34,6 +34,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+
 @Name("Block Break Speed")
 @Description(
 	"Gets the speed at which the given player would break this block, taking into account tools, potion effects, " +
@@ -48,13 +50,13 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("1.17+")
-public class ExprBreakSpeed extends SimpleExpression<Number> {
+public class ExprBreakSpeed extends SimpleExpression<Float> {
 
 	static {
 		if (Skript.methodExists(Block.class, "getBreakSpeed", Player.class)) {
-			Skript.registerExpression(ExprBreakSpeed.class, Number.class, ExpressionType.COMBINED,
-				"[the] break speed [of %block%] [for %player%]",
-				"%block%'[s] break speed [for %player%]"
+			Skript.registerExpression(ExprBreakSpeed.class, Float.class, ExpressionType.COMBINED,
+				"[the] break speed[s] [of %blocks%] [for %players%]",
+				"%block%'[s] break speed[s] [for %players%]"
 			);
 		}
 	}
@@ -70,26 +72,28 @@ public class ExprBreakSpeed extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected @Nullable Number[] get(Event event) {
-		Block block = this.block.getSingle(event);
-		if (block == null)
-			return new Number[0];
+	@Nullable
+	protected Float[] get(Event event) {
+		Block[] blocks = this.block.getArray(event);
+		Player[] players = this.player.getArray(event);
+		ArrayList<Float> speeds = new ArrayList<>();
+		for (Block block : blocks) {
+			for (Player player : players) {
+				speeds.add(block.getBreakSpeed(player));
+			}
+		}
 
-		Player player = this.player.getSingle(event);
-		if (player == null)
-			return new Number[0];
-
-		return new Number[]{block.getBreakSpeed(player)};
+		return speeds.toArray(new Float[0]);
 	}
 
 	@Override
 	public boolean isSingle() {
-		return true;
+		return false;
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Float> getReturnType() {
+		return Float.class;
 	}
 
 	@Override
