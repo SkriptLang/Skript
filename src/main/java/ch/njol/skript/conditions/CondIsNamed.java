@@ -78,8 +78,12 @@ public class CondIsNamed extends Condition {
 	public boolean check(Event event) {
 		String name = this.name != null ? this.name.getSingle(event) : null;
 		return objects.check(event, object -> {
-			String value = exprName.convert(object);
-			return name != null ? StringUtils.equals(name, value, caseSensitive) : value != null;
+			String objectName = exprName.convert(object);
+			if (objectName == null)
+				return false; // return false objectName isn't named
+			else if (name == null)
+				return true; // return true as objectName is confirmed named
+			return StringUtils.equals(name, objectName, caseSensitive); // confirm name is equal to objectName
 		}, isNegated());
 	}
 
