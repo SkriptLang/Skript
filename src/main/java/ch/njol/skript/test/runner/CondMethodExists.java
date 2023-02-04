@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.tests.runner;
+package ch.njol.skript.test.runner;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +50,6 @@ public class CondMethodExists extends PropertyCondition<String> {
 		Skript.registerCondition(CondMethodExists.class, "method[s] %strings% [dont:do(esn't|n't)] exist[s]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> signatures;
 
 	@Override
