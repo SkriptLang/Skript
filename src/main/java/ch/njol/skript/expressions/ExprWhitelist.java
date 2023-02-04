@@ -19,9 +19,9 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.effects.EffEnforceWhitelist;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -30,7 +30,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -41,53 +40,39 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Whitelist")
 @Description({
-	"A server's whitelist or whitelist enforcement.",
+	"A server's whitelist.",
 	"This expression can be used to add/remove players to/from the whitelist.",
-	"To enable and disable it (set whitelist to true / set whitelist to false), and to empty it (reset whitelist)",
-	"To enable and disable enforcement (set whitelist enforcement to true / set whitelist enforcement to false),",
-	"which kicks all non-whitelisted players once set to true."
+	"To enable and disable it (set whitelist to true/false), and to empty it (reset whitelist)"
 })
-@Examples({"set whitelist to false",
+@Examples({
+	"set whitelist to false",
 	"add all players to whitelist",
-	"reset the whitelist"})
-@Since("2.5.2, INSERT VERSION (enforce)")
-@RequiredPlugins("Minecraft 1.17+")
+	"reset the whitelist"
+})
+@Since("2.5.2")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
-	private static final boolean ENFORCE_SUPPORT;
+	private EffEnforceWhitelist effEnforceWhitelist = new EffEnforceWhitelist();
 
 	static {
-		ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "setWhitelistEnforced", boolean.class);
-		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list"
-			+ (ENFORCE_SUPPORT ? " [:enforcement]" : ""));
+		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list");
 	}
-
-	private boolean isEnforce;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isEnforce = parseResult.hasTag("enforcement");
 		return true;
 	}
 
 	@Override
 	protected OfflinePlayer[] get(Event event) {
-		return (!isEnforce ? Bukkit.getServer().getWhitelistedPlayers().toArray(new OfflinePlayer[0]) : new OfflinePlayer[0]);
+		return Bukkit.getServer().getWhitelistedPlayers().toArray(new OfflinePlayer[0]);
 	}
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
-			if (isEnforce) {
-				if (ENFORCE_SUPPORT)
-					Skript.error("\"Whitelist enforcement\" can't have anything " + (mode == ChangeMode.ADD ? "added" : "removed") + "." +
-						" Use 'whitelist' instead.");
-				return null;
-			}
 			return CollectionUtils.array(OfflinePlayer[].class);
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
-			if (mode == ChangeMode.RESET && isEnforce)
-				return null;
 			return CollectionUtils.array(Boolean.class);
 		}
 		return null;
@@ -97,39 +82,24 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		switch (mode) {
 			case SET:
-				boolean value = (boolean) delta[0];
-				if (isEnforce)
-					Bukkit.setWhitelistEnforced(value);
-				else
-					Bukkit.setWhitelist(value);
-				if (ENFORCE_SUPPORT)
-					reloadWhitelist();
+				Bukkit.setWhitelist((Boolean) delta[0]);
+				effEnforceWhitelist.reloadWhitelist();
 				break;
 			case ADD:
-				for (Object p : delta)
-					((OfflinePlayer) p).setWhitelisted(true);
+				for (Object player : delta)
+					((OfflinePlayer) player).setWhitelisted(true);
 				break;
 			case REMOVE:
-				for (Object p : delta)
-					((OfflinePlayer) p).setWhitelisted(false);
-				if (ENFORCE_SUPPORT)
-					reloadWhitelist();
+				for (Object player : delta)
+					((OfflinePlayer) player).setWhitelisted(false);
 				break;
 			case RESET:
-				for (OfflinePlayer p : Bukkit.getWhitelistedPlayers()) {
-					p.setWhitelisted(false);
+				for (OfflinePlayer player : Bukkit.getWhitelistedPlayers()) {
+					player.setWhitelisted(false);
 				}
 				break;
 			default:
 				assert false;
-		}
-	}
-
-	private void reloadWhitelist() {
-		Bukkit.reloadWhitelist();
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (!player.isWhitelisted() && !player.isOp())
-				player.kickPlayer("You are not whitelisted on this server!");
 		}
 	}
 
@@ -145,7 +115,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "whitelist" + (isEnforce ? " enforcement" : "");
+		return "whitelist";
 	}
 
 }

@@ -41,35 +41,33 @@ import ch.njol.util.Kleenean;
 	"if server is whitelisted:",
 	"if server is whitelist enforced:"
 })
-@Since("2.5.2, INSERT VERSION (enforce)")
-@RequiredPlugins("Minecraft 1.17+")
+@Since("2.5.2, INSERT VERSION (enforce, offline players)")
+@RequiredPlugins("Minecraft 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
 
-	private static final boolean ENFORCE_SUPPORT;
+	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
 
 	static {
-		ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
 		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|1¦is(n't| not)) white[ ]listed",
-			"%offlineplayers% (is|are)(|1¦(n't| not)) white[ ]listed",
-			(ENFORCE_SUPPORT ? "[the] server (is|1¦is(n't| not)) white[ ]list enforced" : ""));
+			"[the] server (is|not:(isn't|is not)) white[ ]listed",
+			"%offlineplayers% (is|are)(|not:(isn't|is not)) white[ ]listed",
+			(ENFORCE_SUPPORT ? "[the] white[ ]list (is|not:(isn't|is not)) enforced" : "")
+		);
 	}
 
 	@Nullable
-	private Expression<OfflinePlayer> player;
+	private Expression<OfflinePlayer> players;
 
 	private boolean isServer;
 	private boolean isEnforce;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setNegated(parseResult.mark == 1);
-		if (matchedPattern == 0 || matchedPattern == 2) {
-			isServer = true;
-			isEnforce = matchedPattern == 2;
-		}
-		else if (matchedPattern == 1)
-			player = (Expression<OfflinePlayer>) exprs[0];
+		setNegated(parseResult.hasTag("not"));
+		isServer = matchedPattern != 1;
+		isEnforce = matchedPattern == 2;
+		if (matchedPattern == 1)
+			players = (Expression<OfflinePlayer>) exprs[0];
 		return true;
 	}
 
@@ -77,13 +75,12 @@ public class CondIsWhitelisted extends Condition {
 	public boolean check(Event event) {
 		if (isServer)
 			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
-
-		return player.check(event, OfflinePlayer::isWhitelisted, isNegated());
+		return players.check(event, OfflinePlayer::isWhitelisted, isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isServer ? "server" : "player") + " is " + (isNegated() ? "not" : "") + " "
+		return (players != null ? players.toString(event, debug) : "server") + " is " + (isNegated() ? "not" : "") + " "
 			+ (isEnforce ? "whitelist enforced" : "whitelisted");
 	}
 
