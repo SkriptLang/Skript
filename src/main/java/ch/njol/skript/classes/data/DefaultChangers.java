@@ -204,7 +204,7 @@ public class DefaultChangers {
 						//$FALL-THROUGH$
 					case ADD:
 						assert delta != null;
-						for (final Object d : delta) {
+						for (Object d : delta) {
 							if (d instanceof ItemStack) {
 								new ItemType((ItemStack) d).addTo(invi); // Can't imagine why would be ItemStack, but just in case...
 							} else if (d instanceof ItemType) {
