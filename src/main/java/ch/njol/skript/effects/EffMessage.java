@@ -24,6 +24,7 @@ import java.util.UUID;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.MessageComponent;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -48,7 +49,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
-		"in given string or in <a href=expressions.html#ExprColoured>formatted expressions</a> will be parsed.",
+		"in given string or in <a href=expressions.html#ExprColored>formatted expressions</a> will be parsed.",
 		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
 		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
 		"but for this to work, the message needs to be sent from a player."})
@@ -108,7 +109,7 @@ public class EffMessage extends Effect {
 
 		CommandSender[] commandSenders = recipients.getArray(e);
 
-		for (Expression<?> message : messages) {
+		for (Expression<?> message : getMessages()) {
 
 			Object[] messageArray = null;
 			List<MessageComponent> messageComponents = null;
@@ -151,6 +152,13 @@ public class EffMessage extends Effect {
 			receiver.spigot().sendMessage(sender.getUniqueId(), components);
 		else
 			receiver.spigot().sendMessage(components);
+	}
+
+	private Expression<?>[] getMessages() {
+		if (messageExpr instanceof ExpressionList && !messageExpr.getAnd()) {
+			return new Expression[] {CollectionUtils.getRandom(messages)};
+		}
+		return messages;
 	}
 
 	private String toString(Object object) {

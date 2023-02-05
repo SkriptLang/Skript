@@ -28,8 +28,7 @@ import java.util.logging.Level;
  * Redirects the log to a {@link CommandSender}.
  */
 public class RedirectingLogHandler extends LogHandler {
-	
-	@Nullable
+
 	private final CommandSender recipient;
 	
 	private final String prefix;
@@ -37,16 +36,13 @@ public class RedirectingLogHandler extends LogHandler {
 	private int numErrors = 0;
 	
 	public RedirectingLogHandler(CommandSender recipient, @Nullable String prefix) {
-		this.recipient = recipient == Bukkit.getConsoleSender() ? null : recipient;
+		this.recipient = recipient;
 		this.prefix = prefix == null ? "" : prefix;
 	}
 	
 	@Override
 	public LogResult log(LogEntry entry) {
-		if (recipient != null)
-			recipient.sendMessage(prefix + entry.toFormattedString());
-		else
-			SkriptLogger.LOGGER.log(entry.getLevel(), prefix + entry.toFormattedString());
+		SkriptLogger.sendFormatted(recipient, prefix + entry.toFormattedString());
 		if (entry.level == Level.SEVERE)
 			numErrors++;
 		return LogResult.DO_NOT_LOG;

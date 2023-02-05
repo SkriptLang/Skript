@@ -103,7 +103,9 @@ public class MessageComponent {
 			
 			suggest_command,
 			
-			change_page;
+			change_page,
+
+			copy_to_clipboard;
 			
 			public final String spigotName;
 			
@@ -138,7 +140,7 @@ public class MessageComponent {
 			
 			@SuppressWarnings("null")
 			Action() {
-				spigotName = this.name().toUpperCase();
+				spigotName = this.name().toUpperCase(Locale.ENGLISH);
 			}
 		}
 		

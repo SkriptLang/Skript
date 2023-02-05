@@ -1,0 +1,71 @@
+
+#
+# A very simple `broadcast` command for broadcasting the text argument.
+# This is accessible only to users with the `skript.example.broadcast` permission.
+#
+
+command /broadcast <text>:
+    permission: skript.example.broadcast
+    description: Broadcasts a message to everybody.
+    trigger:
+        broadcast arg-text
+
+#
+# A simple /home command that allows players to set, remove and travel to homes.
+# This command is executable only by players, and has a `correct usage` message.
+# The first argument is required, whereas the second is optional.
+#
+
+command /home <text> [<text>]:
+    description: Set, delete or travel to your home.
+    usage: /home set/remove <name>, /home <name>
+    permission: skript.example.home
+    executable by: players
+    trigger:
+        if arg-1 is "set":
+            if arg-2 is set:
+                set {homes::%uuid of player%::%arg-2%} to player's location
+                send "Set your home <green>%arg-2%<reset> to <grey>%location of player%<reset>" to player
+            else:
+                send "You must specify a name for this home." to player
+        else if arg-1 is "remove":
+            if arg-2 is set:
+                delete {homes::%uuid of player%::%arg-2%}
+                send "Deleted your home <green>%arg-2%<reset>" to player
+            else:
+                send "You must specify the name of this home." to player
+        else if arg-2 is set:
+            send "Correct usage: /home set/remove <name>" to player
+        else if {homes::%uuid of player%::%arg-1%} is set:
+            teleport player to {homes::%uuid of player%::%arg-1%}
+        else:
+            send "You have no home named <green>%arg-1%<reset>." to player
+
+#
+# An /item command that accepts Skript item aliases.
+# E.g. `/item birch plank, 5 red wool and 17 iron ore`
+# This command has aliases - alternative versions of the command that can be used.
+#
+
+aliases:
+    # Creates an alias `blacklisted` for this list of items.
+    blacklisted = TNT, bedrock, obsidian, mob spawner, lava, lava bucket
+
+command /item <items>:
+    description: Give yourself some items.
+    usage: /item <items...>
+    aliases: /i
+    executable by: players
+    permission: skript.example.item
+    cooldown: 30 seconds
+    cooldown message: You need to wait %remaining time% to use this command again.
+    cooldown bypass: skript.example.cooldown
+    trigger:
+        if player has permission "skript.example.item.all":
+            give argument to player
+        else:
+            loop argument:
+                if loop-item is not blacklisted:
+                    give loop-item to player
+                else:
+                    send "<red>%loop-item%<reset> is blacklisted and cannot be spawned." to player

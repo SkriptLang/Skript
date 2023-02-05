@@ -31,6 +31,6 @@ body:
       label: Agreement
       description: Please agree to the following before submitting your suggestion.
       options:
-        - label: I have read the guidelines above and confirm I am following them with this suggestion.
+        - label: I have read the guidelines above and affirm I am following them with this suggestion.
           required: true
 

@@ -57,6 +57,9 @@ public class ExprTamer extends SimpleExpression<Player> {
 	
 	@Override
 	protected Player[] get(final Event e) {
+		if (!(e instanceof EntityTameEvent))
+			return null;
+
 		return new Player[] {((EntityTameEvent) e).getOwner() instanceof Player ? (Player) ((EntityTameEvent) e).getOwner() : null};
 	}
 	

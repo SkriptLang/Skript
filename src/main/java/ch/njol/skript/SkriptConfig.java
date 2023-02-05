@@ -23,6 +23,7 @@ import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
 import ch.njol.skript.hooks.regions.PreciousStonesHook;
@@ -36,6 +37,7 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
@@ -50,6 +52,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
@@ -275,38 +279,52 @@ public class SkriptConfig {
 	public final static Option<Boolean> disableHookVault = new Option<>("disable hooks.vault", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(VaultHook.class);
-			}
+			userDisableHooks(VaultHook.class, value);
 		});
 	public final static Option<Boolean> disableHookGriefPrevention = new Option<>("disable hooks.regions.grief prevention", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(GriefPreventionHook.class);
-			}
+			userDisableHooks(GriefPreventionHook.class, value);
 		});
 	public final static Option<Boolean> disableHookPreciousStones = new Option<>("disable hooks.regions.precious stones", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(PreciousStonesHook.class);
-			}
+			userDisableHooks(PreciousStonesHook.class, value);
 		});
 	public final static Option<Boolean> disableHookResidence = new Option<>("disable hooks.regions.residence", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(ResidenceHook.class);
-			}
+			userDisableHooks(ResidenceHook.class, value);
 		});
 	public final static Option<Boolean> disableHookWorldGuard = new Option<>("disable hooks.regions.worldguard", false)
 		.optional(true)
 		.setter(value -> {
-			if (value) {
-				Skript.disableHookRegistration(WorldGuardHook.class);
-			}
+			userDisableHooks(WorldGuardHook.class, value);
 		});
+	/**
+	 * Disables the specified hook depending on the option value, or gives an error if this isn't allowed at this time.
+	 */
+	private static void userDisableHooks(Class<? extends Hook<?>> hookClass, boolean value) {
+		if (Skript.isFinishedLoadingHooks()) {
+			Skript.error("Hooks cannot be disabled once the server has started. " +
+				"Please restart the server to disable the hooks.");
+			return;
+		}
+		if (value) {
+			Skript.disableHookRegistration(hookClass);
+		}
+	}
+
+	public final static Option<Pattern> playerNameRegexPattern = new Option<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{1,16}"), s -> {
+		try {
+			return Pattern.compile(s);
+		} catch (PatternSyntaxException e) {
+			Skript.error("Invalid player name regex pattern: " + e.getMessage());
+			return null;
+		}
+	}).optional(true);
+
+	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
 
 	/**
 	 * This should only be used in special cases
@@ -346,8 +364,9 @@ public class SkriptConfig {
 				return false;
 			}
 			mainConfig = mc;
-			
-			if (!Skript.getVersion().toString().equals(mc.get(version.key))) {
+
+			String configVersion = mc.get(version.key);
+			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
 				try {
 					final InputStream in = Skript.getInstance().getResource("config.sk");
 					if (in == null) {

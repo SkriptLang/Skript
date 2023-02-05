@@ -18,22 +18,31 @@
  */
 package ch.njol.skript.lang.function;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.StringUtils;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class Parameter<T> {
-	
+
+	public final static Pattern PARAM_PATTERN = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
+
 	/**
 	 * Name of this parameter. Will be used as name for the local variable
 	 * that contains value of it inside function. This is always in lower case;
@@ -60,7 +69,7 @@ public final class Parameter<T> {
 	
 	@SuppressWarnings("null")
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
-		this.name = name != null ? name.toLowerCase() : null;
+		this.name = name != null ? name.toLowerCase(Locale.ENGLISH) : null;
 		this.type = type;
 		this.def = def;
 		this.single = single;
@@ -78,62 +87,85 @@ public final class Parameter<T> {
 	@Nullable
 	public static <T> Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
-			Skript.error("An argument's name must be a valid variable name.");
+			Skript.error("A parameter's name must be a valid variable name.");
 			// ... because it will be made available as local variable
 			return null;
 		}
 		Expression<? extends T> d = null;
 		if (def != null) {
-//			if (def.startsWith("%") && def.endsWith("%")) {
-//				RetainingLogHandler log = SkriptLogger.startRetainingLog();
-//				try {
-//					d = new SkriptParser("" + def.substring(1, def.length() - 1), SkriptParser.PARSE_EXPRESSIONS, ParseContext.FUNCTION_DEFAULT).parseExpression(type.getC());
-//					if (d == null) {
-//						log.printErrors("Can't understand this expression: " + def + "");
-//						return null;
-//					}
-//					log.printLog();
-//				} finally {
-//					log.stop();
-//				}
-//			} else {
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			
-			// Parse the default value literal
+			// Parse the default value expression
 			try {
-				if (def.startsWith("\"") && def.endsWith("\"")) { // Quoted string; always parse as string
-					// Don't ever parse strings as objects, it creates UnparsedLiterals (see #2353)
-					d = (Expression<? extends T>) VariableString.newInstance("" + def.substring(1, def.length() - 1));
-				} else if (type.getC().equals(String.class)) { // String return type requested
-					/*
-					 * For historical reasons, default values of string
-					 * parameters needs not to be quoted. This is true even for
-					 * strings with spaces, which is very confusing. We issue a
-					 * warning for it now, and the behavior may be removed in a
-					 * future release.
-					 */
-					if (def.startsWith("\"") && def.endsWith("\"")) {
-						d = (Expression<? extends T>) VariableString.newInstance("" + def.substring(1, def.length() - 1));
-					} else {
-						// Usage of SimpleLiteral is also deprecated; not worth the risk to change it
-						if (def.contains(" ")) // Warn about whitespace in unquoted string
-							Skript.warning("'" + def + "' contains spaces and is unquoted, which is discouraged");
-						d = (Expression<? extends T>) new SimpleLiteral<>(def, false);
-					}
-				} else {
-					d = new SkriptParser(def, SkriptParser.PARSE_LITERALS, ParseContext.DEFAULT).parseExpression(type.getC());
-				}
-				if (d == null) {
-					log.printErrors("'" + def + "' is not " + type.getName().withIndefiniteArticle());
+				d = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(type.getC());
+				if (d == null || LiteralUtils.hasUnparsedLiteral(d)) {
+					log.printErrors("Can't understand this expression: " + def);
 					return null;
 				}
 				log.printLog();
 			} finally {
 				log.stop();
 			}
-//			}
 		}
 		return new Parameter<>(name, type, single, d);
+	}
+
+	/**
+	 * Parses function parameters from a string. The string should look something like this:
+	 * <pre>"something: string, something else: number = 12"</pre>
+	 * @param args The string to parse.
+	 * @return The parsed parameters
+	 */
+	@Nullable
+	public static List<Parameter<?>> parse(String args) {
+		List<Parameter<?>> params = new ArrayList<>();
+		int j = 0;
+		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
+			if (i == -1) {
+				Skript.error("Invalid text/variables/parentheses in the arguments of this function");
+				return null;
+			}
+			if (i == args.length() || args.charAt(i) == ',') {
+				String arg = args.substring(j, i);
+
+				if (args.isEmpty()) // Zero-argument function
+					break;
+
+				// One or more arguments for this function
+				Matcher n = PARAM_PATTERN.matcher(arg);
+				if (!n.matches()) {
+					Skript.error("The " + StringUtils.fancyOrderNumber(params.size() + 1) + " argument's definition is invalid. It should look like 'name: type' or 'name: type = default value'.");
+					return null;
+				}
+				String paramName = "" + n.group(1);
+				for (Parameter<?> p : params) {
+					if (p.name.toLowerCase(Locale.ENGLISH).equals(paramName.toLowerCase(Locale.ENGLISH))) {
+						Skript.error("Each argument's name must be unique, but the name '" + paramName + "' occurs at least twice.");
+						return null;
+					}
+				}
+				ClassInfo<?> c;
+				c = Classes.getClassInfoFromUserInput("" + n.group(2));
+				NonNullPair<String, Boolean> pl = Utils.getEnglishPlural("" + n.group(2));
+				if (c == null)
+					c = Classes.getClassInfoFromUserInput(pl.getFirst());
+				if (c == null) {
+					Skript.error("Cannot recognise the type '" + n.group(2) + "'");
+					return null;
+				}
+				String rParamName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
+					(!pl.getSecond() ? "::1" : "") : paramName;
+				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
+				if (p == null)
+					return null;
+				params.add(p);
+
+				j = i + 1;
+			}
+			if (i == args.length())
+				break;
+		}
+		return params;
 	}
 	
 	/**

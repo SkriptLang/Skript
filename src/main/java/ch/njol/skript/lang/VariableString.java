@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
@@ -132,6 +132,25 @@ public class VariableString implements Expression<String> {
 	}
 
 	/**
+	 * Attempts to properly quote a string (e.g. double the double quotations).
+	 * Please note that the string itself will not be surrounded with double quotations.
+	 * @param string The string to properly quote.
+	 * @return The input where all double quotations outside of expressions have been doubled.
+	 */
+	public static String quote(String string) {
+		StringBuilder fixed = new StringBuilder();
+		boolean inExpression = false;
+		for (char c : string.toCharArray()) {
+			if (c == '%') // If we are entering an expression, quotes should NOT be doubled
+				inExpression = !inExpression;
+			if (!inExpression && c == '"')
+				fixed.append('"');
+			fixed.append(c);
+		}
+		return fixed.toString();
+	}
+
+	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
 	 * 
@@ -140,7 +159,7 @@ public class VariableString implements Expression<String> {
 	 * @return Whether the string is quoted correctly
 	 */
 	public static boolean isQuotedCorrectly(String s, boolean withQuotes) {
-		if (withQuotes && (!s.startsWith("\"") || !s.endsWith("\"")))
+		if (withQuotes && (!s.startsWith("\"") || !s.endsWith("\"") || s.length() < 2))
 			return false;
 		boolean quote = false;
 		boolean percentage = false;
@@ -610,16 +629,16 @@ public class VariableString implements Expression<String> {
 	public boolean check(Event e, Checker<? super String> c) {
 		return SimpleExpression.check(getAll(e), c, false, false);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Expression<? extends R>) this;
-		return null;
+		return ConvertedExpression.newInstance(this, to);
 	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
