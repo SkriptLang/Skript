@@ -67,7 +67,7 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
 		setExpr((Expression<? extends Inventory>) exprs[0]);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
