@@ -886,8 +886,8 @@ public class BukkitClasses {
 				.since("1.0"));
 		
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("item", "material")
-				.name("Item / Material")
+				.user("items?")
+				.name("Item")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
 								"while an item type can represent a whole range of items (e.g. any cobble stone stairs regardless of direction).",
@@ -1346,8 +1346,8 @@ public class BukkitClasses {
 					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns.")
 				.defaultExpression(new EventValueExpression<>(FireworkEffect.class))
 				.examples("launch flickering trailing burst firework colored blue and green at player",
-					"launch trailing flickering star coloured purple, yellow, blue, green and red fading to pink at target entity",
-					"launch ball large coloured red, purple and white fading to light green and black at player's location with duration 1")
+					"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
+					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 				.since("2.4")
 				.parser(new Parser<FireworkEffect>() {
 					@Override
