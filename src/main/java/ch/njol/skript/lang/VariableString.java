@@ -126,17 +126,17 @@ public class VariableString implements Expression<String> {
 		// Construct unformatted string and components
 		List<MessageComponent> components = new ArrayList<>(string.length);
 		for (int i = 0; i < string.length; i++) {
-			Object o = string[i];
-			if (o instanceof String) {
-				this.string[i] = Utils.replaceChatStyles((String) o);
-				components.addAll(ChatMessages.parse((String) o));
+			Object object = string[i];
+			if (object instanceof String) {
+				this.string[i] = Utils.replaceChatStyles((String) object);
+				components.addAll(ChatMessages.parse((String) object));
 			} else {
-				this.string[i] = o;
+				this.string[i] = object;
 				components.add(null); // Not known parse-time
 			}
 
 			// For unformatted string, don't format stuff
-			this.stringUnformatted[i] = o;
+			this.stringUnformatted[i] = object;
 		}
 		this.components = components.toArray(new MessageComponent[0]);
 
@@ -535,19 +535,19 @@ public class VariableString implements Expression<String> {
 
 		Object[] string = this.string;
 		assert string != null;
-		StringBuilder b = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 		List<Class<?>> types = new ArrayList<>();
-		for (Object o : string) {
-			if (o instanceof Expression<?>) {
-				Object[] objects = ((Expression<?>) o).getArray(event);
+		for (Object object : string) {
+			if (object instanceof Expression<?>) {
+				Object[] objects = ((Expression<?>) object).getArray(event);
 				if (objects != null && objects.length > 0)
 					types.add(objects[0].getClass());
-				b.append(Classes.toString(objects, true, mode));
+				builder.append(Classes.toString(objects, true, mode));
 			} else {
-				b.append(o);
+				builder.append(object);
 			}
 		}
-		String complete = b.toString();
+		String complete = builder.toString();
 		if (!types.isEmpty()) {
 			DefaultVariables data = script.getData(DefaultVariables.class);
 			if (data != null)
@@ -567,16 +567,16 @@ public class VariableString implements Expression<String> {
 		}
 		Object[] string = this.string;
 		assert string != null;
-		StringBuilder b = new StringBuilder("\"");
-		for (Object o : string) {
-			if (o instanceof Expression) {
-				b.append("%").append(((Expression<?>) o).toString(event, debug)).append("%");
+		StringBuilder builder = new StringBuilder("\"");
+		for (Object object : string) {
+			if (object instanceof Expression) {
+				builder.append("%").append(((Expression<?>) object).toString(event, debug)).append("%");
 			} else {
-				b.append(o);
+				builder.append(object);
 			}
 		}
-		b.append('"');
-		return b.toString();
+		builder.append('"');
+		return builder.toString();
 	}
 
 	/**
