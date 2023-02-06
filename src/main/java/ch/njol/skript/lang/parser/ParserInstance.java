@@ -225,8 +225,13 @@ public final class ParserInstance {
 	 * <br><br>
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
-	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
-		return CollectionUtils.containsSuperclass(currentEvents, event);
+	public boolean isCurrentEvent(Class<? extends Event> event) {
+		for (Class<? extends Event> currentEvent : currentEvents) {
+			// check that current event is same or child of event we want
+			if (event.isAssignableFrom(currentEvent))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -243,7 +248,11 @@ public final class ParserInstance {
 	 */
 	@SafeVarargs
 	public final boolean isCurrentEvent(Class<? extends Event>... events) {
-		return CollectionUtils.containsAnySuperclass(currentEvents, events);
+		for (Class<? extends Event> event : events) {
+			if (isCurrentEvent(event))
+				return true;
+		}
+		return true;
 	}
 
 	// Section API

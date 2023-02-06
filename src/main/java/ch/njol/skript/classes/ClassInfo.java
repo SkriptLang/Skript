@@ -386,6 +386,11 @@ public class ClassInfo<T> implements Debuggable {
 	public String getDocName() {
 		return docName;
 	}
+
+	@Nullable
+	public String[] getRequiredPlugins() {
+		return requiredPlugins;
+	}
 	
 	/**
 	 * Gets overridden documentation id of this this type. If no override has
@@ -396,6 +401,10 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public String getDocumentationID() {
 		return documentationId;
+	}
+
+	public boolean hasDocs() {
+		return getDocName() != null && !ClassInfo.NO_DOC.equals(getDocName());
 	}
 	
 	// === ORDERING ===
