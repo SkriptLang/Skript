@@ -62,6 +62,7 @@ public class ExprSets extends SimpleExpression<Object> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		// This check makes sure that "color" is not a valid pattern, and the type the user inputted has to be plural, unless it's "every %classinfo%"
 		boolean plural = Utils.getEnglishPlural(parser.expr).getSecond();
 		if (!plural && !parser.expr.startsWith("every"))
 			return false;
