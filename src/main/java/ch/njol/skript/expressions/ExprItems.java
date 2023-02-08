@@ -93,9 +93,10 @@ public class ExprItems extends SimpleExpression<ItemType> {
 			return buffer;
 		List<ItemType> items = new ArrayList<>();
 		iterator(event).forEachRemaining(items::add);
+		ItemType[] itemTypes = items.toArray(new ItemType[0]);
 		if (itemTypeExpr instanceof Literal)
-			return buffer = items.toArray(new ItemType[0]);
-		return items.toArray(new ItemType[0]);
+			buffer = itemTypes;
+		return itemTypes;
 	}
 
 	@Override
@@ -140,7 +141,11 @@ public class ExprItems extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean isLoopOf(String string) {
-		return (items && string.equals("item")) || (!items && string.equals("block"));
+		if (items) {
+			return string.equals("item");
+		} else {
+			return string.equals("block");
+		}
 	}
 
 }

@@ -176,12 +176,24 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param supplier The supplier of the values
 	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Object[])
 	 */
 	public ClassInfo<T> supplier(Supplier<Iterator<T>> supplier) {
 		if (this.supplier != null)
 			throw new SkriptAPIException("supplier of this class is already set");
 		this.supplier = supplier;
 		return this;
+	}
+
+	/**
+	 * Used for getting all the possible constants of a class
+	 *
+	 * @param values The array of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Supplier)
+	 */
+	public ClassInfo<T> supplier(T[] values) {
+		return supplier(() -> new ArrayIterator<>(values));
 	}
 
 	public ClassInfo<T> serializer(final Serializer<? super T> serializer) {
