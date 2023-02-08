@@ -1155,22 +1155,27 @@ public class SkriptParser {
 	}
 	
 	/**
-	 * Returns the next character in the expression, skipping strings, variables and parentheses (unless <tt>context</tt> is {@link ParseContext#COMMAND}).
+	 * Returns the next character in the expression, skipping strings,
+	 * variables and parentheses
+	 * (unless {@code context} is {@link ParseContext#COMMAND}).
 	 * 
 	 * @param expr The expression to traverse.
 	 * @param startIndex The index to start at.
-	 * @return The next index (can be expr.length()), or -1 if an invalid string, variable or bracket is found or if <tt>i >= expr.length()</tt>.
-	 * @throws StringIndexOutOfBoundsException if <tt>i < 0</tt>
+	 * @return The next index (can be expr.length()), or -1 if
+	 * an invalid string, variable or bracket is found
+	 * or if {@code startIndex >= expr.length()}.
+	 * @throws StringIndexOutOfBoundsException if {@code startIndex < 0}.
 	 */
 	public static int next(String expr, int startIndex, ParseContext context) {
 		if (startIndex < 0)
 			throw new StringIndexOutOfBoundsException(startIndex);
-		if (context == ParseContext.COMMAND)
-			return startIndex + 1;
 
 		int exprLength = expr.length();
 		if (startIndex >= exprLength)
 			return -1;
+
+		if (context == ParseContext.COMMAND)
+			return startIndex + 1;
 
 		int j;
 		switch (expr.charAt(startIndex)) {

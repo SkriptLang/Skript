@@ -18,6 +18,16 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.io.StreamCorruptedException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
@@ -74,6 +84,7 @@ public class SkriptClasses {
 	public SkriptClasses() {}
 	
 	static {
+		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
 				.user("types?")
 				.name("Type")
@@ -87,7 +98,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
-				.supplier(() -> new ArrayIterator<>(Classes.getClassInfos().toArray(new ClassInfo[0])))
+				.supplier(() -> (Iterator) Classes.getClassInfos().iterator()))
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -274,23 +285,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Time o) {
 						return "time:" + o.getTicks();
 					}
-				}).serializer(new YggdrasilSerializer<Time>() {
-//						return "" + t.getTicks();
-					@Override
-					@Nullable
-					public Time deserialize(final String s) {
-						try {
-							return new Time(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Timespan.class, "timespan")
 				.user("time ?spans?")
@@ -328,23 +323,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timespan o) {
 						return "timespan:" + o.getMilliSeconds();
 					}
-				}).serializer(new YggdrasilSerializer<Timespan>() {
-//						return "" + t.getMilliSeconds();
-					@Override
-					@Nullable
-					public Timespan deserialize(final String s) {
-						try {
-							return new Timespan(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				})
+				}).serializer(new YggdrasilSerializer<>())
 				.math(Timespan.class, new Arithmetic<Timespan, Timespan>() {
 					@Override
 					public Timespan difference(final Timespan t1, final Timespan t2) {
@@ -425,21 +404,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timeperiod o) {
 						return "timeperiod:" + o.start + "-" + o.end;
 					}
-				}).serializer(new YggdrasilSerializer<Timeperiod>() {
-//						return t.start + "-" + t.end;
-					@Override
-					@Nullable
-					public Timeperiod deserialize(final String s) {
-						final String[] split = s.split("-");
-						if (split.length != 2)
-							return null;
-						try {
-							return new Timeperiod(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
@@ -451,18 +416,8 @@ public class SkriptClasses {
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
-				.serializer(new YggdrasilSerializer<Date>() {
-//						return "" + d.getTimestamp();
-					@Override
-					@Nullable
-					public Date deserialize(final String s) {
-						try {
-							return new Date(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}).math(Timespan.class, new Arithmetic<Date, Timespan>() {
+				.serializer(new YggdrasilSerializer<>())
+				.math(Timespan.class, new Arithmetic<Date, Timespan>() {
 					@Override
 					public Timespan difference(final Date first, final Date second) {
 						return first.difference(second);
@@ -528,15 +483,7 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<Direction>() {
-//						return o.serialize();
-					@Override
-					@Deprecated
-					@Nullable
-					public Direction deserialize(final String s) {
-						return Direction.deserialize(s);
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Slot.class, "slot")
 				.user("(inventory )?slots?")
@@ -664,7 +611,7 @@ public class SkriptClasses {
 						"set the color of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
-				.supplier(() -> new ArrayIterator<>(SkriptColor.values()))
+				.supplier(SkriptColor.values())
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable
@@ -738,24 +685,7 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<EnchantmentType>() {
-//						return o.getType().getId() + ":" + o.getLevel();
-					@Override
-					@Nullable
-					public EnchantmentType deserialize(final String s) {
-						final String[] split = s.split(":");
-						if (split.length != 2)
-							return null;
-						try {
-							final Enchantment ench = EnchantmentUtils.getByKey(split[0]);
-							if (ench == null)
-								return null;
-							return new EnchantmentType(ench, Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Experience.class, "experience")
 				.user("experience ?(points?)?")
@@ -792,18 +722,7 @@ public class SkriptClasses {
 					}
 
 				})
-				.serializer(new YggdrasilSerializer<Experience>() {
-//						return "" + xp;
-					@Override
-					@Nullable
-					public Experience deserialize(final String s) {
-						try {
-							return new Experience(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(VisualEffect.class, "visualeffect")
 				.name("Visual Effect")
