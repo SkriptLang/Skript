@@ -62,7 +62,8 @@ public class ExprItems extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprItems.class, ItemType.class, ExpressionType.COMBINED,
-			"[all [[of] the]|the|every] block[[ ]type][s]",
+			"[all [[of] the]|the] block[[ ]type]s",
+			"every block[[ ]type]",
 			"[all [[of] the]|the|every] block[s] of type[s] %itemtypes%",
 			"[all [[of] the]|the|every] item[s] of type[s] %itemtypes%"
 		);
@@ -76,12 +77,8 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean plural = Utils.getEnglishPlural(parseResult.expr).getSecond();
-		if (matchedPattern == 0 && !plural && !parseResult.expr.startsWith("every"))
-			return false;
-
-		items = matchedPattern == 2;
-		itemTypeExpr = matchedPattern == 0 ? null : (Expression<ItemType>) exprs[0];
+		items = matchedPattern == 3;
+		itemTypeExpr = matchedPattern == 0 || matchedPattern == 1 ? null : (Expression<ItemType>) exprs[0];
 		if (itemTypeExpr instanceof Literal) {
 			for (ItemType itemType : ((Literal<ItemType>) itemTypeExpr).getAll())
 				itemType.setAll(true);
