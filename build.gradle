@@ -135,6 +135,14 @@ license {
 	exclude('**/*.json') // JSON files do not have headers
 }
 
+javadoc {
+	source = sourceSets.main.allJava
+	classpath = configurations.compileClasspath
+	options.encoding = 'UTF-8'
+	// currently our javadoc has a lot of errors, so we need to suppress the linter
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 // Task to check that test scripts are named correctly
 tasks.register('testNaming') {
 	doLast {
