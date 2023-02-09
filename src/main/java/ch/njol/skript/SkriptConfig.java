@@ -18,7 +18,6 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
@@ -38,6 +37,7 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
@@ -324,6 +324,8 @@ public class SkriptConfig {
 		}
 	}).optional(true);
 
+	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
+
 	/**
 	 * This should only be used in special cases
 	 */
@@ -362,8 +364,9 @@ public class SkriptConfig {
 				return false;
 			}
 			mainConfig = mc;
-			
-			if (!Skript.getVersion().toString().equals(mc.get(version.key))) {
+
+			String configVersion = mc.get(version.key);
+			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
 				try {
 					final InputStream in = Skript.getInstance().getResource("config.sk");
 					if (in == null) {

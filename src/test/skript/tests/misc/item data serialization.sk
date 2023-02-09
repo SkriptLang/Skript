@@ -1,0 +1,6 @@
+test "item data serialization":
+
+	# No assertion needed, it will be done internally
+	set {a::1} to a dirt block named "DIRT" with lore "LORE1" and "LORE2"
+
+	delete {a::1}

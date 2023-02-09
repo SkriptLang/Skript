@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -107,7 +108,7 @@ public class EffTeleport extends Effect {
 
 		if (!isAsync) {
 			for (Entity entity : entityArray) {
-				entity.teleport(loc);
+				EntityUtils.teleport(entity, loc);
 			}
 			return next;
 		}
@@ -119,7 +120,7 @@ public class EffTeleport extends Effect {
 		PaperLib.getChunkAtAsync(loc).thenAccept(chunk -> {
 			// The following is now on the main thread
 			for (Entity entity : entityArray) {
-				entity.teleport(loc);
+				EntityUtils.teleport(entity, loc);
 			}
 
 			// Re-set local variables

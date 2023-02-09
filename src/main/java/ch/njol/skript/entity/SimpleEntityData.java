@@ -31,6 +31,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
+import org.bukkit.entity.Camel;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Chicken;
@@ -47,7 +48,9 @@ import org.bukkit.entity.ElderGuardian;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EnderSignal;
 import org.bukkit.entity.Endermite;
+import org.bukkit.entity.Enemy;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Evoker;
 import org.bukkit.entity.EvokerFangs;
@@ -71,6 +74,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LargeFireball;
 import org.bukkit.entity.LeashHitch;
+import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.LlamaSpit;
@@ -86,6 +90,7 @@ import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.PiglinBrute;
 import org.bukkit.entity.Pillager;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.PolarBear;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.PufferFish;
@@ -177,12 +182,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
-	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityclass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityclass));
+	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass));
 	}
 
-	private static void addSuperEntity(String codeName, Class<? extends Entity> entityclass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityclass, true));
+	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, true));
 	}
 	static {
 		// Simple Entities
@@ -199,6 +204,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("ender crystal", EnderCrystal.class);
 		addSimpleEntity("ender dragon", EnderDragon.class);
 		addSimpleEntity("ender pearl", EnderPearl.class);
+		addSimpleEntity("ender eye", EnderSignal.class);
 		addSimpleEntity("small fireball", SmallFireball.class);
 		addSimpleEntity("large fireball", LargeFireball.class);
 		addSimpleEntity("fireball", Fireball.class);
@@ -206,9 +212,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("ghast", Ghast.class);
 		addSimpleEntity("giant", Giant.class);
 		addSimpleEntity("iron golem", IronGolem.class);
+		addSimpleEntity("lightning bolt", LightningStrike.class);
 		addSimpleEntity("magma cube", MagmaCube.class);
 		addSimpleEntity("slime", Slime.class);
 		addSimpleEntity("painting", Painting.class);
+		addSimpleEntity("player", Player.class);
 		addSimpleEntity("zombie pigman", PigZombie.class);
 		addSimpleEntity("silverfish", Silverfish.class);
 		addSimpleEntity("snowball", Snowball.class);
@@ -255,9 +263,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("salmon", Salmon.class);
 		addSimpleEntity("tropical fish", TropicalFish.class);
 		addSimpleEntity("trident", Trident.class);
-		
-		if (Skript.classExists("org.bukkit.entity.Illusioner")) // Added in 1.12
-			addSimpleEntity("illusioner", Illusioner.class);
+
+		addSimpleEntity("illusioner", Illusioner.class);
 
 		if (Skript.isRunningMinecraft(1, 14)) {
 			addSimpleEntity("pillager", Pillager.class);
@@ -286,6 +293,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("tadpole", Tadpole.class);
 			addSimpleEntity("warden", Warden.class);
 		}
+
+		if (Skript.isRunningMinecraft(1,19,3))
+			addSimpleEntity("camel", Camel.class);
 		
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);
@@ -313,6 +323,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("spellcaster", Spellcaster.class);
 		if (Skript.classExists("org.bukkit.entity.Raider")) // Introduced in Spigot 1.14
 			addSuperEntity("raider", Raider.class);
+		if (Skript.classExists("org.bukkit.entity.Enemy")) // Introduced in Spigot 1.19.3
+			addSuperEntity("enemy", Enemy.class);
 	}
 	
 	static {

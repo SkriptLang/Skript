@@ -34,38 +34,37 @@ public class IndeterminateDelay extends Delay {
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, true);
-		final long start = Skript.debug() ? System.nanoTime() : 0;
-		final TriggerItem next = getNext();
+	protected TriggerItem walk(Event event) {
+		debug(event, true);
+
+		long start = Skript.debug() ? System.nanoTime() : 0;
+		TriggerItem next = getNext();
+
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			delayed.add(e);
-			final Timespan d = duration.getSingle(e);
-			if (d == null)
+			Delay.addDelayedEvent(event);
+			Timespan duration = this.duration.getSingle(event);
+			if (duration == null)
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(e);
+			Object localVars = Variables.removeLocals(event);
 			
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					if (Skript.debug())
-						Skript.info(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1000000000. + "s");
-					
-					// Re-set local variables
-					if (localVars != null)
-						Variables.setLocalVariables(e, localVars);
-					
-					TriggerItem.walk(next, e);
-				}
-			}, d.getTicks_i());
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
+
+				// Re-set local variables
+				if (localVars != null)
+					Variables.setLocalVariables(event, localVars);
+
+				TriggerItem.walk(next, event);
+			}, duration.getTicks_i());
 		}
+
 		return null;
 	}
 	
 	@Override
-	public String toString(@Nullable final Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "wait for operation to finish";
 	}
 	

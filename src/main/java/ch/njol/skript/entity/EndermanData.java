@@ -44,13 +44,7 @@ public class EndermanData extends EntityData<Enderman> {
 	static {
 		EntityData.register(EndermanData.class, "enderman", Enderman.class, "enderman");
 	}
-	
-	/**
-	 * Spigot 1.13 introduced new block data API, which must be used instead
-	 * of the old one if targeting API version 1.13.
-	 */
-	static final boolean useBlockData = Skript.isRunningMinecraft(1, 13);
-	
+
 	@Nullable
 	private ItemType[] hand = null;
 	
@@ -71,19 +65,11 @@ public class EndermanData extends EntityData<Enderman> {
 	@Override
 	protected boolean init(final @Nullable Class<? extends Enderman> c, final @Nullable Enderman e) {
 		if (e != null) {
-			if (useBlockData) {
-				BlockData data = e.getCarriedBlock();
-				if (data != null) {
-					Material type = data.getMaterial();
-					assert type != null;
-					hand = new ItemType[] {new ItemType(type)};
-				}
-			} else {
-				MaterialData m = e.getCarriedMaterial();
-				final ItemStack i = m.toItemStack(1);
-				if (i == null)
-					return false;
-				hand = new ItemType[] {new ItemType(i)};
+			BlockData data = e.getCarriedBlock();
+			if (data != null) {
+				Material type = data.getMaterial();
+				assert type != null;
+				hand = new ItemType[] {new ItemType(type)};
 			}
 		}
 		return true;
@@ -96,13 +82,8 @@ public class EndermanData extends EntityData<Enderman> {
 			assert t != null;
 			final ItemStack i = t.getBlock().getRandom();
 			if (i != null) {
-				if (useBlockData) { // 1.13: item->block usually keeps only material
-					entity.setCarriedBlock(Bukkit.createBlockData(i.getType()));
-				} else {
-					MaterialData data = i.getData();
-					assert data != null;
-					entity.setCarriedMaterial(data);
-				}
+				// 1.13: item->block usually keeps only material
+				entity.setCarriedBlock(Bukkit.createBlockData(i.getType()));
 			}
 		}
 		
@@ -115,10 +96,7 @@ public class EndermanData extends EntityData<Enderman> {
 			@Override
 			public boolean check(final @Nullable ItemType t) {
 				// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
-				if (useBlockData)
-					return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
-				else
-					return t != null && t.isOfType(entity.getCarriedMaterial().getItemType());
+				return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
 			}
 		}, false, false);
 	}

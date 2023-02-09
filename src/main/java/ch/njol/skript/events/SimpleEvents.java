@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -40,7 +41,6 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
@@ -60,6 +60,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -95,6 +97,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -108,6 +111,8 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.util.SimpleEvent;
@@ -256,9 +261,11 @@ public class SimpleEvents {
 		.description("Called when a player fills a bucket.")
 				.examples("on player filling a bucket:")
 				.since("1.0");
-		Skript.registerEvent("Throwing of an Egg", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
-				.description("Called when a player throws an egg. You can just use the <a href='#shoot'>shoot event</a> in most cases, " +
-						"as this event is intended to support changing the hatched mob and its chance to hatch, but Skript does not yet support that.")
+		Skript.registerEvent("Egg Throw", SimpleEvent.class, PlayerEggThrowEvent.class, "throw[ing] [of] [an] egg", "[player] egg throw")
+				.description(
+						"Called when a player throws an egg and it lands. You can just use the <a href='#shoot'>shoot event</a> in most cases." +
+						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
+				)
 				.examples("on throw of an egg:")
 				.since("1.0");
 		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
@@ -618,5 +625,77 @@ public class SimpleEvents {
 				"\t\tsend action bar \"Nice, you got an advancement!\""
 			)
 			.since("INSERT VERSION");
+		Skript.registerEvent("Anvil Prepare", SimpleEvent.class, PrepareAnvilEvent.class, "anvil prepar(e|ing)")
+			.description("Called when an item is put in a slot for repair by an anvil. Please note that this event is called multiple times in a single item slot move.")
+			.examples("on anvil prepare:",
+				"\tevent-item is set # result item",
+				"\tchance of 5%:",
+				"\t\tset repair cost to repair cost * 50%",
+				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
+			.since("INSERT VERSION");
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
+			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
+				.description("Called when a player has traded with a villager.")
+				.requiredPlugins("Paper 1.16.5+")
+				.examples("on player trade:",
+					"\tchance of 50%:",
+					"\t\tcancel event",
+					"\t\tsend \"The trade was somehow denied!\" to player")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
+				.description("Called when an entity jumps.")
+				.requiredPlugins("Paper 1.15.2+")
+				.examples("on entity jump:",
+					"\tif entity is a wither skeleton:",
+					"\t\tcancel event")
+				.since("INSERT VERSION");
+		}
+		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
+			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
+				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
+					 		 "Note: this does not include anvil damage from falling.")
+				.requiredPlugins("Paper")
+				.examples("on anvil damage:",
+					"\tcancel the event")
+				.since("INSERT VERSION");
+		}
+
+		//noinspection deprecation
+		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
+			.description(
+				"Called whenever a player chats.",
+				"Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format.",
+				"Use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
+			)
+      .examples(
+				"on chat:",
+				"\tif player has permission \"owner\":",
+				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
+				"\telse if player has permission \"admin\":",
+				"\t\tset chat format to \"&lt;light red&gt;[player]&lt;light gray&gt;: &lt;orange&gt;[message]\"",
+				"\telse: #default message format",
+				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
+			)
+      .since("1.4.1");
+
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+				.description(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.examples(
+					"on loot generate:",
+					"\tchance of %10",
+					"\tadd 64 diamonds",
+					"\tsend \"You hit the jackpot!!\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("MC 1.16+");
+		}
+
 	}
+
 }
