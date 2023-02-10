@@ -152,12 +152,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 */
 	public void unload() { }
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 * 	most other Structures have finished unloading.
 	 */

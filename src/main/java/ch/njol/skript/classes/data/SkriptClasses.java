@@ -18,6 +18,16 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.io.StreamCorruptedException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
@@ -55,14 +65,8 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.StreamCorruptedException;
-import java.util.Locale;
-import java.util.regex.Pattern;
+import java.util.Arrays;
 
 /**
  * @author Peter Güttinger
@@ -72,6 +76,7 @@ public class SkriptClasses {
 	public SkriptClasses() {}
 	
 	static {
+		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
 				.user("types?")
 				.name("Type")
@@ -85,6 +90,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
+				.supplier(() -> (Iterator) Classes.getClassInfos().iterator())
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -181,7 +187,7 @@ public class SkriptClasses {
 				.serializer(new EnumSerializer<>(WeatherType.class)));
 		
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
-				.user("item ?types?", "items", "materials")
+				.user("item ?types?", "materials?")
 				.name("Item Type")
 				.description("An item type is an alias, e.g. 'a pickaxe', 'all plants', etc., and can result in different items when added to an inventory, " +
 						"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",
@@ -197,6 +203,9 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
+				.supplier(() -> Arrays.stream(Material.values())
+					.map(ItemType::new)
+					.iterator())
 				.parser(new Parser<ItemType>() {
 					@Override
 					@Nullable
@@ -268,23 +277,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Time o) {
 						return "time:" + o.getTicks();
 					}
-				}).serializer(new YggdrasilSerializer<Time>() {
-//						return "" + t.getTicks();
-					@Override
-					@Nullable
-					public Time deserialize(final String s) {
-						try {
-							return new Time(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Timespan.class, "timespan")
 				.user("time ?spans?")
@@ -322,23 +315,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timespan o) {
 						return "timespan:" + o.getMilliSeconds();
 					}
-				}).serializer(new YggdrasilSerializer<Timespan>() {
-//						return "" + t.getMilliSeconds();
-					@Override
-					@Nullable
-					public Timespan deserialize(final String s) {
-						try {
-							return new Timespan(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				})
+				}).serializer(new YggdrasilSerializer<>())
 				.math(Timespan.class, new Arithmetic<Timespan, Timespan>() {
 					@Override
 					public Timespan difference(final Timespan t1, final Timespan t2) {
@@ -419,44 +396,20 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timeperiod o) {
 						return "timeperiod:" + o.start + "-" + o.end;
 					}
-				}).serializer(new YggdrasilSerializer<Timeperiod>() {
-//						return t.start + "-" + t.end;
-					@Override
-					@Nullable
-					public Timeperiod deserialize(final String s) {
-						final String[] split = s.split("-");
-						if (split.length != 2)
-							return null;
-						try {
-							return new Timeperiod(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
 				.name("Date")
-				.description("A date is a certain point in the real world's time which can currently only be obtained with <a href='../expressions.html#ExprNow'>now</a>.",
+				.description("A date is a certain point in the real world's time which can be obtained with <a href='./expressions.html#ExprNow'>now expression</a>, <a href='./expressions.html#ExprUnixDate'>unix date expression</a> and <a href='./functions.html#date'>date function</a>.",
 						"See <a href='#time'>time</a> and <a href='#timespan'>timespan</a> for the other time types of Skript.")
 				.usage("")
 				.examples("set {_yesterday} to now",
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
-				.serializer(new YggdrasilSerializer<Date>() {
-//						return "" + d.getTimestamp();
-					@Override
-					@Nullable
-					public Date deserialize(final String s) {
-						try {
-							return new Date(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}).math(Timespan.class, new Arithmetic<Date, Timespan>() {
+				.serializer(new YggdrasilSerializer<>())
+				.math(Timespan.class, new Arithmetic<Date, Timespan>() {
 					@Override
 					public Timespan difference(final Date first, final Date second) {
 						return first.difference(second);
@@ -494,7 +447,7 @@ public class SkriptClasses {
 				.description("A direction, e.g. north, east, behind, 5 south east, 1.3 meters to the right, etc.",
 						"<a href='#location'>Locations</a> and some <a href='#block'>blocks</a> also have a direction, but without a length.",
 						"Please note that directions have changed extensively in the betas and might not work perfectly. They can also not be used as command arguments.")
-				.usage("see <a href='../expressions.html#ExprDirection'>direction (expression)</a>")
+				.usage("see <a href='./expressions.html#ExprDirection'>direction (expression)</a>")
 				.examples("set the block below the victim to a chest",
 						"loop blocks from the block infront of the player to the block 10 below the player:",
 						"	set the block behind the loop-block to water")
@@ -522,29 +475,21 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<Direction>() {
-//						return o.serialize();
-					@Override
-					@Deprecated
-					@Nullable
-					public Direction deserialize(final String s) {
-						return Direction.deserialize(s);
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Slot.class, "slot")
 				.user("(inventory )?slots?")
 				.name("Inventory Slot")
 				.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
-						"Notable slots are the <a href='../expressions.html#ExprArmorSlot'>armour slots</a> and <a href='../expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
+						"Notable slots are the <a href='./expressions.html#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
 						"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
 								"(Some item expressions can be changed as well, e.g. items stored in variables. " +
 								"For that matter: slots are never saved to variables, only the items they represent at the time when the variable is set).",
-						"Please note that <a href='../expressions.html#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
+						"Please note that <a href='./expressions.html#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
 				.usage("")
 				.examples("set tool of player to dirt",
 						"delete helmet of the victim",
-						"set the colour of the player's tool to green",
+						"set the color of the player's tool to green",
 						"enchant the player's chestplate with projectile protection 5")
 				.since("")
 				.defaultExpression(new EventValueExpression<>(Slot.class))
@@ -651,13 +596,14 @@ public class SkriptClasses {
 
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
-				.name("Colour")
-				.description("Wool, dye and chat colours.")
+				.name("Color")
+				.description("Wool, dye and chat colors.")
 				.usage("black, dark grey/dark gray, grey/light grey/gray/light gray/silver, white, blue/dark blue, cyan/aqua/dark cyan/dark aqua, light blue/light cyan/light aqua, green/dark green, light green/lime/lime green, yellow/light yellow, orange/gold/dark yellow, red/dark red, pink/light red, purple/dark purple, magenta/light purple, brown/indigo")
 				.examples("color of the sheep is red or black",
-						"set the colour of the block to green",
+						"set the color of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
+				.supplier(SkriptColor.values())
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable
@@ -682,7 +628,7 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
-				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='../effects.html#EffTree'>generate tree</a> effect.")
+				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='./effects.html#EffTree'>generate tree</a> effect.")
 				.usage("[any] &lt;general tree/mushroom type&gt;, e.g. tree/any jungle tree/etc.", "&lt;specific tree/mushroom species&gt;, e.g. red mushroom/small jungle tree/big regular tree/etc.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
@@ -731,30 +677,13 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<EnchantmentType>() {
-//						return o.getType().getId() + ":" + o.getLevel();
-					@Override
-					@Nullable
-					public EnchantmentType deserialize(final String s) {
-						final String[] split = s.split(":");
-						if (split.length != 2)
-							return null;
-						try {
-							final Enchantment ench = EnchantmentUtils.getByKey(split[0]);
-							if (ench == null)
-								return null;
-							return new EnchantmentType(ench, Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Experience.class, "experience")
 				.user("experience ?(points?)?")
 				.name("Experience")
 				.description("Experience points. Please note that Bukkit only allows to give XP, but not remove XP from players. " +
-						"You can however change a player's <a href='../expressions.html#ExprLevel'>level</a> and <a href='../expressions/#ExprLevelProgress'>level progress</a> freely.")
+						"You can however change a player's <a href='./expressions.html#ExprLevel'>level</a> and <a href='./expressions/#ExprLevelProgress'>level progress</a> freely.")
 				.usage("[&lt;number&gt;] ([e]xp|experience [point[s]])")
 				.examples("give 10 xp to the player")
 				.since("2.0")
@@ -785,18 +714,7 @@ public class SkriptClasses {
 					}
 
 				})
-				.serializer(new YggdrasilSerializer<Experience>() {
-//						return "" + xp;
-					@Override
-					@Nullable
-					public Experience deserialize(final String s) {
-						try {
-							return new Experience(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(VisualEffect.class, "visualeffect")
 				.name("Visual Effect")

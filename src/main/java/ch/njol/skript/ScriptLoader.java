@@ -480,7 +480,9 @@ public class ScriptLoader {
 	 *
 	 * @param configs Configs representing scripts.
 	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
-	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
+	 *  each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
+	 * Note that this is also opened before the {@link Structure#preLoad()} stage
+	 *  and closed after the {@link Structure#postLoad()} stage.
 	 * @return Info on the loaded scripts.
 	 */
 	private static CompletableFuture<ScriptInfo> loadScripts(List<Config> configs, OpenCloseable openCloseable) {
@@ -530,6 +532,7 @@ public class ScriptLoader {
 
 							parser.setActive(script);
 							parser.setCurrentStructure(structure);
+							parser.setNode(structure.getEntryContainer().getSource());
 
 							try {
 								if (!structure.preLoad())

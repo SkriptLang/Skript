@@ -23,7 +23,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.events.bukkit.ExperienceSpawnEvent;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
+import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.registrations.EventValues;
@@ -32,6 +32,7 @@ import ch.njol.skript.util.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -41,109 +42,129 @@ import org.bukkit.plugin.EventExecutor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EvtExperienceSpawn extends SelfRegisteringSkriptEvent {
+public class EvtExperienceSpawn extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Experience Spawn", EvtExperienceSpawn.class, ExperienceSpawnEvent.class,
 				"[e]xp[erience] [orb] spawn",
-				"spawn of [a[n]] [e]xp[erience] [orb]")
-				.description("Called whenever experience is about to spawn. This is a helper event for easily being able to stop xp from spawning, as all you can currently do is cancel the event.",
-						"Please note that it's impossible to detect xp orbs spawned by plugins (including Skript) with Bukkit, thus make sure that you have no such plugins if you don't want any xp orbs to spawn. "
-						+ "(Many plugins that only <i>change</i> the experience dropped by blocks or entities will be detected without problems though)")
-				.examples("on xp spawn:",
-						"\tworld is \"minigame_world\"",
-						"\tcancel event")
-				.since("2.0");
+				"spawn of [a[n]] [e]xp[erience] [orb]"
+			).description(
+				"Called whenever experience is about to spawn.",
+				"Please note that this event will not fire for xp orbs spawned by plugins (including Skript) with Bukkit."
+			).examples(
+				"on xp spawn:",
+				"\tworld is \"minigame_world\"",
+				"\tcancel event"
+			).since("2.0");
 		EventValues.registerEventValue(ExperienceSpawnEvent.class, Location.class, new Getter<Location, ExperienceSpawnEvent>() {
 			@Override
-			public Location get(ExperienceSpawnEvent e) {
-				return e.getLocation();
+			public Location get(ExperienceSpawnEvent event) {
+				return event.getLocation();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(ExperienceSpawnEvent.class, Experience.class, new Getter<Experience, ExperienceSpawnEvent>() {
 			@Override
-			public Experience get(ExperienceSpawnEvent e) {
-				return new Experience(e.getSpawnedXP());
+			public Experience get(ExperienceSpawnEvent event) {
+				return new Experience(event.getSpawnedXP());
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 	}
+
+	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());
+
+	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
+
+	private static final EventExecutor EXECUTOR = (listener, event) -> {
+		ExperienceSpawnEvent experienceEvent;
+		if (event instanceof BlockExpEvent) {
+			experienceEvent = new ExperienceSpawnEvent(
+				((BlockExpEvent) event).getExpToDrop(),
+				((BlockExpEvent) event).getBlock().getLocation().add(0.5, 0.5, 0.5)
+			);
+		} else if (event instanceof EntityDeathEvent) {
+			experienceEvent = new ExperienceSpawnEvent(
+				((EntityDeathEvent) event).getDroppedExp(),
+				((EntityDeathEvent) event).getEntity().getLocation()
+			);
+		} else if (event instanceof ExpBottleEvent) {
+			experienceEvent = new ExperienceSpawnEvent(
+				((ExpBottleEvent) event).getExperience(),
+				((ExpBottleEvent) event).getEntity().getLocation()
+			);
+		} else if (event instanceof PlayerFishEvent) {
+			if (((PlayerFishEvent) event).getState() != PlayerFishEvent.State.CAUGHT_FISH) // There is no EXP
+				return;
+			experienceEvent = new ExperienceSpawnEvent(
+				((PlayerFishEvent) event).getExpToDrop(),
+				((PlayerFishEvent) event).getPlayer().getLocation()
+			);
+		} else {
+			assert false;
+			return;
+		}
+
+		SkriptEventHandler.logEventStart(event);
+		synchronized (TRIGGERS) {
+			for (Trigger trigger : TRIGGERS) {
+				SkriptEventHandler.logTriggerStart(trigger);
+				trigger.execute(experienceEvent);
+				SkriptEventHandler.logTriggerEnd(trigger);
+			}
+		}
+		SkriptEventHandler.logEventEnd();
+
+		if (experienceEvent.isCancelled())
+			experienceEvent.setSpawnedXP(0);
+
+		if (event instanceof BlockExpEvent) {
+			((BlockExpEvent) event).setExpToDrop(experienceEvent.getSpawnedXP());
+		} else if (event instanceof EntityDeathEvent) {
+			((EntityDeathEvent) event).setDroppedExp(experienceEvent.getSpawnedXP());
+		} else if (event instanceof ExpBottleEvent) {
+			((ExpBottleEvent) event).setExperience(experienceEvent.getSpawnedXP());
+		} else if (event instanceof PlayerFishEvent) {
+			((PlayerFishEvent) event).setExpToDrop(experienceEvent.getSpawnedXP());
+		}
+	};
 	
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
-	private static final Collection<Trigger> triggers = new ArrayList<>();
-	
 	@Override
-	public void register(Trigger t) {
-		triggers.add(t);
-		registerExecutor();
-	}
-	
-	@Override
-	public void unregister(Trigger t) {
-		triggers.remove(t);
-	}
-	
-	@Override
-	public void unregisterAll() {
-		triggers.clear();
-	}
-	
-	private static boolean registeredExecutor = false;
-	
-	@SuppressWarnings("unchecked")
-	private static void registerExecutor() {
-		if (registeredExecutor)
-			return;
-		for (Class<? extends Event> c : new Class[] {BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
-			Bukkit.getPluginManager().registerEvent(c, new Listener() {}, SkriptConfig.defaultEventPriority.value(), executor, Skript.getInstance(), true);
-		registeredExecutor = true;
-	}
-	
-	private static final EventExecutor executor = (listener, e) -> {
-		ExperienceSpawnEvent es;
-		if (e instanceof BlockExpEvent) {
-			es = new ExperienceSpawnEvent(((BlockExpEvent) e).getExpToDrop(), ((BlockExpEvent) e).getBlock().getLocation().add(0.5, 0.5, 0.5));
-		} else if (e instanceof EntityDeathEvent) {
-			es = new ExperienceSpawnEvent(((EntityDeathEvent) e).getDroppedExp(), ((EntityDeathEvent) e).getEntity().getLocation());
-		} else if (e instanceof ExpBottleEvent) {
-			es = new ExperienceSpawnEvent(((ExpBottleEvent) e).getExperience(), ((ExpBottleEvent) e).getEntity().getLocation());
-		} else if (e instanceof PlayerFishEvent) {
-			if (((PlayerFishEvent) e).getState() != PlayerFishEvent.State.CAUGHT_FISH) // There is no EXP
-				return;
-			es = new ExperienceSpawnEvent(((PlayerFishEvent) e).getExpToDrop(), ((PlayerFishEvent) e).getPlayer().getLocation());
-		} else {
-			assert false;
-			return;
+	public boolean postLoad() {
+		TRIGGERS.add(trigger);
+		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
+			EventPriority priority = SkriptConfig.defaultEventPriority.value();
+			//noinspection unchecked
+			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
+				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
+		return true;
+	}
 
-		SkriptEventHandler.logEventStart(e);
-		for (Trigger t : triggers) {
-			SkriptEventHandler.logTriggerStart(t);
-			t.execute(es);
-			SkriptEventHandler.logTriggerEnd(t);
-		}
-		SkriptEventHandler.logEventEnd();
+	@Override
+	public void unload() {
+		TRIGGERS.remove(trigger);
+	}
 
-		if (es.isCancelled())
-			es.setSpawnedXP(0);
-		if (e instanceof BlockExpEvent) {
-			((BlockExpEvent) e).setExpToDrop(es.getSpawnedXP());
-		} else if (e instanceof EntityDeathEvent) {
-			((EntityDeathEvent) e).setDroppedExp(es.getSpawnedXP());
-		} else if (e instanceof ExpBottleEvent) {
-			((ExpBottleEvent) e).setExperience(es.getSpawnedXP());
-		} else if (e instanceof PlayerFishEvent) {
-			((PlayerFishEvent) e).setExpToDrop(es.getSpawnedXP());
-		}
-	};
+	@Override
+	public boolean check(Event event) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isEventPrioritySupported() {
+		return false;
+	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "experience spawn";
 	}
 	
