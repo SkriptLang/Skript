@@ -262,16 +262,17 @@ public class SkriptParser {
 							}
 							T t = info.c.newInstance();
 							if (getParser().getCurrentStructure() != null) {
-								List<TriggerSection> sections = getParser().getCurrentSections();
-								TriggerSection current = sections == null || sections.isEmpty() ? null : sections.get(sections.size() - 1);
 								if (t.getUsableStructures().length > 0 && !CollectionUtils.contains(t.getUsableStructures(), getParser().getCurrentStructure().getClass())) {
-									Skript.error("You cannot use this element in " + Utils.a(getParser().getCurrentStructure().toString(null, false)) + " structure.");
-								} else if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass()))) {
-									Skript.error("You cannot use this element " + (current == null ? "outside of the allowed sections."
-										: "in a '" + current.toString(null, false) + "' section"));
+									Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(getParser().getCurrentStructure().toString(null, false)) + " structure.");
 								}
 							} else if (t.getUsableStructures().length > 0) {
-								Skript.error("You cannot use this element outside of the allowed structures.");
+								Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
+							}
+							List<TriggerSection> sections = getParser().getCurrentSections();
+							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
+							if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass()))) {
+								Skript.error("'" + res.expr + "' cannot be used " + (current == null ? "outside of the allowed sections."
+									: "in a '" + current.toString(null, false) + "' section"));
 							}
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();
