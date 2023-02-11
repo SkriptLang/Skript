@@ -24,7 +24,6 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockSetter;
 import ch.njol.skript.bukkitutil.block.BlockValues;
-import ch.njol.skript.log.BlockingLogHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -109,9 +108,10 @@ public class BlockUtils {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
 		} catch (IllegalArgumentException ignored) {
 			try {
+				int finalOpeningBracket = data.lastIndexOf('[');
 				// we use the original dataString param here as we want the alias before modifications
-				String alias = dataString.substring(0, data.lastIndexOf("["));
-				data = data.substring(data.lastIndexOf("["), dataString.length());
+				String alias = dataString.substring(0, finalOpeningBracket);
+				data = data.substring(data.lastIndexOf("["), finalOpeningBracket);
 				ItemType type = Aliases.parseItemType(alias);
 				if (type == null)
 					return null;
