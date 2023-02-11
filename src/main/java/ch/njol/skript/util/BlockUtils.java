@@ -108,10 +108,9 @@ public class BlockUtils {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
 		} catch (IllegalArgumentException ignored) {
 			try {
-				int finalOpeningBracket = data.lastIndexOf('[');
 				// we use the original dataString param here as we want the alias before modifications
-				String alias = dataString.substring(0, finalOpeningBracket);
-				data = data.substring(finalOpeningBracket, dataString.length());
+				String alias = dataString.substring(0, dataString.lastIndexOf("["));
+				data = data.substring(data.lastIndexOf("["));
 				ItemType type = Aliases.parseItemType(alias);
 				if (type == null)
 					return null;
