@@ -111,7 +111,7 @@ public class BlockUtils {
 				int finalOpeningBracket = data.lastIndexOf('[');
 				// we use the original dataString param here as we want the alias before modifications
 				String alias = dataString.substring(0, finalOpeningBracket);
-				data = data.substring(data.lastIndexOf("["), finalOpeningBracket);
+				data = data.substring(finalOpeningBracket, dataString.length());
 				ItemType type = Aliases.parseItemType(alias);
 				if (type == null)
 					return null;
