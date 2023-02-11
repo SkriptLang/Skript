@@ -108,7 +108,7 @@ public class BlockUtils {
 		try {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
 		} catch (IllegalArgumentException ignored) {
-			try (BlockingLogHandler ignoredHandler = new BlockingLogHandler().start()) {
+			try {
 				// we use the original dataString param here as we want the alias before modifications
 				String alias = dataString.substring(0, data.lastIndexOf("["));
 				data = data.substring(data.lastIndexOf("["), dataString.length());
