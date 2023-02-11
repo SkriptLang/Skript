@@ -40,7 +40,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Whitelist")
 @Description({
-	"A server's whitelist.",
+	"The server's whitelist.",
 	"This expression can be used to add/remove players to/from the whitelist.",
 	"To enable and disable it (set whitelist to true/false), and to empty it (reset whitelist)"
 })
