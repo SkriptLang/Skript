@@ -52,12 +52,13 @@ public class EffEnforceWhitelist extends Effect {
 	private static String NOT_WHITELISTED_MESSAGE = "You are not whitelisted on this server!";
 
 	static {
-		try {
-			YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
-			NOT_WHITELISTED_MESSAGE = (String) spigotYml.get("messages.whitelist", NOT_WHITELISTED_MESSAGE);
-		} catch (Exception ignored) {}
-		if (Skript.methodExists(Bukkit.class, "setWhitelistEnforced", boolean.class))
+		if (Skript.methodExists(Bukkit.class, "setWhitelistEnforced", boolean.class)) {
+			try {
+				YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
+				NOT_WHITELISTED_MESSAGE = (String) spigotYml.get("messages.whitelist", NOT_WHITELISTED_MESSAGE);
+			} catch (Exception ignored) {}
 			Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] white[ ]list");
+		}
 	}
 
 	private boolean enforce;
@@ -75,7 +76,7 @@ public class EffEnforceWhitelist extends Effect {
 	}
 
 	// A workaround for Bukkit's not kicking non-whitelisted players upon enforcement
-	public void reloadWhitelist() {
+	public static void reloadWhitelist() {
 		Bukkit.reloadWhitelist();
 		if (!Bukkit.hasWhitelist() || !Bukkit.isWhitelistEnforced())
 			return;

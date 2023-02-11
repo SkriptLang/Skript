@@ -52,8 +52,6 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.5.2")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
-	private EffEnforceWhitelist effEnforceWhitelist = new EffEnforceWhitelist();
-
 	static {
 		Skript.registerExpression(ExprWhitelist.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[the] white[ ]list");
 	}
@@ -79,11 +77,15 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (delta == null && mode != ChangeMode.RESET)
+			return;
 		switch (mode) {
 			case SET:
-				Bukkit.setWhitelist((Boolean) delta[0]);
-				effEnforceWhitelist.reloadWhitelist();
+				boolean value = (Boolean) delta[0];
+				Bukkit.setWhitelist(value);
+				if (value)
+					EffEnforceWhitelist.reloadWhitelist();
 				break;
 			case ADD:
 				for (Object player : delta)
@@ -92,6 +94,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 			case REMOVE:
 				for (Object player : delta)
 					((OfflinePlayer) player).setWhitelisted(false);
+				EffEnforceWhitelist.reloadWhitelist();
 				break;
 			case RESET:
 				for (OfflinePlayer player : Bukkit.getWhitelistedPlayers()) {

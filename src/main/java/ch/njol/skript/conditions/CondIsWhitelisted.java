@@ -35,7 +35,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Is Whitelisted")
-@Description("Whether or not the server or a player is whitelisted, and server is whitelist enforced.")
+@Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
 @Examples({
 	"if player is whitelisted:",
 	"if server is whitelisted:",
