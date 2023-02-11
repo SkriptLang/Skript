@@ -18,11 +18,13 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockSetter;
 import ch.njol.skript.bukkitutil.block.BlockValues;
+import ch.njol.skript.log.BlockingLogHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -105,8 +107,18 @@ public class BlockUtils {
 		
 		try {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
-		} catch (IllegalArgumentException ignore) {
-			return null;
+		} catch (IllegalArgumentException ignored) {
+			try (BlockingLogHandler ignoredHandler = new BlockingLogHandler().start()) {
+				// we use the original dataString param here as we want the alias before modifications
+				String alias = dataString.substring(0, data.lastIndexOf("["));
+				data = data.substring(data.lastIndexOf("["), dataString.length());
+				ItemType type = Aliases.parseItemType(alias);
+				if (type == null)
+					return null;
+				return Bukkit.createBlockData(type.getMaterial(), data);
+			} catch (IllegalArgumentException | StringIndexOutOfBoundsException alsoIgnored) {
+				return null;
+			}
 		}
 	}
 
