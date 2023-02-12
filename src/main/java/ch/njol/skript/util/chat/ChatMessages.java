@@ -95,6 +95,8 @@ public class ChatMessages {
 				Skript.debug("Parsing message style lang files");
 				for (SkriptChatCode code : SkriptChatCode.values()) {
 					assert code != null;
+					if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
+						continue;
 					registerChatCode(code);
 				}
 				

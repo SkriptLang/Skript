@@ -1,0 +1,59 @@
+name: Nightly Docs
+
+on:
+    push:
+        branches:
+            - master
+            - 'dev/**'
+
+jobs:
+    docs:
+        if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+                  path: skript
+            - name: Set up JDK 17
+              uses: actions/setup-java@v3
+              with:
+                  java-version: '17'
+                  distribution: 'adopt'
+                  cache: gradle
+            - name: Grant execute permission for gradlew
+              run: chmod +x ./skript/gradlew
+            - name: Checkout skript-docs
+              uses: actions/checkout@v3
+              with:
+                  repository: 'SkriptLang/skript-docs'
+                  path: skript-docs
+                  ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
+            - name: Setup documentation environment
+              env:
+                  DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
+              run: |
+                eval `ssh-agent`
+                DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}"
+                rm -r ${DOC_DIR}/* || true
+                echo "DOC_DIR=${DOC_DIR}" >> $GITHUB_ENV
+                echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
+                echo "SKRIPT_DOCS_OUTPUT_DIR=${DOC_DIR}/" >> $GITHUB_ENV
+                echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+                mkdir ~/.ssh
+                ssh-keyscan www.github.com >> ~/.ssh/known_hosts
+            - name: Build Skript and generate docs
+              run: |
+                cd ./skript
+                ./gradlew clean genDocs javadoc
+                mv "${GITHUB_WORKSPACE}/skript/build/docs/javadoc" "${DOC_DIR}/javadocs"
+                cd ..
+            - name: Push nightly docs
+              if: success()
+              run: |
+                cd ./skript-docs
+                git config user.email "nightlydocs@skriptlang.org"
+                git config user.name "Nightly Docs Bot"
+                git add docs/nightly
+                git commit -m "Update nightly docs" || (echo "Nothing to push!" && exit 0)
+                git push origin main
