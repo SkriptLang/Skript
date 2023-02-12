@@ -86,7 +86,7 @@ public class ExprBreakSpeed extends SimpleExpression<Float> {
 
 	@Override
 	public boolean isSingle() {
-		return false;
+		return blocks.isSingle() && players.isSingle();
 	}
 
 	@Override
