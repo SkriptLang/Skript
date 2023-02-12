@@ -52,6 +52,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -262,17 +263,33 @@ public class SkriptParser {
 							}
 							T t = info.c.newInstance();
 							if (getParser().getCurrentStructure() != null) {
-								if (t.getUsableStructures().length > 0 && !CollectionUtils.contains(t.getUsableStructures(), getParser().getCurrentStructure().getClass())) {
-									Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(getParser().getCurrentStructure().toString(null, false)) + " structure.");
+								if (t.getUsableStructures().length > 0) {
+									boolean error = true;
+									Class<?> current = getParser().getCurrentStructure().getClass();
+									for (Class<? extends Structure> clazz : t.getUsableStructures()) {
+										if (clazz.isAssignableFrom(current))
+											error = false;
+									}
+									if (error)
+										Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(getParser().getCurrentStructure().toString(null, false)) + " structure.");
 								}
 							} else if (t.getUsableStructures().length > 0) {
 								Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
 							}
 							List<TriggerSection> sections = getParser().getCurrentSections();
 							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
-							if (t.getUsableSections().length > 0 && (current == null || !CollectionUtils.contains(t.getUsableSections(), current.getClass()))) {
-								Skript.error("'" + res.expr + "' cannot be used " + (current == null ? "outside of the allowed sections."
-									: "in a '" + current.toString(null, false) + "' section"));
+							if (t.getUsableSections().length > 0) {
+								if (current == null) {
+									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
+								} else {
+									boolean error = true;
+									for (Class<? extends Section> clazz : t.getUsableSections()) {
+										if (clazz.isAssignableFrom(current.getClass()))
+											error = false;
+									}
+									if (error)
+										Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
+								}
 							}
 							if (t.init(res.exprs, i, getParser().getHasDelayBefore(), res)) {
 								log.printLog();

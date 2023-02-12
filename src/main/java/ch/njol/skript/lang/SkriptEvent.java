@@ -63,7 +63,7 @@ public abstract class SkriptEvent extends Structure {
 	@SafeVarargs
 	public static boolean isEvent(Class<? extends Event>... events) {
 		ParserInstance parser = ParserInstance.get();
-		if (CollectionUtils.containsAny(parser.getCurrentEvents(), events))
+		if (parser.isCurrentEvent(events))
 			return true;
 		Skript.error("You cannot use this element in " + Utils.a(parser.getCurrentEventName()) + " event.");
 		return false;
