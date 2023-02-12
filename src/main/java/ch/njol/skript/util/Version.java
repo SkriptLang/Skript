@@ -31,31 +31,30 @@ import org.eclipse.jdt.annotation.Nullable;
 public class Version implements Serializable, Comparable<Version> {
 	private final static long serialVersionUID = 8687040355286333293L;
 	
-	private final int[] version = new int[3];
+	private final Integer[] version = new Integer[3];
 	/**
 	 * Everything after the version, e.g. "alpha", "b", "rc 1", "build 2314", "-SNAPSHOT" etc. or null if nothing.
 	 */
 	@Nullable
 	private final String postfix;
-	
-	public Version(final int... version) {
+
+	public Version(int... version) {
 		if (version.length < 1 || version.length > 3)
 			throw new IllegalArgumentException("Versions must have a minimum of 2 and a maximum of 3 numbers (" + version.length + " numbers given)");
 		for (int i = 0; i < version.length; i++)
 			this.version[i] = version[i];
 		postfix = null;
 	}
-	
-	public Version(final int major, final int minor, final @Nullable String postfix) {
+
+	public Version(int major, int minor, @Nullable String postfix) {
 		version[0] = major;
 		version[1] = minor;
 		this.postfix = postfix == null || postfix.isEmpty() ? null : postfix;
 	}
-	
-	@SuppressWarnings("null")
-	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?\\s*(.*)");
-	
-	public Version(final String version) {
+
+	public final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:-(.*))?");
+
+	public Version(String version) {
 		final Matcher m = versionPattern.matcher(version.trim());
 		if (!m.matches())
 			throw new IllegalArgumentException("'" + version + "' is not a valid version string");
@@ -63,9 +62,9 @@ public class Version implements Serializable, Comparable<Version> {
 			if (m.group(i + 1) != null)
 				this.version[i] = Utils.parseInt("" + m.group(i + 1));
 		}
-		postfix = m.group(m.groupCount()).isEmpty() ? null : m.group(m.groupCount());
+		postfix = m.group(4);
 	}
-	
+
 	@Override
 	public boolean equals(final @Nullable Object obj) {
 		if (this == obj)
@@ -77,36 +76,44 @@ public class Version implements Serializable, Comparable<Version> {
 	
 	@Override
 	public int hashCode() {
-		final String pf = postfix;
-		return Arrays.hashCode(version) * 31 + (pf == null ? 0 : pf.hashCode());
+		return Arrays.hashCode(version) * 31 + (postfix == null ? 0 : postfix.hashCode());
 	}
 	
 	@Override
-	public int compareTo(final @Nullable Version other) {
+	public int compareTo(@Nullable Version other) {
 		if (other == null)
 			return 1;
+
 		for (int i = 0; i < version.length; i++) {
-			if (version[i] > other.version[i])
+			if (get(i) > other.get(i))
 				return 1;
-			if (version[i] < other.version[i])
+			if (get(i) < other.get(i))
 				return -1;
 		}
-		final String pf = postfix;
-		if (pf == null)
+
+		if (postfix == null)
 			return other.postfix == null ? 0 : 1;
-		else
-			return other.postfix == null ? -1 : pf.compareTo(other.postfix);
+		return other.postfix == null ? -1 : postfix.compareTo(other.postfix);
 	}
-	
-	public int compareTo(final int... other) {
+
+	/**
+	 * @param other An array containing the major, minor, and revision (ex: 1,19,3)
+	 * @return a negative integer, zero, or a positive integer as this object is
+	 * less than, equal to, or greater than the specified object.
+	 */
+	public int compareTo(int... other) {
 		assert other.length >= 2 && other.length <= 3;
 		for (int i = 0; i < version.length; i++) {
-			if (version[i] > (i >= other.length ? 0 : other[i]))
+			if (get(i) > (i >= other.length ? 0 : other[i]))
 				return 1;
-			if (version[i] < (i >= other.length ? 0 : other[i]))
+			if (get(i) < (i >= other.length ? 0 : other[i]))
 				return -1;
 		}
 		return 0;
+	}
+
+	private int get(int i) {
+		return version[i] == null ? 0 : version[i];
 	}
 	
 	public boolean isSmallerThan(final Version other) {
@@ -133,13 +140,12 @@ public class Version implements Serializable, Comparable<Version> {
 	}
 	
 	public int getRevision() {
-		return version.length == 2 ? 0 : version[2];
+		return version[2] == null ? 0 : version[2];
 	}
 	
 	@Override
 	public String toString() {
-		final String pf = postfix;
-		return version[0] + "." + version[1] + (version[2] == 0 ? "" : "." + version[2]) + (pf == null ? "" : pf.startsWith("-") ? pf : " " + pf);
+		return version[0] + "." + version[1] + (version[2] == null ? "" : "." + version[2]) + (postfix == null ? "" : "-" + postfix);
 	}
 	
 	public static int compare(final String v1, final String v2) {
