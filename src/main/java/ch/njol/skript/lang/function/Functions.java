@@ -227,51 +227,94 @@ public abstract class Functions {
 	/**
 	 * Gets a function, if it exists. Note that even if function exists in scripts,
 	 * it might not have been parsed yet. If you want to check for existence,
-	 * then use {@link #getSignature(String, String)}.
+	 * then use {@link #getGlobalSignature(String)}.
+	 *
+	 * @deprecated in favour of {@link #getGlobalFunction(String)} for proper name.
+	 * @param name Name of function.
+	 * @return Function, or null if it does not exist.
+	 */
+	@Deprecated
+	@Nullable
+	public static Function<?> getFunction(String name) {
+		return getGlobalFunction(name);
+	}
+
+	/**
+	 * Gets a function, if it exists. Note that even if function exists in scripts,
+	 * it might not have been parsed yet. If you want to check for existence,
+	 * then use {@link #getGlobalSignature(String)}.
+	 *
+	 * @param name Name of function.
+	 * @return Function, or null if it does not exist.
+	 */
+	@Nullable
+	public static Function<?> getGlobalFunction(String name) {
+		Namespace namespace = globalFunctions.get(name);
+		if (namespace == null)
+			return null;
+		return namespace.getFunction(name, false);
+	}
+
+	/**
+	 * Gets a function, if it exists. Note that even if function exists in scripts,
+	 * it might not have been parsed yet. If you want to check for existence,
+	 * then use {@link #getLocalSignature(String, String)}.
 	 *
 	 * @param name Name of function.
 	 * @param script The script where the function is declared in. Used to get local functions.
 	 * @return Function, or null if it does not exist.
 	 */
 	@Nullable
-	public static Function<?> getFunction(String name, @Nullable String script) {
+	public static Function<?> getLocalFunction(String name, String script) {
 		Namespace namespace = null;
 		Function<?> function = null;
-		if (script != null) {
-			namespace = getScriptNamespace(script);
-			if (namespace != null)
-				function = namespace.getFunction(name);
-		}
-		if (namespace == null || function == null) {
-			namespace = globalFunctions.get(name);
-			if (namespace == null)
-				return null;
-			function = namespace.getFunction(name, false);
-		}
+		namespace = getScriptNamespace(script);
+		if (namespace != null)
+			function = namespace.getFunction(name);
 		return function;
 	}
 
 	/**
 	 * Gets a signature of function with given name.
+	 * 
+	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name.
+	 * @param name Name of function.
+	 * @return Signature, or null if function does not exist.
+	 */
+	@Deprecated
+	@Nullable
+	public static Signature<?> getSignature(String name) {
+		return getGlobalSignature(name);
+	}
+
+	/**
+	 * Gets a signature of function with given name.
+	 * 
+	 * @param name Name of function.
+	 * @return Signature, or null if function does not exist.
+	 */
+	@Nullable
+	public static Signature<?> getGlobalSignature(String name) {
+		Namespace namespace = globalFunctions.get(name);
+		if (namespace == null)
+			return null;
+		return namespace.getSignature(name, false);
+	}
+
+	/**
+	 * Gets a signature of function with given name.
+	 * 
 	 * @param name Name of function.
 	 * @param script The script where the function is declared in. Used to get local functions.
 	 * @return Signature, or null if function does not exist.
 	 */
 	@Nullable
-	public static Signature<?> getSignature(String name, @Nullable String script) {
+	public static Signature<?> getLocalSignature(String name, String script) {
 		Namespace namespace = null;
 		Signature<?> signature = null;
-		if (script != null) {
-			namespace = getScriptNamespace(script);
-			if (namespace != null)
-				signature = namespace.getSignature(name);
-		}
-		if (namespace == null || signature == null) {
-			namespace = globalFunctions.get(name);
-			if (namespace == null)
-				return null;
-			signature = namespace.getSignature(name, false);
-		}
+		namespace = getScriptNamespace(script);
+		if (namespace != null)
+			signature = namespace.getSignature(name);
 		return signature;
 	}
 

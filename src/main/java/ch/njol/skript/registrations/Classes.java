@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.entity.EntityData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -128,6 +129,8 @@ public abstract class Classes {
 			if (s != null)
 				Variables.yggdrasil.registerClassResolver(s);
 		}
+
+		EntityData.onRegistrationStop();
 	}
 	
 	/**
