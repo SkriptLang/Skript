@@ -86,6 +86,7 @@ public class Message {
 	/**
 	 * Gets the text this Message refers to. If value is null returns a default value.
 	 *
+	 * @param defaultValue The string this method refers to if value is null
 	 * @return This message's value or default value if null
 	 */
 	public final String getValueOrDefault(String defaultValue) {
