@@ -34,6 +34,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
 @Examples({
@@ -48,11 +51,12 @@ public class CondIsWhitelisted extends Condition {
 	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
 
 	static {
-		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|not:(isn't|is not)) white[ ]listed",
-			"%offlineplayers% (is|are)(|not:(isn't|is not)) white[ ]listed",
-			(ENFORCE_SUPPORT ? "[the] white[ ]list (is|not:(isn't|is not)) enforced" : "")
-		);
+		List<String> patterns = new ArrayList<>();
+		patterns.add("[the] server (is|not:(isn't|is not)) white[ ]listed");
+		patterns.add("%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed");
+		if (ENFORCE_SUPPORT)
+			patterns.add("[the] white[ ]list (is|not:(isn't|is not)) enforced");
+		Skript.registerCondition(CondIsWhitelisted.class, patterns.toArray(new String[0]));
 	}
 
 	@Nullable
