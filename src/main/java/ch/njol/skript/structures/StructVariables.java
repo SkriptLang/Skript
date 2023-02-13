@@ -97,9 +97,7 @@ public class StructVariables extends Structure {
 				return;
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint
 				return;
-			// Take top of stack, without removing it
-			Map<String, Class<?>[]> head = this.hints.getFirst();
-			head.put(variable, hints);
+			this.hints.getFirst().put(variable, hints);
 		}
 
 		public void enterScope() {

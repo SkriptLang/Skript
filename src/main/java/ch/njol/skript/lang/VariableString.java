@@ -614,15 +614,15 @@ public class VariableString implements Expression<String> {
 		}
 		return typeHints.stream().map(builder -> builder.toString()).collect(Collectors.toList());
 	}
-	
+
 	public boolean isSimple() {
 		return isSimple;
 	}
-	
+
 	public StringMode getMode() {
 		return mode;
 	}
-	
+
 	public VariableString setMode(StringMode mode) {
 		if (this.mode == mode || isSimple)
 			return this;
