@@ -265,9 +265,10 @@ public class SkriptParser {
 							}
 							T t = info.c.newInstance();
 							ParserInstance parser = getParser();
-							boolean error = true;
+							boolean error = false;
 							if (parser.getCurrentStructure() != null) {
 								if (t.getUsableStructures().length > 0) {
+									error = true;
 									for (Class<? extends Structure> clazz : t.getUsableStructures()) {
 										if (parser.isCurrentStructure(clazz)) {
 											error = false;
@@ -279,6 +280,7 @@ public class SkriptParser {
 									}
 								}
 							} else if (t.getUsableStructures().length > 0) {
+								error = true;
 								Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
 							}
 							List<TriggerSection> sections = parser.getCurrentSections();
