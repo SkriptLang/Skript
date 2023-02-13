@@ -21,7 +21,6 @@ package ch.njol.skript.structures;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +35,8 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
+
+import com.google.common.collect.ImmutableList;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -65,9 +66,12 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Examples({
 	"variables:",
-	"\t{joins} = 0",
+		"\t{joins} = 0",
+		"\t{balance::%player%} = 0",
 	"on join:",
-	"\tadd 1 to {joins}"
+		"\tadd 1 to {joins}",
+		"\tmessage \"Your balance is %{balance::%player%}%\"",
+	""
 })
 @Since("1.0")
 public class StructVariables extends Structure {
@@ -80,11 +84,11 @@ public class StructVariables extends Structure {
 
 	public static class DefaultVariables implements ScriptData {
 
-		private final List<NonNullPair<String, Object>> variables = new ArrayList<>();
 		private final Deque<Map<String, Class<?>[]>> hints = new ArrayDeque<>();
+		private final List<NonNullPair<String, Object>> variables;
 
 		public DefaultVariables(Collection<NonNullPair<String, Object>> variables) {
-			this.variables.addAll(variables);
+			this.variables = ImmutableList.copyOf(variables);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -132,7 +136,7 @@ public class StructVariables extends Structure {
 		 */
 		@Unmodifiable
 		public List<NonNullPair<String, Object>> getVariables() {
-			return Collections.unmodifiableList(variables);
+			return variables;
 		}
 	}
 
