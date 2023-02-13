@@ -21,6 +21,7 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.MarkedForRemoval;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
@@ -1791,10 +1792,11 @@ public final class Skript extends JavaPlugin implements Listener {
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
 
-	public static Message SKRIPT_PREFIX = new Message("skript.prefix");
+	private static final String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
+	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX + info));
+		sender.sendMessage(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + info));
 	}
 	
 	/**
@@ -1803,11 +1805,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX + message), permission);
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + message), permission);
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX + message), "skript.admin");
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + message), "skript.admin");
 	}
 	
 	/**
@@ -1821,7 +1823,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX + (ChatColor.DARK_RED + error)));
+		sender.sendMessage(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + (ChatColor.DARK_RED + error)));
 	}
 	
 	/**
