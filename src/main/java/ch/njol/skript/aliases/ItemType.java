@@ -347,7 +347,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @return Whether this ItemType has at least one ItemData that represents it
+	 * @return Whether this ItemType has at least one ItemData that represents it whether it's a block or an item
 	 */
 	public boolean hasType() {
 		return types.get(0) != null;

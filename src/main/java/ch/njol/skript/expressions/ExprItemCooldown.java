@@ -37,13 +37,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Name("Item Cooldown")
-@Description("Set the cooldown of a specific material for a certain amount of ticks. Setting this to <code>0 ticks</code>" +
-	" will remove the cooldown.")
+@Description("Change the cooldown of a specific material to a certain amount of <a href='./classes.html#timespan'>Timespan</a>.")
 @Examples({
 	"on right click using stick:",
 		"\tset item cooldown of player's tool for player to 1 minute",
@@ -97,7 +95,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
 			return;
 		
