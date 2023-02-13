@@ -49,15 +49,12 @@ public class EffKnockback extends Effect {
 			Skript.registerEffect(EffKnockback.class, "(apply knockback to|knock[back]) %livingentities% [%direction%] [with (strength|force) %-number%]");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
-	@SuppressWarnings("null")
 	private Expression<Direction> direction;
 	@Nullable
 	private Expression<Number> strength;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		direction = (Expression<Direction>) exprs[1];
