@@ -137,7 +137,10 @@ public class DefaultConverters {
 		// Experience - XpOrbData
 		Converters.registerConverter(Experience.class, XpOrbData.class, e -> new XpOrbData(e.getXP()));
 		Converters.registerConverter(XpOrbData.class, Experience.class, e -> new Experience(e.getExperience()));
-		
+
+		// Slot - ItemStack
+		Converters.registerConverter(Slot.class, ItemStack.class, Slot::getItem);
+
 		// Slot - ItemType
 		Converters.registerConverter(Slot.class, ItemType.class, s -> {
 			ItemStack i = s.getItem();
