@@ -1791,11 +1791,11 @@ public final class Skript extends JavaPlugin implements Listener {
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
 
-	private static final String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
-	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix", SKRIPT_PREFIX);
+	private static final String SKRIPT_PREFIX = "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
+	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + info));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault(SKRIPT_PREFIX) + info));
 	}
 	
 	/**
@@ -1804,11 +1804,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + message), permission);
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault(SKRIPT_PREFIX) + message), permission);
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + message), "skript.admin");
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault(SKRIPT_PREFIX) + message), "skript.admin");
 	}
 	
 	/**
@@ -1822,7 +1822,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + ChatColor.DARK_RED + error));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault(SKRIPT_PREFIX) + ChatColor.DARK_RED + error));
 	}
 	
 	/**
