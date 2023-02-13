@@ -266,10 +266,11 @@ public class SkriptParser {
 							T t = info.c.newInstance();
 							ParserInstance parser = getParser();
 							boolean error = false;
+							Class<? extends Structure>[] usableStructures = t.getUsableStructures();
 							if (parser.getCurrentStructure() != null) {
-								if (t.getUsableStructures().length > 0) {
+								if (usableStructures.length > 0) {
 									error = true;
-									for (Class<? extends Structure> clazz : t.getUsableStructures()) {
+									for (Class<? extends Structure> clazz : usableStructures) {
 										if (parser.isCurrentStructure(clazz)) {
 											error = false;
 											break;
@@ -279,18 +280,19 @@ public class SkriptParser {
 										Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(parser.getCurrentStructure().toString(null, false)) + " structure.");
 									}
 								}
-							} else if (t.getUsableStructures().length > 0) {
+							} else if (usableStructures.length > 0) {
 								error = true;
 								Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
 							}
+							Class<? extends Section>[] usableSections = t.getUsableSections();
 							List<TriggerSection> sections = parser.getCurrentSections();
 							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
-							if (!error && t.getUsableSections().length > 0) {
+							if (!error && usableSections.length > 0) {
 								error = true;
 								if (current == null) {
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
 								} else {
-									for (Class<? extends Section> clazz : t.getUsableSections()) {
+									for (Class<? extends Section> clazz : usableSections) {
 										if (parser.isCurrentSection(clazz)) {
 											error = false;
 											break;
