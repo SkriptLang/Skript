@@ -522,7 +522,7 @@ public class VariableString implements Expression<String> {
 	 * Parses all expressions in the string and returns it.
 	 * If this is a simple string, the event may be null.
 	 * 
-	 * @param e Event to pass to the expressions.
+	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
 	public String toString(@Nullable Event event) {
@@ -548,7 +548,7 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		String complete = builder.toString();
-		if (!types.isEmpty()) {
+		if (!types.isEmpty() && mode == StringMode.VARIABLE_NAME) {
 			DefaultVariables data = script.getData(DefaultVariables.class);
 			if (data != null)
 				data.add(complete, types.toArray(new Class<?>[0]));

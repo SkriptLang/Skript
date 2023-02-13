@@ -227,12 +227,11 @@ public class StructVariables extends Structure {
 		DefaultVariables data = getParser().getCurrentScript().getData(DefaultVariables.class);
 		for (NonNullPair<String, Object> pair : data.getVariables()) {
 			String name = pair.getKey();
-			Object o = pair.getValue();
-
 			if (Variables.getVariable(name, null, false) != null)
 				continue;
 
-			Variables.setVariable(name, o, null, false);
+			Object value = pair.getValue();
+			Variables.setVariable(name, value, null, false);
 		}
 		return true;
 	}
