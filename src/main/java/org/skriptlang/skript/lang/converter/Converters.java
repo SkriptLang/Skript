@@ -20,7 +20,10 @@ package org.skriptlang.skript.lang.converter;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.Pair;
+import ch.njol.util.NonNullPair;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -28,9 +31,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Converters are used to provide Skript with specific instructions for converting an object to a different type.
@@ -46,9 +49,7 @@ public final class Converters {
 	private static final List<ConverterInfo<?, ?>> CONVERTERS = new ArrayList<>(50);
 
 	/**
-	 * @return An unmodifiable, synchronized list containing all registered {@link ConverterInfo}s.
-	 * When traversing this list, please refer to {@link Collections#synchronizedList(List)} to ensure that
-	 *  the list is properly traversed due to its synchronized status.
+	 * @return An unmodifiable list containing all registered {@link ConverterInfo}s.
 	 * Please note that this does not include any special Converters resolved by Skript during runtime.
 	 * This method ONLY returns converters explicitly registered during registration.
 	 * Thus, it is recommended to use {@link #getConverter(Class, Class)}.
@@ -60,11 +61,14 @@ public final class Converters {
 	}
 
 	/**
-	 * A map for quickly access converters that have already been resolved.
-	 * Some pairs may point to a null value, indicating that no converter exists between the two types.
+	 * A cache for quickly accessing converters that have already been resolved.
+	 * Some pairs may point to an empty Optional, indicating that no converter exists between the two types.
 	 * This is useful for skipping complex lookups that may require chaining.
+	 * To save on ram, entries are removed from the cache after a certain timespan.
 	 */
-	private static final Map<Pair<Class<?>, Class<?>>, ConverterInfo<?, ?>> QUICK_ACCESS_CONVERTERS = new HashMap<>(50);
+	private static final LoadingCache<NonNullPair<Class<?>, Class<?>>, Optional<ConverterInfo<?, ?>>> QUICK_ACCESS_CONVERTERS = CacheBuilder.newBuilder()
+		.expireAfterAccess(10, TimeUnit.MINUTES)
+		.build(CacheLoader.from(pair -> Optional.ofNullable(getConverter_i(pair.getFirst(), pair.getSecond()))));
 
 	/**
 	 * Registers a new Converter with Skript's collection of Converters.
@@ -91,7 +95,7 @@ public final class Converters {
 		synchronized (CONVERTERS) {
 			if (exactConverterExists(from, to)) {
 				throw new SkriptAPIException(
-					"A Converter from '" + from + "' to '" + to + " already exists!"
+						"A Converter from '" + from + "' to '" + to + "' already exists!"
 				);
 			}
 			CONVERTERS.add(info);
@@ -222,20 +226,7 @@ public final class Converters {
 	@SuppressWarnings("unchecked")
 	public static <F, T> ConverterInfo<F, T> getConverterInfo(Class<F> fromType, Class<T> toType) {
 		assertIsDoneLoading();
-
-		Pair<Class<?>, Class<?>> pair = new Pair<>(fromType, toType);
-		ConverterInfo<F, T> converter;
-
-		synchronized (QUICK_ACCESS_CONVERTERS) {
-			if (QUICK_ACCESS_CONVERTERS.containsKey(pair)) {
-				converter = (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.get(pair);
-			} else { // Compute QUICK_ACCESS for provided types
-				converter = getConverter_i(fromType, toType);
-				QUICK_ACCESS_CONVERTERS.put(pair, converter);
-			}
-		}
-
-		return converter;
+		return (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.getUnchecked(new NonNullPair<>(fromType, toType)).orElse(null);
 	}
 
 	/**
