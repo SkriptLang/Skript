@@ -109,19 +109,23 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) { // null will make the entity target-less (reset target) but for players it will remove them
-			LivingEntity target = delta == null ? null : (LivingEntity) delta[0];
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
+			LivingEntity target = delta == null ? null : (LivingEntity) delta[0]; // null will make the entity target-less (reset target) but for players it will remove them.
+			if (event instanceof EntityTargetEvent) {
+				EntityTargetEvent targetEvent = (EntityTargetEvent) event;
+				for (LivingEntity entity : getExpr().getArray(event)) {
+					if (entity.equals(targetEvent.getEntity()))
+						targetEvent.setTarget(target);
+				}
+				return;
+			}
 			for (LivingEntity entity : getExpr().getArray(event)) {
-				if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
-					((EntityTargetEvent) event).setTarget(target);
-				} else {
-					if (entity instanceof Mob) {
-						((Mob) entity).setTarget(target);
-					} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-						Entity playerTarget = getTarget(entity, type);
-						if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
-							playerTarget.remove();
-					}
+				if (entity instanceof Mob) {
+					((Mob) entity).setTarget(target);
+				} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
+					Entity playerTarget = getTarget(entity, type);
+					if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
+						playerTarget.remove();
 				}
 			}
 		}
