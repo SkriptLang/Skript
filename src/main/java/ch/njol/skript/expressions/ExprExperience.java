@@ -50,7 +50,7 @@ import ch.njol.util.Kleenean;
 		"on break of diamond ore:",
 		"\tif tool of player = diamond pickaxe:",
 		"\t\tadd 100 to dropped experience"})
-@Since("2.1, 2.5.3 (block break event)")
+@Since("2.1, 2.5.3 (block break event), INSERT VERSION (experience change event)")
 @Events({"experience spawn", "break / mine", "experience change"})
 public class ExprExperience extends SimpleExpression<Experience> {
 	static {
@@ -108,25 +108,30 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		} else {
 			return;
 		}
-		for (Object obj : delta) {
-			double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
-			switch (mode) {
-				case ADD:
-					eventExp += value;
-					break;
-				case SET:
-					eventExp = value;
-					break;
-				case REMOVE:
-				case REMOVE_ALL:
-					eventExp -= value;
-					break;
-				case RESET:
-				case DELETE:
-					assert false;
-					break;
+		if (delta == null) {
+			eventExp = eventExp = 0;
+		} else {
+			for (Object obj : delta) {
+				double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
+				switch (mode) {
+					case ADD:
+						eventExp += value;
+						break;
+					case SET:
+						eventExp = value;
+						break;
+					case REMOVE:
+					case REMOVE_ALL:
+						eventExp -= value;
+						break;
+					case RESET:
+					case DELETE:
+						assert false;
+						break;
+				}
 			}
 		}
+
 		
 		eventExp = Math.max(0, Math.round(eventExp));
 		int roundedEventExp = (int) eventExp;
