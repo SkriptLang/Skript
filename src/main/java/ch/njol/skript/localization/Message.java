@@ -49,12 +49,14 @@ public class Message {
 			firstChange = false;
 		});
 	}
-	
+
 	public final String key;
 	@Nullable
 	private String value;
+	@Nullable
+	private String defaultValue;
 	boolean revalidate = true;
-	
+
 	public Message(final String key) {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
 		messages.add(this);
@@ -62,7 +64,16 @@ public class Message {
 		if (Skript.testing() && Language.isInitialized() && !Language.keyExists(this.key))
 			Language.missingEntryError(this.key);
 	}
-	
+
+	public Message(final String key, final String defaultValue) {
+		this.key = "" + key.toLowerCase(Locale.ENGLISH);
+		this.defaultValue = defaultValue;
+		messages.add(this);
+
+		if (Skript.testing() && Language.isInitialized() && !Language.keyExists(this.key))
+			Language.missingEntryError(this.key);
+	}
+
 	/**
 	 * @return The value of this message in the current language
 	 */
@@ -82,7 +93,17 @@ public class Message {
 		validate();
 		return value;
 	}
-	
+
+	/**
+	 * Gets the text this Message refers to. If value is null returns a default value.
+	 *
+	 * @return This message's value or default value if null
+	 */
+	public final String getValueOrDefault() {
+		validate();
+		return value == null ? "" + defaultValue : "" + value;
+	}
+
 	/**
 	 * Checks whether this value is set in the current language or the english default.
 	 * 

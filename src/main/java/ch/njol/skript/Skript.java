@@ -21,7 +21,6 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.util.MarkedForRemoval;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
@@ -1793,10 +1792,10 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	private static final String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
-	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
+	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix", SKRIPT_PREFIX);
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + info));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + info));
 	}
 	
 	/**
@@ -1805,11 +1804,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + message), permission);
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + message), permission);
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + message), "skript.admin");
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + message), "skript.admin");
 	}
 	
 	/**
@@ -1823,7 +1822,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles((SKRIPT_PREFIX_MESSAGE.toString().isEmpty() ? SKRIPT_PREFIX : SKRIPT_PREFIX_MESSAGE) + (ChatColor.DARK_RED + error)));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(SKRIPT_PREFIX_MESSAGE.getValueOrDefault() + ChatColor.DARK_RED + error));
 	}
 	
 	/**
