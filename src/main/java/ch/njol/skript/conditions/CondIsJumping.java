@@ -28,11 +28,12 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.Skript;
 import ch.njol.util.Kleenean;
+
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 @Name("Is Jumping")
-@Description("Checks whether a living entity is jumping. This condition does not work properly on players.")
+@Description("Checks whether a living entity is jumping. This condition does not work on players.")
 @Examples({
 	"on spawn of zombie:",
 	"\twhile event-entity is not jumping:",
@@ -50,8 +51,8 @@ public class CondIsJumping extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (Player.class.isAssignableFrom(exprs[0].getReturnType())) {
-			Skript.error("This condition only works on mobs.");
+		if (HumanEntity.class.isAssignableFrom(exprs[0].getReturnType())) {
+			Skript.error("The 'is jumping' condition only works on mobs.");
 			return false;
 		}
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
