@@ -305,17 +305,19 @@ public class VariableString implements Expression<String> {
 			return false;
 		boolean quote = false;
 		boolean percentage = false;
-		for (int i = withQuotes ? 1 : 0; i < (withQuotes ? s.length() - 1 : s.length()); i++) {
+		if (withQuotes)
+			s = s.substring(1, s.length() - 1);
+		for (char c : s.toCharArray()) {
 			if (percentage) {
-				if (s.charAt(i) == '%')
+				if (c == '%')
 					percentage = false;
 				continue;
 			}
-			if (quote && s.charAt(i) != '"')
+			if (quote && c != '"')
 				return false;
-			if (s.charAt(i) == '"') {
+			if (c == '"') {
 				quote = !quote;
-			} else if (s.charAt(i) == '%') {
+			} else if (c == '%') {
 				percentage = true;
 			}
 		}
