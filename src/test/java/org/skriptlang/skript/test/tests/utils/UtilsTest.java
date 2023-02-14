@@ -43,7 +43,7 @@ import ch.njol.skript.util.Utils;
 public class UtilsTest {
 
 	/**
-	 * Testing method Utils.getSuperType
+	 * Testing method {@link Utils#getEnglishPlural(String)}
 	 */
 	@Test
 	public void testSuperClass() {
