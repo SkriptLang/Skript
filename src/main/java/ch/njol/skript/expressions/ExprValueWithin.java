@@ -54,7 +54,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprValueWithin extends WrapperExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprValueWithin.class, Object.class, ExpressionType.SIMPLE, "[the] (%-*classinfo%|value[:s]) (within|in) %~objects%");
+		Skript.registerExpression(ExprValueWithin.class, Object.class, ExpressionType.COMBINED, "[the] (%-*classinfo%|value[:s]) (within|in) %~objects%");
 	}
 
 	@Nullable
