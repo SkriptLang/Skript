@@ -43,7 +43,7 @@ import ch.njol.skript.util.Utils;
 public class UtilsTest {
 
 	/**
-	 * Testing method {@link Utils#getSuperType(String)}
+	 * Testing method {@link Utils#getSuperType(Class...)}
 	 */
 	@Test
 	public void testSuperClass() {
