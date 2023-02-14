@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -65,6 +66,8 @@ import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 
+import java.util.Arrays;
+
 /**
  * @author Peter Güttinger
  */
@@ -73,6 +76,7 @@ public class SkriptClasses {
 	public SkriptClasses() {}
 	
 	static {
+		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
 				.user("types?")
 				.name("Type")
@@ -86,6 +90,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
+				.supplier(() -> (Iterator) Classes.getClassInfos().iterator())
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -198,6 +203,9 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
+				.supplier(() -> Arrays.stream(Material.values())
+					.map(ItemType::new)
+					.iterator())
 				.parser(new Parser<ItemType>() {
 					@Override
 					@Nullable
@@ -595,6 +603,7 @@ public class SkriptClasses {
 						"set the color of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
+				.supplier(SkriptColor.values())
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable
