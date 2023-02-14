@@ -1791,7 +1791,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
 
-	public static final String SKRIPT_PREFIX = "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
+	public static final String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
 	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
 
 	public static String getSkriptPrefix() {
@@ -1812,7 +1812,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), "skript.admin");
+		broadcast(message, "skript.admin");
 	}
 	
 	/**

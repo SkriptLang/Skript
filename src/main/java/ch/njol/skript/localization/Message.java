@@ -91,7 +91,7 @@ public class Message {
 	 */
 	public final String getValueOrDefault(String defaultValue) {
 		validate();
-		return value == null ? defaultValue : "" + value;
+		return value == null ? defaultValue : value;
 	}
 
 	/**
