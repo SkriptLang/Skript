@@ -9,7 +9,7 @@ import ch.njol.skript.util.Utils;
 public class UtilsPlurals {
 
 	/**
-	 * Testing method Utils.getEnglishPlural
+	 * Testing method {@link Utils#getEnglishPlural(String)}
 	 */
 	@Test
 	public void testPlural() {
