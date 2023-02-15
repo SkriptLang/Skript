@@ -1479,26 +1479,12 @@ public final class BukkitEventValues {
 				return e.getEnchantBlock();
 			}
 		}, 0);
-		// Jump Events
+		// Hourse Jump Event
 		EventValues.registerEventValue(HorseJumpEvent.class, Entity.class, new Getter<Entity, HorseJumpEvent>() {
 			@Nullable
 			@Override
 			public Entity get(HorseJumpEvent evt) {
 				return evt.getEntity();
-			}
-		}, 0);
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Player.class, new Getter<Player, PlayerStatisticIncrementEvent>() {
-			@Nullable
-			@Override
-			public Entity get(PlayerEvent event) {
-				return event.getPlayer();
-			}
-		}, 0);
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, World.class, new Getter<World, PlayerStatisticIncrementEvent>() {
-			@Nullable
-			@Override
-			public World get(PlayerEvent event) {
-				return event.getPlayer().getWorld();
 			}
 		}, 0);
 		// PlayerTradeEvent
