@@ -1531,15 +1531,13 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 
-		// PlayerEnterChunkEvent - Previous chunk
+		// PlayerEnterChunkEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
 			@Override
 			public Chunk get(PlayerMoveEvent event) {
 				return event.getFrom().getChunk();
 			}
 		}, EventValues.TIME_PAST);
-
-		// PlayerEnterChunkEvent - Future chunk
 		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
 			@Override
 			public Chunk get(PlayerMoveEvent event) {
