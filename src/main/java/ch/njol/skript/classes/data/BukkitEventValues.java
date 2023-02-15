@@ -1487,18 +1487,18 @@ public final class BukkitEventValues {
 				return evt.getEntity();
 			}
 		}, 0);
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Player.class, new Getter<Player, PlayerEvent>() {
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Player.class, new Getter<Player, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public Entity get(PlayerEvent evt) {
-				return evt.getPlayer();
+			public Entity get(PlayerEvent event) {
+				return event.getPlayer();
 			}
 		}, 0);
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, World.class, new Getter<World, PlayerEvent>() {
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, World.class, new Getter<World, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public World get(PlayerEvent evt) {
-				return evt.getPlayer().getWorld();
+			public World get(PlayerEvent event) {
+				return event.getPlayer().getWorld();
 			}
 		}, 0);
 		// PlayerTradeEvent
