@@ -23,7 +23,7 @@ public class EvtJump extends SkriptEvent {
 
 
     @Override
-    public boolean init(Literal [] args, int matchedPattern, ParseResult parseResult) {
+    public boolean init(Literal[] args, int matchedPattern, ParseResult parseResult) {
         return true;
     }
 
