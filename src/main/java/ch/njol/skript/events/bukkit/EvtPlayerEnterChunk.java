@@ -25,6 +25,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
+
 import org.eclipse.jdt.annotation.Nullable;
 
 public class EvtPlayerEnterChunk extends SkriptEvent {
