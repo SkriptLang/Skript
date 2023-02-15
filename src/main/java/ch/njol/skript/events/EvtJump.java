@@ -29,7 +29,7 @@ public class EvtJump extends SkriptEvent {
 
     @Override
     public boolean check(Event event) {
-        return (((PlayerStatisticIncrementEvent) e).getStatistic() == Statistic.JUMP);
+        return (((PlayerStatisticIncrementEvent) event).getStatistic() == Statistic.JUMP);
     }
 
     @Override
