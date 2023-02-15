@@ -53,26 +53,24 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 				"[a] random (:integer|number) (from|between) %number% (to|and) %number%");
 	}
 
-	private Expression<? extends Number> from, to;
-
 	private final Random random = ThreadLocalRandom.current();
-
-	private boolean integer;
+	private Expression<? extends Number> from, to;
+	private boolean isInteger;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		from = (Expression<Number>) exprs[0];
 		to = (Expression<Number>) exprs[1];
-		integer = parser.hasTag("integer");
+		isInteger = parser.hasTag("integer");
 		return true;
 	}
 
 	@Override
 	@Nullable
-	protected  Number[] get(Event e) {
-		Number from = this.from.getSingle(e);
-		Number to = this.to.getSingle(e);
+	protected Number[] get(Event event) {
+		Number from = this.from.getSingle(event);
+		Number to = this.to.getSingle(event);
 
 		if (to == null || from == null)
 			return new Number[0];
@@ -80,7 +78,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		double min = Math.min(from.doubleValue(), to.doubleValue());
 		double max = Math.max(from.doubleValue(), to.doubleValue());
 
-		if (integer) {
+		if (isInteger) {
 			return new Long[] {random.nextLong(Math2.floor(min), Math2.ceil(max))};
 		} else {
 			return new Double[] {min + random.nextDouble() * ((max - 1) - min)};
@@ -89,12 +87,12 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 
 	@Override
 	public Class<? extends Number> getReturnType() {
-		return integer ? Long.class : Double.class;
+		return isInteger ? Long.class : Double.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a random " + (integer ? "integer" : "number") + " between " + from.toString(event, debug) + " and " + to.toString(event, debug);
+		return "a random " + (isInteger ? "integer" : "number") + " between " + from.toString(event, debug) + " and " + to.toString(event, debug);
 	}
 
 	@Override
