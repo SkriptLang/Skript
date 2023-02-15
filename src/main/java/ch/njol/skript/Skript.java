@@ -28,7 +28,7 @@ import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.classes.data.DefaultConverters;
 import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.DefaultOperators;
+import ch.njol.skript.classes.data.DefaultOperations;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
@@ -84,7 +84,6 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
-import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
@@ -528,7 +527,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
-		new DefaultOperators();
+		new DefaultOperations();
 		
 		ChatMessages.registerListeners();
 		

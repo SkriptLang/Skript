@@ -24,10 +24,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class Arithmetics {
@@ -116,18 +116,18 @@ public final class Arithmetics {
 		return operation.calculate(left, right);
 	}
 
-	public static <T> void registerDefaultValue(Class<T> type, T value) {
+	public static <T> void registerDefaultValue(Class<T> type, Supplier<T> supplier) {
 		Skript.checkAcceptRegistrations();
 		if (defaultValues.containsKey(type))
 			throw new SkriptAPIException("A default value is already registered for type '" + type + '\'');
-		defaultValues.put(type, value);
+		defaultValues.put(type, supplier);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> T getDefaultValue(Class<? extends T> type) {
 		for (Class<?> c : defaultValues.keySet()) {
 			if (c.isAssignableFrom(type))
-				return (T) defaultValues.get(c);
+				return ((Supplier<T>) defaultValues.get(c)).get();
 		}
 		return null;
 	}

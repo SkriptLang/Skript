@@ -605,25 +605,23 @@ public class Variable<T> implements Expression<T> {
 								clazz = d.getClass();
 								assert clazz != null;
 
-								if ((infos = Arithmetics.getOperations(operator, clazz)).size() > 0)
-									object = d;
-								if (d instanceof Number) { // Nonexistent variable: add/subtract
-									if (mode == ChangeMode.REMOVE) // Variable is delta negated
-										object = -((Number) d).doubleValue(); // Hopefully enough precision
-									else // Variable is now what was added to it
-										object = d;
+								if ((infos = Arithmetics.getOperations(operator, clazz)).size() > 0) {
+									object = Arithmetics.getDefaultValue(clazz);
+								} else {
+									continue;
 								}
-								changed = true;
-								continue;
 							}
+
 							for (OperationInfo info : infos) {
 								Class<?> r = info.getRight();
 								Object diff = Converters.convert(d, r);
-								if (diff != null) {
-									object = info.getOperation().calculate(object, diff);
-									changed = true;
-									break;
-								}
+
+								if (diff == null)
+									continue;
+
+								object = info.getOperation().calculate(object, diff);
+								changed = true;
+								break;
 							}
 						}
 						if (changed)

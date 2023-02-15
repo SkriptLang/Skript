@@ -27,7 +27,7 @@ import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
-public class DefaultOperators {
+public class DefaultOperations {
 
 	static {
 
@@ -57,7 +57,7 @@ public class DefaultOperators {
 				return Math.abs(left.longValue() - right.longValue());
 			return Math.abs(left.doubleValue() - right.doubleValue());
 		});
-		Arithmetics.registerDefaultValue(Number.class, 0L);
+		Arithmetics.registerDefaultValue(Number.class, () -> 0L);
 
 		Arithmetics.registerOperation(Operator.ADDITION, Vector.class, (left, right) -> left.clone().add(right));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Vector.class, (left, right) -> left.clone().subtract(right));
@@ -79,12 +79,12 @@ public class DefaultOperators {
 		});
 		Arithmetics.registerDifference(Vector.class,
 			(left, right) -> new Vector(Math.abs(left.getX() - right.getX()), Math.abs(left.getY() - right.getY()), Math.abs(left.getZ() - right.getZ())));
-		Arithmetics.registerDefaultValue(Vector.class, new Vector());
+		Arithmetics.registerDefaultValue(Vector.class, Vector::new);
 
 		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(left.getMilliSeconds() + right.getMilliSeconds()));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getMilliSeconds() - right.getMilliSeconds())));
-		Arithmetics.registerDefaultValue(Timespan.class, new Timespan());
+		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
@@ -100,7 +100,7 @@ public class DefaultOperators {
 				return new Money(0);
 			return new Money(result);
 		});
-		Arithmetics.registerDefaultValue(Money.class, new Money(0));
+		Arithmetics.registerDefaultValue(Money.class, () -> new Money(0));
 
 	}
 
