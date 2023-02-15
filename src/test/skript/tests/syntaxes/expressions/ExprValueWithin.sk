@@ -1,6 +1,6 @@
 test "single value in variable":
-	set {_num} to 69
-	assert number within {_num} is 69 with "number within variable failed"
+	set {_num} to 1337
+	assert number within {_num} is 1337 with "number within variable failed"
 	assert string within {_num} is not set with "wrong type within variable returned a value"
 
 test "multiple values in list":
