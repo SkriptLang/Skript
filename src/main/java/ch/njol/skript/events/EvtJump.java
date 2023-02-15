@@ -28,12 +28,12 @@ public class EvtJump extends SkriptEvent {
     }
 
     @Override
-    public boolean check(Event e) {
+    public boolean check(Event event) {
         return (((PlayerStatisticIncrementEvent) e).getStatistic() == Statistic.JUMP);
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable Event event, boolean debug) {
         return "player jump event";
     }
 
