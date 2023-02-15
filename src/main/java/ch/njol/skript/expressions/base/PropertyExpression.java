@@ -22,14 +22,16 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Kleenean;
+
+import java.util.Arrays;
 
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
@@ -88,7 +90,8 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
 	@Override
 	public final T[] getAll(Event event) {
-		return get(event, expr.getAll(event));
+		T[] result = get(event, expr.getAll(event));
+		return Arrays.copyOf(result, result.length);
 	}
 
 	/**

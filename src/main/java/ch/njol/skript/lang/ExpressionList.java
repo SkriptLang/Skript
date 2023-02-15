@@ -148,20 +148,20 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
-		return negated ^ check(e, c);
-	}
-
-	@Override
-	public boolean check(Event e, Checker<? super T> c) {
+	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
 		for (Expression<? extends T> expr : expressions) {
-			boolean b = expr.check(e, c);
-			if (and && !b)
+			boolean result = expr.check(event, checker) ^ negated;
+			if (and && !result)
 				return false;
-			if (!and && b)
+			if (!and && result)
 				return true;
 		}
 		return and;
+	}
+
+	@Override
+	public boolean check(Event event, Checker<? super T> checker) {
+		return check(event, checker, false);
 	}
 
 	@SuppressWarnings("unchecked")
