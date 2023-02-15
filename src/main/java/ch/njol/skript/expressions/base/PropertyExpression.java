@@ -55,7 +55,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	}
 
 	/**
-	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
+	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property [of %types%]" and "%types%'[s] property"
 	 * This method also makes the expression type optional to force a default expression on the property expression.
 	 * 
 	 * @param c the PropertyExpression class being registered.
