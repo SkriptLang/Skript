@@ -19,6 +19,7 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -683,6 +684,20 @@ public class SimpleEvents {
 				)
 				.since("INSERT VERSION")
 				.requiredPlugins("MC 1.16+");
+		}
+
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
+			Skript.registerEvent("On Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "player deep sleep[ing]")
+				.description(
+					"Called when a player has slept long enough to count as passing the night/storm.",
+					"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
+				)
+				.examples(
+					"on player deep sleeping:",
+					"\tsend \"Zzzz..\" to player"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper 1.16+");
 		}
 
 	}

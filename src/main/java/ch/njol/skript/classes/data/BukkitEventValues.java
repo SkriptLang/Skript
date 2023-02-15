@@ -38,6 +38,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -1527,6 +1528,16 @@ public final class BukkitEventValues {
 				@Nullable
 				public Location get(LootGenerateEvent event) {
 					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
+
+		// PlayerDeepSleepEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
+			EventValues.registerEventValue(PlayerDeepSleepEvent.class, Player.class, new Getter<Player, PlayerDeepSleepEvent>() {
+				@Override
+				public Player get(PlayerDeepSleepEvent event) {
+					return event.getPlayer();
 				}
 			}, EventValues.TIME_NOW);
 		}
