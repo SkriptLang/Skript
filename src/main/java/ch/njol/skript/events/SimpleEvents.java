@@ -499,14 +499,8 @@ public class SimpleEvents {
 							"		send \"Hello!\"")
 					.since("2.3");
 		}
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerJumpEvent")) {
-			Skript.registerEvent("Jump", SimpleEvent.class, PlayerJumpEvent.class, "[player] jump[ing]")
-					.description("Called whenever a player jumps.",
-							"This event requires PaperSpigot.")
-					.examples("on jump:",
-							"	event-player does not have permission \"jump\"",
-							"	cancel event")
-					.since("2.3");
+		if ((Skript.classExists("com.destroystokyo.paper.event.player.PlayerJumpEvent")) && !(Skript.classExists("ch.njol.skript.events.EvtJump"))) {
+			Skript.registerEvent("Jump", SimpleEvent.class, PlayerJumpEvent.class, "[player] jump[ing]");
 		}
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
 			Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
