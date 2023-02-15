@@ -31,10 +31,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EvtPlayerEnterChunk extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Player Enter Chunk", EvtPlayerEnterChunk.class, PlayerMoveEvent.class, "player enter[s] chunk")
+		Skript.registerEvent("Player Enter Chunk", EvtPlayerEnterChunk.class, PlayerMoveEvent.class, "player (enter[s] chunk|chunk enter[ing])")
 			.description("Called when a player enters a chunk. Note that this event is based on 'player move' event, and may be called frequent internally.")
 			.examples(
-				"on player enter chunk:",
+				"on player enters chunk:",
 				"\tsend \"You entered a chunk: %past event-chunk% -> %event-chunk%!\" to player"
 			).since("INSERT VERSION");
 	}
