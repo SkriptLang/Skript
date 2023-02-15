@@ -13,10 +13,12 @@ import org.jetbrains.annotations.Nullable;
 public class EvtJump extends SkriptEvent {
 
     static {
-        Skript.registerEvent("Jump", EvtJump.class, PlayerStatisticIncrementEvent.class, "jump")
-                .description("Called when a player Jumps.")
-                .examples("on jump:\n\tbroadcast \"%player% has jumped!\"")
-                .since("2.7.0");
+        Skript.registerEvent("Jump", EvtJump.class, PlayerStatisticIncrementEvent.class, "[player] jump[ing]")
+					.description("Called whenever a player jumps.")
+					.examples("on jump:",
+							"	event-player does not have permission \"jump\"",
+							"	cancel event")
+					.since("2.3 (Paper), 2.? (Spigot)")
     }
 
 
