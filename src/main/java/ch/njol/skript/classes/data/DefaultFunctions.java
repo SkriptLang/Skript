@@ -73,16 +73,15 @@ public class DefaultFunctions {
 					return new Long[] {(Long) params[0][0]};
 				double value = ((Number) params[0][0]).doubleValue();
 				int placement = ((Number) params[1][0]).intValue();
-				if (placement != 0) {
-					if (placement >= 0) {
-						BigDecimal decimal = new BigDecimal(Double.toString(value));
-						decimal = decimal.setScale(placement, RoundingMode.HALF_UP);
-						return new Double[] {decimal.doubleValue()};
-					}
-					long rounded = Math2.round(value);
-					return new Double[] {(int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
+				if (placement == 0)
+					return new Long[] {Math2.round(value)};
+				if (placement >= 0) {
+					BigDecimal decimal = new BigDecimal(Double.toString(value));
+					decimal = decimal.setScale(placement, RoundingMode.HALF_UP);
+					return new Double[] {decimal.doubleValue()};
 				}
-				return new Long[] {Math2.round(value)};
+				long rounded = Math2.round(value);
+				return new Double[] {(int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 			}
 		}.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
