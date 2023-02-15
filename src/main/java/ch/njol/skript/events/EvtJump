@@ -1,0 +1,38 @@
+package ch.njol.skript.events;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser;
+import org.bukkit.Statistic;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerStatisticIncrementEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class EvtJump extends SkriptEvent {
+
+    static {
+        Skript.registerEvent("Jump", EvtJump.class, PlayerStatisticIncrementEvent.class, "jump")
+                .description("Called when a player Jumps.")
+                .examples("on jump:\n\tbroadcast \"%player% has jumped!\"")
+                .since("2.7.0");
+    }
+
+
+    @Override
+    public boolean init(Literal @NotNull [] args, int matchedPattern, SkriptParser.@NotNull ParseResult parseResult) {
+        return true;
+    }
+
+    @Override
+    public boolean check(@NotNull Event e) {
+        return (((PlayerStatisticIncrementEvent) e).getStatistic() == Statistic.JUMP);
+    }
+
+    @Override
+    public @NotNull String toString(@Nullable Event e, boolean debug) {
+        return "player jump event";
+    }
+
+}
