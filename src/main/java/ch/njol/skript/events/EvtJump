@@ -7,8 +7,7 @@ import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.Statistic;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 public class EvtJump extends SkriptEvent {
 
@@ -23,17 +22,17 @@ public class EvtJump extends SkriptEvent {
 
 
     @Override
-    public boolean init(Literal @NotNull [] args, int matchedPattern, SkriptParser.@NotNull ParseResult parseResult) {
+    public boolean init(Literal [] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
         return true;
     }
 
     @Override
-    public boolean check(@NotNull Event e) {
+    public boolean check(Event e) {
         return (((PlayerStatisticIncrementEvent) e).getStatistic() == Statistic.JUMP);
     }
 
     @Override
-    public @NotNull String toString(@Nullable Event e, boolean debug) {
+    public String toString(@Nullable Event e, boolean debug) {
         return "player jump event";
     }
 
