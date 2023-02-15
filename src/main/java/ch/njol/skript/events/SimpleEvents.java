@@ -108,7 +108,6 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
@@ -498,9 +497,6 @@ public class SimpleEvents {
 							"	if player's language starts with \"en\":",
 							"		send \"Hello!\"")
 					.since("2.3");
-		}
-		if ((Skript.classExists("com.destroystokyo.paper.event.player.PlayerJumpEvent")) && !(Skript.classExists("ch.njol.skript.events.EvtJump"))) {
-			Skript.registerEvent("Jump", SimpleEvent.class, PlayerJumpEvent.class, "[player] jump[ing]");
 		}
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
 			Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
