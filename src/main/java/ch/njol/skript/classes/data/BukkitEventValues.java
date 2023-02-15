@@ -129,6 +129,7 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -1478,11 +1479,26 @@ public final class BukkitEventValues {
 				return e.getEnchantBlock();
 			}
 		}, 0);
+		// Jump Events
 		EventValues.registerEventValue(HorseJumpEvent.class, Entity.class, new Getter<Entity, HorseJumpEvent>() {
 			@Nullable
 			@Override
 			public Entity get(HorseJumpEvent evt) {
 				return evt.getEntity();
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Player.class, new Getter<Player, PlayerStatisticIncrementEvent>() {
+			@Nullable
+			@Override
+			public Entity get(PlayerStatisticIncrementEvent evt) {
+				return evt.getPlayer();
+			}
+		}, 0);
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, World.class, new Getter<World, PlayerStatisticIncrementEvent>() {
+			@Nullable
+			@Override
+			public World get(PlayerStatisticIncrementEvent evt) {
+				return evt.getPlayer().getWorld();
 			}
 		}, 0);
 		// PlayerTradeEvent
