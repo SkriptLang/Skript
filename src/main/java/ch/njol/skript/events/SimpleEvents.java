@@ -687,7 +687,7 @@ public class SimpleEvents {
 		}
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
-			Skript.registerEvent("On Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "player deep sleep[ing]")
+			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "player deep sleep[ing]")
 				.description(
 					"Called when a player has slept long enough to count as passing the night/storm.",
 					"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
