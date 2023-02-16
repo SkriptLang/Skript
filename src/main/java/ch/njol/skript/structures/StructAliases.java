@@ -65,12 +65,6 @@ public class StructAliases extends Structure {
 	}
 
 	@Override
-	public void unload() {
-		// Unload aliases when this Script is unloaded
-		Aliases.clearScriptAliases(getParser().getCurrentScript());
-	}
-
-	@Override
 	public Priority getPriority() {
 		return PRIORITY;
 	}
