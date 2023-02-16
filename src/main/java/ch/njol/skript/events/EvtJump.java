@@ -18,7 +18,7 @@ public class EvtJump extends SkriptEvent {
 							"on jump:",
 							"\tevent-player does not have permission \"jump\"",
 							"\tcancel event"
-					).since("2.3 (Paper), INSERT VERSION (Using Statistics)")
+					).since("2.3 (Paper), INSERT VERSION (Using Statistics)");
     }
 
 
