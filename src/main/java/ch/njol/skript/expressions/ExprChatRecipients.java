@@ -81,6 +81,9 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 	@Override
 	@Nullable
 	protected Player[] get(Event event) {
+		if (!(event instanceof AsyncPlayerChatEvent))
+			return null;
+
 		AsyncPlayerChatEvent ae = (AsyncPlayerChatEvent) event;
 		Set<Player> playerSet = ae.getRecipients();
 		return playerSet.toArray(new Player[playerSet.size()]);
@@ -88,6 +91,9 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof AsyncPlayerChatEvent))
+			return;
+
 		final Player[] recipients = (Player[]) delta;
 		switch (mode) {
 			case REMOVE:

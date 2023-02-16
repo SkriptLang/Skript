@@ -34,6 +34,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -86,7 +87,7 @@ public class EffBroadcast extends Effect {
 				receivers.addAll(world.getPlayers());
 		}
 
-		for (Expression<?> message : messages) {
+		for (Expression<?> message : getMessages()) {
 			if (message instanceof VariableString) {
 				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
@@ -103,7 +104,14 @@ public class EffBroadcast extends Effect {
 			}
 		}
 	}
-	
+
+	private Expression<?>[] getMessages() {
+		if (messageExpr instanceof ExpressionList && !messageExpr.getAnd()) {
+			return new Expression[] {CollectionUtils.getRandom(messages)};
+		}
+		return messages;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "broadcast " + messageExpr.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));

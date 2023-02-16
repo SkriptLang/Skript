@@ -60,6 +60,9 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	@Override
 	protected Long[] get(final Event e) {
+		if (!(e instanceof PlayerItemMendEvent))
+			return null;
+
 		return new Long[]{(long) ((PlayerItemMendEvent) e).getRepairAmount()};
 	}
 
@@ -79,6 +82,9 @@ public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof PlayerItemMendEvent))
+			return;
+
 		PlayerItemMendEvent e = (PlayerItemMendEvent) event;
 		int newLevel = delta != null ? ((Number) delta[0]).intValue() : 0;
 		switch (mode) {

@@ -90,7 +90,7 @@ public enum PotionDataUtils {
 	
 	PotionDataUtils(String potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
 		try {
-			this.potionType = PotionType.valueOf(potionType.toUpperCase(Locale.ROOT));
+			this.potionType = PotionType.valueOf(potionType.toUpperCase(Locale.ENGLISH));
 			this.name = potionType;
 		} catch (IllegalArgumentException ignore) {
 			this.potionType = null;

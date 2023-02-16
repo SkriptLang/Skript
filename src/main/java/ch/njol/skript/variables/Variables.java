@@ -36,13 +36,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
-import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -53,8 +53,8 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.skript.variables.DatabaseStorage.Type;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
@@ -313,6 +313,8 @@ public abstract class Variables {
 	 * Returns the internal value of the requested variable.
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
+	 * <p>
+	 * This does not take into consideration default variables. You must use get methods from {@link ch.njol.skript.lang.Variable}
 	 *
 	 * @param name
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
@@ -346,14 +348,27 @@ public abstract class Variables {
 			}
 		}
 	}
-	
+
+	/**
+	 * Deletes a variable.
+	 * 
+	 * @param name The variable's name.
+	 * @param event if <tt>local</tt> is true, this is the event the local variable resides.
+	 * @param local if this variable is a local or global variable.
+	 */
+	public static void deleteVariable(String name, @Nullable Event event, boolean local) {
+		setVariable(name, null, event, local);
+	}
+
 	/**
 	 * Sets a variable.
 	 *
 	 * @param name The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
 	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
+	 * @param event if <tt>local</tt> is true, this is the event the local variable resides.
+	 * @param local if this variable is a local or global variable.
 	 */
-	public static void setVariable(final String name, @Nullable Object value, final @Nullable Event e, final boolean local) {
+	public static void setVariable(String name, @Nullable Object value, @Nullable Event event, boolean local) {
         String n = name;
         if (caseInsensitiveVariables) {
             n = name.toLowerCase(Locale.ENGLISH);
@@ -369,8 +384,8 @@ public abstract class Variables {
 			}
 		}
 		if (local) {
-			assert e != null : n;
-			VariablesMap map = localVariables.computeIfAbsent(e, event -> new VariablesMap());
+			assert event != null : n;
+			VariablesMap map = localVariables.computeIfAbsent(event, e -> new VariablesMap());
 			map.setVariable(n, value);
 		} else {
 			setVariable(n, value);
@@ -487,17 +502,21 @@ public abstract class Variables {
 		} finally {
 			variablesLock.writeLock().unlock();
 		}
-		
-		for (final VariablesStorage s : storages) {
-			if (s.accept(name)) {
-				if (s != source) {
-					final Value v = serialize(value);
-					s.save(name, v != null ? v.type : null, v != null ? v.data : null);
-					if (value != null)
-						source.save(name, null, null);
+
+		try {
+			for (final VariablesStorage s : storages) {
+				if (s.accept(name)) {
+					if (s != source) {
+						final Value v = serialize(value);
+						s.save(name, v != null ? v.type : null, v != null ? v.data : null);
+						if (value != null)
+							source.save(name, null, null);
+					}
+					return true;
 				}
-				return true;
 			}
+		} catch (Exception e) {
+			Skript.exception(e, "Error saving variable named " + name);
 		}
 		return false;
 	}
@@ -537,40 +556,42 @@ public abstract class Variables {
 		}
 	}
 	
-	public static SerializedVariable serialize(final String name, final @Nullable Object value) {
+	public static SerializedVariable serialize(String name, @Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
-		final SerializedVariable.Value var = serialize(value);
+		SerializedVariable.Value var;
+		try {
+			var = serialize(value);
+		} catch (Exception e) {
+			throw Skript.exception(e, "Error saving variable named " + name);
+		}
 		return new SerializedVariable(name, var);
 	}
 	
-	public static SerializedVariable.@Nullable Value serialize(final @Nullable Object value) {
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
 		return Classes.serialize(value);
 	}
 
-	private static void saveVariableChange(final String name, final @Nullable Object value) {
+	private static void saveVariableChange(String name, @Nullable Object value) {
 		saveQueue.add(serialize(name, value));
 	}
 	
-	final static BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
+	static final BlockingQueue<SerializedVariable> saveQueue = new LinkedBlockingQueue<>();
 	
 	static volatile boolean closed = false;
 	
-	private final static Thread saveThread = Skript.newThread(new Runnable() {
-		@Override
-		public void run() {
-			while (!closed) {
-				try {
-					// Save one variable change
-					SerializedVariable v = saveQueue.take();
-					for (VariablesStorage s : storages) {
-						if (s.accept(v.name)) {
-							s.save(v);
-							break;
-						}
+	private static final Thread saveThread = Skript.newThread(() -> {
+		while (!closed) {
+			try {
+				// Save one variable change
+				SerializedVariable v = saveQueue.take();
+				for (VariablesStorage s : storages) {
+					if (s.accept(v.name)) {
+						s.save(v);
+						break;
 					}
-				} catch (final InterruptedException e) {}
-			}
+				}
+			} catch (final InterruptedException ignored) {}
 		}
 	}, "Skript variable save thread");
 	

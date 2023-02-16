@@ -201,12 +201,12 @@ public class UnparsedLiteral implements Literal<Object> {
 //			if (t != null) {
 //				if (!m.group().matches("\\s*,\\s*")) {
 //					if (isAndSet) {
-//						if (and != m.group().toLowerCase().contains("and")) {
+//						if (and != m.group().toLowerCase(Locale.ENGLISH).contains("and")) {
 //							Skript.warning("list has multiple 'and' or 'or', will default to 'and'");
 //							and = true;
 //						}
 //					} else {
-//						and = m.group().toLowerCase().contains("and");
+//						and = m.group().toLowerCase(Locale.ENGLISH).contains("and");
 //						isAndSet = true;
 //					}
 //				}
