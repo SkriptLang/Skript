@@ -405,6 +405,7 @@ chat styles:
 	run_command: run command, command, cmd
 	suggest_command: suggest command, sgt
 	change_page: change page
+	copy_to_clipboard: copy to clipboard, copy, clipboard
 	show_text: tooltip, show text, ttp
 	font: font, f
 	insertion: insertion, insert, ins

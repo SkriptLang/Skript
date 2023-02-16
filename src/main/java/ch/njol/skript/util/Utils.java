@@ -447,6 +447,7 @@ public abstract class Utils {
 	final static Map<String, String> englishChat = new HashMap<>();
 	
 	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
+	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
 	
 	static {
 		Language.addListener(new LanguageChangeListener() {
