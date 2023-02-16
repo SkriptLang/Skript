@@ -228,8 +228,7 @@ public class StructVariables extends Structure {
 			if (Variables.getVariable(name, null, false) != null)
 				continue;
 
-			Object value = pair.getValue();
-			Variables.setVariable(name, value, null, false);
+			Variables.setVariable(name, pair.getValue(), null, false);
 		}
 		return true;
 	}

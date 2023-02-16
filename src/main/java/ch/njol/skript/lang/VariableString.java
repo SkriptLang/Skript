@@ -550,7 +550,7 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		String complete = builder.toString();
-		if (!types.isEmpty() && mode == StringMode.VARIABLE_NAME) {
+		if (mode == StringMode.VARIABLE_NAME && !types.isEmpty()) {
 			DefaultVariables data = script.getData(DefaultVariables.class);
 			if (data != null)
 				data.add(complete, types.toArray(new Class<?>[0]));
