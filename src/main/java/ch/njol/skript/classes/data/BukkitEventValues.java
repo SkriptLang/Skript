@@ -142,13 +142,10 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -1527,6 +1524,26 @@ public final class BukkitEventValues {
 				@Nullable
 				public Location get(LootGenerateEvent event) {
 					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
+
+		// PlayerShearEntityEvent - 1.15+ event values
+		if (Skript.getMinecraftVersion().getMinor() >= 15) {
+			EventValues.registerEventValue(PlayerShearEntityEvent.class, Slot.class, new Getter<Slot, PlayerShearEntityEvent>() {
+				@Override
+				public Slot get(PlayerShearEntityEvent event) {
+					EntityEquipment equipment = event.getPlayer().getEquipment();
+					EquipmentSlot hand = event.getHand();
+					ch.njol.skript.util.slot.EquipmentSlot.EquipSlot slot =
+						hand == EquipmentSlot.HAND ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL : ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND;
+					return new ch.njol.skript.util.slot.EquipmentSlot(equipment, slot);
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerShearEntityEvent.class, ItemStack.class, new Getter<ItemStack, PlayerShearEntityEvent>() {
+				@Override
+				public ItemStack get(PlayerShearEntityEvent event) {
+					return event.getItem();
 				}
 			}, EventValues.TIME_NOW);
 		}
