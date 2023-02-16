@@ -28,6 +28,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.util.coll.iterator.ArrayIterator;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -39,6 +51,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -79,27 +92,12 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BiomeUtils;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DamageCauseUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.EnumUtils;
-import ch.njol.skript.util.InventoryActions;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 
@@ -630,90 +628,28 @@ public class BukkitClasses {
 					}
 				}).changer(DefaultChangers.inventoryChanger));
 		
-		Classes.registerClass(new ClassInfo<>(InventoryAction.class, "inventoryaction")
+		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
 				.name("Inventory Action")
 				.description("What player just did in inventory event. Note that when in creative game mode, most actions do not work correctly.")
-				.usage(InventoryActions.getAllNames())
 				.examples("")
-				.since("2.2-dev16")
-				.defaultExpression(new EventValueExpression<>(InventoryAction.class))
-				.parser(new Parser<InventoryAction>() {
-					@Override
-					@Nullable
-					public InventoryAction parse(String s, ParseContext context) {
-						return InventoryActions.parse(s);
-					}
-					
-					@Override
-					public String toString(InventoryAction o, int flags) {
-						return InventoryActions.toString(o, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(InventoryAction o) {
-						return o.name();
-					}
-				}));
-		
-		final EnumUtils<ClickType> invClicks = new EnumUtils<>(ClickType.class, "click types");
-		Classes.registerClass(new ClassInfo<>(ClickType.class, "clicktype")
+				.since("2.2-dev16"));
+
+		Classes.registerClass(new EnumClassInfo<>(ClickType.class, "clicktype", "click types")
 				.user("click ?types?")
 				.name("Click Type")
 				.description("Click type, mostly for inventory events. Tells exactly which keys/buttons player pressed, " +
 						"assuming that default keybindings are used in client side.")
-				.usage(invClicks.getAllNames())
 				.examples("")
-				.since("2.2-dev16b, 2.2-dev35 (renamed to click type)")
-				.defaultExpression(new EventValueExpression<>(ClickType.class))
-				.parser(new Parser<ClickType>() {
-					@Override
-					@Nullable
-					public ClickType parse(String s, ParseContext context) {
-						return invClicks.parse(s);
-					}
-					
-					@Override
-					public String toString(ClickType o, int flags) {
-						return invClicks.toString(o, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(ClickType o) {
-						return o.name();
-					}
-				}));
+				.since("2.2-dev16b, 2.2-dev35 (renamed to click type)"));
 		
-		final EnumUtils<InventoryType> invTypes = new EnumUtils<>(InventoryType.class, "inventory types");
-		Classes.registerClass(new ClassInfo<>(InventoryType.class, "inventorytype")
+		Classes.registerClass(new EnumClassInfo<>(InventoryType.class, "inventorytype", "inventory types")
 				.user("inventory ?types?")
 				.name("Inventory Type")
 				.description("Minecraft has several different inventory types with their own use cases.")
-				.usage(invTypes.getAllNames())
 				.examples("")
-				.since("2.2-dev32")
-				.defaultExpression(new EventValueExpression<>(InventoryType.class))
-				.parser(new Parser<InventoryType>() {
-					@Override
-					@Nullable
-					public InventoryType parse(String s, ParseContext context) {
-						return invTypes.parse(s);
-					}
-					
-					@Override
-					public String toString(InventoryType o, int flags) {
-						return invTypes.toString(o, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(InventoryType o) {
-						return o.name();
-					}
-				}));
-		
+				.since("2.2-dev32"));
+
 		Classes.registerClass(new ClassInfo<>(Player.class, "player")
 				.user("players?")
 				.name("Player")
@@ -942,49 +878,17 @@ public class BukkitClasses {
 						return toString(holder, 0);
 					}
 				}));
-		Classes.registerClass(new ClassInfo<>(GameMode.class, "gamemode")
+		Classes.registerClass(new EnumClassInfo<>(GameMode.class, "gamemode", "game modes", new SimpleLiteral<>(GameMode.SURVIVAL, true))
 				.user("game ?modes?")
 				.name("Game Mode")
 				.description("The game modes survival, creative, adventure and spectator.")
-				.usage("creative/survival/adventure/spectator")
 				.examples("player's gamemode is survival",
 						"set the player argument's game mode to creative")
-				.since("1.0")
-				.defaultExpression(new SimpleLiteral<>(GameMode.SURVIVAL, true))
-				.parser(new Parser<GameMode>() {
-					private final Message[] names = new Message[GameMode.values().length];
-					
-					{
-						int i = 0;
-						for (final GameMode m : GameMode.values()) {
-							names[i++] = new Message("game modes." + m.name());
-						}
-					}
-					
-					@Override
-					@Nullable
-					public GameMode parse(final String s, final ParseContext context) {
-						for (int i = 0; i < names.length; i++) {
-							if (s.equalsIgnoreCase(names[i].toString()))
-								return GameMode.values()[i];
-						}
-						return null;
-					}
-					
-					@Override
-					public String toString(final GameMode m, final int flags) {
-						return names[m.ordinal()].toString();
-					}
-					
-					@Override
-					public String toVariableNameString(final GameMode o) {
-						return "" + o.toString().toLowerCase(Locale.ENGLISH);
-					}
-				}).serializer(new EnumSerializer<>(GameMode.class)));
+				.since("1.0"));
 		
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("item", "material")
-				.name("Item / Material")
+				.user("items?")
+				.name("Item")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
 								"while an item type can represent a whole range of items (e.g. any cobble stone stairs regardless of direction).",
@@ -996,6 +900,9 @@ public class BukkitClasses {
 						"{_item} is a torch")
 				.since("1.0")
 				.after("number")
+				.supplier(() -> Arrays.stream(Material.values())
+					.map(ItemStack::new)
+					.iterator())
 				.parser(new Parser<ItemStack>() {
 					@Override
 					@Nullable
@@ -1041,32 +948,13 @@ public class BukkitClasses {
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
 		
-		Classes.registerClass(new ClassInfo<>(Biome.class, "biome")
+		Classes.registerClass(new EnumClassInfo<>(Biome.class, "biome", "biomes")
 				.user("biomes?")
 				.name("Biome")
 				.description("All possible biomes Minecraft uses to generate a world.")
-				.usage(BiomeUtils.getAllNames())
 				.examples("biome at the player is desert")
 				.since("1.4.4")
-				.after("damagecause")
-				.parser(new Parser<Biome>() {
-					@Override
-					@Nullable
-					public Biome parse(final String s, final ParseContext context) {
-						return BiomeUtils.parse(s);
-					}
-					
-					@Override
-					public String toString(final Biome b, final int flags) {
-						return BiomeUtils.toString(b, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(final Biome b) {
-						return "" + b.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(Biome.class)));
+				.after("damagecause"));
 		
 		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
 			.user("potion ?effects?")
@@ -1143,6 +1031,7 @@ public class BukkitClasses {
 						"apply potion of speed 2 to the player for 60 seconds",
 						"remove invisibility from the victim")
 				.since("")
+				.supplier(PotionEffectType.values())
 				.parser(new Parser<PotionEffectType>() {
 					@Override
 					@Nullable
@@ -1202,35 +1091,15 @@ public class BukkitClasses {
 				}));
 		
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
-		Classes.registerClass(new ClassInfo<>(DamageCause.class, "damagecause")
+		Classes.registerClass(new EnumClassInfo<>(DamageCause.class, "damagecause", "damage causes", new ExprDamageCause())
 				.user("damage ?causes?")
 				.name("Damage Cause")
 				.description("The cause/type of a <a href='events.html#damage'>damage event</a>, e.g. lava, fall, fire, drowning, explosion, poison, etc.",
 						"Please note that support for this type is very rudimentary, e.g. lava, fire and burning, " +
 								"as well as projectile and attack are considered different types.")
-				.usage(DamageCauseUtils.getAllNames())
 				.examples("")
 				.since("2.0")
-				.defaultExpression(new ExprDamageCause())
-				.after("itemtype", "itemstack", "entitydata", "entitytype")
-				.parser(new Parser<DamageCause>() {
-					@Override
-					@Nullable
-					public DamageCause parse(final String s, final ParseContext context) {
-						return DamageCauseUtils.parse(s);
-					}
-					
-					@Override
-					public String toString(final DamageCause d, final int flags) {
-						return DamageCauseUtils.toString(d, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(final DamageCause d) {
-						return "" + d.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(DamageCause.class)));
+				.after("itemtype", "itemstack", "entitydata", "entitytype"));
 		
 		Classes.registerClass(new ClassInfo<>(Chunk.class, "chunk")
 				.user("chunks?")
@@ -1324,6 +1193,7 @@ public class BukkitClasses {
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype")
+				.supplier(Enchantment.values())
 				.parser(new Parser<Enchantment>() {
 					@Override
 					@Nullable
@@ -1424,59 +1294,17 @@ public class BukkitClasses {
 				.examples("set metadata value \"super cool\" of player to true")
 				.since("2.2-dev36"));
 		
-		EnumUtils<TeleportCause> teleportCauses = new EnumUtils<>(TeleportCause.class, "teleport causes");
-		Classes.registerClass(new ClassInfo<>(TeleportCause.class, "teleportcause")
+		Classes.registerClass(new EnumClassInfo<>(TeleportCause.class, "teleportcause", "teleport causes")
 				.user("teleport ?(cause|reason|type)s?")
 				.name("Teleport Cause")
 				.description("The teleport cause in a <a href='events.html#teleport'>teleport</a> event.")
-				.usage(teleportCauses.getAllNames())
-				.since("2.2-dev35")
-				.parser(new Parser<TeleportCause>() {
-					@Override
-					@Nullable
-					public TeleportCause parse(String input, ParseContext context) {
-						return teleportCauses.parse(input);
-					}
-					
-					@Override
-					public String toString(TeleportCause teleportCause, int flags) {
-						return teleportCauses.toString(teleportCause, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(TeleportCause teleportCause) {
-						return teleportCause.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(TeleportCause.class)));
+				.since("2.2-dev35"));
 		
-		EnumUtils<SpawnReason> spawnReasons = new EnumUtils<>(SpawnReason.class, "spawn reasons");
-		Classes.registerClass(new ClassInfo<>(SpawnReason.class, "spawnreason")
+		Classes.registerClass(new EnumClassInfo<>(SpawnReason.class, "spawnreason", "spawn reasons")
 				.user("spawn(ing)? ?reasons?")
 				.name("Spawn Reason")
 				.description("The spawn reason in a <a href='events.html#spawn'>spawn</a> event.")
-				.usage(spawnReasons.getAllNames())
-				.since("2.3")
-				.parser(new Parser<SpawnReason>() {
-					@Override
-					@Nullable
-					public SpawnReason parse(String input, ParseContext context) {
-						return spawnReasons.parse(input);
-					}
-					
-					@Override
-					public String toString(SpawnReason spawnReason, int flags) {
-						return spawnReasons.toString(spawnReason, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(SpawnReason spawnReason) {
-						return spawnReason.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(SpawnReason.class)));
+				.since("2.3"));
 		
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
@@ -1509,33 +1337,12 @@ public class BukkitClasses {
 					}));
 		}
 		
-		EnumUtils<FireworkEffect.Type> fireworktypes = new EnumUtils<>(FireworkEffect.Type.class, "firework types");
-		Classes.registerClass(new ClassInfo<>(FireworkEffect.Type.class, "fireworktype")
+		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
 				.user("firework ?types?")
 				.name("Firework Type")
 				.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
-				.defaultExpression(new EventValueExpression<>(FireworkEffect.Type.class))
-				.usage(fireworktypes.getAllNames())
 				.since("2.4")
-				.documentationId("FireworkType")
-				.parser(new Parser<FireworkEffect.Type>() {
-					@Override
-					public FireworkEffect.@Nullable Type parse(String input, ParseContext context) {
-						return fireworktypes.parse(input);
-					}
-					
-					@Override
-					public String toString(FireworkEffect.Type type, int flags) {
-						return fireworktypes.toString(type, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(FireworkEffect.Type type) {
-						return type.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(FireworkEffect.Type.class)));
+				.documentationId("FireworkType"));
 		
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
@@ -1545,8 +1352,8 @@ public class BukkitClasses {
 					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns.")
 				.defaultExpression(new EventValueExpression<>(FireworkEffect.class))
 				.examples("launch flickering trailing burst firework colored blue and green at player",
-					"launch trailing flickering star coloured purple, yellow, blue, green and red fading to pink at target entity",
-					"launch ball large coloured red, purple and white fading to light green and black at player's location with duration 1")
+					"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
+					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 				.since("2.4")
 				.parser(new Parser<FireworkEffect>() {
 					@Override
@@ -1571,172 +1378,48 @@ public class BukkitClasses {
 					}
 				}));
 		
-		EnumUtils<Difficulty> difficulties = new EnumUtils<>(Difficulty.class, "difficulties");
-		Classes.registerClass(new ClassInfo<>(Difficulty.class, "difficulty")
+		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
 				.name("Difficulty")
 				.description("The difficulty of a <a href='#world'>world</a>.")
-				.usage(difficulties.getAllNames())
-				.since("2.3")
-				.parser(new Parser<Difficulty>() {
-					@Override
-					@Nullable
-					public Difficulty parse(final String input, final ParseContext context) {
-						return difficulties.parse(input);
-					}
-					
-					@Override
-					public String toString(Difficulty difficulty, int flags) {
-						return difficulties.toString(difficulty, flags);
-					}
-					
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(Difficulty difficulty) {
-						return difficulty.name();
-					}
+				.since("2.3"));
 
-				})
-				.serializer(new EnumSerializer<>(Difficulty.class)));
-		
-		EnumUtils<Status> resourcePackStates = new EnumUtils<>(Status.class, "resource pack states");
-		Classes.registerClass(new ClassInfo<>(Status.class, "resourcepackstate")
+		Classes.registerClass(new EnumClassInfo<>(Status.class, "resourcepackstate", "resource pack states")
 				.user("resource ?pack ?states?")
 				.name("Resource Pack State")
 				.description("The state in a <a href='events.html#resource_pack_request_action'>resource pack request response</a> event.")
-				.usage(resourcePackStates.getAllNames())
-				.since("2.4")
-				.parser(new Parser<Status>() {
-					@Override
-					public String toString(Status state, int flags) {
-						return resourcePackStates.toString(state, flags);
-					}
+				.since("2.4"));
 
-					@Override
-					@Nullable
-					public Status parse(final String s, final ParseContext context) {
-						return resourcePackStates.parse(s);
-					}
-
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(Status state) {
-						return state.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(Status.class)));
-
-		EnumUtils<SoundCategory> soundCategories = new EnumUtils<>(SoundCategory.class, "sound categories");
-		Classes.registerClass(new ClassInfo<>(SoundCategory.class, "soundcategory")
+		Classes.registerClass(new EnumClassInfo<>(SoundCategory.class, "soundcategory", "sound categories")
 				.user("sound ?categor(y|ies)")
 				.name("Sound Category")
 				.description("The category of a sound, they are used for sound options of Minecraft. " +
 						"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
-				.usage(soundCategories.getAllNames())
-				.since("2.4")
-				.requiredPlugins("Minecraft 1.11 or newer")
-				.parser(new Parser<SoundCategory>() {
-					@Override
-					@Nullable
-					public SoundCategory parse(final String s, final ParseContext context) {
-						return soundCategories.parse(s);
-					}
-
-					@Override
-					public String toString(SoundCategory state, int flags) {
-						return soundCategories.toString(state, flags);
-					}
-
-					@SuppressWarnings("null")
-					@Override
-					public String toVariableNameString(SoundCategory category) {
-						return category.name();
-					}
-				})
-				.serializer(new EnumSerializer<>(SoundCategory.class)));
+				.since("2.4"));
 
 		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
-			EnumUtils<Gene> genes = new EnumUtils<>(Gene.class, "genes");
-			Classes.registerClass(new ClassInfo<>(Gene.class, "gene")
+			Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
 					.user("(panda )?genes?")
 					.name("Gene")
 					.description("Represents a Panda's main or hidden gene. " +
 							"See <a href='https://minecraft.gamepedia.com/Panda#Genetics'>genetics</a> for more info.")
-					.usage(genes.getAllNames())
 					.since("2.4")
-					.requiredPlugins("Minecraft 1.14 or newer")
-					.parser(new Parser<Gene>() {
-						@Nullable
-						@Override
-						public Gene parse(String expr, ParseContext context) {
-							return genes.parse(expr);
-						}
-						
-						@Override
-						public String toString(Gene gene, int flags) {
-							return genes.toString(gene, flags);
-						}
-						
-						@Override
-						public String toVariableNameString(Gene gene) {
-							return gene.name();
-						}
-					})
-					.serializer(new EnumSerializer<>(Gene.class)));
+					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
-		EnumUtils<RegainReason> regainReasons = new EnumUtils<>(RegainReason.class, "heal reasons");
-		Classes.registerClass(new ClassInfo<>(RegainReason.class, "healreason")
+		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
 			.user("(regen|heal) (reason|cause)")
 			.name("Heal Reason")
 			.description("The heal reason in a heal event.")
-			.usage(regainReasons.getAllNames())
 			.examples("")
-			.since("2.5")
-			.parser(new Parser<RegainReason>() {
-				@Override
-				@Nullable
-				public RegainReason parse(String s, ParseContext parseContext) {
-					return regainReasons.parse(s);
-				}
-				
-				@Override
-				public String toString(RegainReason o, int flags) {
-					return regainReasons.toString(o, flags);
-				}
-				
-				@Override
-				public String toVariableNameString(RegainReason o) {
-					return "regainreason:" + o.name();
-				}
-			})
-			.serializer(new EnumSerializer<>(RegainReason.class)));
+			.since("2.5"));
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
-			EnumUtils<Cat.Type> races = new EnumUtils<>(Cat.Type.class, "cat types");
-			Classes.registerClass(new ClassInfo<>(Cat.Type.class, "cattype")
+			Classes.registerClass(new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types")
 					.user("cat ?(type|race)s?")
 					.name("Cat Type")
 					.description("Represents the race/type of a cat entity.")
-					.usage(races.getAllNames())
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer")
-					.documentationId("CatType")
-					.parser(new Parser<Cat.Type>() {
-						@Override
-						public Cat.@Nullable Type parse(String expr, ParseContext context) {
-							return races.parse(expr);
-						}
-						
-						@Override
-						public String toString(Cat.Type race, int flags) {
-							return races.toString(race, flags);
-						}
-						
-						@Override
-						public String toVariableNameString(Cat.Type race) {
-							return race.name();
-						}
-					})
-					.serializer(new EnumSerializer<>(Cat.Type.class)));
+					.documentationId("CatType"));
 		}
 
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
@@ -1746,6 +1429,7 @@ public class BukkitClasses {
 			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
+			.supplier(GameRule.values())
 			.parser(new Parser<GameRule>() {
 				@Override
 				@Nullable
@@ -1764,25 +1448,6 @@ public class BukkitClasses {
 				}
 			})
 		);
-
-// 		Temporarily disabled until bugs are fixed
-//		if (Skript.classExists("org.bukkit.persistence.PersistentDataHolder")) {
-//			Classes.registerClass(new ClassInfo<>(PersistentDataHolder.class, "persistentdataholder")
-//					.user("persistent data ?holders?")
-//					.name("Persistent Data Holder")
-//					.description(
-//							"Represents something that can have persistent data. "
-//							+ "The following can all hold persistent data: "
-//							+ "entities, projectiles, items, banners, barrels, beds, beehives (1.15), bells, blast furnaces, "
-//							+ "brewing stands, campfires, chests, command blocks, comparators, conduits, mob spawners, "
-//							+ "daylight detectors, dispensers, droppers, enchanting tables, ender chests, end gateways, furnaces, "
-//							+ "hoppers, jigsaw blocks, jukeboxes, lecterns, shulker boxes, signs, skulls, smokers, and structure blocks. "
-//							+ "For the source list, <a href='https://hub.spigotmc.org/javadocs/spigot/org/bukkit/persistence/PersistentDataHolder.html'>see this page</a>."
-//					)
-//					.examples("set persistent data value \"epic\" of player to true")
-//					.requiredPlugins("1.14 or newer")
-//					.since("2.5"));
-//		}
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
 			.user("enchant[ment][ ]offers?")
@@ -1809,32 +1474,26 @@ public class BukkitClasses {
 				}
 			}));
 
-		EnumUtils<Attribute> attributes = new EnumUtils<>(Attribute.class, "attribute types");
-		Classes.registerClass(new ClassInfo<>(Attribute.class, "attributetype")
+		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
 						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
-				.defaultExpression(new EventValueExpression<>(Attribute.class))
-				.usage(attributes.getAllNames())
-				.since("2.5")
-				.parser(new Parser<Attribute>() {
-					@Override
-					@Nullable
-					public Attribute parse(String input, ParseContext context) {
-						return attributes.parse(input);
-					}
-					
-					@Override
-					public String toString(Attribute a, int flags) {
-						return attributes.toString(a, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(Attribute a) {
-						return toString(a, 0);
-					}
-				})
-				.serializer(new EnumSerializer<>(Attribute.class)));
+				.since("2.5"));
+
+		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
+				.user("(world ?)?environments?")
+				.name("World Environment")
+				.description("Represents the environment of a world.")
+				.since("INSERT VERSION"));
+
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
+				.user("(lunar|moon) ?phases?")
+				.name("Moon Phase")
+				.description("Represents the phase of a moon.")
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper 1.16+"));
+		}
 	}
 }

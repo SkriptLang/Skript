@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ClickEventTracker;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
@@ -72,7 +72,8 @@ public class EvtClick extends SkriptEvent {
 				"[(" + RIGHT + "¦right|" + LEFT + "¦left)(| |-)][mouse(| |-)]click[ing] [on %-entitydata/itemtype%] [(with|using|holding) %-itemtype%]",
 				"[(" + RIGHT + "¦right|" + LEFT + "¦left)(| |-)][mouse(| |-)]click[ing] (with|using|holding) %itemtype% on %entitydata/itemtype%")
 				.description("Called when a user clicks on a block, an entity or air with or without an item in their hand.",
-						"Please note that rightclick events with an empty hand while not looking at a block are not sent to the server, so there's no way to detect them.")
+						"Please note that rightclick events with an empty hand while not looking at a block are not sent to the server, so there's no way to detect them.",
+						"Also note that a leftclick on an entity is an attack and thus not covered by the 'click' event, but the 'damage' event.")
 				.examples("on click:",
 						"on rightclick holding a fishing rod:",
 						"on leftclick on a stone or obsidian:",
@@ -199,7 +200,7 @@ public class EvtClick extends SkriptEvent {
 				@Override
 				public boolean check(final Object o) {
 					if (entity != null) {
-						return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.is(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
+						return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
 					} else {
 						return o instanceof EntityData ? false : ((ItemType) o).isOfType(block);
 					}

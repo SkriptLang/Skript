@@ -27,7 +27,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -85,7 +85,7 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 		Object[] first = this.first.getArray(e);
 		Object values[] = first.length != 0 ? first : second.getArray(e);
 		try {
-			return Converters.convertArray(values, types, superType);
+			return Converters.convert(values, types, superType);
 		} catch (ClassCastException e1) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

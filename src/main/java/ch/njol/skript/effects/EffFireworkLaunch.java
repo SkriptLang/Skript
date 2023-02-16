@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Launch firework")
 @Description("Launch firework effects at the given location(s).")
-@Examples("launch ball large coloured red, purple and white fading to light green and black at player's location with duration 1")
+@Examples("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 @Since("2.4")
 public class EffFireworkLaunch extends Effect {
 	
@@ -70,6 +70,7 @@ public class EffFireworkLaunch extends Effect {
 	protected void execute(Event event) {
 		FireworkEffect[] effects = this.effects.getArray(event);
 		int power = lifetime.getOptionalSingle(event).orElse(1).intValue();
+		power = Math.min(127, Math.max(0, power));
 		for (Location location : locations.getArray(event)) {
 			World world = location.getWorld();
 			if (world == null)

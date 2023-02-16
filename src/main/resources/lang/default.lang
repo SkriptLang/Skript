@@ -405,6 +405,7 @@ chat styles:
 	run_command: run command, command, cmd
 	suggest_command: suggest command, sgt
 	change_page: change page
+	copy_to_clipboard: copy to clipboard, copy, clipboard
 	show_text: tooltip, show text, ttp
 	font: font, f
 	insertion: insertion, insert, ins
@@ -526,6 +527,9 @@ entities:
 	ender pearl:
 		name: ender pearl¦s @an
 		pattern: ender[ ]pearl(|1¦s)
+	ender eye:
+		name: ender eye¦s @an
+		pattern: ender eye(|1¦s)|eye(|1¦s) of ender
 	fireball:
 		name: fireball¦s
 		pattern: [(ghast|big)] fire[ ]ball(|1¦s)
@@ -592,6 +596,9 @@ entities:
 	iron golem:
 		name: iron golem¦s @an
 		pattern: iron golem(|1¦s)
+	lightning bolt:
+		name: lightning bolt¦s
+		pattern: lightning bolt(|1¦s)
 	item frame:
 		name: item frame¦s @an
 		pattern: item[ ]frame(|1¦s)
@@ -655,12 +662,6 @@ entities:
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
-	op:
-		name: op¦s @an
-		pattern: op(|1¦s)
-	non-op:
-		name: non-op¦s
-		pattern: non(-| |)op(|1¦s)
 	zombie pigman:
 		name: zombie pig¦man¦men|zombified piglin
 		pattern: <age> (zombie pigm(an|1¦en)|zombified piglin(|1¦s))|(4¦)(zombie pigletboy(|1¦s)|zombified piglin (kid(|1¦s)|child(|1¦ren)))
@@ -1201,6 +1202,13 @@ entities:
 	warden:
 		name: warden¦s
 		pattern: warden(|1¦s)
+	# 1.19.3 Entities
+	enemy:
+		name: enem¦y¦ies @an
+		pattern: enem(y|1¦ies)
+	camel:
+		name: camel¦s
+		pattern: camel(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
@@ -1272,6 +1280,7 @@ teleport causes:
 	plugin: plugin
 	spectate: spectate, spectator
 	unknown: unknown
+	dismount: dismount, dismounted
 
 # -- Game Modes --
 game modes:
@@ -1726,32 +1735,33 @@ click types:
 
 # -- Inventory Types --
 inventory types:
-	chest: chest inventory
-	dispenser: dispenser inventory
-	dropper: dropper inventory
-	furnace: furnace inventory
-	workbench: workbench inventory
-	crafting: crafting table inventory
-	enchanting: enchanting table inventory
-	brewing: brewing stand inventory
-	player: player inventory
-	creative: creative inventory
-	merchant: merchant inventory, villager inventory
-	ender_chest: ender chest inventory
-	anvil: anvil inventory
-	beacon: beacon inventory
-	hopper: hopper inventory
-	shulker_box: shulker box inventory
-	barrel: barrel inventory
-	blast_furnace: blast furnace inventory
-	lectern: lectern inventory
-	smoker: smoker inventory
-	loom: loom inventory
-	cartography: cartography table inventory
-	grindstone: grindstone inventory
-	stonecutter: stonecutter inventory
-	smithing: smithing inventory
-	composter: composter inventory
+	chest: chest inventory @a
+	dispenser: dispenser inventory @a
+	dropper: dropper inventory @a
+	furnace: furnace inventory @a
+	workbench: workbench inventory @a
+	crafting: crafting table inventory @a
+	enchanting: enchanting table inventory @an
+	brewing: brewing stand inventory @a
+	player: player inventory @a
+	creative: creative inventory @a
+	merchant: merchant inventory @a, villager inventory @a
+	ender_chest: ender chest inventory @an
+	anvil: anvil inventory @an
+	beacon: beacon inventory @a
+	hopper: hopper inventory @a
+	shulker_box: shulker box inventory @a
+	barrel: barrel inventory @a
+	blast_furnace: blast furnace inventory @a
+	lectern: lectern inventory @a
+	smoker: smoker inventory @a
+	loom: loom inventory @a
+	cartography: cartography table inventory @a
+	grindstone: grindstone inventory @a
+	stonecutter: stonecutter inventory @a
+	smithing: smithing inventory @a
+	composter: composter inventory @a
+	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
 
 # -- Spawn Reasons --
 spawn reasons:
@@ -1768,6 +1778,7 @@ spawn reasons:
 	default: default
 	dispense_egg: dispense egg, dispensing egg
 	drowned: drowned
+	duplication: duplication
 	egg: egg
 	ender_pearl: ender pearl
 	explosion: explosion
@@ -1856,6 +1867,24 @@ attribute types:
 	horse_jump_strength: horse jump strength
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
+# -- Environments --
+environments:
+	normal: normal, overworld, the overworld
+	nether: nether, the nether
+	the_end: end, the end
+	custom: custom
+
+# -- Moon Phases --
+moon phases:
+	first_quarter: first quarter
+	full_moon: full moon
+	last_quarter: last quarter
+	new_moon: new moon
+	waning_crescent: waning crescent
+	waning_gibbous: waning gibbous
+	waxing_crescent: waxing crescent
+	waxing_gibbous: waxing gibbous
+
 # -- Boolean --
 boolean:
 	true:
@@ -1907,7 +1936,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
@@ -1919,7 +1947,12 @@ types:
 	cattype: cat type¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
-	enchantmentoffer: enchantment offer¦s @a
+	enchantmentoffer: enchantment offer¦s @an
+	environment: environment¦s @an
+	moonphase: moonphase¦s @a
+	resourcepackstate: resource pack state¦s @a
+	gene: panda gene¦s @a
+	gamerulevalue: gamerule value¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -1939,9 +1972,6 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
-	resourcepackstate: resource pack state¦s @a
-	gene: panda gene¦s @a
-	gamerulevalue: gamerule value¦s @a
 
 	# Hooks
 	money: money

@@ -29,6 +29,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -41,7 +42,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 @Name("Replace")
-@Description("Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='../expressions.html#ExprMessage'>message</a> or a line of a sign.")
+@Description("Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='./expressions.html#ExprMessage'>message</a> or a line of a sign.")
 @Examples({"replace \"<item>\" in {textvar} with \"%item%\"",
 		"replace every \"&\" with \"§\" in line 1",
 		"# The following acts as a simple chat censor, but it will e.g. censor mass, hassle, assassin, etc. as well:",
@@ -88,10 +89,20 @@ public class EffReplace extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(Event e) {
-		Object[] haystack = this.haystack.getAll(e);
-		Object[] needles = this.needles.getAll(e);
-		Object replacement = this.replacement.getSingle(e);
+	protected void execute(Event event) {
+		Object[] needles = this.needles.getAll(event);
+		if (haystack instanceof ExpressionList) {
+			for (Expression<?> haystackExpr : ((ExpressionList<?>) haystack).getExpressions()) {
+				replace(event, needles, haystackExpr);
+			}
+		} else {
+			replace(event, needles, haystack);
+		}
+	}
+
+	private void replace(Event event, Object[] needles, Expression<?> haystackExpr) {
+		Object[] haystack = haystackExpr.getAll(event);
+		Object replacement = this.replacement.getSingle(event);
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
 		if (replaceString) {
@@ -108,7 +119,7 @@ public class EffReplace extends Effect {
 						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
 					}
 			}
-			this.haystack.change(e, haystack, ChangeMode.SET);
+			haystackExpr.change(event, haystack, ChangeMode.SET);
 		} else {
 			for (Inventory inv : (Inventory[]) haystack)
 				for (ItemType needle : (ItemType[]) needles)
@@ -127,11 +138,11 @@ public class EffReplace extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (replaceFirst)
-			return "replace first " + needles.toString(e, debug) + " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
+			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 					+ "(case sensitive: " + caseSensitive + ")";
-		return "replace " + needles.toString(e, debug) + " in " + haystack.toString(e, debug) + " with " + replacement.toString(e, debug)
+		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 				+ "(case sensitive: " + caseSensitive + ")";
 	}
 	
