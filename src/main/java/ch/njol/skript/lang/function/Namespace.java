@@ -53,12 +53,12 @@ public class Namespace {
 		private final Origin origin;
 
 		@Nullable
-		private final String script;
+		private final String scriptName;
 
-		public Key(Origin origin, @Nullable String script) {
+		public Key(Origin origin, @Nullable String scriptName) {
 			super();
 			this.origin = origin;
-			this.script = script;
+			this.scriptName = scriptName;
 		}
 		
 		public Origin getOrigin() {
@@ -66,14 +66,14 @@ public class Namespace {
 		}
 
 		@Nullable
-		public String getScript() {
-			return script;
+		public String getScriptName() {
+			return scriptName;
 		}
 
 		@Override
 		public int hashCode() {
 			int result = origin.hashCode();
-			result = 31 * result + (script != null ? script.hashCode() : 0);
+			result = 31 * result + (scriptName != null ? scriptName.hashCode() : 0);
 			return result;
 		}
 
@@ -88,7 +88,7 @@ public class Namespace {
 
 			if (origin != other.origin)
 				return false;
-			return Objects.equals(script, other.script);
+			return Objects.equals(scriptName, other.scriptName);
 		}
 	}
 
