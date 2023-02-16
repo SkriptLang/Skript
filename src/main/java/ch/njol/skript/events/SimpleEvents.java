@@ -660,7 +660,7 @@ public class SimpleEvents {
 				.requiredPlugins("MC 1.16+");
 		}
 
-			Skript.registerEvent("Player Shear Entity", SimpleEvent.class, PlayerShearEntityEvent.class, "player (shear[s] entity|shearing [an] entity)")
+			Skript.registerEvent("Player Shear Entity", SimpleEvent.class, PlayerShearEntityEvent.class, "player (shear[s]|shearing) [an] entity")
 				.description("Called when a player shears an entity.")
 				.examples(
 					"on player shearing an entity:",
