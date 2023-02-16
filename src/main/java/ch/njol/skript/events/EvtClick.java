@@ -32,32 +32,20 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ClickEventTracker;
-import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 
 public class EvtClick extends SkriptEvent {
-
-	/**
-	 * Two hands available.
-	 */
-	final static boolean twoHanded = Skript.isRunningMinecraft(1, 9);
-
-	/**
-	 * If a hand has item, it will always be used when the other hand has
-	 * nothing.
-	 */
-	final static boolean alwaysPreferItem = !Skript.isRunningMinecraft(1, 13);
 
 	/**
 	 * Click types.
