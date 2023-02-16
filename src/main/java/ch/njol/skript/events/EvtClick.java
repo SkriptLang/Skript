@@ -234,7 +234,7 @@ public class EvtClick extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return (click == LEFT ? "left" : click == RIGHT ? "right" : "") + "click" + (types != null ? " on " + types.toString(e, debug) : "") + (tools != null ? " holding " + tools.toString(e, debug) : "");
+		return (click == LEFT ? "left" : click == RIGHT ? "right" : "") + "click" + (type != null ? " on " + type.toString(e, debug) : "") + (tools != null ? " holding " + tools.toString(e, debug) : "");
 	}
 
 }
