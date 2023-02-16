@@ -109,7 +109,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			return;
 		}
 		if (delta == null) {
-			eventExp = eventExp = 0;
+			eventExp = 0;
 		} else {
 			for (Object obj : delta) {
 				double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
