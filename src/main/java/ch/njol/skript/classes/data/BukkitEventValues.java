@@ -1531,15 +1531,5 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-
-		// PlayerDeepSleepEvent
-		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
-			EventValues.registerEventValue(PlayerDeepSleepEvent.class, Player.class, new Getter<Player, PlayerDeepSleepEvent>() {
-				@Override
-				public Player get(PlayerDeepSleepEvent event) {
-					return event.getPlayer();
-				}
-			}, EventValues.TIME_NOW);
-		}
 	}
 }
