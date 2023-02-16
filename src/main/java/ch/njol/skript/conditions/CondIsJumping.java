@@ -36,9 +36,9 @@ import org.bukkit.entity.LivingEntity;
 @Description("Checks whether a living entity is jumping. This condition does not work on players.")
 @Examples({
 	"on spawn of zombie:",
-	"\twhile event-entity is not jumping:",
-	"\t\twait 5 ticks",
-	"\tpush event-entity upwards"
+		"\twhile event-entity is not jumping:",
+		"\t\twait 5 ticks",
+		"\tpush event-entity upwards"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.15+")
