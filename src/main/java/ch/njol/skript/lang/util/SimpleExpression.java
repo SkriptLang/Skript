@@ -19,9 +19,11 @@
 package ch.njol.skript.lang.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -29,7 +31,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.registrations.Classes;
@@ -83,7 +85,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (t != null)
 				numNonNull++;
 		if (numNonNull == all.length)
-			return all;
+			return Arrays.copyOf(all, all.length);
 		final T[] r = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert r != null;
 		int i = 0;
@@ -112,7 +114,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		
 		if (!getAnd()) {
 			if (all.length == 1 && all[0] != null)
-				return all;
+				return Arrays.copyOf(all, 1);
 			int rand = Utils.random(0, numNonNull);
 			final T[] one = (T[]) Array.newInstance(getReturnType(), 1);
 			for (final T t : all) {
@@ -128,7 +130,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		}
 		
 		if (numNonNull == all.length)
-			return all;
+			return Arrays.copyOf(all, all.length);
 		final T[] r = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert r != null;
 		int i = 0;
@@ -239,7 +241,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			throw new UnsupportedOperationException();
 		((Changer<T>) c).change(getArray(e), delta, mode);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * <p>
@@ -249,18 +251,18 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * @see #setTime(int, Expression, Class...)
 	 */
 	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
-			Skript.error("Can't use time states after the event has already passed");
+			Skript.error("Can't use time states after the event has already passed.");
 			return false;
 		}
 		this.time = time;
 		return false;
 	}
-	
-	protected final boolean setTime(final int time, final Class<? extends Event> applicableEvent) {
+
+	protected final boolean setTime(int time, Class<? extends Event> applicableEvent) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
-			Skript.error("Can't use time states after the event has already passed");
+			Skript.error("Can't use time states after the event has already passed.");
 			return false;
 		}
 		if (!getParser().isCurrentEvent(applicableEvent))
@@ -268,15 +270,27 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		this.time = time;
 		return true;
 	}
-	
-	protected final boolean setTime(final int time, final Class<? extends Event> applicableEvent, final Expression<?>... mustbeDefaultVars) {
+
+	@SafeVarargs
+	protected final boolean setTime(int time, Class<? extends Event>... applicableEvents) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
-			Skript.error("Can't use time states after the event has already passed");
+			Skript.error("Can't use time states after the event has already passed.");
+			return false;
+		}
+		if (!getParser().isCurrentEvent(applicableEvents))
+			return false;
+		this.time = time;
+		return true;
+	}
+
+	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NonNull Expression<?>... mustbeDefaultVars) {
+		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
+			Skript.error("Can't use time states after the event has already passed.");
 			return false;
 		}
 		if (!getParser().isCurrentEvent(applicableEvent))
 			return false;
-		for (final Expression<?> var : mustbeDefaultVars) {
+		for (Expression<?> var : mustbeDefaultVars) {
 			if (!var.isDefault()) {
 				return false;
 			}
@@ -284,10 +298,16 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		this.time = time;
 		return true;
 	}
-	
-	protected final boolean setTime(final int time, final Expression<?> mustbeDefaultVar, final Class<? extends Event>... applicableEvents) {
+
+	@SafeVarargs
+	protected final boolean setTime(int time, Expression<?> mustbeDefaultVar, Class<? extends Event>... applicableEvents) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
-			Skript.error("Can't use time states after the event has already passed");
+			Skript.error("Can't use time states after the event has already passed.");
+			return false;
+		}
+		if (mustbeDefaultVar == null) {
+			Skript.exception(new SkriptAPIException("Default expression was null. If the default expression can be null, don't be using" +
+					" 'SimpleExpression#setTime(int, Expression<?>, Class<? extends Event>...)' instead use the setTime without an expression if null."));
 			return false;
 		}
 		if (!mustbeDefaultVar.isDefault())
@@ -298,7 +318,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int getTime() {
 		return time;

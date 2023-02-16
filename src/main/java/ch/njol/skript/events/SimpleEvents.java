@@ -60,6 +60,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -95,6 +96,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -108,6 +110,7 @@ import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
@@ -629,6 +632,15 @@ public class SimpleEvents {
 					"\t\tsend \"The trade was somehow denied!\" to player")
 				.since("INSERT VERSION");
 		}
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
+			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
+				.description("Called when an entity jumps.")
+				.requiredPlugins("Paper 1.15.2+")
+				.examples("on entity jump:",
+					"\tif entity is a wither skeleton:",
+					"\t\tcancel event")
+				.since("INSERT VERSION");
+		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
@@ -638,6 +650,41 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
+
+		//noinspection deprecation
+		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
+			.description(
+				"Called whenever a player chats.",
+				"Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format.",
+				"Use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
+			)
+      .examples(
+				"on chat:",
+				"\tif player has permission \"owner\":",
+				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
+				"\telse if player has permission \"admin\":",
+				"\t\tset chat format to \"&lt;light red&gt;[player]&lt;light gray&gt;: &lt;orange&gt;[message]\"",
+				"\telse: #default message format",
+				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
+			)
+      .since("1.4.1");
+
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+				.description(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.examples(
+					"on loot generate:",
+					"\tchance of %10",
+					"\tadd 64 diamonds",
+					"\tsend \"You hit the jackpot!!\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("MC 1.16+");
+		}
+
 	}
 
 }

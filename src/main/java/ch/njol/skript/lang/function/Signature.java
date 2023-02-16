@@ -44,7 +44,12 @@ public class Signature<T> {
 	 * Parameters taken by this function, in order.
 	 */
 	final Parameter<?>[] parameters;
-	
+
+	/**
+	 * Whether this function is only accessible in the script it was declared in
+	 */
+	final boolean local;
+
 	/**
 	 * Return type of this function. For functions that return nothing, this
 	 * is null. void is never used as return type, because it is not registered
@@ -63,15 +68,32 @@ public class Signature<T> {
 	 * References (function calls) to function with this signature.
 	 */
 	final Collection<FunctionReference<?>> calls;
-	
-	public Signature(String script, String name, Parameter<?>[] parameters, @Nullable final ClassInfo<T> returnType, boolean single) {
+
+	/**
+	 * The class path for the origin of this signature.
+	 */
+	@Nullable
+	final String originClassPath;
+
+	public Signature(String script,
+					 String name,
+					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
+		this.local = local;
 		this.returnType = returnType;
 		this.single = single;
-		
+		this.originClassPath = originClassPath;
+
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
+	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, local, returnType, single, null);
 	}
 	
 	public String getName() {
@@ -86,7 +108,11 @@ public class Signature<T> {
 	public Parameter<?>[] getParameters() {
 		return parameters;
 	}
-	
+
+	public boolean isLocal() {
+		return local;
+	}
+
 	@Nullable
 	public ClassInfo<T> getReturnType() {
 		return returnType;
@@ -95,7 +121,11 @@ public class Signature<T> {
 	public boolean isSingle() {
 		return single;
 	}
-	
+
+	public String getOriginClassPath() {
+		return originClassPath;
+	}
+
 	/**
 	 * Gets maximum number of parameters that the function described by this
 	 * signature is able to take.
