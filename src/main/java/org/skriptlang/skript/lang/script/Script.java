@@ -100,6 +100,13 @@ public final class Script {
 	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new ConcurrentHashMap<>(5);
 
 	/**
+	 * Clears the data stored for this script.
+	 */
+	public void clearData() {
+		scriptData.clear();
+	}
+
+	/**
 	 * Adds new ScriptData to this Script's data map.
 	 * @param data The data to add.
 	 */

@@ -1,5 +1,6 @@
 test "commands":
 	execute command "skriptcommand taco"
+	execute command "/somecommand burrito is tasty"
 
 command skriptcommand <text> [<text>] [<itemtype = %dirt block named "steve"%>]:
 	trigger:
@@ -10,3 +11,8 @@ command skriptcommand <text> [<text>] [<itemtype = %dirt block named "steve"%>]:
 		set {_arg3} to arg-3
 		assert {_arg3} is a dirt block named "steve" with "arg-3 test failed (got '%{_arg3}%')"
 
+command //somecommand [<text>]:
+	trigger:
+		set {_arg1} to arg-1
+		if {_arg1} is set:
+			assert {_arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed (got '%{_arg1}%')"
