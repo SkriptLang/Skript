@@ -76,8 +76,12 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 			plural = parseResult.hasTag("s");
 		}
 
-		if (exprs[1].isSingle() && plural == exprs[1].isSingle()) {
-			Skript.error("You cannot get multiple elements of a single value");
+		if (plural == exprs[1].isSingle()) {
+			if (plural) {
+				Skript.error("You cannot get multiple elements of a single value");
+			} else {
+				Skript.error(exprs[1].toString(null, false) + " may contain more than one " + (classInfo == null ? "value" :  classInfo.getName()));
+			}
 			return false;
 		}
 
