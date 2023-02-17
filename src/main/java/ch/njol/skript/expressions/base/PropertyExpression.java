@@ -119,7 +119,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public final boolean isSingle() {
+	public boolean isSingle() {
 		return expr.isSingle();
 	}
 
