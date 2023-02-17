@@ -1530,19 +1530,5 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-
-		// PlayerEnterChunkEvent
-		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
-			@Override
-			public Chunk get(PlayerMoveEvent event) {
-				return event.getFrom().getChunk();
-			}
-		}, EventValues.TIME_PAST);
-		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
-			@Override
-			public Chunk get(PlayerMoveEvent event) {
-				return event.getTo().getChunk();
-			}
-		}, EventValues.TIME_NOW);
 	}
 }
