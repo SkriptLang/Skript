@@ -653,9 +653,11 @@ public class SimpleEvents {
 			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
 				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
 				.requiredPlugins("Paper 1.19.2+")
-				.examples("on inventory slot change:",
+				.examples(
+					"on inventory slot change:",
 					"\tif event-item is a diamond:",
-					"\t\tsend \"You obtained a diamond!\" to player")
+					"\t\tsend \"You obtained a diamond!\" to player"
+				)
 				.since("INSERT VERSION");
 		}
 	}
