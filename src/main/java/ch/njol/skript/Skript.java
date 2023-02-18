@@ -21,8 +21,8 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
@@ -59,8 +59,8 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.tests.runner.SkriptTestEvent;
 import ch.njol.skript.tests.runner.TestMode;
@@ -380,8 +380,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		getAddonInstance();
-		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
 		try {
@@ -427,8 +425,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
 							&& e.getName().startsWith("lang/")
-							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
+							&& !e.getName().endsWith("default.lang")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
@@ -463,6 +460,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			}
 		}
+
+		// initialize the Skript addon instance
+		getAddonInstance();
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
@@ -478,7 +478,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
-		
+
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded
@@ -1220,7 +1220,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static void stopAcceptingRegistrations() {
 		acceptRegistrations = false;
 		
-		Converters.createMissingConverters();
+		Converters.createChainedConverters();
 		
 		Classes.onRegistrationsStop();
 	}
