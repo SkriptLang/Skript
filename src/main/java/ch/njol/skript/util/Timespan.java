@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.GeneralWords;
@@ -32,10 +33,6 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
-/**
- * @author Peter Güttinger
- * @edited by Mirreducki. Increased maximum timespan.
- */
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
 	private final static Noun m_tick = new Noun("time.tick");
@@ -160,6 +157,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 * @deprecated Use fromTicks(long ticks) instead. Old API naming changes.
 	 */
 	@Deprecated
+	@ScheduledForRemoval
 	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
