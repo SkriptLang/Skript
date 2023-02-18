@@ -19,6 +19,7 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -650,6 +651,18 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
+    
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
+			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
+				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
+				.requiredPlugins("Paper 1.19.2+")
+				.examples(
+					"on inventory slot change:",
+						"\tif event-item is a diamond:",
+							"\t\tsend \"You obtained a diamond!\" to player"
+				)
+				.since("INSERT VERSION");
+		}
 
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
@@ -684,7 +697,6 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("MC 1.16+");
 		}
-
 	}
 
 }
