@@ -1791,11 +1791,10 @@ public final class Skript extends JavaPlugin implements Listener {
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
 
-	public static final String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
 	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
 
 	public static String getSkriptPrefix() {
-		return SKRIPT_PREFIX_MESSAGE.getValueOrDefault(SKRIPT_PREFIX);
+		return SKRIPT_PREFIX_MESSAGE.getValueOrDefault("<grey>[<gold>Skript<grey>] <reset>");
 	}
 
 	public static void info(final CommandSender sender, final String info) {
