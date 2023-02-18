@@ -38,17 +38,16 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Checks whether or not a item, block, slot, inventory, player or entity is named or has a given name")
 @Examples({
 	"on right click with a cake:",
-	"\tif event-item is named \"&bBirthday Cake\"",
-	"\t\tsend \"Happy Birthday, %player's name%!\"",
+		"\tif event-item is named \"&bBirthday Cake\"",
+		"\t\tsend \"Happy Birthday, %player's name%!\"",
 	"",
 	"on damage of a player:",
-	"\tattacker's tool is named",
-	"\tcancel event",
+		"\tattacker's tool is named",
+		"\tcancel event",
 	"",
 	"on inventory click:",
-	"\tevent-inventory is named \"Example Inventory\":",
-	"\t\tcancel event",
-	""
+		"\tevent-inventory is named \"Example Inventory\":",
+		"\t\tcancel event",
 })
 @Since("INSERT VERSION")
 public class CondIsNamed extends Condition {
