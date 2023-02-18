@@ -36,13 +36,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
-import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -53,8 +53,8 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.variables.DatabaseStorage.Type;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
@@ -313,6 +313,8 @@ public abstract class Variables {
 	 * Returns the internal value of the requested variable.
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
+	 * <p>
+	 * This does not take into consideration default variables. You must use get methods from {@link ch.njol.skript.lang.Variable}
 	 *
 	 * @param name
 	 * @return an Object for a normal Variable or a Map<String, Object> for a list variable, or null if the variable is not set.
