@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -45,11 +46,12 @@ import ch.njol.util.Kleenean;
 	"set chestplate of the player to a diamond chestplate",
 	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
 })
-@Since("1.0")
+@Keywords({"armor slot", "armor"})
+@Since("1.0, INSERT VERSION (Armour)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
-		register(ExprArmorSlot.class, Slot.class, "((:boots|:shoes|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(0¦item|4¦slot)]|armour:armo[u]r[s])", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "((:boots|:shoes|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
 	}
 
 	@Nullable
@@ -60,7 +62,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		slot = parseResult.hasTag("armour") ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
-		explicitSlot = (parseResult.mark >>> 2) == 1; // User explicitly asked for SLOT, not item
+		explicitSlot = parseResult.hasTag("slot"); // User explicitly asked for SLOT, not item
 		setExpr((Expression<? extends LivingEntity>) exprs[0]);
 		return true;
 	}
@@ -69,7 +71,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	protected Slot[] get(Event event, LivingEntity[] source) {
 		if (slot == null) { // All Armour
 			return Arrays.stream(source)
-					.map(entity -> entity.getEquipment())
+					.map(LivingEntity::getEquipment)
 					.flatMap(equipment -> {
 						if (equipment == null)
 							return null;
@@ -82,6 +84,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 					})
 					.toArray(Slot[]::new);
 		}
+
 		return get(source, entity -> {
 			EntityEquipment equipment = entity.getEquipment();
 			if (equipment == null)
