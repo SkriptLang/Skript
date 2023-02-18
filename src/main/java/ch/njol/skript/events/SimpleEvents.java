@@ -19,6 +19,7 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -651,7 +652,6 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("INSERT VERSION");
 		}
-    
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
 			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
 				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
@@ -663,7 +663,6 @@ public class SimpleEvents {
 				)
 				.since("INSERT VERSION");
 		}
-
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -681,7 +680,6 @@ public class SimpleEvents {
 				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
 			)
       .since("1.4.1");
-
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
 				.description(
@@ -697,6 +695,20 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("MC 1.16+");
 		}
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
+			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
+					.description(
+							"Called when a player has slept long enough to count as passing the night/storm.",
+							"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
+					)
+					.examples(
+							"on player deep sleeping:",
+							"\tsend \"Zzzz..\" to player"
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Paper 1.16+");
+		}
+
 	}
 
 }
