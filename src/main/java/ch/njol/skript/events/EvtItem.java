@@ -130,16 +130,16 @@ public class EvtItem extends SkriptEvent {
 					 	"	cancel event")
 				.since("2.2-dev35");
 		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
-			.description(
-				"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
-				"When this event is called, the initiator may already have removed the item from the source inventory and is ready to move it into the destination inventory.",
-				"If this event is cancelled, the items will be returned to the source inventory."
-			)
-			.examples(
-				"on inventory item move:",
-				"\tsend \"%holder of event-inventory% is transporting items to %future event-inventory%!\""
-			)
-			.since("INSERT VERSION");
+				.description(
+						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
+						"When this event is called, the initiator may already have removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"If this event is cancelled, the items will be returned to the source inventory."
+				)
+				.examples(
+						"on inventory item move:",
+							"\tsend \"%holder of event-inventory% is transporting %event-item% to %holder of future event-inventory%!\""
+				)
+				.since("INSERT VERSION");
 	}
 	
 	@Nullable
