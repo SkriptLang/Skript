@@ -655,8 +655,8 @@ public class SimpleEvents {
 				.requiredPlugins("Paper 1.19.2+")
 				.examples(
 					"on inventory slot change:",
-					"\tif event-item is a diamond:",
-					"\t\tsend \"You obtained a diamond!\" to player"
+						"\tif event-item is a diamond:",
+							"\t\tsend \"You obtained a diamond!\" to player"
 				)
 				.since("INSERT VERSION");
 		}
