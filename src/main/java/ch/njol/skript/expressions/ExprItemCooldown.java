@@ -75,7 +75,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		Player[] players = this.players.getArray(event);
 
 		List<ItemType> itemTypes = this.itemtypes.stream(event)
-				.filter(ItemType::hasType).collect(Collectors.toList());
+				.filter(ItemType::hasType)
+				.collect(Collectors.toList());
 
 		Timespan[] timespan = new Timespan[players.length * itemTypes.size()];
 		
@@ -102,7 +103,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
 		List<ItemType> itemTypes = this.itemtypes.stream(event)
-				.filter(ItemType::hasType).collect(Collectors.toList());
+				.filter(ItemType::hasType)
+				.collect(Collectors.toList());
 
 		for (Player player : players) {
 			for (ItemType itemtype : itemTypes) {
