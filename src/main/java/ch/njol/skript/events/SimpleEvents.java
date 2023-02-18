@@ -687,17 +687,17 @@ public class SimpleEvents {
 		}
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
-			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "player deep sleep[ing]")
-				.description(
-					"Called when a player has slept long enough to count as passing the night/storm.",
-					"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
-				)
-				.examples(
-					"on player deep sleeping:",
-					"\tsend \"Zzzz..\" to player"
-				)
-				.since("INSERT VERSION")
-				.requiredPlugins("Paper 1.16+");
+			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
+					.description(
+							"Called when a player has slept long enough to count as passing the night/storm.",
+							"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
+					)
+					.examples(
+							"on player deep sleeping:",
+							"\tsend \"Zzzz..\" to player"
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Paper 1.16+");
 		}
 
 	}
