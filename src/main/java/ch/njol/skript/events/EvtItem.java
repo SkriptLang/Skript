@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.events;
 
-import ch.njol.skript.sections.EffSecSpawn;
+import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -36,12 +36,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
@@ -50,7 +50,8 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean hasConsumeEvent = Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent");
 	private final static boolean hasPrepareCraftEvent = Skript.classExists("org.bukkit.event.inventory.PrepareItemCraftEvent");
 	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
-	
+	private final static boolean hasPlayerStonecutterRecipeSelectEvent = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
+
 	static {
 		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
 				.description("Called when a dispenser dispenses an item.")
@@ -74,10 +75,19 @@ public class EvtItem extends SkriptEvent {
 						"\t\tset item of event-dropped item to a diamond")
 				.since("<i>unknown</i> (before 2.1), INSERT VERSION (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
-			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
+			Class<? extends Event>[] events;
+			if (hasPlayerStonecutterRecipeSelectEvent)
+				events = CollectionUtils.array(PrepareItemCraftEvent.class, PlayerStonecutterRecipeSelectEvent.class);
+			else
+				events = CollectionUtils.array(PrepareItemCraftEvent.class);
+			Skript.registerEvent("Prepare Craft", EvtItem.class, events, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
-					.examples("on preparing craft of torch:")
-					.since("2.2-Fixes-V10");
+					.examples(
+							"on preparing craft of torch:",
+							"on preparing craft of stone slabs:"
+					)
+					.since("2.2-Fixes-V10, INSERT VERSION (Stonecutter)")
+					.requiredPlugins("Paper 1.16+ (Stonecutter)");
 		}
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
 		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
@@ -170,6 +180,9 @@ public class EvtItem extends SkriptEvent {
 			} else {
 				return false;
 			}
+		} else if (hasPlayerStonecutterRecipeSelectEvent && event instanceof PlayerStonecutterRecipeSelectEvent) {
+			Recipe recipe = ((PlayerStonecutterRecipeSelectEvent) event).getStonecuttingRecipe();
+			is = recipe.getResult();
 		} else if (event instanceof EntityPickupItemEvent) {
 			is = ((EntityPickupItemEvent) event).getItem().getItemStack();
 		} else if (event instanceof PlayerPickupItemEvent) {
@@ -192,12 +205,7 @@ public class EvtItem extends SkriptEvent {
 		if (is == null)
 			return false;
 
-		return types.check(event, new Checker<ItemType>() {
-			@Override
-			public boolean check(final ItemType t) {
-				return t.isOfType(is);
-			}
-		});
+		return types.check(event, t -> t.isOfType(is));
 	}
 	
 	@Override
