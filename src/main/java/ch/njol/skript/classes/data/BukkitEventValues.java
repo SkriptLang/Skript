@@ -1570,12 +1570,12 @@ public final class BukkitEventValues {
 			public Inventory get(InventoryMoveItemEvent event) {
 				return event.getSource();
 			}
-		}, EventValues.TIME_NOW);
+		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
 			public Inventory get(InventoryMoveItemEvent event) {
 				return event.getDestination();
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 	}
 }
