@@ -301,7 +301,7 @@ public abstract class Classes {
 	 * @param c
 	 * @return The closest superclass's info
 	 */
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
@@ -317,6 +317,25 @@ public abstract class Classes {
 		}
 		assert false;
 		return null;
+	}
+
+	/**
+	 * Gets all the class info of the given class in closest order to ending on object. This list will never be empty unless <tt>c</tt> is null.
+	 * 
+	 * @param c the class to check if assignable from
+	 * @return The closest list of superclass infos
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<ClassInfo<? super T>> getAllSuperClassInfos(Class<T> c) {
+		assert c != null;
+		checkAllowClassInfoInteraction();
+		List<ClassInfo<? super T>> list = new ArrayList<>();
+		for (ClassInfo<?> ci : getClassInfos()) {
+			if (ci.getC().isAssignableFrom(c)) {
+				list.add((ClassInfo<? super T>) ci);
+			}
+		}
+		return list;
 	}
 	
 	/**
