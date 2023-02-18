@@ -1395,8 +1395,7 @@ public class BukkitClasses {
 				.name("Sound Category")
 				.description("The category of a sound, they are used for sound options of Minecraft. " +
 						"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
-				.since("2.4")
-				.requiredPlugins("Minecraft 1.11 or newer"));
+				.since("2.4"));
 
 		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
 			Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
