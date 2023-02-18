@@ -19,6 +19,7 @@
 package ch.njol.skript.lang.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.bukkit.event.Event;
@@ -84,7 +85,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (t != null)
 				numNonNull++;
 		if (numNonNull == all.length)
-			return all;
+			return Arrays.copyOf(all, all.length);
 		final T[] r = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert r != null;
 		int i = 0;
@@ -113,7 +114,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		
 		if (!getAnd()) {
 			if (all.length == 1 && all[0] != null)
-				return all;
+				return Arrays.copyOf(all, 1);
 			int rand = Utils.random(0, numNonNull);
 			final T[] one = (T[]) Array.newInstance(getReturnType(), 1);
 			for (final T t : all) {
@@ -129,7 +130,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		}
 		
 		if (numNonNull == all.length)
-			return all;
+			return Arrays.copyOf(all, all.length);
 		final T[] r = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert r != null;
 		int i = 0;

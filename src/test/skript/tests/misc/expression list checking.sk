@@ -1,0 +1,3 @@
+test "expression list checking":
+	assert "" or {_empty} is empty with "both values aren't empty, but one should be"
+	assert "" or {_empty} is not empty with "both values are empty, but one shouldn't be"

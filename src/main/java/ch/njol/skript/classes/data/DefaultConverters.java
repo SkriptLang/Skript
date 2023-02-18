@@ -57,9 +57,13 @@ public class DefaultConverters {
 	public DefaultConverters() {}
 	
 	static {
-
-		// Integer - Long
-		Converters.registerConverter(Integer.class, Long.class, Integer::longValue);
+		// Number to subtypes converters
+		Converters.registerConverter(Number.class, Byte.class, Number::byteValue);
+		Converters.registerConverter(Number.class, Double.class, Number::doubleValue);
+		Converters.registerConverter(Number.class, Float.class, Number::floatValue);
+		Converters.registerConverter(Number.class, Integer.class, Number::intValue);
+		Converters.registerConverter(Number.class, Long.class, Number::longValue);
+		Converters.registerConverter(Number.class, Short.class, Number::shortValue);
 
 		// OfflinePlayer - PlayerInventory
 		Converters.registerConverter(OfflinePlayer.class, PlayerInventory.class, p -> {
