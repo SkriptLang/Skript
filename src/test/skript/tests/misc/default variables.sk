@@ -1,0 +1,28 @@
+
+variables:
+	{testing variables1::%entity%} = 1337
+	{testing variables2::%object%} = 1337
+	{testing variables3::%entity%::%object%} = 1337
+
+on test "default variables":
+	spawn a pig at spawn of world "world"
+	assert {testing variables1::%last spawned pig%} is set with "default variable 1 was not set"
+	assert {testing variables1::%last spawned pig%} is 1337 with "default variable 1 failed: Value with pig = %{testing variables1::%last spawned pig%}%"
+
+	set {_string} to "empty string"
+	set {_local} to {_string}
+	assert {_local} is {_string} with "Local variable failed to copy another local variable."
+
+	assert {testing variables2::%{_string}%} is set with "default variable 2 was not set"
+	assert {testing variables2::%{_string}%} is 1337 with "default variable 2 failed: Value with string = %{testing variables2::%{_string}%}%"
+
+	assert {testing variables3::%last spawned pig%::%{_string}%} is set with "default variable 3 was not set"
+	assert {testing variables3::%last spawned pig%::%{_string}%} is 1337 with "default variable 3 failed: Value with entity and string = %{testing variables3::%last spawned pig%::%{_string}%}%"
+
+	delete last spawned pig
+	delete {testing variables1::*}, {testing variables2::*} and {testing variables3::*}
+
+	assert {testing variables1::*}, {testing variables2::*} and {testing variables3::*} are not set with "Failed to delete default variables."
+
+on script unload:
+	delete {testing variables1::*}, {testing variables2::*} and {testing variables3::*}

@@ -27,7 +27,7 @@ versions will be supported as soon as possible.
 You can find the downloads for each version with their release notes in the [releases page](https://github.com/SkriptLang/Skript/releases).
 
 ## Documentation
-Documentation is available [here](https://skriptlang.github.io/Skript) for the
+Documentation is available [here](https://docs.skriptlang.org/) for the
 latest version of Skript.
 
 ## Reporting Issues
