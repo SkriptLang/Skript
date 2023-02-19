@@ -54,7 +54,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	}
 
 	private final Random random = ThreadLocalRandom.current();
-	private Expression<? extends Number> from, to;
+	private Expression<Number> from, to;
 	private boolean isInteger;
 
 	@Override
