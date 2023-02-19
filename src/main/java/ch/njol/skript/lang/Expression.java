@@ -107,8 +107,8 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param e The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default public Stream<@NonNull ? extends  T> stream(final Event e) {
-		Iterator<? extends T> iter = iterator(e);
+	default public Stream<@NonNull ? extends  T> stream(Event event) {
+		Iterator<? extends T> iter = iterator(event);
 		if (iter == null) {
 			return Stream.empty();
 		}
