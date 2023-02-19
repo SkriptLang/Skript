@@ -375,7 +375,7 @@ time:
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
-# -- Chat and Wool Colours --
+# -- Chat, Wool and Boss Bar Colours --
 colors:
 	black:
 		adjective: black
@@ -417,14 +417,17 @@ colors:
 		adjective: red
 		names: red, dark red
 	light_red:
-		adjective: pink
-		names: pink, light red
+		adjective: red
+		names: light red
 	dark_purple:
 		adjective: purple
 		names: purple, dark purple
 	light_purple:
 		adjective: magenta
 		names: magenta, light purple
+	pink:
+		adjective: pink
+		names: pink
 
 # -- Chat Styles --
 chat styles:

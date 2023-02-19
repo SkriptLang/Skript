@@ -73,6 +73,16 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					.forEach(colors::add);
 			}
 			return colors.toArray(new Color[0]);
+		} else if (source instanceof BossBar[]) {
+			List<Color> colors = new ArrayList<>();
+
+			for (BossBar bar : (BossBar[]) source) {
+				colors.add(SkriptColor.fromBossBarColor(bar.getColor()));
+			}
+
+			if (colors.size() == 0)
+				return null;
+			return colors.toArray(new Color[0]);
 		}
 		return get(source, object -> {
 			if (object instanceof Display) {
@@ -163,6 +173,9 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (object instanceof Item item) {
 					item.setItemStack(stack);
 				}
+			} else if (o instanceof BossBar) {
+				if (barColor != null)
+					((BossBar) o).setColor(barColor);
 			}
 		}
 	}

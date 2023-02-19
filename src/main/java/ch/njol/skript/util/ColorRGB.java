@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.bukkit.boss.BarColor;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -113,6 +114,11 @@ public class ColorRGB implements Color {
 	@Override
 	public @Nullable DyeColor asDyeColor() {
 		return dye;
+	}
+
+	@Override
+	public @Nullable BarColor asBossBarColor() {
+		return null;
 	}
 
 	@Override
