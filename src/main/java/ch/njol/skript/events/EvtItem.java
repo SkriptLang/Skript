@@ -137,7 +137,7 @@ public class EvtItem extends SkriptEvent {
 				)
 				.examples(
 						"on inventory item move:",
-							"\tsend \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
 				)
 				.since("INSERT VERSION");
 	}
