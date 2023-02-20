@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-@ApiStatus.Internal
 public final class Script {
 
 	private final Config config;
@@ -52,6 +51,7 @@ public final class Script {
 	 * @param config The Config containing the contents of this Script.
 	 * @param structures The list of Structures contained in this Script.
 	 */
+	@ApiStatus.Internal
 	public Script(Config config, List<Structure> structures) {
 		this.config = config;
 		this.structures = structures;
