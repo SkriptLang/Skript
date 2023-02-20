@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
+@ApiStatus.Internal
 public final class Script {
 
 	private final Config config;
@@ -65,6 +67,7 @@ public final class Script {
 	/**
 	 * @return An unmodifiable list of all Structures within this Script.
 	 */
+	@Unmodifiable
 	public List<Structure> getStructures() {
 		return Collections.unmodifiableList(structures);
 	}
