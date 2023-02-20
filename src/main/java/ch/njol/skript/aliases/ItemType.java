@@ -34,17 +34,19 @@ import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
 
-import ch.njol.skript.classes.Comparator.Relation;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemData.OldItemData;
@@ -357,8 +359,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			Material blockType = ItemUtils.asBlock(d.type);
 			if (blockType == null) // Ignore items which cannot be placed
 				continue;
-			if (BlockUtils.set(block, blockType, d.getBlockValues(), applyPhysics))
+			if (BlockUtils.set(block, blockType, d.getBlockValues(), applyPhysics)) {
+				ItemMeta itemMeta = getItemMeta();
+				if (itemMeta instanceof SkullMeta) {
+					OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
+					if (offlinePlayer == null)
+						continue;
+					Skull skull = (Skull) block.getState();
+					skull.setOwningPlayer(offlinePlayer);
+					skull.update(false, applyPhysics);
+				}
 				return true;
+			}
 		}
 		return false;
 	}

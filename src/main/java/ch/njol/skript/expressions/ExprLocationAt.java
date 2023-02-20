@@ -40,7 +40,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Location At")
-@Description("Allows to create a <a href='../classes.html#location'>location</a> from three coordinates and a world.")
+@Description("Allows to create a <a href='./classes.html#location'>location</a> from three coordinates and a world.")
 @Examples({"set {_loc} to the location at arg-1, arg-2, arg-3 of the world arg-4",
 		"distance between the player and the location (0, 0, 0) is less than 200"})
 @Since("2.0")
