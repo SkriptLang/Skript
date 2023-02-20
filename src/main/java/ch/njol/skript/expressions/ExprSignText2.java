@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.event.Event;
-import org.bukkit.event.block.SignChangeEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -32,13 +26,18 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.SignChangeEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -50,72 +49,83 @@ import ch.njol.util.Kleenean;
 		"		heal the player",
 		"	set line 3 to \"%player%\""})
 @Since("1.3")
-public class ExprSignText extends SimpleExpression<String> {
-//	static {
-//		Skript.registerExpression(ExprSignText.class, String.class, ExpressionType.PROPERTY,
-//				"[the] line %number% [of %block%]", "[the] (1¦1st|1¦first|2¦2nd|2¦second|3¦3rd|3¦third|4¦4th|4¦fourth) line [of %block%]");
-//	}
+public class ExprSignText2 extends SimpleExpression<String> {
+
+	static {
+		Skript.registerExpression(ExprSignText2.class, String.class, ExpressionType.PROPERTY,
+				"[all [of]] [the] lines [of %block%]",
+				"[the] line %number% [of %block%]",
+			"[the] (1¦1st|1¦first|2¦2nd|2¦second|3¦3rd|3¦third|4¦4th|4¦fourth) line [of %block%]"
+			);
+	}
 	
 	private static final ItemType sign = Aliases.javaItemType("sign");
-	
+
+	private boolean isLines;
 	@SuppressWarnings("null")
 	private Expression<Number> line;
 	@SuppressWarnings("null")
-	private Expression<Block> block;
+	private Expression<Block> exprBlock;
+	private boolean delayed;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (matchedPattern == 0)
-			line = (Expression<Number>) exprs[0];
-		else
-			line = new SimpleLiteral<>(parseResult.mark, false);
-		block = (Expression<Block>) exprs[exprs.length - 1];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isLines = (matchedPattern == 0);
+		if (!isLines)
+			line = matchedPattern == 1 ? (Expression<Number>) exprs[0] : new SimpleLiteral<>(parseResult.mark, false);
+		exprBlock = (Expression<Block>) exprs[exprs.length - 1];
+		delayed = isDelayed == Kleenean.TRUE;
 		return true;
 	}
-	
+
+	@Override
+	@Nullable
+	protected String[] get(Event event) {
+		Block block = exprBlock.getSingle(event);
+		if (isLines) {
+			if (block == null || !sign.isOfType(block))
+				return new String[0];
+			return CollectionUtils.array(
+				((Sign) (block.getState())).getLines()
+			);
+		} else {
+			Number lineNumber = line.getSingle(event);
+			if (lineNumber == null || lineNumber.intValue() < 0 || lineNumber.intValue() > 3)
+				return new String[0];
+			int index = lineNumber.intValue() - 1;
+			if (event instanceof SignChangeEvent && getTime() >= 0 && exprBlock.isDefault() && !delayed) {
+				return new String[]{((SignChangeEvent) event).getLine(index)};
+			}
+			if (block == null || !sign.isOfType(block)) {
+				return new String[0];
+			}
+			return CollectionUtils.array(
+				((Sign) (block.getState())).getLine(index)
+			);
+		}
+	}
+
 	@Override
 	public boolean isSingle() {
-		return true;
+		return !isLines;
 	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
-	@Override
-	@Nullable
-	protected String[] get(final Event e) {
-		final Number l = line.getSingle(e);
-		if (l == null)
-			return new String[0];
-		final int line = l.intValue() - 1;
-		if (line < 0 || line > 3)
-			return new String[0];
-		if (getTime() >= 0 && block.isDefault() && e instanceof SignChangeEvent && !Delay.isDelayed(e)) {
-			return new String[] {((SignChangeEvent) e).getLine(line)};
-		}
-		final Block b = block.getSingle(e);
-		if (b == null)
-			return new String[0];
-		if (!sign.isOfType(b))
-			return new String[0];
-		return new String[] {((Sign) b.getState()).getLine(line)};
-	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return "line " + line.toString(e, debug) + " of " + block.toString(e, debug);
+		return "line " + line.toString(e, debug) + " of " + exprBlock.toString(e, debug);
 	}
-	
+
 	// TODO allow add, remove, and remove all (see ExprLore)
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.DELETE || mode == ChangeMode.SET)
-			return new Class[] {String.class};
-		return null;
+		return CollectionUtils.array(String.class);
 	}
 	
 	static boolean hasUpdateBooleanBoolean = true;
@@ -129,10 +139,10 @@ public class ExprSignText extends SimpleExpression<String> {
 		final int line = l.intValue() - 1;
 		if (line < 0 || line > 3)
 			return;
-		final Block b = block.getSingle(e);
+		final Block b = exprBlock.getSingle(e);
 		if (b == null)
 			return;
-		if (getTime() >= 0 && e instanceof SignChangeEvent && b.equals(((SignChangeEvent) e).getBlock()) && !Delay.isDelayed(e)) {
+		if (getTime() >= 0 && e instanceof SignChangeEvent && b.equals(((SignChangeEvent) e).getBlock()) && !delayed) {
 			switch (mode) {
 				case DELETE:
 					((SignChangeEvent) e).setLine(line, "");
@@ -170,7 +180,7 @@ public class ExprSignText extends SimpleExpression<String> {
 	
 	@Override
 	public boolean setTime(final int time) {
-		return super.setTime(time, SignChangeEvent.class, block);
+		return super.setTime(time, SignChangeEvent.class, exprBlock);
 	}
 	
 }
