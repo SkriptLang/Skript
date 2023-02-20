@@ -46,7 +46,7 @@ import ch.njol.util.Kleenean;
 	"set chestplate of the player to a diamond chestplate",
 	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
 })
-@Keywords({"armor slot", "armor"})
+@Keywords("armor")
 @Since("1.0, INSERT VERSION (Armour)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
