@@ -34,10 +34,11 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 
 @Name("Initiator Inventory")
-@Description("Returns the initiator inventory in on inventory item move event.")
+@Description("Returns the initiator inventory in on <a href=\"./events.html?search=#inventory_item_move\">inventory item move</a> event.")
 @Examples({
 		"on inventory item move:",
-			"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+			"\tif holder of event-initiator-inventory is a chest:",
+				"broadcast \"Item transport requested at %location at holder of event-initiator-inventory%...\""
 })
 @Events("Inventory Item Move")
 @Since("INSERT VERSION")
@@ -48,13 +49,13 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 	}
 
 	static {
-		Skript.registerExpression(ExprEvtInitiator.class, Inventory.class, ExpressionType.SIMPLE, "[the] [event-]initiator");
+		Skript.registerExpression(ExprEvtInitiator.class, Inventory.class, ExpressionType.SIMPLE, "[the] [event-]initiator[( |-)inventory]");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (!getParser().isCurrentEvent(InventoryMoveItemEvent.class)) {
-			Skript.error("Expression 'the event-initiator' can only be used in on inventory item move event.");
+			Skript.error("'event-initiator' can only be used in 'inventory item move' events.");
 			return false;
 		}
 		return super.init(exprs, matchedPattern, isDelayed, parser);
@@ -62,6 +63,6 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
 	@Override
 	public String toString() {
-		return "the event-initiator of on inventory item move event";
+		return "the event-initiator-inventory in 'inventory item move' event";
 	}
 }
