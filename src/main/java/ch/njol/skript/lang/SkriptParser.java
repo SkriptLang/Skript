@@ -270,11 +270,9 @@ public class SkriptParser {
 								if (parser.getCurrentStructure() == null) {
 									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
-								} else {
-									if (usableStructures.stream().noneMatch(parser::isCurrentStructure)) {
-										error = true;
-										Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(parser.getCurrentStructure().toString(null, false)) + " structure.");
-									}
+								} else if (usableStructures.stream().noneMatch(parser::isCurrentStructure)) {
+									error = true;
+									Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(parser.getCurrentStructure().toString(null, false)) + " structure.");
 								}
 							}
 							List<Class<? extends Section>> usableSections = t.getUsableSections();
@@ -284,11 +282,9 @@ public class SkriptParser {
 								if (sections.isEmpty()) {
 									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
-								} else {
-									if (usableSections.stream().noneMatch(parser::isCurrentSection)) {
-										error = true;
-										Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
-									}
+								} else if (usableSections.stream().noneMatch(parser::isCurrentSection)) {
+									error = true;
+									Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
 								}
 							}
 							if (!error && t.init(res.exprs, i, parser.getHasDelayBefore(), res)) {
@@ -1185,7 +1181,7 @@ public class SkriptParser {
 	 * Returns the next character in the expression, skipping strings,
 	 * variables and parentheses
 	 * (unless {@code context} is {@link ParseContext#COMMAND}).
-	 * 
+	 *
 	 * @param expr The expression to traverse.
 	 * @param startIndex The index to start at.
 	 * @return The next index (can be expr.length()), or -1 if
