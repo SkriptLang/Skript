@@ -282,7 +282,7 @@ public class SkriptParser {
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
 									continue;
 								} else if (usableSections.stream().noneMatch(parser::isCurrentSection)) {
-									Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
+									Skript.error("'" + res.expr + "' cannot be used in '" + Utils.a(current.toString(null, false)) + "' section.");
 									continue;
 								}
 							}
