@@ -264,30 +264,29 @@ public class SkriptParser {
 							}
 							T t = info.c.newInstance();
 							ParserInstance parser = getParser();
-							boolean error = false;
 							List<Class<? extends Structure>> usableStructures = t.getUsableStructures();
 							if (!usableStructures.isEmpty()) {
 								if (parser.getCurrentStructure() == null) {
-									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
+									continue;
 								} else if (usableStructures.stream().noneMatch(parser::isCurrentStructure)) {
-									error = true;
 									Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(parser.getCurrentStructure().toString(null, false)) + " structure.");
+									continue;
 								}
 							}
 							List<Class<? extends Section>> usableSections = t.getUsableSections();
-							if (!error && !usableSections.isEmpty()) {
+							if (!usableSections.isEmpty()) {
 								List<TriggerSection> sections = parser.getCurrentSections();
 								TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
 								if (sections.isEmpty()) {
-									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
+									continue;
 								} else if (usableSections.stream().noneMatch(parser::isCurrentSection)) {
-									error = true;
 									Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
+									continue;
 								}
 							}
-							if (!error && t.init(res.exprs, i, parser.getHasDelayBefore(), res)) {
+							if (t.init(res.exprs, i, parser.getHasDelayBefore(), res)) {
 								log.printLog();
 								return t;
 							}
