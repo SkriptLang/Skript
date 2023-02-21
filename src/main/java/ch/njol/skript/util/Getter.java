@@ -19,7 +19,7 @@
 package ch.njol.skript.util;
 
 import org.eclipse.jdt.annotation.Nullable;
-
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.skriptlang.skript.lang.converter.Converter;
 
 /**
@@ -27,8 +27,10 @@ import org.skriptlang.skript.lang.converter.Converter;
  * 
  * @param <R> the returned value type
  * @param <A> the type which holds the value
- * @author Peter Güttinger
+ * @deprecated Use {@link org.skriptlang.skript.lang.converter.Converter}
  */
+@Deprecated
+@ScheduledForRemoval
 public abstract class Getter<R, A> implements Converter<A, R> {
 	
 	/**
