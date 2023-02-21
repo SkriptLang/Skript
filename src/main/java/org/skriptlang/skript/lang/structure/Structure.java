@@ -43,7 +43,9 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -173,13 +175,13 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	@Override
-	public final Class<? extends Section>[] getUsableSections() {
-		return new Class[0];
+	public final List<Class<? extends Section>> getUsableSections() {
+		return Collections.emptyList();
 	}
 
 	@Override
-	public final Class<? extends Structure>[] getUsableStructures() {
-		return new Class[0];
+	public final List<Class<? extends Structure>> getUsableStructures() {
+		return Collections.emptyList();
 	}
 
 	@Override

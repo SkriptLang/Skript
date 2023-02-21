@@ -48,7 +48,6 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
-import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -266,39 +265,28 @@ public class SkriptParser {
 							T t = info.c.newInstance();
 							ParserInstance parser = getParser();
 							boolean error = false;
-							Class<? extends Structure>[] usableStructures = t.getUsableStructures();
-							if (parser.getCurrentStructure() != null) {
-								if (usableStructures.length > 0) {
+							List<Class<? extends Structure>> usableStructures = t.getUsableStructures();
+							if (!usableStructures.isEmpty()) {
+								if (parser.getCurrentStructure() == null) {
 									error = true;
-									for (Class<? extends Structure> clazz : usableStructures) {
-										if (parser.isCurrentStructure(clazz)) {
-											error = false;
-											break;
-										}
-									}
-									if (error) {
+									Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
+								} else {
+									if (usableStructures.stream().noneMatch(parser::isCurrentStructure)) {
+										error = true;
 										Skript.error("'" + res.expr + "' cannot be used in " + Utils.a(parser.getCurrentStructure().toString(null, false)) + " structure.");
 									}
 								}
-							} else if (usableStructures.length > 0) {
-								error = true;
-								Skript.error("'" + res.expr + "' cannot be used outside of the allowed structures.");
 							}
-							Class<? extends Section>[] usableSections = t.getUsableSections();
+							List<Class<? extends Section>> usableSections = t.getUsableSections();
 							List<TriggerSection> sections = parser.getCurrentSections();
 							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
-							if (!error && usableSections.length > 0) {
-								error = true;
-								if (current == null) {
+							if (!error && !usableSections.isEmpty()) {
+								if (sections.isEmpty()) {
+									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
 								} else {
-									for (Class<? extends Section> clazz : usableSections) {
-										if (parser.isCurrentSection(clazz)) {
-											error = false;
-											break;
-										}
-									}
-									if (error) {
+									if (usableSections.stream().noneMatch(parser::isCurrentSection)) {
+										error = true;
 										Skript.error("'" + res.expr + "' cannot be used in a '" + current.toString(null, false) + "' section.");
 									}
 								}
