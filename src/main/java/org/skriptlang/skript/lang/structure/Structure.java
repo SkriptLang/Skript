@@ -28,9 +28,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -43,7 +41,6 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -176,12 +173,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Override
 	public final List<Class<? extends Section>> getUsableSections() {
-		return Collections.emptyList();
+		return SyntaxElement.super.getUsableSections();
 	}
 
 	@Override
 	public final List<Class<? extends Structure>> getUsableStructures() {
-		return Collections.emptyList();
+		return SyntaxElement.super.getUsableStructures();
 	}
 
 	@Override

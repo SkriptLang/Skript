@@ -276,9 +276,9 @@ public class SkriptParser {
 								}
 							}
 							List<Class<? extends Section>> usableSections = t.getUsableSections();
-							List<TriggerSection> sections = parser.getCurrentSections();
-							TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
 							if (!error && !usableSections.isEmpty()) {
+								List<TriggerSection> sections = parser.getCurrentSections();
+								TriggerSection current = sections.isEmpty() ? null : sections.get(sections.size() - 1);
 								if (sections.isEmpty()) {
 									error = true;
 									Skript.error("'" + res.expr + "' cannot be used outside of the allowed sections.");
