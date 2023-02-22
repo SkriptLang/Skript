@@ -50,7 +50,7 @@ public class CursorSlot extends Slot {
 	 * @param player The player that this cursor slot belongs to.
 	 * @param eventItemStack The ItemStack from {@link InventoryClickEvent#getCursor()} if event is an InventoryClickEvent.
 	 */
-	public CursorSlot(Player player, ItemStack eventItemStack) {
+	public CursorSlot(Player player, @Nullable ItemStack eventItemStack) {
 		this.eventItemStack = eventItemStack;
 		this.player = player;
 	}
