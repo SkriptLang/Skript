@@ -92,7 +92,7 @@ public class CursorSlot extends Slot {
 		if (!(slot instanceof CursorSlot))
 			return false;
 		CursorSlot cursor = (CursorSlot) slot;
-		return cursor.getPlayer().equals(this.player) && (cursor.isInventoryClick() == isInventoryClick()) ;
+		return cursor.getPlayer().equals(this.player) && cursor.isInventoryClick() == isInventoryClick();
 	}
 
 	@Override
