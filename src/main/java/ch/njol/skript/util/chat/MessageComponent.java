@@ -103,7 +103,9 @@ public class MessageComponent {
 			
 			suggest_command,
 			
-			change_page;
+			change_page,
+
+			copy_to_clipboard;
 			
 			public final String spigotName;
 			

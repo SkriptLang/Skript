@@ -42,12 +42,15 @@ import ch.njol.util.Kleenean;
 
 @Name("Hotbar Slot")
 @Description({
-	"The slot number of the currently selected hotbar slot.",
+	"The currently selected hotbar <a href='./classes.html#slot'>slot</a>.",
+  "To retrieve its number use <a href='#ExprSlotIndex'>Slot Index</a> expression.",
 	"Use future and past tense to grab the previous slot in an item change event, see example."
 })
 @Examples({
 	"message \"%player's current hotbar slot%\"",
 	"set player's selected hotbar slot to slot 4 of player",
+  "",
+  "send \"index of player's current hotbar slot = 1\" # second slot from the left",
 	"",
 	"on item held change:",
 		"\tif the selected hotbar slot was a diamond:",
