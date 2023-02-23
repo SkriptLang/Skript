@@ -32,39 +32,29 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The progress of a boss bar (ranges from 0 to 100)")
 @Examples({"set progress of player's bossbar to 56"})
 @Since("INSERT VERSION")
-public class ExprBossBarProgress extends SimplePropertyExpression<BossBar, Number> {
+public class ExprBossBarProgress extends SimplePropertyExpression<BossBar, Double> {
 
 	static {
-		register(ExprBossBarProgress.class, Number.class, "progress", "bossbars");
+		register(ExprBossBarProgress.class, Double.class, "progress", "bossbars");
 	}
 
 	@Override
 	@Nullable
-	public Number convert(final BossBar bossBar) {
+	public Double convert(BossBar bossBar) {
 		return bossBar.getProgress() * 100;
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "progress";
-	}
-
-	@Override
-	public Class<Number> getReturnType() {
-		return Number.class;
-	}
-
-	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 			return new Class[] {Number.class};
 		return null;
 	}
 
 	@Override
-	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
-		for (final BossBar bossBar : getExpr().getArray(event)) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		for (BossBar bossBar : getExpr().getArray(event)) {
 			switch (mode) {
 				case RESET:
 					bossBar.setProgress(0);
@@ -75,4 +65,15 @@ public class ExprBossBarProgress extends SimplePropertyExpression<BossBar, Numbe
 			}
 		}
 	}
+
+	@Override
+	public Class<Double> getReturnType() {
+		return Double.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "progress";
+	}
+
 }

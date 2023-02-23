@@ -35,6 +35,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.njol.skript.lang.SkriptParser.*;
+
 
 @Name("Boss Bar Flags")
 @Description("The flags of a bossbar. These flags control the behavior of the bossbar.")
@@ -46,12 +48,23 @@ public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 		register(ExprBossBarFlags.class, BarFlag.class, "flags", "bossbars");
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends BossBar>) exprs[0]);
 		return true;
 	}
+
+	@Override
+	protected BarFlag[] get(Event event, BossBar[] source) {
+		List<BarFlag> flags = new ArrayList<>();
+		for (BossBar bossBar : source)
+			for (BarFlag flag : BarFlag.values())
+				if (bossBar.hasFlag(flag)) // bukkit has no getter for flags, so we have to check like this...
+					flags.add(flag);
+		return flags.toArray(new BarFlag[0]);
+	}
+
 
 	@Override
 	@Nullable
@@ -87,23 +100,13 @@ public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 	}
 
 	@Override
-	protected BarFlag[] get(Event event, BossBar[] source) {
-		List<BarFlag> flags = new ArrayList<>();
-		for (BossBar bossBar : source)
-			for (BarFlag flag : BarFlag.values())
-				if (bossBar.hasFlag(flag)) // bukkit has no getter for flags, so we have to check like this...
-					flags.add(flag);
-		return flags.toArray(new BarFlag[0]);
-	}
-
-	@Override
 	public Class<? extends BarFlag> getReturnType() {
 		return BarFlag.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "flags of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "flags of " + getExpr().toString(event, debug);
 	}
 
 	private void clearFlags(BossBar bossBar) {

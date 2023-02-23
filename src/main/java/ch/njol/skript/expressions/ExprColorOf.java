@@ -103,7 +103,11 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		Class<?> returnType = getExpr().getReturnType();
 
-		if (returnType.isAssignableFrom(FireworkEffect.class))
+		// handle unknown return types at runtime
+		if (returnType == Object.class)
+			return CollectionUtils.array(Color[].class);
+
+		if (FireworkEffect.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color[].class);
 
 		// double assignable checks are to allow both parent and child types, since variables return Object

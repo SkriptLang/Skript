@@ -40,13 +40,24 @@ public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> 
 
 	@Override
 	@Nullable
-	public String convert(final BossBar bossBar) {
+	public String convert(BossBar bossBar) {
 		return bossBar.getTitle();
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "title";
+	@Nullable
+	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+		if (mode == Changer.ChangeMode.SET)
+			return new Class[] {String.class};
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		assert delta[0] != null;
+		String title = (String) delta[0];
+		for (BossBar bossBar : getExpr().getArray(event))
+			bossBar.setTitle(title);
 	}
 
 	@Override
@@ -55,19 +66,8 @@ public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> 
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET)
-			return new Class[] {String.class};
-		return null;
-	}
-
-	@Override
-	public void change(final Event event, final @Nullable Object[] delta, final Changer.ChangeMode mode) {
-		for (final BossBar bossBar : getExpr().getArray(event)) {
-			assert delta[0] != null;
-			bossBar.setTitle((String) delta[0]);
-		}
+	protected String getPropertyName() {
+		return "title";
 	}
 
 }

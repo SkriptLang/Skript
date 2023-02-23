@@ -167,6 +167,13 @@ public class ExprBossBar extends SimpleExpression<BossBar> {
 	@Nullable
 	private static BossBar lastBossBar;
 
+	/**
+	 * Gets a player's bossbars. The set is in the same order as the bars are displayed to the player (e.g. index 0 is
+	 * the top bar, index 1 is visually below that and so on)
+	 *
+	 * @param player the player whose bossbars to get
+	 * @return the potentially empty set of the player's bossbars, or null if not yet set
+	 */
 	@Nullable
 	public static LinkedHashSet<BossBar> getBossBarsForPlayer(Player player) {
 		return playerBossBarMap.get(player);
@@ -198,21 +205,6 @@ public class ExprBossBar extends SimpleExpression<BossBar> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return false;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "bossbars of " + players.toString(event, debug);
-	}
-
-	@Override
-	public Class<BossBar> getReturnType() {
-		return BossBar.class;
-	}
-
-	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
@@ -231,7 +223,7 @@ public class ExprBossBar extends SimpleExpression<BossBar> {
 		// create any new bossbars first so that each player shares the same bossbar when changing multiple players
 		// at once
 		BossBar[] newBars = null;
-		if (delta.length > 0) {
+		if (delta != null && delta.length > 0) {
 			newBars = new BossBar[delta.length];
 			for (int i = 0; i < delta.length; i++) {
 				BossBar newBar;
@@ -281,6 +273,21 @@ public class ExprBossBar extends SimpleExpression<BossBar> {
 					break;
 			}
 		}
+	}
+
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
+
+	@Override
+	public Class<BossBar> getReturnType() {
+		return BossBar.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "bossbars of " + players.toString(event, debug);
 	}
 
 }

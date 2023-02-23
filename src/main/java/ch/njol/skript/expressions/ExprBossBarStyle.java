@@ -41,13 +41,24 @@ public class ExprBossBarStyle extends SimplePropertyExpression<BossBar, BarStyle
 
 	@Override
 	@Nullable
-	public BarStyle convert(final BossBar bossBar) {
+	public BarStyle convert(BossBar bossBar) {
 		return bossBar.getStyle();
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "style";
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return new Class[] {BarStyle.class};
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		assert delta[0] != null;
+		BarStyle style = (BarStyle) delta[0];
+		for (BossBar bossBar : getExpr().getArray(event))
+			bossBar.setStyle(style);
 	}
 
 	@Override
@@ -56,19 +67,8 @@ public class ExprBossBarStyle extends SimplePropertyExpression<BossBar, BarStyle
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return new Class[] {BarStyle.class};
-		return null;
-	}
-
-	@Override
-	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
-		for (final BossBar bossBar : getExpr().getArray(event)) {
-			assert delta[0] != null;
-			bossBar.setStyle((BarStyle) delta[0]);
-		}
+	protected String getPropertyName() {
+		return "style";
 	}
 
 }
