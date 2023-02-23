@@ -58,8 +58,9 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	static {
 		Skript.registerExpression(ExprHotbarSlot.class, Slot.class, ExpressionType.PROPERTY,
-				"[the] [([current:currently] selected|current:current)] hotbar slot [of %players%]",
-				"%players%'[s] [([current:currently] selected|current:current)] hotbar slot");
+				"[the] [([current:currently] selected|current:current)] hotbar slot[s] [of %players%]",
+				"%players%'[s] [([current:currently] selected|current:current)] hotbar slot[s]"
+		);
 	}
 
 	// This exists because time states should not register when the 'currently' tag of the syntax is present.
