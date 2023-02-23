@@ -24,7 +24,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -32,7 +31,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
@@ -60,10 +58,7 @@ import ch.njol.util.Kleenean;
 public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	static {
-		Skript.registerExpression(ExprHotbarSlot.class, Slot.class, ExpressionType.PROPERTY,
-				"[the] [([current:currently] selected|current:current)] hotbar slot[s] [of %players%]",
-				"%players%'[s] [([current:currently] selected|current:current)] hotbar slot[s]"
-		);
+		registerDefault(ExprHotbarSlot.class, Slot.class, "[the] [([current:currently] selected|current:current)] hotbar slot[s]", "players");
 	}
 
 	// This exists because time states should not register when the 'currently' tag of the syntax is present.
