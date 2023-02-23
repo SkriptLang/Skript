@@ -51,7 +51,7 @@ public class EffIgnite extends Effect {
 				"extinguish %entities%");
 	}
 
-	private final static int DEFAULT_DURATION = 8 * 20; // default is 8 seconds for lava and fire.
+	private static final int DEFAULT_DURATION = 8 * 20; // default is 8 seconds for lava and fire.
 
 	@Nullable
 	private Expression<Timespan> duration;

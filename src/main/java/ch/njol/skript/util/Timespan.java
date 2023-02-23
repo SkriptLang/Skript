@@ -35,17 +35,17 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
-	private final static Noun m_tick = new Noun("time.tick");
-	private final static Noun m_second = new Noun("time.second");
-	private final static Noun m_minute = new Noun("time.minute");
-	private final static Noun m_hour = new Noun("time.hour");
-	private final static Noun m_day = new Noun("time.day");
-	private final static Noun m_week = new Noun("time.week");
-	private final static Noun m_month = new Noun("time.month");
-	private final static Noun m_year = new Noun("time.year");
-	final static Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day, m_week, m_month, m_year};
-	final static long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L,  1000L * 60L * 60L * 24L * 7L,  1000L * 60L * 60L * 24L * 30L,  1000L * 60L * 60L * 24L * 365L};
-	final static HashMap<String, Long> parseValues = new HashMap<>();
+	private static final Noun m_tick = new Noun("time.tick");
+	private static final Noun m_second = new Noun("time.second");
+	private static final Noun m_minute = new Noun("time.minute");
+	private static final Noun m_hour = new Noun("time.hour");
+	private static final Noun m_day = new Noun("time.day");
+	private static final Noun m_week = new Noun("time.week");
+	private static final Noun m_month = new Noun("time.month");
+	private static final Noun m_year = new Noun("time.year");
+	static final Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day, m_week, m_month, m_year};
+	static final long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L,  1000L * 60L * 60L * 24L * 7L,  1000L * 60L * 60L * 24L * 30L,  1000L * 60L * 60L * 24L * 365L};
+	static final HashMap<String, Long> parseValues = new HashMap<>();
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -154,7 +154,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 	/**
-	 * @deprecated Use fromTicks(long ticks) instead. Old API naming changes.
+	 * @deprecated Use {@link Timespan#fromTicks(long)} instead. Old API naming changes.
 	 */
 	@Deprecated
 	@ScheduledForRemoval
@@ -179,6 +179,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 * @deprecated Use getTicks() instead. Old API naming changes.
 	 */
 	@Deprecated
+	@ScheduledForRemoval
 	public long getTicks_i() {
 		return Math.round((millis / 50.0));
 	}
@@ -193,7 +194,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 	
 	@SuppressWarnings("unchecked")
-	final static NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
+	static final NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
 			new NonNullPair<>(m_day,  1000L * 60 * 60 * 24),
 			new NonNullPair<>(m_hour, 1000L * 60 * 60),
 			new NonNullPair<>(m_minute, 1000L * 60),
@@ -204,7 +205,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		return toString(millis, 0);
 	}
 	
-	@SuppressWarnings("null")
 	public static String toString(final long millis, final int flags) {
 		for (int i = 0; i < simpleValues.length - 1; i++) {
 			if (millis >= simpleValues[i].getSecond()) {
