@@ -653,6 +653,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
 						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
+							return;
 						} else {
 							info("Loading all tests from " + TestMode.TEST_DIR);
 
