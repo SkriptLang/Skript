@@ -56,7 +56,7 @@ task checkAliases {
 }
 
 task testJar(type: ShadowJar) {
-	dependsOn(compileTestJava)
+	dependsOn(compileTestJava, licenseTest)
 	archiveName 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
@@ -184,6 +184,7 @@ tasks.register('testNaming') {
 void createTestTask(String name, String desc, String environment, boolean devMode, int javaVersion, boolean genDocs, boolean junit) {
 	tasks.register(name, JavaExec) {
 		description = desc;
+		dependsOn licenseTest
 		if (junit) {
 			dependsOn testJar
 		} else {
