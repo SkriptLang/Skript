@@ -20,6 +20,7 @@ package ch.njol.skript.events.bukkit;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -32,7 +33,7 @@ public class ScriptEvent extends Event {
 	private final static HandlerList handlers = new HandlerList();
 	
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 	

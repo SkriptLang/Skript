@@ -45,6 +45,7 @@ import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilID;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Hook for Residence protection plugin. Currently supports
@@ -132,7 +133,7 @@ public class ResidenceHook extends RegionsPlugin<Residence> {
 		}
 
 		@Override
-		public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+		public void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 			Object region = fields.getObject("region");
 			if (!(region instanceof String))
 				throw new StreamCorruptedException("Tried to deserialize Residence region with no valid name!");

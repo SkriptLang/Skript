@@ -48,6 +48,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilID;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -203,7 +204,7 @@ public class GriefPreventionHook extends RegionsPlugin<GriefPrevention> {
 		}
 		
 		@Override
-		public void deserialize(final Fields fields) throws StreamCorruptedException {
+		public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException {
 			final long id = fields.getPrimitive("id", long.class);
 			final Claim c = getClaim(id);
 			if (c == null)

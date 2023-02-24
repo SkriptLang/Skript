@@ -68,6 +68,7 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.jetbrains.annotations.NotNull;
 
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
@@ -1074,7 +1075,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 	
 	@Override
-	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+	public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 		fields.setFields(this);
 		
 		// Legacy data (before aliases rework) update

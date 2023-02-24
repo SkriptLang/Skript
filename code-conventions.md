@@ -83,7 +83,7 @@ If we need to remove or alter contributed code due to a licensing issue we will 
 
 ### Formatting
 * Tabs, no spaces (unless in code imported from other projects)
-** No tabs/spaces in empty lines
+* No tabs/spaces in empty lines
 * No trailing whitespace
 * At most 120 characters per line
   - In Javadoc/multiline comments, at most 80 characters per line
@@ -100,8 +100,18 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - When omitting brackets, still indent as if the code had brackets
   - Avoid omitting brackets if it produces hard-to-read code
 * Annotations for methods and classes are placed in lines before their declarations, one per line
+  - Annotations affecting the return type should be placed before the return type if it doesn't hurt readability.
+    Good Example:
+    ```java
+    @Nullable String motd();
+    ```
+    Bad Example:
+    ```java
+    @Contract("null -> null; !null -> !null") Skript instance(Plugin plugin);
+    ```
+    In the above the contract should be placed on the line before.
 * When there are multiple annotations, place them in order:
-  - @Override -> @Nullable -> @SuppressWarnings
+  - @Override -> @SuppressWarnings
   - For other annotations, doesn't matter; let your IDE decide
 * When splitting Strings into multiple lines the last part of the string must be (space character included) " " +
   ```java
@@ -118,7 +128,6 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - PropertyCondition: (init) -> check -> (getPropertyType) -> getPropertyName
   - Section: init -> walk -> toString
   - Structure: init -> (preLoad) -> load -> (postLoad) -> unload -> (postUnload) -> (getPriority) -> toString
-
 
 ### Naming
 * Class names are written in `UpperCamelCase`
@@ -165,15 +174,23 @@ Your comments should look something like these:
   - Users must not need JRE newer than version 8
 * Versions up to and including Java 17 should work too
   - Please avoid using unsafe reflection
+
+### Best Practices
 * It is recommended to make fields final, if they are effectively final
 * Local variables and method parameters should not be declared final
 * Methods should be declared final only where necessary
 * Use `@Override` whenever applicable
+* Avoid initializing multiple fields on one line like so:
+  ```java
+  long a = 0, b = 0; // bad
+  
+  // good
+  long a = 0;
+  long b = 0;
+  ```
 
 ### Nullness
-* All fields, method parameters and their return values are non-null by default
-  - Exceptions: Github API JSON mappings, Metrics
-* When something is nullable, mark it as so
+* Mark nullability whenever possible, but it is mandatory whenever it's supposed to be accessed by addons.
 * Only ignore nullness errors when a variable is effectively non-null - if in doubt: check
   - Most common example is syntax elements, which are not initialised using a constructor
 * Use assertions liberally: if you're sure something is not null, assert so to the compiler
@@ -187,7 +204,6 @@ Your comments should look something like these:
 
 Skript must run with assertations enabled; use them in your development environment. \
 The JVM flag <code>-ea</code> is used to enable them.
-
 
 ## Minecraft Features
 

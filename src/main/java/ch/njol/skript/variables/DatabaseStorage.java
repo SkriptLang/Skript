@@ -493,7 +493,7 @@ public class DatabaseStorage extends VariablesStorage {
 	PreparedStatement monitorCleanUpQuery;
 
 	@Override
-	protected boolean save(final String name, final @Nullable String type, final @Nullable byte[] value) {
+	protected boolean save(final String name, final @Nullable String type, final byte @Nullable [] value) {
 		synchronized (db) {
 			// REMIND get the actual maximum size from the database
 			if (name.length() > MAX_VARIABLE_NAME_LENGTH)
@@ -702,7 +702,7 @@ public class DatabaseStorage extends VariablesStorage {
 
 		final VariablesStorage temp = new VariablesStorage(databaseName + " old variables table") {
 			@Override
-			protected boolean save(final String name, @Nullable final String type, @Nullable final byte[] value) {
+			protected boolean save(final String name, @Nullable final String type, final byte @Nullable [] value) {
 				assert type == null : name + "; " + type;
 				return true;
 			}

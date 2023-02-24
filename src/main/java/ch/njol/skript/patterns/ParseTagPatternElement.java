@@ -36,7 +36,7 @@ public class ParseTagPatternElement extends PatternElement {
 		this.mark = mark;
 	}
 
-	public ParseTagPatternElement(String tag) {
+	public ParseTagPatternElement(@Nullable String tag) {
 		this.tag = tag;
 		int mark = 0;
 		try {

@@ -25,6 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -56,7 +57,7 @@ public class ScheduledEvent extends Event {
 	private final static HandlerList handlers = new HandlerList();
 	
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 	

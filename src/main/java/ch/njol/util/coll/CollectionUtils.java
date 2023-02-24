@@ -103,19 +103,19 @@ public abstract class CollectionUtils {
 		return true;
 	}
 	
-	public static int indexOf(final @Nullable int[] array, final int num) {
+	public static int indexOf(final int @Nullable [] array, final int num) {
 		if (array == null)
 			return -1;
 		return indexOf(array, num, 0, array.length);
 	}
 	
-	public static int indexOf(final @Nullable int[] array, final int num, final int start) {
+	public static int indexOf(final int @Nullable [] array, final int num, final int start) {
 		if (array == null)
 			return -1;
 		return indexOf(array, num, start, array.length);
 	}
 	
-	public static int indexOf(final @Nullable int[] array, final int num, final int start, final int end) {
+	public static int indexOf(final int @Nullable [] array, final int num, final int start, final int end) {
 		if (array == null)
 			return -1;
 		for (int i = start; i < end; i++) {
@@ -125,7 +125,7 @@ public abstract class CollectionUtils {
 		return -1;
 	}
 	
-	public static boolean contains(final @Nullable int[] array, final int num) {
+	public static boolean contains(final int @Nullable [] array, final int num) {
 		return indexOf(array, num) != -1;
 	}
 	
@@ -442,7 +442,7 @@ public abstract class CollectionUtils {
 		return r;
 	}
 	
-	public static float[] toFloats(final @Nullable double[] doubles) {
+	public static float[] toFloats(final double @Nullable [] doubles) {
 		if (doubles == null)
 			return new float[0];
 		final float[] floats = new float[doubles.length];

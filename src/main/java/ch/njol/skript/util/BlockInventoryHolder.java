@@ -21,6 +21,7 @@ package ch.njol.skript.util;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Main usage is {@link ch.njol.skript.expressions.ExprInventoryInfo}
@@ -34,7 +35,7 @@ public class BlockInventoryHolder extends BlockStateBlock implements InventoryHo
 	}
 	
 	@Override
-	public Inventory getInventory() {
+	public @NotNull Inventory getInventory() {
 		return ((InventoryHolder) state).getInventory();
 	}
 }

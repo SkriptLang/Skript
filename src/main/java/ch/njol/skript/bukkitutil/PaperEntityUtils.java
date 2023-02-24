@@ -36,6 +36,7 @@ import com.destroystokyo.paper.entity.ai.GoalType;
 
 import ch.njol.skript.Skript;
 import io.papermc.paper.entity.LookAnchor;
+import org.jetbrains.annotations.NotNull;
 
 public class PaperEntityUtils {
 
@@ -164,12 +165,12 @@ public class PaperEntityUtils {
 		}
 
 		@Override
-		public GoalKey<Mob> getKey() {
+		public @NotNull GoalKey<Mob> getKey() {
 			return SKRIPT_LOOK_KEY;
 		}
 
 		@Override
-		public EnumSet<GoalType> getTypes() {
+		public @NotNull EnumSet<GoalType> getTypes() {
 			return LOOK_GOAL;
 		}
 

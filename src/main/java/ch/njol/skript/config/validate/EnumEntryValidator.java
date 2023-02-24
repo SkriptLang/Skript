@@ -52,7 +52,7 @@ public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 		}
 	}
 	
-	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter, final String allowedValues) {
+	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter, final @Nullable String allowedValues) {
 		assert enumType != null;
 		this.enumType = enumType;
 		this.setter = setter;

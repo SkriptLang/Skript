@@ -292,6 +292,6 @@ public abstract class VariablesStorage implements Closeable {
 	 * @param value
 	 * @return Whether the variable was saved
 	 */
-	protected abstract boolean save(String name, @Nullable String type, @Nullable byte[] value);
+	protected abstract boolean save(String name, @Nullable String type, byte @Nullable [] value);
 	
 }

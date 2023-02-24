@@ -23,6 +23,7 @@ import ch.njol.skript.util.Date;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class ScriptCommandEvent extends CommandEvent {
 	
@@ -90,7 +91,7 @@ public class ScriptCommandEvent extends CommandEvent {
 	private final static HandlerList handlers = new HandlerList();
 
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 

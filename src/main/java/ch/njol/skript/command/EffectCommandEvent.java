@@ -21,6 +21,7 @@ package ch.njol.skript.command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -51,7 +52,7 @@ public class EffectCommandEvent extends CommandEvent implements Cancellable {
 	private final static HandlerList handlers = new HandlerList();
 
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 

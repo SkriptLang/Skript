@@ -52,6 +52,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -586,7 +587,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 	
 	@Override
-	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+	public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 		fields.setFields(this);
 	}
 	

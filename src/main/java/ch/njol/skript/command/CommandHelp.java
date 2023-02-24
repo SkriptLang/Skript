@@ -56,7 +56,7 @@ public class CommandHelp {
 	@Nullable
 	private Message wildcardArg = null;
 	
-	public CommandHelp(final String command, final SkriptColor argsColor, final String langNode) {
+	public CommandHelp(final String command, final SkriptColor argsColor, final @Nullable String langNode) {
 		this.command = command;
 		this.argsColor = "" + argsColor.getFormattedChat();
 		this.langNode = langNode;

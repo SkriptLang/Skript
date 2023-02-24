@@ -157,7 +157,7 @@ public class ChatMessages {
 	 */
 	private static class ComponentList {
 		
-		public ComponentList(List<MessageComponent> components) {
+		public ComponentList(@Nullable List<MessageComponent> components) {
 			this.extra = components;
 		}
 		

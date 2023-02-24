@@ -87,7 +87,6 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Nullable
 	private SkriptPattern pattern;
-	@Nullable
 	private boolean[] patternExpressionPlurals;
 	private boolean patternHasSingleExpression = false;
 

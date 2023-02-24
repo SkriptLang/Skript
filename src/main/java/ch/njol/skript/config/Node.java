@@ -62,7 +62,7 @@ public abstract class Node {
 		SkriptLogger.setNode(this);
 	}
 	
-	protected Node(final String key, final SectionNode parent) {
+	protected Node(final @Nullable String key, final SectionNode parent) {
 		this.key = key;
 		debug = false;
 		lineNum = -1;
@@ -71,7 +71,7 @@ public abstract class Node {
 		SkriptLogger.setNode(this);
 	}
 	
-	protected Node(final String key, final String comment, final SectionNode parent, final int lineNum) {
+	protected Node(final @Nullable String key, final String comment, final SectionNode parent, final int lineNum) {
 		this.key = key;
 		assert comment.isEmpty() || comment.startsWith("#") : comment;
 		this.comment = comment;

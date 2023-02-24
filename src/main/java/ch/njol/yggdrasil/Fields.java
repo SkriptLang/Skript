@@ -18,6 +18,12 @@
  */
 package ch.njol.yggdrasil;
 
+import ch.njol.yggdrasil.Fields.FieldContext;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilRobustSerializable;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -30,13 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.yggdrasil.Fields.FieldContext; // required - wtf
-import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilRobustSerializable;
 
 @NotThreadSafe
 public final class Fields implements Iterable<FieldContext> {
@@ -182,7 +181,7 @@ public final class Fields implements Iterable<FieldContext> {
 		yggdrasil = null;
 	}
 	
-	public Fields(final Yggdrasil yggdrasil) {
+	public Fields(final @Nullable Yggdrasil yggdrasil) {
 		this.yggdrasil = yggdrasil;
 	}
 	
@@ -192,7 +191,7 @@ public final class Fields implements Iterable<FieldContext> {
 	 * @param c Some class
 	 * @throws NotSerializableException If a field occurs more than once (i.e. if a class has a field with the same name as a field in one of its superclasses)
 	 */
-	public Fields(final Class<?> c, final Yggdrasil yggdrasil) throws NotSerializableException {
+	public Fields(final Class<?> c, final @Nullable Yggdrasil yggdrasil) throws NotSerializableException {
 		this.yggdrasil = yggdrasil;
 		for (final Field f : getFields(c)) {
 			assert f != null;
@@ -398,7 +397,7 @@ public final class Fields implements Iterable<FieldContext> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public Iterator<FieldContext> iterator() {
+	public @NotNull Iterator<FieldContext> iterator() {
 		return fields.values().iterator();
 	}
 	

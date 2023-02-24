@@ -78,22 +78,22 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
+	public void setMetadata(@NotNull String metadataKey, @NotNull MetadataValue newMetadataValue) {
 		block.setMetadata(metadataKey, newMetadataValue);
 	}
 
 	@Override
-	public List<MetadataValue> getMetadata(String metadataKey) {
+	public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {
 		return block.getMetadata(metadataKey);
 	}
 
 	@Override
-	public boolean hasMetadata(String metadataKey) {
+	public boolean hasMetadata(@NotNull String metadataKey) {
 		return block.hasMetadata(metadataKey);
 	}
 
 	@Override
-	public void removeMetadata(String metadataKey, Plugin owningPlugin) {
+	public void removeMetadata(@NotNull String metadataKey, @NotNull Plugin owningPlugin) {
 		block.removeMetadata(metadataKey, owningPlugin);
 	}
 
@@ -104,22 +104,22 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public Block getRelative(int modX, int modY, int modZ) {
+	public @NotNull Block getRelative(int modX, int modY, int modZ) {
 		return block.getRelative(modX, modY, modZ);
 	}
 
 	@Override
-	public Block getRelative(BlockFace face) {
+	public @NotNull Block getRelative(@NotNull BlockFace face) {
 		return block.getRelative(face);
 	}
 
 	@Override
-	public Block getRelative(BlockFace face, int distance) {
+	public @NotNull Block getRelative(@NotNull BlockFace face, int distance) {
 		return block.getRelative(face, distance);
 	}
 
 	@Override
-	public Material getType() {
+	public @NotNull Material getType() {
 		return block.getType();
 	}
 
@@ -139,7 +139,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public World getWorld() {
+	public @NotNull World getWorld() {
 		return block.getWorld();
 	}
 
@@ -159,17 +159,17 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public Location getLocation() {
+	public @NotNull Location getLocation() {
 		return block.getLocation();
 	}
 
 	@Override
-	public Chunk getChunk() {
+	public @NotNull Chunk getChunk() {
 		return block.getChunk();
 	}
 
 	@Override
-	public void setType(Material type) {
+	public void setType(@NotNull Material type) {
 		if (newState != null) {
 			newState.setType(type);
 		} else {
@@ -189,17 +189,17 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public BlockState getState() {
+	public @NotNull BlockState getState() {
 		return block.getState();
 	}
 
 	@Override
-	public BlockState getState(boolean useSnapshot) {
+	public @NotNull BlockState getState(boolean useSnapshot) {
 		return block.getState(useSnapshot);
 	}
 
 	@Override
-	public Biome getBiome() {
+	public @NotNull Biome getBiome() {
 		return block.getBiome();
 	}
 
@@ -209,7 +209,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public void setBiome(Biome bio) {
+	public void setBiome(@NotNull Biome bio) {
 		block.setBiome(bio);
 	}
 
@@ -224,17 +224,17 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public boolean isBlockFacePowered(BlockFace face) {
+	public boolean isBlockFacePowered(@NotNull BlockFace face) {
 		return block.isBlockFacePowered(face);
 	}
 
 	@Override
-	public boolean isBlockFaceIndirectlyPowered(BlockFace face) {
+	public boolean isBlockFaceIndirectlyPowered(@NotNull BlockFace face) {
 		return block.isBlockFaceIndirectlyPowered(face);
 	}
 
 	@Override
-	public int getBlockPower(BlockFace face) {
+	public int getBlockPower(@NotNull BlockFace face) {
 		return block.getBlockPower(face);
 	}
 
@@ -293,7 +293,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public PistonMoveReaction getPistonMoveReaction() {
+	public @NotNull PistonMoveReaction getPistonMoveReaction() {
 		return block.getPistonMoveReaction();
 	}
 
@@ -343,7 +343,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public boolean breakNaturally(ItemStack tool, boolean triggerEffect) {
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect) {
 		if (newState != null) {
 			return false;
 		} else {
@@ -368,22 +368,22 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public boolean applyBoneMeal(BlockFace blockFace) {
+	public boolean applyBoneMeal(@NotNull BlockFace blockFace) {
 		return block.applyBoneMeal(blockFace);
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops() {
+	public @NotNull Collection<ItemStack> getDrops() {
 		return block.getDrops();
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops(@Nullable ItemStack tool) {
+	public @NotNull Collection<ItemStack> getDrops(@Nullable ItemStack tool) {
 		return block.getDrops(tool);
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops(ItemStack tool, @Nullable Entity entity) {
+	public @NotNull Collection<ItemStack> getDrops(@NotNull ItemStack tool, @Nullable Entity entity) {
 		return block.getDrops(tool, entity);
 	}
 
@@ -402,7 +402,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public void setType(Material type, boolean applyPhysics) {
+	public void setType(@NotNull Material type, boolean applyPhysics) {
 		if (newState != null) {
 			newState.setType(type);
 		} else {
@@ -416,17 +416,17 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public BlockData getBlockData() {
+	public @NotNull BlockData getBlockData() {
 		return block.getBlockData();
 	}
 
 	@Override
-	public void setBlockData(BlockData data) {
+	public void setBlockData(@NotNull BlockData data) {
 		setBlockData(data, true);
 	}
 
 	@Override
-	public void setBlockData(BlockData data, boolean applyPhysics) {
+	public void setBlockData(@NotNull BlockData data, boolean applyPhysics) {
 		if (newState != null) {
 			newState.setBlockData(data);
 		} else {
@@ -436,7 +436,7 @@ public class DelayedChangeBlock implements Block {
 
 	@Nullable
 	@Override
-	public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
+	public RayTraceResult rayTrace(@NotNull Location start, @NotNull Vector direction, double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
 		return block.rayTrace(start, direction, maxDistance, fluidCollisionMode);
 	}
 
@@ -446,12 +446,12 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public BoundingBox getBoundingBox() {
+	public @NotNull BoundingBox getBoundingBox() {
 		return block.getBoundingBox();
 	}
 
 	@Override
-	public BlockSoundGroup getSoundGroup() {
+	public @NotNull BlockSoundGroup getSoundGroup() {
 		return block.getSoundGroup();
 	}
 
@@ -461,12 +461,12 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
-	public String getTranslationKey() {
+	public @NotNull String getTranslationKey() {
 		return block.getTranslationKey();
 	}
 
 	@Override
-	public float getDestroySpeed(ItemStack itemStack) {
+	public float getDestroySpeed(@NotNull ItemStack itemStack) {
 		return block.getDestroySpeed(itemStack);
 	}
 

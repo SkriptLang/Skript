@@ -25,6 +25,7 @@ import java.util.Collection;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.util.Math2;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A list with fixed size that overrides the oldest elements when new elements are added and no more space is available.
@@ -167,13 +168,13 @@ public final class CyclicList<E> extends AbstractList<E> {
 	}
 	
 	@Override
-	public Object[] toArray() {
+	public Object @NotNull [] toArray() {
 		return toArray(new Object[items.length]);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T[] toArray(final @Nullable T[] array) {
+	public <T> T @NotNull [] toArray(final @Nullable T @NotNull [] array) {
 		if (array == null)
 			return (T[]) toArray();
 		if (array.length < items.length)

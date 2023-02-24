@@ -23,6 +23,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -36,7 +37,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 
 	@Override
 	@Nullable
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+	public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
 		ArrayList<String> options = new ArrayList<>();
 		
 		if (!command.getName().equalsIgnoreCase("skript"))

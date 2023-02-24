@@ -18,15 +18,14 @@
  */
 package ch.njol.skript.lang;
 
-import java.io.File;
-
-import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.Skript;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
-import ch.njol.skript.Skript;
-import ch.njol.util.StringUtils;
+import java.io.File;
 
 /**
  * Represents a trigger item, i.e. a trigger section, a condition or an effect.
@@ -45,7 +44,7 @@ public abstract class TriggerItem implements Debuggable {
 	
 	protected TriggerItem() {}
 	
-	protected TriggerItem(final TriggerSection parent) {
+	protected TriggerItem(final @Nullable TriggerSection parent) {
 		this.parent = parent;
 	}
 	

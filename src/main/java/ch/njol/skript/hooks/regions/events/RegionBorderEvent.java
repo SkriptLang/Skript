@@ -24,6 +24,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import ch.njol.skript.hooks.regions.classes.Region;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -68,7 +69,7 @@ public class RegionBorderEvent extends Event implements Cancellable {
 	private final static HandlerList handlers = new HandlerList();
 	
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 	

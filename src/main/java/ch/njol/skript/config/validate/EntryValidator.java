@@ -38,7 +38,7 @@ public class EntryValidator implements NodeValidator {
 		setter = null;
 	}
 	
-	public EntryValidator(final Setter<String> setter) {
+	public EntryValidator(final @Nullable Setter<String> setter) {
 		this.setter = setter;
 	}
 	

@@ -20,6 +20,7 @@ package ch.njol.skript.tests.runner;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Raised by Skript when tests are run.
@@ -33,7 +34,7 @@ public class SkriptTestEvent extends Event {
 	}
 	
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 	

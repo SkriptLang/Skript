@@ -53,6 +53,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import org.jetbrains.annotations.NotNull;
 
 public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 	
@@ -149,7 +150,7 @@ public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 		}
 		
 		@Override
-		public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+		public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 			final String r = fields.getAndRemoveObject("region", String.class);
 			fields.setFields(this);
 			

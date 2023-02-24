@@ -137,6 +137,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
@@ -430,7 +431,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 	
 	@Override
-	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+	public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 		final String codeName = fields.getAndRemoveObject("info.codeName", String.class);
 		for (final SimpleEntityDataInfo i : types) {
 			if (i.codeName.equals(codeName)) {

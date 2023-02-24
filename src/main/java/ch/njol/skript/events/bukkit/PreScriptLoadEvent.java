@@ -26,6 +26,7 @@ import org.bukkit.event.HandlerList;
 
 import ch.njol.skript.config.Config;
 import ch.njol.util.Validate;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event has no guarantee of being on the main thread.
@@ -45,7 +46,7 @@ public class PreScriptLoadEvent extends Event {
     private static HandlerList handlers = new HandlerList();
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 

@@ -18,15 +18,15 @@
  */
 package ch.njol.skript.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 // Bukkit does not provide a way to get a PotionEffect from PotionData
 // This class allows us to convert base PotionData of an item into a PotionEffect
@@ -80,7 +80,7 @@ public enum PotionDataUtils {
 	private final int duration;
 	private final int amplifier;
 	
-	PotionDataUtils(PotionType potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
+	PotionDataUtils(@Nullable PotionType potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
 		this.potionType = potionType;
 		this.extended = extended;
 		this.upgraded = upgraded;

@@ -20,6 +20,7 @@ package ch.njol.skript.lang.function;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class FunctionEvent<T> extends Event {
 	
@@ -37,7 +38,7 @@ public final class FunctionEvent<T> extends Event {
 	}
 	
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 	

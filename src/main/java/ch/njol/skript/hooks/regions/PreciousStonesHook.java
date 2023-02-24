@@ -48,6 +48,7 @@ import ch.njol.yggdrasil.YggdrasilID;
 import net.sacredlabyrinth.Phaed.PreciousStones.PreciousStones;
 import net.sacredlabyrinth.Phaed.PreciousStones.field.Field;
 import net.sacredlabyrinth.Phaed.PreciousStones.field.FieldFlag;
+import org.jetbrains.annotations.NotNull;
 
 public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 
@@ -176,7 +177,7 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
         }
 
         @Override
-        public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+        public void deserialize(final @NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
             new Fields(fields).setFields(this);
         }
     }

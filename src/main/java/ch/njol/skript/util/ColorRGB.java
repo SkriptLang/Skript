@@ -24,6 +24,7 @@ import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -80,7 +81,7 @@ public class ColorRGB implements Color {
 	}
 	
 	@Override
-	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 		org.bukkit.Color b = fields.getObject("bukkit", org.bukkit.Color.class);
 		DyeColor d = fields.getObject("dye", DyeColor.class);
 		if (b == null)

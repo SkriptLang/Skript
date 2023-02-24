@@ -78,22 +78,22 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
+	public void setMetadata(@NotNull String metadataKey, @NotNull MetadataValue newMetadataValue) {
 		state.setMetadata(metadataKey, newMetadataValue);
 	}
 
 	@Override
-	public List<MetadataValue> getMetadata(String metadataKey) {
+	public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {
 		return state.getMetadata(metadataKey);
 	}
 
 	@Override
-	public boolean hasMetadata(String metadataKey) {
+	public boolean hasMetadata(@NotNull String metadataKey) {
 		return state.hasMetadata(metadataKey);
 	}
 
 	@Override
-	public void removeMetadata(String metadataKey, Plugin owningPlugin) {
+	public void removeMetadata(@NotNull String metadataKey, @NotNull Plugin owningPlugin) {
 		state.removeMetadata(metadataKey, owningPlugin);
 	}
 
@@ -103,22 +103,22 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public Block getRelative(int modX, int modY, int modZ) {
+	public @NotNull Block getRelative(int modX, int modY, int modZ) {
 		return state.getBlock().getRelative(modX, modY, modZ);
 	}
 
 	@Override
-	public Block getRelative(BlockFace face) {
+	public @NotNull Block getRelative(@NotNull BlockFace face) {
 		return state.getBlock().getRelative(face);
 	}
 
 	@Override
-	public Block getRelative(BlockFace face, int distance) {
+	public @NotNull Block getRelative(@NotNull BlockFace face, int distance) {
 		return state.getBlock().getRelative(face, distance);
 	}
 
 	@Override
-	public Material getType() {
+	public @NotNull Material getType() {
 		return state.getType();
 	}
 
@@ -138,7 +138,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public World getWorld() {
+	public @NotNull World getWorld() {
 		return state.getWorld();
 	}
 
@@ -158,17 +158,17 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public Location getLocation() {
+	public @NotNull Location getLocation() {
 		return state.getLocation();
 	}
 
 	@Override
-	public Chunk getChunk() {
+	public @NotNull Chunk getChunk() {
 		return state.getChunk();
 	}
 
 	@Override
-	public void setType(Material type) {
+	public void setType(@NotNull Material type) {
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -183,22 +183,22 @@ public class BlockStateBlock implements Block {
 
 	@Nullable
 	@Override
-	public BlockFace getFace(Block block) {
+	public BlockFace getFace(@NotNull Block block) {
 		return state.getBlock().getFace(block);
 	}
 
 	@Override
-	public BlockState getState() {
+	public @NotNull BlockState getState() {
 		return state;
 	}
 
 	@Override
-	public BlockState getState(boolean useSnapshot) {
+	public @NotNull BlockState getState(boolean useSnapshot) {
 		return state;
 	}
 
 	@Override
-	public Biome getBiome() {
+	public @NotNull Biome getBiome() {
 		return state.getBlock().getBiome();
 	}
 
@@ -208,7 +208,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public void setBiome(Biome bio) {
+	public void setBiome(@NotNull Biome bio) {
 		state.getBlock().setBiome(bio);
 	}
 
@@ -223,17 +223,17 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public boolean isBlockFacePowered(BlockFace face) {
+	public boolean isBlockFacePowered(@NotNull BlockFace face) {
 		return state.getBlock().isBlockFacePowered(face);
 	}
 
 	@Override
-	public boolean isBlockFaceIndirectlyPowered(BlockFace face) {
+	public boolean isBlockFaceIndirectlyPowered(@NotNull BlockFace face) {
 		return state.getBlock().isBlockFaceIndirectlyPowered(face);
 	}
 
 	@Override
-	public int getBlockPower(BlockFace face) {
+	public int getBlockPower(@NotNull BlockFace face) {
 		return state.getBlock().getBlockPower(face);
 	}
 
@@ -292,7 +292,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public PistonMoveReaction getPistonMoveReaction() {
+	public @NotNull PistonMoveReaction getPistonMoveReaction() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -342,7 +342,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public boolean breakNaturally(ItemStack tool, boolean triggerEffect) {
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect) {
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -367,24 +367,24 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public boolean applyBoneMeal(BlockFace blockFace) {
+	public boolean applyBoneMeal(@NotNull BlockFace blockFace) {
 		return state.getBlock().applyBoneMeal(blockFace);
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops() {
+	public @NotNull Collection<ItemStack> getDrops() {
 		assert false;
 		return Collections.emptySet();
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops(@Nullable ItemStack tool) {
+	public @NotNull Collection<ItemStack> getDrops(@Nullable ItemStack tool) {
 		assert false;
 		return Collections.emptySet();
 	}
 
 	@Override
-	public Collection<ItemStack> getDrops(ItemStack tool, @Nullable Entity entity) {
+	public @NotNull Collection<ItemStack> getDrops(@NotNull ItemStack tool, @Nullable Entity entity) {
 		assert false;
 		return Collections.emptySet();
 	}
@@ -407,7 +407,7 @@ public class BlockStateBlock implements Block {
 	// Note that overridden methods may not exist on Minecraft<1.13
 
 	@Override
-	public void setType(Material type, boolean applyPhysics) {
+	public void setType(@NotNull Material type, boolean applyPhysics) {
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -421,12 +421,12 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public BlockData getBlockData() {
+	public @NotNull BlockData getBlockData() {
 		return state.getBlockData();
 	}
 
 	@Override
-	public void setBlockData(BlockData data) {
+	public void setBlockData(@NotNull BlockData data) {
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -440,7 +440,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public void setBlockData(BlockData data, boolean applyPhysics) {
+	public void setBlockData(@NotNull BlockData data, boolean applyPhysics) {
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -455,7 +455,7 @@ public class BlockStateBlock implements Block {
 
 	@Nullable
 	@Override
-	public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
+	public RayTraceResult rayTrace(@NotNull Location start, @NotNull Vector direction, double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
 		return state.getBlock().rayTrace(start, direction, maxDistance, fluidCollisionMode);
 	}
 
@@ -465,12 +465,12 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public BoundingBox getBoundingBox() {
+	public @NotNull BoundingBox getBoundingBox() {
 		return state.getBlock().getBoundingBox();
 	}
 
 	@Override
-	public BlockSoundGroup getSoundGroup() {
+	public @NotNull BlockSoundGroup getSoundGroup() {
 		return state.getBlock().getSoundGroup();
 	}
 
@@ -480,12 +480,12 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public String getTranslationKey() {
+	public @NotNull String getTranslationKey() {
 		return state.getBlock().getTranslationKey();
 	}
 
 	@Override
-	public float getDestroySpeed(ItemStack itemStack) {
+	public float getDestroySpeed(@NotNull ItemStack itemStack) {
 		return state.getBlock().getDestroySpeed(itemStack);
 	}
 
@@ -500,7 +500,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
-	public @NotNull float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
+	public float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
 		return state.getBlock().getDestroySpeed(itemStack, considerEnchants);
 	}
 

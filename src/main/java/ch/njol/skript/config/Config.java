@@ -113,7 +113,7 @@ public class Config implements Comparable<Config> {
 	}
 	
 	@SuppressWarnings("null")
-	public Config(final Path file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
+	public Config(final @Nullable Path file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		this(Channels.newInputStream(FileChannel.open(file)), "" + file.getFileName(), simple, allowEmptySections, defaultSeparator);
 		this.file = file;
 	}

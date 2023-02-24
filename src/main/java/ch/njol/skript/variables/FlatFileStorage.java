@@ -260,7 +260,7 @@ public class FlatFileStorage extends VariablesStorage {
 	}
 	
 	@Override
-	protected boolean save(final String name, final @Nullable String type, final @Nullable byte[] value) {
+	protected boolean save(final String name, final @Nullable String type, final byte[] value) {
 		synchronized (connectionLock) {
 			synchronized (changesWriter) {
 				if (!loaded && type == null)

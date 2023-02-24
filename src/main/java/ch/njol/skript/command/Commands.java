@@ -23,6 +23,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.Effect;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -353,7 +354,7 @@ public abstract class Commands {
 		}
 		
 		@Override
-		public String getFullText(final CommandSender forWho) {
+		public @NotNull String getFullText(final @NotNull CommandSender forWho) {
 			final StringBuilder sb = new StringBuilder(shortText);
 			final HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
 			if (aliasForTopic != null) {
@@ -364,7 +365,7 @@ public abstract class Commands {
 		}
 		
 		@Override
-		public boolean canSee(final CommandSender commandSender) {
+		public boolean canSee(final @NotNull CommandSender commandSender) {
 			if (amendedPermission == null) {
 				final HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
 				if (aliasForTopic != null) {
