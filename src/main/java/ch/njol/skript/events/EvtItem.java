@@ -132,7 +132,7 @@ public class EvtItem extends SkriptEvent {
 		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
 				.description(
 						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
-						"When this event is called, the initiator may already have removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
 						"If this event is cancelled, the items will be returned to the source inventory."
 				)
 				.examples(

@@ -34,7 +34,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 
 @Name("Initiator Inventory")
-@Description("Returns the initiator inventory in on <a href=\"./events.html?search=#inventory_item_move\">inventory item move</a> event.")
+@Description("Returns the initiator inventory in an on <a href=\"./events.html?search=#inventory_item_move\">inventory item move</a> event.")
 @Examples({
 		"on inventory item move:",
 			"\tif holder of event-initiator-inventory is a chest:",
@@ -65,4 +65,5 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 	public String toString() {
 		return "the event-initiator-inventory in 'inventory item move' event";
 	}
+
 }
