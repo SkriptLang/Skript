@@ -148,14 +148,11 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 			if (op == Operator.DIVISION || op == Operator.EXPONENTIATION) {
 				returnType = Double.class;
 			} else {
-				Class<?> firstReturnType = first.getReturnType();
-				Class<?> secondReturnType = second.getReturnType();
-
 				boolean firstIsInt = false;
 				boolean secondIsInt = false;
 				for (Class<?> i : INTEGER_CLASSES) {
-					firstIsInt |= i.isAssignableFrom(firstReturnType);
-					secondIsInt |= i.isAssignableFrom(secondReturnType);
+					firstIsInt |= i.isAssignableFrom(firstClass);
+					secondIsInt |= i.isAssignableFrom(secondClass);
 				}
 
 				returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
