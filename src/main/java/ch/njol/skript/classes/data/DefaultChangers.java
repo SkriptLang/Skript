@@ -77,6 +77,7 @@ public class DefaultChangers {
 				}
 				return;
 			}
+			boolean hasItem = false;
 			for (final Entity e : entities) {
 				for (final Object d : delta) {
 					if (d instanceof PotionEffectType) {
@@ -100,6 +101,7 @@ public class DefaultChangers {
 									invi.removeItem(((Inventory) d).getContents());
 								}
 							} else if (d instanceof ItemType) {
+								hasItem = true;
 								final PlayerInventory invi = p.getInventory();
 								if (mode == ChangeMode.ADD)
 									((ItemType) d).addTo(invi);
@@ -111,7 +113,7 @@ public class DefaultChangers {
 						}
 					}
 				}
-				if (e instanceof Player)
+				if (e instanceof Player && hasItem)
 					PlayerUtils.updateInventory((Player) e);
 			}
 		}
