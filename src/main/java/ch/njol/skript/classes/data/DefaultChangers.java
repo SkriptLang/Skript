@@ -91,14 +91,15 @@ public class DefaultChangers {
 							if (d instanceof Experience) {
 								p.giveExp(((Experience) d).getXP());
 							} else if (d instanceof Inventory) {
-								final PlayerInventory invi = p.getInventory();
-								if (mode == ChangeMode.ADD) {
-									for (final ItemStack i : (Inventory) d) {
-										if (i != null)
-											invi.addItem(i);
+								PlayerInventory inventory = p.getInventory();
+								for (ItemStack itemStack : (Inventory) d) {
+									if (itemStack == null)
+										continue;
+									if (mode == ChangeMode.ADD) {
+										inventory.addItem(itemStack);
+									} else {
+										inventory.remove(itemStack);
 									}
-								} else {
-									invi.removeItem(((Inventory) d).getContents());
 								}
 							} else if (d instanceof ItemType) {
 								hasItem = true;
