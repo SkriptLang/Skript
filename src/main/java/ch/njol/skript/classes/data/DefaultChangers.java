@@ -262,7 +262,10 @@ public class DefaultChangers {
 						for (final Object d : delta) {
 							if (d instanceof Inventory) {
 								assert mode == ChangeMode.REMOVE;
-								invi.removeItem(((Inventory) d).getContents());
+								for (ItemStack itemStack : (Inventory) d) {
+									if (itemStack != null)
+										invi.removeItem(itemStack);
+								}
 							} else {
 								if (mode == ChangeMode.REMOVE)
 									((ItemType) d).removeFrom(invi);
