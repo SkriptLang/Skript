@@ -90,7 +90,7 @@ public class CondIsWithin extends Condition {
 		} else {
 			// within an entity/block/chunk/world
 			withinLocations = false;
-			area = (Expression<Object>) exprs[1];
+			area = exprs[1];
 		}
 		return true;
 	}
