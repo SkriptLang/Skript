@@ -67,10 +67,11 @@ public class CondIsWithin extends Condition {
 			validTypes += "/block";
 
 		Skript.registerCondition(CondIsWithin.class,
-			"%locations% (is|are) within %location% and %location%",
-			"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
-			"%locations% (is|are) (within|in[side [of]]) %" + validTypes + "%",
-			"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %" + validTypes + "%");
+				"%locations% (is|are) within %location% and %location%",
+				"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
+				"%locations% (is|are) (within|in[side [of]]) %" + validTypes + "%",
+				"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %" + validTypes + "%"
+		);
 	}
 
 	private Expression<Location> locsToCheck, loc1, loc2;
