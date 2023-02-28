@@ -33,13 +33,13 @@ public class EvtExperienceChange extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Experience Change", EvtExperienceChange.class, PlayerExpChangeEvent.class, "[player] (level progress|[e]xp|experience) (change|update|:increase|:decrease)")
-			.description("Called when a player's experience changes.")
-			.examples(
-				"on level progress change:",
-					"\tset {_xp} to event-experience",
-					"\tbroadcast \"%{_xp}%\""
-			)
-			.since("INSERT VERSION");
+				.description("Called when a player's experience changes.")
+				.examples(
+					"on level progress change:",
+						"\tset {_xp} to event-experience",
+						"\tbroadcast \"%{_xp}%\""
+				)
+				.since("INSERT VERSION");
 		EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
 			@Override
 			@Nullable
