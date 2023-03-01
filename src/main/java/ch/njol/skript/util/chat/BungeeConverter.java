@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.util.chat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.njol.skript.Skript;
@@ -34,18 +35,15 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 public class BungeeConverter {
 
 	private static boolean HAS_FONT_SUPPORT = Skript.methodExists(BaseComponent.class, "setFont", String.class);
-	private static final boolean HAS_TRANSLATABLE_SUPPORT = Skript.classExists("net.md_5.bungee.api.chat.TranslatableComponent");
 
 	@SuppressWarnings("null")
 	public static BaseComponent convert(MessageComponent origin) {
 		BaseComponent base;
-		if (origin.translation != null && HAS_TRANSLATABLE_SUPPORT) {
+		if (origin.translation != null) {
 			String[] strings = origin.translation.split(":");
 			String key = strings[0];
-			String[] values = strings.length > 1 ? new String[strings.length - 1] : null;
-			if (values != null) {
-				System.arraycopy(strings, 1, values, 0, values.length);
-				base = new TranslatableComponent(key, (Object[]) values);
+			if (strings.length > 1) {
+				base = new TranslatableComponent(key, Arrays.copyOfRange(strings, 1, strings.length, Object[].class));
 			} else {
 				base = new TranslatableComponent(key);
 			}
