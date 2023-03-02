@@ -48,7 +48,6 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
-import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -338,7 +337,7 @@ public class SkriptParser {
 				final FunctionReference<T> fr = parseFunction(types);
 				if (fr != null) {
 					log.printLog();
-					return new ExprFunctionCall(fr);
+					return new ExprFunctionCall(fr).simplify();
 				} else if (log.hasError()) {
 					log.printError();
 					return null;
@@ -516,7 +515,7 @@ public class SkriptParser {
 				final FunctionReference<?> fr = parseFunction(types);
 				if (fr != null) {
 					log.printLog();
-					return new ExprFunctionCall<>(fr);
+					return new ExprFunctionCall<>(fr).simplify();
 				} else if (log.hasError()) {
 					log.printError();
 					return null;
@@ -948,34 +947,16 @@ public class SkriptParser {
 				params = new Expression[0];
 			}
 
-//			final List<Expression<?>> params = new ArrayList<Expression<?>>();
-//			if (args.length() != 0) {
-//				final int p = 0;
-//				int j = 0;
-//				for (int i = 0; i != -1 && i <= args.length(); i = next(args, i, context)) {
-//					if (i == args.length() || args.charAt(i) == ',') {
-//						final Expression<?> e = new SkriptParser("" + args.substring(j, i).trim(), flags | PARSE_LITERALS, context).parseExpression(function.getParameter(p).getType().getC());
-//						if (e == null) {
-//							log.printError("Can't understand this expression: '" + args.substring(j, i) + "'", ErrorQuality.NOT_AN_EXPRESSION);
-//							return null;
-//						}
-//						params.add(e);
-//						j = i + 1;
-//					}
-//				}
-//			}
-//			@SuppressWarnings("null")
-
 			ParserInstance parser = getParser();
 			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
-			final FunctionReference<T> e = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
-			if (!e.validateFunction(true)) {
+			FunctionReference<T> reference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+			if (!reference.validateFunction(true)) {
 				log.printError();
 				return null;
 			}
 			log.printLog();
-			return e;
+			return reference;
 		} finally {
 			log.stop();
 		}

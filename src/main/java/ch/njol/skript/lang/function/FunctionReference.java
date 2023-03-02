@@ -28,6 +28,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
@@ -36,6 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -303,6 +306,28 @@ public class FunctionReference<T> {
 	
 	public boolean isSingle() {
 		return single;
+	}
+
+	@Unmodifiable
+	public List<Expression<?>> parameters() {
+		return Collections.unmodifiableList(Arrays.asList(parameters));
+	}
+
+	/**
+	 * Applies simplification on the parameters of this function.
+	 *
+	 * @return A new reference which has simplified parameters
+	 */
+	@Contract("-> new")
+	public FunctionReference<T> simplify() {
+		// TODO Actually simplify parameters
+		// At the current time it is not viable since it hopelessly breaks everything
+		Expression<?>[] parameters = parameters().toArray(new Expression[0]);
+		FunctionReference<T> reference = new FunctionReference<>(functionName, node, script, returnTypes, parameters);
+		reference.signature = signature;
+		reference.single = single;
+		reference.singleListParam = singleListParam;
+		return reference;
 	}
 	
 	@Nullable

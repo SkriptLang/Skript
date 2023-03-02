@@ -21,20 +21,40 @@ package ch.njol.skript.lang.function;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
+import org.jetbrains.annotations.ApiStatus;
 
-/**
- * @author Peter Güttinger
- */
+// This api is getting big changes in 2.8
+@ApiStatus.Experimental
 public abstract class JavaFunction<T> extends Function<T> {
-	
-	public JavaFunction(Signature<T> sign) {
+
+	private final boolean pure;
+
+	public JavaFunction(Signature<T> sign, boolean pure) {
 		super(sign);
+		this.pure = pure;
 	}
 
-	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
-		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName()));
+	@Deprecated
+	public JavaFunction(Signature<T> sign) {
+		this(sign, false);
 	}
-	
+
+	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean pure) {
+		this(new Signature<>("none", name, parameters, false,
+				returnType, single, Thread.currentThread().getStackTrace()[3].getClassName()), pure);
+	}
+
+	@Deprecated
+	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
+		this(new Signature<>("none", name, parameters, false,
+				returnType, single, Thread.currentThread().getStackTrace()[3].getClassName()));
+	}
+
+	@Override
+	public boolean isPure() {
+		return pure;
+	}
+
 	@Override
 	@Nullable
 	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);

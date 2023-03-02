@@ -19,29 +19,31 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.converter.Converters;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
-	private final FunctionReference<?> function;
+	private final FunctionReference<?> reference;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
 
-	public ExprFunctionCall(FunctionReference<T> function) {
-		this(function, function.returnTypes);
+	public ExprFunctionCall(FunctionReference<T> reference) {
+		this(reference, reference.returnTypes);
 	}
 
 	@SuppressWarnings("unchecked")
-	public ExprFunctionCall(FunctionReference<?> function, Class<? extends T>[] expectedReturnTypes) {
-		this.function = function;
-		Class<?> functionReturnType = function.getReturnType();
+	public ExprFunctionCall(FunctionReference<?> reference, Class<? extends T>[] expectedReturnTypes) {
+		this.reference = reference;
+		Class<?> functionReturnType = reference.getReturnType();
 		assert  functionReturnType != null;
 		if (CollectionUtils.containsSuperclass(expectedReturnTypes, functionReturnType)) {
 			// Function returns expected type already
@@ -57,8 +59,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	@Override
 	@Nullable
 	protected T[] get(Event e) {
-		Object[] returnValue = function.execute(e);
-		function.resetReturnValue();
+		Object[] returnValue = reference.execute(e);
+		reference.resetReturnValue();
 		return Converters.convert(returnValue, returnTypes, returnType);
 	}
 
@@ -68,16 +70,16 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
-		assert function.getReturnType() != null;
-		if (Converters.converterExists(function.getReturnType(), to)) {
-			return new ExprFunctionCall<>(function, to);
+		assert reference.getReturnType() != null;
+		if (Converters.converterExists(reference.getReturnType(), to)) {
+			return new ExprFunctionCall<>(reference, to);
 		}
 		return null;
 	}
 
 	@Override
 	public boolean isSingle() {
-		return function.isSingle();
+		return reference.isSingle();
 	}
 
 	@Override
@@ -87,13 +89,33 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return function.toString(e, debug);
+		return reference.toString(e, debug);
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		assert false;
 		return false;
+	}
+
+	@Override
+	public Expression<T> simplify() {
+		Function<?> function = reference.getFunction();
+		if (function == null)
+			return this;
+
+		if (!function.isPure())
+			return this;
+
+		if (!reference.parameters()
+				.stream()
+				.allMatch(expression -> expression instanceof Literal))
+			return this;
+
+		T[] result = getArray(null);
+		if (result.length == 0)
+			return this;
+		return new SimpleLiteral<>(result, returnType, getAnd());
 	}
 
 }

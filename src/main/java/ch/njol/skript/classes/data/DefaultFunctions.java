@@ -18,19 +18,10 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Calendar;
-
-import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.JavaFunction;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.util.Vector;
-
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -41,9 +32,19 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
-public class DefaultFunctions {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Calendar;
+
+@ApiStatus.Internal
+public final class DefaultFunctions {
 	
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
@@ -55,7 +56,7 @@ public class DefaultFunctions {
 		
 		// basic math functions
 		
-		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
@@ -66,7 +67,7 @@ public class DefaultFunctions {
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
@@ -87,7 +88,7 @@ public class DefaultFunctions {
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
 			.since("2.2, INSERT VERSION (decimal placement)"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
@@ -98,7 +99,7 @@ public class DefaultFunctions {
 			.examples("ceil(2.34) = 3", "ceil(2) = 2", "ceil(2.99) = 3")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Long>("ceiling", numberParam, DefaultClasses.LONG, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Long>("ceiling", numberParam, DefaultClasses.LONG, true, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
@@ -109,7 +110,7 @@ public class DefaultFunctions {
 			.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("abs", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("abs", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Number n = (Number) params[0][0];
@@ -121,7 +122,7 @@ public class DefaultFunctions {
 			.examples("abs(3) = 3", "abs(-2) = 2")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("mod", new Parameter[] {new Parameter<>("d", DefaultClasses.NUMBER, true, null), new Parameter<>("m", DefaultClasses.NUMBER, true, null)}, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("mod", new Parameter[] {new Parameter<>("d", DefaultClasses.NUMBER, true, null), new Parameter<>("m", DefaultClasses.NUMBER, true, null)}, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Number d = (Number) params[0][0];
@@ -136,7 +137,7 @@ public class DefaultFunctions {
 			.examples("mod(3, 2) = 1", "mod(256436, 100) = 36", "mod(-1, 10) = 9")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("exp", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("exp", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.exp(((Number) params[0][0]).doubleValue())};
@@ -145,7 +146,7 @@ public class DefaultFunctions {
 			.examples("exp(0) = 1", "exp(1) = " + str(Math.exp(1)))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("ln", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("ln", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.log(((Number) params[0][0]).doubleValue())};
@@ -155,7 +156,7 @@ public class DefaultFunctions {
 			.examples("ln(1) = 0", "ln(exp(5)) = 5", "ln(2) = " + StringUtils.toString(Math.log(2), 4))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("log", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("base", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(10, false))}, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("log", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("base", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(10, false))}, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.log10(((Number) params[0][0]).doubleValue()) / Math.log10(((Number) params[1][0]).doubleValue())};
@@ -167,7 +168,7 @@ public class DefaultFunctions {
 			.examples("log(100) = 2 # 10^2 = 100", "log(16, 2) = 4 # 2^4 = 16")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("sqrt", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("sqrt", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.sqrt(((Number) params[0][0]).doubleValue())};
@@ -179,7 +180,7 @@ public class DefaultFunctions {
 		
 		// trigonometry
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("sin", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("sin", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.sin(Math.toRadians(((Number) params[0][0]).doubleValue()))};
@@ -188,7 +189,7 @@ public class DefaultFunctions {
 			.examples("sin(90) = 1", "sin(60) = " + str(Math.sin(Math.toRadians(60))))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("cos", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("cos", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.cos(Math.toRadians(((Number) params[0][0]).doubleValue()))};
@@ -197,7 +198,7 @@ public class DefaultFunctions {
 			.examples("cos(0) = 1", "cos(90) = 0")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("tan", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("tan", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.tan(Math.toRadians(((Number) params[0][0]).doubleValue()))};
@@ -206,7 +207,7 @@ public class DefaultFunctions {
 			.examples("tan(0) = 0", "tan(45) = 1", "tan(89.99) = " + str(Math.tan(Math.toRadians(89.99))))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("asin", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("asin", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.asin(((Number) params[0][0]).doubleValue()))};
@@ -215,7 +216,7 @@ public class DefaultFunctions {
 			.examples("asin(0) = 0", "asin(1) = 90", "asin(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("acos", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("acos", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.acos(((Number) params[0][0]).doubleValue()))};
@@ -224,7 +225,7 @@ public class DefaultFunctions {
 			.examples("acos(0) = 90", "acos(1) = 0", "acos(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("atan", numberParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("atan", numberParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.atan(((Number) params[0][0]).doubleValue()))};
@@ -236,7 +237,7 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Number>("atan2", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.NUMBER, true) {
+		}, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				return new Double[] {Math.toDegrees(Math.atan2(((Number) params[1][0]).doubleValue(), ((Number) params[0][0]).doubleValue()))};
@@ -248,7 +249,7 @@ public class DefaultFunctions {
 		
 		// more stuff
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("sum", numbersParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("sum", numbersParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Object[] ns = params[0];
@@ -261,7 +262,7 @@ public class DefaultFunctions {
 			.examples("sum(1) = 1", "sum(2, 3, 4) = 9", "sum({some list variable::*})", "sum(2, {_v::*}, and the player's y-coordinate)")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("product", numbersParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("product", numbersParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Object[] ns = params[0];
@@ -274,7 +275,7 @@ public class DefaultFunctions {
 			.examples("product(1) = 1", "product(2, 3, 4) = 24", "product({some list variable::*})", "product(2, {_v::*}, and the player's y-coordinate)")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("max", numbersParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("max", numbersParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Object[] ns = params[0];
@@ -290,7 +291,7 @@ public class DefaultFunctions {
 			.examples("max(1) = 1", "max(1, 2, 3, 4) = 4", "max({some list variable::*})")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Number>("min", numbersParam, DefaultClasses.NUMBER, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("min", numbersParam, DefaultClasses.NUMBER, true, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
 				Object[] ns = params[0];
@@ -307,10 +308,11 @@ public class DefaultFunctions {
 			.since("2.2"));
 		
 		// misc
-		
+
+		// Although technically pure there is no guarantee calling it twice will return the same world reference
 		Functions.registerFunction(new SimpleJavaFunction<World>("world", new Parameter[] {
 			new Parameter<>("name", DefaultClasses.STRING, true, null)
-		}, DefaultClasses.WORLD, true) {
+		}, DefaultClasses.WORLD, true, false) {
 			@Override
 			public World[] executeSimple(Object[][] params) {
 				World w = Bukkit.getWorld((String) params[0][0]);
@@ -327,7 +329,7 @@ public class DefaultFunctions {
 			new Parameter<>("world", DefaultClasses.WORLD, true, new EventValueExpression<>(World.class)),
 			new Parameter<>("yaw", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true)),
 			new Parameter<>("pitch", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true))
-		}, DefaultClasses.LOCATION, true) {
+		}, DefaultClasses.LOCATION, true, true) {
 			@Override
 			@Nullable
 			public Location[] execute(FunctionEvent<?> e, Object[][] params) {
@@ -360,7 +362,7 @@ public class DefaultFunctions {
 			new Parameter<>("millisecond", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true)),
 			new Parameter<>("zone_offset", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(Double.NaN, true)),
 			new Parameter<>("dst_offset", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(Double.NaN, true))
-		}, DefaultClasses.DATE, true) {
+		}, DefaultClasses.DATE, true, true) {
 			private final int[] fields = {
 				Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH,
 				Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND,
@@ -418,7 +420,7 @@ public class DefaultFunctions {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("z", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.VECTOR, true) {
+		}, DefaultClasses.VECTOR, true, true) {
 			@Override
 			public Vector[] executeSimple(Object[][] params) {
 				return new Vector[] {new Vector(
@@ -434,7 +436,7 @@ public class DefaultFunctions {
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
-		}, DefaultClasses.LONG, true) {
+		}, DefaultClasses.LONG, true, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
 				long level = (long) params[0][0];
@@ -459,7 +461,7 @@ public class DefaultFunctions {
 			new Parameter<>("red", DefaultClasses.LONG, true, null),
 			new Parameter<>("green", DefaultClasses.LONG, true, null),
 			new Parameter<>("blue", DefaultClasses.LONG, true, null)
-		}, DefaultClasses.COLOR, true) {
+		}, DefaultClasses.COLOR, true, true) {
 			@Override
 			public ColorRGB[] executeSimple(Object[][] params) {
 				Long red = (Long) params[0][0];

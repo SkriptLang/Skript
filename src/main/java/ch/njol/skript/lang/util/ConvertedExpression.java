@@ -18,24 +18,23 @@
  */
 package ch.njol.skript.lang.util;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -44,8 +43,6 @@ import ch.njol.util.coll.CollectionUtils;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
- * 
- * @author Peter Güttinger
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
 	
@@ -256,13 +253,10 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public Expression<?> getSource() {
 		return source;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public Expression<? extends T> simplify() {
-		final Expression<? extends T> c = source.simplify().getConvertedExpression(to);
-		if (c != null)
-			return c;
+		source = source.simplify();
 		return this;
 	}
 	

@@ -18,14 +18,13 @@
  */
 package ch.njol.skript.lang.function;
 
-import java.util.Arrays;
-
-import org.bukkit.Bukkit;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
 
 /**
  * Functions can be called using arguments.
@@ -64,7 +63,18 @@ public abstract class Function<T> {
 	public Parameter<?> getParameter(int index) {
 		return getParameters()[index];
 	}
-	
+
+	/**
+	 * Obtains purity of this function, which is true if the following conditions are met:
+	 * - There are no side effects with the execution of this function
+	 * - The return value is purely based on the arguments
+	 *
+	 * @return True if pure
+	 */
+	public boolean isPure() {
+		return false;
+	}
+
 	public boolean isSingle() {
 		return sign.isSingle();
 	}

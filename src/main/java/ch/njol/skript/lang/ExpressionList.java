@@ -21,7 +21,6 @@ package ch.njol.skript.lang;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -294,29 +293,6 @@ public class ExpressionList<T> implements Expression<T> {
 	 */
 	public Expression<? extends T>[] getExpressions() {
 		return expressions;
-	}
-
-	@Override
-	public Expression<T> simplify() {
-		boolean isLiteralList = true;
-		boolean isSimpleList = true;
-		for (int i = 0; i < expressions.length; i++) {
-			expressions[i] = expressions[i].simplify();
-			isLiteralList &= expressions[i] instanceof Literal;
-			isSimpleList &= expressions[i].isSingle();
-		}
-		if (isLiteralList && isSimpleList) {
-			@SuppressWarnings("unchecked") T[] values = (T[]) Array.newInstance(returnType, expressions.length);
-			for (int i = 0; i < values.length; i++)
-				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, returnType, and);
-		}
-		if (isLiteralList) {
-			Literal<? extends T>[] ls = Arrays.copyOf(expressions, expressions.length, Literal[].class);
-			assert ls != null;
-			return new LiteralList<>(ls, returnType, and);
-		}
-		return this;
 	}
 
 }

@@ -21,22 +21,34 @@ package ch.njol.skript.lang.function;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A {@link JavaFunction} which doesn't make use of
  * the {@link FunctionEvent} instance and that cannot
  * accept empty / {@code null} parameters.
  */
+@ApiStatus.Internal
 public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
-	
+
+	public SimpleJavaFunction(Signature<T> sign, boolean pure) {
+		super(sign, pure);
+	}
+
+	@Deprecated
 	public SimpleJavaFunction(Signature<T> sign) {
 		super(sign);
 	}
-	
+
+	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean pure) {
+		super(name, parameters, returnType, single, pure);
+	}
+
+	@Deprecated
 	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
 		super(name, parameters, returnType, single);
 	}
-	
+
 	@SuppressWarnings("ConstantConditions")
 	@Nullable
 	@Override
@@ -47,8 +59,8 @@ public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 		}
 		return executeSimple(params);
 	}
-	
+
 	@Nullable
 	public abstract T[] executeSimple(Object[][] params);
-	
+
 }

@@ -23,25 +23,26 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.registrations.DefaultClasses;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Functions available only to testing scripts.
  */
-@SuppressWarnings("null") // DefaultFunctions has this too... not ideal
-public class TestFunctions {
+@ApiStatus.Internal
+public final class TestFunctions {
 	
 	static {
 		ClassInfo<String> stringClass = DefaultClasses.STRING;
 		Parameter<?>[] stringsParam = new Parameter[] {new Parameter<>("strs", stringClass, false, null)};
 		
-		Functions.registerFunction(new SimpleJavaFunction<Boolean>("caseEquals", stringsParam, DefaultClasses.BOOLEAN, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Boolean>("caseEquals", stringsParam, DefaultClasses.BOOLEAN, true, true) {
 			@Override
 			public Boolean[] executeSimple(final Object[][] params) {
-				Object[] strs = params[0];
-				for (int i = 0; i < strs.length - 1; i++)
-					if (!strs[i].equals(strs[i+1]))
-						return new Boolean[] {false};
-				return new Boolean[] {true};
+				Object[] strings = params[0];
+				for (int i = 0; i < strings.length - 1; i++)
+					if (!strings[i].equals(strings[i+1]))
+						return new Boolean[] { false };
+				return new Boolean[] { true };
 			}
 		}.description("Checks if the contents of a list of strings are strictly equal with case sensitivity.")
 			.examples("caseEquals(\"hi\", \"Hi\") = false",
