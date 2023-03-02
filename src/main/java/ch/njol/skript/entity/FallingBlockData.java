@@ -20,9 +20,11 @@ package ch.njol.skript.entity;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
@@ -31,7 +33,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Adjective;
@@ -46,44 +47,48 @@ import ch.njol.util.coll.CollectionUtils;
  * @author Peter Güttinger
  */
 public class FallingBlockData extends EntityData<FallingBlock> {
+
 	static {
 		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
 	}
-	
+
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
 
-	@Nullable
-	private ItemType[] types = null;
-	
+	private ItemType @Nullable [] types = null;
+	private @Nullable BlockData data = null;
+
 	public FallingBlockData() {}
-	
-	public FallingBlockData(@Nullable ItemType[] types) {
+
+	public FallingBlockData(ItemType @Nullable [] types) {
 		this.types = types;
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	public FallingBlockData(@Nullable BlockData data) {
+		if (data != null) {
+			this.types = new ItemType[] {new ItemType(data.getMaterial())};
+			this.data = data;
+		}
+	}
+
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
-			if ((types = Converters.convert(((Literal<ItemType>) exprs[0]).getAll(), ItemType.class, new Converter<ItemType, ItemType>() {
-				@Override
-				@Nullable
-				public ItemType convert(ItemType t) {
-					t = t.getBlock().clone();
-					final Iterator<ItemData> iter = t.iterator();
-					while (iter.hasNext()) {
-						final Material id = iter.next().getType();
-						if (!id.isBlock())
-							iter.remove();
-					}
-					if (t.numTypes() == 0)
-						return null;
-					t.setAmount(-1);
-					t.setAll(false);
-					t.clearEnchantments();
-					return t;
+			if ((types = Converters.convert(((Literal<ItemType>) exprs[0]).getAll(), ItemType.class, itemType -> {
+				itemType = itemType.getBlock().clone();
+				Iterator<ItemData> iter = itemType.iterator();
+				while (iter.hasNext()) {
+					Material id = iter.next().getType();
+					if (!id.isBlock())
+						iter.remove();
 				}
+				if (itemType.numTypes() == 0)
+					return null;
+				itemType.setAmount(-1);
+				itemType.setAll(false);
+				itemType.clearEnchantments();
+				return itemType;
 			})).length == 0) {
 				Skript.error(m_not_a_block_error.toString());
 				return false;
@@ -91,19 +96,21 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		}
 		return true;
 	}
-	
+
 	@Override
-	protected boolean init(final @Nullable Class<? extends FallingBlock> c, final @Nullable FallingBlock e) {
-		if (e != null) // TODO material data support
-			types = new ItemType[] {new ItemType(BlockCompat.INSTANCE.fallingBlockToState(e))};
+	protected boolean init(@Nullable Class<? extends FallingBlock> c, @Nullable FallingBlock fallingBlock) {
+		if (fallingBlock != null) {
+			types = new ItemType[] {new ItemType(BlockCompat.INSTANCE.fallingBlockToState(fallingBlock))};
+			data = fallingBlock.getBlockData();
+		}
 		return true;
 	}
-	
+
 	@Override
-	protected boolean match(final FallingBlock entity) {
+	protected boolean match(FallingBlock entity) {
 		if (types != null) {
-			for (final ItemType t : types) {
-				if (t.isOfType(BlockCompat.INSTANCE.fallingBlockToState(entity)))
+			for (ItemType type : types) {
+				if (type.isOfType(BlockCompat.INSTANCE.fallingBlockToState(entity)))
 					return true;
 			}
 			return false;
@@ -122,7 +129,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 			assert false : t;
 			return null;
 		}
-		FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(loc, material.createBlockData());
+		FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(loc, data == null ? material.createBlockData() : data);
 		if (consumer != null)
 			consumer.accept(fallingBlock);
 
@@ -130,20 +137,20 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 
 	@Override
-	public void set(final FallingBlock entity) {
+	public void set(FallingBlock entity) {
 		assert false;
 	}
-	
+
 	@Override
 	public Class<? extends FallingBlock> getType() {
 		return FallingBlock.class;
 	}
-	
+
 	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
+	public boolean isSupertypeOf(EntityData<?> e) {
 		if (!(e instanceof FallingBlockData))
 			return false;
-		final FallingBlockData d = (FallingBlockData) e;
+		FallingBlockData d = (FallingBlockData) e;
 		if (types != null) {
 			if (d.types != null)
 				return ItemType.isSubset(types, d.types);
@@ -151,46 +158,42 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public EntityData getSuperType() {
 		return new FallingBlockData(types);
 	}
-	
+
 	@Override
-	public String toString(final int flags) {
-		final ItemType[] types = this.types;
+	public String toString(int flags) {
 		if (types == null)
 			return super.toString(flags);
-		final StringBuilder b = new StringBuilder();
-		b.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		b.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
-		b.append(" ");
-		b.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
-		return "" + b.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(" ");
+		builder.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
+		return builder.toString();
 	}
-	
-//		return ItemType.serialize(types);
+
 	@Override
 	@Deprecated
-	protected boolean deserialize(final String s) {
+	protected boolean deserialize(String s) {
 		throw new UnsupportedOperationException("old serialization is not supported");
-//		if (s.isEmpty())
-//			return true;
-//		types = ItemType.deserialize(s);
-//		return types != null;
 	}
-	
+
 	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
+	protected boolean equals_i(EntityData<?> obj) {
 		if (!(obj instanceof FallingBlockData))
 			return false;
+		if (data != null && ((FallingBlockData) obj).data != null)
+			return data.equals(((FallingBlockData) obj).data);
 		return Arrays.equals(types, ((FallingBlockData) obj).types);
 	}
-	
+
 	@Override
 	protected int hashCode_i() {
-		return Arrays.hashCode(types);
+		return Objects.hash(Arrays.hashCode(types), data);
 	}
 	
 }
