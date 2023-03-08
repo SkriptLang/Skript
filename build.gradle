@@ -11,6 +11,10 @@ plugins {
 	id 'java'
 }
 
+configurations {
+    testImplementation.extendsFrom testShadow
+}
+
 allprojects {
 	repositories {
 		mavenCentral()
@@ -31,7 +35,11 @@ dependencies {
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.1', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
+
 	implementation fileTree(dir: 'lib', include: '*.jar')
+
+	testShadow group: 'junit', name: 'junit', version: '4.12'
+	testShadow group: 'org.easymock', name: 'easymock', version: '4.2'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -45,6 +53,12 @@ task checkAliases {
 			throw new InvalidUserDataException('Aliases are missing from \'skript-aliases\' folder. Consider fetching submodules with \'git submodule update --init\'.')
 		}
 	}
+}
+
+task testJar(type: ShadowJar) {
+	dependsOn(compileTestJava, licenseTest)
+	archiveName 'Skript-JUnit.jar'
+	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
 task jar(overwrite: true, type: ShadowJar) {
@@ -64,7 +78,7 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 
 task sourceJar(type: Jar) {
 	from sourceSets.main.allJava
-	archiveClassifier = "sources"
+	archiveClassifier = 'sources'
 }
 
 tasks.withType(ShadowJar) {
@@ -106,8 +120,8 @@ processResources {
 publishing {
 	publications {
 		maven(MavenPublication) {
-			groupId "com.github.SkriptLang"
-			artifactId "Skript"
+			groupId 'com.github.SkriptLang'
+			artifactId 'Skript'
 			version project.version
 			artifact sourceJar
 			artifact tasks.jar
@@ -116,11 +130,11 @@ publishing {
 
 	repositories {
 		maven {
-			name = "repo"
-			url = "https://repo.skriptlang.org/releases"
+			name = 'repo'
+			url = 'https://repo.skriptlang.org/releases'
 			credentials {
-				username = System.getenv("MAVEN_USERNAME")
-				password = System.getenv("MAVEN_PASSWORD")
+				username = System.getenv('MAVEN_USERNAME')
+				password = System.getenv('MAVEN_PASSWORD')
 			}
 		}
 	}
@@ -167,9 +181,15 @@ tasks.register('testNaming') {
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String environments, boolean devMode, int javaVersion, boolean genDocs) {
+void createTestTask(String name, String desc, String environment, boolean devMode, int javaVersion, boolean genDocs, boolean junit) {
 	tasks.register(name, JavaExec) {
-		dependsOn nightlyRelease, testNaming
+		description = desc;
+		dependsOn licenseTest
+		if (junit) {
+			dependsOn testJar
+		} else {
+			dependsOn nightlyRelease, testNaming
+		}
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
@@ -178,18 +198,19 @@ void createTestTask(String name, String environments, boolean devMode, int javaV
 		}
 		group = 'execution'
 		classpath = files([
-			'build' + File.separator + 'libs' + File.separator + 'Skript-nightly.jar',
+			'build' + File.separator + 'libs' + File.separator + (junit ? 'Skript-JUnit.jar' : 'Skript-nightly.jar'),
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
-		main = 'ch.njol.skript.tests.platform.PlatformMain'
+		main = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
-			'test_runners',
-			'src/test/skript/tests',
+			'build/test_runners',
+			junit ? 'src/test/skript/tests/junit' : 'src/test/skript/tests',
 			'src/test/resources/runner_data',
-			environments,
+			environment,
 			devMode,
-			genDocs
+			genDocs,
+			junit
 		]
 	}
 }
@@ -199,20 +220,31 @@ def latestJava = 17
 def oldestJava = 8
 
 tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs += ["-source", "" + oldestJava, "-target", "" + oldestJava]
+	options.compilerArgs += ['-source', '' + oldestJava, '-target', '' + oldestJava]
+}
+
+createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, true)
+createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', 'src/test/skript/environments/java17', false, latestJava, false, true)
+createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', 'src/test/skript/environments/java8', false, oldestJava, false, true)
+tasks.register('JUnit') {
+	description = 'Runs JUnit tests on all environments.'
+	dependsOn JUnitJava8, JUnitJava17
 }
 
 // Register different Skript testing tasks
-createTestTask('quickTest', 'src/test/skript/environments/' + latestEnv, false, latestJava, false)
-createTestTask('skriptTestJava17', 'src/test/skript/environments/java17', false, latestJava, false)
-createTestTask('skriptTestJava8', 'src/test/skript/environments/java8', false, oldestJava, false)
-createTestTask('skriptTestDev', 'src/test/skript/environments/' + (project.property('testEnv') == null
+createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', 'src/test/skript/environments/' + latestEnv, false, latestJava, false, false)
+createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', 'src/test/skript/environments/java17', false, latestJava, false, false)
+createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', 'src/test/skript/environments/java8', false, oldestJava, false, false)
+createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), true, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), false)
-tasks.register('skriptTest') {dependsOn skriptTestJava8, skriptTestJava17}
-createTestTask('genDocs', 'src/test/skript/environments/' + (project.property('testEnv') == null
+	? latestJava : project.property('testEnvJavaVersion')), false, false)
+tasks.register('skriptTest') {
+	description = 'Runs tests on all environments.'
+	dependsOn skriptTestJava8, skriptTestJava17
+}
+createTestTask('genDocs', 'Generates the Skript documentation website html files.', 'src/test/skript/environments/' + (project.property('testEnv') == null
 	? latestEnv : project.property('testEnv') + '.json'), false, Integer.parseInt(project.property('testEnvJavaVersion') == null
-	? latestJava : project.property('testEnvJavaVersion')), true)
+	? latestJava : project.property('testEnvJavaVersion')), true, false)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
