@@ -55,7 +55,7 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (!getParser().isCurrentEvent(InventoryMoveItemEvent.class)) {
-			Skript.error("'event-initiator' can only be used in 'inventory item move' events.");
+			Skript.error("'event-initiator' can only be used in 'inventory item move' event.");
 			return false;
 		}
 		return super.init(exprs, matchedPattern, isDelayed, parser);
