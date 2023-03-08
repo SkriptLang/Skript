@@ -83,4 +83,5 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return (leftHand ? "left" : "right") +" handed";
 	}
+	
 }
