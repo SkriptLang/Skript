@@ -34,7 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Handedness")
-@Description("Make a mob left or right handed. This does not affect players.")
+@Description("Make mobs left or right handed. This does not affect players.")
 @Examples({
 	"spawn skeleton at spawn of world \"world\":",
 		"\tmake entity left handed",
@@ -47,7 +47,7 @@ public class EffHandedness extends Effect {
 
 	static {
 		if (Skript.methodExists(Mob.class, "setLeftHanded", boolean.class))
-			Skript.registerEffect(EffHandedness.class, "make %livingentity% (:left|right)[ |-]handed");
+			Skript.registerEffect(EffHandedness.class, "make %livingentities% (:left|right)[ |-]handed");
 	}
 
 	private boolean leftHanded;
