@@ -20,10 +20,7 @@ package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.NonNullPair;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -31,9 +28,9 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 /**
  * Comparators are used to provide Skript with specific instructions for comparing two objects.
@@ -72,14 +69,11 @@ public final class Comparators {
 	}
 
 	/**
-	 * A cache for quickly accessing comparators that have already been resolved.
-	 * Some pairs may point to an empty Optional, indicating that no comparator exists between the two types.
+	 * A map for quickly accessing comparators that have already been resolved.
+	 * Some pairs may point to a null value, indicating that no comparator exists between the two types.
 	 * This is useful for skipping complex lookups that may require conversion and inversion.
-	 * To save on ram, entries are removed from the cache after a certain timespan.
 	 */
-	private static final LoadingCache<NonNullPair<Class<?>, Class<?>>, Optional<ComparatorInfo<?, ?>>> QUICK_ACCESS_COMPARATORS = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, TimeUnit.MINUTES)
-			.build(CacheLoader.from(pair -> Optional.ofNullable(getComparator_i(pair.getFirst(), pair.getSecond()))));
+	private static final Map<Pair<Class<?>, Class<?>>, ComparatorInfo<?, ?>> QUICK_ACCESS_COMPARATORS = new HashMap<>(50);
 
 	/**
 	 * Registers a new Comparator with Skript's collection of Comparators.
@@ -163,7 +157,20 @@ public final class Comparators {
 	@SuppressWarnings("unchecked")
 	public static <T1, T2> ComparatorInfo<T1, T2> getComparatorInfo(Class<T1> firstType, Class<T2> secondType) {
 		assertIsDoneLoading();
-		return (ComparatorInfo<T1, T2>) QUICK_ACCESS_COMPARATORS.getUnchecked(new NonNullPair<>(firstType, secondType)).orElse(null);
+
+		Pair<Class<?>, Class<?>> pair = new Pair<>(firstType, secondType);
+		ComparatorInfo<T1, T2> comparator;
+
+		synchronized (QUICK_ACCESS_COMPARATORS) {
+			if (QUICK_ACCESS_COMPARATORS.containsKey(pair)) {
+				comparator = (ComparatorInfo<T1, T2>) QUICK_ACCESS_COMPARATORS.get(pair);
+			} else { // Compute QUICK_ACCESS for provided types
+				comparator = getComparator_i(firstType, secondType);
+				QUICK_ACCESS_COMPARATORS.put(pair, comparator);
+			}
+		}
+
+		return comparator;
 	}
 
 	/**

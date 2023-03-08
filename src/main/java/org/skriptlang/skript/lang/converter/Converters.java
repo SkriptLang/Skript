@@ -20,10 +20,7 @@ package org.skriptlang.skript.lang.converter;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.NonNullPair;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -31,9 +28,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 /**
  * Converters are used to provide Skript with specific instructions for converting an object to a different type.
@@ -61,14 +58,11 @@ public final class Converters {
 	}
 
 	/**
-	 * A cache for quickly accessing converters that have already been resolved.
-	 * Some pairs may point to an empty Optional, indicating that no converter exists between the two types.
+	 * A map for quickly access converters that have already been resolved.
+	 * Some pairs may point to a null value, indicating that no converter exists between the two types.
 	 * This is useful for skipping complex lookups that may require chaining.
-	 * To save on ram, entries are removed from the cache after a certain timespan.
 	 */
-	private static final LoadingCache<NonNullPair<Class<?>, Class<?>>, Optional<ConverterInfo<?, ?>>> QUICK_ACCESS_CONVERTERS = CacheBuilder.newBuilder()
-		.expireAfterAccess(10, TimeUnit.MINUTES)
-		.build(CacheLoader.from(pair -> Optional.ofNullable(getConverter_i(pair.getFirst(), pair.getSecond()))));
+	private static final Map<Pair<Class<?>, Class<?>>, ConverterInfo<?, ?>> QUICK_ACCESS_CONVERTERS = new HashMap<>(50);
 
 	/**
 	 * Registers a new Converter with Skript's collection of Converters.
@@ -226,7 +220,20 @@ public final class Converters {
 	@SuppressWarnings("unchecked")
 	public static <F, T> ConverterInfo<F, T> getConverterInfo(Class<F> fromType, Class<T> toType) {
 		assertIsDoneLoading();
-		return (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.getUnchecked(new NonNullPair<>(fromType, toType)).orElse(null);
+
+		Pair<Class<?>, Class<?>> pair = new Pair<>(fromType, toType);
+		ConverterInfo<F, T> converter;
+
+		synchronized (QUICK_ACCESS_CONVERTERS) {
+			if (QUICK_ACCESS_CONVERTERS.containsKey(pair)) {
+				converter = (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.get(pair);
+			} else { // Compute QUICK_ACCESS for provided types
+				converter = getConverter_i(fromType, toType);
+				QUICK_ACCESS_CONVERTERS.put(pair, converter);
+			}
+		}
+
+		return converter;
 	}
 
 	/**
