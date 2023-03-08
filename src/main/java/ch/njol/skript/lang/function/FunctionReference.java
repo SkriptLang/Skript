@@ -123,10 +123,8 @@ public class FunctionReference<T> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getLocalSignature(functionName, script);
-		if (sign == null)
-			sign = Functions.getGlobalSignature(functionName);
-		
+		Signature<?> sign = Functions.getSignature(functionName, script);
+
 		// Check if the requested function exists
 		if (sign == null) {
 			if (first) {
@@ -269,10 +267,7 @@ public class FunctionReference<T> {
 	protected T[] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
-			function = (Function<? extends T>) Functions.getLocalFunction(functionName, script);
-		
-		if (function == null)
-			function = (Function<? extends T>) Functions.getGlobalFunction(functionName);
+			function = (Function<? extends T>) Functions.getFunction(functionName, script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
