@@ -33,7 +33,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.MainHand;
 
-@Name("is Left Handed")
+@Name("Left Handed")
 @Description({
 	"Checks if living entities or players are left or right handed. Armor stands are neither right nor left-handed.",
 	"Paper 1.17.1+ is required for non-player entities."
