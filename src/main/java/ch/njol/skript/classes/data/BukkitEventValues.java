@@ -38,6 +38,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -1424,6 +1425,37 @@ public final class BukkitEventValues {
 					return e.getNewItem();
 				}
 			}, 0);
+		}
+		//PlayerInventorySlotChangeEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
+			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
+				@Override
+				@Nullable
+				public ItemStack get(PlayerInventorySlotChangeEvent event) {
+					return event.getNewItemStack();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, new Getter<ItemStack, PlayerInventorySlotChangeEvent>() {
+				@Override
+				@Nullable
+				public ItemStack get(PlayerInventorySlotChangeEvent event) {
+					return event.getOldItemStack();
+				}
+			}, EventValues.TIME_PAST);
+			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, Slot.class, new Getter<Slot, PlayerInventorySlotChangeEvent>() {
+				@Override
+				@Nullable
+				public Slot get(PlayerInventorySlotChangeEvent event) {
+					PlayerInventory inv = event.getPlayer().getInventory();
+					int slotIndex = event.getSlot();
+					// Not all indices point to inventory slots. Equipment, for example
+					if (slotIndex >= 36) {
+						return new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer(), slotIndex);
+					} else {
+						return new InventorySlot(inv, slotIndex);
+					}
+				}
+			}, EventValues.TIME_NOW);
 		}
 		//PrepareItemEnchantEvent
 		EventValues.registerEventValue(PrepareItemEnchantEvent.class, Player.class, new Getter<Player, PrepareItemEnchantEvent>() {
