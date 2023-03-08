@@ -73,4 +73,5 @@ public class EffHandedness extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "make " + livingEntities.toString(event, debug) + " " + (leftHanded ? "left" : "right") + " handed";
 	}
+
 }
