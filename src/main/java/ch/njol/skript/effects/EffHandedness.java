@@ -47,7 +47,7 @@ public class EffHandedness extends Effect {
 
 	static {
 		if (Skript.methodExists(Mob.class, "setLeftHanded", boolean.class))
-			Skript.registerEffect(EffHandedness.class, "make %livingentities% (:left|right)[ |-]handed");
+			Skript.registerEffect(EffHandedness.class, "make %livingentities% (:left|right)( |-)handed");
 	}
 
 	private boolean leftHanded;

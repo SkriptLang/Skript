@@ -35,7 +35,7 @@ import org.bukkit.inventory.MainHand;
 
 @Name("Left Handed")
 @Description({
-	"Checks if living entities or players are left or right handed. Armor stands are neither right nor left-handed.",
+	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed.",
 	"Paper 1.17.1+ is required for non-player entities."
 })
 @Examples({
@@ -81,7 +81,7 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
 	@Override
 	protected String getPropertyName() {
-		return (leftHand ? "left" : "right") +" handed";
+		return (leftHand ? "left" : "right") + " handed";
 	}
 	
 }
