@@ -34,7 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Handedness")
-@Description("Make mobs left or right handed. This does not affect players.")
+@Description("Make mobs left or right-handed. This does not affect players.")
 @Examples({
 	"spawn skeleton at spawn of world \"world\":",
 		"\tmake entity left handed",
