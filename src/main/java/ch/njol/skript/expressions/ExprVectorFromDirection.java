@@ -39,7 +39,7 @@ import java.util.List;
 
 @Name("Vectors - Create from Direction")
 @Description({
-	"Creates a vector from a given direction.",
+	"Creates vectors from given directions.",
 	"Relative directions are relative to the origin, (0, 0, 0). Therefore, the vector from the direction 'forwards' is (0, 0, 1)."
 })
 @Examples({
