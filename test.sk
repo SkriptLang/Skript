@@ -1,0 +1,4 @@
+
+on block damage:
+	event-block is fire:
+		cancel event

@@ -22,6 +22,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Converter.ConverterInfo;
+
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
@@ -39,6 +41,8 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Converters;
+
 import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
@@ -164,28 +168,40 @@ public class CondCompare extends Condition {
 		Expression<?> third = this.third;
 		try {
 			if (first.getReturnType() == Object.class) {
-				final Expression<?> e = first.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (second instanceof UnparsedLiteral)
+					expression = attemptReconstruct(first, second);
+				if (expression == null)
+					expression = first.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				first = e;
+				first = expression;
 			}
 			if (second.getReturnType() == Object.class) {
-				final Expression<?> e = second.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (second instanceof UnparsedLiteral)
+					expression = attemptReconstruct(second, first);
+				if (expression == null)
+					expression = second.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				second = e;
+				second = expression;
 			}
 			if (third != null && third.getReturnType() == Object.class) {
-				final Expression<?> e = third.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (second instanceof UnparsedLiteral)
+					expression = attemptReconstruct(third, first);
+				if (expression == null)
+					expression = third.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				this.third = third = e;
+				this.third = third = expression;
 			}
 			log.printLog();
 		} finally {
@@ -194,20 +210,6 @@ public class CondCompare extends Condition {
 		final Class<?> f = first.getReturnType(), s = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
 		if (f == Object.class || s == Object.class)
 			return true;
-		/*
-		 * https://github.com/Mirreski/Skript/issues/10
-		 * 
-		if(Entity.class.isAssignableFrom(s)){
-			String[] split = expr.split(" ");
-			System.out.println(expr);
-			if(!split[split.length - 1].equalsIgnoreCase("player") && EntityData.parseWithoutIndefiniteArticle(split[split.length - 1]) != null){
-				comp = Comparators.getComparator(f, EntityData.class);
-				second = SkriptParser.parseLiteral(split[split.length - 1], EntityData.class, ParseContext.DEFAULT);
-			}else
-				comp = Comparators.getComparator(f, s);
-			
-		}
-		*///else
 		
 		comp = Comparators.getComparator(f, s);
 		
@@ -251,22 +253,40 @@ public class CondCompare extends Condition {
 	 * @return A literal value, or null if parsing failed.
 	 */
 	@Nullable
-	private <T> SimpleLiteral<T> reparseLiteral(Class<T> type, Expression<?> expr) {
-		if (expr instanceof SimpleLiteral) { // Only works for simple literals
-			Expression<?> source = expr.getSource();
-			
-			// Try to get access to unparsed content of it
-			if (source instanceof UnparsedLiteral) {
-				String unparsed = ((UnparsedLiteral) source).getData();
-				T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
-				if (data != null) { // Success, let's make a literal of it
-					return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
-				}
+	private <T> SimpleLiteral<T> reparseLiteral(Class<T> type, Expression<?> expression) {
+		Expression<?> source = expression;
+		if (expression instanceof SimpleLiteral) // Only works for simple literals
+			source = expression.getSource();
+
+		// Try to get access to unparsed content of it
+		if (source instanceof UnparsedLiteral) {
+			String unparsed = ((UnparsedLiteral) source).getData();
+			T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
+			if (data != null) { // Success, let's make a literal of it
+				return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
 			}
 		}
 		return null; // Context-sensitive parsing failed; can't really help it
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	private Expression<?> attemptReconstruct(Expression<?> one, Expression<?> two) {
+		Expression<?> expression = null;
+		if (expression == null) {
+			for (org.skriptlang.skript.lang.converter.ConverterInfo<?, ?> converter : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+				// Must be convertable from other.
+				if (!converter.getFrom().isAssignableFrom(two.getReturnType()))
+					continue;
+				// Must be comparable if we're going to attempt to convert this UnparsedLiteral.
+				if (org.skriptlang.skript.lang.comparator.Comparators.getComparator(two.getReturnType(), converter.getTo()) == null)
+					continue;
+				expression = reparseLiteral(converter.getTo(), one);
+			}
+		}
+		if (expression == null)
+			expression = one.getConvertedExpression(two.getReturnType());
+		return expression;
+	}
 	/*
 	 * # := condition (e.g. is, is less than, contains, is enchanted with, has permission, etc.)
 	 * !# := not #

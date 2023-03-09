@@ -504,9 +504,9 @@ public abstract class Classes {
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();
-					final Object o = parseSimple(s, conv.getFrom(), context);
-					if (o != null) {
-						t = (T) ((Converter) conv.getConverter()).convert(o);
+					Object object = parseSimple(s, conv.getFrom(), context);
+					if (object != null) {
+						t = (T) ((Converter) conv.getConverter()).convert(object);
 						if (t != null) {
 							log.printLog();
 							return t;
