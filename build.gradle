@@ -72,6 +72,12 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
+// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava8, skriptTest, quickTest.
+// We do not want tests to run for building. That's time consuming and annoying. Especially in development.
+test {
+	exclude '**/*'
+}
+
 task relocateShadowJar(type: ConfigureShadowRelocation) {
 	target = tasks.shadowJar
 }
