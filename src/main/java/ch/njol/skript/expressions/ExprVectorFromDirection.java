@@ -44,13 +44,9 @@ import java.util.List;
 })
 @Examples({
 	"set {_v} to vector from direction upwards",
-	"",
 	"set {_v} to vector in direction of player",
-	"",
 	"set {_v} to vector in horizontal direction of player",
-	"",
 	"set {_v} to vector from facing of player",
-	"",
 	"set {_v::*} to vectors from north, south, east, and west"
 })
 @Since("INSERT VERSION")
@@ -71,9 +67,9 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 
 	@Override
 	@Nullable
-	protected Vector[] get(Event e) {
+	protected Vector[] get(Event event) {
 		List<Vector> vectors = new ArrayList<>();
-		for (Direction dir : direction.getArray(e)) {
+		for (Direction dir : direction.getArray(event)) {
 			vectors.add(dir.getDirection(DEFAULT_LOCATION)); // all relative directions are relative to the default location
 		}
 		return vectors.toArray(new Vector[0]);
@@ -90,7 +86,7 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from direction " + direction.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from direction " + direction.toString(event, debug);
 	}
 }
