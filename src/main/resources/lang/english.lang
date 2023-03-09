@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Invalid use of quotes ("). If you want to use quotes in "quoted text", double them: "".
 	brackets error: Invalid amount or placement of brackets. Please make sure that each opening bracket has a corresponding closing bracket.
 	invalid reload: Skript may only be reloaded by either Bukkit's '/reload' or Skript's '/skript reload' command.

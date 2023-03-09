@@ -150,7 +150,6 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
-import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
@@ -1837,22 +1836,15 @@ public final class Skript extends JavaPlugin implements Listener {
 		for (final String line : lines)
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
-	
-	public static String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
-	
-//	static {
-//		Language.addListener(new LanguageChangeListener() {
-//			@Override
-//			public void onLanguageChange() {
-//				final String s = Language.get_("skript.prefix");
-//				if (s != null)
-//					SKRIPT_PREFIX = Utils.replaceEnglishChatStyles(s) + ChatColor.RESET + " ";
-//			}
-//		});
-//	}
-	
+
+	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
+
+	public static String getSkriptPrefix() {
+		return SKRIPT_PREFIX_MESSAGE.getValueOrDefault("<grey>[<gold>Skript<grey>] <reset>");
+	}
+
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
 	}
 	
 	/**
@@ -1861,11 +1853,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(message), permission);
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(message), "skript.admin");
+		broadcast(message, "skript.admin");
 	}
 	
 	/**
@@ -1879,7 +1871,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(SKRIPT_PREFIX + ChatColor.DARK_RED + Utils.replaceEnglishChatStyles(error));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
 	}
 	
 	/**
