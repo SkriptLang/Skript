@@ -39,6 +39,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -532,8 +533,10 @@ public final class ParserInstance {
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;
-		//noinspection ConstantConditions - shouldn't be null
-		Script script = ScriptLoader.getScript(currentScript.getFile());
+		File file = currentScript.getFile();
+		if (file == null)
+			return;
+		Script script = ScriptLoader.getScript(file);
 		if (script != null)
 			setActive(script);
 	}
