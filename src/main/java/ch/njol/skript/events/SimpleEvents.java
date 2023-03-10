@@ -110,7 +110,6 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
@@ -499,15 +498,6 @@ public class SimpleEvents {
 					.examples("on language change:",
 							"	if player's language starts with \"en\":",
 							"		send \"Hello!\"")
-					.since("2.3");
-		}
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerJumpEvent")) {
-			Skript.registerEvent("Jump", SimpleEvent.class, PlayerJumpEvent.class, "[player] jump[ing]")
-					.description("Called whenever a player jumps.",
-							"This event requires PaperSpigot.")
-					.examples("on jump:",
-							"	event-player does not have permission \"jump\"",
-							"	cancel event")
 					.since("2.3");
 		}
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
