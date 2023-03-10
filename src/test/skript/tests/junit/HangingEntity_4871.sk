@@ -1,0 +1,7 @@
+test "hanging entity compare":
+	ensure junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871" completes "item frame"
+
+on break:
+	junit test is "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"
+	assert hanging entity is an item frame with "item frame compare failed"
+	complete objective "item frame" for junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"
