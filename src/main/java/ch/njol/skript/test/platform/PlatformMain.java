@@ -63,7 +63,7 @@ public class PlatformMain {
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
-		boolean junit = "true".equals(args[6]);
+		boolean jUnit = "true".equals(args[6]);
 		boolean debug = "true".equals(args[7]);
 		String verbosity = args[8].toUpperCase(Locale.ENGLISH);
 		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 9, args.length));
@@ -97,7 +97,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, debug, verbosity, jvmArgs);
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.
@@ -143,7 +143,7 @@ public class PlatformMain {
 		StringBuilder output = new StringBuilder(String.format("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25)));
 		output.append("\nTested environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		output.append("\nSucceeded:\n  " + String.join((junit ? "\n  " : ", "), succeeded));
+		output.append("\nSucceeded:\n  " + String.join((jUnit ? "\n  " : ", "), succeeded));
 
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
 			output.append("\nFailed:");
