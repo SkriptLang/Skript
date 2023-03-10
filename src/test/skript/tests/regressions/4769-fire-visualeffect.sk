@@ -1,0 +1,12 @@
+test "fire visual effect":
+	set {_block} to block at spawn of world "world"
+	set block at spawn of world "world" to fire
+	assert block at spawn of world "world" is fire with "failed to compare fire (itemtype) with a block"
+	set block at spawn of world "world" to {_block}
+	play 5 fire at spawn of world "world"
+	assert "fire" parsed as visual effect is fire with "failed to compare visual effects"
+	assert "fire" parsed as visual effect is "fire" parsed as itemtype to fail with "failed to compare visual effects ##2"
+	spawn a chicken at spawn of world "world":
+		assert event-entity is a chicken with "failed to compare a chicken"
+		assert event-entity is a "chicken" parsed as itemtype to fail with "failed to compare a chicken ##2"
+		clear event-entity

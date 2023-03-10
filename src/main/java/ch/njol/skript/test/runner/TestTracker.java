@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import ch.njol.skript.test.utils.TestResults;
 
@@ -52,6 +53,12 @@ public class TestTracker {
 
 	public static void testFailed(String msg) {
 		failedTests.put(currentTest, msg);
+	}
+
+	public static void testFailed(String msg, Script script) {
+		String file = script.getConfig().getFileName();
+		file = file.substring(file.lastIndexOf("\\") + 1);
+		failedTests.put(currentTest, msg + " [" + file + "]");
 	}
 
 	public static void junitTestFailed(String junit, String msg) {
