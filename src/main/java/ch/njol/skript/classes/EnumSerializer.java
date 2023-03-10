@@ -37,7 +37,7 @@ public class EnumSerializer<T extends Enum<T>> extends Serializer<T> {
 	}
 	
 	/**
-	 * Enum serialization has been using String serialization since Skript (INSERT VERSION)
+	 * Enum serialization has been using String serialization since Skript (2.7)
 	 */
 	@Override
 	@Deprecated

@@ -661,7 +661,7 @@ public class SimpleEvents {
 						"\tif event-item is a diamond:",
 							"\t\tsend \"You obtained a diamond!\" to player"
 				)
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
@@ -705,7 +705,7 @@ public class SimpleEvents {
 							"on player deep sleeping:",
 							"\tsend \"Zzzz..\" to player"
 					)
-					.since("INSERT VERSION")
+					.since("2.7")
 					.requiredPlugins("Paper 1.16+");
 		}
 

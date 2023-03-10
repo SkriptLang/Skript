@@ -48,7 +48,7 @@ import java.util.ArrayList;
 		"\tevent-block is set",
 		"\tsend \"Break Speed: %break speed for player%\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("1.17+")
 public class ExprBreakSpeed extends SimpleExpression<Float> {
 
