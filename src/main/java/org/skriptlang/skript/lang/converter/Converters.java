@@ -228,7 +228,7 @@ public final class Converters {
 			if (QUICK_ACCESS_CONVERTERS.containsKey(pair)) {
 				converter = (ConverterInfo<F, T>) QUICK_ACCESS_CONVERTERS.get(pair);
 			} else { // Compute QUICK_ACCESS for provided types
-				converter = getConverter_i(fromType, toType);
+				converter = getConverterInfo_i(fromType, toType);
 				QUICK_ACCESS_CONVERTERS.put(pair, converter);
 			}
 		}
@@ -253,7 +253,7 @@ public final class Converters {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	private static <F, T extends ParentType, SubType extends F, ParentType> ConverterInfo<F, T> getConverter_i(
+	private static <F, T extends ParentType, SubType extends F, ParentType> ConverterInfo<F, T> getConverterInfo_i(
 		Class<F> fromType,
 		Class<T> toType
 	) {

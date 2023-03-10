@@ -165,7 +165,7 @@ public final class Comparators {
 			if (QUICK_ACCESS_COMPARATORS.containsKey(pair)) {
 				comparator = (ComparatorInfo<T1, T2>) QUICK_ACCESS_COMPARATORS.get(pair);
 			} else { // Compute QUICK_ACCESS for provided types
-				comparator = getComparator_i(firstType, secondType);
+				comparator = getComparatorInfo_i(firstType, secondType);
 				QUICK_ACCESS_COMPARATORS.put(pair, comparator);
 			}
 		}
@@ -189,7 +189,7 @@ public final class Comparators {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	private static <T1, T2, C1, C2> ComparatorInfo<T1, T2> getComparator_i(
+	private static <T1, T2, C1, C2> ComparatorInfo<T1, T2> getComparatorInfo_i(
 		Class<T1> firstType,
 		Class<T2> secondType
 	) {
