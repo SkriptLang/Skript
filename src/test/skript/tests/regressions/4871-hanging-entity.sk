@@ -1,9 +1,0 @@
-on script load:
-	# Setup our objective for this script test to complete with the JUnit test.
-	ensure junit test "org.skriptlang.skript.test.tests.regression.SimpleJUnitTest" completes "piggy died"
-
-on break:
-	if hanging entity is item frame:
-		broadcast "item frame"
-	else if hanging entity is glow item frame:
-		broadcast "glow item frame"

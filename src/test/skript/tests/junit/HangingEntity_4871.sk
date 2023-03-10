@@ -1,7 +1,17 @@
 test "hanging entity compare":
 	ensure junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871" completes "item frame"
 
+# Aliases not on master branch for this code
+#test "hanging entity glowing item frame" when running minecraft "1.17.1":
+#	ensure junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871" completes "glowing item frame"
+
 on break:
 	junit test is "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"
 	assert hanging entity is an item frame with "item frame compare failed"
 	complete objective "item frame" for junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"
+
+# Aliases not on master branch for this code
+#on break of glowing item frame:
+#	junit test is "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"
+#	assert hanging entity is a glow item frame with "glowing item frame compare failed"
+#	complete objective "glowing item frame" for junit test "org.skriptlang.skript.test.tests.regression.HangingEntity_4871"

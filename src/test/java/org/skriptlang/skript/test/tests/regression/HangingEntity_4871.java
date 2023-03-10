@@ -40,7 +40,7 @@ public class HangingEntity_4871 extends SkriptJUnitTest {
 		setShutdownDelay(1);
 	}
 
-	private Material before;
+	private Material before, before2;
 
 	@Before
 	public void setupItemFrame() {
@@ -49,6 +49,14 @@ public class HangingEntity_4871 extends SkriptJUnitTest {
 		before = location.getBlock().getType();
 		location.getBlock().setType(Material.AIR);
 		getTestWorld().spawnEntity(location, EntityType.ITEM_FRAME);
+
+		//  TODO Aliases for 'glow item frame' not on master branch for this code
+//		if (Skript.isRunningMinecraft(1, 17, 1)) {
+//			Location location2 = getTestLocation().subtract(4, 2, 0);
+//			before2 = location2.getBlock().getType();
+//			location2.getBlock().setType(Material.AIR);
+//			getTestWorld().spawnEntity(location2, EntityType.GLOW_ITEM_FRAME);
+//		}
 	}
 
 	@Test
@@ -58,12 +66,23 @@ public class HangingEntity_4871 extends SkriptJUnitTest {
 		assert optional.isPresent();
 		HangingBreakEvent event = new HangingBreakEvent(optional.get(), RemoveCause.DEFAULT);
 		Bukkit.getPluginManager().callEvent(event);
+//		if (Skript.isRunningMinecraft(1, 17, 1)) {
+//			Location location2 = getTestLocation().subtract(4, 2, 0);
+//			Optional<GlowItemFrame> optional2 = location2.getNearbyEntitiesByType(GlowItemFrame.class, 1).stream().findFirst();
+//			assert optional2.isPresent();
+//			HangingBreakEvent event2 = new HangingBreakEvent(optional2.get(), RemoveCause.DEFAULT);
+//			Bukkit.getPluginManager().callEvent(event2);
+//		}
 	}
 
 	@After
 	public void cleanupItemFrame() {
 		Location location = getTestLocation().subtract(0, 2, 0);
 		location.getBlock().setType(before);
+//		if (Skript.isRunningMinecraft(1, 17, 1)) {
+//			Location location2 = getTestLocation().subtract(4, 2, 0);
+//			location2.getBlock().setType(before2);
+//		}
 	}
 
 }
