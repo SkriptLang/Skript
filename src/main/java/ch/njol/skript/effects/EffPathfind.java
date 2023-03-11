@@ -43,7 +43,7 @@ import ch.njol.util.Kleenean;
 	"make all cows stop pathfinding",
 	"make event-entity pathfind towards player at speed 1"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("Paper")
 public class EffPathfind extends Effect {
 

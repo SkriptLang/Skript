@@ -43,7 +43,7 @@ import java.util.Arrays;
 	"",
 	"send \"Plugins (%size of loaded plugins%): %plugins%\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprPlugins extends SimpleExpression<String> {
 	
 	static {
