@@ -1263,9 +1263,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	private static void stopAcceptingRegistrations() {
-		acceptRegistrations = false;
-		
 		Converters.createChainedConverters();
+
+		acceptRegistrations = false;
 		
 		Classes.onRegistrationsStop();
 	}
