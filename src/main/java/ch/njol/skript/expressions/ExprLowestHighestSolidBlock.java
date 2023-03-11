@@ -32,6 +32,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.generator.WorldInfo;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Lowest/Highest Solid Block")
@@ -43,10 +44,12 @@ import org.eclipse.jdt.annotation.Nullable;
 	"teleport the player to the block above the highest block at the player",
 	"set the highest solid block at the player's location to the lowest solid block at the player's location"
 })
-@Since("2.2-dev34, INSERT VERSION (lowest solid block, 'non-air' option removed)")
+@Since("2.2-dev34, INSERT VERSION (lowest solid block, 'non-air' option removed, additional syntax option)")
 public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
 
-	private static final boolean HAS_MIN_HEIGHT = Skript.methodExists(World.class, "getMinHeight");
+	private static final boolean HAS_MIN_HEIGHT =
+		Skript.classExists("org.bukkit.generator.WorldInfo") && Skript.methodExists(WorldInfo.class, "getMinHeight");
+
 	private static final boolean HAS_BLOCK_IS_SOLID = Skript.methodExists(Block.class, "isSolid");
 
 	// Before 1.15, getHighestSolidBlock actually returned the block directly ABOVE the highest solid block
