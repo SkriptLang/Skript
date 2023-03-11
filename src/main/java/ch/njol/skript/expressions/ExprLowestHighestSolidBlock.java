@@ -46,6 +46,12 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.2-dev34, INSERT VERSION (lowest solid block, 'non-air' option removed)")
 public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
 
+	private static final boolean HAS_MIN_HEIGHT = Skript.methodExists(World.class, "getMinHeight");
+	private static final boolean HAS_BLOCK_IS_SOLID = Skript.methodExists(Block.class, "isSolid");
+
+	// Before 1.15, getHighestSolidBlock actually returned the block directly ABOVE the highest solid block
+	private static final boolean RETURNS_FIRST_AIR = !Skript.isRunningMinecraft(1, 15);
+
 	static {
 		Skript.registerExpression(ExprLowestHighestSolidBlock.class, Block.class, ExpressionType.PROPERTY,
 			"[the] (highest|:lowest) [solid] block (at|of) %locations%",
@@ -65,22 +71,40 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 	@Nullable
 	public Block convert(Location location) {
 		World world = location.getWorld();
-		if (world == null)
+		if (world == null) {
 			return null;
+		}
 
-		if (!lowest)
-			return world.getHighestBlockAt(location);
+		if (!lowest) {
+			return getHighestBlockAt(world, location);
+		}
 
 		// sigh...
 		location = location.clone();
-		location.setY(world.getMinHeight());
+		location.setY(HAS_MIN_HEIGHT ? world.getMinHeight() : 0);
 		Block block = location.getBlock();
 		int maxHeight = world.getMaxHeight();
-		while (block.getY() < maxHeight && !block.isSolid()) // work our way up
+		while (block.getY() < maxHeight && !isSolid(block)) { // work our way up
 			block = block.getRelative(BlockFace.UP);
+		}
 		// if this block isn't solid, there are no solid blocks at this location
 		// getHighestBlockAt is apparently NotNull, so let's just mimic that behavior by returning it
-		return block.isSolid() ? block : world.getHighestBlockAt(block.getLocation());
+		return isSolid(block) ? block : getHighestBlockAt(world, block.getLocation());
+	}
+
+	private static Block getHighestBlockAt(World world, Location location) {
+		Block block = world.getHighestBlockAt(location);
+		if (RETURNS_FIRST_AIR) {
+			block = block.getRelative(BlockFace.DOWN);
+			if (!isSolid(block)) { // if the one right below isn't solid let's just preserve the behavior
+				block.getRelative(BlockFace.UP);
+			}
+		}
+		return block;
+	}
+
+	private static boolean isSolid(Block block) {
+		return HAS_BLOCK_IS_SOLID ? block.isSolid() : block.getType().isSolid();
 	}
 
 	@Override
