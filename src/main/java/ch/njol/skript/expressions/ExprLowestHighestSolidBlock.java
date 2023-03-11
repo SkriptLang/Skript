@@ -35,17 +35,21 @@ import org.bukkit.block.BlockFace;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Lowest/Highest Solid Block")
-@Description("An expression to obtain the lowest or highest solid block at a location.")
+@Description({
+	"An expression to obtain the lowest or highest solid (impassable) block at a location.",
+	"Note that the y-coordinate of the location is not taken into account for this expression."
+})
 @Examples({
 	"teleport the player to the block above the highest block at the player",
-	"set the highest solid block at the player's location to the lowest non-air block at the player's location"
+	"set the highest solid block at the player's location to the lowest solid block at the player's location"
 })
-@Since("2.2-dev34, INSERT VERSION (lowest solid block)")
+@Since("2.2-dev34, INSERT VERSION (lowest solid block, 'non-air' option removed)")
 public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
 
 	static {
-		Skript.registerExpression(ExprLowestHighestSolidBlock.class, Block.class, ExpressionType.COMBINED,
-			"[the] (highest|:lowest) [solid|non-air] block (at|of) %locations%"
+		Skript.registerExpression(ExprLowestHighestSolidBlock.class, Block.class, ExpressionType.PROPERTY,
+			"[the] (highest|:lowest) [solid] block (at|of) %locations%",
+			"%locations%'[s] (highest|:lowest) [solid] block"
 		);
 	}
 
@@ -72,8 +76,10 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 		location.setY(world.getMinHeight());
 		Block block = location.getBlock();
 		int maxHeight = world.getMaxHeight();
-		while (block.getY() < maxHeight && !block.isSolid())
+		while (block.getY() < maxHeight && !block.isSolid()) // work our way up
 			block = block.getRelative(BlockFace.UP);
+		// if this block isn't solid, there are no solid blocks at this location
+		// getHighestBlockAt is apparently NotNull, so let's just mimic that behavior by returning it
 		return block.isSolid() ? block : world.getHighestBlockAt(block.getLocation());
 	}
 
