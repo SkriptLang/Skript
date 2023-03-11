@@ -52,7 +52,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"spawn a baby cow at player",
 	"set age of last spawned entity to -1200 # in ticks = 60 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	static {

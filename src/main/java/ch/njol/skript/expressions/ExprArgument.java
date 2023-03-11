@@ -60,7 +60,7 @@ import ch.njol.util.StringUtils;
 	"add argument 1 to argument 2",
 	"heal the last argument"
 })
-@Since("1.0, INSERT VERSION (support for command events)")
+@Since("1.0, 2.7 (support for command events)")
 public class ExprArgument extends SimpleExpression<Object> {
 
 	static {

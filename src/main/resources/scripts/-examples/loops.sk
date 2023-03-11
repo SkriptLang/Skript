@@ -1,0 +1,75 @@
+
+#
+# Examples for two basic loops: one will run a set number of times, the other will run for all elements in a list.
+# Multi-value expressions like `all players` can also be looped.
+#
+
+command /loopexample:
+    permission: skript.example.loop
+    trigger:
+        set {_number} to 5
+        loop {_number} times: # Runs `{_number}` times.
+            send "The number is %loop-number%."
+
+        set {_list::*} to "apple", "banana" and "orange"
+        loop {_list::*}: # Runs for each value in the list.
+            send "The word is: %loop-value%"
+
+#
+# Examples for while-loops, which run as long as the condition is true.
+# A while-loop can run indefinitely and freeze the server, so make sure to add a delay or an exit condition.
+#
+
+command /whileexample:
+    permission: skript.example.while
+    trigger:
+        set {_number} to 5
+        while {_number} is greater than 0:
+            send "The number is %{_number}%"
+            remove a random number between 0 and 2 from {_number}
+        send "Finished counting down."
+
+        while true is true: # this will run forever
+            add "banana" to {_list::*}
+            if size of {_list::*} is 10:
+                exit loop
+        send "The list has %size of {_list::*}% bananas."
+
+command /dowhileexample:
+    permission: skript.example.dowhile
+    trigger:
+        set {_number} to a random integer between 0 and 6 # The player will get 1 to 3 apples.
+        do while {_number} is greater than 3: # This will always run at least once, even if `{_number} is less than or equal to 3`.
+            give the player an apple
+            remove 1 from {_number}
+        send "Finished giving out apples!"
+
+        do while true is false: # This will run once - the condition is checked AFTER the code is executed.
+            send "I will run only once!"
+
+#
+# Examples for looping collections of specific types, such as players, blocks and items.
+# This shows how loops can be used to simplify more complex actions.
+#
+
+command /anotherloopexample:
+    permission: skript.example.loop
+    trigger:
+        send "Listing all players:"
+        loop all players: # Remember - player is the command sender, loop-player is the loop value.
+            send " - %loop-player%"
+            if loop-player has permission "skript.example.apple":
+                give loop-player an apple named "Potato"
+
+        set {_items::*} to stone, oak planks and an apple
+        loop {_items::*}:
+            send "%loop-index%. %loop-value%"
+            give loop-value to player
+
+        loop blocks in radius 2 of player:
+            loop-block is a chest
+            loop items of types ore and log: # Loop-block comes from the first loop, loop-item from the second.
+                inventory of loop-block contains loop-item
+                remove loop-item from the inventory of loop-block
+                send "Destroyed a %loop-item%!"
+                exit loop # Exits the item loop.

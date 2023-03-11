@@ -19,6 +19,8 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import io.papermc.paper.event.player.PlayerDeepSleepEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -60,6 +62,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -95,6 +98,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -619,7 +623,7 @@ public class SimpleEvents {
 				"\tchance of 5%:",
 				"\t\tset repair cost to repair cost * 50%",
 				"\t\tsend \"You're LUCKY! You got 50% discount.\" to player")
-			.since("INSERT VERSION");
+			.since("2.7");
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
 				.description("Called when a player has traded with a villager.")
@@ -628,7 +632,7 @@ public class SimpleEvents {
 					"\tchance of 50%:",
 					"\t\tcancel event",
 					"\t\tsend \"The trade was somehow denied!\" to player")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
 			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
@@ -637,7 +641,7 @@ public class SimpleEvents {
 				.examples("on entity jump:",
 					"\tif entity is a wither skeleton:",
 					"\t\tcancel event")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
@@ -646,8 +650,65 @@ public class SimpleEvents {
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
-				.since("INSERT VERSION");
+				.since("2.7");
 		}
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
+			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
+				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
+				.requiredPlugins("Paper 1.19.2+")
+				.examples(
+					"on inventory slot change:",
+						"\tif event-item is a diamond:",
+							"\t\tsend \"You obtained a diamond!\" to player"
+				)
+				.since("2.7");
+		}
+		//noinspection deprecation
+		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
+			.description(
+				"Called whenever a player chats.",
+				"Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format.",
+				"Use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
+			)
+      .examples(
+				"on chat:",
+				"\tif player has permission \"owner\":",
+				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
+				"\telse if player has permission \"admin\":",
+				"\t\tset chat format to \"&lt;light red&gt;[player]&lt;light gray&gt;: &lt;orange&gt;[message]\"",
+				"\telse: #default message format",
+				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
+			)
+      .since("1.4.1");
+		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
+			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+				.description(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.examples(
+					"on loot generate:",
+					"\tchance of %10",
+					"\tadd 64 diamonds",
+					"\tsend \"You hit the jackpot!!\""
+				)
+				.since("2.7")
+				.requiredPlugins("MC 1.16+");
+		}
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
+			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
+					.description(
+							"Called when a player has slept long enough to count as passing the night/storm.",
+							"Cancelling this event will prevent the player from being counted as deeply sleeping unless they exit and re-enter the bed."
+					)
+					.examples(
+							"on player deep sleeping:",
+							"\tsend \"Zzzz..\" to player"
+					)
+					.since("2.7")
+					.requiredPlugins("Paper 1.16+");
+		}
+
 	}
 
 }
