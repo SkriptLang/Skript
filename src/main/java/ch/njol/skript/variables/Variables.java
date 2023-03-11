@@ -385,6 +385,8 @@ public class Variables {
 	 * Returns the internal value of the requested variable.
 	 * <p>
 	 * <b>Do not modify the returned value!</b>
+	 * <p>
+	 * This does not take into consideration default variables. You must use get methods from {@link ch.njol.skript.lang.Variable}
 	 *
 	 * @param name the variable's name.
 	 * @param event if {@code local} is {@code true}, this is the event

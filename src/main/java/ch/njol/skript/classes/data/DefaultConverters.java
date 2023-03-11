@@ -30,6 +30,7 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -57,9 +58,13 @@ public class DefaultConverters {
 	public DefaultConverters() {}
 	
 	static {
-
-		// Integer - Long
-		Converters.registerConverter(Integer.class, Long.class, Integer::longValue);
+		// Number to subtypes converters
+		Converters.registerConverter(Number.class, Byte.class, Number::byteValue);
+		Converters.registerConverter(Number.class, Double.class, Number::doubleValue);
+		Converters.registerConverter(Number.class, Float.class, Number::floatValue);
+		Converters.registerConverter(Number.class, Integer.class, Number::intValue);
+		Converters.registerConverter(Number.class, Long.class, Number::longValue);
+		Converters.registerConverter(Number.class, Short.class, Number::shortValue);
 
 		// OfflinePlayer - PlayerInventory
 		Converters.registerConverter(OfflinePlayer.class, PlayerInventory.class, p -> {
@@ -172,6 +177,9 @@ public class DefaultConverters {
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
+
+		// Location - Chunk
+		Converters.registerConverter(Location.class, Chunk.class, Location::getChunk);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {
