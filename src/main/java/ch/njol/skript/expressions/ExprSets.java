@@ -46,7 +46,7 @@ import java.util.function.Supplier;
 	"\tset loop-value attribute of player to 10",
 	"\tmessage \"Set attribute %loop-value% to 10!\""
 })
-@Since("INSERT VERSION")
+@Since("<i>unknown</i> (before 1.4.2), 2.7 (colors)")
 public class ExprSets extends SimpleExpression<Object> {
 
 	static {

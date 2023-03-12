@@ -599,6 +599,8 @@ public class ScriptLoader {
 	 */
 	// Whenever you call this method, make sure to also call PreScriptLoadEvent
 	private static NonNullPair<Script, List<Structure>> loadScript(Config config) {
+		if (config.getFile() == null)
+			throw new IllegalArgumentException("A config must have a file to be loaded.");
 
 		ParserInstance parser = getParser();
 		List<Structure> structures = new ArrayList<>();
@@ -791,14 +793,15 @@ public class ScriptLoader {
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
 	public static ScriptInfo unloadScripts(Set<Script> scripts) {
-		ParserInstance parser = getParser();
-		ScriptInfo info = new ScriptInfo();
-
-		// ensure unloaded scripts are not being loaded
+		// ensure unloaded scripts are not being unloaded
 		for (Script script : scripts) {
 			if (!loadedScripts.contains(script))
 				throw new SkriptAPIException("The script at '" + script.getConfig().getPath() + "' is not loaded!");
+			if (script.getConfig().getFile() == null)
+				throw new IllegalArgumentException("A script must have a file to be unloaded.");
 		}
+
+		ParserInstance parser = getParser();
 
 		// initial unload stage
 		for (Script script : scripts) {
@@ -810,6 +813,7 @@ public class ScriptLoader {
 		parser.setInactive();
 
 		// finish unloading + data collection
+		ScriptInfo info = new ScriptInfo();
 		for (Script script : scripts) {
 			List<Structure> structures = script.getStructures();
 
