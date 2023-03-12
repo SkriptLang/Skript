@@ -49,7 +49,7 @@ import java.util.regex.MatchResult;
 	"local function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
 })
-@Since("2.2, INSERT VERSION (local functions)")
+@Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);

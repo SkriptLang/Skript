@@ -50,7 +50,7 @@ import io.papermc.paper.entity.LookAnchor;
 	"",
 	"force {_enderman} to face the block 3 meters above {_location} at head rotation speed 100.5 and max head pitch -40"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("Paper 1.17+, Paper 1.19.1+ (Players & Look Anchors)")
 public class EffLook extends Effect {
 
