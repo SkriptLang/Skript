@@ -27,7 +27,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -67,7 +66,7 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 		direction = (Expression<Direction>) exprs[0];
 		if (matchedPattern == 1) {
 			if (!(direction instanceof ExprDirection)) {
-				Skript.error("The direction in '%directions% vector[s]' can not be a variable. Use the direction expression instead: 'northwards vector'.", ErrorQuality.SEMANTIC_ERROR);
+				Skript.error("The direction in '%directions% vector[s]' can not be a variable. Use the direction expression instead: 'northwards vector'.");
 				return false;
 			}
 		}
@@ -78,8 +77,8 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	@Nullable
 	protected Vector[] get(Event event) {
 		List<Vector> vectors = new ArrayList<>();
-		for (Direction dir : direction.getArray(event)) {
-			vectors.add(dir.getDirection(DEFAULT_LOCATION)); // all relative directions are relative to the default location
+		for (Direction direction : this.direction.getArray(event)) {
+			vectors.add(direction.getDirection(DEFAULT_LOCATION)); // all relative directions are relative to the default location
 		}
 		return vectors.toArray(new Vector[0]);
 	}
