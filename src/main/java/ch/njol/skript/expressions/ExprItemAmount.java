@@ -34,13 +34,13 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Item Amount")
 @Description("The amount of an <a href='classes.html#itemstack'>item stack</a>.")
 @Examples("send \"You have got %item amount of player's tool% %player's tool% in your hand!\" to player")
-@Since("2.2-dev24, 2.7 (itemstacks)")
+@Since("2.2-dev24, INSERT VERSION (itemstacks)")
 public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 
 	static {
 		register(ExprItemAmount.class, Long.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes/itemstacks");
 	}
-	
+
 	@Override
 	public Long convert(final Object item) {
 		if (item instanceof ItemType) {
@@ -79,7 +79,6 @@ public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 						item.setAmount(item.getAmount() + amount);
 					}
 				break;
-			case REMOVE_ALL:
 			case RESET:
 			case DELETE:
 				amount = 1;
