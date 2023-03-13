@@ -85,7 +85,7 @@ public class DefaultFunctions {
 			}
 		}.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
-			.since("2.2, INSERT VERSION (decimal placement)"));
+			.since("2.2, 2.7 (decimal placement)"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
 			@Override

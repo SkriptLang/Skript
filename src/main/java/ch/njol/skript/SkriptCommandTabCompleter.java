@@ -18,7 +18,7 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.tests.runner.TestMode;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

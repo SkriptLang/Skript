@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"knockback player north",
 	"knock victim (vector from attacker to victim) with strength 10"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("Paper 1.19.2+")
 public class EffKnockback extends Effect {
 

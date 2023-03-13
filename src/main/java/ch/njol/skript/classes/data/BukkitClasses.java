@@ -1485,14 +1485,14 @@ public class BukkitClasses {
 				.user("(world ?)?environments?")
 				.name("World Environment")
 				.description("Represents the environment of a world.")
-				.since("INSERT VERSION"));
+				.since("2.7"));
 
 		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
 			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
 				.user("(lunar|moon) ?phases?")
 				.name("Moon Phase")
 				.description("Represents the phase of a moon.")
-				.since("INSERT VERSION")
+				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
 	}
