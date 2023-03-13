@@ -77,11 +77,6 @@ test {
 	exclude '**/*'
 }
 
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-	target = tasks.shadowJar
-}
-
-
 task sourceJar(type: Jar) {
 	from sourceSets.main.allJava
 	archiveClassifier = 'sources'
