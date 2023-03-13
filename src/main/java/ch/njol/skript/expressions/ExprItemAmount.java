@@ -40,8 +40,7 @@ public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 	static {
 		register(ExprItemAmount.class, Long.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes/itemstacks");
 	}
-
-
+	
 	@Override
 	public Long convert(final Object item) {
 		if (item instanceof ItemType) {
