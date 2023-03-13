@@ -56,7 +56,7 @@ task checkAliases {
 
 task testJar(type: ShadowJar) {
 	dependsOn(compileTestJava, licenseTest)
-	archiveFileName 'Skript-JUnit.jar'
+	archiveFileName = 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
