@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -33,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Item Amount")
 @Description("The amount of an <a href='classes.html#itemstack'>item stack</a>.")
 @Examples("send \"You have got %item amount of player's tool% %player's tool% in your hand!\" to player")
-@Since("2.2-dev24, INSERT VERSION (itemstacks)")
+@Since("2.2-dev24")
 public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 
 	static {
@@ -54,8 +55,14 @@ public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode != ChangeMode.REMOVE_ALL)
-			return new Class[]{Number.class};
+		switch (mode) {
+			case SET:
+			case ADD:
+			case RESET:
+			case DELETE:
+			case REMOVE:
+				return CollectionUtils.array(Long.class);
+		}
 		return null;
 	}
 
