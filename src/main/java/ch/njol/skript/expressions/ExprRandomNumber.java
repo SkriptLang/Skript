@@ -39,62 +39,74 @@ import ch.njol.util.Math2;
  * @author Peter Güttinger
  */
 @Name("Random Number")
-@Description({"A random number or integer between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
-		"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."})
+@Description({"A given amount of random numbers or integers between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
+	"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."})
 @Examples({"set the player's health to a random number between 5 and 10",
-		"send \"You rolled a %random integer from 1 to 6%!\" to the player"})
-@Since("1.4")
+	"send \"You rolled a %random integer from 1 to 6%!\" to the player",
+	"set {_chances::*} to 5 random integers between 5 and 96"})
+@Since("1.4, INSERT VERSION (Multiple random numbers.)")
 public class ExprRandomNumber extends SimpleExpression<Number> {
 	static {
 		Skript.registerExpression(ExprRandomNumber.class, Number.class, ExpressionType.COMBINED,
-				"[a] random (1¦integer|2¦number) (from|between) %number% (to|and) %number%");
+			"[a|%-number%] random (1¦integer[s]|2¦number[s]) (from|between) %number% (to|and) %number%");
 	}
-	
+
 	@SuppressWarnings("null")
-	private Expression<? extends Number> lower, upper;
-	
+	private Expression<? extends Number> amount, lower, upper;
+
 	private final Random rand = new Random();
-	
+
 	private boolean integer;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		lower = (Expression<Number>) exprs[0];
-		upper = (Expression<Number>) exprs[1];
+		amount = (Expression<? extends Number>) exprs[0];
+		lower = (Expression<Number>) exprs[1];
+		upper = (Expression<Number>) exprs[2];
 		integer = parser.mark == 1;
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
-	protected Number[] get(final Event e) {
-		final Number l = lower.getSingle(e);
-		final Number u = upper.getSingle(e);
-		if (u == null || l == null)
-			return null;
-		final double ll = Math.min(l.doubleValue(), u.doubleValue());
-		final double uu = Math.max(l.doubleValue(), u.doubleValue());
+	protected Number[] get(Event event) {
+		Number amountNumber = null;
+		if (amount != null)
+			amountNumber = amount.getSingle(event);
+		Number lowerNumber = lower.getSingle(event);
+		Number upperNumber = upper.getSingle(event);
+		if (upperNumber == null || lowerNumber == null)
+			return new Number[0];
+		int amount = amountNumber == null ? 1 : amountNumber.intValue();
+		double lower = Math.min(lowerNumber.doubleValue(), upperNumber.doubleValue());
+		double upper = Math.max(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		if (integer) {
-			return new Long[] {Math2.ceil(ll) + Math2.mod(rand.nextLong(), Math2.floor(uu) - Math2.ceil(ll) + 1)};
+			Long[] longs = new Long[amount];
+			for (int i = 0; i < amount; i++)
+				longs[i] = Math2.ceil(lower) + Math2.mod(rand.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1);
+			return new Long[] {Math2.ceil(lower) + Math2.mod(rand.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1)};
 		} else {
-			return new Double[] {ll + rand.nextDouble() * (uu - ll)};
+			Double[] doubles = new Double[amount];
+			for (int i = 0; i < amount; i++)
+				doubles[i] = lower + rand.nextDouble() * (upper - lower);
+			return doubles;
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return integer ? Long.class : Double.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "a random " + (integer ? "integer" : "number") + " between " + lower.toString(e, debug) + " and " + upper.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (amount == null ? "a" : amount.toString(event, debug)) + " random " + (integer ? "integer" : "number") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
-		return true;
+		return amount == null;
 	}
-	
+
 }
