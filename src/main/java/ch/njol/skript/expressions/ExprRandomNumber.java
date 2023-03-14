@@ -66,14 +66,11 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	@Override
 	@Nullable
 	protected Number[] get(Event event) {
-		Number amountNumber = null;
-		if (this.amount == null)
-			amountNumber = this.amount.getSingle(event);
 		Number lowerNumber = lower.getSingle(event);
 		Number upperNumber = upper.getSingle(event);
 		if (upperNumber == null || lowerNumber == null)
 			return new Number[0];
-		int amount = amountNumber == null ? 1 : amountNumber.intValue();
+		int amount = this.amount == null ? 1 : this.amount.getOptionalSingle(event).orElse(1).intValue();
 		double lower = Math.min(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		double upper = Math.max(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		if (integer) {
