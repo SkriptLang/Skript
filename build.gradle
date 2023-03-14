@@ -1,11 +1,10 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
 
 import java.time.LocalTime
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '7.1.2'
+	id 'com.github.johnrengelman.shadow' version '8.1.0'
 	id 'com.github.hierynomus.license' version '0.16.1'
 	id 'maven-publish'
 	id 'java'
@@ -57,23 +56,25 @@ task checkAliases {
 
 task testJar(type: ShadowJar) {
 	dependsOn(compileTestJava, licenseTest)
-	archiveName 'Skript-JUnit.jar'
+	archiveFileName = 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
 task jar(overwrite: true, type: ShadowJar) {
 	dependsOn checkAliases
-	archiveName jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript.jar' : jarName
 	from sourceSets.main.output
 }
 
 task build(overwrite: true, type: ShadowJar) {
-	archiveName jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript.jar' : jarName
 	from sourceSets.main.output
 }
 
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-	target = tasks.shadowJar
+// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava8, skriptTest, quickTest.
+// We do not want tests to run for building. That's time consuming and annoying. Especially in development.
+test {
+	exclude '**/*'
 }
 
 task sourceJar(type: Jar) {
@@ -82,7 +83,6 @@ task sourceJar(type: Jar) {
 }
 
 tasks.withType(ShadowJar) {
-	dependsOn relocateShadowJar
 	configurations = [
 		project.configurations.shadow
 	]
@@ -272,7 +272,7 @@ task githubResources(type: ProcessResources) {
 task githubRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn githubResources
-	archiveName = 'Skript-github.jar'
+	archiveFileName = 'Skript-github.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -307,7 +307,7 @@ task spigotResources(type: ProcessResources) {
 task spigotRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn spigotResources
-	archiveName = 'Skript-spigot.jar'
+	archiveFileName = 'Skript-spigot.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -338,7 +338,7 @@ task nightlyResources(type: ProcessResources) {
 task nightlyRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn nightlyResources, licenseMain
-	archiveName = 'Skript-nightly.jar'
+	archiveFileName = 'Skript-nightly.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
