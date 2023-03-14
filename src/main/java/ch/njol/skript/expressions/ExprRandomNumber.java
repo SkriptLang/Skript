@@ -48,7 +48,7 @@ import ch.njol.util.Math2;
 public class ExprRandomNumber extends SimpleExpression<Number> {
 	static {
 		Skript.registerExpression(ExprRandomNumber.class, Number.class, ExpressionType.COMBINED,
-			"[a|%-number%] random (1¦integer[s]|2¦number[s]) (from|between) %number% (to|and) %number%");
+			"[a|%-number%] random (1¦integer|2¦number)[s] (from|between) %number% (to|and) %number%");
 	}
 
 	@SuppressWarnings("null")
