@@ -35,36 +35,31 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 
-/**
- * @author Peter Güttinger
- */
-@Name("Random Number")
+@Name("Random Numbers")
 @Description({"A given amount of random numbers or integers between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
-	"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."})
+		"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."})
 @Examples({"set the player's health to a random number between 5 and 10",
-	"send \"You rolled a %random integer from 1 to 6%!\" to the player",
-	"set {_chances::*} to 5 random integers between 5 and 96"})
-@Since("1.4, INSERT VERSION (Multiple random numbers.)")
+		"send \"You rolled a %random integer from 1 to 6%!\" to the player",
+		"set {_chances::*} to 5 random integers between 5 and 96"})
+@Since("1.4, INSERT VERSION (Multiple random numbers)")
 public class ExprRandomNumber extends SimpleExpression<Number> {
+
 	static {
 		Skript.registerExpression(ExprRandomNumber.class, Number.class, ExpressionType.COMBINED,
-			"[a|%-number%] random (:integer|number)[s] (from|between) %number% (to|and) %number%");
+				"[a|%-number%] random (:integer|number)[s] (from|between) %number% (to|and) %number%");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<? extends Number> amount, lower, upper;
-
+	private Expression<Number> amount, lower, upper;
 	private final Random rand = new Random();
-
 	private boolean integer;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		amount = (Expression<? extends Number>) exprs[0];
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		amount = (Expression<Number>) exprs[0];
 		lower = (Expression<Number>) exprs[1];
 		upper = (Expression<Number>) exprs[2];
-		integer = parser.hasTag("integer");
+		integer = parseResult.hasTag("integer");
 		return true;
 	}
 
@@ -72,8 +67,8 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	@Nullable
 	protected Number[] get(Event event) {
 		Number amountNumber = null;
-		if (amount != null)
-			amountNumber = amount.getSingle(event);
+		if (this.amount == null)
+			amountNumber = this.amount.getSingle(event);
 		Number lowerNumber = lower.getSingle(event);
 		Number upperNumber = upper.getSingle(event);
 		if (upperNumber == null || lowerNumber == null)
@@ -85,7 +80,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 			Long[] longs = new Long[amount];
 			for (int i = 0; i < amount; i++)
 				longs[i] = Math2.ceil(lower) + Math2.mod(rand.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1);
-			return new Long[] {Math2.ceil(lower) + Math2.mod(rand.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1)};
+			return longs;
 		} else {
 			Double[] doubles = new Double[amount];
 			for (int i = 0; i < amount; i++)
