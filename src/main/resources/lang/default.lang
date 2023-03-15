@@ -261,6 +261,8 @@ biomes:
 	# 1.19 biomes
 	mangrove_swamp: mangrove swamp
 	deep_dark: deep dark
+	# 1.19.4
+	cherry_grove: cherry grove
 
 # -- Tree Types --
 tree types:
@@ -1714,7 +1716,6 @@ visual effects:
 			name: landing cherry leaves @-
 			pattern: landing cherry leaves
 
-
 # -- Inventory Actions --
 inventory actions:
 	nothing: nothing, do nothing
@@ -1784,6 +1785,7 @@ inventory types:
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
 
+	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
 	smithing_new: new smithing table @a, upgrade gear @a, upgrade gear table @a
 
