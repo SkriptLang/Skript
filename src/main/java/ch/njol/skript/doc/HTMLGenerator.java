@@ -280,7 +280,7 @@ public class HTMLGenerator {
 				if (genType.equals("structures") || isDocsPage) {
 
 					for (Iterator<StructureInfo<?>> it = sortedAnnotatedIterator(
-							(Iterator) Skript.getStructures().stream().filter(structure -> !(structure instanceof SkriptEventInfo)).iterator()); // TODO actually filter only actual StructureInfo instead of filtering out other types
+							(Iterator) Skript.getStructures().stream().filter(structure -> structure.getClass() == StructureInfo.class).iterator());
 							it.hasNext(); ) {
 
 						StructureInfo<?> info = it.next();
@@ -663,7 +663,7 @@ public class HTMLGenerator {
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
-				line = line.replace(Skript.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
+				line = line.replace(SkriptEventInfo.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
