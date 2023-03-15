@@ -25,58 +25,63 @@ import org.bukkit.entity.Boat;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 public class BoatData extends EntityData<Boat> {
+
 	static {
-		// It will only register for 1.10+,
-		// See SimpleEntityData if 1.9 or lower.
-		if (Skript.methodExists(Boat.class, "getWoodType")) { //The 'boat' is the same of 'oak boat', 'any boat' works as supertype and it can spawn random boat.
-			EntityData.register(BoatData.class, "boat", Boat.class, 0,
-					"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat");
-		}
+		EntityData.register(BoatData.class, "boat", Boat.class, 0,
+				"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat", "mangrove boat", "bamboo boat", "cherry boat");
 	}
-	
-	public BoatData(){
+
+	public BoatData() {
 		this(0);
 	}
-	
-	public BoatData(@Nullable TreeSpecies type){
+
+	/**
+	 * Switched over to Boat.Type rather than TreeSpecies
+	 * 
+	 * @param type
+	 */
+	@Deprecated
+	public BoatData(@Nullable TreeSpecies type) {
 		this(type != null ? type.ordinal() + 2 : 1);
 	}
-	
-	private BoatData(int type){
+
+	public BoatData(Boat.Type type) {
+		this(type != null ? type.ordinal() + 2 : 1);
+	}
+
+	private BoatData(int type) {
 		matchedPattern = type;
 	}
-	
+
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Boat> c, @Nullable Boat e) {
-		if (e != null)
-			matchedPattern = 2 + e.getWoodType().ordinal();
+	protected boolean init(@Nullable Class<? extends Boat> c, @Nullable Boat boat) {
+		if (boat != null)
+			matchedPattern = 2 + boat.getBoatType().ordinal();
 		return true;
 	}
 
 	@Override
 	public void set(Boat entity) {
 		if (matchedPattern == 1) // If the type is 'any boat'.
-			matchedPattern += new Random().nextInt(TreeSpecies.values().length); // It will spawn a random boat type in case is 'any boat'.
+			matchedPattern += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
 		if (matchedPattern > 1) // 0 and 1 are excluded
-			entity.setWoodType(TreeSpecies.values()[matchedPattern - 2]); // Removes 2 to fix the index.
+			entity.setBoatType(Boat.Type.values()[matchedPattern - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
 	protected boolean match(Boat entity) {
-		return matchedPattern <= 1 || entity.getWoodType().ordinal() == matchedPattern - 2;
+		return matchedPattern <= 1 || entity.getBoatType().ordinal() == matchedPattern - 2;
 	}
 
 	@Override
@@ -85,7 +90,7 @@ public class BoatData extends EntityData<Boat> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public EntityData<?> getSuperType() {
 		return new BoatData(matchedPattern);
 	}
 
@@ -102,39 +107,54 @@ public class BoatData extends EntityData<Boat> {
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> e) {
-		if (e instanceof BoatData)
-			return matchedPattern <= 1 || matchedPattern == ((BoatData)e).matchedPattern;
+	public boolean isSupertypeOf(EntityData<?> data) {
+		if (data instanceof BoatData)
+			return matchedPattern <= 1 || matchedPattern == ((BoatData)data).matchedPattern;
 		return false;
 	}
-	
+
 	private static final ItemType oakBoat = Aliases.javaItemType("oak boat");
 	private static final ItemType spruceBoat = Aliases.javaItemType("spruce boat");
 	private static final ItemType birchBoat = Aliases.javaItemType("birch boat");
 	private static final ItemType jungleBoat = Aliases.javaItemType("jungle boat");
 	private static final ItemType acaciaBoat = Aliases.javaItemType("acacia boat");
 	private static final ItemType darkOakBoat = Aliases.javaItemType("dark oak boat");
+	private static final ItemType mangroveBoat = Aliases.javaItemType("mangrove boat");
+	private static final ItemType bambooBoat = Aliases.javaItemType("bamboo boat");
+	private static final ItemType cherryBoat = Aliases.javaItemType("cherry boat");
 
-	
-	public boolean isOfItemType(ItemType i){
-		if (i.getRandom() == null)
+	public boolean isOfItemType(ItemType itemType) {
+		if (itemType.getRandom() == null)
 			return false;
 		int ordinal = -1;
 		
-		ItemStack stack = i.getRandom();
+		ItemStack stack = itemType.getRandom();
 		if (oakBoat.isOfType(stack))
-			ordinal = 0;
+			ordinal = Boat.Type.OAK.ordinal();
 		else if (spruceBoat.isOfType(stack))
-			ordinal = TreeSpecies.REDWOOD.ordinal();
+			ordinal = Boat.Type.SPRUCE.ordinal();
 		else if (birchBoat.isOfType(stack))
-			ordinal = TreeSpecies.BIRCH.ordinal();
+			ordinal = Boat.Type.BIRCH.ordinal();
 		else if (jungleBoat.isOfType(stack))
-			ordinal = TreeSpecies.JUNGLE.ordinal();
+			ordinal = Boat.Type.JUNGLE.ordinal();
 		else if (acaciaBoat.isOfType(stack))
-			ordinal = TreeSpecies.ACACIA.ordinal();
+			ordinal = Boat.Type.ACACIA.ordinal();
 		else if (darkOakBoat.isOfType(stack))
-			ordinal = TreeSpecies.DARK_OAK.ordinal();
+			ordinal = Boat.Type.DARK_OAK.ordinal();
+		else if (mangroveBoat.isOfType(stack) && exists("MANGROVE"))
+			ordinal = Boat.Type.MANGROVE.ordinal();
+		else if (bambooBoat.isOfType(stack) && exists("BAMBOO"))
+			ordinal = Boat.Type.BAMBOO.ordinal();
+		else if (cherryBoat.isOfType(stack) && exists("CHERRY"))
+			ordinal = Boat.Type.CHERRY.ordinal();
 		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
-		
 	}
+
+	private boolean exists(String string) {
+		try {
+			return Boat.Type.valueOf(string) != null;
+		} catch (Exception ignored) {}
+		return false;
+	}
+
 }
