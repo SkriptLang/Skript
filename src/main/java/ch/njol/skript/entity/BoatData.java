@@ -18,12 +18,15 @@
  */
 package ch.njol.skript.entity;
 
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.collect.Lists;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -33,8 +36,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public class BoatData extends EntityData<Boat> {
 
 	static {
-		EntityData.register(BoatData.class, "boat", Boat.class, 0,
-				"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat", "mangrove boat", "bamboo boat", "cherry boat");
+		List<String> boats = Lists.newArrayList("boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat");
+		if (exists("MANGROVE"))
+			boats.add("mangrove boat");
+		if (exists("BAMBOO"))
+			boats.add("bamboo boat");
+		if (exists("CHERRY"))
+			boats.add("cherry boat");
+		EntityData.register(BoatData.class, "boat", Boat.class, 0, boats.toArray(new String[0]));
 	}
 
 	public BoatData() {
@@ -150,7 +159,7 @@ public class BoatData extends EntityData<Boat> {
 		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
 	}
 
-	private boolean exists(String string) {
+	private static boolean exists(String string) {
 		try {
 			return Boat.Type.valueOf(string) != null;
 		} catch (Exception ignored) {}
