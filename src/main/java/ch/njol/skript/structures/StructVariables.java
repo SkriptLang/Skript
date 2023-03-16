@@ -68,6 +68,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"variables:",
 		"\t{joins} = 0",
 		"\t{balance::%player%} = 0",
+	"",
 	"on join:",
 		"\tadd 1 to {joins}",
 		"\tmessage \"Your balance is %{balance::%player%}%\"",
