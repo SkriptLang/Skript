@@ -36,7 +36,7 @@ public class EvtPlayerChunkEnter extends SkriptEvent {
 				.examples(
 						"on player enters a chunk:",
 						"\tsend \"You entered a chunk: %past event-chunk% -> %event-chunk%!\" to player"
-				).since("INSERT VERSION");
+				).since("2.7");
 	}
 
 	@Override

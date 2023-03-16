@@ -18,7 +18,10 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -27,56 +30,50 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.AABB;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Is Within Radius")
-@Description("Checks whether a location is within a certain radius of another location.")
+@Name("Is Within Location")
+@Description({
+	"Whether a location is within two other locations forming a cuboid.",
+	"Using the <a href='conditions.html#CondCompare'>is between</a> condition will refer to a straight line between locations."
+})
 @Examples({
-	"on damage:",
-	"\tif attacker's location is within 10 blocks around {_spawn}:",
-	"\t\tcancel event",
-	"\t\tsend \"You can't PVP in spawn.\""
+	"if player's location is within {_loc1} and {_loc2}:",
+		"\tsend \"You are in a PvP zone!\" to player"
 })
 @Since("2.7")
-public class CondWithinRadius extends Condition {
+public class CondIsWithinLocation extends Condition {
 
 	static {
-		PropertyCondition.register(CondWithinRadius.class, "within %number% (block|metre|meter)[s] (around|of) %locations%", "locations");
+		PropertyCondition.register(CondIsWithinLocation.class, "within %location% and %location%", "locations");
 	}
 
-	private Expression<Location> locations;
-	private Expression<Number> radius;
-	private Expression<Location> points;
-
+	private Expression<Location> locsToCheck, loc1, loc2;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		locations = (Expression<Location>) exprs[0];
-		radius = (Expression<Number>) exprs[1];
-		points = (Expression<Location>) exprs[2];
 		setNegated(matchedPattern == 1);
+		locsToCheck = (Expression<Location>) exprs[0];
+		loc1 = (Expression<Location>) exprs[1];
+		loc2 = (Expression<Location>) exprs[2];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		double radius = this.radius.getOptionalSingle(event).orElse(0).doubleValue();
-		double radiusSquared = radius * radius * Skript.EPSILON_MULT;
-		return locations.check(event, location -> points.check(event, center -> {
-			if (!location.getWorld().equals(center.getWorld()))
-				return false;
-			return location.distanceSquared(center) <= radiusSquared;
-		}), isNegated());
+		Location one = loc1.getSingle(event);
+		Location two = loc2.getSingle(event);
+		if (one == null || two == null || one.getWorld() != two.getWorld())
+			return false;
+		AABB box = new AABB(one, two);
+		return locsToCheck.check(event, box::contains, isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return locations.toString(event, debug) + (locations.isSingle() ? " is " : " are ") + (isNegated() ? " not " : "")
-			+ "within " + radius.toString(event, debug) + " blocks around " + points.toString(event, debug);
+		return locsToCheck.toString(event, debug) + " is within " + loc1.toString(event, debug) + " and " + loc2.toString(event, debug);
 	}
 
 }
