@@ -97,12 +97,9 @@ public class StructVariables extends Structure {
 				return;
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
 				return;
-			// DefaultVariables can only be added when called from Variable.getRaw(event) and not somewhere else.
-			// This means that the scope has not been entered.
-			if (this.hints.isEmpty()) {
-				System.out.println("VARIABLE NOT MATCH, THIS IS GOOD " + variable);
+			// This important empty check ensures that the variable type hint came from a defined DefaultVariable.
+			if (this.hints.isEmpty())
 				return;
-			}
 			this.hints.getFirst().put(variable, hints);
 		}
 

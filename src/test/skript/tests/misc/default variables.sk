@@ -23,6 +23,7 @@ on test "default variables":
 	set {_player} to "Njol" parsed as offlineplayer
 	assert {regression::%{_player}%} is 1337 with "default variable 6 failed: Value with player and double"
 
+	# If this fails, the scope of the default variables was not set, and it shouldn't be set for undefined, unrelated default variables.
 	set {unrelated::%{_player}%} to true
 	assert {unrelated::%{_player}%} is true with "unrelated variable to default variables conflict"
 
