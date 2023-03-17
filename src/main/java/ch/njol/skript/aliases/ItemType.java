@@ -1369,12 +1369,12 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	@Nullable
 	public EnchantmentStorageMeta getEnchantmentStorageMeta() {
-		if (globalMeta != null && globalMeta instanceof EnchantmentStorageMeta)
-			return (EnchantmentStorageMeta) globalMeta;
-		else if (types.get(0).getItemMeta() instanceof EnchantmentStorageMeta)
-			return (EnchantmentStorageMeta) types.get(0).getItemMeta();
-		else
+		ItemMeta itemMeta = getItemMeta();
+		if (itemMeta instanceof EnchantmentStorageMeta) {
+			return (EnchantmentStorageMeta) itemMeta;
+		} else {
 			return null;
+		}
 	}
 
 	/**

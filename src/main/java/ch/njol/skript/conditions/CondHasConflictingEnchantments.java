@@ -46,7 +46,7 @@ public class CondHasConflictingEnchantments extends Condition {
 	
 	static {
 		PropertyCondition.register(CondHasConflictingEnchantments.class, PropertyType.HAVE,
-			"conflicting [(1¦stored)] enchant[ment]s with %enchantment%", "itemtypes");
+			"conflicting [:stored] enchant[ment]s with %enchantment%", "itemtypes");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -60,7 +60,7 @@ public class CondHasConflictingEnchantments extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = (Expression<ItemType>) exprs[0];
 		ench = (Expression<Enchantment>) exprs[1];
-		isStored = parseResult.mark > 0;
+		isStored = parseResult.hasTag("stored");
 		setNegated(matchedPattern == 1);
 		return true;
 	}
@@ -71,8 +71,7 @@ public class CondHasConflictingEnchantments extends Condition {
 		if (ench == null)
 			return false;
 
-		return items.check(e, item ->
-		{
+		return items.check(e, item -> {
 			ItemMeta meta = item.getItemMeta();
 			if ((isStored && meta instanceof EnchantmentStorageMeta)) {
 				return ((EnchantmentStorageMeta) meta).hasConflictingStoredEnchant(ench);

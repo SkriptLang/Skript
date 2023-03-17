@@ -42,7 +42,7 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprItemWithEnchantments.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtype% (with|of) [(1¦stored)] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
+			"%itemtype% (with|of) [:stored] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -56,15 +56,15 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		item = (Expression<ItemType>) exprs[0];
 		enchs = (Expression<EnchantmentType>) exprs[1];
-		isStored = parseResult.mark == 1;
+		isStored = parseResult.hasTag("stored");
 		return true;
 	}
 
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
-		EnchantmentType[] enchs = this.enchs.getArray(e);
-		ItemType item = this.item.getSingle(e);
+	protected ItemType[] get(Event event) {
+		EnchantmentType[] enchs = this.enchs.getArray(event);
+		ItemType item = this.item.getSingle(event);
 		if (enchs == null || enchs.length < 1 || item == null)
 			return null;
 
@@ -88,8 +88,8 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return item.toString(e, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchs.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return item.toString(event, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchs.toString(event, debug);
 	}
 	
 }

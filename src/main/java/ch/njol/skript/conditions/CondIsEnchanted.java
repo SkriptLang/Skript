@@ -18,10 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.eclipse.jdt.annotation.Nullable;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -34,6 +31,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Enchanted")
 @Description("Checks whether an item is enchanted.")
@@ -47,8 +46,11 @@ import ch.njol.util.Kleenean;
 public class CondIsEnchanted extends Condition {
 	
 	static {
-		PropertyCondition.register(CondIsEnchanted.class,
-			"[(1¦stored[ly])] enchanted [with %-enchantmenttype%]", "itemtypes");
+		Skript.registerCondition(CondIsEnchanted.class,
+			"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
+			"%itemstypes% ((has|have)|not:(doesn't have|don't have)) %-enchantmenttypes% stored",
+			"%-enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
+		);
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -60,28 +62,31 @@ public class CondIsEnchanted extends Condition {
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) exprs[0];
-		enchs = (Expression<EnchantmentType>) exprs[1];
-		isStored = parseResult.mark > 0;
-		setNegated(matchedPattern == 1);
+		items = (Expression<ItemType>) (matchedPattern == 2 ? exprs[1] : exprs[0]);
+		enchs = (Expression<EnchantmentType>) (matchedPattern == 2 ? exprs[0] : exprs[1]);
+		isStored = matchedPattern > 0;
+		setNegated(parseResult.hasTag("not"));
 		return true;
 	}
 	
 	@Override
-	public boolean check(Event e) {
-		if (enchs != null)
-			return items.check(e, item ->
-					(isStored && item.getItemMeta() instanceof EnchantmentStorageMeta) ? enchs.check(e, item::hasStoredEnchantments) : enchs.check(e, item::hasEnchantments), isNegated());
-		else
-			return items.check(e, item ->
-					(isStored && item.getItemMeta() instanceof EnchantmentStorageMeta) ? item.hasStoredEnchantments() : item.hasEnchantments(), isNegated());
+	public boolean check(Event event) {
+		if (enchs != null) {
+			return items.check(event, item ->
+				(isStored && item.getEnchantmentStorageMeta() != null)
+					? enchs.check(event, item::hasStoredEnchantments) : enchs.check(event, item::hasEnchantments), isNegated());
+		} else {
+			return items.check(event, item ->
+				(isStored && item.getEnchantmentStorageMeta() != null)
+					? item.hasStoredEnchantments() : item.hasEnchantments(), isNegated());
+		}
 
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, items,
-			(isStored ? "stored " : "") + "enchanted" + (enchs == null ? "" : " with " + enchs.toString(e, debug)));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, items,
+			"enchanted" + (isStored ? " and stored inside" : "") + (enchs == null ? "" : " with " + enchs.toString(event, debug)));
 	}
 	
 }

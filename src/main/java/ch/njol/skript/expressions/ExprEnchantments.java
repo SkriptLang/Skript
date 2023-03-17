@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -41,18 +31,29 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Name("Item Enchantments")
 @Description("All the [stored] enchantments an <a href='classes.html#itemtype'>item type</a> has.")
-@Examples({"clear enchantments of event-item",
-		"add unbreaking 2 to enchantments of player's tool # will only remove unbreaking with level 2",
-		"remove sharpness from enchantments of player's tool # doesn't care about enchantment level",
-		"set {_storedEnchantments::*} to stored enchantments of player's tool # for enchanted books"})
+@Examples({
+	"clear enchantments of event-item",
+	"add unbreaking 2 to enchantments of player's tool # will only remove unbreaking with level 2",
+	"remove sharpness from enchantments of player's tool # doesn't care about enchantment level",
+	"set {_storedEnchantments::*} to stored enchantments of player's tool # for enchanted books"
+})
 @Since("2.2-dev36, INSERT VERSION (stored enchantments)")
 public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	static {
-		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "[(1¦stored)] enchantments", "itemtypes");
+		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "[:stored] enchantments", "itemtypes");
 	}
 
 	@SuppressWarnings("null")
@@ -63,7 +64,7 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	@SuppressWarnings({"null","unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = (Expression<ItemType>) exprs[0];
-		isStored = parseResult.mark == 1;
+		isStored = parseResult.hasTag("stored");
 		return true;
 	}
 
@@ -74,10 +75,10 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	@Override
 	@Nullable
-	protected EnchantmentType[] get(Event e) {
+	protected EnchantmentType[] get(Event event) {
 		List<EnchantmentType> enchantments = new ArrayList<>();
 		
-		for (ItemType item : items.getArray(e)) {
+		for (ItemType item : items.getArray(event)) {
 			EnchantmentType[] enchants;
 			EnchantmentStorageMeta meta = item.getEnchantmentStorageMeta();
 			if (isStored && meta != null) {
@@ -107,12 +108,12 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		ItemType[] source = items.getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		ItemType[] source = items.getArray(event);
 		
 		EnchantmentType[] enchants = new EnchantmentType[delta != null ? delta.length : 0];
 		
-		if (delta != null && delta.length != 0) {
+		if (delta != null) {
 			for (int i = 0; i < delta.length; i++) {
 				if (delta[i] instanceof EnchantmentType)
 					enchants[i] = (EnchantmentType) delta[i];
@@ -184,8 +185,8 @@ public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the " + (isStored ? "stored " : "") + "enchantments of " + items.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the " + (isStored ? "stored " : "") + "enchantments of " + items.toString(event, debug);
 	}
 	
 }
