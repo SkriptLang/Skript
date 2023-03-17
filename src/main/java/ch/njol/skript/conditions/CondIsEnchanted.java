@@ -48,9 +48,9 @@ public class CondIsEnchanted extends Condition {
 	
 	static {
 		Skript.registerCondition(CondIsEnchanted.class,
-			"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
-			"%itemstypes% ((has|have)|not:(doesn't have|don't have)) %enchantmenttypes% stored",
-			"%enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
+				"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
+				"%itemstypes% ((has|have)|not:(doesn't have|don't have)) %enchantmenttypes% stored",
+				"%enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
 		);
 	}
 	
