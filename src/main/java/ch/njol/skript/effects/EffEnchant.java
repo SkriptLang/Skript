@@ -51,9 +51,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
-				"enchant %~itemtypes% with [:stored] %-enchantmenttypes%",
+				"enchant %~itemtypes% with %-enchantmenttypes%",
 				"disenchant %~itemtypes% [specific:(of|from) %-enchantmenttypes%]",
-				"disenchant (stored:stored (specific:%-enchantmenttypes%|enchant[ment]s) (of|from)) %~itemtypes%");
+				"store %~itemtypes% on %-enchantmenttypes%",
+				"unstore (specific:%-enchantmenttypes%|enchant[ment]s) (of|from) %~itemtypes%");
 	}
 
 	@SuppressWarnings("null")
@@ -71,7 +72,7 @@ public class EffEnchant extends Effect {
 			Skript.error(items + " cannot be changed, thus it cannot be (dis)enchanted");
 			return false;
 		}
-		isStored = parseResult.tags.contains("stored");
+		isStored = matchedPattern >= 2;
 		isDisenchant = matchedPattern > 0;
 		isSpecificDisenchant = parseResult.tags.contains("specific");
 		enchantments = exprs.length == 2 ? (Expression<EnchantmentType>) exprs[(matchedPattern == 2 ? 0 : 1)] : null;
@@ -94,7 +95,7 @@ public class EffEnchant extends Effect {
 			if (types.length < 1)
 				return;
 		}
-		
+
 		if (!isDisenchant) {
 			for (ItemType item : items) {
 				if (isStored) {
