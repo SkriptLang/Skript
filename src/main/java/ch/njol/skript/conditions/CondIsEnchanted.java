@@ -41,15 +41,16 @@ import org.eclipse.jdt.annotation.Nullable;
 		"",
 		"# For enchanted books",
 		"player's tool is stored enchanted",
-		"event-item is enchanted with stored power 2"})
+		"event-item is enchanted with stored power 2"
+})
 @Since("1.4.6, INSERT VERSION (stored enchantments)")
 public class CondIsEnchanted extends Condition {
 	
 	static {
 		Skript.registerCondition(CondIsEnchanted.class,
-			"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
-			"%itemstypes% ((has|have)|not:(doesn't have|don't have)) %-enchantmenttypes% stored",
-			"%-enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
+				"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
+				"%itemstypes% ((has|have)|not:(doesn't have|don't have)) %-enchantmenttypes% stored",
+				"%-enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
 		);
 	}
 	
@@ -85,8 +86,8 @@ public class CondIsEnchanted extends Condition {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, event, debug, items,
-			"enchanted" + (isStored ? " and stored inside" : "") + (enchs == null ? "" : " with " + enchs.toString(event, debug)));
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, items, "enchanted" +
+				(isStored ? " and stored inside" : "") + (enchs == null ? "" : " with " + enchs.toString(event, debug)));
 	}
 	
 }
