@@ -47,7 +47,7 @@ import java.util.List;
 	"\tadd 64 diamonds",
 	"\tsend \"You hit the jackpot!!\""
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 

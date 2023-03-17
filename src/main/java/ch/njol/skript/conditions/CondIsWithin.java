@@ -57,7 +57,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tcancel event",
 		"\tsend \"Back up!\" to attacker and victim",
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 

@@ -409,6 +409,7 @@ chat styles:
 	show_text: tooltip, show text, ttp
 	font: font, f
 	insertion: insertion, insert, ins
+	translate: translate, tr, lang
 
 # -- Directions --
 directions:
