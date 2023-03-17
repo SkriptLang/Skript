@@ -70,9 +70,17 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
-			return new Class[]{Number.class};
-		return new Class[0];
+		switch (mode) {
+			case ADD:
+			case REMOVE:
+			case SET:
+			case DELETE:
+			case RESET:
+				return new Class[]{Number.class};
+			case REMOVE_ALL:
+			default:
+				return null;
+		}
 	}
 
 	@Override
