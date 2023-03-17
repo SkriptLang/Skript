@@ -154,8 +154,13 @@ public class StructVariables extends Structure {
 			}
 
 			String name = n.getKey().toLowerCase(Locale.ENGLISH);
-			if (name.startsWith("{") && name.endsWith("}"))
+			if (name.startsWith("{") && name.endsWith("}")) {
 				name = name.substring(1, name.length() - 1);
+			} else {
+				// TODO deprecated, remove this ability soon.
+				Skript.warning("The variables: section suggests using brackets around the name {example::%player%} = 5\n" +
+						"Not using brackets is considered deprecated, and will disallow no bracket definitions in the future.");
+			}
 
 			if (name.startsWith(Variable.LOCAL_VARIABLE_TOKEN)) {
 				Skript.error("'" + name + "' cannot be a local variable in default variables structure");
