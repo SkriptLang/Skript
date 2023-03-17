@@ -51,10 +51,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
-				"enchant %~itemtypes% with %-enchantmenttypes%",
+				"enchant %~itemtypes% with %enchantmenttypes%",
 				"disenchant %~itemtypes% [specific:(of|from) %-enchantmenttypes%]",
-				"store %~itemtypes% on %-enchantmenttypes%",
-				"unstore (specific:%-enchantmenttypes%|enchant[ment]s) (of|from) %~itemtypes%");
+				"store %~itemtypes% on %enchantmenttypes%",
+				"unstore (specific:%enchantmenttypes%|enchant[ment]s) (of|from) %~itemtypes%");
 	}
 
 	@SuppressWarnings("null")

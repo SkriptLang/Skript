@@ -46,7 +46,7 @@ public class CondHasConflictingEnchantments extends Condition {
 	
 	static {
 		PropertyCondition.register(CondHasConflictingEnchantments.class, PropertyType.HAVE,
-			"conflicting [:stored] enchant[ment]s with %enchantment%", "itemtypes");
+				"conflicting [:stored] enchant[ment]s with %enchantment%", "itemtypes");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")

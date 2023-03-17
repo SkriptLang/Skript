@@ -42,7 +42,7 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprItemWithEnchantments.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtype% (with|of) [:stored] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
+				"%itemtype% (with|of) [:stored] [enchant[ment[s]]] %enchantmenttypes%"); // Added support for non-stored enchantments, check https://github.com/SkriptLang/Skript/issues/1836
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
