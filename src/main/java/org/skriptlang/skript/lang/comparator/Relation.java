@@ -72,8 +72,9 @@ public enum Relation {
 	 * @return Whether this Relation is part of the given Relation, e.g. <code>GREATER_OR_EQUAL.isImpliedBy(EQUAL)</code> returns true.
 	 */
 	public boolean isImpliedBy(Relation other) {
-		if (other == this)
+		if (other == this) {
 			return true;
+		}
 		switch (this) {
 			case EQUAL:
 			case GREATER:
@@ -96,8 +97,9 @@ public enum Relation {
 	 */
 	public boolean isImpliedBy(Relation... others) {
 		for (Relation other : others) {
-			if (isImpliedBy(other))
+			if (isImpliedBy(other)) {
 				return true;
+			}
 		}
 		return false;
 	}

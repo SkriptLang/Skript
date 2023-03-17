@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: 따옴표(")가 잘못되었습니다. 인용문 텍스트에서 따옴표를 사용하려면 따옴표를 두 개 입력해야 합니다.
 	brackets error: 대괄호의 양 또는 위치가 잘못되었습니다. 각 여는 대괄호에 닫는 대괄호가 입력되어있는지 확인하십시오.
 	invalid reload: Skript는 Bukkit의 '/reload' 또는 스크립트의 '/skript reload' 로만 다시 로드할 수 있습니다.

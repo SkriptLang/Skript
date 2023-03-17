@@ -72,7 +72,7 @@ public class EvtItem extends SkriptEvent {
 						"on entity drop of an egg:",
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
-				.since("<i>unknown</i> (before 2.1), INSERT VERSION (entity)");
+				.since("<i>unknown</i> (before 2.1), 2.7 (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
