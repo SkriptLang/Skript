@@ -483,7 +483,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
-
+		
+		// Now override the verbosity if test mode is enabled
+		if (TestMode.VERBOSITY != null)
+			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
+		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded

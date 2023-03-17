@@ -38,7 +38,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Test environment information.
@@ -227,7 +232,9 @@ public class Environment {
 	}
 
 	@Nullable
-	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, String... jvmArgs) throws IOException, InterruptedException {
+	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean jUnit, boolean debug,
+	                            String verbosity, Set<String> jvmArgs) throws IOException, InterruptedException {
+		
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
 		Files.deleteIfExists(resultsPath);
@@ -238,11 +245,16 @@ public class Environment {
 		args.add("-Dskript.testing.dir=" + testsRoot);
 		args.add("-Dskript.testing.devMode=" + devMode);
 		args.add("-Dskript.testing.genDocs=" + genDocs);
+		args.add("-Dskript.testing.junit=" + jUnit);
+		if (!verbosity.equalsIgnoreCase("null"))
+			args.add("-Dskript.testing.verbosity=" + verbosity);
 		if (genDocs)
 			args.add("-Dskript.forceregisterhooks");
 		args.add("-Dskript.testing.results=test_results.json");
 		args.add("-Ddisable.watchdog=true");
-		args.addAll(Arrays.asList(jvmArgs));
+		if (debug)
+			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
+		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 
 		Process process = new ProcessBuilder(args)
@@ -253,16 +265,11 @@ public class Environment {
 				.start();
 
 		// When we exit, try to make them exit too
-		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
-			if (process.isAlive()) {
-				process.destroy();
-			}
-		}));
+		Runtime.getRuntime().addShutdownHook(new Thread(process::destroy));
 
 		// Catch tests running for abnormally long time
 		if (!devMode) {
 			new Timer("runner watchdog", true).schedule(new TimerTask() {
-
 				@Override
 				public void run() {
 					if (process.isAlive()) {
@@ -273,58 +280,6 @@ public class Environment {
 			}, TIMEOUT);
 		}
 
-		int code = process.waitFor();
-		if (code != 0)
-			throw new IOException("environment returned with code " + code);
-
-		// Read test results
-		if (!Files.exists(resultsPath))
-			return null;
-		TestResults results = new Gson().fromJson(new String(Files.readAllBytes(resultsPath)), TestResults.class);
-		assert results != null;
-		return results;
-	}
-
-	@Nullable
-	public TestResults runJUnit(Path runnerRoot, Path testsRoot, String... jvmArgs) throws IOException, InterruptedException {
-		Path env = runnerRoot.resolve(name);
-		Path resultsPath = env.resolve("test_results.json");
-		Files.deleteIfExists(resultsPath);
-		List<String> args = new ArrayList<>();
-		args.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
-		args.add("-ea");
-		args.add("-Dskript.testing.enabled=true");
-		args.add("-Dskript.testing.dir=" + testsRoot);
-		args.add("-Dskript.testing.junit=true");
-		args.add("-Dskript.testing.results=test_results.json");
-		args.add("-Ddisable.watchdog=true");
-		args.addAll(Arrays.asList(jvmArgs));
-		args.addAll(Arrays.asList(commandLine));
-
-		Process process = new ProcessBuilder(args)
-				.directory(env.toFile())
-				.redirectOutput(Redirect.INHERIT)
-				.redirectError(Redirect.INHERIT)
-				.redirectInput(Redirect.INHERIT)
-				.start();
-
-		// When we exit, try to make them exit too
-		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
-			if (process.isAlive()) {
-				process.destroy();
-			}
-		}));
-
-		new Timer("runner watchdog", true).schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				if (process.isAlive()) {
-					System.err.println("Test environment is taking too long, failing...");
-					System.exit(1);
-				}
-			}
-		}, TIMEOUT);
 		int code = process.waitFor();
 		if (code != 0)
 			throw new IOException("environment returned with code " + code);

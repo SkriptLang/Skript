@@ -57,6 +57,12 @@ public class TestMode {
 	 * If Skript should run the gen-docs command.
 	 */
 	public static final boolean GEN_DOCS = "true".equals(System.getProperty(ROOT + "genDocs"));
+	
+	/**
+	 * Overrides the logging verbosity in the config with the property.
+	 */
+	@Nullable
+	public static final String VERBOSITY = ENABLED ? System.getProperty(ROOT + "verbosity") : null;
 
 	/**
 	 * Path to file where to save results in JSON format.
