@@ -1146,7 +1146,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
 			.toArray(EnchantmentType[]::new);
 	}
-	
+
 	/**
 	 * Checks whether this item type has enchantments.
 	 */
@@ -1198,7 +1198,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		ItemMeta meta = getItemMeta();
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null;
 			if (!meta.hasEnchant(type))
 				return false;
 			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) != enchantment.getLevel())
@@ -1216,7 +1216,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null;
 			meta.addEnchant(type, enchantment.getLevel(), true);
 		}
 		setItemMeta(meta);
@@ -1231,7 +1231,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null;
 			meta.removeEnchant(type);
 		}
 		setItemMeta(meta);
@@ -1256,47 +1256,32 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * Gets all stored enchantments of this item.
 	 * @return the stored enchantments of this item type.
 	 */
-	@Nullable
-	public EnchantmentType[] getStoredEnchantmentTypes() {
+	public EnchantmentType @Nullable [] getStoredEnchantmentTypes() {
 		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
 		if (meta == null)
-			return new EnchantmentType[0];
+			return null;
 
-		Set<Entry<Enchantment, Integer>> enchants = meta.getStoredEnchants().entrySet();
-
-		return enchants.stream()
-			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
-			.toArray(EnchantmentType[]::new);
+		return meta.getStoredEnchants().entrySet().stream()
+				.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+				.toArray(EnchantmentType[]::new);
 	}
 
 	/**
-	 * Checks whether this item type has stored enchantments.
-	 * Used for materials such as {@link Material#ENCHANTED_BOOK}
-	 */
-	public boolean hasStoredEnchantments() {
-		ItemType type = getBaseType();
-		ItemMeta meta = type.getItemMeta();
-		if (meta instanceof EnchantmentStorageMeta)
-			return ((EnchantmentStorageMeta) meta).hasStoredEnchants();
-		else
-			return false;
-	}
-
-	/**
-	 * Checks whether this item type contains the given stored enchantments.
-	 * Also checks the enchantment level.
+	 * Checks whether this item type has stored enchantments or contains the given stored enchantments.
+	 * Also, checks the enchantment level.
 	 * @param enchantments The enchantments to be checked.
+	 * @return Whether is has stored enchantments or not.
 	 */
 	public boolean hasStoredEnchantments(EnchantmentType... enchantments) {
 		EnchantmentStorageMeta meta = getEnchantmentStorageMeta();
 		if (meta == null)
 			return false;
-		if (!hasStoredEnchantments())
+		if (!meta.hasStoredEnchants())
 			return false;
 
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null; // Bukkit working different from what we expect
 			if (!meta.hasStoredEnchant(type))
 				return false;
 			if (enchantment.getInternalLevel() != -1 && meta.getStoredEnchantLevel(type) != enchantment.getLevel())
@@ -1316,7 +1301,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null;
 			meta.addStoredEnchant(type, enchantment.getLevel(), true);
 		}
 		setItemMeta(meta);
@@ -1333,7 +1318,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
-			assert type != null; // Bukkit working different than we expect
+			assert type != null;
 			meta.removeStoredEnchant(type);
 		}
 		setItemMeta(meta);

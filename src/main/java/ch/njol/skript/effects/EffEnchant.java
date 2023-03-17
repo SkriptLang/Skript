@@ -98,16 +98,12 @@ public class EffEnchant extends Effect {
 
 		if (!isDisenchant) {
 			for (ItemType item : items) {
-				if (isStored) {
-					for (EnchantmentType type : types) {
-						Enchantment enchantment = type.getType();
-						assert enchantment != null;
+				for (EnchantmentType type : types) {
+					Enchantment enchantment = type.getType();
+					assert enchantment != null;
+					if (isStored) {
 						item.addStoredEnchantments(new EnchantmentType(enchantment, type.getLevel()));
-					}
-				} else {
-					for (EnchantmentType type : types) {
-						Enchantment enchantment = type.getType();
-						assert enchantment != null;
+					} else {
 						item.addEnchantments(new EnchantmentType(enchantment, type.getLevel()));
 					}
 				}
@@ -136,9 +132,7 @@ public class EffEnchant extends Effect {
 			return "disenchant " + (isStored ? "stored " + (isSpecificDisenchant ? enchantments.toString(event, debug) :
 				"enchantments") + " of " : "") + items.toString(event, debug) + (!isStored && isSpecificDisenchant ? " of " +
 				enchantments.toString(event, debug) : "");
-		} else {
-			return "enchant " + items.toString(event, debug) + " with " + (isStored ? "stored " : "") + enchantments;
-		}
+		return "enchant " + items.toString(event, debug) + " with " + (isStored ? "stored " : "") + enchantments;
 	}
 
 }

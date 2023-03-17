@@ -48,14 +48,14 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> item;
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<EnchantmentType> enchs;
+	private Expression<EnchantmentType> enchantments;
 	private boolean isStored;
 
 	@Override
 	@SuppressWarnings({"null","unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		item = (Expression<ItemType>) exprs[0];
-		enchs = (Expression<EnchantmentType>) exprs[1];
+		enchantments = (Expression<EnchantmentType>) exprs[1];
 		isStored = parseResult.hasTag("stored");
 		return true;
 	}
@@ -63,16 +63,16 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 	@Override
 	@Nullable
 	protected ItemType[] get(Event event) {
-		EnchantmentType[] enchs = this.enchs.getArray(event);
+		EnchantmentType[] enchantments = this.enchantments.getArray(event);
 		ItemType item = this.item.getSingle(event);
-		if (enchs == null || enchs.length < 1 || item == null)
+		if (enchantments.length < 1 || item == null)
 			return null;
 
 		if (isStored) {
 			if (item.getEnchantmentStorageMeta() != null)
-				item.addStoredEnchantments(enchs);
+				item.addStoredEnchantments(enchantments);
 		} else {
-			item.addEnchantments(enchs);
+			item.addEnchantments(enchantments);
 		}
 		return new ItemType[]{item};
 	}
@@ -89,7 +89,7 @@ public class ExprItemWithEnchantments extends SimpleExpression<ItemType> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return item.toString(event, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchs.toString(event, debug);
+		return item.toString(event, debug) + " with " + (isStored ? "stored " : "") + "enchantments " + enchantments.toString(event, debug);
 	}
 	
 }

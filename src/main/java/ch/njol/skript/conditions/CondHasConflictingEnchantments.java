@@ -66,12 +66,12 @@ public class CondHasConflictingEnchantments extends Condition {
 	}
 	
 	@Override
-	public boolean check(Event e) {
-		Enchantment ench = this.ench.getSingle(e);
+	public boolean check(Event event) {
+		Enchantment ench = this.ench.getSingle(event);
 		if (ench == null)
 			return false;
 
-		return items.check(e, item -> {
+		return items.check(event, item -> {
 			ItemMeta meta = item.getItemMeta();
 			if ((isStored && meta instanceof EnchantmentStorageMeta)) {
 				return ((EnchantmentStorageMeta) meta).hasConflictingStoredEnchant(ench);
@@ -82,9 +82,9 @@ public class CondHasConflictingEnchantments extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, items,
-			"conflicting " + (isStored ? "stored " : "") + "enchantments with " + ench.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, items,
+			"conflicting " + (isStored ? "stored " : "") + "enchantments with " + ench.toString(event, debug));
 	}
 	
 }
