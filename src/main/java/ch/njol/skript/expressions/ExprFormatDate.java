@@ -49,7 +49,7 @@ import ch.njol.util.Kleenean;
 	"\t\tsend \"Full date: %now formatted human-readable%\" to sender",
 	"\t\tsend \"Short date: %now formatted as \"yyyy-MM-dd\"%\" to sender"
 })
-@Since("2.2-dev31, INSERT VERSION (support variables in format)")
+@Since("2.2-dev31, 2.7 (support variables in format)")
 public class ExprFormatDate extends PropertyExpression<Date, String> {
 	
 	private static final SimpleDateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");

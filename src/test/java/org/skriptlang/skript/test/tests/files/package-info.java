@@ -16,33 +16,9 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package org.skriptlang.skript.test.tests.files;
 
-import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import org.bukkit.OfflinePlayer;
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-@Name("Is Operator")
-@Description("Checks whether a player is a server operator.")
-@Examples("player is an operator")
-@Since("2.7")
-public class CondIsOp extends PropertyCondition<OfflinePlayer> {
-
-	static {
-		register(CondIsOp.class, PropertyType.BE, "[[a] server|an] op[erator][s]", "offlineplayers");
-	}
-
-	@Override
-	public boolean check(OfflinePlayer player) {
-		return player.isOp();
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return "op";
-	}
-
-}

@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 @Name("Method Exists")
 @Description("Checks if a method exists")
 @Examples("if method \"org.bukkit.Bukkit#getPluginCommand(java.lang.String)")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondMethodExists extends PropertyCondition<String> {
 
 	private final static Pattern SIGNATURE_PATTERN = Pattern.compile("(?<class>.+)#(?<name>.+)\\((?<params>.*)\\)");
