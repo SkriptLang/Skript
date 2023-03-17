@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tif the anvil input text of the event-inventory is \"FREE OP\":",
 		"\t\tban player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
 	static {

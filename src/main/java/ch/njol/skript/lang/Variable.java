@@ -73,6 +73,7 @@ public class Variable<T> implements Expression<T> {
 	/**
 	 * Script this variable was created in.
 	 */
+	@Nullable
 	private final Script script;
 
 	/**
@@ -97,10 +98,8 @@ public class Variable<T> implements Expression<T> {
 		assert name.isSimple() || name.getMode() == StringMode.VARIABLE_NAME;
 
 		ParserInstance parser = getParser();
-		if (!parser.isActive())
-			throw new IllegalStateException("Variable attempted to use constructor without a ParserInstance present at execution.");
 
-		this.script = parser.getCurrentScript();
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
 		this.local = local;
 		this.list = list;
@@ -191,12 +190,9 @@ public class Variable<T> implements Expression<T> {
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
 		ParserInstance parser = ParserInstance.get();
-		if (!parser.isActive()) {
-			Skript.error("A variable must only be created during parsing time.");
-			return null;
-		}
-		Script currentScript = parser.getCurrentScript();
-		if (!SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+		if (currentScript != null
+				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
 				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
 				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
@@ -213,7 +209,7 @@ public class Variable<T> implements Expression<T> {
 					assert type != null;
 					if (type.isAssignableFrom(hint)) {
 						// Hint matches, use variable with exactly correct type
-						return new Variable<>(vs, CollectionUtils.array(type), isLocal, isPlural, null);
+						return new Variable<>(vs, CollectionUtils.array(type), true, isPlural, null);
 					}
 				}
 
@@ -221,16 +217,16 @@ public class Variable<T> implements Expression<T> {
 				for (Class<? extends T> type : types) {
 					if (Converters.converterExists(hint, type)) {
 						// Hint matches, even though converter is needed
-						return new Variable<>(vs, CollectionUtils.array(type), isLocal, isPlural, null);
+						return new Variable<>(vs, CollectionUtils.array(type), true, isPlural, null);
 					}
 
 					// Special cases
 					if (type.isAssignableFrom(World.class) && hint.isAssignableFrom(String.class)) {
 						// String->World conversion is weird spaghetti code
-						return new Variable<>(vs, types, isLocal, isPlural, null);
+						return new Variable<>(vs, types, true, isPlural, null);
 					} else if (type.isAssignableFrom(Player.class) && hint.isAssignableFrom(String.class)) {
 						// String->Player conversion is not available at this point
-						return new Variable<>(vs, types, isLocal, isPlural, null);
+						return new Variable<>(vs, types, true, isPlural, null);
 					}
 				}
 
@@ -310,7 +306,7 @@ public class Variable<T> implements Expression<T> {
 	 */
 	@Nullable
 	public Object getRaw(Event event) {
-		DefaultVariables data = script.getData(DefaultVariables.class);
+		DefaultVariables data = script == null ? null : script.getData(DefaultVariables.class);
 		if (data != null)
 			data.enterScope();
 		try {

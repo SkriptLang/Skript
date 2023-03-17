@@ -74,7 +74,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public EventValueExpression(Class<? extends T> c) {
 		this(c, null);
 	}
-	
+
 	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer) {
 		assert c != null;
 		this.c = c;
@@ -89,14 +89,14 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	protected T[] get(Event event) {
 		T value = getValue(event);
 		if (value == null)
-			return (T[]) Array.newInstance(c, 0);
+			return (T[]) Array.newInstance(componentType, 0);
 		if (single) {
 			T[] one = (T[]) Array.newInstance(c, 1);
 			one[0] = value;
 			return one;
 		}
 		T[] dataArray = (T[]) value;
-		T[] array = (T[]) Array.newInstance(c.getComponentType(), ((T[]) value).length);
+		T[] array = (T[]) Array.newInstance(componentType, dataArray.length);
 		System.arraycopy(dataArray, 0, array, 0, array.length);
 		return array;
 	}
@@ -161,8 +161,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<? extends T> getReturnType() {
-		return c;
+		return (Class<? extends T>) componentType;
 	}
 	
 	@Override
@@ -176,13 +177,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
 		return Classes.getDebugMessage(getValue(event));
 	}
-	
+
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (changer == null)
-			changer = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
+			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
 	}
 	

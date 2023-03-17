@@ -43,7 +43,7 @@ import java.util.List;
 @Description("Returns the string without formatting (colors etc.) and without stripping them from it, " +
 	"e.g. <code>raw \"&aHello There!\"</code> would output <code>&aHello There!</code>")
 @Examples("send raw \"&aThis text is unformatted!\" to all players")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprRawString extends SimpleExpression<String> {
 
 	static {

@@ -36,7 +36,7 @@ public abstract class Converters {
 	
 	@SuppressWarnings("unchecked")
 	public static <F, T> List<ConverterInfo<?, ?>> getConverters() {
-		return org.skriptlang.skript.lang.converter.Converters.getConverterInfo().stream()
+		return org.skriptlang.skript.lang.converter.Converters.getConverterInfos().stream()
 			.map(unknownInfo -> {
 				org.skriptlang.skript.lang.converter.ConverterInfo<F, T> info = (org.skriptlang.skript.lang.converter.ConverterInfo<F, T>) unknownInfo;
 				return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlags());

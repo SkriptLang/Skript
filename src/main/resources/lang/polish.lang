@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ stworzony przez & © Peter "Njol" Güttinger ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Nieprawidłowe użycie cudzysłowu ("). Jeśli chcesz użyć cudzysłowu w "cytowanym tekście", podwój go: "".
 	brackets error: Nieprawidłowa liczba lub rozmieszczenie nawiasów. Upewnij się, że każdy nawias otwierający ma odpowiadający mu nawias zamykający.
 	invalid reload: Skript może być przeładowany tylko przez polecenie '/reload' Bukkita lub '/skript reload'.
