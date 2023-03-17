@@ -18,11 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -34,6 +30,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Colored / Uncolored")
 @Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
@@ -78,12 +76,7 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	
 	@Override
 	protected String[] get(final Event e, final String[] source) {
-		return get(source, new Converter<String, String>() {
-			@Override
-			public String convert(final String s) {
-				return color ? Utils.replaceChatStyles(s) : "" + ChatMessages.stripStyles(s);
-			}
-		});
+		return get(source, s -> color ? Utils.replaceChatStyles(s) : "" + ChatMessages.stripStyles(s));
 	}
 	
 	@Override

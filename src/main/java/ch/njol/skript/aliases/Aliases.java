@@ -597,14 +597,6 @@ public abstract class Aliases {
 	}
 
 	/**
-	 * Clears any stored custom aliases for the provided Script.
-	 * @param script The script to clear aliases for.
-	 */
-	public static void clearScriptAliases(Script script) {
-		script.removeData(ScriptAliases.class);
-	}
-
-	/**
 	 * Internal method for obtaining ScriptAliases. Checks {@link ParserInstance#isActive()}.
 	 * @return The obtained aliases, or null if the script has no custom aliases.
 	 */

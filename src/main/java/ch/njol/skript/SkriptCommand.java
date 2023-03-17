@@ -27,9 +27,9 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.tests.runner.SkriptTestEvent;
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.skript.tests.runner.TestTracker;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -47,10 +47,11 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SkriptCommand implements CommandExecutor {
@@ -254,7 +255,7 @@ public class SkriptCommand implements CommandExecutor {
 								}
 							});
 					} else {
-						Collection<File> scriptFiles;
+						Set<File> scriptFiles;
 						try {
 							scriptFiles = toggleFiles(scriptFile, true);
 						} catch (IOException e) {
@@ -321,7 +322,7 @@ public class SkriptCommand implements CommandExecutor {
 					} else {
 						ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
 
-						Collection<File> scripts;
+						Set<File> scripts;
 						try {
 							scripts = toggleFiles(scriptFile, false);
 						} catch (IOException e) {
@@ -515,10 +516,10 @@ public class SkriptCommand implements CommandExecutor {
 		);
 	}
 	
-	private static Collection<File> toggleFiles(File folder, boolean enable) throws IOException {
+	private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
 		FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
 
-		List<File> changed = new ArrayList<>();
+		Set<File> changed = new HashSet<>();
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory()) {
 				changed.addAll(toggleFiles(file, enable));

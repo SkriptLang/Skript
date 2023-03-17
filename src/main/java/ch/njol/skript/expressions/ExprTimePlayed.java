@@ -47,7 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set player's time played to 0 seconds"
 })
 @RequiredPlugins("MC 1.15+ (offline players)")
-@Since("2.5, INSERT VERSION (offline players)")
+@Since("2.5, 2.7 (offline players)")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {
 
 	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
