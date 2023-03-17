@@ -1265,8 +1265,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		Set<Entry<Enchantment, Integer>> enchants = meta.getStoredEnchants().entrySet();
 
 		return enchants.stream()
-			.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
-			.toArray(EnchantmentType[]::new);
+				.map(enchant -> new EnchantmentType(enchant.getKey(), enchant.getValue()))
+				.toArray(EnchantmentType[]::new);
 	}
 
 	/**
