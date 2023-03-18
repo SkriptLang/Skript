@@ -158,8 +158,10 @@ public class StructVariables extends Structure {
 				name = name.substring(1, name.length() - 1);
 			} else {
 				// TODO deprecated, remove this ability soon.
-				Skript.warning("The variables: section suggests using brackets around the name {example::%player%} = 5\n" +
-						"Not using brackets is considered deprecated, and will disallow no bracket definitions in the future.");
+				Skript.warning(
+						"It is suggested to use brackets around the name of a variable. Example: {example::%player%} = 5\n" +
+						"Excluding brackets is deprecated, meaning this warning will become an error in the future."
+				);
 			}
 
 			if (name.startsWith(Variable.LOCAL_VARIABLE_TOKEN)) {
