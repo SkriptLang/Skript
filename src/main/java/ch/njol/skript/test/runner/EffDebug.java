@@ -19,16 +19,20 @@
 package ch.njol.skript.test.runner;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 
@@ -37,7 +41,7 @@ public class EffDebug extends Effect  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffDebug.class, "debug [:verbose] %objects%");
+			Skript.registerEffect(EffDebug.class, "debug [:verbose] %objects%", "debug-effect <.+>", "debug-condition <.+>");
 	}
 
 	private Expression<?> expressions;
@@ -45,6 +49,43 @@ public class EffDebug extends Effect  {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (matchedPattern == 1) {
+			String string = parseResult.regexes.get(0).group();
+			ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
+			try {
+				Effect effect = Effect.parse(string, "Can't understand this effect: " + string);
+				if (effect == null) {
+					logHandler.printError();
+				} else {
+					Logger logger = Skript.getInstance().getLogger();
+					logger.info("--------------------");
+					logger.info("Parsed '" + string + "' to be Effect " + effect.getClass().getName());
+					logger.info("--------------------");
+					logHandler.printLog();
+				}
+			} finally {
+				logHandler.stop();
+			}
+			return true;
+		} else if (matchedPattern == 2) {
+			String string = parseResult.regexes.get(0).group();
+			ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
+			try {
+				Condition conditon = Condition.parse(string, "Can't understand this conditon: " + string);
+				if (conditon == null) {
+					logHandler.printError();
+				} else {
+					Logger logger = Skript.getInstance().getLogger();
+					logger.info("--------------------");
+					logger.info("Parsed '" + string + "' to be Condition " + conditon.getClass().getName());
+					logger.info("--------------------");
+					logHandler.printLog();
+				}
+			} finally {
+				logHandler.stop();
+			}
+			return true;
+		}
 		expressions = exprs[0];
 		if (LiteralUtils.canInitSafely(expressions))
 			expressions = LiteralUtils.defendExpression(expressions);
@@ -56,6 +97,8 @@ public class EffDebug extends Effect  {
 
 	@Override
 	protected void execute(Event event) {
+		if (expressions == null)
+			return;
 		print(event, debug);
 	}
 
