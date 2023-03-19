@@ -29,6 +29,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 
 @NoDoc
@@ -36,18 +37,19 @@ public class EffDebug extends Effect  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffDebug.class, "debug %objects% [%-~boolean%]");
+			Skript.registerEffect(EffDebug.class, "debug [:verbose] %objects%");
 	}
 
 	private Expression<?> expressions;
 	private boolean debug = Skript.debug();
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		expressions = exprs[0];
-		if (exprs[1] != null && exprs[1] instanceof Literal)
-			debug = ((Literal<Boolean>) exprs[1]).getSingle();
+		if (LiteralUtils.canInitSafely(expressions))
+			expressions = LiteralUtils.defendExpression(expressions);
+		if (parseResult.hasTag("verbose"))
+			debug = true;
 		print();
 		return true;
 	}
@@ -71,6 +73,11 @@ public class EffDebug extends Effect  {
 		Skript.info(event == null ? "PARSE TIME" : "RUNTIME");
 		Skript.info("\tExpression " + expressions.getClass().getName());
 		Skript.info("\ttoString: " + expressions.toString(event, debug));
+		if (LiteralUtils.hasUnparsedLiteral(expressions)) {
+			Skript.info("EXPRESSION WAS UNPARSED LITERAL");
+			Skript.info("--------------------");
+			return;
+		}
 		Skript.info("\tChangers: " + Arrays.toString(expressions.getAcceptedChangeModes().entrySet().stream()
 				.map(entry -> entry.getValue().getClass().getSimpleName() + ":" + entry.getKey().name())
 				.toArray(String[]::new)));
@@ -80,10 +87,10 @@ public class EffDebug extends Effect  {
 		Skript.info("\tisSingle: " + expressions.isSingle());
 		Skript.info("--------------------");
 		if (expressions instanceof Literal) {
-			Skript.info("Values: " + ((Literal<?>) expressions).getArray());
+			Skript.info("Literal Values: " + Arrays.toString(((Literal<?>) expressions).getArray()));
 			Skript.info("--------------------");
 		} else if (event != null) {
-			Skript.info("Values: " + expressions.getArray(event));
+			Skript.info("Values: " + Arrays.toString(expressions.getArray(event)));
 			Skript.info("--------------------");
 		}
 	}
