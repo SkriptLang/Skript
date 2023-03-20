@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 @Since("2.7")
 public class ExprRawString extends SimpleExpression<String> {
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("&x((?:&\\p{XDigit}){6})");
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)&x((?:&\\p{XDigit}){6})");
 
 	static {
 		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.COMBINED, "raw %strings%");
@@ -81,7 +81,7 @@ public class ExprRawString extends SimpleExpression<String> {
 			}
 			for (String string : message.getArray(event)) {
 				String raw = SkriptColor.replaceColorChar(string);
-				if (raw.contains("&x")) {
+				if (raw.toLowerCase().contains("&x")) {
 					raw = HEX_PATTERN.matcher(raw).replaceAll(matchResult ->
 						"<#" + matchResult.group(1).replace("&", "") + '>');
 				}
