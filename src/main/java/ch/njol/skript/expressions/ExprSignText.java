@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Sign Text")
 @Description("A line of text on a sign. Can be changed, but remember that there is a 16 character limit per line (including color codes that use 2 characters each).")
 @Examples({
-		"on rightclick on sign:",
+	"on rightclick on sign:",
 		"\tline 2 of the clicked block is \"[Heal]\":",
 		"\t\theal the player",
 		"\tset line 3 of block at {_sign} to \"%player%\""
@@ -54,9 +54,9 @@ public class ExprSignText extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprSignText.class, String.class, ExpressionType.PROPERTY,
-			"[the] lines [of %block%]",
-			"[the] line %number% [of %block%]",
-			"[the] (1¦1st|1¦first|2¦2nd|2¦second|3¦3rd|3¦third|4¦4th|4¦fourth) line [of %block%]"
+				"[the] lines [of %block%]",
+				"[the] line %number% [of %block%]",
+				"[the] (1¦1st|1¦first|2¦2nd|2¦second|3¦3rd|3¦third|4¦4th|4¦fourth) line [of %block%]"
 			);
 	}
 
@@ -66,15 +66,20 @@ public class ExprSignText extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	private Expression<Number> line;
 	@SuppressWarnings("null")
-	private Expression<Block> exprBlock;
+	private Expression<Block> block;
 	private boolean delayed;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isLines = (matchedPattern == 0);
-		if (!isLines)
-			line = matchedPattern == 1 ? (Expression<Number>) exprs[0] : new SimpleLiteral<>(parseResult.mark, false);
-		exprBlock = (Expression<Block>) exprs[exprs.length - 1];
+		if (!isLines) {
+			if (matchedPattern == 1) {
+				line = (Expression<Number>) exprs[0];
+			} else {
+				new SimpleLiteral<>(parseResult.mark, false);
+			}
+		}
+		block = (Expression<Block>) exprs[exprs.length - 1];
 		delayed = isDelayed == Kleenean.TRUE;
 		return true;
 	}
@@ -82,27 +87,22 @@ public class ExprSignText extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
-		Block block = exprBlock.getSingle(event);
+		Block block = this.block.getSingle(event);
+		if (block == null || !sign.isOfType(block))
+			return new String[0];
 		if (isLines) {
-			if (block == null || !sign.isOfType(block))
-				return new String[0];
 			if ((event instanceof SignChangeEvent && getTime() >= 0 && block.equals(((SignChangeEvent) event).getBlock()) && !delayed))
 				return ((SignChangeEvent) event).getLines();
 			return ((Sign) (block.getState())).getLines();
 		} else {
-			Number lineNumber = line.getSingle(event);
-			if (lineNumber == null || lineNumber.intValue() < 1 || lineNumber.intValue() > 4)
+			int line = this.line.getOptionalSingle(event).orElse(-1).intValue();
+			if (line < 1 || line > 4)
 				return new String[0];
-			int index = lineNumber.intValue() - 1;
+			line--;
 			if (event instanceof SignChangeEvent && getTime() >= 0 && block == ((SignChangeEvent) event).getBlock() && !delayed) {
-				return CollectionUtils.array(((SignChangeEvent) event).getLine(index));
+				return CollectionUtils.array(((SignChangeEvent) event).getLine(line));
 			}
-			if (block == null || !sign.isOfType(block)) {
-				return new String[0];
-			}
-			return CollectionUtils.array(
-				((Sign) (block.getState())).getLine(index)
-			);
+			return CollectionUtils.array(((Sign) (block.getState())).getLine(line));
 		}
 	}
 
@@ -110,32 +110,37 @@ public class ExprSignText extends SimpleExpression<String> {
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if (isLines) {
-			if (mode == ChangeMode.RESET) {
-				return null;
+			switch (mode) {
+				case ADD:
+				case SET:
+				case REMOVE:
+				case REMOVE_ALL:
+				case DELETE:
+					return CollectionUtils.array(String[].class);
+				case RESET:
+					return null;
 			}
-			return CollectionUtils.array(String[].class);
-		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
-			return CollectionUtils.array(String.class);
 		}
-		return null;
+		switch (mode) {
+			case DELETE:
+			case SET:
+				return CollectionUtils.array(String.class);
+			default:
+				return null;
+		}
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null) {
-			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)
-				return;
-		}
-		Block block = exprBlock.getSingle(event);
-		if (block == null)
+		Block block = this.block.getSingle(event);
+		if (block == null || !sign.isOfType(block))
 			return;
 		if (isLines) {
-			if (!sign.isOfType(block))
-				return;
 			Sign state = (Sign) block.getState();
 			switch (mode) {
 				case ADD:
 					for (String text : (String[]) delta) {
+						text = Utils.replaceChatStyles(text);
 						int index = 0;
 						while (!state.getLine(index).equals("")) {
 							index++;
@@ -143,7 +148,7 @@ public class ExprSignText extends SimpleExpression<String> {
 								break;
 						}
 						if (index <= 3)
-							state.setLine(index, Utils.replaceChatStyles(text));
+							state.setLine(index, text);
 					}
 					break;
 				case DELETE:
@@ -152,20 +157,15 @@ public class ExprSignText extends SimpleExpression<String> {
 					}
 					break;
 				case REMOVE:
-					for (String text : (String[]) delta) {
-						for (int index = 0; index <= 3; index++) {
-							if (state.getLine(index).equals(Utils.replaceChatStyles(text))) {
-								state.setLine(index, "");
-								break;
-							}
-						}
-					}
-					break;
 				case REMOVE_ALL:
 					for (String text : (String[]) delta) {
-						for (int index = 0; index <= 3; index++) {
-							if (state.getLine(index).equals(Utils.replaceChatStyles(text))) {
+						text = Utils.replaceChatStyles(text);
+						for (int index = 0; index < 4; index++) {
+							if (state.getLine(index).equals(text)) {
 								state.setLine(index, "");
+								if (mode == ChangeMode.REMOVE) {
+									break;
+								}
 							}
 						}
 					}
@@ -181,28 +181,27 @@ public class ExprSignText extends SimpleExpression<String> {
 			String text = "";
 			if (mode == ChangeMode.SET)
 				text = Utils.replaceChatStyles((String) delta[0]);
-			Number lineNumber = line.getSingle(event);
-			if (lineNumber == null || lineNumber.intValue() < 1 || lineNumber.intValue() > 4)
+			int line = this.line.getOptionalSingle(event).orElse(-1).intValue();
+			if (line < 1 || line > 4)
 				return;
-			int index = lineNumber.intValue() - 1;
+			line--;
 			if (event instanceof SignChangeEvent && getTime() >= 0 && block.equals(((SignChangeEvent) event).getBlock()) && !delayed) {
-				((SignChangeEvent) event).setLine(index, text);
+				((SignChangeEvent) event).setLine(line, text);
 			} else {
-				if (!sign.isOfType(block)) {
-					return;
-				}
 				Sign state = (Sign) block.getState();
-				switch (mode) {
-					case SET:
-						state.setLine(index, text);
-						break;
-					case DELETE:
-						state.setLine(index, "");
-						break;
+				if (mode == ChangeMode.SET) {
+					state.setLine(line, text);
+				} else {
+					state.setLine(line, "");
 				}
 				state.update(false, false);
 			}
 		}
+	}
+
+	@Override
+	public boolean setTime(final int time) {
+		return super.setTime(time, SignChangeEvent.class, block);
 	}
 
 	@Override
@@ -216,13 +215,8 @@ public class ExprSignText extends SimpleExpression<String> {
 	}
 
 	@Override
-	public boolean setTime(final int time) {
-		return super.setTime(time, SignChangeEvent.class, exprBlock);
-	}
-
-	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isLines ? "lines" : "line " + line.toString(event, debug)) + " of " + exprBlock.toString(event, debug);
+		return (isLines ? "lines" : "line " + line.toString(event, debug)) + " of " + block.toString(event, debug);
 	}
 
 }
