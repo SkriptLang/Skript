@@ -46,6 +46,7 @@ import java.util.regex.MatchResult;
 @Examples({
 	"function sayMessage(message: text):",
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
+	"",
 	"local function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
 })
