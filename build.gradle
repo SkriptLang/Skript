@@ -41,9 +41,6 @@ dependencies {
 	testShadow group: 'org.easymock', name: 'easymock', version: '5.1.0'
 }
 
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
-
 task checkAliases {
 	description 'Checks for the existence of the aliases.'
 	doLast {
@@ -233,9 +230,17 @@ def latestEnv = 'java17/paper-1.19.3.json'
 def latestJava = 17
 def oldestJava = 8
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
+}
+
 tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ['-source', '' + oldestJava, '-target', '' + oldestJava]
 }
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
 // Register different Skript testing tasks
 String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
