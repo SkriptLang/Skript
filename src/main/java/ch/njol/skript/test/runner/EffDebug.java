@@ -25,7 +25,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -36,6 +39,13 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 
+@Name("Debug")
+@Description({
+	"Debug an expression by printing data of it to console.",
+	"Can also debug what class an input is parsed as for Conditions and Effects.",
+	"Useful for dealing with conflict debugging."
+})
+@Since("INSERT VERSION")
 @NoDoc
 public class EffDebug extends Effect  {
 
