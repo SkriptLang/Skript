@@ -51,7 +51,11 @@ public class EffDebug extends Effect  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffDebug.class, "debug [:verbose] %objects%", "debug-effect <.+>", "debug-condition <.+>");
+			Skript.registerEffect(EffDebug.class,
+					"debug [:verbose] %objects%",
+					"debug-effect <.+>",
+					"debug-condition <.+>"
+			);
 	}
 
 	private Expression<?> expressions;
