@@ -220,5 +220,6 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,java,eclipse,git
 
-# Skript test runners
+# TODO remove this in the future after some time since https://github.com/SkriptLang/Skript/pull/4979
+# This ensures developers don't upload their old existing test_runners/ folder.
 test_runners/

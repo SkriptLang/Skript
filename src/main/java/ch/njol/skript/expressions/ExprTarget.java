@@ -18,19 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.List;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -44,6 +33,15 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -75,18 +73,14 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	protected Entity[] get(Event e, LivingEntity[] source) {
-		return get(source, new Converter<LivingEntity, Entity>() {
-			@Override
-			@Nullable
-			public Entity convert(LivingEntity en) {
-				if (getTime() >= 0 && e instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					Entity target = ((EntityTargetEvent) e).getTarget();
-					if (target == null || type != null && !type.isInstance(target))
-						return null;
-					return target;
-				}
-				return getTarget(en, type);
+		return get(source, en -> {
+			if (getTime() >= 0 && e instanceof EntityTargetEvent && en.equals(((EntityTargetEvent) e).getEntity()) && !Delay.isDelayed(e)) {
+				Entity target = ((EntityTargetEvent) e).getTarget();
+				if (target == null || type != null && !type.isInstance(target))
+					return null;
+				return target;
 			}
+			return getTarget(en, type);
 		});
 	}
 
