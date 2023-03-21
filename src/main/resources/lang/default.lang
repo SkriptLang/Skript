@@ -496,9 +496,9 @@ entities:
 	mangrove boat:
 		name: mangrove boat¦s
 		pattern: mangrove boat(|1¦s)
-	bamboo boat:
-		name: bamboo boat¦s
-		pattern: bamboo boat(|1¦s)
+	bamboo raft:
+		name: bamboo raft¦s
+		pattern: bamboo (boat|raft)(|1¦s)
 	cherry boat:
 		name: cherry boat¦s
 		pattern: cherry [blossom] boat(|1¦s)
