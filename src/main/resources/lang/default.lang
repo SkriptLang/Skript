@@ -261,6 +261,8 @@ biomes:
 	# 1.19 biomes
 	mangrove_swamp: mangrove swamp
 	deep_dark: deep dark
+	# 1.19.4
+	cherry_grove: cherry grove
 
 # -- Tree Types --
 tree types:
@@ -491,6 +493,15 @@ entities:
 	dark oak boat:
 		name: dark oak boat¦s
 		pattern: dark oak boat(|1¦s)
+	mangrove boat:
+		name: mangrove boat¦s
+		pattern: mangrove boat(|1¦s)
+	bamboo raft:
+		name: bamboo raft¦s
+		pattern: bamboo (boat|raft)(|1¦s)
+	cherry boat:
+		name: cherry boat¦s
+		pattern: cherry [blossom] boat(|1¦s)
 	blaze:
 		name: blaze¦s
 		pattern: blaze(|1¦s)
@@ -1693,7 +1704,17 @@ visual effects:
 		shriek:
 			name: shriek @-
 			pattern: shriek
-
+		
+		# 1.19.4 particles
+		dripping_cherry_leaves:
+			name: dripping cherry leaves @-
+			pattern: dripping cherry leaves
+		falling_cherry_leaves:
+			name: falling cherry leaves @-
+			pattern: falling cherry leaves
+		landing_cherry_leaves:
+			name: landing cherry leaves @-
+			pattern: landing cherry leaves
 
 # -- Inventory Actions --
 inventory actions:
@@ -1763,6 +1784,10 @@ inventory types:
 	smithing: smithing inventory @a
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+
+	jukebox: jukebox @a
+	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
+	smithing_new: new smithing table @a, upgrade gear @a, upgrade gear table @a
 
 # -- Spawn Reasons --
 spawn reasons:
