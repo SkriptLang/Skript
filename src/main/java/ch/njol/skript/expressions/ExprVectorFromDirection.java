@@ -76,8 +76,9 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	@Override
 	@Nullable
 	protected Vector[] get(Event event) {
-		List<Vector> vectors = new ArrayList<>();
-		for (Direction direction : this.direction.getArray(event)) {
+		Direction[] directions = this.direction.getArray(event);
+		List<Vector> vectors = new ArrayList<>(directions.length);
+		for (Direction direction : directions) {
 			vectors.add(direction.getDirection(DEFAULT_LOCATION)); // all relative directions are relative to the default location
 		}
 		return vectors.toArray(new Vector[0]);
@@ -97,4 +98,5 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "vector from direction " + direction.toString(event, debug);
 	}
+
 }
