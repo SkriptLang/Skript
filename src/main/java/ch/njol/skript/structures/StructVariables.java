@@ -96,7 +96,10 @@ public class StructVariables extends Structure {
 		public void add(String variable, Class<?>... hints) {
 			if (hints == null || hints.length <= 0)
 				return;
-			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint
+			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
+				return;
+			// This important empty check ensures that the variable type hint came from a defined DefaultVariable.
+			if (this.hints.isEmpty())
 				return;
 			this.hints.getFirst().put(variable, hints);
 		}
@@ -152,8 +155,15 @@ public class StructVariables extends Structure {
 			}
 
 			String name = n.getKey().toLowerCase(Locale.ENGLISH);
-			if (name.startsWith("{") && name.endsWith("}"))
+			if (name.startsWith("{") && name.endsWith("}")) {
 				name = name.substring(1, name.length() - 1);
+			} else {
+				// TODO deprecated, remove this ability soon.
+				Skript.warning(
+						"It is suggested to use brackets around the name of a variable. Example: {example::%player%} = 5\n" +
+						"Excluding brackets is deprecated, meaning this warning will become an error in the future."
+				);
+			}
 
 			if (name.startsWith(Variable.LOCAL_VARIABLE_TOKEN)) {
 				Skript.error("'" + name + "' cannot be a local variable in default variables structure");
