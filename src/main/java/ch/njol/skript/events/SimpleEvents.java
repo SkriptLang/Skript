@@ -711,14 +711,14 @@ public class SimpleEvents {
 		}
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
-			.description("Called when a player drags an item in their cursor across the inventory.")
-			.examples(
-				"on inventory drag:",
-				"\tif player's current inventory is {_gui}",
-				"\t\tsend \"You can't drag your items here!\" to player",
-				"\t\tcancel event"
-			)
-			.since("INSERT VERSION");
+				.description("Called when a player drags an item in their cursor across the inventory.")
+				.examples(
+						"on inventory drag:",
+						"\tif player's current inventory is {_gui}",
+						"\t\tsend \"You can't drag your items here!\" to player",
+						"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
 
 	}
 

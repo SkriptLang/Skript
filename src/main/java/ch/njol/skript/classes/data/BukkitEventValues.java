@@ -1139,7 +1139,8 @@ public final class BukkitEventValues {
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, Inventory[].class, new Getter<Inventory[], InventoryDragEvent>() {
 			@Override
-			public @Nullable Inventory[] get(InventoryDragEvent event) {
+			@Nullable
+			public Inventory[] get(InventoryDragEvent event) {
 				Set<Inventory> inventories = new HashSet<>(2);
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
