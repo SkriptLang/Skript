@@ -181,6 +181,7 @@ enum Modifiers {
 	DEV_MODE, GEN_DOCS, DEBUG, PROFILE, JUNIT
 }
 
+// Create a test task with given name, environments dir/file, dev mode and java version.
 // -1 on the timeout means it'll be disabled.
 void createTestTask(String name, String desc, String environments, int javaVersion, long timeout, Modifiers... modifiers) {
 	if (timeout == 0)
