@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -415,18 +414,25 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 
 		// awful but we have to make these values the same so that they don't matter for comparison
-		second = second.clone(); // don't actually change it
+		// clone to avoid affecting user
+		first = first.clone();
+		second = second.clone();
 
-		second.setDisplayName(ourName); // set our name
-		second.setLore(ourLore); // set our lore
-		for (Enchantment theirEnchant : theirEnchants.keySet()) // remove their enchants
+		first.setDisplayName(null);
+		second.setDisplayName(null);
+
+		first.setLore(null);
+		second.setLore(null);
+
+		for (Enchantment ourEnchant : ourEnchants.keySet())
+			first.removeEnchant(ourEnchant);
+		for (Enchantment theirEnchant : theirEnchants.keySet())
 			second.removeEnchant(theirEnchant);
-		for (Entry<Enchantment, Integer> ourEnchant : ourEnchants.entrySet()) // add our enchants
-			second.addEnchant(ourEnchant.getKey(), ourEnchant.getValue(), true);
-		for (ItemFlag theirFlag : theirFlags) // remove their flags
+
+		for (ItemFlag ourFlag : ourFlags)
+			first.removeItemFlags(ourFlag);
+		for (ItemFlag theirFlag : theirFlags)
 			second.removeItemFlags(theirFlag);
-		for (ItemFlag ourFlag : ourFlags) // add our flags
-			second.addItemFlags(ourFlag);
 
 		return first.equals(second) ? quality : MatchQuality.SAME_MATERIAL;
 	}
