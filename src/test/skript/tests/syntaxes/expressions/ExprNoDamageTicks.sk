@@ -1,18 +1,22 @@
+# Note this test can cause the tests to fail due to Minecraft failing to
+# process the AABB physics AI of the entity sometimes. Must always delete this entity.
 test "no damage ticks":
-	spawn zombie at location(0, 64, 0, world "world")
-	set {_m} to last spawned zombie
-	assert {_m}'s invulnerability ticks is 0 with "entity spawned with no damage ticks"
-	set {_m}'s invulnerability ticks to 25
-	assert {_m}'s invulnerability ticks is 25 with "no damage ticks set failed"
-	add 5 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 30 with "no damage ticks add ##1 failed"
-	remove 12 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 18 with "no damage ticks remove ##1 failed"
-	remove 999 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 0 with "no damage ticks remove ##2 failed"
-	remove -2 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 2 with "no damage ticks remove ##3 failed"
-	add -1 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 1 with "no damage ticks add ##2 failed"
-	delete {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 0 with "no damage ticks delete failed"
+	spawn zombie at spawn of world "world":
+		assert event-entity's invulnerability ticks is 0 with "entity spawned with no damage ticks"
+		set event-entity's invulnerability ticks to 25
+		assert event-entity's invulnerability ticks is 25 with "no damage ticks set failed"
+		add 5 to event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 30 with "no damage ticks add ##1 failed"
+		remove 12 from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 18 with "no damage ticks remove ##1 failed"
+		remove 999 from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 0 with "no damage ticks remove ##2 failed"
+		remove -2 from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 2 with "no damage ticks remove ##3 failed"
+		add -1 to event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 1 with "no damage ticks add ##2 failed"
+		delete event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 0 with "no damage ticks delete failed"
+		clear event-entity
+	# Added effect
+	clear all entities
