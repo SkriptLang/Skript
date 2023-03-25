@@ -64,11 +64,11 @@ public final class ParserInstance {
 	 */
 	public void setInactive() {
 		this.isActive = false;
-		setCurrentScript((Script) null);
 		setCurrentStructure(null);
 		deleteCurrentEvent();
 		getCurrentSections().clear();
 		setNode(null);
+		setCurrentScript((Script) null);
 	}
 
 	/**
@@ -77,8 +77,8 @@ public final class ParserInstance {
 	 */
 	public void setActive(Script script) {
 		this.isActive = true;
-		setCurrentScript(script);
 		setNode(null);
+		setCurrentScript(script);
 	}
 
 	/**
@@ -112,12 +112,14 @@ public final class ParserInstance {
 		);
 
 		// "Script" events
-		if (previous != null)
-			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
-		if (currentScript != null)
-			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onActive(previous));
+		if (previous != null) { // the 'previous' script is becoming inactive
+			previous.getEvents(ScriptEvent.ScriptActivityChangeEvent.class)
+				.forEach(eventHandler -> eventHandler.onActivityChange(this, previous, false, currentScript));
+		}
+		if (currentScript != null) { // the 'currentScript' is becoming active
+			currentScript.getEvents(ScriptEvent.ScriptActivityChangeEvent.class)
+				.forEach(eventHandler -> eventHandler.onActivityChange(this, currentScript, true, previous));
+		}
 	}
 
 	/**

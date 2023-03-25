@@ -18,6 +18,7 @@
  */
 package org.skriptlang.skript.lang.script;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -28,36 +29,49 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface ScriptEvent {
 
 	/**
-	 * A ScriptEvent that is called when a Script is made active in a {@link ParserInstance}.
+	 * A ScriptEvent that is called when a Script is made active or inactive in a {@link ParserInstance}.
+	 * Note that this event triggers <b>AFTER</b> the activity change has occurred.
+	 * That is to say, the involved script will already have been made active/inactive when this event triggers.
+	 * @see ParserInstance#isActive()
 	 */
 	@FunctionalInterface
-	interface ScriptActiveEvent extends ScriptEvent {
+	interface ScriptActivityChangeEvent extends ScriptEvent {
 
 		/**
-		 * Called when this Script is made active in a {@link ParserInstance}.
+		 * Called when a Script is made active or inactive in a {@link ParserInstance}.
+		 * Note that this event triggers <b>AFTER</b> the activity change has occurred.
+		 * That is to say, the script will already have been made active/inactive when this event triggers.
 		 *
-		 * @param oldScript The Script that was just made inactive.
-		 * Null if the {@link ParserInstance} handling this Script
-		 *  was not {@link ParserInstance#isActive()} (it is becoming active).
+		 * @param parser The ParserInstance where the activity change occurred.
+		 * @param script The Script this event was registered for.
+		 * @param active Whether <code>script</code> became active or inactive within <code>parser</code>.
+		 * @param other The Script that was made active or inactive.
+		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
+		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
+		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
+		 *    or became inactive (meaning no script became active).
+		 * @see ParserInstance#isActive()
 		 */
-		void onActive(@Nullable Script oldScript);
+		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
 
 	}
 
 	/**
-	 * A ScriptEvent that is called when a Script is made inactive in a {@link ParserInstance}.
+	 * A ScriptEvent that is called right before a Script is unloaded in the {@link ScriptLoader}.
+	 * Note that this event triggers <b>BEFORE</b> the script is actually unloaded.
+	 * @see ScriptLoader#unloadScript(Script)
 	 */
-	@FunctionalInterface
-	interface ScriptInactiveEvent extends ScriptEvent {
+	interface ScriptUnloadEvent extends ScriptEvent {
 
 		/**
-		 * Called when this Script is made inactive in a {@link ParserInstance}.
+		 * Called when this Script is unloaded in the {@link ScriptLoader}.
+		 * Note that this event triggers <b>BEFORE</b> the script is actually unloaded.
 		 *
-		 * @param newScript The Script that will be made active after this one is completely inactive.
-		 * Null if the {@link ParserInstance} handling this Script
-		 *  will not be {@link ParserInstance#isActive()} (will become inactive).
+		 * @param parser The ParserInstance handling the unloading of <code>script</code>.
+		 * @param script The Script being unloaded.
+		 * @see ScriptLoader#unloadScript(Script)
 		 */
-		void onInactive(@Nullable Script newScript);
+		void onUnload(ParserInstance parser, Script script);
 
 	}
 

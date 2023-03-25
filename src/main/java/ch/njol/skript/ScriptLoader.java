@@ -48,6 +48,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -804,6 +805,11 @@ public class ScriptLoader {
 		// initial unload stage
 		for (Script script : scripts) {
 			parser.setActive(script);
+
+			// trigger unload event before beginning
+			script.getEvents(ScriptEvent.ScriptUnloadEvent.class)
+				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
+
 			for (Structure structure : script.getStructures())
 				structure.unload();
 		}
