@@ -153,25 +153,25 @@ public final class Script {
 	private final Set<ScriptEvent> eventHandlers = new HashSet<>(5);
 
 	/**
-	 * Adds the provided event to this Script.
-	 * @param event The event to add.
+	 * Registers the provided event with this Script.
+	 * @param event The event to register.
 	 */
 	public void registerEvent(ScriptEvent event) {
 		eventHandlers.add(event);
 	}
 
 	/**
-	 * Adds the provided event to this Script.
-	 * @param eventType The type of event being added. This is useful for registering the event through lambdas.
-	 * @param event The event to add.
+	 * Registers the provided event with this Script.
+	 * @param eventType The type of event being register. This is useful for registering the event using a lambda.
+	 * @param event The event to register.
 	 */
 	public <T extends ScriptEvent> void registerEvent(Class<T> eventType, T event) {
 		eventHandlers.add(event);
 	}
 
 	/**
-	 * Removes the provided event from this Script.
-	 * @param event The event to remove.
+	 * Unregisters the provided event with this Script.
+	 * @param event The event to unregister.
 	 */
 	public void unregisterEvent(ScriptEvent event) {
 		eventHandlers.remove(event);
