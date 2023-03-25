@@ -47,9 +47,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.api.event.EventRegister;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.script.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -809,9 +808,9 @@ public class ScriptLoader {
 			parser.setActive(script);
 
 			// trigger unload event before beginning
-			getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
+			eventRegister.getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
 				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
-			script.getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
+			script.getEventRegister().getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
 				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
 
 			for (Structure structure : script.getStructures())
@@ -1013,55 +1012,15 @@ public class ScriptLoader {
 	 * Global Script Event API
 	 */
 
-	// Script Events
+	// ScriptLoader Events
 
-	private static final Set<ScriptLoaderEvent> eventHandlers = new HashSet<>(5);
-
-	/**
-	 * Registers the provided event with this ScriptLoader.
-	 * @param event The event to register.
-	 */
-	public static void registerEvent(ScriptLoaderEvent event) {
-		eventHandlers.add(event);
-	}
+	private static final EventRegister<ScriptLoaderEvent> eventRegister = new EventRegister<>();
 
 	/**
-	 * Registers the provided event to this Script.
-	 * @param eventType The type of event being registered. This is useful for registering the event using a lambda.
-	 * @param event The event to register.
+	 * @return An EventRegister for the ScriptLoader's events.
 	 */
-	public static <T extends ScriptLoaderEvent> void registerEvent(Class<T> eventType, T event) {
-		eventHandlers.add(event);
-	}
-
-	/**
-	 * Unregisters the provided event with this ScriptLoader.
-	 * @param event The event to unregister.
-	 */
-	public static void unregisterEvent(ScriptLoaderEvent event) {
-		eventHandlers.remove(event);
-	}
-
-	/**
-	 * @return An unmodifiable set of all events.
-	 */
-	@Unmodifiable
-	public static Set<ScriptLoaderEvent> getEvents() {
-		return Collections.unmodifiableSet(eventHandlers);
-	}
-
-	/**
-	 * @param type The type of events to get.
-	 * @return An unmodifiable set of all events of the specified type.
-	 */
-	@Unmodifiable
-	@SuppressWarnings("unchecked")
-	public static <T extends ScriptLoaderEvent> Set<T> getEvents(Class<T> type) {
-		return Collections.unmodifiableSet(
-			(Set<T>) eventHandlers.stream()
-				.filter(event -> type.isAssignableFrom(event.getClass()))
-				.collect(Collectors.toSet())
-		);
+	public static EventRegister<ScriptLoaderEvent> getEventRegister() {
+		return eventRegister;
 	}
 
 	/*
