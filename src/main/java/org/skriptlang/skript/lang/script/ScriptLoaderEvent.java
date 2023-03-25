@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * A ScriptLoaderEvent is used for listening to and performing actions for different Script events on a global scale.
  * Note that some of these events may be used on a Script-specific scale, if they extend {@link ScriptEvent}.
- * @see ScriptLoader#registerEvent(ScriptLoaderEvent)
+ * @see ScriptLoader#getEventRegister()
  */
 public interface ScriptLoaderEvent {
 
@@ -50,7 +50,7 @@ public interface ScriptLoaderEvent {
 		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
 		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
 		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
-		 *    or became inactive (meaning no script became active).
+		 *   or became inactive (meaning no script became active).
 		 * @see ParserInstance#isActive()
 		 */
 		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);

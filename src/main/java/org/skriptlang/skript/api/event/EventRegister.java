@@ -43,8 +43,9 @@ public class EventRegister<E> {
 	}
 
 	/**
-	 * Registers the provided event with this register.
-	 * @param eventType The type of event being register. This is useful for registering the event using a lambda.
+	 * Registers the provided event with.
+	 * @param eventType The type of event being registered.
+	 *  This is useful for registering an event that is a {@link FunctionalInterface} using a lambda.
 	 * @param event The event to register.
 	 */
 	public <T extends E> void registerEvent(Class<T> eventType, T event) {
@@ -52,7 +53,7 @@ public class EventRegister<E> {
 	}
 
 	/**
-	 * Unregisters the provided event with this Script.
+	 * Unregisters the provided event.
 	 * @param event The event to unregister.
 	 */
 	public void unregisterEvent(E event) {
@@ -69,7 +70,7 @@ public class EventRegister<E> {
 
 	/**
 	 * @param type The type of events to get.
-	 * @return An unmodifiable set of this register's events of the specified type.
+	 * @return An unmodifiable subset (of the specified type) of this register's events
 	 */
 	@Unmodifiable
 	@SuppressWarnings("unchecked")
