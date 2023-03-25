@@ -217,11 +217,15 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			project.findProperty('verbosity') ?: "null"
 		]
 
-		if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
-			if (!project.hasProperty('profiler'))
-				throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
-
-			args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
+		// Do first is used when throwing exceptions.
+		// This way it's not called when defining the task.
+		doFirst {
+			if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
+				if (!project.hasProperty('profiler'))
+					throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
+	
+				args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
+			}
 		}
 	}
 }
