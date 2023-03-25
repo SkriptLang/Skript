@@ -1221,6 +1221,25 @@ entities:
 	camel:
 		name: camel¦s
 		pattern: camel(|1¦s)
+	# 1.19.4 Entities
+	sniffer:
+		name: sniffer¦s
+		pattern: sniffer(|1¦s)
+	interaction:
+		name: interaction¦s
+		pattern: interaction(|1¦s)
+	display:
+		name: display¦s
+		pattern: display(|1¦s)
+	block display:
+		name: block display¦s
+		pattern: block display(|1¦s)
+	item display:
+		name: item display¦s
+		pattern: item display(|1¦s)
+	text display:
+		name: text display¦s
+		pattern: text display(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
