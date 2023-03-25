@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tset player's total experience to 0",
 	"\tgive player 1 diamond"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprTotalExperience extends SimplePropertyExpression<Entity, Integer> {
 
 	static {
