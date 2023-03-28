@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Sheep;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -32,46 +27,73 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import io.papermc.paper.entity.Shearable;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Snowman;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Random;
+
 @Name("Shear")
 @Description("Shears or 'un-shears' a sheep. Please note that no wool is dropped, this only sets the 'sheared' state of the sheep.")
 @Examples({"on rightclick on a sheep holding a sword:",
 		"	shear the clicked sheep"})
 @Since("2.0")
 public class EffShear extends Effect {
+
+	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
+	private static final boolean snowmanMethod = Skript.methodExists(Snowman.class, "setDerp", boolean.class);
+	private static final boolean mooshroomMethod = Skript.methodExists(MushroomCow.class, "setVariant", MushroomCow.Variant.class);
+
 	static {
 		Skript.registerEffect(EffShear.class,
-				"shear %livingentities%",
+				(interfaceMethod ? "shear %livingentities% [nodrops:(without drops)]" : "shear %livingentities%"),
 				"un[-]shear %livingentities%");
 	}
 	
 	@SuppressWarnings("null")
-	private Expression<LivingEntity> sheep;
+	private Expression<LivingEntity> entity;
 	private boolean shear;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean drops;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		sheep = (Expression<LivingEntity>) exprs[0];
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		entity = (Expression<LivingEntity>) exprs[0];
 		shear = matchedPattern == 0;
+		drops = !parseResult.hasTag("nodrops");
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final LivingEntity en : sheep.getArray(e)) {
-			if (en instanceof Sheep) {
-				((Sheep) en).setSheared(shear);
+	protected void execute(Event event) {
+		for (LivingEntity entity : entity.getArray(event)) {
+			if (shear && interfaceMethod) {
+				if (drops && entity instanceof Shearable) {
+					((Shearable) entity).shear();
+				}
+			}
+			if (entity instanceof Sheep) {
+				((Sheep) entity).setSheared(shear);
+			} else if (mooshroomMethod) {
+				if (!shear && entity instanceof MushroomCow) {
+					int rng = new Random().nextInt(MushroomCow.Variant.values().length);
+					((MushroomCow) entity).setVariant(MushroomCow.Variant.values()[rng]);
+				}
+			} else if (snowmanMethod) {
+				if (!shear && entity instanceof Snowman) {
+					((Snowman) entity).setDerp(false);
+				}
 			}
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (shear ? "" : "un") + "shear " + sheep.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (shear ? "" : "un") + "shear " + entity.toString(event, debug) + (interfaceMethod && drops ? " with drops" : "");
 	}
 	
 }
