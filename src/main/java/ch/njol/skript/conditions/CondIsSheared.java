@@ -20,12 +20,23 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import io.papermc.paper.entity.Shearable;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
 
+@Name("Entity Is Sheared")
+@Description("Checks whether an entity is sheared.")
+@Examples({
+	"if targeted entity of player is sheared:",
+		"\tsend \"This entity has nothing left to shear!\" to player"
+})
+@Since("INSERT VERSION")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
 	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
