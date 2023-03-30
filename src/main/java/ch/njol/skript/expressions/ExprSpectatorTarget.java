@@ -62,7 +62,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tset spectator target to the nearest skeleton"
 })
 @RequiredPlugins("Paper")
-@Since("2.4-alpha4, INSERT VERSION (Paper Spectator Event)")
+@Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
 	private static final boolean EVENT_SUPPORT = Skript.classExists("com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent");

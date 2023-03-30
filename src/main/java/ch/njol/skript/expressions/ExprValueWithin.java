@@ -50,7 +50,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set {_list::*} to \"something\", 10, \"test\" and a zombie",
 	"broadcast the strings within {_list::*} # \"something\", \"test\""
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprValueWithin extends WrapperExpression<Object> {
 
 	static {

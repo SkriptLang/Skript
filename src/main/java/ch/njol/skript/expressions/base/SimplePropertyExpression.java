@@ -18,10 +18,10 @@
  */
 package ch.njol.skript.expressions.base;
 
+import ch.njol.skript.classes.Converter;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -33,6 +33,7 @@ import ch.njol.util.Kleenean;
  * @see PropertyExpression
  * @see PropertyExpression#register(Class, Class, String, String)
  */
+@SuppressWarnings("deprecation") // for backwards compatibility
 public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<F, T> implements Converter<F, T> {
 	
 	@SuppressWarnings({"unchecked", "null"})

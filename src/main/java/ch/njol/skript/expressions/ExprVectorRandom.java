@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Vectors - Random Vector")
 @Description("Creates a random vector.")
 @Examples({"set {_v} to a random vector"})
-@Since("2.2-dev28, INSERT VERSION (signed components)")
+@Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
 
 	private static final Random random = new Random();

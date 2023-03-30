@@ -29,7 +29,7 @@ import ch.njol.skript.doc.Since;
 @Name("Is Valid")
 @Description("Checks whether an entity has died or been despawned for some other reason.")
 @Examples("if event-entity is valid")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsValid extends PropertyCondition<Entity> {
 
 	static {
