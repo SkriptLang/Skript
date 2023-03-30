@@ -57,7 +57,8 @@ public class CondHasLineOfSight extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		viewers = (Expression<LivingEntity>) exprs[0];
 		targets = exprs[1];
-		if (matchedPattern > 0) setNegated(true);
+		if (matchedPattern > 0)
+			setNegated(true);
 		return true;
 	}
 
@@ -76,7 +77,7 @@ public class CondHasLineOfSight extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return viewers.toString(event, debug) + " has " + (isNegated() ? "no" : "") + " line of sight to " + targets.toString(event,debug);
+		return viewers.toString(event, debug) + " has" + (isNegated() ? " no" : "") + " line of sight to " + targets.toString(event,debug);
 	}
 
 }

@@ -11,6 +11,6 @@ test "line of sight":
 		assert pig has no line of sight to {_pig1} with "Pigs should not have line of sight to each other 1"
 		assert {_pig1} has no line of sight to pig with "Pigs should not have line of sight to each other 2"
 		delete pig
-	delete random entity out of {_pig1}
+	delete entity within {_pig1}
 	loop blocks between (spawn of world "world") and (spawn of world "world" ~ vector(0, 10, 0)):
 		set loop-block to {_block::%loop-block%}
