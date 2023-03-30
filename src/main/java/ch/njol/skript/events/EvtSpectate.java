@@ -43,7 +43,7 @@ public class EvtSpectate extends SkriptEvent {
 					.description("Called with a player starts, stops or swaps spectating an entity.")
 					.examples("on player start spectating of a zombie:")
 					.requiredPlugins("Paper")
-					.since("INSERT VERSION");
+					.since("2.7");
 	}
 
 	private Literal<EntityData<?>> datas;

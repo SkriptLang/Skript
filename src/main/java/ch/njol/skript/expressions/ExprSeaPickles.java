@@ -47,7 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tset event-block's sea pickle count to event-block's maximum sea pickle count",
 	"\tsend \"This bad boy is going to hold so many pickles now!!\""
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 
 	static {

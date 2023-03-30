@@ -32,7 +32,7 @@ import ch.njol.skript.doc.Since;
 	"birch wood is stackable",
 	"torch is stackable"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsStackable extends PropertyCondition<ItemStack> {
 
 	static {
