@@ -49,8 +49,8 @@ public class CondWillConsume extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (getParser().isCurrentEvent(BrewingStandFuelEvent.class)) {
-			Skript.error("You can't use the 'fuel will consume' condition outside of a fuel brewing event.");
+		if (!getParser().isCurrentEvent(BrewingStandFuelEvent.class)) {
+			Skript.error("You can't use the 'fuel will be consumed' condition outside of a fuel brewing event.");
 			return false;
 		}
 		setNegated(!parseResult.hasTag("will"));

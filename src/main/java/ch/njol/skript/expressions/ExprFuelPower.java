@@ -67,7 +67,7 @@ public class ExprFuelPower extends SimpleExpression<Integer> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if(mode != ChangeMode.DELETE && mode != ChangeMode.REMOVE_ALL)
+		if (mode != ChangeMode.DELETE && mode != ChangeMode.REMOVE_ALL)
 			return CollectionUtils.array(Integer.class);
 		return null;
 	}

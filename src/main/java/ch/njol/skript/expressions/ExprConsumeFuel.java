@@ -53,7 +53,7 @@ public class ExprConsumeFuel extends SimpleExpression<Boolean> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (getParser().isCurrentEvent()) {
-			Skript.error("You can't use the 'fuel consume' expression outside of a fuel brewing event.");
+			Skript.error("You can't use the 'consume fuel' expression outside of a fuel brewing event.");
 			return false;
 		}
 		return true;
@@ -68,14 +68,15 @@ public class ExprConsumeFuel extends SimpleExpression<Boolean> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode != ChangeMode.SET) return null;
+		if (mode != ChangeMode.SET)
+			return null;
 		return CollectionUtils.array(Boolean.class);
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof BrewingStandFuelEvent)) return;
-		else if (delta[0] == null) return;
+		if (!(event instanceof BrewingStandFuelEvent) || delta[0] == null)
+			return;
 		((BrewingStandFuelEvent) event).setConsuming((Boolean) delta[0]);
 
 	}
