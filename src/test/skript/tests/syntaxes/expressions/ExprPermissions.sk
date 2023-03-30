@@ -1,0 +1,3 @@
+test "permissions":
+	spawn a pig at spawn of world "world":
+		set {_test} to permissions of event-entity

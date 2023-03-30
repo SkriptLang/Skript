@@ -25,6 +25,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -133,31 +134,32 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	@Nullable
-	public Iterator<Block> iterator(final Event e) {
+	public Iterator<Block> iterator(Event event) {
 		try {
-			final Expression<Direction> direction = this.direction;
 			if (chunk != null) {
-				Chunk chunk = this.chunk.getSingle(e);
+				Chunk chunk = this.chunk.getSingle(event);
 				if (chunk != null)
 					return new AABB(chunk).iterator();
 			} else if (direction != null) {
-				if (!from.isSingle()) {
-					return new ArrayIterator<>(get(e));
-				}
-				final Object o = from.getSingle(e);
-				if (o == null)
+				if (!from.isSingle())
+					return new ArrayIterator<>(get(event));
+				Object object = from.getSingle(event);
+				if (object == null)
 					return null;
-				final Location l = o instanceof Location ? (Location) o : ((Block) o).getLocation().add(0.5, 0.5, 0.5);
-				final Direction d = direction.getSingle(e);
-				if (d == null)
+				Location location = object instanceof Location ? (Location) object : ((Block) object).getLocation().add(0.5, 0.5, 0.5);
+				Direction direction = this.direction.getSingle(event);
+				if (direction == null)
 					return null;
-				return new BlockLineIterator(l, o != l ? d.getDirection((Block) o) : d.getDirection(l), SkriptConfig.maxTargetBlockDistance.value());
+				Vector vector = object != location ? direction.getDirection((Block) object) : direction.getDirection(location);
+				if (vector.isZero())
+					return null;
+				return new BlockLineIterator(location, vector, SkriptConfig.maxTargetBlockDistance.value());
 			} else {
-				final Location loc = (Location) from.getSingle(e);
+				final Location loc = (Location) from.getSingle(event);
 				if (loc == null)
 					return null;
 				assert end != null;
-				final Location loc2 = end.getSingle(e);
+				final Location loc2 = end.getSingle(event);
 				if (loc2 == null || loc2.getWorld() != loc.getWorld())
 					return null;
 				if (pattern == 4)
