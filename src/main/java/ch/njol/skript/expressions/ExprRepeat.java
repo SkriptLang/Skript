@@ -34,10 +34,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Name("Repeat String")
-@Description("repeats a given string, a number of times")
+@Description("Repeats inputted strings a given amount of times.")
 @Examples({
 	"\"Hello, World! \" repeated 2 times",
 	"nl and nl repeated 5 times"
@@ -46,30 +45,29 @@ import java.util.stream.Stream;
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %number% times");
+		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %integer% times");
 	}
 
 	private Expression<String> strings;
-	private Expression<Number> count;
+	private Expression<Integer> repeatCount;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		strings = (Expression<String>) exprs[0];
-		count = (Expression<Number>) exprs[1];
+		repeatCount = (Expression<Integer>) exprs[1];
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected String[] get(Event event) {
-		List<String> stringList = new ArrayList<>();
-		int count = this.count.getOptionalSingle(event).orElse(1).intValue();
-		if (count <= 1)
-			return strings.getArray(event);
+	protected @Nullable String[] get(Event event) {
+		List<String> newStrings = new ArrayList<>();
+		int repeatCount = this.repeatCount.getOptionalSingle(event).orElse(0);
+		if (repeatCount < 1)
+			return new String[0];
 		for (String string : this.strings.getArray(event)) {
-			stringList.add(StringUtils.multiply(string, count));
+			newStrings.add(StringUtils.multiply(string, repeatCount));
 		}
-		return stringList.toArray(new String[0]);
+		return newStrings.toArray(new String[0]);
 	}
 
 	@Override
@@ -83,9 +81,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 	}
 
 	@Override
-	@Nullable
-	public String toString(Event event, boolean debug) {
-		return strings.toString(event, debug) + " repeated " + count.toString(event, debug) + " times";
+	public String toString(@Nullable Event event, boolean debug) {
+		return strings.toString(event,debug) + " repeated " + repeatCount.toString(event,debug) + " times";
 	}
-
 }

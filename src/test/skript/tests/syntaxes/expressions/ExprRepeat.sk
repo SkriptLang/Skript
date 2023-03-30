@@ -1,4 +1,5 @@
 test "repeat expression":
-	assert "A" repeated 3 times is "AAA" with "repeat expression failed ##1"
-	set {_msg} to "B" repeated 3 times
-	assert length of {_msg} is 3 with "repeat expression failed ##2"
+	assert "A" repeated 0 times is not set with "Repeat expression failed. Didn't return null with 0"
+	assert "B" repeated 3 times is "BBB" with "Repeat expression failed. Didn't return expected result expected 'BBB'"
+	set {_msg} to "C" repeated 3 times
+	assert length of {_msg} is 3 with "Repeat expression failed. Didn't return expected length, expected '3'"
