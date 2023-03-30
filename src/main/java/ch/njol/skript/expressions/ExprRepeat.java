@@ -38,8 +38,8 @@ import java.util.List;
 @Name("Repeat String")
 @Description("Repeats inputted strings a given amount of times.")
 @Examples({
-	"\"Hello, World! \" repeated 2 times",
-	"nl and nl repeated 5 times"
+	"broadcast \"Hello, World! \" repeated 2 times",
+	"broadcast nl and nl repeated 5 times"
 })
 @Since("INSERT VERSION")
 public class ExprRepeat extends SimpleExpression<String> {
@@ -64,7 +64,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 		int repeatCount = this.repeatCount.getOptionalSingle(event).orElse(0);
 		if (repeatCount < 1)
 			return new String[0];
-		for (String string : this.strings.getArray(event)) {
+		for (String string : strings.getArray(event)) {
 			newStrings.add(StringUtils.multiply(string, repeatCount));
 		}
 		return newStrings.toArray(new String[0]);
