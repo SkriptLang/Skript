@@ -24,25 +24,29 @@ import io.papermc.paper.entity.Shearable;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Snowman;
 
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
 	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
 
 	static {
-		register(CondIsSheared.class, "sheared", "livingentity");
+		register(CondIsSheared.class, "(sheared|shorn)", "livingentity");
 	}
 
 	@Override
 	public boolean check(LivingEntity entity) {
+		if (entity instanceof Cow) // As sheared mooshroom cow is a Cow which does not implements Shearable
+			return true;
 		if (interfaceMethod) {
-			if (entity instanceof Cow) // As sheared mooshroom is a cow
-				return true;
+			if (!(entity instanceof Shearable))
+				return false;
 			return !((Shearable) entity).readyToBeSheared();
 		}
-		if (entity instanceof Sheep) {
+		if (entity instanceof Sheep)
 			return ((Sheep) entity).isSheared();
-		}
+		if (entity instanceof Snowman)
+			return ((Snowman) entity).isDerp();
 		return false;
 	}
 
