@@ -47,7 +47,7 @@ public class CondHasLineOfSight extends Condition {
 		Skript.registerCondition(CondHasLineOfSight.class,
 				"%livingentities% (has|have) [a] [direct] line of sight to %entities/locations%",
 				"%livingentities% does(n't| not) have [a] [direct] line of sight to %entities/locations%",
-				"%livingentities% has no [direct] line of sight to %entities/locations%");
+				"%livingentities% (has|have) no [direct] line of sight to %entities/locations%");
 	}
 
 	private Expression<LivingEntity> viewers;
