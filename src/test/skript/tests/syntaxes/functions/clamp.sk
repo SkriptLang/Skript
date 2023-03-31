@@ -1,0 +1,23 @@
+test "clamp numbers":
+	assert clamp(1, 0, 2) is 1 with "(single ints) min < value < max"
+	assert clamp(1, 1, 2) is 1 with "(single ints) min = value < max"
+	assert clamp(2, 1, 2) is 2 with "(single ints) min < value = max"
+	assert clamp(0, 1, 2) is 1 with "(single ints) value < min < max"
+	assert clamp(3, 1, 2) is 2 with "(single ints) min < max < value"
+	assert clamp(3, 2, 1) is 2 with "(single ints) max < min < value"
+
+	assert clamp(1.999, 0.0, 2.0) is 1.999 with "(single floats) min < value < max"
+	assert clamp(1.999, 1.999, 2.0) is 1.999 with "(single floats) min = value < max"
+	assert clamp(2.0, 1.999, 2.0) is 2.0 with "(single floats) min < value = max"
+	assert clamp(0.0, 1.999, 2.0) is 1.999 with "(single floats) value < min < max"
+	assert clamp(3.0, 1.999, 2.0) is 2.0 with "(single floats) min < max < value"
+	assert clamp(2.999, 2.0, 1.999) is 2.0 with "(single floats) max < min < value"
+
+	set {_expected::*} to (0, 0, 1, 2, 2, and 2)
+	# this is dumb but comparing the lists directly didn't work
+	set {_got::*} to clamp((-1, 0, 1, 2, 3, and 4), 0, 2)
+	loop {_expected::*}:
+		assert {_got::%loop-index%} is loop-value with "(multiple ints)"
+	set {_got::*} to clamp((-1.999, 0.0, 1.0, 2.0, 3.0, and 4.0), 0.0, 2.0)
+	loop {_expected::*}:
+		assert {_got::%loop-index%} is loop-value with "(multiple floats)"
