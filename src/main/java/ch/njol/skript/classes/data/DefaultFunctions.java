@@ -313,7 +313,7 @@ public class DefaultFunctions {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
 				Number[] values = (Number[]) params[0];
-				Double[] clamped_values = new Double[values.length];
+				Double[] clampedValues = new Double[values.length];
 				double min = ((Number) params[1][0]).doubleValue();
 				double max = ((Number) params[2][0]).doubleValue();
 				// we'll be nice and swap them if they're in the wrong order
@@ -321,9 +321,9 @@ public class DefaultFunctions {
 				double trueMax = Math.max(min, max);
 				for (int i = 0; i < values.length; i++) {
 					double value = values[i].doubleValue();
-					clamped_values[i] = Math.max(Math.min(value, trueMax), trueMin);
+					clampedValues[i] = Math.max(Math.min(value, trueMax), trueMin);
 				}
-				return clamped_values;
+				return clampedValues;
 			}
 		}).description("Clamps one or more values between two numbers.")
 			.examples(
