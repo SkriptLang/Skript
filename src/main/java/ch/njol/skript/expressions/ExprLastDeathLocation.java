@@ -30,10 +30,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author nylhus
- */
-
 @Name("Last Death Location")
 @Description({"The location of a player's last death."})
 @Examples({"set {lastdeathlocation::%player's uuid%} to last death location of player"})
