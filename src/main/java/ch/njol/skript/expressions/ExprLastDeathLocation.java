@@ -45,7 +45,8 @@ public class ExprLastDeathLocation extends SimplePropertyExpression<Player, Loca
 	}
 
 	@Override
-	public @Nullable Location convert(Player player) {
+	@Nullable
+	public Location convert(Player player) {
 		return player.getLastDeathLocation();
 	}
 	
