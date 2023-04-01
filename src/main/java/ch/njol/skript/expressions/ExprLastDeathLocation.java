@@ -32,7 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Last Death Location")
 @Description("The location of a player's last death.")
-@Examples({"set {lastdeathlocation::%player's uuid%} to last death location of player"})
+@Examples("set {lastdeathlocation::%player's uuid%} to last death location of player")
 @Since("INSERT VERSION")
 public class ExprLastDeathLocation extends SimplePropertyExpression<Player, Location> {
 	
