@@ -25,7 +25,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
-import edu.umd.cs.findbugs.ba.npe.LocationWhereValueBecomesNull;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
