@@ -19,23 +19,27 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Last Death Location")
-@Description("The location of a player's last death.")
+@Description("The location of a player's last death. Location is saved over server restarts.")
 @Examples("set {lastdeathlocation::%player's uuid%} to last death location of player")
 @Since("INSERT VERSION")
 public class ExprLastDeathLocation extends SimplePropertyExpression<Player, Location> {
 	
 	static {
-		register(ExprLastDeathLocation.class, Location.class, "last death location", "players");
+		if (Skript.methodExists(Location.class, "getLastDeathLocation", Player.class))
+			register(ExprLastDeathLocation.class, Location.class, "last death location", "players");
 	}
 
 	@Override
@@ -52,6 +56,23 @@ public class ExprLastDeathLocation extends SimplePropertyExpression<Player, Loca
 	@Override
 	protected String getPropertyName() {
 		return "last death location";
+	}
+	
+	@Override
+	@Nullable
+	public Class<?>[] acceptChange(final ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) 
+			return new Class[] {Location.class};
+		return null;
+	}
+	
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+		Location location = delta == null ? null : (Location) delta[0];
+		for (OfflinePlayer player : getExpr().getArray(event)) 
+			if (player instanceof Player) 
+				((Player) player).setLastDeathLocation(location);
+		
 	}
 	
 }
