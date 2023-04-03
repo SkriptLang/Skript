@@ -20,7 +20,7 @@ package ch.njol.skript;
 
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
@@ -79,9 +79,9 @@ public final class SkriptEventHandler {
 
 	/**
 	 * A Multimap tracking what Triggers are paired with what Events.
-	 * Each Event effectively maps to a HashSet of Triggers.
+	 * Each Event effectively maps to an ArrayList of Triggers.
 	 */
-	private static final Multimap<Class<? extends Event>, Trigger> triggers = HashMultimap.create();
+	private static final Multimap<Class<? extends Event>, Trigger> triggers = ArrayListMultimap.create();
 
 	/**
 	 * A utility method to get all Triggers paired with the provided Event class.
