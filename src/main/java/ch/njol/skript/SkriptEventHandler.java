@@ -37,9 +37,9 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -249,14 +249,16 @@ public final class SkriptEventHandler {
 	 * @param trigger The Trigger to unregister events for.
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
-		List<Map.Entry<Class<? extends Event>, Trigger> > toRemove = new ArrayList<>();
-		for (Map.Entry<Class<? extends Event>, Trigger> entry : triggers.entries()) {
+		Iterator<Map.Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
+		Map.Entry<Class<? extends Event>, Trigger> entry;
+		while (entryIterator.hasNext()) {
+			entry = entryIterator.next();
 			if (entry.getValue() != trigger)
 				continue;
 			Class<? extends Event> event = entry.getKey();
 
-			// mark trigger for removal
-			toRemove.add(entry);
+			// Remove the trigger from the map
+			triggers.remove(event, trigger);
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
@@ -284,9 +286,6 @@ public final class SkriptEventHandler {
 					handlerList.unregister(listener);
 				}
 			}
-		}
-		for (Map.Entry<Class<? extends Event>, Trigger>  entry : toRemove) {
-			triggers.remove(entry.getKey(), entry.getValue());
 		}
 	}
 
