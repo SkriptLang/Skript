@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
 
@@ -94,7 +95,7 @@ public final class SkriptEventHandler {
 		return triggers.asMap().entrySet().stream()
 				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
 				.flatMap(entry -> entry.getValue().stream())
-				.toList(); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
+				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
 	}
 
 	/**
