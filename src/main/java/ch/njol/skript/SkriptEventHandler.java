@@ -258,7 +258,7 @@ public final class SkriptEventHandler {
 			Class<? extends Event> event = entry.getKey();
 
 			// Remove the trigger from the map
-			triggers.remove(event, trigger);
+			entryIterator.remove();
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
