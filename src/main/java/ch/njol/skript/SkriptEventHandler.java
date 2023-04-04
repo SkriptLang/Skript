@@ -251,7 +251,7 @@ public final class SkriptEventHandler {
 	public static void unregisterBukkitEvents(Trigger trigger) {
 		Iterator<Map.Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
 		Map.Entry<Class<? extends Event>, Trigger> entry;
-		while (entryIterator.hasNext()) {
+		entryLoop: while (entryIterator.hasNext()) {
 			entry = entryIterator.next();
 			if (entry.getValue() != trigger)
 				continue;
@@ -262,15 +262,11 @@ public final class SkriptEventHandler {
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
-			boolean canUnregister = true;
 			for (Trigger t : triggers.get(event)) {
 				if (t.getEvent().getEventPriority() == priority) {
-					canUnregister = false; // There is another trigger with the same priority, don't unregister
-					break;
+					continue entryLoop;
 				}
 			}
-			if (!canUnregister)
-				continue;
 
 			// We can attempt to unregister this listener
 			HandlerList handlerList = getHandlerList(event);
