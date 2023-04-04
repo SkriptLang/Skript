@@ -86,9 +86,9 @@ public final class SkriptEventHandler {
 	private static final Multimap<Class<? extends Event>, Trigger> triggers = ArrayListMultimap.create();
 
 	/**
-	 * A utility method to get all Triggers paired with the provided Event class.
+	 * A utility method to get all Triggers registered under the provided Event class.
 	 * @param event The event to find pairs from.
-	 * @return An iterator containing all Triggers paired with the provided Event class.
+	 * @return A List containing all Triggers registered under the provided Event class.
 	 */
 	private static List<Trigger> getTriggers(Class<? extends Event> event) {
 		HandlerList eventHandlerList = getHandlerList(event);
