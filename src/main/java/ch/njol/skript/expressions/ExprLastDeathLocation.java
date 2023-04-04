@@ -67,12 +67,12 @@ public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlaye
 	}
 	
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode)  {
 		Location location = delta == null ? null : (Location) delta[0];
-		for (OfflinePlayer player : getExpr().getArray(event)) 
-			if (player instanceof Player) 
+		for (OfflinePlayer player : getExpr().getArray(event)) {
+			if (player instanceof Player)
 				((Player) player).setLastDeathLocation(location);
-		
+		}
 	}
 	
 }
