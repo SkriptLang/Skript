@@ -81,7 +81,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		if (isInteger) {
 			return new Long[] {random.nextLong(Math2.floor(min), Math2.ceil(max))};
 		} else {
-			return new Double[] {min + random.nextDouble() * ((max - 1) - min)};
+			return new Double[] {min + random.nextDouble() * (max - min)};
 		}
 	}
 
