@@ -52,8 +52,9 @@ final class ChainedConverter<F, M, T> implements Converter<F, T> {
 	@Nullable
 	public T convert(F from) {
 		M middle = first.convert(from);
-		if (middle == null)
+		if (middle == null) {
 			return null;
+		}
 		return second.convert(middle);
 	}
 
