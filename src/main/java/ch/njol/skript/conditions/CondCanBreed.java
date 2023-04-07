@@ -56,4 +56,5 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return "breed";
 	}
+
 }

@@ -55,4 +55,5 @@ public class CondCanAge extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return "age";
 	}
+
 }

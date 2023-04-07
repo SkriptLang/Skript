@@ -51,4 +51,5 @@ public class CondIsInLove extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return "in love";
 	}
+
 }
