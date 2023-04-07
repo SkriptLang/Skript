@@ -1,0 +1,20 @@
+test "in love valid entity" when running minecraft "1.16.5":
+	delete all cows
+	set {_spawn} to spawn of world "world"
+	spawn adult cow at {_spawn}
+	set {_cow} to last spawned cow
+	assert love time of {_cow} is 0 seconds with "Cow love time was not 0 seconds after spawning"
+	assert {_cow} is not in love with "Cow is in love after spawning"
+	set love time of {_cow} to 10 seconds
+	assert {_cow} is in love with "Cow is not in love after setting love time"
+	delete all cows
+
+test "in love invalid entity" when running minecraft "1.16.5":
+	delete all zombies
+	set {_spawn} to spawn of world "world"
+	spawn adult zombie at {_spawn}
+	set {_zombie} to last spawned zombie
+	assert love time of {_zombie} is 0 seconds with "Zombie was in love Test1"
+	set love time of {_zombie} to 10 minutes
+	assert love time of {_zombie} is 0 seconds with "Zombie was in love Test2"
+	delete all zombies
