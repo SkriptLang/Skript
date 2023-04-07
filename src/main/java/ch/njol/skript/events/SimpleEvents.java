@@ -39,7 +39,9 @@ import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
@@ -708,7 +710,23 @@ public class SimpleEvents {
 					.since("2.7")
 					.requiredPlugins("Paper 1.16+");
 		}
-
+		Skript.registerEvent("Entity Breed", SimpleEvent.class, EntityBreedEvent.class, "[entity] breed[ing]")
+			.description("Called whenever 2 breedable entities begin to conceive a child.")
+			.examples(
+				"on breeding:",
+				"\tsend \"When a %mother% and %father% love each other they make %offspring%\" to breeder"
+			)
+			.since("INSERT VERSION");
+		if (Skript.classExists("org.bukkit.event.entity.EntityEnterLoveModeEvent")) {
+			Skript.registerEvent("Love Mode Enter", SimpleEvent.class, EntityEnterLoveModeEvent.class, "[entity] enter[s] love mode", "[entity] love mode [enter]")
+				.description("Called whenever an entity enters a state of being in love.")
+				.examples(
+					"on love mode enter:",
+					"\tcancel event # No one is allowed love here"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("MC 1.16+");
+		}
 	}
 
 }
