@@ -42,18 +42,17 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\tmake entity an adult",
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("1.13+ for animal, 1.16+ for mobs")
+@RequiredPlugins("1.16+ (Mobs)")
 public class EffMakeAdult extends Effect {
 
-
-	static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
+	private final static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
 
 	static {
 		Skript.registerEffect(EffMakeAdult.class, "make %livingentities% [a[n]] (adult|:baby)");
 	}
 
-	boolean makeBaby;
-	Expression<LivingEntity> entities;
+	private boolean makeBaby;
+	private Expression<LivingEntity> entities;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -65,7 +64,7 @@ public class EffMakeAdult extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (LivingEntity livingEntity : entities.getArray(event)) {
-			if (livingEntity instanceof Ageable)
+			if (livingEntity instanceof Ageable) {
 				if (!HAS_MOB_SUPPORT && !(livingEntity instanceof Animals))
 					continue;
 				if (makeBaby) {
@@ -73,6 +72,7 @@ public class EffMakeAdult extends Effect {
 				} else {
 					((Ageable) livingEntity).setAdult();
 				}
+			}
 		}
 	}
 

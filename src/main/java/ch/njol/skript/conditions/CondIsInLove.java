@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
-@Name("In Love")
+@Name("Entity In Love")
 @Description("Whether or not an animal is currently in love")
 @Examples({
 	"on right click on living entity:",
@@ -42,7 +42,7 @@ public class CondIsInLove extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity livingEntity) {
-		if(livingEntity instanceof Animals)
+		if (livingEntity instanceof Animals)
 			return ((Animals) livingEntity).isLoveMode();
 		return false;
 	}

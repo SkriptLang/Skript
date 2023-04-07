@@ -29,7 +29,7 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Can Breed")
-@Description("Checks whether or not a living entity is breedable.")
+@Description("Returns whether or not a living entity is breedable.")
 @Examples({
 	"on right click on living entity with bucket:",
 	"\tif event-entity can't breed:",

@@ -29,7 +29,7 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Can Age")
-@Description("Tells whether or not an entity will be able to age/grow up")
+@Description("Returns whether or not an entity will be able to age/grow up")
 @Examples({
 	"on right click on living entity:",
 	"\tif entity can't age:",

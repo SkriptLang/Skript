@@ -48,8 +48,8 @@ public class EffLockAge extends Effect {
 			Skript.registerEffect(EffLockAge.class, "(lock|:unlock) age of %livingentities%");
 	}
 
-	Expression<LivingEntity> entities;
-	boolean unlock;
+	private Expression<LivingEntity> entities;
+	private boolean unlock;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

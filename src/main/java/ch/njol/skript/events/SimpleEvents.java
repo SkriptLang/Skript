@@ -711,7 +711,7 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 		Skript.registerEvent("Entity Breed", SimpleEvent.class, EntityBreedEvent.class, "[entity] breed[ing]")
-			.description("Called whenever 2 breedable entities begin to conceive a child.")
+			.description("Called whenever two breedable entities begin to conceive a child.")
 			.examples(
 				"on breeding:",
 				"\tsend \"When a %mother% and %father% love each other they make %offspring%\" to breeder"

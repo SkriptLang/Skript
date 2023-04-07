@@ -1564,7 +1564,7 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-
+		// EntityBreedEvent
 		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, new Getter<ItemStack, EntityBreedEvent>() {
 			@Override
 			@Nullable
@@ -1574,7 +1574,6 @@ public final class BukkitEventValues {
 		}, EventValues.TIME_NOW);
 
 		if (Skript.classExists("org.bukkit.event.entity.EntityEnterLoveModeEvent")) {
-
 			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, new Getter<LivingEntity, EntityEnterLoveModeEvent>() {
 				@Override
 				@Nullable
@@ -1582,7 +1581,6 @@ public final class BukkitEventValues {
 					return event.getEntity();
 				}
 			}, EventValues.TIME_NOW);
-
 			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, new Getter<HumanEntity, EntityEnterLoveModeEvent>() {
 				@Override
 				@Nullable
@@ -1590,7 +1588,6 @@ public final class BukkitEventValues {
 					return event.getHumanEntity();
 				}
 			}, EventValues.TIME_NOW);
-
 		}
 
 	}

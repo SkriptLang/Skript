@@ -55,7 +55,7 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(EntityBreedEvent.class)) {
-			Skript.error("This expression can only be used within a Entity Breed event.");
+			Skript.error("'breeding family' expression can only be used within an Entity Breed event.");
 			return false;
 		}
 		pattern = matchedPattern;
@@ -66,6 +66,7 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 	protected @Nullable LivingEntity[] get(Event event) {
 		if (!(event instanceof EntityBreedEvent))
 			return new LivingEntity[0];
+			
 		EntityBreedEvent breedEvent = (EntityBreedEvent) event;
 		if (pattern == 0) {
 			return new LivingEntity[]{breedEvent.getMother()};

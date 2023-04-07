@@ -33,7 +33,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Breedable")
+@Name("Make Breedable")
 @Description("Picks whether or not an entity will be able to breed.")
 @Examples({
 	"on spawn of animal:",
@@ -48,8 +48,8 @@ public class EffBreedable extends Effect {
 			Skript.registerEffect(EffBreedable.class, "make %livingentities% [negate:(not |non(-| )|un)]breedable");
 	}
 
-	boolean canBreed;
-	Expression<LivingEntity> entities;
+	private boolean canBreed;
+	private Expression<LivingEntity> entities;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -69,7 +69,7 @@ public class EffBreedable extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + entities.toString(event,debug) + (canBreed ? " " : " non-") + "breedable";
+		return "make " + entities.toString(event, debug) + (canBreed ? " " : " non-") + "breedable";
 	}
 
 }

@@ -29,7 +29,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is An Adult")
-@Description("Tells whether or not a living entity is an adult.")
+@Description("Returns whether or not a living entity is an adult.")
 @Examples({
 	"on spawn:",
 	"\tif event-entity is not an adult:",
@@ -37,7 +37,6 @@ import org.bukkit.entity.LivingEntity;
 })
 @Since("INSERT VERSION")
 public class CondIsAdult extends PropertyCondition<LivingEntity> {
-
 
 	static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
 
