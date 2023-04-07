@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -39,11 +40,12 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tmake entity unbreedable"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.16+")
 public class EffBreedable extends Effect {
 
 	static {
-		Skript.registerEffect(EffBreedable.class,
-			"make %living entities% [negate:(not |non(-| )|un)]breedable");
+		if (Skript.classExists("org.bukkit.entity.Breedable"))
+			Skript.registerEffect(EffBreedable.class, "make %livingentities% [negate:(not |non(-| )|un)]breedable");
 	}
 
 	boolean canBreed;
@@ -52,6 +54,7 @@ public class EffBreedable extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		canBreed = !parseResult.hasTag("negate");
+		entities = (Expression<LivingEntity>) exprs[0];
 		return true;
 	}
 

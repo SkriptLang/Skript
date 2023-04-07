@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
@@ -34,10 +36,12 @@ import org.bukkit.entity.LivingEntity;
 	"\t\tsend \"Turns out %event-entity% is not breedable, what a let down\" to player"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.16+")
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondCanBreed.class, PropertyType.CAN, "breed", "livingentities");
+		if (Skript.classExists("org.bukkit.entity.Breedable"))
+			register(CondCanBreed.class, PropertyType.CAN, "breed", "livingentities");
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -39,10 +40,12 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tlock age of entity"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.16+")
 public class EffLockAge extends Effect {
 
 	static {
-		Skript.registerEffect(EffLockAge.class, "(lock|:unlock) age of %living entities%");
+		if (Skript.classExists("org.bukkit.entity.Breedable"))
+			Skript.registerEffect(EffLockAge.class, "(lock|:unlock) age of %livingentities%");
 	}
 
 	Expression<LivingEntity> entities;
