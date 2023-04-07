@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -49,18 +50,23 @@ import ch.njol.util.Kleenean;
 		"\tclear dropped experience",
 		"on break of diamond ore:",
 		"\tif tool of player = diamond pickaxe:",
-		"\t\tadd 100 to dropped experience"})
-@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event)")
-@Events({"experience spawn", "break / mine", "experience change"})
+		"\t\tadd 100 to dropped experience",
+		"on breed:",
+		"\tevent-father is a cow",
+		"\tset dropped experience to 10"
+})
+@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (breeding event)")
+@Events({"experience spawn", "break / mine", "experience change", "entity breeding"})
 public class ExprExperience extends SimpleExpression<Experience> {
+
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] (spawned|dropped|) [e]xp[erience] [orb[s]]");
 	}
-	
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class)) {
-			Skript.error("The experience expression can only be used in experience spawn, block break and player experience change events");
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class, EntityBreedEvent.class)) {
+			Skript.error("The experience expression can only be used in experience spawn, block break, player experience change and entity breeding events");
 			return false;
 		}
 		return true;
@@ -68,51 +74,53 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	@Nullable
-	protected Experience[] get(final Event e) {
-		if (e instanceof ExperienceSpawnEvent)
-			return new Experience[] {new Experience(((ExperienceSpawnEvent) e).getSpawnedXP())};
-		else if (e instanceof BlockBreakEvent)
-			return new Experience[] {new Experience(((BlockBreakEvent) e).getExpToDrop())};
-		else if (e instanceof PlayerExpChangeEvent)
-			return new Experience[] {new Experience(((PlayerExpChangeEvent) e).getAmount())};
+	protected Experience[] get(Event event) {
+		if (event instanceof ExperienceSpawnEvent)
+			return new Experience[] {new Experience(((ExperienceSpawnEvent) event).getSpawnedXP())};
+		else if (event instanceof BlockBreakEvent)
+			return new Experience[] {new Experience(((BlockBreakEvent) event).getExpToDrop())};
+		else if (event instanceof PlayerExpChangeEvent)
+			return new Experience[] {new Experience(((PlayerExpChangeEvent) event).getAmount())};
+		else if (event instanceof EntityBreedEvent)
+			return new Experience[] {new Experience(((EntityBreedEvent) event).getExperience())};
 		else
 			return new Experience[0];
 	}
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case REMOVE_ALL:
-				return new Class[] {Experience[].class, Number[].class};
 			case SET:
-				return new Class[] {Experience.class, Number.class};
+			case ADD:
+			case REMOVE:
+			case DELETE:
 			case RESET:
-				return null;
+				return new Class[] {Experience[].class, Integer[].class};
 		}
 		return null;
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		double eventExp;
-		if (e instanceof ExperienceSpawnEvent) {
-			eventExp = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		} else if (e instanceof BlockBreakEvent) {
-			eventExp = ((BlockBreakEvent) e).getExpToDrop();
-		} else if (e instanceof PlayerExpChangeEvent) {
-			eventExp = ((PlayerExpChangeEvent) e).getAmount();
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int eventExp;
+		if (event instanceof ExperienceSpawnEvent) {
+			eventExp = ((ExperienceSpawnEvent) event).getSpawnedXP();
+		} else if (event instanceof BlockBreakEvent) {
+			eventExp = ((BlockBreakEvent) event).getExpToDrop();
+		} else if (event instanceof PlayerExpChangeEvent) {
+			eventExp = ((PlayerExpChangeEvent) event).getAmount();
+		} else if (event instanceof EntityBreedEvent) {
+			eventExp = ((EntityBreedEvent) event).getExperience();
 		} else {
 			return;
 		}
+
 		if (delta == null) {
 			eventExp = 0;
 		} else {
 			for (Object obj : delta) {
-				double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
+				int value = obj instanceof Experience ? ((Experience) obj).getXP() : (Integer) obj;
 				switch (mode) {
 					case ADD:
 						eventExp += value;
@@ -121,26 +129,21 @@ public class ExprExperience extends SimpleExpression<Experience> {
 						eventExp = value;
 						break;
 					case REMOVE:
-					case REMOVE_ALL:
 						eventExp -= value;
-						break;
-					case RESET:
-					case DELETE:
-						assert false;
 						break;
 				}
 			}
 		}
 
-		
-		eventExp = Math.max(0, Math.round(eventExp));
-		int roundedEventExp = (int) eventExp;
-		if (e instanceof ExperienceSpawnEvent) {
-			((ExperienceSpawnEvent) e).setSpawnedXP(roundedEventExp);
-		} else if (e instanceof BlockBreakEvent) {
-			((BlockBreakEvent) e).setExpToDrop(roundedEventExp);
-		} else if (e instanceof PlayerExpChangeEvent) {
-			((PlayerExpChangeEvent) e).setAmount(roundedEventExp);
+		eventExp = Math.max(0, eventExp);
+		if (event instanceof ExperienceSpawnEvent) {
+			((ExperienceSpawnEvent) event).setSpawnedXP(eventExp);
+		} else if (event instanceof BlockBreakEvent) {
+			((BlockBreakEvent) event).setExpToDrop(eventExp);
+		} else if (event instanceof PlayerExpChangeEvent) {
+			((PlayerExpChangeEvent) event).setAmount(eventExp);
+		} else if (event instanceof EntityBreedEvent) {
+			((EntityBreedEvent) event).setExperience(eventExp);
 		}
 	}
 	
@@ -155,7 +158,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the experience";
 	}
 	
