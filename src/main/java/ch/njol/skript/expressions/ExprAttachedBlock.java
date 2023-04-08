@@ -41,8 +41,8 @@ public class ExprAttachedBlock extends SimpleExpression<Block> {
 
 	static {
 		Skript.registerExpression(ExprAttachedBlock.class, Block.class, ExpressionType.COMBINED,
-			"%projectiles%'s attached block",
-			"attached block (at|of) %projectiles%"
+			"%projectiles%'s (attached|hit) block",
+			"(attached|hit) block (at|of) %projectiles%"
 		);
 	}
 
