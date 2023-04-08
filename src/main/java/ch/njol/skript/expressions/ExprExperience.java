@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -49,8 +50,8 @@ import ch.njol.util.Kleenean;
 		"on break of diamond ore:",
 		"\tif tool of player = diamond pickaxe:",
 		"\t\tadd 100 to dropped experience"})
-@Since("2.1, 2.5.3 (block break event)")
-@Events({"experience spawn", "break / mine"})
+@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event)")
+@Events({"experience spawn", "break / mine", "experience change"})
 public class ExprExperience extends SimpleExpression<Experience> {
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] (spawned|dropped|) [e]xp[erience] [orb[s]]");
@@ -58,8 +59,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class)) {
-			Skript.error("The experience expression can only be used in experience spawn and block break events");
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class)) {
+			Skript.error("The experience expression can only be used in experience spawn, block break and player experience change events");
 			return false;
 		}
 		return true;
@@ -72,6 +73,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			return new Experience[] {new Experience(((ExperienceSpawnEvent) e).getSpawnedXP())};
 		else if (e instanceof BlockBreakEvent)
 			return new Experience[] {new Experience(((BlockBreakEvent) e).getExpToDrop())};
+		else if (e instanceof PlayerExpChangeEvent)
+			return new Experience[] {new Experience(((PlayerExpChangeEvent) e).getAmount())};
 		else
 			return new Experience[0];
 	}
@@ -95,27 +98,31 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		double d;
-		if (e instanceof ExperienceSpawnEvent)
-			d = ((ExperienceSpawnEvent) e).getSpawnedXP();
-		else if (e instanceof BlockBreakEvent)
-			d = ((BlockBreakEvent) e).getExpToDrop();
-		else
+		double eventExp;
+		if (e instanceof ExperienceSpawnEvent) {
+			eventExp = ((ExperienceSpawnEvent) e).getSpawnedXP();
+		} else if (e instanceof BlockBreakEvent) {
+			eventExp = ((BlockBreakEvent) e).getExpToDrop();
+		} else if (e instanceof PlayerExpChangeEvent) {
+			eventExp = ((PlayerExpChangeEvent) e).getAmount();
+		} else {
 			return;
-		
-		if (delta != null)
-			for (final Object o : delta) {
-				final double v = o instanceof Experience ? ((Experience) o).getXP() : ((Number) o).doubleValue();
+		}
+		if (delta == null) {
+			eventExp = 0;
+		} else {
+			for (Object obj : delta) {
+				double value = obj instanceof Experience ? ((Experience) obj).getXP() : ((Number) obj).doubleValue();
 				switch (mode) {
 					case ADD:
-						d += v;
+						eventExp += value;
 						break;
 					case SET:
-						d = v;
+						eventExp = value;
 						break;
 					case REMOVE:
 					case REMOVE_ALL:
-						d -= v;
+						eventExp -= value;
 						break;
 					case RESET:
 					case DELETE:
@@ -123,14 +130,18 @@ public class ExprExperience extends SimpleExpression<Experience> {
 						break;
 				}
 			}
-		else
-			d = 0;
+		}
+
 		
-		d = Math.max(0, Math.round(d));
-		if (e instanceof ExperienceSpawnEvent)
-			((ExperienceSpawnEvent) e).setSpawnedXP((int) d);
-		else
-			((BlockBreakEvent) e).setExpToDrop((int) d);
+		eventExp = Math.max(0, Math.round(eventExp));
+		int roundedEventExp = (int) eventExp;
+		if (e instanceof ExperienceSpawnEvent) {
+			((ExperienceSpawnEvent) e).setSpawnedXP(roundedEventExp);
+		} else if (e instanceof BlockBreakEvent) {
+			((BlockBreakEvent) e).setExpToDrop(roundedEventExp);
+		} else if (e instanceof PlayerExpChangeEvent) {
+			((PlayerExpChangeEvent) e).setAmount(roundedEventExp);
+		}
 	}
 	
 	@Override

@@ -29,7 +29,6 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
@@ -37,9 +36,6 @@ import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.potion.PotionData;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
@@ -371,8 +367,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	
 	/**
 	 * Compares {@link ItemMeta}s for {@link #matchAlias(ItemData)}.
-	 * Note that this does NOT compare everything; only the most
-	 * important bits.
+	 * Note that this method assumes the metas are coming from similar types.
 	 * @param first Meta of this item.
 	 * @param second Meta of given item.
 	 * @return Match quality of metas.
@@ -417,30 +412,29 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			if (!newQuality.isBetter(quality))
 				quality = newQuality;
 		}
-		
-		// Potion data
-		if (second instanceof PotionMeta) {
-			if (!(first instanceof PotionMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a potion, first is clearly not
-			}
-			// Compare potion type, including extended and level 2 attributes
-			PotionData ourPotion = ((PotionMeta) first).getBasePotionData();
-			PotionData theirPotion = ((PotionMeta) second).getBasePotionData();
-			return !Objects.equals(ourPotion, theirPotion) ? MatchQuality.SAME_MATERIAL : quality;
-		}
 
-		// Skull owner
-		if (second instanceof SkullMeta) {
-			if (!(first instanceof SkullMeta)) {
-				return MatchQuality.DIFFERENT; // Second is a skull, first is clearly not
-			}
-			// Compare skull owners
-			OfflinePlayer ourOwner = ((SkullMeta) first).getOwningPlayer();
-			OfflinePlayer theirOwner = ((SkullMeta) second).getOwningPlayer();
-			return !Objects.equals(ourOwner, theirOwner) ? MatchQuality.SAME_MATERIAL : quality;
-		}
-		
-		return quality;
+		// awful but we have to make these values the same so that they don't matter for comparison
+		// clone to avoid affecting user
+		first = first.clone();
+		second = second.clone();
+
+		first.setDisplayName(null);
+		second.setDisplayName(null);
+
+		first.setLore(null);
+		second.setLore(null);
+
+		for (Enchantment ourEnchant : ourEnchants.keySet())
+			first.removeEnchant(ourEnchant);
+		for (Enchantment theirEnchant : theirEnchants.keySet())
+			second.removeEnchant(theirEnchant);
+
+		for (ItemFlag ourFlag : ourFlags)
+			first.removeItemFlags(ourFlag);
+		for (ItemFlag theirFlag : theirFlags)
+			second.removeItemFlags(theirFlag);
+
+		return first.equals(second) ? quality : MatchQuality.SAME_MATERIAL;
 	}
 	
 	/**

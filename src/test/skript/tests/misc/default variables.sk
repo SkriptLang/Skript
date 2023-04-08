@@ -1,0 +1,38 @@
+
+variables:
+	{testing::variables1::%entity%} = 1337
+	{testing::variables2::%object%} = 1337
+	{testing::variables3::%entity%::%object%} = 1337
+	testing::no brackets::%living entity% = "String"
+	testing::variables4 = 1.6900000000001
+	{testing::regression::%offlineplayer%} = 1337
+
+on test "default variables":
+	spawn a pig at spawn of world "world"
+	assert {testing::variables1::%last spawned pig%} is 1337 with "default variable 1 failed"
+
+	set {_string} to "empty string"
+	set {_local} to {_string}
+	assert {_local} is {_string} with "Local variable failed to copy another local variable"
+
+	assert {testing::variables2::%{_string}%} is 1337 with "default variable 2 failed: Value with string"
+	assert {testing::variables3::%last spawned pig%::%{_string}%} is 1337 with "default variable 3 failed: Value with entity and string"
+	assert {testing::no brackets::%last spawned pig%} is "String" with "default variable 4 failed: Value with entity and string"
+	assert {testing::variables4} is 1.6900000000001 with "default variable 5 failed: Value with no entity and double"
+
+	set {_player} to "Njol" parsed as offlineplayer
+	assert {testing::regression::%{_player}%} is 1337 with "default variable 6 failed: Value with player and double"
+
+	# If this fails, the scope of the default variables was not set, and it shouldn't be set for undefined, unrelated default variables.
+	set {testing::unrelated::%{_player}%} to true
+	assert {testing::unrelated::%{_player}%} is true with "unrelated variable to default variables conflict"
+
+	delete {testing::*}
+	assert {testing::*} is not set with "Failed to delete default variables"
+
+	delete last spawned pig
+	clear all entities
+
+# Fail over if something happens.
+on script unload:
+	delete {testing::*}
