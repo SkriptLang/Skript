@@ -1,4 +1,4 @@
-test "in love valid entity (timespan)":
+test "in love valid entity":
 	delete all cows
 	set {_spawn} to spawn of world "world"
 	spawn adult cow at {_spawn}
@@ -7,6 +7,14 @@ test "in love valid entity (timespan)":
 	assert {_cow} is not in love with "Cow is in love after spawning"
 	set love ticks of {_cow} to 10 seconds
 	assert {_cow} is in love with "Cow is not in love after setting love ticks"
+	add 10 seconds to love ticks of {_cow}
+	assert love ticks of {_cow} > 10 seconds with "Cow love ticks didn't go up after adding"
+	remove 1 minute from love ticks of {_cow}
+	assert {_cow} is not in love with "Cow is in love after removing more love than possible"
+	add 10 minutes to love ticks of {_cow}
+	assert {_cow} is in love with "Cow didn't enter love mode after adding love ticks"
+	reset love ticks of {_cow}
+	assert {_cow} is not in love with "Cow was still in love even after resetting love ticks"
 	delete all cows
 
 test "in love invalid entity":

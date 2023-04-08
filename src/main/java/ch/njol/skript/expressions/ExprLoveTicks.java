@@ -76,33 +76,26 @@ public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timesp
 		int ticks = 0;
 		if (delta != null) {
 			for (Object obj : delta) {
-				switch (mode) {
-					case ADD:
-						ticks += ((Timespan) obj).getTicks_i();
-						break;
-					case REMOVE:
-						ticks -= ((Timespan) obj).getTicks_i();
-						break;
-					case SET:
-						ticks = (int) ((Timespan) obj).getTicks_i();
-						break;
-				}
+				ticks += ((Timespan) obj).getTicks_i();
 			}
 		}
-		ticks = Math.max(ticks, 0);
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
 			if (livingEntity instanceof Animals) {
 				Animals animal = ((Animals) livingEntity);
+				int loveTicks = animal.getLoveModeTicks();
 				switch (mode) {
-					case REMOVE:
 					case ADD:
-						animal.setLoveModeTicks(animal.getLoveModeTicks() + ticks);
+						loveTicks += ticks;
+						break;
+					case REMOVE:
+						loveTicks -= ticks;
 						break;
 					case SET:
 					case RESET:
-						animal.setLoveModeTicks(ticks);
+						loveTicks = ticks;
 						break;
 				}
+				animal.setLoveModeTicks(Math.max(loveTicks, 0));
 			}
 		}
 	}
