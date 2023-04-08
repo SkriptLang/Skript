@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
@@ -44,15 +45,19 @@ import ch.njol.util.Kleenean;
  */
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
-@Examples({"on experience spawn:",
+@Examples({
+		"on experience spawn:",
 		"\tadd 5 to the spawned experience",
+		"",
 		"on break of coal ore:",
 		"\tclear dropped experience",
+		"",
 		"on break of diamond ore:",
 		"\tif tool of player = diamond pickaxe:",
 		"\t\tadd 100 to dropped experience",
+		"",
 		"on breed:",
-		"\tevent-father is a cow",
+		"\tbreeding father is a cow",
 		"\tset dropped experience to 10"
 })
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (breeding event)")
@@ -92,11 +97,12 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
 			case SET:
-			case ADD:
-			case REMOVE:
 			case DELETE:
 			case RESET:
-				return new Class[] {Experience[].class, Integer[].class};
+				return CollectionUtils.array(ExprExperience.class, Integer.class);
+			case ADD:
+			case REMOVE:
+				return CollectionUtils.array(ExprExperience[].class, Integer[].class);
 		}
 		return null;
 	}
