@@ -27,7 +27,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Entity In Love")
-@Description("Whether or not an animal is currently in love")
+@Description("Whether or not an animal is currently in a love state")
 @Examples({
 	"on right click on living entity:",
 	"\tif event-entity is in love:",

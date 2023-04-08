@@ -34,7 +34,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Make Breedable")
-@Description("Picks whether or not an entity will be able to breed.")
+@Description({
+		"Picks whether or not an entity will be able to breed.",
+		"Doesn't work on all entities only animals"
+})
 @Examples({
 	"on spawn of animal:",
 	"\tmake entity unbreedable"

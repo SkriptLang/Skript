@@ -35,7 +35,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Make Adult")
-@Description("Force an entity to become an adult or a baby, requires MC 1.16 for any mob")
+@Description("Force a animal to become an adult or baby, requires MC 1.16 for any mob")
 @Examples({
 	"on spawn of mob:",
 	"\tif entity is not an adult:",

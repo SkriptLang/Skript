@@ -29,7 +29,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is An Adult")
-@Description("Returns whether or not a living entity is an adult.")
+@Description("Returns whether or not an animal is an adult, requires 1.16.5 for mobs")
 @Examples({
 	"on spawn:",
 	"\tif event-entity is not an adult:",

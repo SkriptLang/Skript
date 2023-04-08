@@ -33,7 +33,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Love Ticks")
 @Description({
-	"The amount of time an living entity has been in love for. Setting to 30 seconds is equal to using breeding item",
+	"The amount of time an animal has been in love for. Setting to 30 seconds is equal to using breeding item.",
+	"Only works on animals, not all living entities",
 	"Returns '0 seconds' if null or invalid entity"
 })
 @Examples({
