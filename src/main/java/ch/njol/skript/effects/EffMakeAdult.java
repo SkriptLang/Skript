@@ -45,6 +45,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @RequiredPlugins("1.16+ (Mobs)")
 public class EffMakeAdult extends Effect {
 
+
+	// This is required since before 1.16 the `setBaby`/'setAdult' method only supported Animals
 	private final static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
 
 	static {

@@ -38,6 +38,7 @@ import org.bukkit.entity.LivingEntity;
 @Since("INSERT VERSION")
 public class CondIsAdult extends PropertyCondition<LivingEntity> {
 
+	// This is required since before 1.16 the `isAdult` method only supported Animals
 	static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
 
 	static {
