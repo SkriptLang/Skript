@@ -63,10 +63,10 @@ public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timesp
 		switch (mode) {
 			case SET:
 			case RESET:
-				return CollectionUtils.array(Integer.class, Timespan.class);
+				return CollectionUtils.array(Timespan.class);
 			case ADD:
 			case REMOVE:
-				return CollectionUtils.array(Integer[].class, Timespan[].class);
+				return CollectionUtils.array(Timespan[].class);
 		}
 		return null;
 	}
@@ -78,13 +78,13 @@ public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timesp
 			for (Object obj : delta) {
 				switch (mode) {
 					case ADD:
-						ticks += obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						ticks += ((Timespan) obj).getTicks_i();
 						break;
 					case REMOVE:
-						ticks -= obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						ticks -= ((Timespan) obj).getTicks_i();
 						break;
 					case SET:
-						ticks = obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						ticks = (int) ((Timespan) obj).getTicks_i();
 						break;
 				}
 			}
@@ -114,7 +114,7 @@ public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timesp
 
 	@Override
 	protected String getPropertyName() {
-		return "love time";
+		return "love ticks";
 	}
 
 }

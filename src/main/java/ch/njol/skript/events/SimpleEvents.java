@@ -714,7 +714,7 @@ public class SimpleEvents {
 			.description("Called whenever two breedable entities begin to conceive a child.")
 			.examples(
 				"on breeding:",
-				"\tsend \"When a %mother% and %father% love each other they make %offspring%\" to breeder"
+				"\tsend \"When a %breeding mother% and %breeding father% love each other they make %offspring%\" to breeder"
 			)
 			.since("INSERT VERSION");
 		if (Skript.classExists("org.bukkit.event.entity.EntityEnterLoveModeEvent")) {
