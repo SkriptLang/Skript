@@ -125,6 +125,13 @@ public enum SkriptChatCode implements ChatCode {
 		}
 	},
 	
+	copy_to_clipboard(true) {
+		@Override
+		public void updateComponent(MessageComponent component, String param) {
+			component.clickEvent = new ClickEvent(ClickEvent.Action.copy_to_clipboard, param);
+		}
+	},
+
 	// hoverEvent
 	
 	show_text(true) {
@@ -149,8 +156,15 @@ public enum SkriptChatCode implements ChatCode {
     insertion(true) {
 	    @Override
         public void updateComponent(MessageComponent component, String param) { component.insertion = param; }
+    },
+
+    translate(true) {
+	    @Override
+        public void updateComponent(MessageComponent component, String param) {
+			component.translation = param;
+		}
     };
-	
+
 	private boolean hasParam;
 	
 	@Nullable

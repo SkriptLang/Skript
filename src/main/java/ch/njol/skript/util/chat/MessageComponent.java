@@ -89,6 +89,9 @@ public class MessageComponent {
 	 */
 	@Nullable
 	public String font;
+
+	@Nullable
+	public String translation;
 	
 	public static class ClickEvent {
 		public ClickEvent(ClickEvent.Action action, String value) {
@@ -103,7 +106,9 @@ public class MessageComponent {
 			
 			suggest_command,
 			
-			change_page;
+			change_page,
+
+			copy_to_clipboard;
 			
 			public final String spigotName;
 			

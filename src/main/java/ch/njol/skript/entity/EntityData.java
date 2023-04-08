@@ -41,6 +41,7 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
@@ -60,6 +61,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -77,6 +79,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
 
 	private static final Pattern REGEX_PATTERN = Pattern.compile("[a-zA-Z -]+");
+
+	private static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
 
 	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
 		@Override
@@ -157,6 +161,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
+				.supplier(ALL_ENTITY_DATAS::iterator)
 				.parser(new Parser<EntityData>() {
 					@Override
 					public String toString(final EntityData d, final int flags) {
@@ -175,7 +180,20 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 					}
                 }).serializer(serializer));
 	}
-	
+
+	public static void onRegistrationStop() {
+		infos.forEach(info -> {
+			if (SimpleEntityData.class.equals(info.getElementClass())) {
+				ALL_ENTITY_DATAS.addAll(Arrays.stream(info.codeNames)
+					.map(input -> SkriptParser.parseStatic(input, new SingleItemIterator<>(info), null))
+					.collect(Collectors.toList())
+				);
+			} else {
+				ALL_ENTITY_DATAS.add(SkriptParser.parseStatic(info.codeName, new SingleItemIterator<>(info), null));
+			}
+		});
+	}
+
 	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
 		final String codeName;
 		final String[] codeNames;
@@ -462,18 +480,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public static <E extends Entity> E[] getAll(final EntityData<?>[] types, final Class<E> type, @Nullable World[] worlds) {
 		assert types.length > 0;
 		if (type == Player.class) {
-			if (worlds == null && types.length == 1 && types[0] instanceof PlayerData && ((PlayerData) types[0]).op == 0)
+			if (worlds == null)
 				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
-			final List<Player> list = new ArrayList<>();
-			for (final Player p : Bukkit.getOnlinePlayers()) {
-				if (worlds != null && !CollectionUtils.contains(worlds, p.getWorld()))
-					continue;
-				for (final EntityData<?> t : types) {
-					if (t.isInstance(p)) {
-						list.add(p);
-						break;
-					}
-				}
+			List<Player> list = new ArrayList<>();
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				if (CollectionUtils.contains(worlds, p.getWorld()))
+					list.add(p);
 			}
 			return (E[]) list.toArray(new Player[list.size()]);
 		}
