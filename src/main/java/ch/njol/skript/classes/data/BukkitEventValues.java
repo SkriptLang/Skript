@@ -52,7 +52,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
@@ -1566,10 +1565,12 @@ public final class BukkitEventValues {
 		}
 
 		// PlayerPickupArrowEvent
+		// This event value is restricted to MC 1.14+ due to an API change which has the return type changed
+		// which throws a NoSuchMethodError if used in a 1.13 server.
 		if (Skript.isRunningMinecraft(1, 14)) {
-			EventValues.registerEventValue(PlayerPickupArrowEvent.class, AbstractArrow.class, new Getter<AbstractArrow, PlayerPickupArrowEvent>() {
+			EventValues.registerEventValue(PlayerPickupArrowEvent.class, Projectile.class, new Getter<Projectile, PlayerPickupArrowEvent>() {
 				@Override
-				public AbstractArrow get(PlayerPickupArrowEvent event) {
+				public Projectile get(PlayerPickupArrowEvent event) {
 					return event.getArrow();
 				}
 			}, EventValues.TIME_NOW);
