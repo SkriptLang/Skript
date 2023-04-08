@@ -19,6 +19,10 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -35,6 +39,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Name("Attached Block")
+@Description("Returns the attached block at an arrow.")
+@Examples("set the hit block of last shot arrow to diamond block")
+@Since("INSERT VERSION")
 public class ExprAttachedBlock extends SimpleExpression<Block> {
 
 	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");
@@ -42,7 +50,7 @@ public class ExprAttachedBlock extends SimpleExpression<Block> {
 	static {
 		Skript.registerExpression(ExprAttachedBlock.class, Block.class, ExpressionType.COMBINED,
 			"%projectiles%'s (attached|hit) block",
-			"(attached|hit) block (at|of) %projectiles%"
+			"[the] (attached|hit) block (at|of) %projectiles%"
 		);
 	}
 
