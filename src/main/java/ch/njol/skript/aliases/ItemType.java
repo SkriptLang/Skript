@@ -347,10 +347,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * Useful for checking if materials represent an item or a block. Materials that are not items don't have ItemData
 	 * @return Whether this ItemType has at least one ItemData that represents it whether it's a block or an item
 	 */
 	public boolean hasType() {
-		return types.get(0) != null;
+		return !types.isEmpty();
 	}
 	
 	/**
