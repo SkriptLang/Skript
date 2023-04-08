@@ -37,16 +37,16 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Represents a family within a breeding event")
 @Examples({
 	"on breeding:",
-	"\tsend \"When a %mother% and %father% love each other they make a %offspring%\" to breeder"
+	"\tsend \"When a %breeding mother% and %breeding father% love each other they make a %bred offspring%\" to breeder"
 })
 @Since("INSERT VERSION")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 
 	static {
 		Skript.registerExpression(ExprBreedingFamily.class, LivingEntity.class, ExpressionType.SIMPLE,
-			"[breed[ing]] mother",
-			"[breed[ing]] father",
-			"[breed[ing]] (offspring|child)",
+			"breed[ing] mother",
+			"breed[ing] father",
+			"[bred] (offspring|child)",
 			"breeder");
 	}
 
@@ -68,16 +68,18 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 			return new LivingEntity[0];
 			
 		EntityBreedEvent breedEvent = (EntityBreedEvent) event;
-		if (pattern == 0) {
-			return new LivingEntity[]{breedEvent.getMother()};
-		} else if (pattern == 1) {
-			return new LivingEntity[]{breedEvent.getFather()};
-		} else if (pattern == 2) {
-			return new LivingEntity[]{breedEvent.getEntity()};
-		} else if (pattern == 3) {
-			return new LivingEntity[]{breedEvent.getBreeder()};
+		switch (pattern) {
+			case 0:
+				return new LivingEntity[]{breedEvent.getMother()};
+			case 1:
+				return new LivingEntity[]{breedEvent.getFather()};
+			case 2:
+				return new LivingEntity[]{breedEvent.getEntity()};
+			case 3:
+				return new LivingEntity[]{breedEvent.getBreeder()};
+			default:
+				return new LivingEntity[0];
 		}
-		return new LivingEntity[0];
 	}
 
 	@Override
