@@ -710,15 +710,15 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 
-		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+			Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
 				.description("Called when a player picks up an arrow from the ground.")
 				.examples(
 						"on arrow pickup:",
 							"\tcancel the event",
-							"\tpush event-projectile upwards at speed 5"
+							"\tteleport event-projectile to block 5 above event-projectile"
 				)
-				.since("INSERT VERSION");
-
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 	}
 
 }

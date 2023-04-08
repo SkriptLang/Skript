@@ -54,7 +54,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractVillager;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -1571,16 +1570,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerPickupArrowEvent.class, AbstractArrow.class, new Getter<AbstractArrow, PlayerPickupArrowEvent>() {
 				@Override
 				public AbstractArrow get(PlayerPickupArrowEvent event) {
-					System.out.println("AbstractArrow.class return");
 					return event.getArrow();
-				}
-			}, EventValues.TIME_NOW);
-		} else {
-			EventValues.registerEventValue(PlayerPickupArrowEvent.class, Arrow.class, new Getter<Arrow, PlayerPickupArrowEvent>() {
-				@Override
-				public Arrow get(PlayerPickupArrowEvent event) {
-					System.out.println("Arrow.class return");
-					return (Arrow) event.getArrow();
 				}
 			}, EventValues.TIME_NOW);
 		}
@@ -1592,4 +1582,5 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 	}
+
 }
