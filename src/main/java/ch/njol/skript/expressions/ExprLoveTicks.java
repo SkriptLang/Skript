@@ -31,20 +31,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Love Time")
+@Name("Love Ticks")
 @Description({
 	"The amount of time an living entity has been in love for. Setting to 30 seconds is equal to using breeding item",
 	"Returns '0 seconds' if null or invalid entity"
 })
 @Examples({
 	"on right click:",
-	"\tsend \"%event-enttiy% has been in love for %love time of event-entity%!\" to player"
+	"\tsend \"%event-enttiy% has been in love for %love ticks of event-entity%!\" to player"
 })
 @Since("INSERT VERSION")
-public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
+public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {
-		register(ExprLoveTime.class, Timespan.class, "love time", "livingentities");
+		register(ExprLoveTicks.class, Timespan.class, "love ticks", "livingentities");
 	}
 
 	@Override
@@ -59,19 +59,50 @@ public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespa
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(Timespan.class);
+		switch (mode) {
+			case SET:
+			case RESET:
+				return CollectionUtils.array(Integer.class, Timespan.class);
+			case ADD:
+			case REMOVE:
+				return CollectionUtils.array(Integer[].class, Timespan[].class);
+		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
-		long ticks = ((Timespan) delta[0]).getTicks_i();
+		int ticks = 0;
+		if (delta != null) {
+			for (Object obj : delta) {
+				switch (mode) {
+					case ADD:
+						ticks += obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						break;
+					case REMOVE:
+						ticks -= obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						break;
+					case SET:
+						ticks = obj instanceof Timespan ? (int) ((Timespan) obj).getTicks_i() : (int) obj;
+						break;
+				}
+			}
+		}
+		ticks = Math.max(ticks, 0);
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
-			if (livingEntity instanceof Animals)
-				((Animals) livingEntity).setLoveModeTicks((int) ticks);
+			if (livingEntity instanceof Animals) {
+				Animals animal = ((Animals) livingEntity);
+				switch (mode) {
+					case REMOVE:
+					case ADD:
+						animal.setLoveModeTicks(animal.getLoveModeTicks() + ticks);
+						break;
+					case SET:
+					case RESET:
+						animal.setLoveModeTicks(ticks);
+						break;
+				}
+			}
 		}
 	}
 
