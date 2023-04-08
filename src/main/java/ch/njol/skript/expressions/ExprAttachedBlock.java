@@ -30,7 +30,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Projectile;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Attached Block")
+@Name("Arrow Attached Block")
 @Description("Returns the attached block of an arrow.")
 @Examples("set hit block of last shot arrow to diamond block")
 @Since("INSERT VERSION")
