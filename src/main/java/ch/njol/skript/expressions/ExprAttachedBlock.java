@@ -23,68 +23,37 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
-
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Name("Attached Block")
-@Description("Returns the attached block at an arrow.")
-@Examples("set the hit block of last shot arrow to diamond block")
+@Description("Returns the attached block of an arrow.")
+@Examples("set hit block of last shot arrow to diamond block")
 @Since("INSERT VERSION")
-public class ExprAttachedBlock extends SimpleExpression<Block> {
+public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Block> {
 
 	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");
 
 	static {
-		Skript.registerExpression(ExprAttachedBlock.class, Block.class, ExpressionType.COMBINED,
-			"%projectiles%'s (attached|hit) block",
-			"[the] (attached|hit) block (at|of) %projectiles%"
-		);
-	}
-
-	private Expression<Projectile> projectiles;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		projectiles = ((Expression<Projectile>) exprs[0]);
-		return true;
+		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block", "projectile");
 	}
 
 	@Override
 	@Nullable
-	protected Block[] get(Event event) {
-		List<Block> blocks = new ArrayList<>();
-		for (Projectile projectile : projectiles.getArray(event)) {
-			if (HAS_ABSTRACT_ARROW) {
-				if (projectile instanceof AbstractArrow) {
-					blocks.add(((AbstractArrow) projectile).getAttachedBlock());
-				}
-				continue;
-			}
-			if (projectile instanceof Arrow) {
-				blocks.add(((Arrow) projectile).getAttachedBlock());
+	public Block convert(Projectile projectile) {
+		if (HAS_ABSTRACT_ARROW) {
+			if (projectile instanceof AbstractArrow) {
+				return ((AbstractArrow) projectile).getAttachedBlock();
 			}
 		}
-		if (blocks.isEmpty())
-			return new Block[0];
-		return blocks.toArray(new Block[0]);
-	}
-
-	@Override
-	public boolean isSingle() {
-		return false;
+		if (projectile instanceof Arrow) {
+			return ((Arrow) projectile).getAttachedBlock();
+		}
+		return null;
 	}
 
 	@Override
@@ -93,8 +62,8 @@ public class ExprAttachedBlock extends SimpleExpression<Block> {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "attached block at " + projectiles.toString(event, debug);
+	public String getPropertyName() {
+		return "attached block";
 	}
 
 }
