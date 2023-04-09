@@ -32,7 +32,11 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Last Death Location")
-@Description("The location of a player's last death. Location is saved over server restarts. The last death location can only be set for online players.")
+@Description({
+	"The location of a player's last death.",
+	"Location is saved over server restarts.",
+	"The last death location can only be set for online players."
+})
 @Examples("set {lastdeathlocation::%player's uuid%} to last death location of player")
 @Since("INSERT VERSION")
 public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlayer, Location> {
