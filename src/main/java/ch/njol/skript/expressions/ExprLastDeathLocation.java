@@ -43,7 +43,7 @@ public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlaye
 	
 	static {
 		if (Skript.methodExists(OfflinePlayer.class, "getLastDeathLocation"))
-			register(ExprLastDeathLocation.class, Location.class, "last death location", "players");
+			registerDefault(ExprLastDeathLocation.class, Location.class, "last death location", "players");
 	}
 
 	@Override
