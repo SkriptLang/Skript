@@ -21,5 +21,9 @@ test "preferred tool" when running minecraft "1.16.5":
 	assert wooden pickaxe is not preferred tool for {_block} with "failed wooden pickaxe for obsidian"
 	assert diamond pickaxe is preferred tool for {_block} with "failed diamond pickaxe for obsidian"
 
+	assert {_null} is not preferred tool for {_block} with "failed null is preferred tool for obsidian"
+	assert diamond pickaxe is not preferred tool for {_null} with "failed diamond pickaxe is preferred tool for null"
+	assert {_null} is preferred tool for {_null} to fail with "failed null is not preferred tool for null"
+	assert {_null} is not preferred tool for {_null} with "failed null is preferred tool for null"
 	# leave no trace
 	set block at {_block} to {_temp}
