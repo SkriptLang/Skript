@@ -64,8 +64,8 @@ public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlaye
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) 
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) 
 			return new Class[] {Location.class};
 		return null;
 	}
