@@ -67,4 +67,5 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 	protected String getPropertyName() {
 		return "sheared";
 	}
+
 }
