@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Block> {
 
-	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");
+	private static final boolean hasAbstractArrow = Skript.classExists("org.bukkit.entity.AbstractArrow");
 
 	static {
 		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block", "projectiles");
@@ -45,7 +45,7 @@ public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Bloc
 	@Override
 	@Nullable
 	public Block convert(Projectile projectile) {
-		if (HAS_ABSTRACT_ARROW) {
+		if (hasAbstractArrow) {
 			if (projectile instanceof AbstractArrow) {
 				return ((AbstractArrow) projectile).getAttachedBlock();
 			}
