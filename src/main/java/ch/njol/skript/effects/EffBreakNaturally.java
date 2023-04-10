@@ -45,7 +45,7 @@ import java.util.List;
 	"\nYou can add a tool, which will spawn items based on how that tool would break the block ",
 	"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)",
 	"\nWhen 'with effect' is used, the sound and particles while breaking the block is produced.",
-	"\nWhen 'and drop experience' is used, XP will drop at it if the block usually does so."
+	"\nWhen 'and drop experience' is used, XP will drop at the block if it usually does so."
 })
 @Examples({
 	"on right click:",
