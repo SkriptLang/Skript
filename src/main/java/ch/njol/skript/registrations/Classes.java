@@ -301,7 +301,7 @@ public abstract class Classes {
 	 * @param c
 	 * @return The closest superclass's info
 	 */
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
@@ -317,6 +317,25 @@ public abstract class Classes {
 		}
 		assert false;
 		return null;
+	}
+
+	/**
+	 * Gets all the class info of the given class in closest order to ending on object. This list will never be empty unless <tt>c</tt> is null.
+	 * 
+	 * @param c the class to check if assignable from
+	 * @return The closest list of superclass infos
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<ClassInfo<? super T>> getAllSuperClassInfos(Class<T> c) {
+		assert c != null;
+		checkAllowClassInfoInteraction();
+		List<ClassInfo<? super T>> list = new ArrayList<>();
+		for (ClassInfo<?> ci : getClassInfos()) {
+			if (ci.getC().isAssignableFrom(c)) {
+				list.add((ClassInfo<? super T>) ci);
+			}
+		}
+		return list;
 	}
 	
 	/**
@@ -480,7 +499,7 @@ public abstract class Classes {
 				log.printLog();
 				return t;
 			}
-			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+			for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
@@ -520,7 +539,7 @@ public abstract class Classes {
 			if (to.isAssignableFrom(ci.getC()) && ci.getParser() != null)
 				return (Parser<? extends T>) ci.getParser();
 		}
-		for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+		for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 			if (to.isAssignableFrom(conv.getTo())) {
 				for (int i = classInfos.length - 1; i >= 0; i--) {
 					final ClassInfo<?> ci = classInfos[i];

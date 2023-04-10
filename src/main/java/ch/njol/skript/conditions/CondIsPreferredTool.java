@@ -48,7 +48,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\telse:",
 			"\t\tcancel event"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("1.16.5+, Paper 1.19.2+ (blockdata)")
 public class CondIsPreferredTool extends Condition {
 

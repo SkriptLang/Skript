@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility."
 })
 @Examples("make target entity invisible")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class EffInvisible extends Effect {
 
 	static {
