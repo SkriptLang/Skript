@@ -80,6 +80,8 @@ public class EffFireworkLaunch extends Effect {
 			meta.addEffects(effects);
 			meta.setPower(power);
 			firework.setFireworkMeta(meta);
+			if (power == 0)
+				firework.detonate();
 			lastSpawned = firework;
 		}
 	}
