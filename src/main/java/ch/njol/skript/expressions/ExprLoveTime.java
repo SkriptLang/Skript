@@ -31,7 +31,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Love Ticks")
+@Name("Love Time")
 @Description({
 	"The amount of time an animal has been in love for. Setting to 30 seconds is equal to using breeding item.",
 	"Only works on animals, not all living entities",
@@ -39,13 +39,13 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({
 	"on right click:",
-	"\tsend \"%event-enttiy% has been in love for %love ticks of event-entity%!\" to player"
+	"\tsend \"%event-enttiy% has been in love for %love time of event-entity%!\" to player"
 })
 @Since("INSERT VERSION")
-public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timespan> {
+public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {
-		register(ExprLoveTicks.class, Timespan.class, "love ticks", "livingentities");
+		register(ExprLoveTime.class, Timespan.class, "love time", "livingentities");
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class ExprLoveTicks extends SimplePropertyExpression<LivingEntity, Timesp
 
 	@Override
 	protected String getPropertyName() {
-		return "love ticks";
+		return "love time";
 	}
 
 }
