@@ -56,7 +56,7 @@ public class EffShear extends Effect {
 
 	static {
 		Skript.registerEffect(EffShear.class,
-				(interfaceMethod ? "[:force] shear %livingentities%" : "shear %livingentities%"),
+				(interfaceMethod ? "[:force] " : "") + "shear %livingentities%",
 				"un[-]shear %livingentities%");
 	}
 	

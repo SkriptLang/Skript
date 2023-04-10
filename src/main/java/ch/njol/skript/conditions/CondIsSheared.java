@@ -23,6 +23,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import io.papermc.paper.entity.Shearable;
 import org.bukkit.entity.Cow;
@@ -31,12 +32,13 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
 
 @Name("Entity Is Sheared")
-@Description("Checks whether an entity is sheared.")
+@Description("Checks whether an entity is sheared. For below 1.19.4 users, this condition only works on sheeps and snowmen.")
 @Examples({
 	"if targeted entity of player is sheared:",
 		"\tsend \"This entity has nothing left to shear!\" to player"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("Paper 1.19.4+ (shearable)")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
 	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
@@ -47,7 +49,7 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		if (entity instanceof Cow) // As sheared mooshroom cow is a Cow which does not implements Shearable
+		if (entity instanceof Cow) // As sheared mushroom cow is a Cow which does not implements Shearable
 			return true;
 		if (interfaceMethod) {
 			if (!(entity instanceof Shearable))
