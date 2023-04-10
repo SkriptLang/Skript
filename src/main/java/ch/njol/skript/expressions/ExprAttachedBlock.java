@@ -39,7 +39,7 @@ public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Bloc
 	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");
 
 	static {
-		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block", "projectile");
+		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block", "projectiles");
 	}
 
 	@Override
@@ -49,8 +49,7 @@ public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Bloc
 			if (projectile instanceof AbstractArrow) {
 				return ((AbstractArrow) projectile).getAttachedBlock();
 			}
-		}
-		if (projectile instanceof Arrow) {
+		} else if (projectile instanceof Arrow) {
 			return ((Arrow) projectile).getAttachedBlock();
 		}
 		return null;
