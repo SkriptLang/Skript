@@ -30,14 +30,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Name("Break Block")
 @Description({
@@ -64,15 +60,15 @@ public class EffBreakNaturally extends Effect {
 	private static final boolean hasMethod119 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
 	
 	static {
-		List<String> patterns = new ArrayList<>();
+		String pattern;
 		if (hasMethod119) {
-			patterns.add("break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%] [xpdrops:and drop (xp|experience)[s]]");
+			pattern = "break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%] [xpdrops:and drop (xp|experience)[s]]";
 		} else if (hasMethod115) {
-			patterns.add("break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%]");
+			pattern = "break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%]";
 		} else {
-			patterns.add("break %blocks% [naturally] [using %-itemtype%]");
+			pattern = "break %blocks% [naturally] [using %-itemtype%]";
 		}
-		Skript.registerEffect(EffBreakNaturally.class, patterns.toArray(new String[0]));
+		Skript.registerEffect(EffBreakNaturally.class, pattern);
 	}
 
 	private Expression<Block> blocks;
