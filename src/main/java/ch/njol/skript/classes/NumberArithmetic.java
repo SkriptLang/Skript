@@ -19,13 +19,13 @@
 package ch.njol.skript.classes;
 
 
-import ch.njol.skript.util.MarkedForRemoval;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * @author Peter Güttinger
  */
 @Deprecated
-@MarkedForRemoval
+@ScheduledForRemoval
 public class NumberArithmetic implements Arithmetic<Number, Number> {
 	
 	@Override

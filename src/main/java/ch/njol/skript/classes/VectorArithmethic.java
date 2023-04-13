@@ -18,14 +18,14 @@
  */
 package ch.njol.skript.classes;
 
-import ch.njol.skript.util.MarkedForRemoval;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * @author bi0qaw
  */
 @Deprecated
-@MarkedForRemoval
+@ScheduledForRemoval
 public class VectorArithmethic implements Arithmetic<Vector, Vector> {
 	
 	@Override

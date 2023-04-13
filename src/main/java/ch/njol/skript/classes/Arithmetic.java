@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.classes;
 
-import ch.njol.skript.util.MarkedForRemoval;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Represents arithmetic for certain two types. Multiplication, division and
@@ -27,7 +27,7 @@ import ch.njol.skript.util.MarkedForRemoval;
  * @param <R> the type of the relative value
  */
 @Deprecated
-@MarkedForRemoval
+@ScheduledForRemoval
 public interface Arithmetic<A, R> {
 	
 	public R difference(A first, A second);

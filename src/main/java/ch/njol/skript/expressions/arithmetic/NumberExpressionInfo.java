@@ -18,13 +18,12 @@
  */
 package ch.njol.skript.expressions.arithmetic;
 
-import ch.njol.skript.util.MarkedForRemoval;
-import org.bukkit.event.Event;
-
 import ch.njol.skript.lang.Expression;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @Deprecated
-@MarkedForRemoval
+@ScheduledForRemoval
 public class NumberExpressionInfo implements ArithmeticGettable<Number> {
 
 	private final Expression<? extends Number> expression;
