@@ -57,7 +57,7 @@ public class Comparators {
 	}
 
 	public static java.util.Comparator<Object> getJavaComparator() {
-		return org.skriptlang.skript.lang.comparator.Comparators.JAVA_COMPARATOR;
+		return (o1, o2) -> compare(o1, o2).getRelation();
 	}
 
 	@Nullable
