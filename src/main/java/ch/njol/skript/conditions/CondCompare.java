@@ -283,7 +283,7 @@ public class CondCompare extends Condition {
 		// Must handle numbers first.
 		expression = one.getConvertedExpression(Number.class);
 		if (expression == null) {
-			for (ConverterInfo<?, ?> converter : Converters.getConverterInfo()) {
+			for (ConverterInfo<?, ?> converter : Converters.getConverterInfos()) {
 				// We're comparing the 'two' expression, so we need the 'from' for comparing.
 				if (!converter.getFrom().isAssignableFrom(two.getReturnType()))
 					continue;
