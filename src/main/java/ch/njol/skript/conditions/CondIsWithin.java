@@ -57,7 +57,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tcancel event",
 		"\tsend \"Back up!\" to attacker and victim",
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 
@@ -135,12 +135,12 @@ public class CondIsWithin extends Condition {
 
 		// Chunks
 		if (area instanceof Chunk) {
-			return locsToCheck.check(event, (loc) -> loc.getChunk() == area, isNegated());
+			return locsToCheck.check(event, (loc) -> loc.getChunk().equals(area), isNegated());
 		}
 
 		// Worlds
 		if (area instanceof World) {
-			return locsToCheck.check(event, (loc) -> loc.getWorld() == area, isNegated());
+			return locsToCheck.check(event, (loc) -> loc.getWorld().equals(area), isNegated());
 		}
 
 		// fall-back

@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if moon phase of player's world is full moon:",
 		"\tsend \"Watch for the wolves!\""
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("Paper 1.16+")
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 

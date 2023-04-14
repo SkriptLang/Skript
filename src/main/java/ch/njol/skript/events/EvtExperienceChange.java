@@ -39,7 +39,7 @@ public class EvtExperienceChange extends SkriptEvent {
 						"\tset {_xp} to event-experience",
 						"\tbroadcast \"%{_xp}%\""
 				)
-				.since("INSERT VERSION");
+				.since("2.7");
 		EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
 			@Override
 			@Nullable

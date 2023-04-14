@@ -483,7 +483,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
-
+		
+		// Now override the verbosity if test mode is enabled
+		if (TestMode.VERBOSITY != null)
+			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
+		
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
 			disabled = true; // Nothing was loaded, nothing needs to be unloaded
@@ -1263,9 +1267,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	private static void stopAcceptingRegistrations() {
-		acceptRegistrations = false;
-		
 		Converters.createChainedConverters();
+
+		acceptRegistrations = false;
 		
 		Classes.onRegistrationsStop();
 	}
@@ -1434,7 +1438,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	// ================ EVENTS ================
 
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
-	
+
 	/**
 	 * Registers an event.
 	 * 
@@ -1465,7 +1469,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + " [with priority (lowest|low|normal|high|highest|monitor)]";
+			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
 		structures.add(r);
