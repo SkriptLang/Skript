@@ -471,7 +471,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
-		
+
+		// Check server software, Minecraft version, etc.
+		if (!checkServerPlatform()) {
+			disabled = true; // Nothing was loaded, nothing needs to be unloaded
+			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
+			return;
+		}
+
 		// And then not-so-safe classes
 		Throwable classLoadError = null;
 		try {
@@ -488,13 +495,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)
 			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
-		
-		// Check server software, Minecraft version, etc.
-		if (!checkServerPlatform()) {
-			disabled = true; // Nothing was loaded, nothing needs to be unloaded
-			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
-			return;
-		}
 		
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
