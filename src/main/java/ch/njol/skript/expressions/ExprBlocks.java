@@ -144,7 +144,8 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				if (direction == null)
 					return null;
 				Vector vector = object != location ? direction.getDirection((Block) object) : direction.getDirection(location);
-				if (vector.isZero())
+				// Cannot be zero.
+				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
 					return null;
 				int distance = SkriptConfig.maxTargetBlockDistance.value();
 				if (this.direction instanceof ExprDirection) {

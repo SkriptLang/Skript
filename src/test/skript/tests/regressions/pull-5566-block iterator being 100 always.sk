@@ -1,4 +1,5 @@
 
 # Test not related to a made issue. Details at pull request.
-test "100 blocks":
-	assert size of blocks 5 above the spawn of world "world" is 5 with "Size of block iterator was not 5"
+test "100 blocks fix":
+	assert blocks 5 below spawn of world "world" contains air, grass block, dirt block, dirt block, bedrock block and void air with "Failed to get correct blocks"
+	assert size of blocks 3 below location below spawn of world "world" is 4 with "Failed to match asserted size"
