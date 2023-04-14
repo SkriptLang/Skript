@@ -1,0 +1,4 @@
+
+# Test not related to a made issue. Details at pull request.
+test "100 blocks":
+	assert size of blocks 5 above the spawn of world "world" is 5 with "Size of block iterator was not 5"
