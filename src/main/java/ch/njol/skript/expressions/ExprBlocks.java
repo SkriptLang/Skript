@@ -122,7 +122,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 		Iterator<Block> iterator = iterator(event);
 		if (iterator == null)
 			return new Block[0];
-		return Lists.newArrayList(iterator).toArray(Block[]::new);
+		return Lists.newArrayList(iterator).toArray(new Block[0]);
 	}
 
 	@Override
