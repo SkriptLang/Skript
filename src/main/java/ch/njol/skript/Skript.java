@@ -476,6 +476,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		Throwable classLoadError = null;
 		try {
 			new SkriptClasses();
+			new BukkitClasses();
 		} catch (Throwable e) {
 			classLoadError = e;
 		}
@@ -530,7 +531,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitClasses();
 		new BukkitEventValues();
 		
 		new DefaultComparators();
