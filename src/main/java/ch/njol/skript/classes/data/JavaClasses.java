@@ -565,11 +565,9 @@ public class JavaClasses {
 					@Nullable
 					public String parse(String s, ParseContext context) {
 						switch (context) {
-							case DEFAULT: // in DUMMY, parsing is handled by VariableString
-								assert false;
-								return null;
 							case CONFIG: // duh
 								return s;
+							case DEFAULT:
 							case SCRIPT:
 							case EVENT:
 								if (VariableString.isQuotedCorrectly(s, true))
@@ -584,7 +582,7 @@ public class JavaClasses {
 					
 					@Override
 					public boolean canParse(ParseContext context) {
-						return context != ParseContext.DEFAULT;
+						return true;
 					}
 					
 					@Override
