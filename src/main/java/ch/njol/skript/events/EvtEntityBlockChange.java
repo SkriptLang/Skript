@@ -47,7 +47,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 						"on falling block land:",
 						"\tif event-entity is a falling dirt:",
 						"\t\tcancel event")
-				.since("<i>unknown</i>, 2.5.2 (falling block)");
+				.since("<i>unknown</i>, 2.5.2 (falling block), INSERT VERSION (falling block fall)");
 	}
 	
 	private enum ChangeEvent {
@@ -60,6 +60,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		SILVERFISH_ENTER("silverfish enter", e -> e.getEntity() instanceof Silverfish && !ItemUtils.isAir(e.getTo())),
 		SILVERFISH_EXIT("silverfish exit", e -> e.getEntity() instanceof Silverfish && ItemUtils.isAir(e.getTo())),
 
+		FALLING_BLOCK_FALLING("falling block fall[ing]", event -> event.getEntity() instanceof FallingBlock && ItemUtils.isAir(event.getTo())),
 		FALLING_BLOCK_LANDING("falling block land[ing]", e -> e.getEntity() instanceof FallingBlock);
 
 		private final String pattern;
