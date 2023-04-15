@@ -55,13 +55,14 @@ public class EffWorldLoad extends Effect {
 	}
 
 	private boolean save, load;
-	private Expression<Object> worlds;
+	private Expression<?> worlds;
 	@Nullable
 	private Expression<Environment> environment;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		worlds = (Expression<Object>) exprs[0];
+		worlds = exprs[0];
 		load = matchedPattern == 0;
 		if (load) {
 			environment = (Expression<Environment>) exprs[1];
@@ -80,8 +81,7 @@ public class EffWorldLoad extends Effect {
 				if (environment != null)
 					worldCreator.environment(environment);
 				worldCreator.createWorld();
-			}
-			else if (!load && world instanceof World) {
+			} else if (!load && world instanceof World) {
 				Bukkit.unloadWorld((World) world, save);
 			}
 		}

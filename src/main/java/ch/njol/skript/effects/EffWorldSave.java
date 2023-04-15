@@ -50,6 +50,7 @@ public class EffWorldSave extends Effect {
 	private Expression<World> worlds;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worlds = (Expression<World>) exprs[0];
 		return true;
