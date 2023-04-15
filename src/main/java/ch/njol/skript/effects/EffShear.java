@@ -52,11 +52,11 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.0, INSERT VERSION (shearable)")
 public class EffShear extends Effect {
 
-	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
+	private static final boolean INTERFACE_METHOD = Skript.classExists("io.papermc.paper.entity.Shearable");
 
 	static {
 		Skript.registerEffect(EffShear.class,
-				(interfaceMethod ? "[:force] " : "") + "shear %livingentities%",
+				(INTERFACE_METHOD ? "[:force] " : "") + "shear %livingentities%",
 				"un[-]shear %livingentities%");
 	}
 	
@@ -77,7 +77,7 @@ public class EffShear extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (LivingEntity entity : entity.getArray(event)) {
-			if (shear && interfaceMethod) {
+			if (shear && INTERFACE_METHOD) {
 				if (!(entity instanceof Shearable))
 					continue;
 				Shearable shearable = ((Shearable) entity);
