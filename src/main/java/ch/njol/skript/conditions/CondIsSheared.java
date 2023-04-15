@@ -44,7 +44,7 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
 
 	static {
-		register(CondIsSheared.class, "(sheared|shorn)", "livingentity");
+		register(CondIsSheared.class, "(sheared|shorn)", "livingentities");
 	}
 
 	@Override
