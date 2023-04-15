@@ -22,25 +22,24 @@ import java.util.logging.Level;
 
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.util.Utils;
+
+import org.bukkit.ChatColor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 
-/**
- * @author Peter Güttinger
- */
 public class LogEntry {
-	
+
 	public final Level level;
 	public final int quality;
-	
+
 	public final String message;
-	
+
 	@Nullable
 	public final Node node;
-	
+
 	private final String from;
 	private final boolean tracked;
 
@@ -55,27 +54,27 @@ public class LogEntry {
 	public LogEntry(Level level, String message) {
 		this(level, ErrorQuality.SEMANTIC_ERROR.quality(), message, SkriptLogger.getNode());
 	}
-	
+
 	public LogEntry(Level level, int quality, String message) {
 		this(level, quality, message, SkriptLogger.getNode());
 	}
-	
+
 	public LogEntry(Level level, ErrorQuality quality, String message) {
 		this(level, quality.quality(), message, SkriptLogger.getNode());
 	}
-	
+
 	public LogEntry(Level level, String message, @Nullable Node node) {
 		this(level, ErrorQuality.SEMANTIC_ERROR.quality(), message, node);
 	}
-	
+
 	public LogEntry(Level level, ErrorQuality quality, String message, Node node) {
 		this(level, quality.quality(), message, node);
 	}
-	
+
 	public LogEntry(Level level, int quality, String message, @Nullable Node node) {
 		this(level, quality, message, node, false);
 	}
-	
+
 	public LogEntry(Level level, int quality, String message, @Nullable Node node, boolean tracked) {
 		this.level = level;
 		this.quality = quality;
@@ -84,9 +83,9 @@ public class LogEntry {
 		this.tracked = tracked;
 		from = tracked || Skript.debug() ? findCaller() : "";
 	}
-	
+
 	private static final String skriptLogPackageName = "" + SkriptLogger.class.getPackage().getName();
-	
+
 	static String findCaller() {
 		StackTraceElement[] es = new Exception().getStackTrace();
 		for (int i = 0; i < es.length; i++) {
@@ -101,38 +100,38 @@ public class LogEntry {
 		}
 		return " (from an unknown source)";
 	}
-	
+
 	public Level getLevel() {
 		return level;
 	}
-	
+
 	public int getQuality() {
 		return quality;
 	}
-	
+
 	public String getMessage() {
 		return message;
 	}
-	
-	private boolean used = false;
-	
+
+	private boolean used;
+
 	void discarded(String info) {
 		used = true;
 		if (tracked)
 			SkriptLogger.LOGGER.warning(" # LogEntry '" + message + "'" + from + " discarded" + findCaller() + "; " + (new Exception()).getStackTrace()[1] + "; " + info);
 	}
-	
+
 	void logged() {
 		used = true;
 		if (tracked)
 			SkriptLogger.LOGGER.warning(" # LogEntry '" + message + "'" + from + " logged" + findCaller());
 	}
-	
+
 	@Override
 	protected void finalize() {
 		assert used : message + from;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (node == null || level.intValue() < Level.WARNING.intValue())
@@ -169,7 +168,7 @@ public class LogEntry {
 		String from = this.from;
 
 		if (!from.isEmpty())
-			from = "§7   " + from + "\n";
+			from = ChatColor.GRAY + "   " + from + "\n";
 
 		return
 			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is to convert the line number (int) to a String
@@ -180,5 +179,5 @@ public class LogEntry {
 	private String replaceNewline(String s) {
 		return s.replaceAll("\\\\n", "\n");
 	}
-	
+
 }
