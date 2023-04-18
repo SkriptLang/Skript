@@ -209,10 +209,9 @@ public class AliasesParser {
 		int firstBracket = item.indexOf('{');
 		
 		String id; // Id or alias
-		Map<String, Object> tags;
+		List<String> tags = new ArrayList<>();
 		if (firstBracket == -1) {
 			id = item;
-			tags = new HashMap<>();
 		} else {
 			if (firstBracket == 0) {
 				throw new AssertionError("missing space between id and tags in " + item);
@@ -220,7 +219,7 @@ public class AliasesParser {
 			id = item.substring(0, firstBracket - 1);
 			String json = item.substring(firstBracket);
 			assert json != null;
-			tags = provider.parseMojangson(json);
+			tags.add(json);
 		}
 		
 		// Separate block state from id
@@ -491,7 +490,7 @@ public class AliasesParser {
 			// Fast path: no variations
 			PatternSlot slot = slots.get(0);
 			if (!(slot instanceof VariationSlot)) {
-				variations.put(fixName(name), new Variation(null, -1, Collections.emptyMap(), Collections.emptyMap()));
+				variations.put(fixName(name), new Variation(null, -1, Collections.emptyList(), Collections.emptyMap()));
 				return variations;
 			}
 			// Otherwise we have only one slot, which is variation. Weird, isn't it?
@@ -529,7 +528,7 @@ public class AliasesParser {
 			/**
 			 * Tags by their names. All variations can add and overwrite them.
 			 */
-			Map<String, Object> tags = new HashMap<>();
+			List<String> tags = new ArrayList<>();
 			
 			/**
 			 * Block states. All variations can add and overwrite them.
@@ -549,7 +548,7 @@ public class AliasesParser {
 					if (var.getInsertPoint() != -1)
 						insertPoint = var.getInsertPoint();
 						
-					tags.putAll(var.getTags());
+					tags.addAll(var.getTags());
 					states.putAll(var.getBlockStates());
 					
 					if (i == incremented) { // This slot is manipulated now

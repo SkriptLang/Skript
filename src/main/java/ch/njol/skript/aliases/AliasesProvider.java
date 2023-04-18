@@ -18,23 +18,25 @@
  */
 package ch.njol.skript.aliases;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockValues;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Utils;
+import com.google.gson.Gson;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Provides aliases on Bukkit/Spigot platform.
@@ -74,10 +76,10 @@ public class AliasesProvider {
 		private final String id;
 		private final int insertPoint;
 		
-		private final Map<String, Object> tags;
+		private final List<String> tags;
 		private final Map<String, String> states;
 		
-		public Variation(@Nullable String id, int insertPoint, Map<String, Object> tags, Map<String, String> states) {
+		public Variation(@Nullable String id, int insertPoint, List<String> tags, Map<String, String> states) {
 			this.id = id;
 			this.insertPoint = insertPoint;
 			this.tags = tags;
@@ -112,7 +114,7 @@ public class AliasesProvider {
 			return before + inserted + after;
 		}
 		
-		public Map<String, Object> getTags() {
+		public List<String> getTags() {
 			return tags;
 		}
 
@@ -124,8 +126,8 @@ public class AliasesProvider {
 
 		public Variation merge(Variation other) {
 			// Merge tags and block states
-			Map<String, Object> mergedTags = new HashMap<>(other.tags);
-			mergedTags.putAll(tags);
+			List<String> mergedTags = new ArrayList<>(other.tags);
+			mergedTags.addAll(tags);
 			Map<String, String> mergedStates = new HashMap<>(other.states);
 			mergedStates.putAll(states);
 			
@@ -185,37 +187,48 @@ public class AliasesProvider {
 	public Map<String, Object> parseMojangson(String raw) {
 		return (Map<String, Object>) gson.fromJson(raw, Object.class);
 	}
-	
+
+	private static final Pattern DAMAGE_TAG_PATTERN = Pattern.compile("\\{Damage:(\\d+)}");
+
 	/**
 	 * Applies given tags to an item stack.
 	 * @param stack Item stack.
 	 * @param tags Tags.
 	 * @return Additional flags for the item.
 	 */
-	public int applyTags(ItemStack stack, Map<String, Object> tags) {
+	public int applyTags(ItemStack stack, List<String> tags) {
 		// Hack damage tag into item
-		Object damage = tags.get("Damage");
 		int flags = 0;
-		if (damage instanceof Number) { // Use helper for version compatibility
-			ItemUtils.setDamage(stack, ((Number) damage).shortValue());
-			tags.remove("Damage");
-			flags |= ItemFlags.CHANGED_DURABILITY;
+		Iterator<String> tagIterator = tags.iterator();
+		while (tagIterator.hasNext()) {
+			String tag = tagIterator.next();
+			Matcher matcher = DAMAGE_TAG_PATTERN.matcher(tag);
+			if (matcher.matches()) {
+				String num = matcher.group(1);
+				int damage = Utils.parseInt(num);
+
+				ItemUtils.setDamage(stack, damage);
+
+				flags |= ItemFlags.CHANGED_DURABILITY;
+
+				tagIterator.remove();
+			}
 		}
-		
+
 		if (tags.isEmpty()) // No real tags to apply
 			return flags;
-		
+
 		// Apply random tags using JSON
-		String json = gson.toJson(tags);
-		assert json != null;
-		BukkitUnsafe.modifyItemStack(stack, json);
+		for (String tag : tags) {
+			BukkitUnsafe.modifyItemStack(stack, tag);
+		}
 		flags |= ItemFlags.CHANGED_TAGS;
-		
+
 		return flags;
 	}
-	
+
 	/**
-	 * Name of an alias used by {@link #addAlias(AliasName, String, Map, Map)}
+	 * Name of an alias used by {@link #addAlias(AliasName, String, List, Map)}
 	 * for registration.
 	 */
 	public static class AliasName {
@@ -251,7 +264,7 @@ public class AliasesProvider {
 	 * @param tags Tags for material.
 	 * @param blockStates Block states.
 	 */
-	public void addAlias(AliasName name, String id, @Nullable Map<String, Object> tags, Map<String, String> blockStates) {
+	public void addAlias(AliasName name, String id, List<String> tags, Map<String, String> blockStates) {
 		// First, try to find if aliases already has a type with this id
 		// (so that aliases can refer to each other)
 		ItemType typeOfId = getAlias(id);
@@ -277,8 +290,8 @@ public class AliasesProvider {
 			// Apply (NBT) tags to item stack
 			ItemStack stack = new ItemStack(material);
 			int itemFlags = 0;
-			if (tags != null) {
-				itemFlags = applyTags(stack, new HashMap<>(tags));
+			if (!tags.isEmpty()) {
+				itemFlags = applyTags(stack, tags);
 			}
 			
 			// Parse block state to block values
