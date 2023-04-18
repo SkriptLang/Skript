@@ -18,7 +18,10 @@
  */
 package ch.njol.skript.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Locale;
@@ -37,7 +40,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
 
-	private enum Times {
+	public enum Times {
 
 		TICK("time.tick", 50L),
 		SECOND("time.second", 1000L),
@@ -45,7 +48,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		HOUR("time.hour", MINUTE.time * 60L),
 		DAY("time.day", HOUR.time * 24L),
 		WEEK("time.week", DAY.time * 7L),
-		MONTH("time.month", DAY.time * 30L),
+		MONTH("time.month", DAY.time * 30L), // Who cares about 28, 29 or 31 days?
 		YEAR("time.year", DAY.time * 365L);
 
 		private final Noun name;
@@ -56,10 +59,13 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			this.time = time;
 		}
 
+		public long getTime() {
+			return time;
+		}
+
 	}
 
-	@SuppressWarnings("unchecked")
-	static final NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
+	private static final List<NonNullPair<Noun, Long>> SIMPLE_VALUES = Arrays.asList(
 		new NonNullPair<>(Times.YEAR.name, Times.YEAR.time),
 		new NonNullPair<>(Times.MONTH.name, Times.MONTH.time),
 		new NonNullPair<>(Times.WEEK.name, Times.WEEK.time),
@@ -67,17 +73,17 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		new NonNullPair<>(Times.HOUR.name, Times.HOUR.time),
 		new NonNullPair<>(Times.MINUTE.name, Times.MINUTE.time),
 		new NonNullPair<>(Times.SECOND.name, Times.SECOND.time)
-	};
+	);
 
-	private static final HashMap<String, Long> parseValues = new HashMap<>();
+	private static final Map<String, Long> PARSE_VALUES = new HashMap<>();
 
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
 			public void onLanguageChange() {
-				for (Times t : Times.values()) {
-					parseValues.put(t.name.getSingular().toLowerCase(Locale.ENGLISH), t.time);
-					parseValues.put(t.name.getPlural().toLowerCase(Locale.ENGLISH), t.time);
+				for (Times time : Times.values()) {
+					PARSE_VALUES.put(time.name.getSingular().toLowerCase(Locale.ENGLISH), time.getTime());
+					PARSE_VALUES.put(time.name.getPlural().toLowerCase(Locale.ENGLISH), time.getTime());
 				}
 			}
 		});
@@ -89,20 +95,20 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private final long millis;
 	
 	@Nullable
-	public static Timespan parse(final String s) {
-		if (s.isEmpty())
+	public static Timespan parse(String value) {
+		if (value.isEmpty())
 			return null;
 
 		long t = 0;
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
-		Matcher matcher = TIMESPAN_PATTERN.matcher(s);
+		Matcher matcher = TIMESPAN_PATTERN.matcher(value);
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
-			final String[] ss = TIMESPAN_SPLIT_PATTERN.split(s);
-			final long[] times = {1L, Times.SECOND.time, Times.MINUTE.time, Times.HOUR.time, Times.DAY.time}; // ms, s, m, h, d
-			boolean hasMs = s.contains(".");
-			int length = ss.length;
+			String[] substring = TIMESPAN_SPLIT_PATTERN.split(value);
+			long[] times = {1L, Times.SECOND.time, Times.MINUTE.time, Times.HOUR.time, Times.DAY.time}; // ms, s, m, h, d
+			boolean hasMs = value.contains(".");
+			int length = substring.length;
 			int offset = 2; // MM:SS[.ms]
 
 			if (length == 4 && !hasMs || length == 5) // DD:HH:MM:SS[.ms]
@@ -110,51 +116,51 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			else if (length == 3 && !hasMs || length == 4) // HH:MM:SS[.ms]
 				offset = 1;
 
-			for (int i = 0; i < ss.length; i++) {
-				t += times[offset + i] * Utils.parseLong("" + ss[i]);
+			for (int i = 0; i < substring.length; i++) {
+				t += times[offset + i] * Utils.parseLong("" + substring[i]);
 			}
 		} else { // <number> minutes/seconds/.. etc
-			final String[] subs = s.toLowerCase(Locale.ENGLISH).split("\\s+");
-			for (int i = 0; i < subs.length; i++) {
-				String sub = subs[i];
+			String[] substring = value.toLowerCase(Locale.ENGLISH).split("\\s+");
+			for (int i = 0; i < substring.length; i++) {
+				String sub = substring[i];
 				
 				if (sub.equals(GeneralWords.and.toString())) {
-					if (i == 0 || i == subs.length - 1)
+					if (i == 0 || i == substring.length - 1)
 						return null;
 					continue;
 				}
 				
 				double amount = 1;
 				if (Noun.isIndefiniteArticle(sub)) {
-					if (i == subs.length - 1)
+					if (i == substring.length - 1)
 						return null;
-					sub = subs[++i];
+					sub = substring[++i];
 				} else if (TIMESPAN_NUMBER_PATTERN.matcher(sub).matches()) {
-					if (i == subs.length - 1)
+					if (i == substring.length - 1)
 						return null;
 					try {
 						amount = Double.parseDouble(sub);
 					} catch (NumberFormatException e) {
-						throw new IllegalArgumentException("Invalid timespan: " + s);
+						throw new IllegalArgumentException("Invalid timespan: " + value);
 					}
-					sub = subs[++i];
+					sub = substring[++i];
 				}
 				
 				if (CollectionUtils.contains(Language.getList("time.real"), sub)) {
-					if (i == subs.length - 1 || isMinecraftTimeSet && minecraftTime)
+					if (i == substring.length - 1 || isMinecraftTimeSet && minecraftTime)
 						return null;
-					sub = subs[++i];
+					sub = substring[++i];
 				} else if (CollectionUtils.contains(Language.getList("time.minecraft"), sub)) {
-					if (i == subs.length - 1 || isMinecraftTimeSet && !minecraftTime)
+					if (i == substring.length - 1 || isMinecraftTimeSet && !minecraftTime)
 						return null;
 					minecraftTime = true;
-					sub = subs[++i];
+					sub = substring[++i];
 				}
 				
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
 
-				final Long d = parseValues.get(sub.toLowerCase(Locale.ENGLISH));
+				Long d = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));
 				if (d == null)
 					return null;
 				
@@ -175,7 +181,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		millis = 0;
 	}
 	
-	public Timespan(final long millis) {
+	public Timespan(long millis) {
 		if (millis < 0)
 			throw new IllegalArgumentException("millis must be >= 0");
 		this.millis = millis;
@@ -186,14 +192,14 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 * Keeping this for older addons to stay working.
 	 */
 	@Deprecated
-	public static Timespan fromTicks(final int ticks) {
+	public static Timespan fromTicks(int ticks) {
 		return new Timespan(ticks * Times.TICK.time);
 	}
 	
-	public static Timespan fromTicks_i(final long ticks) {
+	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * Times.TICK.time);
 	}
-	
+
 	public long getMilliSeconds() {
 		return millis;
 	}
@@ -212,32 +218,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / Times.TICK.time);
 	}
 
-	public long getSeconds() {
-		return millis / Times.SECOND.time;
-	}
-
-	public long getMinutes() {
-		return millis / Times.MINUTE.time;
-	}
-
-	public long getHours() {
-		return millis / Times.HOUR.time;
-	}
-
-	public long getDays() {
-		return millis / Times.DAY.time;
-	}
-
-	public long getWeeks() {
-		return millis / Times.WEEK.time;
-	}
-
-	public long getMonths() {
-		return millis / Times.MONTH.time;
-	}
-
-	public long getYears() {
-		return millis / Times.YEAR.time;
+	public long get(Times time) {
+		return millis / time.getTime();
 	}
 	
 	@Override
@@ -245,50 +227,50 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		return toString(millis);
 	}
 	
-	public String toString(final int flags) {
+	public String toString(int flags) {
 		return toString(millis, flags);
 	}
 	
-	public static String toString(final long millis) {
+	public static String toString(long millis) {
 		return toString(millis, 0);
 	}
 	
 	@SuppressWarnings("null")
-	public static String toString(final long millis, final int flags) {
-		for (int i = 0; i < simpleValues.length - 1; i++) {
-			if (millis >= simpleValues[i].getSecond()) {
-				final long remainder = millis % simpleValues[i].getSecond();
-				final Double second = 1. * remainder / simpleValues[i + 1].getSecond();
+	public static String toString(long millis, int flags) {
+		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
+			if (millis >= SIMPLE_VALUES.get(i).getSecond()) {
+				long remainder = millis % SIMPLE_VALUES.get(i).getSecond();
+				double second = 1. * remainder / SIMPLE_VALUES.get(i + 1).getSecond();
 				if (!"0".equals(Skript.toString(second))) { // bad style but who cares...
-					return toString(Math.floor(1. * millis / simpleValues[i].getSecond()), simpleValues[i], flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
+					return toString(Math.floor(1. * millis / SIMPLE_VALUES.get(i).getSecond()), SIMPLE_VALUES.get(i), flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
 				} else {
-					return toString(1. * millis / simpleValues[i].getSecond(), simpleValues[i], flags);
+					return toString(1. * millis / SIMPLE_VALUES.get(i).getSecond(), SIMPLE_VALUES.get(i), flags);
 				}
 			}
 		}
-		return toString(1. * millis / simpleValues[simpleValues.length - 1].getSecond(), simpleValues[simpleValues.length - 1], flags);
+		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).getSecond(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
 	}
 	
-	private static String toString(final double amount, final NonNullPair<Noun, Long> p, final int flags) {
-		return p.getFirst().withAmount(amount, flags);
+	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
+		return pair.getFirst().withAmount(amount, flags);
 	}
 	
 	@Override
-	public int compareTo(final @Nullable Timespan o) {
-		final long d = o == null ? millis : millis - o.millis;
+	public int compareTo(@Nullable Timespan o) {
+		long d = o == null ? millis : millis - o.millis;
 		return d > 0 ? 1 : d < 0 ? -1 : 0;
 	}
 	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (millis/Integer.MAX_VALUE);
+		result = prime * result + (int) (millis / Integer.MAX_VALUE);
 		return result;
 	}
 	
 	@Override
-	public boolean equals(final @Nullable Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)

@@ -26,8 +26,11 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.Times;
 import ch.njol.util.Kleenean;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Locale;
 
 @Name("Timespan Details")
 @Description("Retrieve specific information of a <a href=\"/classes.html#timespan\">timespan</a> such as hours/minutes/etc.")
@@ -39,63 +42,48 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 
 	static {
-		register(ExprTimespanDetails.class, Long.class, "(0:tick[s]|1:second[s]|2:minute[s]|3:hour[s]|4:day[s]|5:week[s]|6:month[s]|7:year[s])", "timespans");
+		register(ExprTimespanDetails.class, Long.class, "(:(tick|second|minute|hour|day|week|month|year))[s]", "timespans");
 	}
 
-	private final int TICKS = 0, SECONDS = 1, MINUTES = 2, HOURS = 3, DAYS = 4, WEEKS = 5, MONTHS = 6, YEARS = 7;
-	private int type;
+	private enum Duration {
+		TICKS(Times.TICK),
+		SECONDS(Times.SECOND),
+		MINUTES(Times.MINUTE),
+		HOURS(Times.HOUR),
+		DAYS(Times.DAY),
+		WEEKS(Times.WEEK),
+		MONTHS(Times.MONTH),
+		YEARS(Times.YEAR);
+
+		private final Times time;
+
+		Duration(Times time) {
+			this.time = time;
+		}
+
+		public long ticks(Timespan timespan) {
+			return timespan.getMilliSeconds() / time.getTime();
+		}
+	}
+	private Duration type;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Timespan>) exprs[0]);
-		type = parseResult.mark;
-		return true;
+		type = Duration.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH) + "S");
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	@Nullable
-	public Long convert(Timespan t) {
-		switch (type) {
-			case YEARS:
-				return t.getYears();
-			case MONTHS:
-				return t.getMonths();
-			case WEEKS:
-				return t.getWeeks();
-			case DAYS:
-				return t.getDays();
-			case HOURS:
-				return t.getHours();
-			case MINUTES:
-				return t.getMinutes();
-			case SECONDS:
-				return t.getSeconds();
-		}
-
-		return t.getTicks_i();
+	public Long convert(Timespan time) {
+		return type.ticks(time);
 	}
 
 	@Override
 	protected String getPropertyName() {
-		switch (type) {
-			case YEARS:
-				return "years";
-			case MONTHS:
-				return "months";
-			case WEEKS:
-				return "weeks";
-			case DAYS:
-				return "days";
-			case HOURS:
-				return "hours";
-			case MINUTES:
-				return "minutes";
-			case SECONDS:
-				return "seconds";
-		}
-
-		return "ticks";
+		return type.name().toLowerCase(Locale.ENGLISH);
 	}
 
 	@Override
