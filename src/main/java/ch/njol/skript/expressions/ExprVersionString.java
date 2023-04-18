@@ -54,16 +54,16 @@ public class ExprVersionString extends SimpleExpression<String> {
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
 	static {
-		Skript.registerExpression(ExprVersionString.class, String.class, ExpressionType.SIMPLE, "[the] [(shown|custom)] version [(string|text)]");
+		Skript.registerExpression(ExprVersionString.class, String.class, ExpressionType.SIMPLE, "[the] [shown|custom] version [string|text]");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The version string expression requires Paper 1.12.2+");
+			Skript.error("The 'version string' expression requires Paper 1.12.2+");
 			return false;
 		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The version string expression can't be used outside of 'server list ping' event");
+			Skript.error("The 'version string' expression can't be used outside of 'server list ping' event");
 			return false;
 		}
 		return true;
