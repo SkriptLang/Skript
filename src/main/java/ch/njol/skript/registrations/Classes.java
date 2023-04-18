@@ -499,7 +499,7 @@ public abstract class Classes {
 				log.printLog();
 				return t;
 			}
-			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+			for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
@@ -539,7 +539,7 @@ public abstract class Classes {
 			if (to.isAssignableFrom(ci.getC()) && ci.getParser() != null)
 				return (Parser<? extends T>) ci.getParser();
 		}
-		for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+		for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 			if (to.isAssignableFrom(conv.getTo())) {
 				for (int i = classInfos.length - 1; i >= 0; i--) {
 					final ClassInfo<?> ci = classInfos[i];

@@ -29,7 +29,6 @@ import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
@@ -45,7 +44,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -1217,11 +1215,7 @@ public class ScriptLoader {
 	@SafeVarargs
 	@Deprecated
 	public static void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
-		if (events.length == 0) {
-			getParser().setCurrentEvent(name, CollectionUtils.array(ContextlessEvent.class));
-		} else {
-			getParser().setCurrentEvent(name, events);
-		}
+		getParser().setCurrentEvent(name, events);
 	}
 
 	/**
