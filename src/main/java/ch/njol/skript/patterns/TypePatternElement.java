@@ -100,19 +100,47 @@ public class TypePatternElement extends PatternElement {
 	@Nullable
 	public MatchResult match(String expr, MatchResult matchResult) {
 		int newExprOffset;
+
+		String nextLiteral = null;
+		boolean nextLiteralIsWhitespace = false;
+
 		if (next == null) {
 			newExprOffset = expr.length();
+		} else if (next instanceof LiteralPatternElement) {
+			nextLiteral = next.toString();
+
+			nextLiteralIsWhitespace = nextLiteral.trim().isEmpty();
+
+			if (!nextLiteralIsWhitespace) { // Don't do this for literal patterns that are *only* whitespace - they have their own special handling
+				// trim trailing whitespace - it can cause issues with optional patterns following the literal
+				int nextLength = nextLiteral.length();
+				for (int i = nextLength; i > 0; i--) {
+					if (nextLiteral.charAt(i - 1) != ' ') {
+						if (i != nextLength)
+							nextLiteral = nextLiteral.substring(0, i);
+						break;
+					}
+				}
+			}
+
+			newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
+			if (newExprOffset == -1 && nextLiteralIsWhitespace) { // We need to tread more carefully here
+				// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+				nextLiteral = null;
+				newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
+			}
 		} else {
 			newExprOffset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
-			if (newExprOffset == -1)
-				return null;
 		}
+
+		if (newExprOffset == -1)
+			return null;
 
 		ExprInfo exprInfo = getExprInfo();
 
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
-			for (; newExprOffset != -1; newExprOffset = SkriptParser.next(expr, newExprOffset, matchResult.parseContext)) {
+			while (newExprOffset != -1) {
 				loopLogHandler.clear();
 
 				MatchResult matchResultCopy = matchResult.copy();
@@ -150,6 +178,19 @@ public class TypePatternElement extends PatternElement {
 						expressionLogHandler.printError();
 					}
 				}
+
+				if (nextLiteral != null) {
+					int oldNewExprOffset = newExprOffset;
+					newExprOffset = SkriptParser.nextOccurrence(expr, nextLiteral, newExprOffset + 1, matchResult.parseContext, false);
+					if (newExprOffset == -1 && nextLiteralIsWhitespace) {
+						// This may be because the next PatternElement is optional or an empty choice (there may be other cases too)
+						// So, from this point on, we're going to go character by character
+						nextLiteral = null;
+						newExprOffset = SkriptParser.next(expr, oldNewExprOffset, matchResult.parseContext);
+					}
+				} else {
+					newExprOffset = SkriptParser.next(expr, newExprOffset, matchResult.parseContext);
+				}
 			}
 		} finally {
 			if (!loopLogHandler.isStopped())
@@ -165,9 +206,9 @@ public class TypePatternElement extends PatternElement {
 		if (isNullable)
 			stringBuilder.append("-");
 		if (flagMask != ~0) {
-			if ((flagMask & SkriptParser.PARSE_LITERALS) != 0)
+			if ((flagMask & SkriptParser.PARSE_LITERALS) == 0)
 				stringBuilder.append("~");
-			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) != 0)
+			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0)
 				stringBuilder.append("*");
 		}
 		for (int i = 0; i < classes.length; i++) {

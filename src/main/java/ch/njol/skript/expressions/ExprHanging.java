@@ -37,7 +37,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Hanging Entity/Remover")
-@Description("Returns the hanging entity or remover in hanging <a href='/events.html#break_mine'>break</a> and <a href='/events.html#place'>place</a> events.")
+@Description("Returns the hanging entity or remover in hanging <a href='./events.html#break_mine'>break</a> and <a href='./events.html#place'>place</a> events.")
 @Examples({"on break of item frame:",
 		"\tif item of hanging entity is diamond pickaxe:",
 		"\t\tcancel event",
@@ -69,7 +69,11 @@ public class ExprHanging extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	public Entity[] get(Event e) {
+		if (!(e instanceof HangingEvent))
+			return null;
+
 		Entity entity = null;
+
 		if (!isRemover)
 			entity = ((HangingEvent) e).getEntity();
 		else if (e instanceof HangingBreakByEntityEvent)

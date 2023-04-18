@@ -20,7 +20,6 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.MagicBlockCompat;
 import com.destroystokyo.paper.block.BlockSoundGroup;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -58,7 +57,6 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class BlockStateBlock implements Block {
 
-	private static final boolean IS_RUNNING_1_13 = Skript.isRunningMinecraft(1, 13);
 	private static final boolean ISPASSABLE_METHOD_EXISTS = Skript.methodExists(Block.class, "isPassable");
 
 	final BlockState state;
@@ -102,10 +100,6 @@ public class BlockStateBlock implements Block {
 	@Override
 	public byte getData() {
 		return state.getRawData();
-	}
-
-	public void setData(byte data) throws Throwable {
-		MagicBlockCompat.setRawDataMethod.invokeExact(state, data);
 	}
 
 	@Override
@@ -363,6 +357,16 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public void tick() {
+		state.getBlock().tick();
+	}
+
+	@Override
+	public void randomTick() {
+		state.getBlock().randomTick();
+	}
+
+	@Override
 	public boolean applyBoneMeal(BlockFace blockFace) {
 		return state.getBlock().applyBoneMeal(blockFace);
 	}
@@ -404,10 +408,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setType(Material type, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -422,19 +422,11 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public BlockData getBlockData() {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		return state.getBlockData();
 	}
 
 	@Override
 	public void setBlockData(BlockData data) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -449,10 +441,6 @@ public class BlockStateBlock implements Block {
 
 	@Override
 	public void setBlockData(BlockData data, boolean applyPhysics) {
-		if (!IS_RUNNING_1_13) {
-			throw new IllegalStateException("not on 1.13");
-		}
-
 		if (delayChanges) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
 				@Override
@@ -535,4 +523,15 @@ public class BlockStateBlock implements Block {
 	public @NotNull String translationKey() {
 		return state.getBlock().getTranslationKey();
 	}
+
+	@Override
+	public boolean breakNaturally(boolean triggerEffect, boolean dropExperience) {
+		return state.getBlock().breakNaturally(triggerEffect, dropExperience);
+	}
+
+	@Override
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect, boolean dropExperience) {
+		return state.getBlock().breakNaturally(tool, triggerEffect, dropExperience);
+	}
+
 }

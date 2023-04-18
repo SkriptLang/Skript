@@ -20,10 +20,14 @@ package ch.njol.skript.classes;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +64,10 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Nullable
 	private Changer<? super T> changer = null;
-	
+
+	@Nullable
+	private Supplier<Iterator<T>> supplier = null;
+
 	@Nullable
 	private Serializer<? super T> serializer = null;
 	@Nullable
@@ -162,7 +169,33 @@ public class ClassInfo<T> implements Debuggable {
 		this.defaultExpression = defaultExpression;
 		return this;
 	}
-	
+
+
+	/**
+	 * Used for dynamically getting all the possible values of a class
+	 *
+	 * @param supplier The supplier of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Object[])
+	 */
+	public ClassInfo<T> supplier(Supplier<Iterator<T>> supplier) {
+		if (this.supplier != null)
+			throw new SkriptAPIException("supplier of this class is already set");
+		this.supplier = supplier;
+		return this;
+	}
+
+	/**
+	 * Used for getting all the possible constants of a class
+	 *
+	 * @param values The array of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Supplier)
+	 */
+	public ClassInfo<T> supplier(T[] values) {
+		return supplier(() -> new ArrayIterator<>(values));
+	}
+
 	public ClassInfo<T> serializer(final Serializer<? super T> serializer) {
 		assert this.serializer == null;
 		if (serializeAs != null)
@@ -336,7 +369,14 @@ public class ClassInfo<T> implements Debuggable {
 	public Changer<? super T> getChanger() {
 		return changer;
 	}
-	
+
+	@Nullable
+	public Supplier<Iterator<T>> getSupplier() {
+		if (supplier == null && c.isEnum())
+			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
+		return supplier;
+	}
+
 	@Nullable
 	public Serializer<? super T> getSerializer() {
 		return serializer;
@@ -386,6 +426,11 @@ public class ClassInfo<T> implements Debuggable {
 	public String getDocName() {
 		return docName;
 	}
+
+	@Nullable
+	public String[] getRequiredPlugins() {
+		return requiredPlugins;
+	}
 	
 	/**
 	 * Gets overridden documentation id of this this type. If no override has
@@ -396,6 +441,10 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public String getDocumentationID() {
 		return documentationId;
+	}
+
+	public boolean hasDocs() {
+		return getDocName() != null && !ClassInfo.NO_DOC.equals(getDocName());
 	}
 	
 	// === ORDERING ===

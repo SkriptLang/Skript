@@ -66,6 +66,9 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 	@Override
 	@Nullable
 	protected Number[] get(Event e) {
+		if (!(e instanceof EntityExplodeEvent))
+			return null;
+
 		return new Number[]{((EntityExplodeEvent) e).getYield()};
 	}
 
@@ -86,7 +89,7 @@ public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 	@Override
 	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) {
 		float n = delta == null ? 0 : ((Number) delta[0]).floatValue();
-		if (n < 0) // Yield can't be negative
+		if (n < 0 || !(event instanceof EntityExplodeEvent)) // Yield can't be negative
 			return;
 		EntityExplodeEvent e = (EntityExplodeEvent) event;
 		// Yield can be a value from 0 to 1

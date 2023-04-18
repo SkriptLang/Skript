@@ -68,7 +68,10 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 	protected ItemType[] get(Event e) {
 		if (e instanceof PrepareItemEnchantEvent)
 			return new ItemType[]{new ItemType(((PrepareItemEnchantEvent) e).getItem())};
-		return new ItemType[]{new ItemType(((EnchantItemEvent) e).getItem())};
+		else if (e instanceof EnchantItemEvent)
+			return new ItemType[]{new ItemType(((EnchantItemEvent) e).getItem())};
+		else
+			return null;
 	}
 
 	@Override
@@ -91,7 +94,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 					e.getItem().setType(item.getMaterial());
 					e.getItem().setItemMeta(item.getItemMeta());
 					e.getItem().setAmount(item.getAmount());
-				} else {
+				} else if (event instanceof EnchantItemEvent) {
 					EnchantItemEvent e = (EnchantItemEvent) event;
 					e.getItem().setType(item.getMaterial());
 					e.getItem().setItemMeta(item.getItemMeta());
