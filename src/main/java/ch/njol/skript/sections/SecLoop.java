@@ -50,7 +50,6 @@ public class SecLoop extends LoopSection {
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
-	private final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
 	@Nullable
 	private TriggerItem actualNext;
@@ -77,7 +76,7 @@ public class SecLoop extends LoopSection {
 		}
 
 		if (expr.isSingle()) {
-			Skript.error("Can't loop " + expr + " because it's only a single value");
+			Skript.error("Can't loop '" + expr + "' because it's only a single value");
 			return false;
 		}
 
@@ -141,12 +140,7 @@ public class SecLoop extends LoopSection {
 	public void exit(Event event) {
 		current.remove(event);
 		currentIter.remove(event);
-		currentLoopCounter.remove(event);
-	}
-
-	@Override
-	public long getLoopCounter(Event event) {
-		return currentLoopCounter.getOrDefault(event, 1L);
+		super.exit(event);
 	}
 
 }

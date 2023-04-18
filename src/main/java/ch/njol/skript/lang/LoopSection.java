@@ -18,11 +18,10 @@
  */
 package ch.njol.skript.lang;
 
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
 import org.bukkit.event.Event;
 
-import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Represents a loop section.
@@ -32,11 +31,15 @@ import javax.annotation.Nullable;
  */
 public abstract class LoopSection extends Section implements SyntaxElement, Debuggable {
 
+	protected final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
+
 	/**
 	 * @param event The event where the loop is used to return its loop iterations
 	 * @return The loop iteration number
 	 */
-	public abstract long getLoopCounter(Event event);
+	public long getLoopCounter(Event event) {
+		return currentLoopCounter.getOrDefault(event, 1L);
+	}
 
 	/**
 	 * @return The next {@link TriggerItem} after the loop
@@ -47,6 +50,8 @@ public abstract class LoopSection extends Section implements SyntaxElement, Debu
 	 * Exit the loop, used to reset the loop properties such as iterations counter
 	 * @param event The event where the loop is used to reset its relevant properties
 	 */
-	public abstract void exit(Event event);
+	public void exit(Event event) {
+		currentLoopCounter.remove(event);
+	}
 
 }

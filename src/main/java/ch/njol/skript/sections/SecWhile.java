@@ -47,7 +47,6 @@ public class SecWhile extends LoopSection {
 
 	private boolean doWhile;
 	private boolean ranDoWhile = false;
-	private final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -101,12 +100,7 @@ public class SecWhile extends LoopSection {
 	@Override
 	public void exit(Event event) {
 		ranDoWhile = false;
-		currentLoopCounter.remove(event);
-	}
-
-	@Override
-	public long getLoopCounter(Event event) {
-		return currentLoopCounter.getOrDefault(event, 1L);
+		super.exit(event);
 	}
 
 }

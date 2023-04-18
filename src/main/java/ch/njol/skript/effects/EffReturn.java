@@ -104,7 +104,7 @@ public class EffReturn extends Effect {
 	@Override
 	@Nullable
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	protected TriggerItem walk(final Event event) {
+	protected TriggerItem walk(Event event) {
 		debug(event, false);
 		if (event instanceof FunctionEvent) {
 			((ScriptFunction) function).setReturnValue(value.getArray(event));
