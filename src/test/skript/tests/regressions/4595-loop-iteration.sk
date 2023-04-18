@@ -1,0 +1,28 @@
+test "loop-iteration":
+
+	# Test without variables
+	loop 2 times:
+		add loop-iteration to {_1}
+		loop 2 times:
+			add loop-iteration-2 to {_2}
+			loop 2 times:
+				add loop-iteration-3 to {_3}
+
+	assert {_1} = 3 with "loop-iteration-1 not equal to 3 (value: %{_1}%)"
+	assert {_2} = 6 with "loop-iteration-2 not equal to 6 (value: %{_2}%)"
+	assert {_3} = 12 with "loop-iteration-3 not equal to 12 (value: %{_3}%)"
+
+	delete {_1}, {_2} and {_3} # reset
+
+	# Test with variables
+	add "a" and "b" to {_a::*} and {_b::*} and {_c::*}
+	loop {_a::*}:
+		add loop-iteration to {_1}
+		loop {_b::*}:
+			add loop-iteration-2 to {_2}
+			loop {_c::*}:
+				add loop-iteration-3 to {_3}
+
+	assert {_1} = 3 with "loop-iteration-1 not equal to 3 (variables) (value: %{_1}%)"
+	assert {_2} = 6 with "loop-iteration-2 not equal to 6 (variables) (value: %{_2}%)"
+	assert {_3} = 12 with "loop-iteration-3 not equal to 12 (variables) (value: %{_3}%)"
