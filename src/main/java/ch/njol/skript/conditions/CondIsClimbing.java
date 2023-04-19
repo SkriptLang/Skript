@@ -25,6 +25,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 
 @Name("Is Climbing")
@@ -35,6 +36,7 @@ import ch.njol.skript.doc.Since;
 	"if the last spawned spider is climbing:",
 		"\tmessage\"The spider is now climbing!\""
 })
+@RequiredPlugins("Minecraft 1.17+")
 @Since("INSERT VERSION")
 public class CondIsClimbing extends PropertyCondition<LivingEntity> {
 
