@@ -67,8 +67,9 @@ public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespa
 			case ADD:
 			case REMOVE:
 				return CollectionUtils.array(Timespan[].class);
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
@@ -93,6 +94,8 @@ public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespa
 					case SET:
 					case RESET:
 						loveTicks = ticks;
+						break;
+					default:
 						break;
 				}
 				animal.setLoveModeTicks(Math.max(loveTicks, 0));

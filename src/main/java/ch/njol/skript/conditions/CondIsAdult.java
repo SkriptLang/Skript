@@ -23,6 +23,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
@@ -36,6 +37,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tmake event-entity an adult"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.16.5+ (Mobs)")
 public class CondIsAdult extends PropertyCondition<LivingEntity> {
 
 	// This is required since before 1.16 the 'isAdult' method only supported Animals

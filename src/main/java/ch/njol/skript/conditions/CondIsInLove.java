@@ -37,7 +37,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsInLove.class, "in love", "livingentities");
+		register(CondIsInLove.class, "in lov(e|ing) [state]", "livingentities");
 	}
 
 	@Override
