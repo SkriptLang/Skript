@@ -29,7 +29,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 
 @Name("Is Climbing")
-@Description("Checks whether living entities are climbing.")
+@Description("Whether a living entity is climbing, such as a spider up a wall or a player on a ladder.")
 @Examples({
 	"spawn a spider at location of spawn",
 	"wait a second",
