@@ -32,8 +32,8 @@ import org.bukkit.entity.LivingEntity;
 @Description("Returns whether or not an entity will be able to age/grow up")
 @Examples({
 	"on right click on living entity:",
-	"\tif entity can't age:",
-	"\t\tsend \"This entity is forever non aging\" to player"
+		"\tentity can't age",
+		"\tsend \"This entity is forever non aging\" to player"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.16+")
