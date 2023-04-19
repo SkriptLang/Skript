@@ -70,18 +70,15 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 		LoopSection loop = null;
 
 		for (LoopSection l : getParser().getCurrentSections(LoopSection.class)) {
-
 			if (i < loopNumber) {
 				i++;
 				continue;
 			}
-
 			if (loop != null) {
 				Skript.error("There are multiple loops. Use loop-iteration-1/2/3/etc. to specify which loop-iteration you want.");
 				return false;
 			}
 			loop = l;
-
 			if (i == loopNumber)
 				break;
 		}
