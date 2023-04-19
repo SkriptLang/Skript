@@ -114,7 +114,6 @@ public class BoatData extends EntityData<Boat> {
 	private static final ItemType jungleBoat = Aliases.javaItemType("jungle boat");
 	private static final ItemType acaciaBoat = Aliases.javaItemType("acacia boat");
 	private static final ItemType darkOakBoat = Aliases.javaItemType("dark oak boat");
-
 	
 	public boolean isOfItemType(ItemType i){
 		if (i.getRandom() == null)
