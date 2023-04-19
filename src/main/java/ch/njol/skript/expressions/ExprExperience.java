@@ -57,8 +57,8 @@ import ch.njol.util.Kleenean;
 		"\t\tadd 100 to dropped experience",
 		"",
 		"on breed:",
-		"\tbreeding father is a cow",
-		"\tset dropped experience to 10"
+			"\tbreeding father is a cow",
+			"\tset dropped experience to 10"
 })
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (breeding event)")
 @Events({"experience spawn", "break / mine", "experience change", "entity breeding"})

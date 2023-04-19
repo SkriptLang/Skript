@@ -34,10 +34,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Lock Age")
-@Description("Picks whether or not an entity will be able to age or mate.")
+@Description("Picks whether or not entities will be able to age or mate.")
 @Examples({
 	"on spawn of animal:",
-	"\tlock age of entity"
+		"\tlock age of entity"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.16+")

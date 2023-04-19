@@ -29,17 +29,17 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is An Adult")
-@Description("Returns whether or not an animal is an adult, requires 1.16.5 for mobs")
+@Description("Returns whether or not animals are an adult, requires 1.16.5+ for mobs")
 @Examples({
 	"on spawn:",
-	"\tif event-entity is not an adult:",
-	"\t\tmake event-entity an adult"
+		"\tevent-entity is not an adult",
+		"\tmake event-entity an adult"
 })
 @Since("INSERT VERSION")
 public class CondIsAdult extends PropertyCondition<LivingEntity> {
 
-	// This is required since before 1.16 the `isAdult` method only supported Animals
-	static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
+	// This is required since before 1.16 the 'isAdult' method only supported Animals
+	private static final boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1, 16, 5);
 
 	static {
 		register(CondIsAdult.class, "[an] adult", "livingentities");

@@ -35,12 +35,12 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Make Breedable")
 @Description({
-		"Picks whether or not an entity will be able to breed.",
-		"Doesn't work on all entities only animals"
+		"Picks whether or not entities will be able to breed.",
+		"Only works on animals, not all living entities"
 })
 @Examples({
 	"on spawn of animal:",
-	"\tmake entity unbreedable"
+		"\tmake entity unbreedable"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.16+")

@@ -32,8 +32,8 @@ import org.bukkit.entity.LivingEntity;
 @Description("Returns whether or not a living entity is breedable.")
 @Examples({
 	"on right click on living entity with bucket:",
-	"\tif event-entity can't breed:",
-	"\t\tsend \"Turns out %event-entity% is not breedable, what a let down\" to player"
+		"\tevent-entity can't breed",
+		"\tsend \"Turns out %event-entity% is not breedable, what a let down\" to player"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("MC 1.16+")
@@ -46,9 +46,8 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity livingEntity) {
-		if (livingEntity instanceof Breedable) {
+		if (livingEntity instanceof Breedable)
 			return ((Breedable) livingEntity).canBreed();
-		}
 		return false;
 	}
 

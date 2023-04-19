@@ -38,16 +38,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Force a animal to become an adult or baby, requires MC 1.16 for any mob")
 @Examples({
 	"on spawn of mob:",
-	"\tif entity is not an adult:",
-	"\t\tmake entity an adult",
+		"\tentity is not an adult",
+		"\tmake entity an adult",
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("1.16+ (Mobs)")
 public class EffMakeAdult extends Effect {
 
-
 	// This is required since before 1.16 the `setBaby`/'setAdult' method only supported Animals
-	private final static boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1,16,5);
+	private static final boolean HAS_MOB_SUPPORT = Skript.isRunningMinecraft(1, 16, 5);
 
 	static {
 		Skript.registerEffect(EffMakeAdult.class, "make %livingentities% [a[n]] (adult|:baby)");

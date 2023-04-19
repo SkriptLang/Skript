@@ -27,11 +27,11 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Entity In Love")
-@Description("Whether or not an animal is currently in a love state")
+@Description("Whether or not animals are currently in a love state")
 @Examples({
 	"on right click on living entity:",
-	"\tif event-entity is in love:",
-	"\t\tsend \"&c&oOhhh, he's in love <3\" to player"
+		"\tevent-entity is in love",
+		"\tsend \"&c&oOhhh, this entity in love <3\" to player"
 })
 @Since("INSERT VERSION")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {

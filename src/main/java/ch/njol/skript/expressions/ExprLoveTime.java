@@ -33,13 +33,13 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Love Time")
 @Description({
-	"The amount of time an animal has been in love for. Setting to 30 seconds is equal to using breeding item.",
+	"The amount of time animals have been in love for. Setting to 30 seconds is equal to using breeding item.",
 	"Only works on animals, not all living entities",
-	"Returns '0 seconds' if null or invalid entity"
+	"Returns '0 seconds' if null or invalid entities"
 })
 @Examples({
 	"on right click:",
-	"\tsend \"%event-enttiy% has been in love for %love time of event-entity%!\" to player"
+		"\tsend \"%event-enttiy% has been in love for %love time of event-entity%!\" to player"
 })
 @Since("INSERT VERSION")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
