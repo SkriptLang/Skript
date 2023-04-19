@@ -93,7 +93,7 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "vector from direction " + direction.toString(event, debug);
+		return "vector " + direction.toString(event, debug);
 	}
 
 }
