@@ -34,9 +34,6 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Name("Vectors - Create from Direction")
 @Description({
 	"Creates vectors from given directions.",
@@ -77,11 +74,11 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	@Nullable
 	protected Vector[] get(Event event) {
 		Direction[] directions = this.direction.getArray(event);
-		List<Vector> vectors = new ArrayList<>(directions.length);
-		for (Direction direction : directions) {
-			vectors.add(direction.getDirection(DEFAULT_LOCATION)); // all relative directions are relative to the default location
+		Vector[] vectors = new Vector[directions.length];
+		for (int i = 0; i < directions.length; i++) {
+			vectors[i] = directions[i].getDirection(DEFAULT_LOCATION); // all relative directions are relative to the default location
 		}
-		return vectors.toArray(new Vector[0]);
+		return vectors;
 	}
 
 	@Override
