@@ -65,12 +65,11 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 			return timespan.getMilliSeconds() / time.getTime();
 		}
 	}
+
 	private Duration type;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends Timespan>) exprs[0]);
 		type = Duration.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH) + "S");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
@@ -82,13 +81,13 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return type.name().toLowerCase(Locale.ENGLISH);
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	protected String getPropertyName() {
+		return type.name().toLowerCase(Locale.ENGLISH);
 	}
 
 }
