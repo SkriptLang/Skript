@@ -101,13 +101,13 @@ public class ExprLoopIteration extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends Long> getReturnType() {
+		return Long.class;
 	}
 
 	@Override
