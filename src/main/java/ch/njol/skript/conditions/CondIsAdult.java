@@ -47,9 +47,10 @@ public class CondIsAdult extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity livingEntity) {
-		if (livingEntity instanceof Ageable)
-			if (HAS_MOB_SUPPORT || livingEntity instanceof Animals)
-				return ((Ageable) livingEntity).isAdult();
+		if (!(livingEntity instanceof Ageable))
+			return false;
+		if (HAS_MOB_SUPPORT || livingEntity instanceof Animals)
+			return ((Ageable) livingEntity).isAdult();
 		return false;
 	}
 
