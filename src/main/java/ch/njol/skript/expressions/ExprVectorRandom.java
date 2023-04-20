@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Vectors - Random Vector")
-@Description("Creates a random vector with the magnitude of 1.")
+@Description("Creates a random unit vector.")
 @Examples("set {_v} to a random vector")
 @Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
