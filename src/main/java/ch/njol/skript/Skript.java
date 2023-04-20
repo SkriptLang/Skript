@@ -18,11 +18,76 @@
  */
 package ch.njol.skript;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Filter;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.lang.structure.StructureInfo;
+
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
@@ -59,12 +124,14 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.tests.runner.SkriptTestEvent;
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.skript.tests.runner.TestTracker;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -83,70 +150,9 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
-import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.gson.Gson;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureInfo;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.logging.Filter;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -354,7 +360,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * The folder containing all Scripts.
 	 * Never reference this field directly. Use {@link #getScriptsFolder()}.
 	 */
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private File scriptsFolder;
 
 	/**
@@ -380,8 +385,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		getAddonInstance();
-		
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
 		try {
@@ -393,7 +396,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 
-		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER + File.separator);
+		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER);
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
@@ -419,16 +422,16 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + File.separator)) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
-						if (fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
+						String fileName = e.getName().substring(e.getName().indexOf("/") + 1);
+						// All example scripts must be disabled for jar security.
+						if (!fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
 						saveTo = new File(scriptsFolder, fileName);
 					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang" + File.separator)
-							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith(File.separator + "default.lang")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf(File.separatorChar) + 1);
+							&& e.getName().startsWith("lang/")
+							&& !e.getName().endsWith("default.lang")) {
+						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
@@ -462,14 +465,25 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			}
 		}
+
+		// initialize the Skript addon instance
+		getAddonInstance();
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
-		
+
+		// Check server software, Minecraft version, etc.
+		if (!checkServerPlatform()) {
+			disabled = true; // Nothing was loaded, nothing needs to be unloaded
+			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
+			return;
+		}
+
 		// And then not-so-safe classes
 		Throwable classLoadError = null;
 		try {
 			new SkriptClasses();
+			new BukkitClasses();
 		} catch (Throwable e) {
 			classLoadError = e;
 		}
@@ -478,12 +492,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
 		
-		// Check server software, Minecraft version, etc.
-		if (!checkServerPlatform()) {
-			disabled = true; // Nothing was loaded, nothing needs to be unloaded
-			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
-			return;
-		}
+		// Now override the verbosity if test mode is enabled
+		if (TestMode.VERBOSITY != null)
+			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
 		
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
@@ -520,7 +531,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitClasses();
 		new BukkitEventValues();
 		
 		new DefaultComparators();
@@ -582,7 +592,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					info("Preparing Skript for testing...");
 					tainted = true;
 					try {
-						getAddonInstance().loadClasses("ch.njol.skript", "tests");
+						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
 					} catch (IOException e) {
 						Skript.exception("Failed to load testing environment.");
 						Bukkit.getServer().shutdown();
@@ -636,26 +646,19 @@ public final class Skript extends JavaPlugin implements Listener {
 				// Skript initialization done
 				debug("Early init done");
 
-				Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-					if (TestMode.ENABLED) { // Ignore late init (scripts, etc.) in test mode
+				if (TestMode.ENABLED) {
+					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
+					// Ignore late init (scripts, etc.) in test mode
+					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+						// Delay is in Minecraft ticks.
+						long shutdownDelay = 0;
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
-							String results = new Gson().toJson(TestTracker.collectResults());
-							try {
-								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-							} catch (IOException e) {
-								Skript.exception(e, "Failed to write test results.");
-							}
-							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-								Bukkit.getServer().shutdown();
-							}, 5);
-							return;
-						}
-						if (TestMode.DEV_MODE) { // Run tests NOW!
+						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
 							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
+							return;
 						} else {
-							info("Running all tests from " + TestMode.TEST_DIR);
+							info("Loading all tests from " + TestMode.TEST_DIR);
 
 							// Treat parse errors as fatal testing failure
 							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
@@ -669,8 +672,6 @@ public final class Skript extends JavaPlugin implements Listener {
 							}
 
 							Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
-
-							info("Collecting results to " + TestMode.RESULTS_FILE);
 							if (errorCounter.getCount() > 0) {
 								TestTracker.testStarted("parse scripts");
 								TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
@@ -679,22 +680,71 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testStarted("run scripts");
 								TestTracker.testFailed("exception was thrown during execution");
 							}
+							if (TestMode.JUNIT) {
+								SkriptLogger.setVerbosity(Verbosity.DEBUG);
+								info("Running all JUnit tests...");
+								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
+								try {
+									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
+									// Test that requires package access. This is only present when compiling with src/test.
+									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
+									size = classes.size();
+									for (Class<?> clazz : classes) {
+										// Reset class SkriptJUnitTest which stores test requirements.
+										String test = clazz.getName();
+										SkriptJUnitTest.setCurrentJUnitTest(test);
+										SkriptJUnitTest.setShutdownDelay(0);
+
+										info("Running JUnit test '" + test + "'");
+										Result junit = JUnitCore.runClasses(clazz);
+										TestTracker.testStarted("JUnit: '" + test + "'");
+
+										// Collect all data from the current JUnit test.
+										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
+										tests += junit.getRunCount();
+										milliseconds += junit.getRunTime();
+										ignored += junit.getIgnoreCount();
+										fails += junit.getFailureCount();
+
+										// If JUnit failures are present, add them to the TestTracker.
+										junit.getFailures().forEach(failure -> {
+											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
+											TestTracker.testFailed("'" + test + "': " + message);
+											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
+										});
+										SkriptJUnitTest.clearJUnitTest();
+									}
+								} catch (IOException e) {
+									Skript.exception(e, "Failed to execute JUnit runtime tests.");
+								} catch (ClassNotFoundException e) {
+									// Should be the Skript test jar gradle task.
+									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
+								}
+								if (ignored > 0)
+									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
+								
+								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
+							}
+						}
+						double display = shutdownDelay / 20;
+						info("Testing done, shutting down the server in " + display + " second" + (display <= 1D ? "" : "s") + "...");
+						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+								TestTracker.testFailed(EffObjectives.getFailedObjectivesString());
+
+							info("Collecting results to " + TestMode.RESULTS_FILE);
 							String results = new Gson().toJson(TestTracker.collectResults());
 							try {
 								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
 							} catch (IOException e) {
 								Skript.exception(e, "Failed to write test results.");
 							}
-							info("Testing done, shutting down the server.");
-							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-								Bukkit.getServer().shutdown();
-							}, 5);
 
-						}
-						return;
-					}
-				}, 100);
+							Bukkit.getServer().shutdown();
+						}, shutdownDelay);
+					}, 100);
+				}
 				
 				final long vld = System.currentTimeMillis() - vls;
 				if (logNormal())
@@ -1217,9 +1267,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	private static void stopAcceptingRegistrations() {
+		Converters.createChainedConverters();
+
 		acceptRegistrations = false;
-		
-		Converters.createMissingConverters();
 		
 		Classes.onRegistrationsStop();
 	}
@@ -1388,7 +1438,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	// ================ EVENTS ================
 
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
-	
+
 	/**
 	 * Registers an event.
 	 * 
@@ -1419,7 +1469,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + " [with priority (lowest|low|normal|high|highest|monitor)]";
+			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
 		structures.add(r);
@@ -1790,22 +1840,15 @@ public final class Skript extends JavaPlugin implements Listener {
 		for (final String line : lines)
 			SkriptLogger.LOGGER.severe(EXCEPTION_PREFIX + line);
 	}
-	
-	public static String SKRIPT_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Skript" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
-	
-//	static {
-//		Language.addListener(new LanguageChangeListener() {
-//			@Override
-//			public void onLanguageChange() {
-//				final String s = Language.get_("skript.prefix");
-//				if (s != null)
-//					SKRIPT_PREFIX = Utils.replaceEnglishChatStyles(s) + ChatColor.RESET + " ";
-//			}
-//		});
-//	}
-	
+
+	private static final Message SKRIPT_PREFIX_MESSAGE = new Message("skript.prefix");
+
+	public static String getSkriptPrefix() {
+		return SKRIPT_PREFIX_MESSAGE.getValueOrDefault("<grey>[<gold>Skript<grey>] <reset>");
+	}
+
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
 	}
 	
 	/**
@@ -1814,11 +1857,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(message), permission);
+		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
 	}
 	
 	public static void adminBroadcast(final String message) {
-		Bukkit.broadcast(SKRIPT_PREFIX + Utils.replaceEnglishChatStyles(message), "skript.admin");
+		broadcast(message, "skript.admin");
 	}
 	
 	/**
@@ -1832,7 +1875,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(SKRIPT_PREFIX + ChatColor.DARK_RED + Utils.replaceEnglishChatStyles(error));
+		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
 	}
 	
 	/**
