@@ -36,11 +36,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Random Vector")
-@Description("Creates a random vector.")
+@Description("Creates a random vector with the magnitude of 1.")
 @Examples({"set {_v} to a random vector"})
 @Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
@@ -57,8 +54,8 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event e) {
-		return CollectionUtils.array(new Vector(randomSignedDouble(), randomSignedDouble(), randomSignedDouble()));
+	protected Vector[] get(Event event) {
+		return CollectionUtils.array(new Vector(randomSignedDouble(), randomSignedDouble(), randomSignedDouble()).normalize());
 	}
 
 	@Override
@@ -72,7 +69,7 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "random vector";
 	}
 	
