@@ -26,7 +26,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.Timespan.Times;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -45,39 +45,19 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 		register(ExprTimespanDetails.class, Long.class, "(:(tick|second|minute|hour|day|week|month|year))[s]", "timespans");
 	}
 
-	private enum Duration {
-		TICKS(Times.TICK),
-		SECONDS(Times.SECOND),
-		MINUTES(Times.MINUTE),
-		HOURS(Times.HOUR),
-		DAYS(Times.DAY),
-		WEEKS(Times.WEEK),
-		MONTHS(Times.MONTH),
-		YEARS(Times.YEAR);
-
-		private final Times time;
-
-		Duration(Times time) {
-			this.time = time;
-		}
-
-		public long ticks(Timespan timespan) {
-			return timespan.getMilliSeconds() / time.getTime();
-		}
-	}
-
-	private Duration type;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private TimePeriod type;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		type = Duration.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH) + "S");
+		type = TimePeriod.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	@Nullable
 	public Long convert(Timespan time) {
-		return type.ticks(time);
+		return time.getMilliSeconds() / type.getTime();
 	}
 
 	@Override

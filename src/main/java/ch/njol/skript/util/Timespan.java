@@ -40,7 +40,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
 
-	public enum Times {
+	public enum TimePeriod {
 
 		TICK("time.tick", 50L),
 		SECOND("time.second", 1000L),
@@ -54,7 +54,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		private final Noun name;
 		private final long time;
 
-		Times(String name, long time) {
+		TimePeriod(String name, long time) {
 			this.name = new Noun(name);
 			this.time = time;
 		}
@@ -66,13 +66,13 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 	private static final List<NonNullPair<Noun, Long>> SIMPLE_VALUES = Arrays.asList(
-		new NonNullPair<>(Times.YEAR.name, Times.YEAR.time),
-		new NonNullPair<>(Times.MONTH.name, Times.MONTH.time),
-		new NonNullPair<>(Times.WEEK.name, Times.WEEK.time),
-		new NonNullPair<>(Times.DAY.name, Times.DAY.time),
-		new NonNullPair<>(Times.HOUR.name, Times.HOUR.time),
-		new NonNullPair<>(Times.MINUTE.name, Times.MINUTE.time),
-		new NonNullPair<>(Times.SECOND.name, Times.SECOND.time)
+		new NonNullPair<>(TimePeriod.YEAR.name, TimePeriod.YEAR.time),
+		new NonNullPair<>(TimePeriod.MONTH.name, TimePeriod.MONTH.time),
+		new NonNullPair<>(TimePeriod.WEEK.name, TimePeriod.WEEK.time),
+		new NonNullPair<>(TimePeriod.DAY.name, TimePeriod.DAY.time),
+		new NonNullPair<>(TimePeriod.HOUR.name, TimePeriod.HOUR.time),
+		new NonNullPair<>(TimePeriod.MINUTE.name, TimePeriod.MINUTE.time),
+		new NonNullPair<>(TimePeriod.SECOND.name, TimePeriod.SECOND.time)
 	);
 
 	private static final Map<String, Long> PARSE_VALUES = new HashMap<>();
@@ -81,7 +81,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		Language.addListener(new LanguageChangeListener() {
 			@Override
 			public void onLanguageChange() {
-				for (Times time : Times.values()) {
+				for (TimePeriod time : TimePeriod.values()) {
 					PARSE_VALUES.put(time.name.getSingular().toLowerCase(Locale.ENGLISH), time.getTime());
 					PARSE_VALUES.put(time.name.getPlural().toLowerCase(Locale.ENGLISH), time.getTime());
 				}
@@ -106,7 +106,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		Matcher matcher = TIMESPAN_PATTERN.matcher(value);
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
 			String[] substring = TIMESPAN_SPLIT_PATTERN.split(value);
-			long[] times = {1L, Times.SECOND.time, Times.MINUTE.time, Times.HOUR.time, Times.DAY.time}; // ms, s, m, h, d
+			long[] times = {1L, TimePeriod.SECOND.time, TimePeriod.MINUTE.time, TimePeriod.HOUR.time, TimePeriod.DAY.time}; // ms, s, m, h, d
 			boolean hasMs = value.contains(".");
 			int length = substring.length;
 			int offset = 2; // MM:SS[.ms]
@@ -164,7 +164,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 				if (d == null)
 					return null;
 				
-				if (minecraftTime && d != Times.TICK.time)
+				if (minecraftTime && d != TimePeriod.TICK.time)
 					amount /= 72f;
 				
 				t += Math.round(amount * d);
@@ -193,11 +193,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 */
 	@Deprecated
 	public static Timespan fromTicks(int ticks) {
-		return new Timespan(ticks * Times.TICK.time);
+		return new Timespan(ticks * TimePeriod.TICK.time);
 	}
 	
 	public static Timespan fromTicks_i(long ticks) {
-		return new Timespan(ticks * Times.TICK.time);
+		return new Timespan(ticks * TimePeriod.TICK.time);
 	}
 
 	public long getMilliSeconds() {
@@ -205,7 +205,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 	
 	public long getTicks_i() {
-		return millis / Times.TICK.time;
+		return millis / TimePeriod.TICK.time;
 	}
 	
 	/**
@@ -215,10 +215,10 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 */
 	@Deprecated
 	public int getTicks() {
-		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / Times.TICK.time);
+		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / TimePeriod.TICK.time);
 	}
 
-	public long get(Times time) {
+	public long get(TimePeriod time) {
 		return millis / time.getTime();
 	}
 	
