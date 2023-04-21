@@ -42,16 +42,14 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Data/Damage Value")
 @Description({"The data/damage value of an item/block. Data values of blocks are only supported on 1.12.2 and below.",
 		"You usually don't need this expression as you can check and set items with aliases easily, ",
-		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colours."})
+		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colors."})
 @Examples({"set damage value of player's tool to 10",
 		"set data value of target block of player to 3",
 		"add 1 to the data value of the clicked block",
 		"reset data value of block at player"})
 @Since("1.2")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
-	
-	private static final boolean LEGACY_BLOCK = !Skript.isRunningMinecraft(1, 13);
-	
+
 	static {
 		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
 	}
@@ -65,8 +63,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 		} else if (o instanceof ItemType) {
 			ItemStack item = ((ItemType) o).getRandom();
 			return (long) ItemUtils.getDamage(item);
-		} else if (LEGACY_BLOCK && o instanceof Block) {
-			return (long) ((Block) o).getData();
 		}
 		return null;
 	}
@@ -98,8 +94,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 				itemStack = ((ItemType) o).getRandom();
 			else if (o instanceof Slot)
 				itemStack = ((Slot) o).getItem();
-			else if (LEGACY_BLOCK)
-				block = (Block) o;
 			else
 				return;
 			

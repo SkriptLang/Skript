@@ -22,6 +22,7 @@ import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -251,6 +252,17 @@ public abstract class CollectionUtils {
 		}
 		return false;
 	}
+
+	/**
+	 * @return whether the given object is an instance of any of the given classes
+	 */
+	public static boolean isAnyInstanceOf(Object object, Class<?>... classes) {
+		for (Class<?> clazz : classes) {
+			if (clazz.isInstance(object))
+				return true;
+		}
+		return false;
+	}
 	
 	private final static Random random = new Random();
 	
@@ -343,6 +355,17 @@ public abstract class CollectionUtils {
 	@SafeVarargs
 	public static <T> T[] array(final T... array) {
 		return array;
+	}
+
+	/**
+	 * Returns a {@code Class} for an array type whose component type
+	 * is described by this {@linkplain Class}.
+	 *
+	 * @return a {@code Class} describing the array type
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T[]> arrayType(Class<T> c) {
+		return (Class<T[]>) Array.newInstance(c, 0).getClass();
 	}
 	
 	/**

@@ -9,13 +9,13 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: 따옴표(")가 잘못되었습니다. 인용문 텍스트에서 따옴표를 사용하려면 따옴표를 두 개 입력해야 합니다.
 	brackets error: 대괄호의 양 또는 위치가 잘못되었습니다. 각 여는 대괄호에 닫는 대괄호가 입력되어있는지 확인하십시오.
 	invalid reload: Skript는 Bukkit의 '/reload' 또는 스크립트의 '/skript reload' 로만 다시 로드할 수 있습니다.
 	no scripts: 스크립트를 찾을 수 없습니다. 일부 스크립트를 작성해야 합니다 ;)
 	no errors: 모든 스크립트가 오류없이 로드되었습니다.
-	scripts loaded: %s개의 스크립트 중 총 %s개의 트리거, %s개의 명령어를 %s 만에 로드했습니다.
+	scripts loaded: %s개의 스크립트에서 총 %s개의 구조를 %s 만에 로드했습니다.
 	finished loading: 로딩을 완료했습니다.
 
 # -- Skript command --
@@ -51,16 +51,16 @@ skript command:
 	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 스크립트를 찾을 수 없습니다!
 	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 폴더를 찾을 수 없습니다!
 	reload:
-		warning line info: <gold><bold>라인 %s: <gray>(%s)\n
-		error line info: <light red><bold>라인 %s: <gray>(%s)\n
+		warning line info: <gold><bold>라인 %s: <gray>(%s)<reset>\n
+		error line info: <light red><bold>라인 %s: <gray>(%s)<reset>\n
 		reloading: <gold>%s<reset>을(를) 다시 로드하는 중입니다...
 		reloaded: <gold>%s<lime>을(를) 다시 로드했습니다. <gray>(<gold>%2$sms<gray>)
 		error: <gold>%1$s<light red>을(를) 다시 로드하는 동안 <gold>%2$s<light red>개의 오류를 발견했습니다! <gray>(<gold>%2$sms<gray>)
 		script disabled: <gold>%s<reset>은 현재 비활성화되어 있습니다. <gray>/<gold>skript<cyan> <red>%s<reset>을 사용하여 활성화하십시오.
-		warning details: <yellow>    %s\n
-		error details: <light red>    %s\n
-		other details: <white>    %s\n
-		line details: <gold>    라인: <gray>%s\n <reset>
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    라인: <gray>%s<reset>\n <reset>
 
 		config, aliases and scripts: 구성(config), 별칭(aliases) 및 모든 스크립트
 		scripts: 모든 스크립트
@@ -111,7 +111,8 @@ skript command:
 			next page: <grey>%s의 %s페이지입니다. 다음 페이지를 보려면 <gold>/skript update changes %s <gray>를 입력하십시오 (위쪽 화살표 키를 사용해보십시오)
 	info:
 		aliases: Skript의 별명은 여기에서 찾을 수 있습니다: <aqua>https://github.com/SkriptLang/skript-aliases
-		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://skriptlang.github.io/Skript
+		documentation: Skript의 문서는 여기에서 찾을 수 있습니다: <aqua>https://docs.skriptlang.org/
+		tutorials: Skript의 튜토리얼은 여기에서 찾을 수 있습니다: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skript 버전: <aqua>%s
 		server: 서버 버전: <aqua>%s
 		addons: 설치된 Skript 애드온: <aqua>%s

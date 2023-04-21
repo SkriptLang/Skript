@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.util.chat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.njol.skript.Skript;
@@ -25,6 +26,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 /**
  * Converts Skript's chat components into Bungee's BaseComponents which Spigot
@@ -32,13 +34,24 @@ import net.md_5.bungee.api.chat.TextComponent;
  */
 public class BungeeConverter {
 
-	private static boolean HAS_INSERTION_SUPPORT = Skript.methodExists(BaseComponent.class, "setInsertion", String.class);
 	private static boolean HAS_FONT_SUPPORT = Skript.methodExists(BaseComponent.class, "setFont", String.class);
 
 	@SuppressWarnings("null")
 	public static BaseComponent convert(MessageComponent origin) {
-		BaseComponent base = new TextComponent(origin.text);
-		
+		BaseComponent base;
+		if (origin.translation != null) {
+			String[] strings = origin.translation.split(":");
+			String key = strings[0];
+			if (strings.length > 1) {
+				base = new TranslatableComponent(key, Arrays.copyOfRange(strings, 1, strings.length, Object[].class));
+			} else {
+				base = new TranslatableComponent(key);
+			}
+			base.addExtra(new TextComponent(origin.text));
+		} else {
+			base = new TextComponent(origin.text);
+		}
+
 		base.setBold(origin.bold);
 		base.setItalic(origin.italic);
 		base.setUnderlined(origin.underlined);
@@ -46,15 +59,8 @@ public class BungeeConverter {
 		base.setObfuscated(origin.obfuscated);
 		if (origin.color != null)
 			base.setColor(origin.color);
-		/*
-		 * This method doesn't exist on normal spigot 1.8
-		 * and it's not worth working around since people affected
-		 * can just use paper 1.8 and it will work fine
-		 */
-		if (HAS_INSERTION_SUPPORT) {
-			base.setInsertion(origin.insertion);
-		}
-		
+		base.setInsertion(origin.insertion);
+
 		if (origin.clickEvent != null)
 			base.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(origin.clickEvent.action.spigotName), origin.clickEvent.value));
 		if (origin.hoverEvent != null)

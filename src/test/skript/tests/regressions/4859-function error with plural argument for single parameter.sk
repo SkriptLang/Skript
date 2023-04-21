@@ -1,0 +1,5 @@
+function pluralArgSingleParam(a: string, b: number) :: number:
+	return 1
+
+test "function error with plural argument for single parameter":
+	assert pluralArgSingleParam(("abc", "def"), 1) is 1 to fail with "function call didn't error with plural argument when single expected"

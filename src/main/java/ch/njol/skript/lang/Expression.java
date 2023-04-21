@@ -18,7 +18,9 @@
  */
 package ch.njol.skript.lang;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -31,7 +33,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.conditions.CondIsSet;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -39,6 +41,17 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents an expression. Expressions are used within conditions, effects and other expressions.
@@ -63,7 +76,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
 	@Nullable
-	public T getSingle(final Event e);
+	T getSingle(Event e);
+
+	/**
+	 * Get an optional of the single value of this expression.
+	 * <p>
+	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 *
+	 * @param e the event
+	 * @return an {@link Optional} containing the {@link #getSingle(Event) single value} of this expression for this event.
+	 * @see #getSingle(Event)
+	 */
+	default Optional<T> getOptionalSingle(Event e) {
+		return Optional.ofNullable(getSingle(e));
+	}
 	
 	/**
 	 * Get all the values of this expression. The returned array is empty if this expression doesn't have any values for the given event.
@@ -90,10 +116,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * Gets a non-null stream of this expression's values.
 	 *
 	 * @param e The event
-	 * @return A non-null stream of this expression's values
+	 * @return A non-null stream of this expression's non-null values
 	 */
-	default public Stream<? extends T> stream(final Event e) {
-		Iterator<? extends T> iter = iterator(e);
+	default public Stream<@NonNull ? extends  T> stream(Event event) {
+		Iterator<? extends T> iter = iterator(event);
 		if (iter == null) {
 			return Stream.empty();
 		}
@@ -263,6 +289,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 */
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode);
+
+	/**
+	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
+	 * @return A Map contains ChangeMode as the key and accepted types of that mode as the value
+	 */
+	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
+		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
+		for (ChangeMode cm : ChangeMode.values()) {
+			Class<?>[] ac = acceptChange(cm);
+			if (ac != null)
+				map.put(cm, ac);
+		}
+		return map;
+	}
 	
 	/**
 	 * Changes the expression's value by the given amount. This will only be called on supported modes and with the desired <code>delta</code> type as returned by

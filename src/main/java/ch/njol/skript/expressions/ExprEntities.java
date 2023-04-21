@@ -18,21 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -49,11 +34,24 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
-import ch.njol.util.coll.iterator.NonNullIterator;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, " +
-		"e.g. 'all players', 'all creepers in the player's world', or 'players in radius 100 of the player'.")
+		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
 @Examples({"kill all creepers in the player's world",
 		"send \"Psst!\" to all players within 100 meters of the player",
 		"give a diamond to all ops",
@@ -137,7 +135,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 		if (isUsingRadius) {
 			Iterator<? extends Entity> iter = iterator(e);
 			if (iter == null || !iter.hasNext())
-				return new Entity[0];
+				return null;
 
 			List<Entity> l = new ArrayList<>();
 			while (iter.hasNext())
@@ -167,6 +165,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				return null;
 			double d = n.doubleValue();
 
+			if (l.getWorld() == null) // safety
+				return null;
+
 			Collection<Entity> es = l.getWorld().getNearbyEntities(l, d, d, d);
 			double radiusSquared = d * d * Skript.EPSILON_MULT;
 			EntityData<?>[] ts = types.getAll(e);
@@ -180,35 +181,10 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					return false;
 				});
 		} else {
-			if (worlds == null && returnType == Player.class)
+			if (chunks == null || returnType == Player.class)
 				return super.iterator(e);
 
-			return new NonNullIterator<Entity>() {
-					private World[] ws = worlds == null ? Bukkit.getWorlds().toArray(new World[0]) : worlds.getArray(e);
-					private EntityData<?>[] ts = types.getAll(e);
-					private int w = -1;
-					@Nullable
-					private Iterator<? extends Entity> curIter = null;
-
-					@Override
-					@Nullable
-					protected Entity getNext() {
-						while (true) {
-							while (curIter == null || !curIter.hasNext()) {
-								w++;
-								if (w == ws.length)
-									return null;
-								curIter = ws[w].getEntitiesByClass(returnType).iterator();
-							}
-							while (curIter.hasNext()) {
-								Entity current = curIter.next();
-								for (EntityData<?> t : ts) {
-									if (t.isInstance(current))
-										return current;
-								}
-							}
-						}
-					}};
+			return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
 		}
 	}
 

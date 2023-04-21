@@ -290,8 +290,7 @@ public class Noun extends Message {
 	}
 	
 	/**
-	 * Strips the gender identifier from given string and returns the used
-	 * gender. Used for aliases.
+	 * Strips the gender identifier from given string and returns the used gender.
 	 * 
 	 * @param s String.
 	 * @param key Key to report in case of error.

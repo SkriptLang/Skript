@@ -41,7 +41,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
@@ -83,9 +82,12 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 
 	@Override
 	protected Timespan[] get(Event e, Block[] source) {
-		if (isEvent)
+		if (isEvent) {
+			if (!(e instanceof FurnaceBurnEvent))
+				return null;
+
 			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) e).getBurnTime()));
-		else {
+		} else {
 			Timespan[] result = Arrays.stream(source)
 					.filter(block -> anyFurnace.isOfType(block))
 					.map(furnace -> {
@@ -148,6 +150,9 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 		assert value != null; // It isn't going to be null but the compiler complains so
 
 		if (isEvent) {
+			if (!(e instanceof FurnaceBurnEvent))
+				return;
+
 			FurnaceBurnEvent event = (FurnaceBurnEvent) e;
 			event.setBurnTime(value.apply(Timespan.fromTicks_i(event.getBurnTime())).getTicks());
 			return;
