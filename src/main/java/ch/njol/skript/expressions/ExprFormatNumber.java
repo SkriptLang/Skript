@@ -50,7 +50,7 @@ import java.text.DecimalFormat;
 @Since("INSERT VERSION")
 public class ExprFormatNumber extends PropertyExpression<Number, String> {
 	
-	private static final String defaultFormat = "###,###";
+	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("###,###");
 	
 	static {
 		Skript.registerExpression(ExprFormatNumber.class, String.class, ExpressionType.PROPERTY,
@@ -70,33 +70,53 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		setExpr((Expression<? extends Number>) exprs[0]);
 		customFormat = (Expression<? extends String>) exprs[1];
 
-		if (customFormat instanceof Literal || (customFormat instanceof VariableString && ((VariableString) customFormat).isSimple())) {
-			try {
-				format = new DecimalFormat(customFormat.getSingle(null));
-			} catch (Exception e) {
-				Skript.error("Invalid number format: " + exprs[1]);
-				return false;
+		boolean isSimpleString = customFormat instanceof VariableString && ((VariableString) customFormat).isSimple();
+		if (customFormat instanceof Literal || isSimpleString) {
+			String customFormatValue;
+			if (isSimpleString) {
+				customFormatValue = ((VariableString) customFormat).toString(null);
+			} else {
+				customFormatValue = ((Literal<String>) customFormat).getSingle();
+			}
+
+			if (customFormatValue != null) {
+				try {
+					format = new DecimalFormat(customFormatValue);
+				} catch (IllegalArgumentException e) {
+					Skript.error("Invalid number format: " + customFormatValue);
+					return false;
+				}
 			}
 		} else if (customFormat == null) {
-			format = new DecimalFormat(defaultFormat);
+			format = DEFAULT_FORMAT;
 		}
 		
 		return true;
 	}
 
 	@Override
-	protected String[] get(Event e, Number[] source) {
+	protected String[] get(Event event, Number[] source) {
+		DecimalFormat format;
+		String formatString;
+
+		if (customFormat != null && this.format == null) { // customFormat is not Literal or VariableString
+			formatString = customFormat.getSingle(event);
+			if (formatString == null)
+				return null;
+
+			try {
+				format = new DecimalFormat(formatString);
+			} catch (IllegalArgumentException e) {
+				return null;
+			}
+		} else {
+			format = this.format;
+		}
+
 		return get(source, new Getter<String, Number>() {
 			@Override
-			public String get(Number num) {
-				if (customFormat != null) {
-					try {
-						format = new DecimalFormat(customFormat.getSingle(e));
-					} catch (Exception ex) {
-						return null;
-					}
-				}
-				return format.format(num);
+			public String get(Number number) {
+				return format.format(number);
 			}
 		});
 	}
@@ -107,8 +127,8 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " formatted as " + (customFormat != null ? customFormat.toString(e, debug) : defaultFormat);
+	public String toString(@Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " formatted as " + (customFormat != null ? customFormat.toString(event, debug) : DEFAULT_FORMAT.toPattern());
 	}
 
 }
