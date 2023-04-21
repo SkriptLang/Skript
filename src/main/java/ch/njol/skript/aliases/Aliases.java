@@ -25,7 +25,6 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -39,7 +38,9 @@ import ch.njol.skript.util.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -50,11 +51,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class Aliases {
 
@@ -229,95 +232,126 @@ public abstract class Aliases {
 	private final static RegexMessage p_every = new RegexMessage("aliases.every", "", " (.+)", Pattern.CASE_INSENSITIVE);
 	private final static RegexMessage p_of_every = new RegexMessage("aliases.of every", "(\\d+) ", " (.+)", Pattern.CASE_INSENSITIVE);
 	private final static RegexMessage p_of = new RegexMessage("aliases.of", "(\\d+) (?:", " )?(.+)", Pattern.CASE_INSENSITIVE);
-	
+	private final static RegexMessage p_named = new RegexMessage("aliases.named", "(.+) ", " \"(.+)\"", Pattern.CASE_INSENSITIVE);
+	private final static RegexMessage p_with_lore = new RegexMessage("aliases.with lore", "(.+) ", " (\".+\")", Pattern.CASE_INSENSITIVE);
+
+	private final static Pattern ENCHANTMENTS_PATTERN = Pattern.compile("\\s*(,|" + Pattern.quote(Language.get("and")) + ")\\s*");
+	private final static Pattern MULTIPLE_VALUE_SPLIT_PATTERN = Pattern.compile("(, ?| " + Pattern.quote(Language.get("and")) + " )");
+
+	private final static Message m_named = new Message("aliases.named");
+	private final static Message m_with_lore = new Message("aliases.with lore");
+
 	/**
 	 * Parses an ItemType.
 	 * <p>
 	 * Prints errors.
 	 * 
-	 * @param s
+	 * @param value
 	 * @return The parsed ItemType or null if the input is invalid.
 	 */
 	@Nullable
-	public static ItemType parseItemType(String s) {
-		if (s.isEmpty())
+	public static ItemType parseItemType(String value) {
+		if (value.isEmpty())
 			return null;
-		s = "" + s.trim();
+		value = "" + value.trim();
 		
-		final ItemType t = new ItemType();
-		
-		Matcher m;
-		if ((m = p_of_every.matcher(s)).matches()) {
-			t.setAmount(Utils.parseInt("" + m.group(1)));
-			t.setAll(true);
-			s = "" + m.group(m.groupCount());
-		} else if ((m = p_of.matcher(s)).matches()) {
-			t.setAmount(Utils.parseInt("" + m.group(1)));
-			s = "" + m.group(m.groupCount());
-		} else if ((m = p_every.matcher(s)).matches()) {
-			t.setAll(true);
-			s = "" + m.group(m.groupCount());
+		ItemType itemtype = new ItemType();
+
+		// Amount
+		Matcher matcher;
+		if ((matcher = p_of_every.matcher(value)).matches()) {
+			itemtype.setAmount(Utils.parseInt("" + matcher.group(1)));
+			itemtype.setAll(true);
+			value = "" + matcher.group(matcher.groupCount());
+		} else if ((matcher = p_of.matcher(value)).matches()) {
+			itemtype.setAmount(Utils.parseInt("" + matcher.group(1)));
+			value = "" + matcher.group(matcher.groupCount());
+		} else if ((matcher = p_every.matcher(value)).matches()) {
+			itemtype.setAll(true);
+			value = "" + matcher.group(matcher.groupCount());
 		} else {
-			final int l = s.length();
-			s = Noun.stripIndefiniteArticle(s);
-			if (s.length() != l) // had indefinite article
-				t.setAmount(1);
+			int length = value.length();
+			value = Noun.stripIndefiniteArticle(value);
+			if (value.length() != length) // had indefinite article
+				itemtype.setAmount(1);
 		}
-		
-		String lc = s.toLowerCase(Locale.ENGLISH);
-		String of = Language.getSpaced("enchantments.of").toLowerCase();
-		int c = -1;
-		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
-			ItemType t2 = t.clone();
+
+		String lowercase = value.toLowerCase(Locale.ENGLISH);
+
+		// Enchantments
+		String of = Language.getSpaced("enchantments.of").toLowerCase(Locale.ENGLISH);
+		int character = -1;
+		outer: while ((character = lowercase.indexOf(of, character + 1)) != -1) {
+			ItemType clonedItemtype = itemtype.clone();
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-				if (parseType("" + s.substring(0, c), t2, false) == null)
+				if (parseType("" + value.substring(0, character), clonedItemtype, false) == null)
 					continue;
 			}
-			if (t2.numTypes() == 0)
+			if (clonedItemtype.numTypes() == 0)
 				continue;
-			String[] enchs = lc.substring(c + of.length()).split("\\s*(,|" + Pattern.quote(Language.get("and")) + ")\\s*");
-			for (final String ench : enchs) {
-				EnchantmentType e = EnchantmentType.parse("" + ench);
-				if (e == null)
-					continue outer;
-				t2.addEnchantments(e);
+
+			boolean hasName = lowercase.contains(" " + m_named + " ");
+			boolean hasLore = lowercase.contains(" " + m_with_lore + " ");
+
+			// Name
+			matcher = p_named.matcher(value.substring(character, hasLore ? lowercase.indexOf(" " + m_with_lore + " ") : lowercase.length()));
+			if (matcher.matches()) {
+				ItemMeta meta = clonedItemtype.getItemMeta();
+				meta.setDisplayName(matcher.group(2));
+				clonedItemtype.setItemMeta(meta);
 			}
-			return t2;
+
+			// Lore
+			matcher = p_with_lore.matcher(value);
+			if (matcher.matches()) {
+				ItemMeta meta = clonedItemtype.getItemMeta();
+				meta.setLore(Arrays.stream(MULTIPLE_VALUE_SPLIT_PATTERN.split(matcher.group(2))).map(line -> line.substring(1, line.length() -1)).collect(Collectors.toList())); // strip quotes
+				clonedItemtype.setItemMeta(meta);
+			}
+			int endOfSubstring = hasName ? lowercase.indexOf(" " + m_named + " ") : hasLore ? lowercase.indexOf(" " + m_with_lore + " ") : lowercase.length();
+			String[] enchantments = ENCHANTMENTS_PATTERN.split(lowercase.substring(character + of.length(), endOfSubstring));
+			for (String enchantment : enchantments) {
+				EnchantmentType enchantmentType = EnchantmentType.parse("" + enchantment);
+				if (enchantmentType == null)
+					continue outer;
+				clonedItemtype.addEnchantments(enchantmentType);
+			}
+			return clonedItemtype;
 		}
-		
-		if (parseType(s, t, false) == null)
+
+		if (parseType(value, itemtype, false) == null)
 			return null;
-		
-		if (t.numTypes() == 0)
+
+		if (itemtype.numTypes() == 0)
 			return null;
-		
-		return t;
+
+		return itemtype;
 	}
 	
 	/**
 	 * Prints errors.
 	 * 
-	 * @param s The string holding the type, can be either a number or an alias, plus an optional data part. Case does not matter.
-	 * @param t The ItemType to add the parsed ItemData(s) to (i.e. this ItemType will be modified)
+	 * @param value The string holding the type, can be either a number or an alias, plus an optional data part. Case does not matter.
+	 * @param itemtype The ItemType to add the parsed ItemData(s) to (i.e. this ItemType will be modified)
 	 * @param isAlias Whether this type is parsed for an alias.
 	 * @return The given item type or null if the input couldn't be parsed.
 	 */
 	@Nullable
-	private static ItemType parseType(final String s, final ItemType t, final boolean isAlias) {
-		ItemType i;
-		if (s.isEmpty()) {
-			t.add(new ItemData(Material.AIR));
-			return t;
-		} else if (s.matches("\\d+")) {
+	private static ItemType parseType(String value, ItemType itemtype, boolean isAlias) {
+		ItemType itemtypeCompare;
+		if (value.isEmpty()) {
+			itemtype.add(new ItemData(Material.AIR));
+			return itemtype;
+		} else if (value.matches("\\d+")) {
 			return null;
-		} else if ((i = getAlias(s)) != null) {
-			for (ItemData d : i) {
-				t.add(d.clone());
+		} else if ((itemtypeCompare = getAlias(value)) != null) {
+			for (ItemData itemData : itemtypeCompare) {
+				itemtype.add(itemData.clone());
 			}
-			return t;
+			return itemtype;
 		}
 		if (isAlias)
-			Skript.error(m_invalid_item_type.toString(s));
+			Skript.error(m_invalid_item_type.toString(value));
 		return null;
 	}
 	

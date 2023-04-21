@@ -53,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -248,56 +249,56 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		return toString(false, false);
 	}
 	
-	public String toString(final boolean debug, final boolean plural) {
-		StringBuilder b = new StringBuilder(Aliases.getMaterialName(this, plural));
+	public String toString(boolean debug, boolean plural) {
+		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
 		ItemMeta meta = stack.getItemMeta();
 
-		Map<Enchantment, Integer> enchs = stack.getEnchantments();
-		if (!enchs.isEmpty()) {
-			b.append(Language.getSpaced("enchantments.of"));
+		Map<Enchantment, Integer> enchantments = stack.getEnchantments();
+		if (!enchantments.isEmpty()) {
+			builder.append(Language.getSpaced("enchantments.of").toLowerCase(Locale.ENGLISH));
 			int i = 0;
-			for (Entry<Enchantment, Integer> e : enchs.entrySet()) {
+			for (Entry<Enchantment, Integer> e : enchantments.entrySet()) {
 				if (i != 0) {
-					if (i != enchs.size() - 1) {
-						b.append(", ");
+					if (i != enchantments.size() - 1) {
+						builder.append(", ");
 					} else  {
-						b.append(" " + GeneralWords.and + " ");
+						builder.append(" " + GeneralWords.and + " ");
 					}
 				}
 				Enchantment ench = e.getKey();
 				if (ench == null)
 					continue;
-				b.append(EnchantmentType.toString(ench));
-				b.append(" ");
-				b.append(e.getValue());
+				builder.append(EnchantmentType.toString(ench));
+				builder.append(" ");
+				builder.append(e.getValue());
 				i++;
 			}
 		}
 
 		if (meta != null) {
 			if (meta.hasDisplayName()) {
-				b.append(" ").append(m_named).append(" ");
-				b.append("\"").append(SkriptColor.replaceColorChar(meta.getDisplayName())).append("\"");
+				builder.append(" ").append(m_named).append(" ");
+				builder.append("\"").append(SkriptColor.replaceColorChar(meta.getDisplayName())).append("\"");
 			}
 			if (meta.hasLore()) {
-				b.append(" ").append(m_with_lore).append(" ");
+				builder.append(" ").append(m_with_lore).append(" ");
 				List<String> lore = meta.getLore();
 				int i = 0;
 				for (String l : lore) {
 					if (i != 0) {
 						if (i != lore.size() - 1)  {
-							b.append(", ");
+							builder.append(", ");
 						} else {
-							b.append(" " + GeneralWords.and + " ");
+							builder.append(" " + GeneralWords.and + " ");
 						}
 					}
-					b.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");
+					builder.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");
 					i++;
 				}
 			}
 		}
 
-		return b.toString();
+		return builder.toString();
 	}
 	
 	/**
