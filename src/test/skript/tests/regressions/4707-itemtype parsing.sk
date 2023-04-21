@@ -1,0 +1,83 @@
+test "itemtype parsing":
+
+	# -- ASSIGNMENTS
+
+	# amount, enchantment, name, multi line lore
+	set {_i1} to 3 of stone pickaxe of power 1 and unbreaking 2 named "Hello ""World!" with lore "test1", "test2" and "test3%nl%tes""t4"
+	# amount, enchantment, name, single line lore
+	set {_i2} to 5 of stone of power 10 and efficiency 5 named "Hello World!" with lore "test1"
+	# amount, enchantment, name
+	set {_i3} to dirt of power 4 and unbreaking 5 and efficiency 6 named "&aGreen Color"
+	# amount, enchantment
+	set {_i4} to 20 of diamond pickaxe of power 1 and unbreaking 2
+
+	# name
+	set {_i5} to dirt named "Hello ""World!"
+	# multi line lore
+	set {_i6} to stone pickaxe with lore "test1", "test2" and "test3%nl%tes""t4"
+	# multi line lore, name (order)
+	set {_i7} to stone pickaxe of power 1 with lore "test1", "test2" and "test3%nl%tes""t4" named "Hello ""World!"
+	# plain
+	set {_i8} to stone pickaxe
+	set {_i9} to "%{_i1}%" parsed as itemtype
+
+
+	# -- CHECKS
+
+	assert name of {_i1} is "Hello ""World!" with "Itemtype test ##1.1 failed"
+	assert size of lore of {_i1} is 4 with "Itemtype test ##1.2 failed"
+	assert size of enchantments of {_i1} is 2 with "Itemtype test ##1.3 failed"
+	assert itemstack size of {_i1} is 3 with "Itemtype test ##1.4 failed"
+	assert type of {_i1} is stone pickaxe with "Itemtype test ##1.5 failed"
+
+	assert name of {_i2} is "Hello World!" with "Itemtype test ##2.1 failed"
+	assert lore of {_i2} is "test1" with "Itemtype test ##2.2 failed"
+	assert level of power of {_i2} is 10 with "Itemtype test ##2.3 failed"
+	assert itemstack size of {_i2} is 5 with "Itemtype test ##2.4 failed"
+	assert type of {_i2} is stone with "Itemtype test ##2.5 failed"
+
+	assert name of {_i3} is "&aGreen Color" with "Itemtype test ##3.1 failed"
+	assert lore of {_i3} is not set with "Itemtype test ##3.2 failed"
+	assert size of lore of {_i3} is 0 with "Itemtype test ##3.3 failed"
+	assert enchantments of {_i3} are power 4 and unbreaking 5 and efficiency 6 with "Itemtype test ##3.4 failed"
+	assert itemstack size of {_i3} is 1 with "Itemtype test ##3.5 failed"
+	assert type of {_i3} is dirt with "Itemtype test ##3.6 failed"
+
+	assert name of {_i4} is not set with "Itemtype test ##4.1 failed"
+	assert lore of {_i4} is not set with "Itemtype test ##4.2 failed"
+	assert enchantments of {_i4} are power 1 and unbreaking 2 with "Itemtype test ##4.3 failed"
+	assert itemstack size of {_i4} is 1 with "Itemtype test ##4.4 failed"
+	assert type of {_i4} is dirt with "Itemtype test ##4.5 failed"
+
+	assert name of {_i5} is "Hello ""World!" with "Itemtype test ##5.1 failed"
+	assert lore of {_i5} is not set with "Itemtype test ##5.2 failed"
+	assert enchantments of {_i5} is not set with "Itemtype test ##5.3 failed"
+	assert itemstack size of {_i5} is 20 with "Itemtype test ##5.4 failed"
+	assert type of {_i5} is diamond pickaxe with "Itemtype test ##5.5 failed"
+
+	assert name of {_i6} is not set with "Itemtype test ##6.1 failed"
+	assert 4th element of lore of {_i6} is "tes""t4" with "Itemtype test ##6.2 failed"
+	assert enchantments of {_i6} is not set with "Itemtype test ##6.3 failed"
+	assert itemstack size of {_i6} is 1 with "Itemtype test ##6.4 failed"
+	assert type of {_i6} is stone pickaxe with "Itemtype test ##6.5 failed"
+
+	assert name of {_i7} is "Hello ""World!" with "Itemtype test ##7.1 failed"
+	assert size of lore of {_i7} is 4 with "Itemtype test ##7.2 failed"
+	assert size of enchantments of {_i7} is 1 with "Itemtype test ##7.3 failed"
+	assert itemstack size of {_i7} is 1 with "Itemtype test ##7.4 failed"
+	assert type of {_i7} is stone pickaxe with "Itemtype test ##7.5 failed"
+
+	assert name of {_i8} is not set with "Itemtype test ##8.1 failed"
+	assert lore of {_i8} is not set with "Itemtype test ##8.2 failed"
+	assert enchantments of {_i8} is not set with "Itemtype test ##8.3 failed"
+	assert itemstack size of {_i8} is 1 with "Itemtype test ##8.4 failed"
+	assert type of {_i8} is stone pickaxe with "Itemtype test ##8.5 failed"
+
+	assert name of {_i9} is "Hello ""World!" with "Itemtype test ##9.1 failed"
+	assert size of lore of {_i9} is 4 with "Itemtype test ##9.2 failed"
+	assert size of enchantments of {_i9} is 2 with "Itemtype test ##9.3 failed"
+	assert itemstack size of {_i9} is 3 with "Itemtype test ##9.4 failed"
+	assert type of {_i9} is stone pickaxe with "Itemtype test ##9.5 failed"
+
+
+
