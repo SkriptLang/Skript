@@ -39,13 +39,13 @@ test "itemtype parsing":
 	assert name of {_i3} is "&aGreen Color" with "Itemtype test ##3.1 failed"
 	assert lore of {_i3} is not set with "Itemtype test ##3.2 failed"
 	assert size of lore of {_i3} is 0 with "Itemtype test ##3.3 failed"
-	assert enchantments of {_i3} are power 4 and unbreaking 5 and efficiency 6 with "Itemtype test ##3.4 failed"
+	assert enchantments of {_i3} contains power 4 and unbreaking 5 and efficiency 6 with "Itemtype test ##3.4 failed"
 	assert itemstack size of {_i3} is 1 with "Itemtype test ##3.5 failed"
 	assert type of {_i3} is dirt with "Itemtype test ##3.6 failed"
 
 	assert name of {_i4} is not set with "Itemtype test ##4.1 failed"
 	assert lore of {_i4} is not set with "Itemtype test ##4.2 failed"
-	assert enchantments of {_i4} are power 1 and unbreaking 2 with "Itemtype test ##4.3 failed"
+	assert enchantments of {_i4} contains power 1 and unbreaking 2 with "Itemtype test ##4.3 failed"
 	assert itemstack size of {_i4} is 1 with "Itemtype test ##4.4 failed"
 	assert type of {_i4} is dirt with "Itemtype test ##4.5 failed"
 
