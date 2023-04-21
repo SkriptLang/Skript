@@ -46,14 +46,14 @@ test "itemtype parsing":
 	assert name of {_i4} is not set with "Itemtype test ##4.1 failed"
 	assert lore of {_i4} is not set with "Itemtype test ##4.2 failed"
 	assert enchantments of {_i4} contains power 1 and unbreaking 2 with "Itemtype test ##4.3 failed"
-	assert itemstack size of {_i4} is 1 with "Itemtype test ##4.4 failed"
-	assert type of {_i4} is dirt with "Itemtype test ##4.5 failed"
+	assert itemstack size of {_i4} is 20 with "Itemtype test ##4.4 failed"
+	assert type of {_i4} is diamond pickaxe with "Itemtype test ##4.5 failed"
 
 	assert name of {_i5} is "Hello ""World!" with "Itemtype test ##5.1 failed"
 	assert lore of {_i5} is not set with "Itemtype test ##5.2 failed"
 	assert enchantments of {_i5} is not set with "Itemtype test ##5.3 failed"
-	assert itemstack size of {_i5} is 20 with "Itemtype test ##5.4 failed"
-	assert type of {_i5} is diamond pickaxe with "Itemtype test ##5.5 failed"
+	assert itemstack size of {_i5} is 1 with "Itemtype test ##5.4 failed"
+	assert type of {_i5} is dirt with "Itemtype test ##5.5 failed"
 
 	assert name of {_i6} is not set with "Itemtype test ##6.1 failed"
 	assert 4th element of lore of {_i6} is "tes""t4" with "Itemtype test ##6.2 failed"
