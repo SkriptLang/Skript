@@ -67,7 +67,7 @@ import net.md_5.bungee.api.ChatColor;
 	"\t\t<ul>",
 	"\t\t\t<li><strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.</li>",
 	"\t\t\t<li><strong>Display Name:</strong> The name of the player that is displayed in messages. " +
-		"This name can be changed freely and can include colour codes, and is shared among all plugins (e.g. chat plugins will use the display name).</li>",
+		"This name can be changed freely and can include color codes, and is shared among all plugins (e.g. chat plugins will use the display name).</li>",
 	"\t\t</ul>",
 	"\t</li>",
 	"\t<li><strong>Entities</strong>",
@@ -108,7 +108,7 @@ import net.md_5.bungee.api.ChatColor;
 	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
 	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
 })
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), INSERT VERSION (worlds)")
+@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
