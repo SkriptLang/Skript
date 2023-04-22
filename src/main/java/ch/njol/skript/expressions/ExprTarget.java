@@ -46,8 +46,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 
 @Name("Target")
-@Description("For players this is the entity at the crosshair, while for mobs and experience orbs it represents the " +
-	"entity they are attacking/following (if any).")
+@Description({
+	"For players this is the entity at the crosshair.",
+	"For mobs and experience orbs this is the entity they are attacking/following (if any)."
+})
 @Examples({
 	"on entity target:",
 	"\tif entity's target is a player:",
