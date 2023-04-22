@@ -1,21 +1,21 @@
 test "attributes 1":
-	spawn cow at location(0, 64, 0, world "world")
-	set {_m} to last spawned cow
-	assert movement speed attribute of {_m} is set with "attribute get failed"
-	set movement speed attribute of {_m} to 3.14
-	assert movement speed attribute of {_m} is 3.14 with "attribute set failed"
-	add 5 to movement speed attribute of {_m}
-	assert movement speed attribute of {_m} is 8.14 with "attribute add failed"
-	remove 4 from movement speed attribute of {_m}
-	assert movement speed attribute of {_m} is 4.14 with "attribute remove ##1 failed"
-	remove 10 from movement speed attribute of {_m}
-	assert movement speed attribute of {_m} is -5.86 with "attribute remove ##2 failed" # Negative attribute values should be safe
-	delete movement speed attribute of {_m}
-	assert movement speed attribute of {_m} is 0 with "attribute delete failed"
+	spawn cow at spawn of world "world":
+		assert movement speed attribute of event-entity is set with "attribute get failed"
+		set movement speed attribute of event-entity to 3.14
+		assert movement speed attribute of event-entity is 3.14 with "attribute set failed"
+		add 5 to movement speed attribute of event-entity
+		assert movement speed attribute of event-entity is 8.14 with "attribute add failed"
+		remove 4 from movement speed attribute of event-entity
+		assert movement speed attribute of event-entity is 4.14 with "attribute remove ##1 failed"
+		remove 10 from movement speed attribute of event-entity
+		assert movement speed attribute of event-entity is -5.86 with "attribute remove ##2 failed" # Negative attribute values should be safe
+		delete movement speed attribute of event-entity
+		assert movement speed attribute of event-entity is 0 with "attribute delete failed"
+		delete event-entity
 
 test "attributes 2" when minecraft version is not "1.9.4":
 	# Test the Reset ChangeMode only on versions that have it
-	spawn cow at location(0, 65, 0, world "world")
-	set {_m} to last spawned cow
-	reset movement speed attribute of {_m}
-	assert movement speed attribute of {_m} is set with "attribute reset failed" # No need to compare with a fixed constant
+	spawn cow at spawn of world "world":
+		reset movement speed attribute of event-entity
+		assert movement speed attribute of event-entity is set with "attribute reset failed" # No need to compare with a fixed constant
+		delete event-entity

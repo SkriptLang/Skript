@@ -16,4 +16,5 @@ test "double quote parsing":
 	assert {_abc%%} is not set with "simple variable with escaped percentage sign failed"
 	assert {_abc%1 + 1%} is not set with "simple variable with expression failed"
 
+	suppress starting with expression warnings
 	assert {_%subtext of "test" from characters 1 to 1%} is not set with "variable with expression with string failed"

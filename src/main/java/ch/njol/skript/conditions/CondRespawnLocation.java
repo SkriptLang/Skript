@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tbroadcast \"%player% is respawning in their bed! So cozy!\""
 })
 @RequiredPlugins("Minecraft 1.16+")
-@Since("INSERT VERSION")
+@Since("2.7")
 @Events("respawn")
 public class CondRespawnLocation extends Condition {
 
