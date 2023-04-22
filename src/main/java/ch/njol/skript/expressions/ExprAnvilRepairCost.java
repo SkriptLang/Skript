@@ -56,8 +56,8 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	static {
 		Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
-			"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
-			"%inventories%'[s] [item] [:max[imum]] repair cost");
+				"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
+				"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
 	boolean isMax = false;
