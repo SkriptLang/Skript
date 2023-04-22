@@ -55,15 +55,12 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
 	static {
-		Skript.registerExpression(ExprAnvilRepairCost.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [anvil] [item] [:max[imum]] repair cost [of %inventories%]",
-				"%inventories%'[s] [item] [:max[imum]] repair cost");
+		registerDefault(ExprAnvilRepairCost.class, Integer.class, "[anvil] [item] [:max[imum]] repair cost", "inventories");
 	}
 
 	private boolean isMax;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
