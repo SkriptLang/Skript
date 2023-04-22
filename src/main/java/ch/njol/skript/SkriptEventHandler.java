@@ -18,6 +18,7 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
 import com.google.common.collect.ArrayListMultimap;
@@ -135,17 +136,18 @@ public final class SkriptEventHandler {
 			return;
 		}
 
-		for (Trigger t : triggers) {
-			if (t.getEvent().getEventPriority() != priority || !t.getEvent().check(event))
+		for (Trigger trigger : triggers) {
+			SkriptEvent triggerEvent = trigger.getEvent();
+			if (triggerEvent.getEventPriority() != priority || !triggerEvent.check(event))
 				continue;
 
-			logTriggerStart(t);
-			Object timing = SkriptTimings.start(t.getDebugLabel());
+			logTriggerStart(trigger);
+			Object timing = SkriptTimings.start(trigger.getDebugLabel());
 
-			t.execute(event);
+			trigger.execute(event);
 
 			SkriptTimings.stop(timing);
-			logTriggerEnd(t);
+			logTriggerEnd(trigger);
 		}
 
 		logEventEnd();
@@ -251,9 +253,8 @@ public final class SkriptEventHandler {
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
 		Iterator<Map.Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
-		Map.Entry<Class<? extends Event>, Trigger> entry;
 		entryLoop: while (entryIterator.hasNext()) {
-			entry = entryIterator.next();
+			Map.Entry<Class<? extends Event>, Trigger> entry = entryIterator.next();
 			if (entry.getValue() != trigger)
 				continue;
 			Class<? extends Event> event = entry.getKey();
@@ -263,14 +264,15 @@ public final class SkriptEventHandler {
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
-			for (Trigger t : triggers.get(event)) {
-				if (t.getEvent().getEventPriority() == priority)
+			for (Trigger otherTrigger : triggers.get(event)) {
+				if (otherTrigger.getEvent().getEventPriority() == priority)
 					continue entryLoop;
 			}
 
 			// We can attempt to unregister this listener
 			HandlerList handlerList = getHandlerList(event);
-			assert handlerList != null;
+			if (handlerList == null)
+				continue;
 			Skript skript = Skript.getInstance();
 			for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
 				Listener listener = registeredListener.getListener();
