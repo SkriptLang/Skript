@@ -32,6 +32,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
@@ -134,7 +135,9 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public boolean setTime(int time) {
-		return time >= 0;
+		if (time != EventValues.TIME_PAST)
+			return super.setTime(time, EntityTargetEvent.class, getExpr());
+		return super.setTime(time);
 	}
 
 	@Override
@@ -144,9 +147,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (event == null)
-			return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
-		return Classes.getDebugMessage(getAll(event)); // TODO for players it will return null (need to getTarget)
+		return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 	/**
