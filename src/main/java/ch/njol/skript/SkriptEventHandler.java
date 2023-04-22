@@ -264,8 +264,8 @@ public final class SkriptEventHandler {
 
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
-			for (Trigger otherTrigger : triggers.get(event)) {
-				if (otherTrigger.getEvent().getEventPriority() == priority)
+			for (Trigger eventTrigger : triggers.get(event)) {
+				if (eventTrigger.getEvent().getEventPriority() == priority)
 					continue entryLoop;
 			}
 
