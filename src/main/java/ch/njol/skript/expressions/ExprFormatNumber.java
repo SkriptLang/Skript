@@ -54,18 +54,18 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 	
 	static {
 		Skript.registerExpression(ExprFormatNumber.class, String.class, ExpressionType.PROPERTY,
-			"%numbers% formatted [human-readable] [(with|as) %-string%]",
-			"[human-readable] formatted %numbers% [(with|as) %-string%]");
+				"%numbers% formatted [human-readable] [(with|as) %-string%]",
+				"[human-readable] formatted %numbers% [(with|as) %-string%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private DecimalFormat format;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@Nullable
 	private Expression<? extends String> customFormat;
 
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Number>) exprs[0]);
 		customFormat = (Expression<? extends String>) exprs[1];
