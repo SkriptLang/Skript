@@ -114,7 +114,8 @@ public final class SkriptEventHandler {
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
-				if (trigger.getEvent().getEventPriority() == priority && trigger.getEvent().check(event)) {
+				SkriptEvent triggerEvent = trigger.getEvent();
+				if (triggerEvent.getEventPriority() == priority && triggerEvent.check(event)) {
 					hasTrigger = true;
 					break;
 				}
@@ -263,9 +264,8 @@ public final class SkriptEventHandler {
 			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
 			for (Trigger t : triggers.get(event)) {
-				if (t.getEvent().getEventPriority() == priority) {
+				if (t.getEvent().getEventPriority() == priority)
 					continue entryLoop;
-				}
 			}
 
 			// We can attempt to unregister this listener
