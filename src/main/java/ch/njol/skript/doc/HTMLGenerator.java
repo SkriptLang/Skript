@@ -36,8 +36,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryData;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Template engine, primarily used for generating Skript documentation
@@ -274,6 +277,21 @@ public class HTMLGenerator {
 				String genType = genParams[0];
 				boolean isDocsPage = genType.equals("docs");
 
+				if (genType.equals("structures") || isDocsPage) {
+
+					for (Iterator<StructureInfo<?>> it = sortedAnnotatedIterator(
+							(Iterator) Skript.getStructures().stream().filter(structure -> structure.getClass() == StructureInfo.class).iterator());
+							it.hasNext(); ) {
+
+						StructureInfo<?> info = it.next();
+						assert info != null;
+						if (info.c.getAnnotation(NoDoc.class) != null)
+							continue;
+						String desc = generateAnnotated(descTemp, info, generated.toString(), "Structure");
+						generated.append(desc);
+					}
+				}
+
 				if (genType.equals("expressions") || isDocsPage) {
 					for (Iterator<ExpressionInfo<?,?>> it = sortedAnnotatedIterator((Iterator) Skript.getExpressions()); it.hasNext(); ) {
 						ExpressionInfo<?,?> info = it.next();
@@ -496,6 +514,25 @@ public class HTMLGenerator {
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
 
+		// Structure - EntryData
+		if (info instanceof StructureInfo) {
+			EntryValidator entryValidator = ((StructureInfo<?>) info).entryValidator;
+			List<EntryData<?>> entryDataList = new ArrayList<>();
+			if (entryValidator != null)
+				entryDataList.addAll(entryValidator.getEntryData());
+
+			// TODO add type of entrydata like boolean/string/section etc.
+			desc = handleIf(desc, "${if structure-optional-entrydata}", entryValidator != null);
+			desc = desc.replace("${element.structure-optional-entrydata}", entryValidator == null ? "" : Joiner.on(", ").join(entryDataList.stream().filter(EntryData::isOptional).map(EntryData::getKey).collect(Collectors.toList())));
+
+			desc = handleIf(desc, "${if structure-required-entrydata}", entryValidator != null);
+			desc = desc.replace("${element.structure-required-entrydata}", entryValidator == null ? "" : Joiner.on(", ").join(entryDataList.stream().filter(entryData -> !entryData.isOptional()).map(EntryData::getKey).collect(Collectors.toList())));
+		} else {
+			desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+			desc = handleIf(desc, "${if structure-required-entrydata}", false);
+
+		}
+
 		// Type
 		desc = desc.replace("${element.type}", type);
 
@@ -604,6 +641,9 @@ public class HTMLGenerator {
 		// Return Type
 		desc = handleIf(desc, "${if return-type}", false);
 
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
+
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -623,6 +663,7 @@ public class HTMLGenerator {
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
+				line = line.replace(SkriptEventInfo.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
@@ -703,6 +744,9 @@ public class HTMLGenerator {
 
 		// Return Type
 		desc = handleIf(desc, "${if return-type}", false);
+
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
@@ -787,6 +831,9 @@ public class HTMLGenerator {
 
 		// Type
 		desc = desc.replace("${element.type}", "Function");
+
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();

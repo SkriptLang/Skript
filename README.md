@@ -1,5 +1,9 @@
-# Skript [![Build Status](https://travis-ci.org/SkriptLang/Skript.svg?branch=master)](https://travis-ci.org/SkriptLang/Skript)
-Skript is a plugin for Paper/Spigot, which allows server owners and other people
+![Skript Language](.github/assets/Cover.jpg)
+
+---
+
+# Skript
+**Skript** is a Minecraft plugin for Paper/Spigot, which allows server owners and other people
 to modify their servers without learning Java. It can also be useful if you
 *do* know Java; some tasks are quicker to do with Skript, and so it can be used
 for prototyping etc.
@@ -23,7 +27,7 @@ versions will be supported as soon as possible.
 You can find the downloads for each version with their release notes in the [releases page](https://github.com/SkriptLang/Skript/releases).
 
 ## Documentation
-Documentation is available [here](https://skriptlang.github.io/Skript) for the
+Documentation is available [here](https://docs.skriptlang.org/) for the
 latest version of Skript.
 
 ## Reporting Issues

@@ -43,8 +43,10 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterators;
@@ -114,10 +116,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * Gets a non-null stream of this expression's values.
 	 *
 	 * @param e The event
-	 * @return A non-null stream of this expression's values
+	 * @return A non-null stream of this expression's non-null values
 	 */
-	default public Stream<? extends T> stream(final Event e) {
-		Iterator<? extends T> iter = iterator(e);
+	default public Stream<@NonNull ? extends  T> stream(Event event) {
+		Iterator<? extends T> iter = iterator(event);
 		if (iter == null) {
 			return Stream.empty();
 		}
