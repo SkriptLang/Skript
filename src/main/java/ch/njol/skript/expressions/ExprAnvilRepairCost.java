@@ -37,8 +37,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Anvil Repair Cost")
 @Description({
-		"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
-		"The default value of max cost set by vanilla Minecraft is 40."
+	"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
+	"The default value of max cost set by vanilla Minecraft is 40."
 })
 @Examples({
 	"on inventory click:",
