@@ -311,7 +311,7 @@ public abstract class Aliases {
 			int endOfSubstring = hasName ? lowercase.indexOf(" " + m_named + " ") : hasLore ? lowercase.indexOf(" " + m_with_lore + " ") : lowercase.length();
 			String[] enchantments = ENCHANTMENTS_PATTERN.split(lowercase.substring(character + of.length(), endOfSubstring));
 			for (String enchantment : enchantments) {
-				EnchantmentType enchantmentType = EnchantmentType.parse("" + enchantment);
+				EnchantmentType enchantmentType = EnchantmentType.parse(enchantment);
 				if (enchantmentType == null)
 					continue outer;
 				clonedItemtype.addEnchantments(enchantmentType);
