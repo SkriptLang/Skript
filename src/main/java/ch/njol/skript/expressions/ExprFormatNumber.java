@@ -71,6 +71,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		customFormat = (Expression<? extends String>) exprs[1];
 
 		boolean isSimpleString = customFormat instanceof VariableString && ((VariableString) customFormat).isSimple();
+		// if literal or is simple variable string then we can get the value at init and check
 		if (customFormat instanceof Literal || isSimpleString) {
 			String customFormatValue;
 			if (isSimpleString) {
@@ -79,6 +80,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 				customFormatValue = ((Literal<String>) customFormat).getSingle();
 			}
 
+			// try to use user provided format
 			if (customFormatValue != null) {
 				try {
 					format = new DecimalFormat(customFormatValue);
@@ -87,6 +89,7 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 					return false;
 				}
 			}
+		// if not set then assign default format
 		} else if (customFormat == null) {
 			format = DEFAULT_FORMAT;
 		}
@@ -102,23 +105,18 @@ public class ExprFormatNumber extends PropertyExpression<Number, String> {
 		if (customFormat != null && this.format == null) { // customFormat is not Literal or VariableString
 			formatString = customFormat.getSingle(event);
 			if (formatString == null)
-				return null;
+				return new String[0];
 
 			try {
 				format = new DecimalFormat(formatString);
 			} catch (IllegalArgumentException e) {
-				return null;
+				return new String[0];
 			}
 		} else {
 			format = this.format;
 		}
 
-		return get(source, new Getter<String, Number>() {
-			@Override
-			public String get(Number number) {
-				return format.format(number);
-			}
-		});
+		return get(source, format::format);
 	}
 
 	@Override
