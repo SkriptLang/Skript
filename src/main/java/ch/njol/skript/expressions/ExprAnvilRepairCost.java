@@ -41,13 +41,13 @@ import org.eclipse.jdt.annotation.Nullable;
 		"The default value of max cost set by vanilla Minecraft is 40."
 })
 @Examples({
-		"on inventory click:",
+	"on inventory click:",
 		"\tif {AnvilRepairSaleActive} = true:",
 		"\t\twait a tick # recommended, to avoid client bugs",
 		"\t\tset anvil repair cost to anvil repair cost * 50%",
 		"\t\tsend \"Anvil repair sale is ON!\" to player",
-
-		"on inventory click:",
+	"",
+	"on inventory click:",
 		"\tplayer have permission \"anvil.repair.max.bypass\"",
 		"\tset max repair cost of event-inventory to 99999"
 })
