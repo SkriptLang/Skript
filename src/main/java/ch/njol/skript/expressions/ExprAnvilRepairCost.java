@@ -60,7 +60,7 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 				"%inventories%'[s] [item] [:max[imum]] repair cost");
 	}
 
-	boolean isMax;
+	private boolean isMax;
 
 	@Override
 	@SuppressWarnings("unchecked")
