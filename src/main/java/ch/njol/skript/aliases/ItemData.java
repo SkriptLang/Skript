@@ -257,20 +257,20 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (!enchantments.isEmpty()) {
 			builder.append(Language.getSpaced("enchantments.of").toLowerCase(Locale.ENGLISH));
 			int i = 0;
-			for (Entry<Enchantment, Integer> e : enchantments.entrySet()) {
+			for (Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
 				if (i != 0) {
 					if (i != enchantments.size() - 1) {
 						builder.append(", ");
 					} else  {
-						builder.append(" " + GeneralWords.and + " ");
+						builder.append(" ").append(GeneralWords.and).append(" ");
 					}
 				}
-				Enchantment ench = e.getKey();
+				Enchantment ench = entry.getKey();
 				if (ench == null)
 					continue;
 				builder.append(EnchantmentType.toString(ench));
 				builder.append(" ");
-				builder.append(e.getValue());
+				builder.append(entry.getValue());
 				i++;
 			}
 		}
@@ -284,12 +284,12 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 				builder.append(" ").append(m_with_lore).append(" ");
 				List<String> lore = meta.getLore();
 				int i = 0;
-				for (String l : lore) {
+				for (String l : lore) { // hasLore handles NPE
 					if (i != 0) {
 						if (i != lore.size() - 1)  {
 							builder.append(", ");
 						} else {
-							builder.append(" " + GeneralWords.and + " ");
+							builder.append(" ").append(GeneralWords.and).append(" ");
 						}
 					}
 					builder.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");

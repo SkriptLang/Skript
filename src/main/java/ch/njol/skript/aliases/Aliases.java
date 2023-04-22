@@ -277,10 +277,9 @@ public abstract class Aliases {
 		}
 
 		String lowercase = value.toLowerCase(Locale.ENGLISH);
-
-		// Enchantments
 		String of = Language.getSpaced("enchantments.of").toLowerCase(Locale.ENGLISH);
 		int character = -1;
+
 		outer: while ((character = lowercase.indexOf(of, character + 1)) != -1) {
 			ItemType clonedItemtype = itemtype.clone();
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
@@ -293,6 +292,11 @@ public abstract class Aliases {
 			boolean hasName = lowercase.contains(" " + m_named + " ");
 			boolean hasLore = lowercase.contains(" " + m_with_lore + " ");
 
+			// Order of ItemType output matters here
+			// Order: AMOUNT TYPE ENCHANTMENTS NAME LORE
+			// e.g. Name is followed my Lore, so we need to check for name from its beginning to the beginning of `with lore` part
+			// otherwise the regex will include the lore as a name
+
 			// Name
 			matcher = p_named.matcher(value.substring(character, hasLore ? lowercase.indexOf(" " + m_with_lore + " ") : lowercase.length()));
 			if (matcher.matches()) {
@@ -302,12 +306,14 @@ public abstract class Aliases {
 			}
 
 			// Lore
-			matcher = p_with_lore.matcher(value);
+			matcher = p_with_lore.matcher(value); // since no more values are printed after the lore we don't need to substring it like name
 			if (matcher.matches()) {
 				ItemMeta meta = clonedItemtype.getItemMeta();
 				meta.setLore(Arrays.stream(MULTIPLE_VALUE_SPLIT_PATTERN.split(matcher.group(2))).map(line -> line.substring(1, line.length() -1)).collect(Collectors.toList())); // strip quotes
 				clonedItemtype.setItemMeta(meta);
 			}
+
+			// Substring to avoid including name and lore as enchantments
 			int endOfSubstring = hasName ? lowercase.indexOf(" " + m_named + " ") : hasLore ? lowercase.indexOf(" " + m_with_lore + " ") : lowercase.length();
 			String[] enchantments = ENCHANTMENTS_PATTERN.split(lowercase.substring(character + of.length(), endOfSubstring));
 			for (String enchantment : enchantments) {
