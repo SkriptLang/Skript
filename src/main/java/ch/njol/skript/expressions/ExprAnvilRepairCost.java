@@ -91,9 +91,6 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
-
 		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inventory : getExpr().getArray(event)) {
 			if (inventory instanceof AnvilInventory) {
