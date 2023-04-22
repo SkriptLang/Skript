@@ -143,7 +143,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
+		return "target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 	/**
