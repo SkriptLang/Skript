@@ -30,7 +30,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -80,19 +79,14 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	protected Entity[] get(Event event, LivingEntity[] source) {
-		return get(source, new Converter<LivingEntity, Entity>() {
-			@Override
-			@Nullable
-			public Entity convert(LivingEntity entity) {
-				if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
-					Entity target = ((EntityTargetEvent) event).getTarget();
-					if (target == null || type != null && !type.isInstance(target))
-						return null;
-					return target;
-				}
-				return getTarget(entity, type);
+		return get(source, entity -> {
+			if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
+				Entity target = ((EntityTargetEvent) event).getTarget();
+				if (target == null || type != null && !type.isInstance(target))
+					return null;
+				return target;
 			}
-			return getTarget(en, type);
+			return getTarget(entity, type);
 		});
 	}
 
