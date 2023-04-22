@@ -162,7 +162,7 @@ public class LogEntry {
 		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
 
 		if (node == null)
-			return String.format(detailsMsg.replaceAll("(\\s){2,}", ""), message); // Remove line beginning spaces
+			return String.format(detailsMsg.replaceAll("^\\s+", ""), message); // Remove line beginning spaces
 
 		Config c = node.getConfig();
 		String from = this.from;
