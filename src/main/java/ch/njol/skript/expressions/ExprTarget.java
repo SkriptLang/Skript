@@ -46,8 +46,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.List;
 
 @Name("Target")
-@Description("For players this is the entity at the crosshair, while for mobs and experience orbs it represents the " +
-	"entity they are attacking/following (if any).")
+@Description({
+	"For players this is the entity at the crosshair.",
+	"For mobs and experience orbs this is the entity they are attacking/following (if any)."
+})
 @Examples({
 	"on entity target:",
 	"\tif entity's target is a player:",
@@ -142,7 +144,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
+		return "target" + (type == null ? "" : "ed " + type) + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 	/**
