@@ -78,6 +78,3 @@ test "itemtype parsing":
 	assert size of enchantments of {_i9} is 2 with "Itemtype test ##9.3 failed"
 	assert itemstack size of {_i9} is 3 with "Itemtype test ##9.4 failed"
 	assert type of {_i9} is stone pickaxe with "Itemtype test ##9.5 failed"
-
-
-
