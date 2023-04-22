@@ -66,7 +66,6 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
-		setExpr((Expression<? extends Inventory>) exprs[0]);
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
