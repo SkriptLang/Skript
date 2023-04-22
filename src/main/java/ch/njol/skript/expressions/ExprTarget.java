@@ -98,8 +98,9 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 			case RESET:
 			case DELETE:
 				return CollectionUtils.array(LivingEntity.class);
+			default:
+				return super.acceptChange(mode);
 		}
-		return super.acceptChange(mode);
 	}
 
 	@Override
