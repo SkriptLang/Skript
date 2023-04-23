@@ -40,11 +40,12 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"The text to show if the protocol version of the server doesn't match with protocol version of the client. " +
 	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
-	"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."})
+	"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."
+})
 @Examples({
 	"on server list ping:",
-	"	\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
-	"	\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
+		"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
+		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2+")
@@ -63,7 +64,7 @@ public class ExprVersionString extends SimpleExpression<String> {
 			Skript.error("The 'version string' expression requires Paper 1.12.2+");
 			return false;
 		} else if (!getParser().isCurrentEvent(PaperServerListPingEvent.class)) {
-			Skript.error("The 'version string' expression can't be used outside of 'server list ping' event");
+			Skript.error("The 'version string' expression can't be used outside of a 'server list ping' event");
 			return false;
 		}
 		return true;
@@ -94,8 +95,7 @@ public class ExprVersionString extends SimpleExpression<String> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof PaperServerListPingEvent))
 			return;
-		if (delta != null)
-			((PaperServerListPingEvent) event).setVersion(((String) delta[0]));
+		((PaperServerListPingEvent) event).setVersion(((String) delta[0]));
 	}
 
 	@Override
