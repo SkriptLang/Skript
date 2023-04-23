@@ -63,6 +63,7 @@ public interface SyntaxElement {
 	/**
 	 * Gets the sections in which this element can be used in. If there are no limits to this element, you may
 	 * return an empty array, or simply not override this method.
+	 * 
 	 * @return the sections this element is usable in, or an empty list.
 	 */
 	default List<Class<? extends Section>> getUsableSections() {
