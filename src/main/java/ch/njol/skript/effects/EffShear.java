@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -49,7 +50,8 @@ import org.jetbrains.annotations.Nullable;
 		"\tchance of 10%",
 		"\tforce shear the clicked sheep"
 })
-@Since("2.0, INSERT VERSION (shearable)")
+@Since("2.0 (sheep & snowmen), INSERT VERSION (all shearable entities)")
+@RequiredPlugins("Paper 1.19.4+ (all shearable entities)")
 public class EffShear extends Effect {
 
 	private static final boolean INTERFACE_METHOD = Skript.classExists("io.papermc.paper.entity.Shearable");
