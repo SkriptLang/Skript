@@ -32,21 +32,24 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Locale;
+
 @Name("Free / Max / Total Memory")
-@Description("The free, max or total memory of the server in MB.")
+@Description("The free, max or total memory of the server in Megabytes.")
 @Examples({
 	"while player is online:",
 		"\tsend action bar \"Memory left: %free memory%MB\" to player",
 		"\twait 5 ticks"
 })
 @Since("INSERT VERSION")
-public class ExprMemory extends SimpleExpression<Number> {
-
-	static {
-		Skript.registerExpression(ExprMemory.class, Number.class, ExpressionType.SIMPLE, "[the] (:free|:max[imum]|total) (memory|ram)");
-	}
+public class ExprMemory extends SimpleExpression<Double> {
 
 	private static final Runtime RUNTIME = Runtime.getRuntime();
+
+	static {
+		Skript.registerExpression(ExprMemory.class, Double.class, ExpressionType.SIMPLE, "[the] (:free|:max[imum]|total) (memory|ram)");
+	}
+
 	private Type type;
 
 	@Override
@@ -62,8 +65,8 @@ public class ExprMemory extends SimpleExpression<Number> {
 	}
 
 	@Override
-	protected @Nullable Number[] get(Event event) {
-		Number memory = 0;
+	protected Double[] get(Event event) {
+		double memory = 0;
 		switch (type) {
 			case FREE:
 				memory = RUNTIME.freeMemory();
@@ -73,22 +76,24 @@ public class ExprMemory extends SimpleExpression<Number> {
 				break;
 			case TOTAL:
 				memory = RUNTIME.totalMemory();
+				break;
 		}
-		return CollectionUtils.array(memory.longValue() * 1.024e-6);
+		return CollectionUtils.array(memory * 1.024e-6);
 	}
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Double> getReturnType() {
+		return Double.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (type == Type.FREE ? "free" : type == Type.MAXIMUM ? "maximum" : "total") + " memory";
+		return type.name().toLowerCase(Locale.ENGLISH) + " memory";
 	}
 
 	private enum Type {
