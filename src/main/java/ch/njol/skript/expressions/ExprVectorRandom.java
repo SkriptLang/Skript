@@ -41,7 +41,7 @@ import java.util.Random;
 @Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
 
-	private static final Random random = new Random();
+	private static final Random RANDOM = new Random();
 	
 	static {
 		Skript.registerExpression(ExprVectorRandom.class, Vector.class, ExpressionType.SIMPLE, "[a] random vector");
@@ -56,7 +56,7 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	protected Vector[] get(Event event) {
 		// Generating uniform random numbers leads to bias towards the corners of the cube.
 		// Gaussian distribution is radially symmetric, so it avoids this bias.
-		return CollectionUtils.array(new Vector(random.nextGaussian(), random.nextGaussian(), random.nextGaussian()).normalize());
+		return CollectionUtils.array(new Vector(RANDOM.nextGaussian(), RANDOM.nextGaussian(), RANDOM.nextGaussian()).normalize());
 	}
 
 	@Override
