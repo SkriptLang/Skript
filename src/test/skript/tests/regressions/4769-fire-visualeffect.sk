@@ -1,4 +1,4 @@
-test "fire visual effect":
+test "fire visual effect comparison":
 	set {_block} to block at spawn of world "world"
 	set block at spawn of world "world" to fire
 	assert block at spawn of world "world" is fire with "failed to compare fire (itemtype) with a block"
