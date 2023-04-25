@@ -1,4 +1,4 @@
-test "item compares":
+test "item comparison":
 	set {_test} to a dragon head
 	assert {_test} is a dragon head with "failed to compare against a head"
 	set {_test} to a door
