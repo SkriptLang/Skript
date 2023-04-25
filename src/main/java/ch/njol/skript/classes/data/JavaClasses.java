@@ -551,7 +551,7 @@ public class JavaClasses {
 				.description("Text is simply text, i.e. a sequence of characters, which can optionally contain expressions which will be replaced with a meaningful representation " +
 						"(e.g. %player% will be replaced with the player's name).",
 						"Because scripts are also text, you have to put text into double quotes to tell Skript which part of the line is an effect/expression and which part is the text.",
-						"Please read the article on <a href='../strings/'>Texts and Variable Names</a> to learn more.")
+						"Please read the article on <a href='./strings/'>Texts and Variable Names</a> to learn more.")
 				.usage("simple: \"...\"",
 						"quotes: \"...\"\"...\"",
 						"expressions: \"...%expression%...\"",
@@ -565,11 +565,9 @@ public class JavaClasses {
 					@Nullable
 					public String parse(String s, ParseContext context) {
 						switch (context) {
-							case DEFAULT: // in DUMMY, parsing is handled by VariableString
-								assert false;
-								return null;
 							case CONFIG: // duh
 								return s;
+							case DEFAULT:
 							case SCRIPT:
 							case EVENT:
 								if (VariableString.isQuotedCorrectly(s, true))
@@ -584,7 +582,7 @@ public class JavaClasses {
 					
 					@Override
 					public boolean canParse(ParseContext context) {
-						return context != ParseContext.DEFAULT;
+						return true;
 					}
 					
 					@Override

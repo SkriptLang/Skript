@@ -20,15 +20,16 @@ package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
+import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.tests.runner.SkriptTestEvent;
-import ch.njol.skript.tests.runner.TestMode;
-import ch.njol.skript.tests.runner.TestTracker;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -46,16 +47,18 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SkriptCommand implements CommandExecutor {
 	
 	private static final String CONFIG_NODE = "skript command";
-	
+	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
+
 	// TODO /skript scripts show/list - lists all enabled and/or disabled scripts in the scripts folder and/or subfolders (maybe add a pattern [using * and **])
 	// TODO document this command on the website
 	private static final CommandHelp SKRIPT_COMMAND_HELP = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
@@ -77,18 +80,16 @@ public class SkriptCommand implements CommandExecutor {
 			.add("download")
 		).add("info"
 		).add("help");
-	
+
 	static {
 		// Add command to generate documentation
-		if (TestMode.GEN_DOCS || new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
+		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
 			SKRIPT_COMMAND_HELP.add("gen-docs");
 
 		// Add command to run individual tests
 		if (TestMode.DEV_MODE)
 			SKRIPT_COMMAND_HELP.add("test");
 	}
-	
-	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 	
 	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
@@ -254,7 +255,7 @@ public class SkriptCommand implements CommandExecutor {
 								}
 							});
 					} else {
-						Collection<File> scriptFiles;
+						Set<File> scriptFiles;
 						try {
 							scriptFiles = toggleFiles(scriptFile, true);
 						} catch (IOException e) {
@@ -321,7 +322,7 @@ public class SkriptCommand implements CommandExecutor {
 					} else {
 						ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
 
-						Collection<File> scripts;
+						Set<File> scripts;
 						try {
 							scripts = toggleFiles(scriptFile, false);
 						} catch (IOException e) {
@@ -395,13 +396,13 @@ public class SkriptCommand implements CommandExecutor {
 			}
 
 			else if (args[0].equalsIgnoreCase("gen-docs")) {
-				File templateDir = new File(Skript.getInstance().getDataFolder() + "/doc-templates/");
+				File templateDir = Documentation.getDocsTemplateDirectory();
 				if (!templateDir.exists()) {
 					Skript.error(sender, "Cannot generate docs! Documentation templates not found at 'plugins/Skript/doc-templates/'");
 					TestMode.docsFailed = true;
 					return true;
 				}
-				File outputDir = new File(Skript.getInstance().getDataFolder() + "/docs");
+				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
 				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
 				Skript.info(sender, "Generating docs...");
@@ -515,10 +516,10 @@ public class SkriptCommand implements CommandExecutor {
 		);
 	}
 	
-	private static Collection<File> toggleFiles(File folder, boolean enable) throws IOException {
+	private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
 		FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
 
-		List<File> changed = new ArrayList<>();
+		Set<File> changed = new HashSet<>();
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory()) {
 				changed.addAll(toggleFiles(file, enable));

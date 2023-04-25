@@ -26,7 +26,7 @@ import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -53,6 +53,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 				.after("string", "world", "offlineplayer", "player")
 				.since("2.1")
 				.user("regions?")
+				.requiredPlugins("Supported regions plugin")
 				.parser(new Parser<Region>() {
 					@Override
 					@Nullable

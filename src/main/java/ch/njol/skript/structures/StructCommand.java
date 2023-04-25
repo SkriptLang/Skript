@@ -24,9 +24,9 @@ import ch.njol.skript.bukkitutil.CommandReloader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
-import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
+import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -97,7 +97,7 @@ public class StructCommand extends Structure {
 				.addEntry("description", "", true)
 				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
-				.addEntryData(new VariableStringEntryData("permission message", null, true, CommandEvent.class))
+				.addEntryData(new VariableStringEntryData("permission message", null, true, ScriptCommandEvent.class))
 				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
 
@@ -132,9 +132,9 @@ public class StructCommand extends Structure {
 					}
 				})
 				.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
-				.addEntryData(new VariableStringEntryData("cooldown message", null, true, CommandEvent.class))
+				.addEntryData(new VariableStringEntryData("cooldown message", null, true, ScriptCommandEvent.class))
 				.addEntry("cooldown bypass", null, true)
-				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, CommandEvent.class))
+				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, ScriptCommandEvent.class))
 				.addSection("trigger", false)
 				.unexpectedEntryMessage(key ->
 					"Unexpected entry '" + key + "'. Check that it's spelled correctly, and ensure that you have put all code into a trigger."
@@ -155,7 +155,7 @@ public class StructCommand extends Structure {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean load() {
-		getParser().setCurrentEvent("command", CommandEvent.class);
+		getParser().setCurrentEvent("command", ScriptCommandEvent.class);
 
 		EntryContainer entryContainer = getEntryContainer();
 
