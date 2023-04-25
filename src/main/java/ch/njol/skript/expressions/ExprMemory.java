@@ -44,6 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class ExprMemory extends SimpleExpression<Double> {
 
+	private static final double BYTES_IN_MEGABYTES = 1E-6;
 	private static final Runtime RUNTIME = Runtime.getRuntime();
 
 	static {
@@ -78,7 +79,7 @@ public class ExprMemory extends SimpleExpression<Double> {
 				memory = RUNTIME.totalMemory();
 				break;
 		}
-		return CollectionUtils.array(memory * 1.024e-6);
+		return CollectionUtils.array(memory * BYTES_IN_MEGABYTES);
 	}
 
 	@Override
