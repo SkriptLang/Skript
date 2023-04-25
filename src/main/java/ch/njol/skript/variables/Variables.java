@@ -94,7 +94,7 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	private final static Multimap<Class<? extends VariablesStorage>, String> types = HashMultimap.create();
+	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
 
 	// Register some things with Yggdrasil
 	static {
@@ -148,14 +148,14 @@ public class Variables {
 	 * @return if the operation was successful, or if it's already registered.
 	 */
 	public static <T extends VariablesStorage> boolean registerStorage(Class<T> storage, String... names) {
-		if (types.containsKey(storage))
+		if (TYPES.containsKey(storage))
 			return false;
 		for (String name : names) {
-			if (types.containsValue(name.toLowerCase(Locale.ENGLISH)))
+			if (TYPES.containsValue(name.toLowerCase(Locale.ENGLISH)))
 				return false;
 		}
 		for (String name : names)
-			types.put(storage, name.toLowerCase(Locale.ENGLISH));
+			TYPES.put(storage, name.toLowerCase(Locale.ENGLISH));
 		return true;
 	}
 
@@ -220,7 +220,7 @@ public class Variables {
 
 					// Initiate the right VariablesStorage class
 					VariablesStorage variablesStorage;
-					Optional<?> optional = types.entries().stream()
+					Optional<?> optional = TYPES.entries().stream()
 							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
 							.map(Entry::getKey)
 							.findFirst();
