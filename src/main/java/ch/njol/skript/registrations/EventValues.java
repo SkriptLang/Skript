@@ -373,12 +373,12 @@ public class EventValues {
 		};
 	}
 
-	public static boolean doesExactEventValueHaveTimeStates(Class<? extends Event> e, Class<?> c) {
-		return getExactEventValueGetter(e, c, -1) != null || getExactEventValueGetter(e, c, 1) != null;
+	public static boolean doesExactEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
+		return getExactEventValueGetter(event, c, -1) != null || getExactEventValueGetter(event, c, 1) != null;
 	}
 
-	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> e, Class<?> c) {
-		return getEventValueGetter(e, c, -1, false) != null || getEventValueGetter(e, c, 1, false) != null;
+	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
+		return getEventValueGetter(event, c, -1, false) != null || getEventValueGetter(event, c, 1, false) != null;
 	}
 	
 }
