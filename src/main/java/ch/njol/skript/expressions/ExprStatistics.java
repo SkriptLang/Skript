@@ -180,13 +180,11 @@ public class ExprStatistics extends SimpleExpression<Long> {
 	}
 
 	private static void applyStatistic(OfflinePlayer[] players, Statistic[] statistics, @Nullable Object ofType, int value, ChangeMode mode) {
-		for (OfflinePlayer p : players) {
+		for (OfflinePlayer player : players) {
 			for (Statistic statistic : statistics) {
 				try {
-					applyStatistic(p, statistic, ofType, value, mode);
-				} catch (IllegalArgumentException ex) {
-					return;
-				}
+					applyStatistic(player, statistic, ofType, value, mode);
+				} catch (IllegalArgumentException ignored) {}
 			}
 		}
 	}
