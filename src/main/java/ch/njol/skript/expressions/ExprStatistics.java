@@ -46,10 +46,10 @@ import java.util.List;
 
 @Name("Player Statistics")
 @Description({
-	"Return the value of a specific player statistic.",
+	"Returns the value of one or more statistics for one or more players.",
 	"Statistics are countable data for every player, which is tracked by the server.",
-	"You can find the more info on <a href=\"https://minecraft.fandom.com/wiki/Statistics\">Minecraft Wiki</a> and for the list of statistic names on " +
-		"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Statistic.html\">Spigot Javadocs</a>",
+	"You can find more info on the <a href=\"https://minecraft.fandom.com/wiki/Statistics\">Minecraft Wiki</a> and a list of statistic names on the " +
+		"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Statistic.html\">Spigot Javadocs</a>.",
 })
 @Examples({
 	"# Examples:",
