@@ -29,7 +29,6 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.variables.DatabaseStorage.Type;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
@@ -43,6 +42,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
@@ -90,8 +94,13 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
+	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
+
 	// Register some things with Yggdrasil
 	static {
+		registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
+		registerStorage(SQLiteStorage.class, "sqlite");
+		registerStorage(MySQLStorage.class, "mysql");
 		yggdrasil.registerSingleClass(Kleenean.class, "Kleenean");
 		// Register ConfigurationSerializable, Bukkit's serialization system
 		yggdrasil.registerClassResolver(new ConfigurationSerializer<ConfigurationSerializable>() {
@@ -129,6 +138,26 @@ public class Variables {
 	 * The variable storages configured.
 	 */
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
+
+	/**
+	 * Register a VariableStorage class for Skript to create if the user config value matches.
+	 * 
+	 * @param <T> A class to extend VariableStorage.
+	 * @param storage The class of the VariableStorage implementation.
+	 * @param names The names used in the config of Skript to select this VariableStorage.
+	 * @return if the operation was successful, or if it's already registered.
+	 */
+	public static <T extends VariablesStorage> boolean registerStorage(Class<T> storage, String... names) {
+		if (TYPES.containsKey(storage))
+			return false;
+		for (String name : names) {
+			if (TYPES.containsValue(name.toLowerCase(Locale.ENGLISH)))
+				return false;
+		}
+		for (String name : names)
+			TYPES.put(storage, name.toLowerCase(Locale.ENGLISH));
+		return true;
+	}
 
 	/**
 	 * Load the variables configuration and all variables.
@@ -191,20 +220,25 @@ public class Variables {
 
 					// Initiate the right VariablesStorage class
 					VariablesStorage variablesStorage;
-					if (type.equalsIgnoreCase("csv")
-							|| type.equalsIgnoreCase("file")
-							|| type.equalsIgnoreCase("flatfile")) {
-						variablesStorage = new FlatFileStorage(name);
-					} else if (type.equalsIgnoreCase("mysql")) {
-						variablesStorage = new DatabaseStorage(name, Type.MYSQL);
-					} else if (type.equalsIgnoreCase("sqlite")) {
-						variablesStorage = new DatabaseStorage(name, Type.SQLITE);
-					} else {
+					Optional<?> optional = TYPES.entries().stream()
+							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
+							.map(Entry::getKey)
+							.findFirst();
+					if (!optional.isPresent()) {
 						if (!type.equalsIgnoreCase("disabled") && !type.equalsIgnoreCase("none")) {
 							Skript.error("Invalid database type '" + type + "'");
 							successful = false;
 						}
+						continue;
+					}
 
+					try {
+						@SuppressWarnings("unchecked")
+						Class<? extends VariablesStorage> storageClass = (Class<? extends VariablesStorage>) optional.get();
+						variablesStorage = (VariablesStorage) storageClass.getConstructor(String.class).newInstance(type);
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+						Skript.error("Failed to initalize database type '" + type + "'");
+						successful = false;
 						continue;
 					}
 
