@@ -18,27 +18,30 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import ch.njol.util.coll.iterator.ArrayIterator;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -87,20 +90,15 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
+import java.io.StreamCorruptedException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
@@ -1497,31 +1495,31 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(Statistic.class, "statistic")
 				.user("statistics?")
 				.name("Statistic")
-				.description("Represents a countable statistic, which is tracked by the server. Statistics are put into scripts by surrounding their name with double quotes, e.g. \"PLAY_ONE_MINUTE\", ")
+				.description("Represents a countable statistic, which is tracked by the server. Statistics are put into scripts by surrounding their name with double quotes and using underscores instead of whitespaces, e.g. \"PLAY_ONE_MINUTE\", ")
 				.usage("<code>\"STATISTIC_NAME\"</code>, e.g. \"SLEEP_IN_BED\"")
-				.examples("")
+				.examples("send statistic \"PLAY_ONE_MINUTE\" of player")
 				.since("INSERT VERSION")
 				.after("string")
 				.defaultExpression(new EventValueExpression<>(Statistic.class))
 				.parser(new Parser<Statistic>() {
 					@Override
 					@Nullable
-					public Statistic parse(String s, ParseContext context) {
+					public Statistic parse(String value, ParseContext context) {
 						try {
-							return Statistic.valueOf(s.toUpperCase(Locale.ENGLISH));
-						} catch (Exception ex) {
+							return Statistic.valueOf(value.toUpperCase(Locale.ENGLISH));
+						} catch (Exception ignored) {
 							return null;
 						}
 					}
 
 					@Override
 					public String toString(Statistic statistic, int flags) {
-						return "" + statistic;
+						return statistic.toString();
 					}
 
 					@Override
 					public String toVariableNameString(Statistic statistic) {
-						return "" + statistic;
+						return statistic.toString();
 					}
 				}));
 

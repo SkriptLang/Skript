@@ -72,12 +72,12 @@ import java.util.List;
 	"\t\t\t\tstop",
 	"",
 	"\t\t\tif {_kind} is set:",
-	"\t\t\t\tsend statistic arg-2 of type {_kind} of arg-1 to player",
+	"\t\t\t\tsend statistic arg-2 for {_kind} of arg-1 to player",
 	"\t\telse:",
 	"\t\t\tsend statistic arg-2 of arg-1 to player",
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("MC 1.15+ (for offlineplayers)")
+@RequiredPlugins("MC 1.15+ (offlineplayers)")
 public class ExprStatistics extends SimpleExpression<Long> {
 
 	private static final String PLAYER_PATTERN = Skript.isRunningMinecraft(1, 15) ? "%-offlineplayers%" : "%-players%";
@@ -90,7 +90,7 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Statistic> statistics;
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@Nullable
 	private Expression<?> ofType;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<OfflinePlayer> players;
@@ -112,21 +112,22 @@ public class ExprStatistics extends SimpleExpression<Long> {
 		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
 		if (players == null || statistics == null)
-			return null;
+			return new Long[0];
 
 		List<Long> result = new ArrayList<>(players.length * statistics.length);
 
-		for (OfflinePlayer p : players) {
+		for (OfflinePlayer player : players) {
 			for (Statistic statistic : statistics) {
 				try {
-					if (ofType instanceof ItemType)
-						result.add((long) p.getStatistic(statistic, ((ItemType) ofType).getMaterial()));
-					else if (ofType instanceof EntityData<?>)
-						result.add((long) p.getStatistic(statistic, EntityUtils.toBukkitEntityType((EntityData) ofType)));
-					else
-						result.add((long) p.getStatistic(statistic));
-				} catch (IllegalArgumentException ex) {
-					return null;
+					if (ofType instanceof ItemType) {
+						result.add((long) player.getStatistic(statistic, ((ItemType) ofType).getMaterial()));
+					} else if (ofType instanceof EntityData<?>) {
+						result.add((long) player.getStatistic(statistic, EntityUtils.toBukkitEntityType((EntityData<?>) ofType)));
+					} else {
+						result.add((long) player.getStatistic(statistic));
+					}
+				} catch (IllegalArgumentException ignored) {
+					return new Long[0];
 				}
 			}
 		}
@@ -160,18 +161,15 @@ public class ExprStatistics extends SimpleExpression<Long> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if ((mode != ChangeMode.RESET && mode != ChangeMode.DELETE) && delta == null)
-			return;
-
 		OfflinePlayer[] players = this.players.getArray(event);
 		Statistic[] statistics = this.statistics.getArray(event);
 		Object ofType = this.ofType != null ? this.ofType.getSingle(event) : null; // TODO support getArray()
 
-		if (ofType instanceof ItemType)
+		if (ofType instanceof ItemType) {
 			ofType = ((ItemType) ofType).getMaterial();
-
-		if (ofType instanceof EntityData)
+		} else if (ofType instanceof EntityData) {
 			ofType = EntityUtils.toBukkitEntityType((EntityData<?>) ofType);
+		}
 
 		int value = (mode == ChangeMode.RESET || mode == ChangeMode.DELETE) ? 0 : ((Long) delta[0]).intValue();
 
@@ -196,43 +194,43 @@ public class ExprStatistics extends SimpleExpression<Long> {
 		}
 	}
 
-	private static void applyStatistic(OfflinePlayer p, Statistic stat, Object type, int value, ChangeMode mode) {
+	private static void applyStatistic(OfflinePlayer player, Statistic statistic, @Nullable Object ofType, int value, ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
-			setStatistic(p, stat, type, value);
+			setStatistic(player, statistic, ofType, value);
 		} else if (mode == ChangeMode.ADD) {
-			incrementStatistic(p, stat, type, value);
+			incrementStatistic(player, statistic, ofType, value);
 		} else {
-			decrementStatistic(p, stat, type, value);
+			decrementStatistic(player, statistic, ofType, value);
 		}
 	}
 
-	private static void incrementStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
-		if (type instanceof Material) {
-			p.incrementStatistic(stat, (Material) type, value);
-		} else if (type instanceof EntityType) {
-			p.incrementStatistic(stat, (EntityType) type, value);
+	private static void incrementStatistic(OfflinePlayer player, Statistic stat, @Nullable Object ofType, int value) {
+		if (ofType instanceof Material) {
+			player.incrementStatistic(stat, (Material) ofType, value);
+		} else if (ofType instanceof EntityType) {
+			player.incrementStatistic(stat, (EntityType) ofType, value);
 		} else {
-			p.incrementStatistic(stat, value);
+			player.incrementStatistic(stat, value);
 		}
 	}
 
-	private static void decrementStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
-		if (type instanceof Material) {
-			p.decrementStatistic(stat, (Material) type, value);
-		} else if (type instanceof EntityType) {
-			p.decrementStatistic(stat, (EntityType) type, value);
+	private static void decrementStatistic(OfflinePlayer player, Statistic stat, @Nullable Object ofType, int value) {
+		if (ofType instanceof Material) {
+			player.decrementStatistic(stat, (Material) ofType, value);
+		} else if (ofType instanceof EntityType) {
+			player.decrementStatistic(stat, (EntityType) ofType, value);
 		} else {
-			p.decrementStatistic(stat, value);
+			player.decrementStatistic(stat, value);
 		}
 	}
 
-	private static void setStatistic(OfflinePlayer p, Statistic stat, @Nullable Object type, int value) {
-		if (type instanceof Material) {
-			p.setStatistic(stat, (Material) type, value);
-		} else if (type instanceof EntityType) {
-			p.setStatistic(stat, (EntityType) type, value);
+	private static void setStatistic(OfflinePlayer player, Statistic stat, @Nullable Object ofType, int value) {
+		if (ofType instanceof Material) {
+			player.setStatistic(stat, (Material) ofType, value);
+		} else if (ofType instanceof EntityType) {
+			player.setStatistic(stat, (EntityType) ofType, value);
 		} else {
-			p.setStatistic(stat, value);
+			player.setStatistic(stat, value);
 		}
 	}
 
