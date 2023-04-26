@@ -54,11 +54,7 @@ public class EvtStatisticChange extends SkriptEvent {
 						"\telse if event-item is set:",
 						"\t\tsend \"Of item: %event-item%\" to player",
 						"on player statistic increase of \"CHEST_OPENED\":",
-						"\tsend \"You just opened a chest!\" to player",
-						"",
-						"# 'TIME_SINCE_REST' is called too many times therefore it will not trigger the event unless specified like below",
-						"on player statistic increase of \"TIME_SINCE_REST\":",
-						"\tsend \"Your chat is being flooded\" to player"
+						"\tsend \"You just opened a chest!\" to player"
 				)
 				.since("INSERT VERSION");
 
