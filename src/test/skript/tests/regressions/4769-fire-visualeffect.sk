@@ -1,5 +1,5 @@
 test "fire visual effect comparison":
-	set {_block} to block data of block at spawn of world "world"
+	set {_block} to type of block at spawn of world "world"
 	set block at spawn of world "world" to fire
 	assert block at spawn of world "world" is fire with "failed to compare fire (itemtype) with a block"
 	set block at spawn of world "world" to {_block}
