@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: クオーテーション(")の使い方が正しくありません。 クオーテーションをテキストに対して使用したい場合 "このように" ２つの "" で囲ってください。
 	brackets error: セクションが正しく閉じられていません。 カッコの配置か量を見直してみてください。
 	invalid reload: Skriptの再読み込みは Bukkit側の '/reload' もしくは Skript側の '/skript reload' でのみ再読み込みが可能です。
