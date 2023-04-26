@@ -40,7 +40,8 @@ public class HangingEntity_4871 extends SkriptJUnitTest {
 		setShutdownDelay(1);
 	}
 
-	private Material before, before2;
+	private Material before;
+	//private Material before2;
 
 	@Before
 	public void setupItemFrame() {

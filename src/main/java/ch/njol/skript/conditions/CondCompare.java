@@ -205,11 +205,12 @@ public class CondCompare extends Condition {
 		} finally {
 			log.stop();
 		}
-		Class<?> f = first.getReturnType(), s = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
-		if (f == Object.class || s == Object.class)
+		Class<?> firstReturnType = first.getReturnType();
+		Class<?> secondReturnType = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
+		if (firstReturnType == Object.class || secondReturnType == Object.class)
 			return true;
 
-		comp = Comparators.getComparator(f, s);
+		comp = Comparators.getComparator(firstReturnType, secondReturnType);
 
 		if (comp == null) { // Try to re-parse with more context
 			/*
@@ -224,15 +225,15 @@ public class CondCompare extends Condition {
 			 * Some damage types not working (issue #2184) would be a good example
 			 * of issues that SkriptParser's lack of context can cause.
 			 */
-			SimpleLiteral<?> reparsedSecond = reparseLiteral(first.getReturnType(), second);
+			SimpleLiteral<?> reparsedSecond = reparseLiteral(firstReturnType, second);
 			if (reparsedSecond != null) {
 				second = reparsedSecond;
-				comp = Comparators.getComparator(f, second.getReturnType());
+				comp = Comparators.getComparator(firstReturnType, second.getReturnType());
 			} else {
 				SimpleLiteral<?> reparsedFirst = reparseLiteral(second.getReturnType(), first);
 				if (reparsedFirst != null) {
 					first = reparsedFirst;
-					comp = Comparators.getComparator(first.getReturnType(), s);
+					comp = Comparators.getComparator(first.getReturnType(), secondReturnType);
 				}
 			}
 			
