@@ -101,13 +101,13 @@ public class EvtStatisticChange extends SkriptEvent {
 		}, EventValues.TIME_NOW);
 	}
 
-	private final List<Statistic> statistics = new ArrayList<>(0);
+	@Nullable
+	private Literal<Statistic> statistics;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] == null)
-			return true;
-		statistics.addAll(Arrays.asList((Statistic[]) args[0].getArray()));
+		statistics = (Literal<Statistic>) args[0];
 		return true;
 	}
 	
@@ -115,20 +115,15 @@ public class EvtStatisticChange extends SkriptEvent {
 	public boolean check(Event event) {
 		Statistic statistic = ((PlayerStatisticIncrementEvent) event).getStatistic();
 
-		if (statistics.size() == 0)
+		if (statistics == null)
 			return true;
 
-		for (Statistic stat : statistics) {
-			if (stat == statistic)
-				return true;
-		}
-
-		return false;
+		return statistics.check(event, stat -> stat == statistic);
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "statistic increase" + (statistics.size() > 0 ? " of " + StringUtils.join(statistics, ", ") : "");
+		return "statistic increase" + (statistics != null ? " of " + statistics.toString(event, debug) : "");
 	}
 	
 }
