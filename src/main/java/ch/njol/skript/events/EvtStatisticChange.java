@@ -106,8 +106,6 @@ public class EvtStatisticChange extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] == null)
-			return true;
 		statistics = ((Literal<Statistic>) args[0]).getAll();
 		return true;
 	}
