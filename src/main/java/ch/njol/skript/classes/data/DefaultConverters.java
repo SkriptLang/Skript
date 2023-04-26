@@ -54,26 +54,11 @@ import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Converter;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.EntityType;
-import ch.njol.skript.entity.XpOrbData;
-import ch.njol.skript.registrations.Converters;
-import ch.njol.skript.util.BlockInventoryHolder;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.slot.Slot;
-
 import java.util.Locale;
 
 /**
  * @author Peter Güttinger
  */
-@SuppressWarnings("rawtypes")
 public class DefaultConverters {
 	
 	public DefaultConverters() {}
@@ -197,6 +182,7 @@ public class DefaultConverters {
 		// EnchantmentOffer - EnchantmentType
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
+		// String - World
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
 		// Location - Chunk
@@ -276,19 +262,12 @@ public class DefaultConverters {
 //			}
 //		});
 
-		// String - World
-		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
-
 		// String - Statistic
-		Converters.registerConverter(String.class, Statistic.class, new Converter<String, Statistic>() {
-			@Override
-			@Nullable
-			public Statistic convert(String statistic) {
-				try {
-					return Statistic.valueOf(statistic.toUpperCase(Locale.ENGLISH));
-				} catch (Exception ex) {
-					return null;
-				}
+		Converters.registerConverter(String.class, Statistic.class, statistic -> {
+			try {
+				return Statistic.valueOf(statistic.toUpperCase(Locale.ENGLISH));
+			} catch (Exception ex) {
+				return null;
 			}
 		});
 	}
