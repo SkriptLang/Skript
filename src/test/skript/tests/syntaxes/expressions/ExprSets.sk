@@ -1,0 +1,12 @@
+test "colours set":
+	set {_set::*} to black, dark grey, grey, white, blue, brown, cyan, light cyan, green, light green, yellow, orange, red, pink, purple and magenta
+	loop all colours:
+		# Contains loop checking in the expression.
+		{_set::*} contains loop-colour
+		add 1 to {_count}
+	assert {_count} is size of {_set::*} with "All the colours in the collection set expression didn't match the required output"
+
+test "item sets":
+	assert items of type ore contains gold ore, diamond ore, coal ore and emerald ore with "Ores did not contain classic ore types"
+	assert items of type log contains dark oak log, oak log, jungle log and spruce log with "Logs did not contain the defined log checks"
+

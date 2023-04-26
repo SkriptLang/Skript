@@ -18,91 +18,57 @@
  */
 package ch.njol.skript.bukkitutil;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.util.Task;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.google.common.collect.ImmutableList;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.util.Task;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * TODO check all updates and find out which ones are not required
- * 
- * @author Peter Güttinger
+ * Contains utility methods related to players
  */
 public abstract class PlayerUtils {
-	private PlayerUtils() {}
-	
-	final static Set<Player> inviUpdate = new HashSet<>();
-	
-	public static void updateInventory(final @Nullable Player p) {
-		if (p != null)
-			inviUpdate.add(p);
+
+	private static final Set<Player> inventoryUpdateList = Collections.synchronizedSet(new HashSet<>());
+
+	/**
+	 * Updates the clients inventory within a tick, using {@link Player#updateInventory()}.
+	 * Recommended over directly calling the update method,
+	 * as multiple calls to this method within a short timespan will not send multiple updates to the client.
+	 */
+	public static void updateInventory(@Nullable Player player) {
+		if (player != null)
+			inventoryUpdateList.add(player);
 	}
-	
-	// created when first used
-	final static Task task = new Task(Skript.getInstance(), 1, 1) {
-		@Override
-		public void run() {
-			try {
-				for (final Player p : inviUpdate)
+
+	static {
+		new Task(Skript.getInstance(), 1, 1) {
+			@Override
+			public void run() {
+				for (Player p : inventoryUpdateList)
 					p.updateInventory();
-			} catch (final NullPointerException e) { // can happen on older CraftBukkit (Tekkit) builds
-				if (Skript.debug())
-					e.printStackTrace();
+
+				inventoryUpdateList.clear();
 			}
-			inviUpdate.clear();
-		}
-	};
-	
-	private final static boolean hasCollecionGetOnlinePlayers = Skript.methodExists(Bukkit.class, "getOnlinePlayers", new Class[0], Collection.class);
-	@Nullable
-	private static Method getOnlinePlayers = null;
-	
-	@SuppressWarnings({"null", "unchecked"})
-	public static Collection<? extends Player> getOnlinePlayers() {
-		if (hasCollecionGetOnlinePlayers) {
-			return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
-		} else {
-			if (getOnlinePlayers == null) {
-				try {
-					getOnlinePlayers = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
-				} catch (final NoSuchMethodException e) {
-					Skript.outdatedError(e);
-				} catch (final SecurityException e) {
-					Skript.exception(e);
-				}
-			}
-			try {
-				final Object o = getOnlinePlayers.invoke(null);
-				if (o instanceof Collection<?>)
-					return ImmutableList.copyOf((Collection<? extends Player>) o);
-				else
-					return Arrays.asList(((Player[]) o).clone());
-			} catch (final IllegalAccessException e) {
-				Skript.outdatedError(e);
-			} catch (final IllegalArgumentException e) {
-				Skript.outdatedError(e);
-			} catch (final InvocationTargetException e) {
-				Skript.exception(e);
-			}
-			return Collections.emptyList();
-		}
+		};
 	}
-	
-	
+
+	/**
+	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead
+	 */
+	@Deprecated
+	public static Collection<? extends Player> getOnlinePlayers() {
+		return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
+	}
+
 	public static boolean canEat(Player p, Material food) {
 		GameMode gm = p.getGameMode();
 		if (gm == GameMode.CREATIVE || gm == GameMode.SPECTATOR)
@@ -123,7 +89,77 @@ public abstract class PlayerUtils {
 		}
 		if (p.getFoodLevel() < 20 || special)
 			return true;
-		
+
 		return false;
+	}
+
+	/**
+	 * Gets the experience points needed to reach the next level, starting at the given level.
+	 * E.g. getLevelXP(30) returns the experience points needed to reach level 31 from level 30.
+	 *
+	 * @param level The starting level
+	 * @return The experience points needed to reach the next level
+	 */
+	public static int getLevelXP(int level) {
+		if (level <= 15)
+			return (2 * level) + 7;
+		if (level <= 30)
+			return (5 * level) - 38;
+		return (9 * level) - 158;
+	}
+
+	/**
+	 * Gets the cumulative experience needed to reach the given level, but no further.
+	 * E.g. getCumulativeXP(30) returns the experience points needed to reach level 30 from level 0.
+	 *
+	 * @param level The level to get the cumulative XP for
+	 * @return The experience points needed to reach the given level
+	 */
+	public static int getCumulativeXP(int level) {
+		if (level <= 15)
+			return (level * level) + (6 * level);
+		if (level <= 30)
+			return (int) (2.5 * (level * level) - (40.5 * level) + 360);
+		return (int) (4.5 * (level * level) - (162.5 * level) + 2220);
+	}
+
+	/**
+	 * Gets the total experience points needed to reach the given level, including the given progress.
+	 * E.g. getTotalXP(30, 0.5) returns the experience points needed to reach level 30 from level 0, and have a half-full xp bar.
+	 *
+	 * @param level The level to get the total XP of
+	 * @param progress The progress towards the next level, between 0 and 1
+	 * @return The total experience points needed to reach the given level and progress
+	 */
+	public static int getTotalXP(int level, double progress) {
+		return (int) (getCumulativeXP(level) + getLevelXP(level) * progress);
+	}
+
+	/**
+	 * Gets the total experience points of the given player.
+	 *
+	 * @param player The player to get the total XP of
+	 * @return The total experience points of the given player
+	 */
+	public static int getTotalXP(Player player) {
+		return getTotalXP(player.getLevel(), player.getExp());
+	}
+
+	/**
+	 * Sets the total experience points of the given player.
+	 *
+	 * @param player The player to set the total XP of
+	 * @param experience The total experience points to set
+	 */
+	public static void setTotalXP(Player player, int experience) {
+		int level = 0;
+		if (experience < 0)
+			experience = 0;
+		while (experience >= getLevelXP(level)) {
+			experience -= getLevelXP(level);
+			level++;
+		}
+		player.setLevel(level);
+		player.setExp((float) experience / getLevelXP(level));
 	}
 }

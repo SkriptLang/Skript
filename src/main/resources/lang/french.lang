@@ -1,0 +1,190 @@
+# Default French language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ créé par & © Peter Güttinger alias Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Utilisation incorrecte des guillemets ("). Si vous voulez utiliser des guillemets dans du texte "entre guillemets", doublez-les : "".
+	brackets error: Quantité ou emplacement des accolades incorrect. Assurez-vous que chaque accolade ouvrante '{' corresponde à une accolade fermante '}'.
+	invalid reload: Skript ne peut être rechargé qu'avec la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.
+	no scripts: Aucun script n'a été trouvé, vous devriez peut-être en écrire quelques-uns ;)
+	no errors: Tous les scripts ont été chargés sans erreur.
+	scripts loaded: %s ¦script a été chargé¦scripts ont été chargés¦ avec un total de %s structure¦¦s¦ en %s
+	finished loading: Chargement terminé.
+
+# -- Skript command --
+skript command:
+	usage: Utilisation :
+	help:
+		description: Commande principale de Skript
+		help: Affiche ce message d'aide. Utilisez '/skript reload/enable/disable/update' pour obtenir plus d'informations
+		reload:
+			description: Recharge la configuration, tous les scripts, tout, ou un script spécifique
+			all: Recharge la configuration, toutes les configurations d'alias et tous les scripts
+			config: Recharge la configuration principale
+			aliases: Recharge les configurations d'alias (aliases-english.zip ou jar du plugin)
+			scripts: Recharge tous les scripts
+			<script>: Recharge un script spécifique ou un dossier de scripts
+		enable:
+			description: Active tous les scripts ou un script spécifique
+			all: Active tous les scripts
+			<script>: Active un script spécifique ou un dossier de scripts
+		disable:
+			description: Désactive tous les scripts ou un script spécifique
+			all: Désactive tous les scripts
+			<script>: Désactive un script spécifique ou un dossier de scripts
+		update:
+			description: Vérifie les mises à jour, liste le journal des modifications ou télécharge la dernière version de Skript
+			check: Vérifie la présence d'une nouvelle version
+			changes: Liste toutes les modifications apportées depuis la version actuelle
+			download: Télécharge la dernière version
+		info: Affiche un message contenant les liens vers les alias et la documentation de Skript
+		gen-docs: Génère la documentation en utilisant doc-templates dans le dossier du plugin
+		test: Utilisé pour exécuter les tests Skript
+
+	invalid script: Impossible de trouver le script <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
+	invalid folder: Impossible de trouver le dossier <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
+	reload:
+		warning line info: <gold><bold>Ligne %s :<gray> (%s)<reset>\n
+		error line info: <light red><bold>Ligne %s :<gray> (%s)<reset>\n
+		reloading: Rechargement de <gold>%s<reset>...
+		reloaded: <gold>%s<lime> rechargé(s) avec succès. <gray>(<gold>%2$sms<gray>)
+		error: <gold>%2$s <light red>¦erreur rencontrée¦erreurs rencontrées¦ lors du rechargement de <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> est actuellement désactivé. Utilisez <gray>/<gold>skript <cyan>enable <red>%s<reset> pour l'activer.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Ligne : <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: la configuration, les alias et tous les scripts
+		scripts: tous les scripts
+		main config: la configuration principale
+		aliases: les alias
+		script: <gold>%s<reset>
+		scripts in folder: tous les scripts dans <gold>%s<reset>
+		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> ne contient aucun script activé.
+	enable:
+		all:
+			enabling: Activation de tous les scripts désactivés...
+			enabled: Activation et analyse réussies de tous les scripts précédemment désactivés.
+			error: %s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts désactivés !
+			io error: Impossible de charger les scripts (certains scripts ont peut-être déjà été renommés et seront activés au redémarrage du serveur) : %s
+		single:
+			already enabled: <gold>%s<reset> est déjà activé ! Utilisez <gray>/<gold>skript <cyan>reload <red>%s<reset> pour le recharger s'il a été modifié.
+			enabling: Activation de <gold>%s<reset>...
+			enabled: <gold>%s<reset> activé et analysé avec succès.
+			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse de <gold>%1$s<red> !
+			io error: Impossible d'activer <gold>%s<red>: %s
+		folder:
+			empty: <gold>%s<reset> ne contient aucun script désactivé.
+			enabling: Activation de <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>...
+			enabled: Activation et analyse réussies de <gold>%2$s<reset> script(s) précédemment désactivé(s) dans <gold>%1$s<reset>.
+			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts dans <gold>%1$s<red> !
+			io error: Erreur lors de l'activation des scripts dans <gold>%s<red> (certains scripts pourraient être activés lors du redémarrage du serveur) : %s
+	disable:
+		all:
+			disabled: Désactivation de tous les scripts réussie.
+			io error: Impossible de renommer tous les scripts - certains scripts seront réactivés lorsque vous redémarrerez le serveur : %s
+		single:
+			already disabled: <gold>%s<reset> est déjà désactivé !
+			disabled: <gold>%s<reset> désactivé avec succès.
+			io error: Impossible de renommer <gold>%s<red>, il sera à nouveau activé lorsque vous redémarrerez le serveur : %s
+		folder:
+			empty: <gold>%s<reset> ne contient aucun script activé.
+			disabled: Désactivation réussie de <gold>%2$s<reset> script(s) dans <gold>%1$s<reset>.
+			io error: Impossible de désactiver les scripts <gold>%s<red> (certains scripts pourraient être désactivés lors du redémarrage du serveur): %s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
+			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
+			# invalid version: No changelog for the version <gold>%s<red> available
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>page %s sur %s. Utilisez <gold>/skript update changes %s<gray> pour la page suivante (astuce : utilisez la touche flèche du haut)
+	info:
+		aliases: Les alias de Skript se trouvent ici : <aqua>https://github.com/SkriptLang/skript-aliases<reset> (en anglais)
+		documentation: La documentation de Skript se trouve ici : <aqua>https://docs.skriptlang.org/<reset> (en anglais)
+		tutorials: Les tutoriels de Skript se trouvent ici : <aqua>https://docs.skriptlang.org/tutorials<reset> (en anglais)
+		version: Version de Skript : <aqua>%s
+		server: Version du serveur : <aqua>%s
+		addons: Addons Skript installés : <aqua>%s
+		dependencies: Dépendances installées : <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript n'a pas encore vérifié la dernière version. Utilisez <gold>/skript update check<reset> pour vérifier.
+	checking: Vérification de la dernière version de Skript...
+	check in progress: La vérification d'une nouvelle version est actuellement en cours.
+	updater disabled: Le système de mise à jour étant désactivé, la vérification de la dernière version de Skript n'a pas été effectuée.
+	check error: <red>Une erreur s'est produite lors de la vérification de la dernière version de Skript :<light red> %s
+	running latest version: Vous utilisez actuellement la dernière version stable de Skript.
+	running latest version (beta): Vous utilisez actuellement une version <i>bêta<r> de Skript et aucune nouvelle version <i>stable<r> n'est disponible. Notez que vous devez mettre à jour les nouvelles versions bêta manuellement !
+	update available: Une nouvelle version de Skript est disponible : <gold>%s<reset> (vous utilisez actuellement <gold>%s<reset>)
+	downloading: Téléchargement de Skript <gold>%s<reset>...
+	download in progress: La dernière version de Skript est en cours de téléchargement.
+	download error: <red>Une erreur s'est produite lors du téléchargement de la dernière version de Skript :<light red> %s
+	downloaded: La dernière version de Skript a été téléchargée ! Redémarrez le serveur ou utilisez /reload pour appliquer les changements.
+	internal error: Une erreur interne s'est produite lors de la vérification de la dernière version de Skript. Veuillez consulter le journal du serveur pour plus de détails.
+	custom version: Vous utilisez actuellement une version personnalisée de Skript. Aucune mise à jour ne sera installée automatiquement.
+	nightly build: Vous utilisez actuellement une version de développement de Skript. Aucune mise à jour ne sera installée automatiquement.
+
+# -- Commands --
+commands:
+	no permission message: Vous n'avez pas la permission d'utiliser cette commande
+	cooldown message: Vous utilisez cette commande trop souvent, veuillez réessayer plus tard
+	executable by players: Cette commande ne peut être utilisée que par des joueurs
+	executable by console: Cette commande ne peut être utilisée que par la console
+	correct usage: Utilisation correcte :
+	invalid argument: Argument invalide <gray>'%s<gray>'<reset>. Sont autorisés :
+	too many arguments: Cette commande ne peut accepter qu'un seul %2$s.
+	internal error: Une erreur interne s'est produite lors de la tentative d'exécution de cette commande.
+	no player starts with: Il n'y a aucun joueur en ligne dont le nom commence par '%s'
+	multiple players start with: Il y a plusieurs joueurs en ligne dont le nom commence par '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Liaison avec %s effectuée avec succès
+	error: Impossible d'effectuer la liaison avec %1$s. Cela peut se produire si Skript ne prend pas en charge la version installée de %1$s
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' n'est pas un item type
+	invalid item type: '%s' n'est pas un item type
+	empty name: Un alias doit avoir un nom
+	brackets error: Utilisation incorrecte des accolades '{' ou '}'
+	not enough brackets: La section commençant au caractère %s ('%s') doit être fermée
+	too many brackets: Le caractère %s ('%s') ferme une section inexistante
+	unknown variation: La variante %s n'a pas été définie avant
+	missing aliases: Les identifiants Minecraft suivants n'ont pas d'alias :
+	empty alias: L'alias n'a pas d'identifiant Minecraft ou de tags définis
+	invalid minecraft id: L'identifiant Minecraft %s est invalide
+	useless variation: La variante n'a pas d'identifiant Minecraft ou de balises spécifiés, elle est donc inutile
+	invalid tags: Les balises spécifiées ne sont pas définies dans un JSON valide
+	unexpected section: Les sections ne sont pas autorisées ici
+	invalid variation section: Une section devrait être une section de variante, mais %s n'est pas un nom de variante valide.
+	outside section: Les alias doivent être placés dans des sections
+
+	# Other messages
+	loaded x aliases from: %s alias anglais chargés de %s
+	loaded x aliases: %s alias anglais ont été chargés
+
+# -- Time --
+time:
+	errors:
+		24 hours: Un jour n'a que 24 heures
+		12 hours: L'utilisation du format 12 heures ne permet pas de dépasser les 12 heures
+		60 minutes: Une heure ne compte que 60 minutes
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: Impossible de se connecter à %s
+	accessdeniedexception: Accès refusé pour %s

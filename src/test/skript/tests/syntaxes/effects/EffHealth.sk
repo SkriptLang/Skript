@@ -1,20 +1,23 @@
 test "health effect":
+	clear all entities
 	set {_i} to diamond sword
 	assert {_i}'s damage value is 0 with "new item durability failed"
 	damage {_i} by 50
 	assert {_i}'s damage value is 50 with "damage item failed"
 	repair {_i} by 49
 	assert {_i}'s damage value is 1 with "repair item failed"
-	spawn zombie at location(0, 64, 0, world "world")
-	set {_m} to last spawned zombie
-	assert health of {_m} is 10 with "default zombie health failed"
+
+	spawn cow at location(0, 64, 0, world "world")
+	set {_m} to last spawned cow
+	assert health of {_m} is 5 with "default cow health failed"
 	damage {_m} by 0.5
-	assert health of {_m} is 9.5 with "damage zombie ##1 failed"
+	assert health of {_m} is 4.5 with "damage cow ##1 failed"
 	damage {_m} by 99
-	assert health of {_m} is 0 with "damage zombie ##2 failed"
+	assert health of {_m} is 0 with "damage cow ##2 failed"
 	heal {_m} by 1
-	assert health of {_m} is 1 with "heal zombie ##1 failed"
+	assert health of {_m} is 1 with "heal cow ##1 failed"
 	heal {_m} by 0.5
-	assert health of {_m} is 1.5 with "heal zombie ##2 failed"
+	assert health of {_m} is 1.5 with "heal cow ##2 failed"
 	heal {_m} by 99
-	assert health of {_m} is 10 with "heal zombie ##3 failed"
+	assert health of {_m} is 5 with "heal cow ##3 failed"
+	clear all entities

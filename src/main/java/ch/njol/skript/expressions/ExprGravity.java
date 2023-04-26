@@ -37,8 +37,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 public class ExprGravity extends SimplePropertyExpression<Entity, Boolean> {
 	
 	static {
-		if (Skript.isRunningMinecraft(1, 10))
-			register(ExprGravity.class, Boolean.class, "gravity", "entities");
+		register(ExprGravity.class, Boolean.class, "gravity", "entities");
 	}
 	
 	@Override

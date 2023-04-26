@@ -28,7 +28,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -59,8 +59,8 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprIndices.class, String.class, ExpressionType.COMBINED,
-				"[the] (indexes|indices) of %~objects%",
-				"[the] %~objects%'[s] (indexes|indices)",
+				"[(the|all [[of] the])] (indexes|indices) of %~objects%",
+				"%~objects%'[s] (indexes|indices)",
 				"[sorted] (indices|indexes) of %~objects% in (ascending|1¦descending) order",
 				"[sorted] %~objects%'[s] (indices|indexes) in (ascending|1¦descending) order"
 		);

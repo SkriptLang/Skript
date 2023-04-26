@@ -1,6 +1,6 @@
 test "entity tamer expression/condition":
-	spawn a wolf at spawn of world "world"
-	assert last spawned entity is tameable with "entity is tameable condition not passing, last spawned wolf is not tameable"
-	set owner of last spawned wolf to "Notch" parsed as offline player
-	assert "%owner of last spawned wolf%" = "Notch" with "Owner of last spawned wolf was not set"
-	delete last spawned wolf
+	spawn a wolf at spawn of world "world":
+		assert event-entity is tameable with "entity is tameable condition not passing, last spawned wolf is not tameable"
+		set owner of event-entity to "Notch" parsed as offline player
+		assert "%owner of event-entity%" = "Notch" with "Owner of last spawned wolf was not set"
+		delete event-entity

@@ -75,12 +75,17 @@ some syntaxes for test development are available.
 Use Gradle to launch a test development server:
 
 ```
-TERM=dumb ./gradlew skriptTestDev
+gradlew clean skriptTestDev --console=plain
 ```
+
+Note: adding the tag `clean` will clear the build directory, making Skript generate a new server each time.
+Don't include the `clean` tag if you want to keep the same server folder around each test.
 
 The server launched will be running at localhost:25565. You can use console
 as normal, though there is some lag due to Gradle. If you're having trouble,
-try without <code>TERM=dumb</code>.
+try without <code>--console=plain</code>.
+
+Server files are located at <code>build/test_runners</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.

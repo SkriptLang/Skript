@@ -18,14 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -36,12 +30,16 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
  */
 @Name("Chunk")
-@Description("The <a href='../classes.html#chunk'>chunk</a> a block, location or entity is in.")
+@Description("The <a href='./classes.html#chunk'>chunk</a> a block, location or entity is in.")
 @Examples("add the chunk at the player to {protected chunks::*}")
 @Since("2.0")
 public class ExprChunk extends PropertyExpression<Location, Chunk> {
@@ -69,12 +67,7 @@ public class ExprChunk extends PropertyExpression<Location, Chunk> {
 	
 	@Override
 	protected Chunk[] get(final Event e, final Location[] source) {
-		return get(source, new Converter<Location, Chunk>() {
-			@Override
-			public Chunk convert(final Location l) {
-				return l.getChunk();
-			}
-		});
+		return get(source, Location::getChunk);
 	}
 	
 	@Override
