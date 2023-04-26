@@ -43,8 +43,8 @@ public class EvtStatisticChange extends SkriptEvent {
 		Skript.registerEvent("Statistic Change", EvtStatisticChange.class, PlayerStatisticIncrementEvent.class,
 				"[player] statistic[s] (change|increase) [of %statistics%]")
 				.description("Called when a player statistic is incremented.",
-						"This event is not called for <a href='https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java#1456'>some high frequency statistics</a>, e.g. movement based statistics.",
-						"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value."
+						"You can use past/future event-number to the get the past/future new value, event-number is the difference between the old and the new value.",
+						"NOTE: This event is not called for <a href='https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java#1456'>some high frequency statistics</a>, e.g. movement based statistics however, note that these values keep updating so you may find some of spammy statistics still work in some old versions like 'TIME_SINCE_REST' before 1.17."
 				)
 				.examples(
 						"on player statistic increase:",
