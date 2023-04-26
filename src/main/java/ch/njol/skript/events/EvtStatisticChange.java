@@ -48,13 +48,14 @@ public class EvtStatisticChange extends SkriptEvent {
 				)
 				.examples(
 						"on player statistic increase:",
-						"\tsend \"Statistic increased: %event-string% from %past event-number% to %future event-number% (diff: %event-number%)\" to player",
-						"\tif event-entitytype is set:",
-						"\t\tsend \"Of entity: %event-entitytype%\" to player",
-						"\telse if event-item is set:",
-						"\t\tsend \"Of item: %event-item%\" to player",
+							"\tsend \"Statistic increased: %event-string% from %past event-number% to %future event-number% (diff: %event-number%)\" to player",
+							"\tif event-entitytype is set:",
+								"\t\tsend \"Of entity: %event-entitytype%\" to player",
+							"\telse if event-item is set:",
+								"\t\tsend \"Of item: %event-item%\" to player",
+						"",
 						"on player statistic increase of \"CHEST_OPENED\":",
-						"\tsend \"You just opened a chest!\" to player"
+							"\tsend \"You just opened a chest!\" to player"
 				)
 				.since("INSERT VERSION");
 

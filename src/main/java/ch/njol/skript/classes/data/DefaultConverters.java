@@ -56,9 +56,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Locale;
 
-/**
- * @author Peter Güttinger
- */
 public class DefaultConverters {
 	
 	public DefaultConverters() {}
