@@ -36,7 +36,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class EvtStatisticChange extends SkriptEvent {
 
@@ -66,41 +65,41 @@ public class EvtStatisticChange extends SkriptEvent {
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, String.class, new Getter<String, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public String get(PlayerStatisticIncrementEvent e) {
-				return e.getStatistic().toString();
+			public String get(PlayerStatisticIncrementEvent event) {
+				return event.getStatistic().toString();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Override
-			public Number get(PlayerStatisticIncrementEvent e) {
-				return e.getPreviousValue();
+			public Number get(PlayerStatisticIncrementEvent event) {
+				return event.getPreviousValue();
 			}
 		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Override
-			public Number get(PlayerStatisticIncrementEvent e) {
-				return e.getNewValue() - e.getPreviousValue();
+			public Number get(PlayerStatisticIncrementEvent event) {
+				return event.getNewValue() - event.getPreviousValue();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Number.class, new Getter<Number, PlayerStatisticIncrementEvent>() {
 			@Override
-			public Number get(PlayerStatisticIncrementEvent e) {
-				return e.getNewValue();
+			public Number get(PlayerStatisticIncrementEvent event) {
+				return event.getNewValue();
 			}
 		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, EntityData.class, new Getter<EntityData, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public EntityData<?> get(PlayerStatisticIncrementEvent e) {
-				Class<? extends Entity> clazz = e.getEntityType() != null ? e.getEntityType().getEntityClass() : null;
-				return clazz == null ? null : EntityData.fromClass(clazz);
+			public EntityData<?> get(PlayerStatisticIncrementEvent event) {
+				Class<? extends Entity> c = event.getEntityType() != null ? event.getEntityType().getEntityClass() : null;
+				return c == null ? null : EntityData.fromClass(c);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, ItemStack.class, new Getter<ItemStack, PlayerStatisticIncrementEvent>() {
 			@Nullable
 			@Override
-			public ItemStack get(PlayerStatisticIncrementEvent e) {
-				return e.getMaterial() == null ? null : new ItemStack(e.getMaterial());
+			public ItemStack get(PlayerStatisticIncrementEvent event) {
+				return event.getMaterial() == null ? null : new ItemStack(event.getMaterial());
 			}
 		}, EventValues.TIME_NOW);
 	}
@@ -108,7 +107,7 @@ public class EvtStatisticChange extends SkriptEvent {
 	private final List<Statistic> statistics = new ArrayList<>(0);
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] == null)
 			return true;
 		statistics.addAll(Arrays.asList((Statistic[]) args[0].getArray()));
@@ -132,7 +131,7 @@ public class EvtStatisticChange extends SkriptEvent {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "statistic increase" + (statistics.size() == 0 ? " of " + StringUtils.join(statistics, ", ") : "");
+		return "statistic increase" + (statistics.size() > 0 ? " of " + StringUtils.join(statistics, ", ") : "");
 	}
 	
 }
