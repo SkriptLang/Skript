@@ -593,7 +593,7 @@ public class VariableString implements Expression<String> {
 		}
 
 		DefaultVariables data = script.getData(DefaultVariables.class);
-		// Checked in Variable Variable#getRaw so this is an assert.
+		// Checked in Variable#getRaw already
 		assert data != null : "default variables not present in current script";
 
 		Class<?>[] savedHints = data.get(variableName);
