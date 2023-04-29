@@ -38,10 +38,10 @@ import org.jetbrains.annotations.Nullable;
 @Name("Break Block")
 @Description({
 	"Breaks the block and spawns items as if a player had mined it",
-	"\nYou can add a tool, which will spawn items based on how that tool would break the block ",
+	"You can add a tool, which will spawn items based on how that tool would break the block ",
 	"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)",
-	"\nWhen 'with effect' is used, the sound and particles while breaking the block is produced.",
-	"\nWhen 'and drop experience' is used, XP will drop at the block if it usually does so."
+	"When 'with effect' is used, the sound and particles while breaking the block is produced.",
+	"When 'and drop experience' is used, XP will drop at the block if it usually does so."
 })
 @Examples({
 	"on right click:",
@@ -55,16 +55,18 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Paper 1.15+ (effects), Paper 1.17+ (effects without tool), Paper 1.19+ (drop xps)")
 public class EffBreakNaturally extends Effect {
 
-	private static final boolean hasMethod115 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
-	private static final boolean hasMethod117 = Skript.methodExists(Block.class, "breakNaturally", boolean.class, boolean.class);
-	private static final boolean hasMethod119 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
+	private static final boolean HAS_METHOD_115 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
+	private static final boolean HAS_METHOD_117 = Skript.methodExists(Block.class, "breakNaturally", boolean.class, boolean.class);
+	private static final boolean HAS_METHOD_119 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
 	
 	static {
 		String pattern;
-		if (hasMethod119) {
-			pattern = "break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%] [xpdrops:and drop (xp|experience)[s]]";
-		} else if (hasMethod115) {
-			pattern = "break %blocks% [effect:with effect[s]] [naturally] [using %-itemtype%]";
+		if (HAS_METHOD_119) {
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and drop (xp|experience)[s]]";
+		} else if (HAS_METHOD_117) {
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]]";
+		} else if (HAS_METHOD_115) {
+			pattern = "break %blocks% [naturally] [using %-itemtype% [effect:with effect[s]]]";
 		} else {
 			pattern = "break %blocks% [naturally] [using %-itemtype%]";
 		}
@@ -75,15 +77,15 @@ public class EffBreakNaturally extends Effect {
 	@Nullable
 	private Expression<ItemType> tool;
 	private boolean effect;
-	private boolean xpdrops;
+	private boolean dropExp;
 
 	@Override
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		blocks = (Expression<Block>) exprs[0];
 		tool = (Expression<ItemType>) exprs[1];
 		effect = parser.hasTag("effect");
-		xpdrops = parser.hasTag("xpdrops");
+		dropExp = parser.hasTag("dropExp");
 		return true;
 	}
 	
@@ -93,16 +95,16 @@ public class EffBreakNaturally extends Effect {
 		for (Block block : this.blocks.getArray(event)) {
 			if (tool != null) {
 				ItemStack item = tool.getRandom();
-				if (hasMethod119) {
-					block.breakNaturally(item, effect, xpdrops);
-				} else if (hasMethod115) {
+				if (HAS_METHOD_119) {
+					block.breakNaturally(item, effect, dropExp);
+				} else if (HAS_METHOD_115) {
 					block.breakNaturally(item, effect);
 				} else {
 					block.breakNaturally(item);
 				}
-			} else if (hasMethod119) {
-				block.breakNaturally(effect, xpdrops);
-			} else if (hasMethod117) {
+			} else if (HAS_METHOD_119) {
+				block.breakNaturally(effect, dropExp);
+			} else if (HAS_METHOD_117) {
 				block.breakNaturally(effect);
 			} else {
 				block.breakNaturally();
@@ -112,6 +114,6 @@ public class EffBreakNaturally extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "break " + blocks.toString(event, debug) + (effect ? " with effects" : "") + " naturally" + (tool != null ? " using " + tool.toString(event, debug) : "") + (xpdrops ? " and drop experience" : "");
+		return "break " + blocks.toString(event, debug) + " naturally" + (tool != null ? " using " + tool.toString(event, debug) : "") + (effect ? " with effects" : "") + (dropExp ? " and drop experience" : "");
 	}
 }
