@@ -35,9 +35,14 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Send Block Change")
-@Description("Makes a player see a block as something it really isn't. BlockData support is only for MC 1.13+")
-@Examples({"make player see block at player as dirt",
-		"make player see target block as campfire[facing=south]"})
+@Description({
+	"Makes a player see a block as something it really isn't.",
+	"The chunk where the fake block change occur must be loaded to the player in order to take effect."
+})
+@Examples({
+	"make player see block at player as dirt",
+	"make player see target block as campfire[facing=south]"
+})
 @Since("2.2-dev37c, 2.5.1 (block data support)")
 public class EffSendBlockChange extends Effect {
 
