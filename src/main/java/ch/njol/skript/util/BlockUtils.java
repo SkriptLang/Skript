@@ -60,11 +60,15 @@ public class BlockUtils {
 	public static boolean set(Block block, ItemData type, boolean applyPhysics) {
 		return set(block, type.getType(), type.getBlockValues(), applyPhysics);
 	}
-	
+
 	public static void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues blockValues) {
 		BlockCompat.SETTER.sendBlockChange(player, location, type, blockValues);
 	}
-	
+
+	public static void sendBlockChanges(Player player, Location[] locations, Material type, @Nullable BlockValues blockValues, boolean suppressLightUpdates) {
+		BlockCompat.SETTER.sendBlockChanges(player, locations, type, blockValues, suppressLightUpdates);
+	}
+
 	@SuppressWarnings("null")
 	public static Iterable<Block> getBlocksAround(Block b) {
 		return Arrays.asList(b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST));

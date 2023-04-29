@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.effects;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Random;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -28,7 +33,10 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -37,7 +45,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Send Block Change")
 @Description({
 	"Makes a player see a block as something it really isn't.",
-	"The chunk where the fake block change occur must be loaded to the player in order to take effect."
+	"The chunk where the fake block change occur must be loaded to the player in order to take effect.",
+	"The 'without light updates' option is available for use when you are changing multiple blocks at once."
 })
 @Examples({
 	"make player see block at player as dirt",
@@ -46,18 +55,19 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.2-dev37c, 2.5.1 (block data support)")
 public class EffSendBlockChange extends Effect {
 
+	private static final Random random = new Random();
+	
+	private static final boolean SUPPORT_MULTI_BLOCKS = Skript.methodExists(Player.class, "sendBlockChanges", CollectionUtils.array(Collection.class, boolean.class));
+
 	static {
-		Skript.registerEffect(EffSendBlockChange.class, "make %players% see %blocks% as %itemtype/blockdata%");
+		Skript.registerEffect(EffSendBlockChange.class,
+			SUPPORT_MULTI_BLOCKS ? "make %players% see %blocks% as %itemtype/blockdata% [nolightupdate:without light update[s]]" : "make %players% see %blocks% as %itemtype/blockdata%");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Player> players;
-
-	@SuppressWarnings("null")
 	private Expression<Block> blocks;
-
-	@SuppressWarnings("null")
 	private Expression<Object> as;
+	private boolean lightUpdates;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -65,24 +75,47 @@ public class EffSendBlockChange extends Effect {
 		players = (Expression<Player>) exprs[0];
 		blocks = (Expression<Block>) exprs[1];
 		as = (Expression<Object>) exprs[2];
+		lightUpdates = !parseResult.hasTag("nolightupdate");
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		Object object = this.as.getSingle(event);
+		Block[] blocks = this.blocks.getArray(event);
 		if (object instanceof ItemType) {
 			ItemType itemType = (ItemType) object;
-			for (Player player : players.getArray(event)) {
-				for (Block block : blocks.getArray(event)) {
-					itemType.sendBlockChange(player, block.getLocation());
+			if (SUPPORT_MULTI_BLOCKS && blocks.length > 1) {
+				for (Player player : players.getArray(event)) {
+					System.out.println("chunk packet"); // debug
+					Location[] locations = Arrays.stream(blocks).map(Block::getLocation).toArray(Location[]::new);
+					itemType.sendBlockChanges(player, locations, lightUpdates);
+				}
+			} else {
+				for (Player player : players.getArray(event)) {
+					for (Block block : blocks) {
+						itemType.sendBlockChange(player, block.getLocation());
+					}
 				}
 			}
 		} else if (object instanceof BlockData) {
 			BlockData blockData = (BlockData) object;
-			for (Player player : players.getArray(event)) {
-				for (Block block : blocks.getArray(event)) {
-					player.sendBlockChange(block.getLocation(), blockData);
+			if (SUPPORT_MULTI_BLOCKS && blocks.length > 1) {
+				Collection<BlockState> newBlockStates = new ArrayList<>();
+				for (Block block : blocks) {
+					BlockState state = block.getState();
+					state.setBlockData(blockData);
+					newBlockStates.add(state);
+				}
+				for (Player player : players.getArray(event)) {
+					System.out.println("chunk packet"); // debug
+					player.sendBlockChanges(newBlockStates, lightUpdates);
+				}
+			} else {
+				for (Player player : players.getArray(event)) {
+					for (Block block : blocks) {
+						player.sendBlockChange(block.getLocation(), blockData);
+					}
 				}
 			}
 		}

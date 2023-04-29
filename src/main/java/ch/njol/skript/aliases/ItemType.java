@@ -391,7 +391,24 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			BlockUtils.sendBlockChange(player, location, blockType, d.getBlockValues());
 		}
 	}
-	
+
+	/**
+	 * Send a block change to a player
+	 * <p>This will send a fake block change to the player, and will not change the block on the server.</p>
+	 *
+	 * @param player Player to send change to
+	 * @param location Location of block to change
+	 */
+	public void sendBlockChanges(Player player, Location[] locations, boolean suppressLightUpdates) {
+		for (int i = random.nextInt(types.size()); i < types.size(); i++) {
+			ItemData d = types.get(i);
+			Material blockType = ItemUtils.asBlock(d.type);
+			if (blockType == null) // Ignore items which cannot be placed
+				continue;
+			BlockUtils.sendBlockChanges(player, locations, blockType, d.getBlockValues(), suppressLightUpdates);
+		}
+	}
+
 	/**
 	 * Intersects all ItemDatas with all ItemDatas of the given ItemType, returning an ItemType with at most n*m ItemDatas, where n = #ItemDatas of this ItemType, and m =
 	 * #ItemDatas of the argument.

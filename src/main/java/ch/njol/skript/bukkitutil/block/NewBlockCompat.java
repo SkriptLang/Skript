@@ -42,6 +42,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -315,13 +317,30 @@ public class NewBlockCompat implements BlockCompat {
 			
 			return null; // Can't place torch here legally
 		}
-		
+
 		@Override
 		public void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues values) {
 			BlockData blockData = values != null ? ((NewBlockValues) values).data : type.createBlockData();
 			player.sendBlockChange(location, blockData);
 		}
-		
+
+		@Override
+		public void sendBlockChanges(Player player, Location[] locations, Material type, @Nullable BlockValues values, boolean suppressLightUpdates) {
+			BlockData blockData = values != null ? ((NewBlockValues) values).data : type.createBlockData();
+			if (true) {
+				Collection<BlockState> newBlockStates = new ArrayList<>();
+				for (Location location : locations) {
+					BlockState state = location.getBlock().getState();
+					state.setBlockData(blockData);
+					newBlockStates.add(state);
+				}
+				player.sendBlockChanges(newBlockStates, suppressLightUpdates);
+				return;
+			}
+			for (Location location : locations)
+				sendBlockChange(player, location, type, values);
+		}
+
 	}
 	
 	private NewBlockSetter setter = new NewBlockSetter();

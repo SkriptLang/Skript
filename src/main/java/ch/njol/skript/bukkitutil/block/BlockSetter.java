@@ -78,5 +78,7 @@ public interface BlockSetter {
 	 * @param values Additional block data, such as block states.
 	 */
 	void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues values);
-	
+
+	void sendBlockChanges(Player player, Location[] locations, Material type, @Nullable BlockValues values, boolean suppressLightUpdates);
+
 }
