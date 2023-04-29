@@ -61,8 +61,7 @@ public class EffShear extends Effect {
 				(INTERFACE_METHOD ? "[:force] " : "") + "shear %livingentities%",
 				"un[-]shear %livingentities%");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<LivingEntity> entity;
 	private boolean force;
 	private boolean shear;
