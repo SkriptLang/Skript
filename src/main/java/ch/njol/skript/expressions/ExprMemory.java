@@ -48,7 +48,11 @@ public class ExprMemory extends SimpleExpression<Double> {
 	private static final Runtime RUNTIME = Runtime.getRuntime();
 
 	static {
-		Skript.registerExpression(ExprMemory.class, Double.class, ExpressionType.SIMPLE, "[the] (:free|:max[imum]|total) (memory|ram)");
+		Skript.registerExpression(ExprMemory.class, Double.class, ExpressionType.SIMPLE, "[the] [server] (:free|:max[imum]|total) (memory|ram)");
+	}
+
+	private enum Type {
+		FREE, MAXIMUM, TOTAL
 	}
 
 	private Type type;
@@ -95,10 +99,6 @@ public class ExprMemory extends SimpleExpression<Double> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return type.name().toLowerCase(Locale.ENGLISH) + " memory";
-	}
-
-	private enum Type {
-		FREE, MAXIMUM, TOTAL
 	}
 
 }
