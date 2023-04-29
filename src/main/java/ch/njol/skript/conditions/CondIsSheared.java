@@ -30,18 +30,19 @@ import org.bukkit.entity.Cow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 @Name("Entity Is Sheared")
-@Description("Checks whether entities are sheared. This condition only works on sheep and snowmen for versions below 1.19.4.")
+@Description("Checks whether entities are sheared. This condition only works on cows, sheep and snowmen for versions below 1.19.4.")
 @Examples({
 	"if targeted entity of player is sheared:",
 		"\tsend \"This entity has nothing left to shear!\" to player"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("MC 1.13+ (sheep & snowmen), Paper 1.19.4+ (all shearable entities)")
+@RequiredPlugins("MC 1.13+ (cows, sheep & snowmen), Paper 1.19.4+ (all shearable entities)")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
-	private static final boolean interfaceMethod = Skript.classExists("io.papermc.paper.entity.Shearable");
+	private static final boolean INTERFACE_METHOD = Skript.classExists("io.papermc.paper.entity.Shearable");
 
 	static {
 		register(CondIsSheared.class, "(sheared|shorn)", "livingentities");
@@ -49,17 +50,18 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		if (entity instanceof Cow) // As sheared mushroom cow is a Cow which does not implement Shearable
-			return true;
-		if (interfaceMethod) {
-			if (!(entity instanceof Shearable))
+		if (entity instanceof Cow) {
+			return entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SHEARED;
+		} else if (INTERFACE_METHOD) {
+			if (!(entity instanceof Shearable)) {
 				return false;
+			}
 			return !((Shearable) entity).readyToBeSheared();
-		}
-		if (entity instanceof Sheep)
+		} else if (entity instanceof Sheep) {
 			return ((Sheep) entity).isSheared();
-		if (entity instanceof Snowman)
+		} else if (entity instanceof Snowman) {
 			return ((Snowman) entity).isDerp();
+		}
 		return false;
 	}
 
