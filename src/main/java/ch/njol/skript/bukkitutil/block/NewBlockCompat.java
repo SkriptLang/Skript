@@ -23,6 +23,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.skript.variables.Variables;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -143,7 +144,8 @@ public class NewBlockCompat implements BlockCompat {
 	}
 	
 	private static class NewBlockSetter implements BlockSetter {
-		
+
+		private static final boolean SUPPORT_MULTIBLOCK_CHANGE = Skript.methodExists(Player.class, "sendBlockChanges", CollectionUtils.array(Collection.class, boolean.class));
 		private ItemType floorTorch;
 		private ItemType wallTorch;
 		
@@ -327,7 +329,7 @@ public class NewBlockCompat implements BlockCompat {
 		@Override
 		public void sendBlockChanges(Player player, Location[] locations, Material type, @Nullable BlockValues values, boolean suppressLightUpdates) {
 			BlockData blockData = values != null ? ((NewBlockValues) values).data : type.createBlockData();
-			if (true) {
+			if (SUPPORT_MULTIBLOCK_CHANGE) {
 				Collection<BlockState> newBlockStates = new ArrayList<>();
 				for (Location location : locations) {
 					BlockState state = location.getBlock().getState();
@@ -335,10 +337,10 @@ public class NewBlockCompat implements BlockCompat {
 					newBlockStates.add(state);
 				}
 				player.sendBlockChanges(newBlockStates, suppressLightUpdates);
-				return;
+			} else {
+				for (Location location : locations)
+					sendBlockChange(player, location, type, values);
 			}
-			for (Location location : locations)
-				sendBlockChange(player, location, type, values);
 		}
 
 	}

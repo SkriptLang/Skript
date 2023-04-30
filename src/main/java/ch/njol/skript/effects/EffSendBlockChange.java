@@ -55,8 +55,6 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.2-dev37c, 2.5.1 (block data support)")
 public class EffSendBlockChange extends Effect {
 
-	private static final Random random = new Random();
-	
 	private static final boolean SUPPORT_MULTI_BLOCKS = Skript.methodExists(Player.class, "sendBlockChanges", CollectionUtils.array(Collection.class, boolean.class));
 
 	static {
@@ -81,13 +79,12 @@ public class EffSendBlockChange extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Object object = this.as.getSingle(event);
+		Object object = as.getSingle(event);
 		Block[] blocks = this.blocks.getArray(event);
 		if (object instanceof ItemType) {
 			ItemType itemType = (ItemType) object;
 			if (SUPPORT_MULTI_BLOCKS && blocks.length > 1) {
 				for (Player player : players.getArray(event)) {
-					System.out.println("chunk packet"); // debug
 					Location[] locations = Arrays.stream(blocks).map(Block::getLocation).toArray(Location[]::new);
 					itemType.sendBlockChanges(player, locations, lightUpdates);
 				}
@@ -108,7 +105,6 @@ public class EffSendBlockChange extends Effect {
 					newBlockStates.add(state);
 				}
 				for (Player player : players.getArray(event)) {
-					System.out.println("chunk packet"); // debug
 					player.sendBlockChanges(newBlockStates, lightUpdates);
 				}
 			} else {

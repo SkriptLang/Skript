@@ -393,11 +393,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Send a block change to a player
-	 * <p>This will send a fake block change to the player, and will not change the block on the server.</p>
+	 * Send a multi-block change to a player.
+	 * <p>This will send a packet for each chunk modified to the player, and will not change the block on the server.</p>
+	 * Requires MC 1.19.
 	 *
 	 * @param player Player to send change to
-	 * @param location Location of block to change
+	 * @param locations Array of locations of blocks to change
+	 * @param suppressLightUpdates Whether to suppress light updates.
 	 */
 	public void sendBlockChanges(Player player, Location[] locations, boolean suppressLightUpdates) {
 		for (int i = random.nextInt(types.size()); i < types.size(); i++) {

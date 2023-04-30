@@ -79,6 +79,17 @@ public interface BlockSetter {
 	 */
 	void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues values);
 
+	/**
+	 * Send a multi-block change to a player.
+	 * <p>This will send a packet for each chunk modified to the player, and will not change the block on the server.</p>
+	 * Requires MC 1.19.
+	 *
+	 * @param player Player to send change to
+	 * @param locations Array of locations of blocks to change
+	 * @param type Material of change
+	 * @param values Additional block data, such as block states.
+	 * @param suppressLightUpdates Whether to suppress light updates.
+	 */
 	void sendBlockChanges(Player player, Location[] locations, Material type, @Nullable BlockValues values, boolean suppressLightUpdates);
 
 }
