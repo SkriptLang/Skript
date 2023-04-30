@@ -28,6 +28,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -46,13 +47,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description({
 	"Makes a player see a block as something it really isn't.",
 	"The chunk where the fake block change occur must be loaded to the player in order to take effect.",
-	"The 'without light updates' option is available for use when you are changing multiple blocks at once."
+	"The 'without light updates' option is available for use when you are changing multiple blocks at once in MC 1.19+"
 })
 @Examples({
 	"make player see block at player as dirt",
-	"make player see target block as campfire[facing=south]"
+	"make player see target block as campfire[facing=south]",
+	"make player see {_blocks::*} as obsidian without light updates"
 })
-@Since("2.2-dev37c, 2.5.1 (block data support)")
+@Since("2.2-dev37c, 2.5.1 (block data support), INSERT VERSION (multi-block method)")
+@RequiredPlugins("MC 1.19+ (multi-block method)")
 public class EffSendBlockChange extends Effect {
 
 	private static final boolean SUPPORT_MULTI_BLOCKS = Skript.methodExists(Player.class, "sendBlockChanges", CollectionUtils.array(Collection.class, boolean.class));
