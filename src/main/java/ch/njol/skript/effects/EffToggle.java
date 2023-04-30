@@ -109,6 +109,8 @@ public class EffToggle extends Effect {
 				obj -> {
 					if (obj instanceof Block && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Block.class)) {
 						return true;
+					} else if (obj instanceof Boolean && ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Boolean.class)) {
+						return true;
 					}
 					return false;
 				}
