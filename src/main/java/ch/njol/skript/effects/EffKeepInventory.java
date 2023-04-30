@@ -47,8 +47,8 @@ public class EffKeepInventory extends Effect {
 
 	static {
 		Skript.registerEffect(EffKeepInventory.class,
-			"keep [the] (inventory|items) [(1¦and [e]xp[erience][s] [point[s]])]",
-			"keep [the] [e]xp[erience][s] [point[s]] [(1¦and (inventory|items))]");
+			"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+			"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
 	}
 
 	private boolean keepItems, keepExp;
