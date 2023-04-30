@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ créé par & © Peter Güttinger alias Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Utilisation incorrecte des guillemets ("). Si vous voulez utiliser des guillemets dans du texte "entre guillemets", doublez-les : "".
 	brackets error: Quantité ou emplacement des accolades incorrect. Assurez-vous que chaque accolade ouvrante '{' corresponde à une accolade fermante '}'.
 	invalid reload: Skript ne peut être rechargé qu'avec la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.

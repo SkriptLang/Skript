@@ -58,8 +58,9 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 	protected Boolean[] get(Event event) {
 		Boolean[] original = booleanExpr.getArray(event);
 		Boolean[] toggled = new Boolean[original.length];
-		for (int i = 0; i < original.length; i++)
+		for (int i = 0; i < original.length; i++) {
 			toggled[i] = !original[i];
+		}
 		return toggled;
 	}
 

@@ -25,11 +25,9 @@ import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SelfRegisteringSkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -53,7 +51,6 @@ import java.util.Iterator;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link EntryData}.
  */
-// TODO STRUCTURE add Structures to docs
 public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
@@ -151,12 +148,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 */
 	public void unload() { }
 
 	/**
-	 * Called when this structure is unloaded, similar to {@link SelfRegisteringSkriptEvent#unregister(Trigger)}.
+	 * Called when this structure is unloaded.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 * 	most other Structures have finished unloading.
 	 */

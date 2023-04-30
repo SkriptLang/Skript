@@ -43,7 +43,7 @@ import java.util.Iterator;
 @Description({"The first, last or a random element of a set, e.g. a list variable.",
 		"See also: <a href='#ExprRandom'>random</a>"})
 @Examples("give a random element out of {free items::*} to the player")
-@Since("2.0, INSERT VERSION (relative to last element)")
+@Since("2.0, 2.7 (relative to last element)")
 public class ExprElement extends SimpleExpression<Object> {
 
 	static {
