@@ -45,6 +45,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -235,7 +236,9 @@ public class Variables {
 					try {
 						@SuppressWarnings("unchecked")
 						Class<? extends VariablesStorage> storageClass = (Class<? extends VariablesStorage>) optional.get();
-						variablesStorage = (VariablesStorage) storageClass.getConstructor(String.class).newInstance(type);
+						Constructor<?> constructor = storageClass.getDeclaredConstructor(String.class);
+						constructor.setAccessible(true);
+						variablesStorage = (VariablesStorage) constructor.newInstance(type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 						Skript.error("Failed to initalize database type '" + type + "'");
 						successful = false;
