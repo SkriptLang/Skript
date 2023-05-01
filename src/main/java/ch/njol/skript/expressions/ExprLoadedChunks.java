@@ -18,6 +18,10 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,31 +38,35 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Loaded Chunks of World")
-@Description("A list of loaded chunks of a world.")
+@Description("Returns a list of loaded chunks of a world.")
 @Examples("set {_chunks::*} to the loaded chunks of player's world")
 @Since("INSERT VERSION")
 public class ExprLoadedChunks extends SimpleExpression<Chunk> {
 
 	static {
-		Skript.registerExpression(ExprLoadedChunks.class, Chunk.class, ExpressionType.COMBINED, "[all [of]] [the] loaded chunks (of|in) %world%");
+		Skript.registerExpression(ExprLoadedChunks.class, Chunk.class, ExpressionType.COMBINED, "[all [of]] [the] loaded chunks (of|in) %worlds%");
 	}
 
-	private Expression<World> world;
+	private Expression<World> worlds;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		world = (Expression<World>) exprs[0];
+		worlds = (Expression<World>) exprs[0];
 		return true;
 	}
 
 	@Override
 	@Nullable
 	protected Chunk[] get(Event event) {
-		World world = this.world.getSingle(event);
-		if (world == null)
+		World[] worlds = this.worlds.getArray(event);
+		if (worlds.length == 0)
 			return new Chunk[0];
-		return world.getLoadedChunks();
+		List<Chunk> chunks = new ArrayList<>();
+		for (World world : worlds) {
+			chunks.addAll(Arrays.asList(world.getLoadedChunks()));
+		}
+		return chunks.toArray(new Chunk[0]);
 	}
 
 	@Override
@@ -73,7 +81,7 @@ public class ExprLoadedChunks extends SimpleExpression<Chunk> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "loaded chunks of " + world.toString(event, debug);
+		return "loaded chunks of " + worlds.toString(event, debug);
 	}
 
 }
