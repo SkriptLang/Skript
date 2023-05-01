@@ -18,15 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
-import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -36,6 +29,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
+import org.bukkit.projectiles.ProjectileSource;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -58,15 +56,11 @@ public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {
 	
 	@Override
 	protected LivingEntity[] get(final Event e, final Projectile[] source) {
-		return get(source, new Converter<Projectile, LivingEntity>() {
-			@Override
-			@Nullable
-			public LivingEntity convert(final Projectile p) {
-				final Object o = p != null ? p.getShooter() : null;
-				if (o instanceof LivingEntity)
-					return (LivingEntity) o;
-				return null;
-			}
+		return get(source, projectile -> {
+			Object shooter = projectile != null ? projectile.getShooter() : null;
+			if (shooter instanceof LivingEntity)
+				return (LivingEntity) shooter;
+			return null;
 		});
 	}
 	

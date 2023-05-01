@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ erstellt von & © Peter Güttinger alias Njol ~
-	prefix: <gray>[<gold>Skript<gray>]
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Unerlaubte Verwendung von Anführungszeichen ("). Wenn du solche in "Text mit Anführungszeichen" einfügen willst, verdopple sie: "".
 	brackets error: Ungültige Anzahl/Anordnung von Klammern. Bitte sorge dafür, dass auf jede öffnende Klammer eine Schliessende folgt.
 	invalid reload: Skript darf nur mittles Bukkits '/reload' oder Skripts '/skript reload' neu geladen werden.

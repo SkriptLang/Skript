@@ -49,7 +49,7 @@ import java.util.Arrays;
 	"on click:",
 	"\tkill nearest pig"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprNearestEntity extends SimpleExpression<Entity> {
 
 	static {
