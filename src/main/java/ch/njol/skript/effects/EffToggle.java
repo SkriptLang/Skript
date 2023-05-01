@@ -55,20 +55,25 @@ import ch.njol.util.Kleenean;
 public class EffToggle extends Effect {
 	
 	static {
-		Skript.registerEffect(EffToggle.class, 
-				"(close|turn off|de[-]activate) %blocks%",
-		 		"(toggle|switch) [[the] state of] %booleans/blocks%",
-		  		"(open|turn on|activate) %blocks%");
+		Skript.registerEffect(EffToggle.class,
+			"(open|turn on|activate) %blocks%",
+			"(close|turn off|de[-]activate) %blocks%",
+			"(toggle|switch) [[the] state of] %booleans/blocks%"
+			);
+	}
+
+	private enum State {
+    ACTIVATE, DEACTIVATE, TOGGLE
 	}
 
 	@SuppressWarnings("null")
 	private Expression<?> toggledExpr;
-	private int toggle;
+	private State state;
 	
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		toggledExpr = (Expression<?>) vars[0];
-		toggle = matchedPattern - 1;
+		state = State.values()[matchedPattern];
 		if (toggledExpr.getReturnType() == Boolean.class && !ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Boolean.class)) {
 			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
 			return false;
@@ -83,16 +88,17 @@ public class EffToggle extends Effect {
 			if (obj instanceof Block) {
 				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
-				if (toggle == 0) {
+				if (state == State.TOGGLE) {
 					if (data instanceof Openable) // open = NOT was open
 						((Openable) data).setOpen(!((Openable) data).isOpen());
 					else if (data instanceof Powerable) // power = NOT power
 						((Powerable) data).setPowered(!((Powerable) data).isPowered());
 				} else {
+					boolean value = state == State.ACTIVATE; 
 					if (data instanceof Openable)
-						((Openable) data).setOpen(toggle == 1);
+						((Openable) data).setOpen(value);
 					else if (data instanceof Powerable)
-						((Powerable) data).setPowered(toggle == 1);
+						((Powerable) data).setPowered(value);
 				}
 
 				block.setBlockData(data);
@@ -109,6 +115,7 @@ public class EffToggle extends Effect {
 		toggledExpr.change(event, filteredValues.toArray(), ChangeMode.SET);
 		
 	}
+	
 	@Override
 	public String toString(@Nullable Event event, final boolean debug) {
 		return "toggle " + toggledExpr.toString(event, debug);

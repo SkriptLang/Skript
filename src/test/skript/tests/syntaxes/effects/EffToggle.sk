@@ -18,3 +18,10 @@ test "toggle effect":
   toggle {_list::*}
   assert {_list::1} is false with "{_list::1} should be set to false"
   assert amount of {_list::*} is 2 with "{_list::*} should be set to false and {_block}"
+
+  set block at location(10, 11, 10, world "world") to birch door
+  set {_door} to block at location(10, 11, 10, world "world")
+  assert {_door} is birch door with "{_door} should be birch door"
+  assert "%block data of {_door}%" contains "open=false"  with "{_door} should be closed"
+  toggle {_door}
+  assert "%block data of {_door}%" contains "open=true" with "{_door} should be open"
