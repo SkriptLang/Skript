@@ -96,6 +96,7 @@ public class EffToggle extends Effect {
 				}
 
 				block.setBlockData(data);
+				toggledValues.add(block);
 
 			} else if (obj instanceof Boolean) {
 				toggledValues.add(!(Boolean) obj);
