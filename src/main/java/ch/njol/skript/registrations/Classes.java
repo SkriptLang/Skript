@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.entity.EntityData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -55,7 +56,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
-import ch.njol.skript.variables.DatabaseStorage;
+import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -93,8 +94,8 @@ public abstract class Classes {
 				throw new IllegalArgumentException("Can't register " + info.getC().getName() + " with the code name " + info.getCodeName() + " because that name is already used by " + classInfosByCodeName.get(info.getCodeName()));
 			if (exactClassInfos.containsKey(info.getC()))
 				throw new IllegalArgumentException("Can't register the class info " + info.getCodeName() + " because the class " + info.getC().getName() + " is already registered");
-			if (info.getCodeName().length() > DatabaseStorage.MAX_CLASS_CODENAME_LENGTH)
-				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + DatabaseStorage.MAX_CLASS_CODENAME_LENGTH);
+			if (info.getCodeName().length() > SQLStorage.MAX_CLASS_CODENAME_LENGTH)
+				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + SQLStorage.MAX_CLASS_CODENAME_LENGTH);
 			exactClassInfos.put(info.getC(), info);
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
@@ -128,6 +129,8 @@ public abstract class Classes {
 			if (s != null)
 				Variables.yggdrasil.registerClassResolver(s);
 		}
+
+		EntityData.onRegistrationStop();
 	}
 	
 	/**
@@ -298,7 +301,7 @@ public abstract class Classes {
 	 * @param c
 	 * @return The closest superclass's info
 	 */
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
@@ -314,6 +317,25 @@ public abstract class Classes {
 		}
 		assert false;
 		return null;
+	}
+
+	/**
+	 * Gets all the class info of the given class in closest order to ending on object. This list will never be empty unless <tt>c</tt> is null.
+	 * 
+	 * @param c the class to check if assignable from
+	 * @return The closest list of superclass infos
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<ClassInfo<? super T>> getAllSuperClassInfos(Class<T> c) {
+		assert c != null;
+		checkAllowClassInfoInteraction();
+		List<ClassInfo<? super T>> list = new ArrayList<>();
+		for (ClassInfo<?> ci : getClassInfos()) {
+			if (ci.getC().isAssignableFrom(c)) {
+				list.add((ClassInfo<? super T>) ci);
+			}
+		}
+		return list;
 	}
 	
 	/**
@@ -477,7 +499,7 @@ public abstract class Classes {
 				log.printLog();
 				return t;
 			}
-			for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+			for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
@@ -517,7 +539,7 @@ public abstract class Classes {
 			if (to.isAssignableFrom(ci.getC()) && ci.getParser() != null)
 				return (Parser<? extends T>) ci.getParser();
 		}
-		for (final ConverterInfo<?, ?> conv : org.skriptlang.skript.lang.converter.Converters.getConverterInfo()) {
+		for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
 			if (to.isAssignableFrom(conv.getTo())) {
 				for (int i = classInfos.length - 1; i >= 0; i--) {
 					final ClassInfo<?> ci = classInfos[i];

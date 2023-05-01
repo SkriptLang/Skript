@@ -158,7 +158,7 @@ public abstract class Commands {
 		public void onServerCommand(final ServerCommandEvent e) {
 			if (e.getCommand() == null || e.getCommand().isEmpty() || e.isCancelled())
 				return;
-			if (SkriptConfig.enableEffectCommands.value() && e.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
+			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && e.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
 				if (handleEffectCommand(e.getSender(), e.getCommand())) {
 					e.setCancelled(true);
 				}

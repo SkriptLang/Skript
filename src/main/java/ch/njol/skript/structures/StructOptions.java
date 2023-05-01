@@ -28,14 +28,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptData;
-import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.structure.Structure;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.ScriptData;
+import org.skriptlang.skript.lang.structure.Structure;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,11 +49,13 @@ import java.util.regex.Matcher;
 @Examples({
 	"options:",
 	"\tno_permission: You're missing the required permission to execute this command!",
+	"",
 	"command /ping:",
 	"\tpermission: command.ping",
 	"\tpermission message: {@no_permission}",
 	"\ttrigger:",
 	"\t\tmessage \"Pong!\"",
+	"",
 	"command /pong:",
 	"\tpermission: command.pong",
 	"\tpermission message: {@no_permission}",
@@ -113,44 +115,33 @@ public class StructOptions extends Structure {
 		return "options";
 	}
 
-	/**
-	 * A method to obtain all options registered within a Script.
-	 * @param script The Script to obtain options from.
-	 * @return The options of this Script, or null if there are none.
-	 */
-	@Nullable
-	public static HashMap<String, String> getOptions(Script script) {
-		OptionsData optionsData = script.getData(OptionsData.class);
-		return optionsData != null ? optionsData.options : null;
-	}
+	public static final class OptionsData implements ScriptData {
 
-	/**
-	 * Replaces all options in the provided String using the options of the provided Script.
-	 * @param script The Script to obtain options from.
-	 * @param string The String to replace options in.
-	 * @return A String with all options replaced, or the original String if the provided Script has no options.
-	 */
-	public static String replaceOptions(Script script, String string) {
-		Map<String, String> options = getOptions(script);
-		if (options == null)
-			return string;
+		private final Map<String, String> options = new HashMap<>();
 
-		String replaced = StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
-			String option = options.get(m.group(1));
-			if (option == null) {
-				Skript.error("undefined option " + m.group());
-				return m.group();
-			}
-			return Matcher.quoteReplacement(option);
-		});
+		/**
+		 * Replaces all options in the provided String using the options of this data.
+		 * @param string The String to replace options in.
+		 * @return A String with all options replaced, or the original String if the provided Script has no options.
+		 */
+		@SuppressWarnings("ConstantConditions") // no way to get null as callback does not return null anywhere
+		public String replaceOptions(String string) {
+			return StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
+				String option = options.get(m.group(1));
+				if (option == null) {
+					Skript.error("undefined option " + m.group());
+					return m.group();
+				}
+				return Matcher.quoteReplacement(option);
+			});
+		}
 
-		assert replaced != null;
-		return replaced;
-	}
-
-	private static final class OptionsData implements ScriptData {
-
-		public final HashMap<String, String> options = new HashMap<>(15);
+		/**
+		 * @return An unmodifiable version of this data's option mappings.
+		 */
+		public Map<String, String> getOptions() {
+			return Collections.unmodifiableMap(options);
+		}
 
 	}
 
