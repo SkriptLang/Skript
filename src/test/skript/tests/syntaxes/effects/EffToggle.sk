@@ -1,22 +1,4 @@
 test "toggle effect":
-  set {_x} to 0
-  assert {_x} is 0 with "{_x} should be set to 0"
-  add 1 to {_x}
-  assert {_x} is 1 with "{_x} should be incremented to 1"
-  remove 1 from {_x}
-  assert {_x} is 0 with "{_x} should be decremented to 1"
-  delete {_x}
-  assert {_x} is not set with "{_x} should be deleted"
-
-  add "a" to {_letters::*}
-  assert {_letters::1} is "a" with "{_letters::1} should be set to 'a'"
-  add "b" to {_letters::*}
-  assert {_letters::2} is "b" with "{_letters::2} should be set to 'b'"
-  remove "b" from {_letters::*}
-  assert {_letters::2} is not set with "{_letters::2} should be removed"
-  clear {_letters::*}
-  assert amount of {_letters::*} is 0 with "{_letters::*} should be cleared"
-
   set {_isToggled} to false
   assert {_isToggled} is false with "{_isToggled} should be set to false"
   toggle {_isToggled}
