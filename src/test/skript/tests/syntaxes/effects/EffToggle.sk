@@ -1,4 +1,4 @@
-test "change modes":
+test "toggle effect":
   set {_x} to 0
   assert {_x} is 0 with "{_x} should be set to 0"
   add 1 to {_x}
