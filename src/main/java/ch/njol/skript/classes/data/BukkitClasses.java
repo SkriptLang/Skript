@@ -1395,8 +1395,7 @@ public class BukkitClasses {
 				.name("Sound Category")
 				.description("The category of a sound, they are used for sound options of Minecraft. " +
 						"See the <a href='effects.html#EffPlaySound'>play sound</a> and <a href='effects.html#EffStopSound'>stop sound</a> effects.")
-				.since("2.4")
-				.requiredPlugins("Minecraft 1.11 or newer"));
+				.since("2.4"));
 
 		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
 			Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
@@ -1486,14 +1485,14 @@ public class BukkitClasses {
 				.user("(world ?)?environments?")
 				.name("World Environment")
 				.description("Represents the environment of a world.")
-				.since("INSERT VERSION"));
+				.since("2.7"));
 
 		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
 			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
 				.user("(lunar|moon) ?phases?")
 				.name("Moon Phase")
 				.description("Represents the phase of a moon.")
-				.since("INSERT VERSION")
+				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
 	}

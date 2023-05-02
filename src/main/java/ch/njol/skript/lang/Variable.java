@@ -18,6 +18,27 @@
  */
 package ch.njol.skript.lang;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -26,15 +47,11 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.converter.Converters;
+import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
@@ -46,30 +63,18 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.SingleItemIterator;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-
-/**
- * @author Peter Güttinger
- */
 public class Variable<T> implements Expression<T> {
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
+
+	/**
+	 * Script this variable was created in.
+	 */
+	@Nullable
+	private final Script script;
 
 	/**
 	 * The name of this variable, excluding the local variable token, but including the list variable token '::*'.
@@ -91,6 +96,10 @@ public class Variable<T> implements Expression<T> {
 		assert types != null && types.length > 0;
 
 		assert name.isSimple() || name.getMode() == StringMode.VARIABLE_NAME;
+
+		ParserInstance parser = getParser();
+
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
 		this.local = local;
 		this.list = list;
@@ -188,7 +197,7 @@ public class Variable<T> implements Expression<T> {
 				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + "." + name + "}");
+				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
 		}
 
 		// Check for local variable type hints
@@ -200,7 +209,7 @@ public class Variable<T> implements Expression<T> {
 					assert type != null;
 					if (type.isAssignableFrom(hint)) {
 						// Hint matches, use variable with exactly correct type
-						return new Variable<>(vs, CollectionUtils.array(type), isLocal, isPlural, null);
+						return new Variable<>(vs, CollectionUtils.array(type), true, isPlural, null);
 					}
 				}
 
@@ -208,16 +217,16 @@ public class Variable<T> implements Expression<T> {
 				for (Class<? extends T> type : types) {
 					if (Converters.converterExists(hint, type)) {
 						// Hint matches, even though converter is needed
-						return new Variable<>(vs, CollectionUtils.array(type), isLocal, isPlural, null);
+						return new Variable<>(vs, CollectionUtils.array(type), true, isPlural, null);
 					}
 
 					// Special cases
 					if (type.isAssignableFrom(World.class) && hint.isAssignableFrom(String.class)) {
 						// String->World conversion is weird spaghetti code
-						return new Variable<>(vs, types, isLocal, isPlural, null);
+						return new Variable<>(vs, types, true, isPlural, null);
 					} else if (type.isAssignableFrom(Player.class) && hint.isAssignableFrom(String.class)) {
 						// String->Player conversion is not available at this point
-						return new Variable<>(vs, types, isLocal, isPlural, null);
+						return new Variable<>(vs, types, true, isPlural, null);
 					}
 				}
 
@@ -286,34 +295,56 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <R> Variable<R> getConvertedExpression(Class<R>... to) {
 		return new Variable<>(name, to, local, list, this);
 	}
 
 	/**
 	 * Gets the value of this variable as stored in the variables map.
+	 * This method also checks against default variables.
 	 */
 	@Nullable
-	public Object getRaw(Event e) {
-		String n = name.toString(e);
-		if (n.endsWith(Variable.SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
-			return null;
-		Object val = !list ? convertIfOldPlayer(n, e, Variables.getVariable(n, e, local)) : Variables.getVariable(n, e, local);
-		if (val == null)
-			return Variables.getVariable((local ? LOCAL_VARIABLE_TOKEN : "") + name.getDefaultVariableName(), e, false);
-		return val;
+	public Object getRaw(Event event) {
+		DefaultVariables data = script == null ? null : script.getData(DefaultVariables.class);
+		if (data != null)
+			data.enterScope();
+		try {
+			String name = this.name.toString(event);
+
+			// prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
+			if (name.endsWith(Variable.SEPARATOR + "*") != list)
+				return null;
+			Object value = !list ? convertIfOldPlayer(name, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
+			if (value != null)
+				return value;
+
+			// Check for default variables if value is still null.
+			if (data == null || !data.hasDefaultVariables())
+				return null;
+
+			for (String typeHint : this.name.getDefaultVariableNames(name, event)) {
+				value = Variables.getVariable(typeHint, event, false);
+				if (value != null)
+					return value;
+			}
+		} finally {
+			if (data != null)
+				data.exitScope();
+		}
+		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nullable
-	private Object get(Event e) {
-		Object val = getRaw(e);
+	@SuppressWarnings("unchecked")
+	private Object get(Event event) {
+		Object val = getRaw(event);
 		if (!list)
 			return val;
 		if (val == null)
 			return Array.newInstance(types[0], 0);
 		List<Object> l = new ArrayList<>();
-		String name = StringUtils.substring(this.name.toString(e), 0, -1);
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
 		for (Entry<String, ?> v : ((Map<String, ?>) val).entrySet()) {
 			if (v.getKey() != null && v.getValue() != null) {
 				Object o;
@@ -322,7 +353,7 @@ public class Variable<T> implements Expression<T> {
 				else
 					o = v.getValue();
 				if (o != null)
-					l.add(convertIfOldPlayer(name + v.getKey(), e, o));
+					l.add(convertIfOldPlayer(name + v.getKey(), event, o));
 			}
 		}
 		return l.toArray();
@@ -333,16 +364,17 @@ public class Variable<T> implements Expression<T> {
 	 * because the player object inside the variable will be a (kinda) dead variable
 	 * as a new player object has been created by the server.
 	 */
-	@Nullable Object convertIfOldPlayer(String key, Event event, @Nullable Object t){
-		if(SkriptConfig.enablePlayerVariableFix.value() && t != null && t instanceof Player){
-			Player p = (Player) t;
-			if(!p.isValid() && p.isOnline()){
+	@Nullable
+	Object convertIfOldPlayer(String key, Event event, @Nullable Object object) {
+		if (SkriptConfig.enablePlayerVariableFix.value() && object != null && object instanceof Player) {
+			Player p = (Player) object;
+			if (!p.isValid() && p.isOnline()) {
 				Player player = Bukkit.getPlayer(p.getUniqueId());
 				Variables.setVariable(key, player, event, local);
 				return player;
 			}
 		}
-		return t;
+		return object;
 	}
 
 	public Iterator<Pair<String, Object>> variablesIterator(Event e) {
