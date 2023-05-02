@@ -303,6 +303,13 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (isAnything || item.isAnything) {
 			return MatchQuality.EXACT; // TODO different match quality?
 		}
+
+		if (item.type == this.type
+			&& Objects.equals(item.stack.getItemMeta(), this.stack.getItemMeta())
+			&& Objects.equals(item.blockValues, this.blockValues)
+		) {
+			return MatchQuality.EXACT;
+		}
 		
 		// Ensure that both items share the material
 		if (item.getType() != getType()) {
