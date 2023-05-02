@@ -66,6 +66,7 @@ public class CondIsWhitelisted extends Condition {
 	private boolean isEnforce;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setNegated(parseResult.hasTag("not"));
 		isServer = matchedPattern != 1;
@@ -84,8 +85,8 @@ public class CondIsWhitelisted extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (players != null ? players.toString(event, debug) : "server") + " is " + (isNegated() ? "not" : "") + " "
-			+ (isEnforce ? "whitelist enforced" : "whitelisted");
+		return (players != null ? players.toString(event, debug) : "server") + " is " + (isNegated() ? "not " : " ")
+				+ (isEnforce ? "whitelist enforced" : "whitelisted");
 	}
 
 }

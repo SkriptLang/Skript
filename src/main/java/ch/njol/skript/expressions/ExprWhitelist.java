@@ -70,7 +70,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			return CollectionUtils.array(OfflinePlayer[].class);
-		} else if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
+		} else if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Boolean.class);
 		}
 		return null;
@@ -78,13 +78,13 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null && mode != ChangeMode.RESET)
+		if (delta == null && mode != ChangeMode.DELETE && mode != ChangeMode.RESET)
 			return;
 		switch (mode) {
 			case SET:
-				boolean value = (Boolean) delta[0];
-				Bukkit.setWhitelist(value);
-				if (value)
+				boolean toggle = (Boolean) delta[0];
+				Bukkit.setWhitelist(toggle);
+				if (toggle)
 					EffEnforceWhitelist.reloadWhitelist();
 				break;
 			case ADD:
@@ -96,10 +96,10 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 					((OfflinePlayer) player).setWhitelisted(false);
 				EffEnforceWhitelist.reloadWhitelist();
 				break;
+			case DELETE:
 			case RESET:
-				for (OfflinePlayer player : Bukkit.getWhitelistedPlayers()) {
+				for (OfflinePlayer player : Bukkit.getWhitelistedPlayers())
 					player.setWhitelisted(false);
-				}
 				break;
 			default:
 				assert false;
