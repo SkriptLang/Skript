@@ -44,12 +44,12 @@ public class EvtEntityBlockChange extends SkriptEvent {
 						"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
 				).examples(
 						"on sheep eat:",
-							"\tkill entity",
+							"\tkill event-entity",
 							"\tbroadcast \"A sheep stole some grass!\"",
 						"",
 						"on falling block land:",
-							"\tif event-entity is a falling dirt:",
-								"\t\tcancel event"
+							"\tevent-entity is a falling dirt",
+							"\tcancel event"
 				).since("<i>unknown</i>, 2.5.2 (falling block)");
 	}
 	
