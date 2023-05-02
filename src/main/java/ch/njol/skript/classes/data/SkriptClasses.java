@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -55,7 +56,6 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.SkriptColor;
-import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
@@ -65,8 +65,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-
-import java.util.Arrays;
 
 /**
  * @author Peter Güttinger
@@ -624,33 +622,6 @@ public class SkriptClasses {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
 				}));
-
-		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
-				.user("tree ?types?", "trees?")
-				.name("Tree Type")
-				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='./effects.html#EffTree'>generate tree</a> effect.")
-				.usage("[any] &lt;general tree/mushroom type&gt;, e.g. tree/any jungle tree/etc.", "&lt;specific tree/mushroom species&gt;, e.g. red mushroom/small jungle tree/big regular tree/etc.")
-				.examples("grow any regular tree at the block",
-						"grow a huge red mushroom above the block")
-				.since("")
-				.defaultExpression(new SimpleLiteral<>(StructureType.TREE, true))
-				.parser(new Parser<StructureType>() {
-					@Override
-					@Nullable
-					public StructureType parse(final String s, final ParseContext context) {
-						return StructureType.fromName(s);
-					}
-
-					@Override
-					public String toString(final StructureType o, final int flags) {
-						return o.toString(flags);
-					}
-
-					@Override
-					public String toVariableNameString(final StructureType o) {
-						return "" + o.name().toLowerCase(Locale.ENGLISH);
-					}
-				}).serializer(new EnumSerializer<>(StructureType.class)));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
 				.user("enchant(ing|ment) types?")

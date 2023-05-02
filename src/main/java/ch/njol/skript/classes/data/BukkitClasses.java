@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
@@ -50,6 +51,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
+import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
@@ -1495,5 +1497,13 @@ public class BukkitClasses {
 				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
+		Classes.registerClass(new EnumClassInfo<>(TreeType.class, "treetype", "tree types")
+				.user("tree ?types?", "trees?", /*structuretype is a deprecated name*/ "structure ?types?")
+				.name("Tree Type")
+				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='./effects.html#EffTree'>generate tree</a> effect.")
+				.examples("grow any regular tree at the block", "grow a huge red mushroom above the block")
+				.since("1.0")
+				.supplier(TreeType.values()));
 	}
+
 }
