@@ -49,7 +49,7 @@ import ch.njol.util.Kleenean;
 	"unenforce the whitelist"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.17+")
+@RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
 	private static String NOT_WHITELISTED_MESSAGE = "You are not whitelisted on this server!";

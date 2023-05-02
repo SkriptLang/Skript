@@ -45,7 +45,7 @@ import java.util.List;
 	"if server is whitelist enforced:"
 })
 @Since("2.5.2, INSERT VERSION (enforce, offline players)")
-@RequiredPlugins("Minecraft 1.17+ (enforce)")
+@RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
 
 	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
