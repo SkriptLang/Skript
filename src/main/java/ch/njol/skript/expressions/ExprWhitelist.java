@@ -70,7 +70,7 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			return CollectionUtils.array(OfflinePlayer[].class);
-		} else if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE) {
+		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
 			return CollectionUtils.array(Boolean.class);
 		}
 		return null;
