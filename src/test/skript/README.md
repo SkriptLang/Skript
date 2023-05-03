@@ -12,7 +12,7 @@ to keep in mind:
 * Write descriptive assert messages and write comments
 * Ensure your tests pass with all supported Skript versions
   * Use standard condition for checking MC version
-* When writting tests for your pull requests, please ensure you're cleaning up afterwards. This can mean clearing your cow you spawned, or resetting the block you manipulated back to what it was. Try to avoid spawning hostile mobs.
+* When writing tests for your pull requests, please ensure that manipulations are cleaned up afterwards. This includes actions such as removing mobs that were manually spawned and resetting manipulated blocks to their original state. Also, try to avoid spawning hostile mobs.
 
 Note: The test world generate as a default super flat. Bedrock, dirt, grass, air, air...+ A good practice is to be using `spawn of world "world"` as a homing location, or anywhere near 0, 0, 0 is reasonable.
 
