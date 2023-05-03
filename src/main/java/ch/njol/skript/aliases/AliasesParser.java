@@ -722,7 +722,7 @@ public class AliasesParser {
 		 * so that our indices for those characters aren't misaligned.
 		 * */
 
-		final StringBuilder sb = new StringBuilder(name.length());
+		StringBuilder sb = new StringBuilder(name.length());
 
 		int firstNonWhitespace = -1;
 		int lastNonWhitespace = -1;
@@ -730,16 +730,16 @@ public class AliasesParser {
 		int stripped = 0;
 
 		for (int i = 0; i < name.length(); ++i) {
-			final char c = name.charAt(i);
+			char c = name.charAt(i);
 			if (c > ' ') {
 				// The index will be off by the number of characters we've stripped so far
-				final int adjustedIndex = i - stripped;
+				int adjustedIndex = i - stripped;
 
 				if (firstNonWhitespace == -1)
 					firstNonWhitespace = adjustedIndex;
 				lastNonWhitespace = adjustedIndex;
 			} else {
-				final int oldLastWhitespace = lastWhitespace;
+				int oldLastWhitespace = lastWhitespace;
 				lastWhitespace = i;
 
 				if (
