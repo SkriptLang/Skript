@@ -735,7 +735,8 @@ public class AliasesParser {
 				// The index will be off by the number of characters we've stripped so far
 				final int adjustedIndex = i - stripped;
 
-				if (firstNonWhitespace == -1) firstNonWhitespace = adjustedIndex;
+				if (firstNonWhitespace == -1)
+					firstNonWhitespace = adjustedIndex;
 				lastNonWhitespace = adjustedIndex;
 			} else {
 				final int oldLastWhitespace = lastWhitespace;
