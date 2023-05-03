@@ -742,9 +742,11 @@ public class AliasesParser {
 				final int oldLastWhitespace = lastWhitespace;
 				lastWhitespace = i;
 
-				if ((oldLastWhitespace != -1 && oldLastWhitespace == i - 1)
-					|| (i < name.length() - 1 && name.charAt(i + 1) == '¦')) {
-					++stripped;
+				if (
+					(oldLastWhitespace != -1 && oldLastWhitespace == i - 1)
+					|| (i < name.length() - 1 && name.charAt(i + 1) == '¦')
+				) {
+					stripped++;
 					continue;
 				}
 			}
