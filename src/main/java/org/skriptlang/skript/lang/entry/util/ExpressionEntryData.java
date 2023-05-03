@@ -21,14 +21,20 @@ package org.skriptlang.skript.lang.entry.util;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.ParseLogHandler;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 
 /**
  * A type of {@link KeyValueEntryData} designed to parse its value as an {@link Expression}.
  * This data <b>CAN</b> return null if expression parsing fails.
+ * Note that it <b>will</b> print an error.
  */
 public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? extends T>> {
+
+	private static final Message M_IS = new Message("is");
 
 	private final Class<T> returnType;
 
@@ -62,8 +68,17 @@ public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? exten
 	@Nullable
 	@SuppressWarnings("unchecked")
 	protected Expression<? extends T> getValue(String value) {
-		return new SkriptParser(value, flags, ParseContext.DEFAULT)
+		Expression<? extends T> expression;
+		try (ParseLogHandler log = new ParseLogHandler()) {
+			expression = new SkriptParser(value, flags, ParseContext.DEFAULT)
 				.parseExpression(returnType);
+			if (expression == null) // print an error if it couldn't parse
+				log.printError(
+					"'" + value + "' " + M_IS + " " + SkriptParser.notOfType(returnType),
+					ErrorQuality.NOT_AN_EXPRESSION
+				);
+		}
+		return expression;
 	}
 
 }
