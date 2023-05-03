@@ -22,8 +22,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -39,7 +39,7 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
@@ -137,7 +137,7 @@ public class CondCompare extends Condition {
 		final Comparator comp = this.comp;
 		if (comp != null) {
 			if (third == null) {
-				if (!relation.isEqualOrInverse() && !comp.supportsOrdering()) {
+				if (!relation.isImpliedBy(Relation.EQUAL, Relation.NOT_EQUAL) && !comp.supportsOrdering()) {
 					Skript.error("Can't test " + f(first) + " for being '" + relation + "' " + f(second), ErrorQuality.NOT_AN_EXPRESSION);
 					return false;
 				}
@@ -308,19 +308,19 @@ public class CondCompare extends Condition {
 		return first.check(e, (Checker<Object>) o1 ->
 			second.check(e, (Checker<Object>) o2 -> {
 				if (third == null)
-					return relation.is(comp != null ? comp.compare(o1, o2) : Comparators.compare(o1, o2));
+					return relation.isImpliedBy(comp != null ? comp.compare(o1, o2) : Comparators.compare(o1, o2));
 				return third.check(e, (Checker<Object>) o3 -> {
 					boolean isBetween;
 					if (comp != null) {
 						isBetween =
-							(Relation.GREATER_OR_EQUAL.is(comp.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.is(comp.compare(o1, o3)))
+							(Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)))
 							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.is(comp.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.is(comp.compare(o1, o2)));
+							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)));
 					} else {
 						isBetween =
-							(Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o3)))
+							(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
 							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o2)));
+							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)));
 					}
 					return relation == Relation.NOT_EQUAL ^ isBetween;
 				});

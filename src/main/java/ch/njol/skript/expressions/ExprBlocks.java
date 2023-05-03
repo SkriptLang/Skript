@@ -18,14 +18,16 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.collect.Lists;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -42,11 +44,7 @@ import ch.njol.skript.util.BlockLineIterator;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import ch.njol.util.coll.iterator.IteratorIterable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Blocks")
 @Description({"Blocks relative to other blocks or between other blocks. Can be used to get blocks relative to other blocks or for looping.",
 		"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
@@ -57,6 +55,7 @@ import ch.njol.util.coll.iterator.IteratorIterable;
 		"set all blocks within chunk at player to air"})
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
+
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
 				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
@@ -66,20 +65,21 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				"[(all [[of] the]|the)] blocks within %location% and %location%",
 				"[(all [[of] the]|the)] blocks (in|within) %chunk%");
 	}
-	
-	private int pattern;
-	@SuppressWarnings("null")
-	private Expression<?> from;
-	@Nullable
-	private Expression<Location> end;
+
 	@Nullable
 	private Expression<Direction> direction;
+
+	@Nullable
+	private Expression<Location> end;
+
 	@Nullable
 	private Expression<Chunk> chunk;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private Expression<?> from;
+	private int pattern;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		this.pattern = matchedPattern;
 		switch (matchedPattern) {
 			case 0:
@@ -105,98 +105,100 @@ public class ExprBlocks extends SimpleExpression<Block> {
 		}
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
 	@Nullable
-	protected Block[] get(final Event e) {
-		final Expression<Direction> direction = this.direction;
-		if (direction != null && !from.isSingle()) {
-			final Location[] ls = (Location[]) from.getArray(e);
-			final Direction d = direction.getSingle(e);
-			if (ls.length == 0 || d == null)
+	protected Block[] get(Event event) {
+		if (this.direction != null && !from.isSingle()) {
+			Direction direction = this.direction.getSingle(event);
+			if (direction == null)
 				return new Block[0];
-			final Block[] bs = new Block[ls.length];
-			for (int i = 0; i < ls.length; i++) {
-				bs[i] = d.getRelative(ls[i]).getBlock();
-			}
-			return bs;
+			return from.stream(event)
+					.filter(Location.class::isInstance)
+					.map(Location.class::cast)
+					.map(direction::getRelative)
+					.map(Location::getBlock)
+					.toArray(Block[]::new);
 		}
-		final ArrayList<Block> r = new ArrayList<>();
-		final Iterator<Block> iter = iterator(e);
-		if (iter == null)
+		Iterator<Block> iterator = iterator(event);
+		if (iterator == null)
 			return new Block[0];
-		for (final Block b : new IteratorIterable<>(iter))
-			r.add(b);
-		return r.toArray(new Block[r.size()]);
+		return Lists.newArrayList(iterator).toArray(new Block[0]);
 	}
-	
+
 	@Override
 	@Nullable
-	public Iterator<Block> iterator(final Event e) {
+	public Iterator<Block> iterator(Event event) {
 		try {
-			final Expression<Direction> direction = this.direction;
 			if (chunk != null) {
-				Chunk chunk = this.chunk.getSingle(e);
+				Chunk chunk = this.chunk.getSingle(event);
 				if (chunk != null)
 					return new AABB(chunk).iterator();
 			} else if (direction != null) {
-				if (!from.isSingle()) {
-					return new ArrayIterator<>(get(e));
+				if (!from.isSingle())
+					return new ArrayIterator<>(get(event));
+				Object object = from.getSingle(event);
+				if (object == null)
+					return null;
+				Location location = object instanceof Location ? (Location) object : ((Block) object).getLocation().add(0.5, 0.5, 0.5);
+				Direction direction = this.direction.getSingle(event);
+				if (direction == null)
+					return null;
+				Vector vector = object != location ? direction.getDirection((Block) object) : direction.getDirection(location);
+				// Cannot be zero.
+				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
+					return null;
+				int distance = SkriptConfig.maxTargetBlockDistance.value();
+				if (this.direction instanceof ExprDirection) {
+					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
+					Number number = numberExpression.getSingle(event);
+					if (numberExpression != null && number != null)
+						distance = number.intValue();
 				}
-				final Object o = from.getSingle(e);
-				if (o == null)
-					return null;
-				final Location l = o instanceof Location ? (Location) o : ((Block) o).getLocation().add(0.5, 0.5, 0.5);
-				final Direction d = direction.getSingle(e);
-				if (d == null)
-					return null;
-				return new BlockLineIterator(l, o != l ? d.getDirection((Block) o) : d.getDirection(l), SkriptConfig.maxTargetBlockDistance.value());
+				return new BlockLineIterator(location, vector, distance);
 			} else {
-				final Location loc = (Location) from.getSingle(e);
+				Location loc = (Location) from.getSingle(event);
 				if (loc == null)
 					return null;
 				assert end != null;
-				final Location loc2 = end.getSingle(e);
+				Location loc2 = end.getSingle(event);
 				if (loc2 == null || loc2.getWorld() != loc.getWorld())
 					return null;
 				if (pattern == 4)
 					return new AABB(loc, loc2).iterator();
 				return new BlockLineIterator(loc.getBlock(), loc2.getBlock());
 			}
-		} catch (final IllegalStateException ex) {
-			if (ex.getMessage().equals("Start block missed in BlockIterator"))
+		} catch (IllegalStateException e) {
+			if (e.getMessage().equals("Start block missed in BlockIterator"))
 				return null;
-			throw ex;
+			throw e;
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Class<? extends Block> getReturnType() {
 		return Block.class;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return false;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		final Expression<Location> end = this.end;
+	public String toString(@Nullable Event event, boolean debug) {
 		if (chunk != null) {
-			return "blocks within chunk " + chunk.toString(e, debug);
+			return "blocks within chunk " + chunk.toString(event, debug);
 		} else if (pattern == 4) {
 			assert end != null;
-			return "blocks within " + from.toString(e, debug) + " and " + end.toString(e, debug);
+			return "blocks within " + from.toString(event, debug) + " and " + end.toString(event, debug);
 		} else if (end != null) {
-			return "blocks from " + from.toString(e, debug) + " to " + end.toString(e, debug);
+			return "blocks from " + from.toString(event, debug) + " to " + end.toString(event, debug);
 		} else {
-			final Expression<Direction> direction = this.direction;
 			assert direction != null;
-			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(e, debug) + " " + from.toString(e, debug);
+			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(event, debug) + " " + from.toString(event, debug);
 		}
 	}
-	
+
 }

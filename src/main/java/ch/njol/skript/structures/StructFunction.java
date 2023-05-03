@@ -46,15 +46,16 @@ import java.util.regex.MatchResult;
 @Examples({
 	"function sayMessage(message: text):",
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
+	"",
 	"local function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
 })
-@Since("2.2, INSERT VERSION (local functions)")
+@Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);
 
-	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
+	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {
 		Skript.registerStructure(StructFunction.class,
@@ -97,15 +98,15 @@ public class StructFunction extends Structure {
 
 		parser.deleteCurrentEvent();
 
-		validateFunctions.set(true);
+		VALIDATE_FUNCTIONS.set(true);
 
 		return true;
 	}
 
 	@Override
 	public boolean postLoad() {
-		if (validateFunctions.get()) {
-			validateFunctions.set(false);
+		if (VALIDATE_FUNCTIONS.get()) {
+			VALIDATE_FUNCTIONS.set(false);
 			Functions.validateFunctions();
 		}
 		return true;
@@ -114,7 +115,7 @@ public class StructFunction extends Structure {
 	@Override
 	public void unload() {
 		Functions.unregisterFunction(signature);
-		validateFunctions.set(true);
+		VALIDATE_FUNCTIONS.set(true);
 	}
 
 	@Override
