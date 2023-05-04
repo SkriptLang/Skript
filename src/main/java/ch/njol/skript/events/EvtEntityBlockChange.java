@@ -50,7 +50,8 @@ public class EvtEntityBlockChange extends SkriptEvent {
 						"on falling block land:",
 							"\tevent-entity is a falling dirt",
 							"\tcancel event"
-				).since("<i>unknown</i>, 2.5.2 (falling block)");
+				)
+				.since("<i>unknown</i>, 2.5.2 (falling block)");
 	}
 	
 	private enum ChangeEvent {
