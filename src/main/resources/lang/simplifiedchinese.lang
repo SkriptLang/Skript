@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: 无效的引号使用（"）。如果你想在"引号文本"中使用引号，双写它们（""）。
 	brackets error: 括号的数量或位置无效。请确保每一个左括号都有一个相应的右括号。
 	invalid reload: Skript只能通过Bukkit的“/reload”或Skript的“/skript reload”命令来重新加载。

@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 	"stop all sound for all players",
 	"stop sound in record category"
 })
-@Since("2.4, INSERT VERSION (stop all sounds)")
+@Since("2.4, 2.7 (stop all sounds)")
 @RequiredPlugins("MC 1.17.1 (stop all sounds)")
 public class EffStopSound extends Effect {
 	

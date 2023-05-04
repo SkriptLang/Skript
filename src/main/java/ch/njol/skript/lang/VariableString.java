@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
 import com.google.common.collect.Lists;
@@ -59,6 +60,7 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
  */
 public class VariableString implements Expression<String> {
 
+	@Nullable
 	private final Script script;
 	private final String orig;
 
@@ -97,10 +99,7 @@ public class VariableString implements Expression<String> {
 		this.mode = StringMode.MESSAGE;
 		
 		ParserInstance parser = getParser();
-		if (!parser.isActive())
-			throw new IllegalStateException("VariableString attempted to use constructor without a ParserInstance present at execution.");
-
-		this.script = parser.getCurrentScript();
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 		
 		this.components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
 	}
@@ -116,12 +115,9 @@ public class VariableString implements Expression<String> {
 		this.orig = orig;
 		this.string = new Object[string.length];
 		this.stringUnformatted = new Object[string.length];
-	
-		ParserInstance parser = getParser();
-		if (!parser.isActive())
-			throw new IllegalStateException("VariableString attempted to use constructor without a ParserInstance present at execution.");
 
-		this.script = parser.getCurrentScript();
+		ParserInstance parser = getParser();
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 	
 		// Construct unformatted string and components
 		List<MessageComponent> components = new ArrayList<>(string.length);
@@ -550,7 +546,7 @@ public class VariableString implements Expression<String> {
 			}
 		}
 		String complete = builder.toString();
-		if (mode == StringMode.VARIABLE_NAME && !types.isEmpty()) {
+		if (script != null && mode == StringMode.VARIABLE_NAME && !types.isEmpty()) {
 			DefaultVariables data = script.getData(DefaultVariables.class);
 			if (data != null)
 				data.add(complete, types.toArray(new Class<?>[0]));
@@ -586,35 +582,45 @@ public class VariableString implements Expression<String> {
 	 * 
 	 * @return List<String> of all possible super class code names.
 	 */
+	@NotNull
 	public List<String> getDefaultVariableNames(String variableName, Event event) {
+		if (script == null || mode != StringMode.VARIABLE_NAME)
+			return Lists.newArrayList();
+
 		if (isSimple) {
 			assert simple != null;
 			return Lists.newArrayList(simple, "object");
 		}
-		Object[] string = this.string;
-		assert string != null;
-		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
+
 		DefaultVariables data = script.getData(DefaultVariables.class);
+		// Checked in Variable#getRaw already
 		assert data != null : "default variables not present in current script";
 
+		Class<?>[] savedHints = data.get(variableName);
+		if (savedHints == null || savedHints.length == 0)
+			return Lists.newArrayList();
+
+		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
 		// Represents the index of which expression in a variable string, example name::%entity%::%object% the index of 0 will be entity.
 		int hintIndex = 0;
+		assert string != null;
 		for (Object object : string) {
 			if (!(object instanceof Expression)) {
 				typeHints.forEach(builder -> builder.append(object));
 				continue;
 			}
 			StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
-			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(data.get(variableName)[hintIndex])) {
+			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
 				for (StringBuilder builder : current) {
 					String hint = builder.toString() + "<" + classInfo.getCodeName() + ">";
+					// Has to duplicate the builder as it builds multiple off the last builder.
 					typeHints.add(new StringBuilder(hint));
 					typeHints.remove(builder);
 				}
 			}
 			hintIndex++;
 		}
-		return typeHints.stream().map(builder -> builder.toString()).collect(Collectors.toList());
+		return typeHints.stream().map(StringBuilder::toString).collect(Collectors.toList());
 	}
 
 	public boolean isSimple() {

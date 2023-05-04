@@ -48,7 +48,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\telse:",
 			"\t\tcancel event"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @RequiredPlugins("1.16.5+, Paper 1.19.2+ (blockdata)")
 public class CondIsPreferredTool extends Condition {
 
@@ -78,20 +78,16 @@ public class CondIsPreferredTool extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		for (Object block : blocks.getArray(event)){
-			if (block instanceof Block) {
-				if (!items.check(event, (item) -> ((Block) block).isPreferredTool(item.getRandom()), isNegated()))
+		return blocks.check(event, block ->
+			items.check(event, item -> {
+				if (block instanceof Block) {
+					return ((Block) block).isPreferredTool(item.getRandom());
+				} else if (block instanceof BlockData) {
+					return ((BlockData) block).isPreferredTool(item.getRandom());
+				} else {
 					return false;
-			} else if (block instanceof BlockData) {
-				if (!items.check(event, (item) -> ((BlockData) block).isPreferredTool(item.getRandom()), isNegated()))
-					return false;
-			} else {
-				// invalid type
-				return false;
-			}
-		}
-		// all checks passed
-		return true;
+				}
+			}), isNegated());
 	}
 
 	@Override
