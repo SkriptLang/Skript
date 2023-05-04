@@ -116,7 +116,8 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-					.map(location -> direction.getRelative(location))
+					.map(direction::getRelative)
+					.map(Location::getBlock)
 					.toArray(Block[]::new);
 		}
 		Iterator<Block> iterator = iterator(event);
