@@ -18,35 +18,27 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import ch.njol.util.coll.iterator.EnumerationIterable;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jdt.annotation.Nullable;
+
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
- * 
- * @author Peter Güttinger
  */
 public final class SkriptAddon {
-	
+
 	public final JavaPlugin plugin;
 	public final Version version;
 	private final String name;
-	
+
 	/**
 	 * Package-private constructor. Use {@link Skript#registerAddon(JavaPlugin)} to get a SkriptAddon for your plugin.
 	 * 
@@ -67,16 +59,16 @@ public final class SkriptAddon {
 		}
 		version = v;
 	}
-	
+
 	@Override
 	public final String toString() {
 		return name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
 	 * 
@@ -87,51 +79,13 @@ public final class SkriptAddon {
 	 * @return This SkriptAddon
 	 */
 	public SkriptAddon loadClasses(String basePackage, String... subPackages) throws IOException {
-		assert subPackages != null;
-		JarFile jar = new JarFile(getFile());
-		for (int i = 0; i < subPackages.length; i++)
-			subPackages[i] = subPackages[i].replace('.', '/') + "/";
-		basePackage = basePackage.replace('.', '/') + "/";
-		try {
-			List<String> classNames = new ArrayList<>();
-
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class")) {
-					boolean load = subPackages.length == 0;
-					for (String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
-							load = true;
-							break;
-						}
-					}
-
-					if (load)
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-				}
-			}
-
-			classNames.sort(String::compareToIgnoreCase);
-
-			for (String c : classNames) {
-				try {
-					Class.forName(c, true, plugin.getClass().getClassLoader());
-				} catch (ClassNotFoundException ex) {
-					Skript.exception(ex, "Cannot load class " + c + " from " + this);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), this + "'s class " + c + " generated an exception while loading");
-				}
-			}
-		} finally {
-			try {
-				jar.close();
-			} catch (IOException e) {}
-		}
+		Utils.getClasses(plugin, basePackage, subPackages);
 		return this;
 	}
-	
+
 	@Nullable
 	private String languageFileDirectory = null;
-	
+
 	/**
 	 * Makes Skript load language files from the specified directory, e.g. "lang" or "skript lang" if you have a lang folder yourself. Localised files will be read from the
 	 * plugin's jar and the plugin's data folder, but the default English file is only taken from the jar and <b>must</b> exist!
@@ -149,40 +103,27 @@ public final class SkriptAddon {
 		Language.loadDefault(this);
 		return this;
 	}
-	
+
 	@Nullable
 	public String getLanguageFileDirectory() {
 		return languageFileDirectory;
 	}
-	
+
 	@Nullable
-	private File file = null;
-	
+	private File file;
+
 	/**
-	 * @return The jar file of the plugin. The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar
-	 *         file. The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
+	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
+	 * The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
+	 * Only nullable if there was an exception thrown.
+	 * 
+	 * @return The jar file of the plugin.
 	 */
 	@Nullable
 	public File getFile() {
-		if (file != null)
-			return file;
-		try {
-			final Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
-			getFile.setAccessible(true);
-			file = (File) getFile.invoke(plugin);
-			return file;
-		} catch (final NoSuchMethodException e) {
-			Skript.outdatedError(e);
-		} catch (final IllegalArgumentException e) {
-			Skript.outdatedError(e);
-		} catch (final IllegalAccessException e) {
-			assert false;
-		} catch (final SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (final InvocationTargetException e) {
-			throw new RuntimeException(e.getCause());
-		}
-		return null;
+		if (file == null)
+			file = Utils.getFile(plugin);
+		return file;
 	}
-	
+
 }

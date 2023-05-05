@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -49,8 +50,8 @@ import ch.njol.util.Kleenean;
 		"\t\tadd 100 to dropped experience",
 		"on fishing:",
 		"\tadd 70 to dropped experience"})
-@Since("2.1, 2.5.3 (block break event), INSERT VERSION (fishing)")
-@Events({"experience spawn", "break / mine", "fishing"})
+@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (fishing)")
+@Events({"experience spawn", "break / mine", "experience change", "fishing"})
 public class ExprExperience extends SimpleExpression<Experience> {
 
 	static {
@@ -59,8 +60,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerFishEvent.class)) {
-			Skript.error("The experience expression can only be used in experience spawn, block break and fishing events");
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class, PlayerFishEvent.class)) {
+			Skript.error("The experience expression can only be used in experience spawn, block break, player experience change and fishing events");
 			return false;
 		}
 		return true;
@@ -75,6 +76,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			return new Experience[] {new Experience(((BlockBreakEvent) event).getExpToDrop())};
 		else if (event instanceof PlayerFishEvent)
 			return new Experience[] {new Experience(((PlayerFishEvent) event).getExpToDrop())};
+		else if (event instanceof PlayerExpChangeEvent)
+			return new Experience[] {new Experience(((PlayerExpChangeEvent) event).getAmount())};
 		else
 			return new Experience[0];
 	}
@@ -90,10 +93,9 @@ public class ExprExperience extends SimpleExpression<Experience> {
 				return new Class[] {Experience[].class, Number[].class};
 			case SET:
 				return new Class[] {Experience.class, Number.class};
-			case RESET:
+			default:
 				return null;
 		}
-		return null;
 	}
 	
 	@Override
@@ -105,10 +107,12 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			experience = ((BlockBreakEvent) event).getExpToDrop();
 		else if (event instanceof PlayerFishEvent)
 			experience = ((PlayerFishEvent) event).getExpToDrop();
+		else if (event instanceof PlayerExpChangeEvent)
+			experience = ((PlayerExpChangeEvent) event).getAmount();
 		else
 			return;
-		
-		if (delta != null)
+
+		if (delta != null) {
 			for (Object object : delta) {
 				int value = object instanceof Experience ? ((Experience) object).getXP() : ((Number) object).intValue();
 				switch (mode) {
@@ -128,16 +132,19 @@ public class ExprExperience extends SimpleExpression<Experience> {
 						break;
 				}
 			}
-		else
+		} else {
 			experience = 0;
+		}
 		
 		experience = Math.max(0, Math.round(experience));
 		if (event instanceof ExperienceSpawnEvent)
 			((ExperienceSpawnEvent) event).setSpawnedXP(experience);
 		else if (event instanceof PlayerFishEvent)
 			((PlayerFishEvent) event).setExpToDrop(experience);
-		else
+		else if (event instanceof BlockBreakEvent)
 			((BlockBreakEvent) event).setExpToDrop(experience);
+		else
+			((PlayerExpChangeEvent) event).setAmount(experience);
 	}
 	
 	@Override

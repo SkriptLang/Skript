@@ -1,0 +1,4 @@
+test "effect commands":
+
+	# assume if something goes wrong we'll get an exception
+	execute console command "!broadcast ""effect commands test"""
