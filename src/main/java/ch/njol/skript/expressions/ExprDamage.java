@@ -54,7 +54,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tincrease the damage by 2"
 })
 @Since("1.3.5, INSERT VERSION (item damage event)")
-@Events({"damage", "vehicle damage", "item damage"})
+@Events({"Damage", "Vehicle Damage", "Item Damage"})
 public class ExprDamage extends SimpleExpression<Number> {
 	
 	static {
