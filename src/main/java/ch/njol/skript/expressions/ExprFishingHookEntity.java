@@ -20,13 +20,11 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
@@ -38,9 +36,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Returns the hooked entity of the fishing hook.")
 @Examples({
 	"on fish:",
-	"\tif hooked entity of fishing hook is a player:",
-	"\t\tteleport hooked entity of fishing hook to player"
+		"\tif hooked entity of fishing hook is a player:",
+			"\t\tteleport hooked entity of fishing hook to player"
 })
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, Entity> {
 
@@ -77,11 +76,8 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET && delta == null)
-			return;
-
-		FishHook[] hooks = getExpr().getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		FishHook[] hooks = getExpr().getArray(event);
 		switch (mode) {
 			case SET:
 				for (FishHook fishHook : hooks)

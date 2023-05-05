@@ -19,7 +19,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -31,26 +35,21 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Fishing Hook Apply Lure")
 @Description("Returns whether the lure enchantment should be applied to reduce the wait time.")
-@Examples({"on fish:",
-			"\tset apply lure enchantment of fishing hook to true"})
-@Events("fishing")
+@Examples({
+	"on fish:",
+		"\tset apply lure enchantment of fishing hook to true"
+})
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingApplyLure extends SimplePropertyExpression<FishHook, Boolean> {
 
 	static {
-		register(ExprFishingApplyLure.class, Boolean.class, "apply lure [enchant[ment]]", "fishinghook");
+		register(ExprFishingApplyLure.class, Boolean.class, "apply lure [enchant[ment]]", "fishinghooks");
 	}
 
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<FishHook>) exprs[0]);
-		return true;
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return "apply lure of fishing hook";
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -64,21 +63,24 @@ public class ExprFishingApplyLure extends SimplePropertyExpression<FishHook, Boo
 	}
 
 	@Override
+	protected String getPropertyName() {
+		return "apply lure of fishing hook";
+	}
+
+	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return mode == ChangeMode.SET ? CollectionUtils.array(Boolean.class) : null;
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null || delta[0] == null)
-			return;
-
-		for (FishHook fh : getExpr().getArray(e))
-			fh.setApplyLure((Boolean) delta[0]);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		for (FishHook fishHook : getExpr().getArray(event))
+			fishHook.setApplyLure((Boolean) delta[0]);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "apply lure of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "apply lure of " + getExpr().toString(event, debug);
 	}
+
 }

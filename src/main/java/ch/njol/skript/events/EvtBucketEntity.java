@@ -19,7 +19,11 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -28,12 +32,10 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.StringUtils;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerBucketEntityEvent;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerFishEvent.State;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -43,9 +45,11 @@ import java.util.List;
 
 @Name("Bucket Capture Entity")
 @Description("Called when a player captures an entity in a bucket.")
-@Examples({"on bucket capture of a puffer fish:",
-	"\tsend \"You caught a fish with your bucket!\" to player"})
-@RequiredPlugins("Minecraft 1.17+")
+@Examples({
+	"on bucket capture of a puffer fish:",
+		"\tsend \"You caught a fish with your bucket!\" to player"
+})
+@RequiredPlugins("MC 1.17+")
 @Since("INSERT VERSION")
 public class EvtBucketEntity extends SkriptEvent {
 
@@ -55,21 +59,21 @@ public class EvtBucketEntity extends SkriptEvent {
 
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<ItemStack, PlayerBucketEntityEvent>() {
 				@Override
-				public ItemStack get(PlayerBucketEntityEvent e) {
-					return e.getOriginalBucket();
+				public ItemStack get(PlayerBucketEntityEvent event) {
+					return event.getOriginalBucket();
 				}
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, Player.class, new Getter<Player, PlayerBucketEntityEvent>() {
 				@Override
-				public Player get(PlayerBucketEntityEvent e) {
-					return e.getPlayer();
+				public Player get(PlayerBucketEntityEvent event) {
+					return event.getPlayer();
 				}
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerBucketEntityEvent.class, Entity.class, new Getter<Entity, PlayerBucketEntityEvent>() {
 				@Override
 				@Nullable
-				public Entity get(PlayerBucketEntityEvent e) {
-					return e.getEntity();
+				public Entity get(PlayerBucketEntityEvent event) {
+					return event.getEntity();
 				}
 			}, EventValues.TIME_NOW);
 		}

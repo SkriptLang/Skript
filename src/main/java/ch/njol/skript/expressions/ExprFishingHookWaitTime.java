@@ -34,9 +34,6 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Name("Fishing Hook Wait Time")
 @Description({
 	"Returns the minimum and/or maximum waiting time of the fishing hook. Default minimum value is 5 seconds and maximum is 30 seconds.",
@@ -45,14 +42,14 @@ import java.util.List;
 })
 @Examples({
 	"on fish:",
-	"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
+		"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
 })
-@Events("fishing")
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, Timespan> {
 
 	static {
-		register(ExprFishingHookWaitTime.class, Timespan.class, "(1:min[imum]|max[imum]) wait[ing] time", "fishinghooks");
+		register(ExprFishingHookWaitTime.class, Timespan.class, "(min:min[imum]|max[imum]) wait[ing] time", "fishinghooks");
 	}
 
 	private static final int DEFAULT_MINIMUM_TIME = 100;
@@ -61,7 +58,7 @@ public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, 
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isMin = parseResult.mark == 1;
+		isMin = parseResult.hasTag("min");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -95,16 +92,13 @@ public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, 
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode != ChangeMode.RESET && delta == null)
-			return;
-
 		int ticks = mode == ChangeMode.RESET ? (isMin ? DEFAULT_MINIMUM_TIME : DEFAULT_MAXIMUM_TIME) : (int) ((Timespan) delta[0]).getTicks_i();
 		switch (mode) {
 			case ADD:
 				setWaitingTime(event, ticks, false);
 				break;
 			case REMOVE:
-				setWaitingTime(event, (ticks * -1), false);
+				setWaitingTime(event, (-ticks), false);
 				break;
 			case SET:
 			case RESET:

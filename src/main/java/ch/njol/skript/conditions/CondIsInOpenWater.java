@@ -18,17 +18,13 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import org.bukkit.entity.FishHook;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.yaml.snakeyaml.introspector.Property;
 
 @Name("Is Fish Hook in Open Water")
 @Description("Checks whether or not the fish hook is in open water.")
@@ -37,7 +33,7 @@ import org.yaml.snakeyaml.introspector.Property;
 	"\tif fish hook is in open water:",
 	"\t\tsend \"You will catch a shark soon!\""
 })
-@Events("fishing")
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class CondIsInOpenWater extends PropertyCondition<FishHook> {
 	

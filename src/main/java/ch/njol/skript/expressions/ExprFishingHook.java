@@ -18,22 +18,25 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ExpressionType;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
 
 @Name("Fishing Hook")
 @Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
 @Examples({
 	"on fishing:",
-	"\tteleport player to fishing hook"
+		"\tteleport player to fishing hook"
 })
-@Events("fishing")
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHook extends EventValueExpression<FishHook> {
 

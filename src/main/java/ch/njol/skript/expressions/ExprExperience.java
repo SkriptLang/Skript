@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -38,30 +32,37 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
-@Examples({"on experience spawn:",
+@Examples({
+	"on experience spawn:",
 		"\tadd 5 to the spawned experience",
-		"on break of coal ore:",
+	"on break of coal ore:",
 		"\tclear dropped experience",
-		"on break of diamond ore:",
+	"on break of diamond ore:",
 		"\tif tool of player = diamond pickaxe:",
-		"\t\tadd 100 to dropped experience",
-		"on fishing:",
-		"\tadd 70 to dropped experience"})
+			"\t\tadd 100 to dropped experience",
+	"on fishing:",
+		"\tadd 70 to dropped experience"
+})
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (fishing)")
 @Events({"experience spawn", "break / mine", "experience change", "fishing"})
 public class ExprExperience extends SimpleExpression<Experience> {
 
 	static {
-		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] (spawned|dropped|) [e]xp[erience] [orb[s]]");
+		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] [spawned|dropped] [e]xp[erience] [orb[s]]");
 	}
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class, PlayerFishEvent.class)) {
-			Skript.error("The experience expression can only be used in experience spawn, block break, player experience change and fishing events");
+			Skript.error("The 'experience' expression can only be used in experience spawn, block break, player experience change and fishing events");
 			return false;
 		}
 		return true;

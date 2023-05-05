@@ -19,7 +19,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -34,10 +38,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Gets the bucket that the Entity will be put into such as 'puffer fish bucket'.")
 @Examples({
 	"on bucket capture entity:",
-	"\tif entity bucket is salmon bucket:",
-	"\t\tsend \"Congratulations you now have a salmon bucket!\" to player"
+		"\tif entity bucket is salmon bucket:",
+			"\t\tsend \"Congratulations you now have a salmon bucket!\" to player"
 })
-@Events("bucket capture entity")
+@Events("Bucket Capture Entity")
 @Since("INSERT VERSION")
 public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 

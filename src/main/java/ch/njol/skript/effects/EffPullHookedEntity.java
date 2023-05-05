@@ -19,7 +19,11 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -31,14 +35,16 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Pull Hooked Entity")
 @Description("Pull the hooked entity to the caster of this fish hook.")
-@Examples({"on fishing state of caught entity:",
-			"\tpull hooked entity"})
+@Examples({
+	"on fishing state of caught entity:",
+		"\tpull hooked entity"
+})
 @Events("fishing")
 @Since("INSERT VERSION")
 public class EffPullHookedEntity extends Effect {
 
 	static {
-		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [1:of %fishinghooks%]");
+		Skript.registerEffect(EffPullHookedEntity.class, "pull hook[ed] entity [ofType:of %fishinghooks%]");
 	}
 
 	private Expression<FishHook> fishHook;
@@ -46,7 +52,7 @@ public class EffPullHookedEntity extends Effect {
 	@Override
 	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerFishEvent.class) && parseResult.mark == 0) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class) && !parseResult.hasTag("ofType")) {
 			Skript.error("The 'pull hooked entity' effect can either be used in the fishing event or by providing a fishing hook");
 			return false;
 		}
@@ -55,15 +61,15 @@ public class EffPullHookedEntity extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (FishHook fh : fishHook.getArray(e)) {
-			fh.pullHookedEntity();
+	protected void execute(Event event) {
+		for (FishHook fishHook : fishHook.getArray(event)) {
+			fishHook.pullHookedEntity();
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "pull hooked entity of " + fishHook.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "pull hooked entity of " + fishHook.toString(event, debug);
 	}
 
 }
