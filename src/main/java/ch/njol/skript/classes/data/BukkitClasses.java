@@ -73,6 +73,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -1495,5 +1496,12 @@ public class BukkitClasses {
 				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
+
+		Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
+				.user("inventory ?close ?reasons?")
+				.name("Inventory Close Reasons")
+				.description("The inventory close reason in a <a href='/events.html#inventory_close'>inventory close event</a>.")
+				.since("INSERT VERSION"));
 	}
+
 }

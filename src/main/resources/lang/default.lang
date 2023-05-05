@@ -1313,6 +1313,18 @@ teleport causes:
 	unknown: unknown
 	dismount: dismount, dismounted
 
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: cant use, can not use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
+
 # -- Game Modes --
 game modes:
 	survival: survival
@@ -1998,6 +2010,7 @@ types:
 	resourcepackstate: resource pack state¦s @a
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
+	inventoryclosereason: inventory close reason¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
