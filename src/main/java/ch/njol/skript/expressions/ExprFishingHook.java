@@ -34,6 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
 @Examples({
 	"on fishing:",
+		"\twait a second",
 		"\tteleport player to fishing hook"
 })
 @Events("Fishing")
