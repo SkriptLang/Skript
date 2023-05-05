@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
 import com.google.common.collect.Lists;
@@ -581,20 +582,25 @@ public class VariableString implements Expression<String> {
 	 * 
 	 * @return List<String> of all possible super class code names.
 	 */
+	@NotNull
 	public List<String> getDefaultVariableNames(String variableName, Event event) {
-		if (script == null || mode != StringMode.VARIABLE_NAME) {
+		if (script == null || mode != StringMode.VARIABLE_NAME)
 			return Lists.newArrayList();
-		}
 
 		if (isSimple) {
 			assert simple != null;
 			return Lists.newArrayList(simple, "object");
 		}
 
-		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
 		DefaultVariables data = script.getData(DefaultVariables.class);
+		// Checked in Variable#getRaw already
 		assert data != null : "default variables not present in current script";
 
+		Class<?>[] savedHints = data.get(variableName);
+		if (savedHints == null || savedHints.length == 0)
+			return Lists.newArrayList();
+
+		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
 		// Represents the index of which expression in a variable string, example name::%entity%::%object% the index of 0 will be entity.
 		int hintIndex = 0;
 		assert string != null;
@@ -604,9 +610,10 @@ public class VariableString implements Expression<String> {
 				continue;
 			}
 			StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
-			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(data.get(variableName)[hintIndex])) {
+			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
 				for (StringBuilder builder : current) {
 					String hint = builder.toString() + "<" + classInfo.getCodeName() + ">";
+					// Has to duplicate the builder as it builds multiple off the last builder.
 					typeHints.add(new StringBuilder(hint));
 					typeHints.remove(builder);
 				}
