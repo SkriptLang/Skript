@@ -395,8 +395,7 @@ public class BukkitClasses {
 						try {
 							world = location.getWorld();
 						} catch (IllegalArgumentException exception) {
-							if (Skript.logHigh())
-								Skript.warning("A location failed to serilize with it's defined world, as the world was unloaded.");
+							Skript.warning("A location failed to serilize with it's defined world, as the world was unloaded.");
 						}
 						fields.putObject("world", world);
 						fields.putPrimitive("x", location.getX());
