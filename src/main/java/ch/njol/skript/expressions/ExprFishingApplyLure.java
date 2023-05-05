@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprFishingApplyLure extends SimplePropertyExpression<FishHook, Boolean> {
 
 	static {
-		register(ExprFishingApplyLure.class, Boolean.class, "apply lure [enchant[ment]]", "fishinghooks");
+		registerDefault(ExprFishingApplyLure.class, Boolean.class, "apply lure [enchant[ment]]", "fishinghooks");
 	}
 
 	@Override
