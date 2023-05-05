@@ -34,6 +34,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -52,6 +53,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.Locale;
 
 public class DefaultConverters {
 	
@@ -176,6 +179,7 @@ public class DefaultConverters {
 		// EnchantmentOffer - EnchantmentType
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
+		// String - World
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
 		// Location - Chunk
@@ -255,6 +259,14 @@ public class DefaultConverters {
 //			}
 //		});
 
+		// String - Statistic
+		Converters.registerConverter(String.class, Statistic.class, statistic -> {
+			try {
+				return Statistic.valueOf(statistic.toUpperCase(Locale.ENGLISH));
+			} catch (Exception ex) {
+				return null;
+			}
+		});
 	}
 
 }
