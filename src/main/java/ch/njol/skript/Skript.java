@@ -471,11 +471,19 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
-		
+
+		// Check server software, Minecraft version, etc.
+		if (!checkServerPlatform()) {
+			disabled = true; // Nothing was loaded, nothing needs to be unloaded
+			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
+			return;
+		}
+
 		// And then not-so-safe classes
 		Throwable classLoadError = null;
 		try {
 			new SkriptClasses();
+			new BukkitClasses();
 		} catch (Throwable e) {
 			classLoadError = e;
 		}
@@ -487,13 +495,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)
 			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
-		
-		// Check server software, Minecraft version, etc.
-		if (!checkServerPlatform()) {
-			disabled = true; // Nothing was loaded, nothing needs to be unloaded
-			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
-			return;
-		}
 		
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
@@ -530,7 +531,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitClasses();
 		new BukkitEventValues();
 		
 		new DefaultComparators();
@@ -604,44 +604,50 @@ public final class Skript extends JavaPlugin implements Listener {
 				
 				Documentation.generate(); // TODO move to test classes?
 				
-				if (logNormal())
-					info("Loading variables...");
-				final long vls = System.currentTimeMillis();
-				
-				LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
-					@Override
-					public LogResult log(final LogEntry entry) {
-						super.log(entry);
-						if (entry.level.intValue() >= Level.SEVERE.intValue()) {
-							logEx(entry.message); // no [Skript] prefix
-							return LogResult.DO_NOT_LOG;
-						} else {
-							return LogResult.LOG;
+				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this, () -> {
+					if (logNormal())
+						info("Loading variables...");
+					long vls = System.currentTimeMillis();
+					
+					LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
+						@Override
+						public LogResult log(final LogEntry entry) {
+							super.log(entry);
+							if (entry.level.intValue() >= Level.SEVERE.intValue()) {
+								logEx(entry.message); // no [Skript] prefix
+								return LogResult.DO_NOT_LOG;
+							} else {
+								return LogResult.LOG;
+							}
 						}
+						
+						@Override
+						protected void beforeErrors() {
+							logEx();
+							logEx("===!!!=== Skript variable load error ===!!!===");
+							logEx("Unable to load (all) variables:");
+						}
+						
+						@Override
+						protected void afterErrors() {
+							logEx();
+							logEx("Skript will work properly, but old variables might not be available at all and new ones may or may not be saved until Skript is able to create a backup of the old file and/or is able to connect to the database (which requires a restart of Skript)!");
+							logEx();
+						}
+					});
+					
+					try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
+						if (!Variables.load())
+							if (c.getCount() == 0)
+								error("(no information available)");
+					} finally {
+						h.stop();
 					}
 					
-					@Override
-					protected void beforeErrors() {
-						logEx();
-						logEx("===!!!=== Skript variable load error ===!!!===");
-						logEx("Unable to load (all) variables:");
-					}
-					
-					@Override
-					protected void afterErrors() {
-						logEx();
-						logEx("Skript will work properly, but old variables might not be available at all and new ones may or may not be saved until Skript is able to create a backup of the old file and/or is able to connect to the database (which requires a restart of Skript)!");
-						logEx();
-					}
+					long vld = System.currentTimeMillis() - vls;
+					if (logNormal())
+						info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 				});
-				
-				try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
-					if (!Variables.load())
-						if (c.getCount() == 0)
-							error("(no information available)");
-				} finally {
-					h.stop();
-				}
 				
 				// Skript initialization done
 				debug("Early init done");
@@ -745,10 +751,6 @@ public final class Skript extends JavaPlugin implements Listener {
 						}, shutdownDelay);
 					}, 100);
 				}
-				
-				final long vld = System.currentTimeMillis() - vls;
-				if (logNormal())
-					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 
 				// Enable metrics and register custom charts
 				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID
