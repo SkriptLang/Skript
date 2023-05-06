@@ -1583,6 +1583,19 @@ public final class BukkitEventValues {
 					return null;
 				}
 			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
+				@Override
+				@Nullable
+				public Slot get(EntityResurrectEvent event) {
+					EquipmentSlot hand = event.getHand();
+					EntityEquipment equipment = event.getEntity().getEquipment();
+					if (equipment == null || hand == null)
+						return null;
+					return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
+							(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
+							: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+				}
+			}, EventValues.TIME_NOW);
 		}
 	}
 }
