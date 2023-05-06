@@ -32,7 +32,7 @@ import org.bukkit.entity.Entity;
 	"if player is frozen:",
 	"\tkill player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsFrozen extends PropertyCondition<Entity> {
 
 	static {

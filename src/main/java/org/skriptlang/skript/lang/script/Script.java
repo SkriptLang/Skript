@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -50,6 +51,7 @@ public final class Script {
 	 * @param config The Config containing the contents of this Script.
 	 * @param structures The list of Structures contained in this Script.
 	 */
+	@ApiStatus.Internal
 	public Script(Config config, List<Structure> structures) {
 		this.config = config;
 		this.structures = structures;
@@ -65,6 +67,7 @@ public final class Script {
 	/**
 	 * @return An unmodifiable list of all Structures within this Script.
 	 */
+	@Unmodifiable
 	public List<Structure> getStructures() {
 		return Collections.unmodifiableList(structures);
 	}
