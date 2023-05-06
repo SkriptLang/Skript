@@ -30,7 +30,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -46,7 +45,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprInventoryCloseReason extends SimpleExpression<InventoryCloseEvent.Reason> {
 	
 	static {
-		Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class, ExpressionType.SIMPLE, "[the] inventory clos(e|ing) (reason|cause)");
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class, ExpressionType.SIMPLE, "[the] inventory clos(e|ing) (reason|cause)");
 	}
 	
 	@Override

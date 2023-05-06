@@ -1497,11 +1497,12 @@ public class BukkitClasses {
 				.requiredPlugins("Paper 1.16+"));
 		}
 
-		Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
-				.user("inventory ?close ?reasons?")
-				.name("Inventory Close Reasons")
-				.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
-				.since("INSERT VERSION"));
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
+					.user("inventory ?close ?reasons?")
+					.name("Inventory Close Reasons")
+					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
+					.since("INSERT VERSION"));
 	}
 
 }
