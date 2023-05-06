@@ -1343,6 +1343,13 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
+		// InventoryCloseEvent
+		EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
+			@Override
+			public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
+				return event.getReason();
+			}
+		}, 0);
 		//PlayerMoveEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override

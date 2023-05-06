@@ -24,10 +24,10 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Events("Inventory Close")
 @Since("INSERT VERSION")
-public class ExprInventoryCloseReason extends SimpleExpression<InventoryCloseEvent.Reason> {
+public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {
 	
 	static {
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
@@ -57,28 +57,14 @@ public class ExprInventoryCloseReason extends SimpleExpression<InventoryCloseEve
 		}
 		return true;
 	}
-	
-	@Override
-	protected InventoryCloseEvent.Reason[] get(Event event) {
-		if (!(event instanceof InventoryCloseEvent))
-			return null;
 
-		return new InventoryCloseEvent.Reason[]{((InventoryCloseEvent) event).getReason()};
+	public ExprInventoryCloseReason() {
+		super(InventoryCloseEvent.Reason.class);
 	}
-	
-	@Override
-	public boolean isSingle() {
-		return true;
-	}
-	
-	@Override
-	public Class<? extends InventoryCloseEvent.Reason> getReturnType() {
-		return InventoryCloseEvent.Reason.class;
-	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "inventory close reason";
+		return "the inventory close reason";
 	}
-	
+
 }
