@@ -18,27 +18,30 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import ch.njol.util.coll.iterator.ArrayIterator;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -63,6 +66,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda.Gene;
@@ -74,6 +78,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
@@ -86,20 +91,15 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
+import java.io.StreamCorruptedException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -1449,30 +1449,32 @@ public class BukkitClasses {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-			.user("enchant[ment][ ]offers?")
-			.name("Enchantment Offer")
-			.description("The enchantmentoffer in an enchant prepare event.")
-			.examples("on enchant prepare:",
-				"\tset enchant offer 1 to sharpness 1",
-				"\tset the cost of enchant offer 1 to 10 levels")
-			.since("2.5")
-			.parser(new Parser<EnchantmentOffer>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
+		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
+			Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
+				.user("enchant(ment)? ?offers?")
+				.name("Enchantment Offer")
+				.description("The enchantmentoffer in an enchant prepare event.")
+				.examples("on enchant prepare:",
+					"\tset enchant offer 1 to sharpness 1",
+					"\tset the cost of enchant offer 1 to 10 levels")
+				.since("2.5")
+				.parser(new Parser<EnchantmentOffer>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
 
-				@Override
-				public String toString(EnchantmentOffer eo, int flags) {
-					return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
-				}
+					@Override
+					public String toString(EnchantmentOffer eo, int flags) {
+						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+					}
 
-				@Override
-				public String toVariableNameString(EnchantmentOffer eo) {
-					return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-				}
-			}));
+					@Override
+					public String toVariableNameString(EnchantmentOffer eo) {
+						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+					}
+				}));
+		}
 
 		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
 				.user("attribute ?types?")
@@ -1480,6 +1482,35 @@ public class BukkitClasses {
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
 						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
+
+		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
+				.user("fish(ing)? ?states?")
+				.name("Fishing State")
+				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
+				.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
+				.user("fish(ing)? ?hooks")
+				.name("Fishing Hook")
+				.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
+				.defaultExpression(new EventValueExpression<>(FishHook.class))
+				.since("INSERT VERSION")
+				.parser(new Parser<FishHook>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public String toString(FishHook fishHook, int flags) {
+						return "fish hook";
+					}
+
+					@Override
+					public String toVariableNameString(FishHook fishHook) {
+						return "fish hook";
+					}
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
 				.user("(world ?)?environments?")
