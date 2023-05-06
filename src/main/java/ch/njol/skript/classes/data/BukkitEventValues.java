@@ -1349,7 +1349,7 @@ public final class BukkitEventValues {
 			public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
 				return event.getReason();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		//PlayerMoveEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
