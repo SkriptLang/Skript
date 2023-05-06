@@ -64,7 +64,7 @@ public class ExprInventoryCloseReason extends EventValueExpression<InventoryClos
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the inventory close reason";
+		return "inventory close reason";
 	}
 
 }
