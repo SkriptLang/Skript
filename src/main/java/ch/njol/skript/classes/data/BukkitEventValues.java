@@ -1565,37 +1565,36 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 		// EntityResurrectEvent
-		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
-			EventValues.registerEventValue(EntityResurrectEvent.class, ItemStack.class, new Getter<ItemStack, EntityResurrectEvent>() {
-				@Override
-				@Nullable
-				public ItemStack get(EntityResurrectEvent event) {
-					EquipmentSlot hand = event.getHand();
-					EntityEquipment equipment = event.getEntity().getEquipment();
-					if (equipment == null)
-						return null;
-
-					if (hand == EquipmentSlot.HAND) {
-						return equipment.getItemInMainHand();
-					} else if (hand == EquipmentSlot.OFF_HAND) {
-						return equipment.getItemInOffHand();
-					}
+		EventValues.registerEventValue(EntityResurrectEvent.class, ItemStack.class, new Getter<ItemStack, EntityResurrectEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(EntityResurrectEvent event) {
+				EquipmentSlot hand = event.getHand();
+				EntityEquipment equipment = event.getEntity().getEquipment();
+				if (equipment == null)
 					return null;
+
+				if (hand == EquipmentSlot.HAND) {
+					return equipment.getItemInMainHand();
+				} else if (hand == EquipmentSlot.OFF_HAND) {
+					return equipment.getItemInOffHand();
 				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
-				@Override
-				@Nullable
-				public Slot get(EntityResurrectEvent event) {
-					EquipmentSlot hand = event.getHand();
-					EntityEquipment equipment = event.getEntity().getEquipment();
-					if (equipment == null || hand == null)
-						return null;
-					return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
-							(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
-							: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
-				}
-			}, EventValues.TIME_NOW);
-		}
+				return null;
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
+			@Override
+			@Nullable
+			public Slot get(EntityResurrectEvent event) {
+				EquipmentSlot hand = event.getHand();
+				EntityEquipment equipment = event.getEntity().getEquipment();
+				if (equipment == null || hand == null)
+					return null;
+				return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
+						(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
+						: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			}
+		}, EventValues.TIME_NOW);
+
 	}
 }
