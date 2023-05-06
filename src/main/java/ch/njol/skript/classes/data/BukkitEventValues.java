@@ -87,6 +87,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -143,6 +144,7 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -1559,6 +1561,26 @@ public final class BukkitEventValues {
 				@Nullable
 				public Location get(LootGenerateEvent event) {
 					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+		}
+		// EntityResurrectEvent
+		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
+			EventValues.registerEventValue(EntityResurrectEvent.class, ItemStack.class, new Getter<ItemStack, EntityResurrectEvent>() {
+				@Override
+				@Nullable
+				public ItemStack get(EntityResurrectEvent event) {
+					EquipmentSlot hand = event.getHand();
+					EntityEquipment equipment = event.getEntity().getEquipment();
+					if (equipment == null)
+						return null;
+
+					if (hand == EquipmentSlot.HAND) {
+						return equipment.getItemInMainHand();
+					} else if (hand == EquipmentSlot.OFF_HAND) {
+						return equipment.getItemInOffHand();
+					}
+					return null;
 				}
 			}, EventValues.TIME_NOW);
 		}
