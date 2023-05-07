@@ -307,10 +307,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// Ensure that both items share the material
 		if (item.getType() != getType()) {
 			return MatchQuality.DIFFERENT;
-		} else if (Objects.equals(item.stack.getItemMeta(), this.stack.getItemMeta())
-				   && Objects.equals(item.getBlockValues(), this.getBlockValues())) {
-			// Items are identical
-			return MatchQuality.EXACT;
 		}
 
 		BlockValues values = blockValues;
@@ -422,6 +418,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		// clone to avoid affecting user
 		first = first.clone();
 		second = second.clone();
+
 
 		first.setDisplayName(null);
 		second.setDisplayName(null);
