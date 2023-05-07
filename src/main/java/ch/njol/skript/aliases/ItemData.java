@@ -342,7 +342,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		
 		// See if we need to compare item metas (excluding durability)
-		if (quality.isAtLeast(MatchQuality.SAME_ITEM)) { // Item meta checks could lower this
+		if (quality.isAtLeast(MatchQuality.SAME_ITEM) && stack.hasItemMeta() || item.stack.hasItemMeta()) { // Item meta checks could lower this
 			MatchQuality metaQuality = compareItemMetas(getItemMeta(), item.getItemMeta());
 			
 			// If given item doesn't care about meta, promote to SAME_ITEM
