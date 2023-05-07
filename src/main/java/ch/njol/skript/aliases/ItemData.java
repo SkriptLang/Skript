@@ -419,7 +419,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		first = first.clone();
 		second = second.clone();
 
-
 		first.setDisplayName(null);
 		second.setDisplayName(null);
 
