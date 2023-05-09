@@ -914,7 +914,7 @@ public class HTMLGenerator {
 		if (returnType == null)
 			return handleIf(desc, "${if return-type}", false);
 
-		boolean noDoc = returnType.hasDocs();
+		boolean noDoc = !returnType.hasDocs();
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 
