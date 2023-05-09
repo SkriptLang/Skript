@@ -55,20 +55,18 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Paper 1.15+ (effects), Paper 1.17+ (effects without tool), Paper 1.19+ (drop xps)")
 public class EffBreakNaturally extends Effect {
 
-	private static final boolean HAS_METHOD_115 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
-	private static final boolean HAS_METHOD_117 = Skript.methodExists(Block.class, "breakNaturally", boolean.class, boolean.class);
-	private static final boolean HAS_METHOD_119 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
+	private static final boolean HAS_METHOD_1_15 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
+	private static final boolean HAS_METHOD_1_17 = Skript.methodExists(Block.class, "breakNaturally", boolean.class, boolean.class);
+	private static final boolean HAS_METHOD_1_19 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
 	
 	static {
-		String pattern;
-		if (HAS_METHOD_119) {
+		String pattern = "break %blocks% [naturally] [using %-itemtype%]";
+		if (HAS_METHOD_1_19) {
 			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and drop (xp|experience)[s]]";
-		} else if (HAS_METHOD_117) {
+		} else if (HAS_METHOD_1_17) {
 			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]]";
-		} else if (HAS_METHOD_115) {
+		} else if (HAS_METHOD_1_15) {
 			pattern = "break %blocks% [naturally] [using %-itemtype% [effect:with effect[s]]]";
-		} else {
-			pattern = "break %blocks% [naturally] [using %-itemtype%]";
 		}
 		Skript.registerEffect(EffBreakNaturally.class, pattern);
 	}
@@ -81,11 +79,11 @@ public class EffBreakNaturally extends Effect {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		blocks = (Expression<Block>) exprs[0];
 		tool = (Expression<ItemType>) exprs[1];
-		effect = parser.hasTag("effect");
-		dropExp = parser.hasTag("dropExp");
+		effect = parseResult.hasTag("effect");
+		dropExp = parseResult.hasTag("dropExp");
 		return true;
 	}
 	
@@ -95,16 +93,16 @@ public class EffBreakNaturally extends Effect {
 		for (Block block : this.blocks.getArray(event)) {
 			if (tool != null) {
 				ItemStack item = tool.getRandom();
-				if (HAS_METHOD_119) {
+				if (HAS_METHOD_1_19) {
 					block.breakNaturally(item, effect, dropExp);
-				} else if (HAS_METHOD_115) {
+				} else if (HAS_METHOD_1_15) {
 					block.breakNaturally(item, effect);
 				} else {
 					block.breakNaturally(item);
 				}
-			} else if (HAS_METHOD_119) {
+			} else if (HAS_METHOD_1_19) {
 				block.breakNaturally(effect, dropExp);
-			} else if (HAS_METHOD_117) {
+			} else if (HAS_METHOD_1_17) {
 				block.breakNaturally(effect);
 			} else {
 				block.breakNaturally();
