@@ -374,11 +374,11 @@ public class EventValues {
 	}
 
 	public static boolean doesExactEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
-		return getExactEventValueGetter(event, c, -1) != null || getExactEventValueGetter(event, c, 1) != null;
+		return getExactEventValueGetter(event, c, TIME_PAST) != null || getExactEventValueGetter(event, c, TIME_FUTURE) != null;
 	}
 
 	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
-		return getEventValueGetter(event, c, -1, false) != null || getEventValueGetter(event, c, 1, false) != null;
+		return getEventValueGetter(event, c, TIME_PAST, false) != null || getEventValueGetter(event, c, TIME_FUTURE, false) != null;
 	}
 	
 }
