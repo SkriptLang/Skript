@@ -51,12 +51,12 @@ public class CondIsWhitelisted extends Condition {
 	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
 
 	static {
-		List<String> patterns = new ArrayList<>();
-		patterns.add("[the] server (is|not:(isn't|is not)) white[ ]listed");
-		patterns.add("%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed");
+		String[] patterns = new String[ENFORCE_SUPPORT ? 3 : 2];
+		patterns[0] = "[the] server (is|not:(isn't|is not)) white[ ]listed";
+		patterns[1] = "%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed";
 		if (ENFORCE_SUPPORT)
-			patterns.add("[the] white[ ]list (is|not:(isn't|is not)) enforced");
-		Skript.registerCondition(CondIsWhitelisted.class, patterns.toArray(new String[0]));
+			patterns[2] = "[the] white[ ]list (is|not:(isn't|is not)) enforced";
+		Skript.registerCondition(CondIsWhitelisted.class, patterns);
 	}
 
 	@Nullable
