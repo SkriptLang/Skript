@@ -401,7 +401,7 @@ public class DefaultFunctions {
 					Number n = (Number) params[i][0];
 					
 					double value = n.doubleValue() * scale[i] + offsets[i] + carry;
-					int v = Math2.floorI(value);
+					int v = (int) Math2.floor(value);
 					carry = (value - v) * relations[i];
 					//noinspection MagicConstant
 					c.set(field, v);
