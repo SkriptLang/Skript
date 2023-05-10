@@ -20,6 +20,7 @@ package ch.njol.skript.doc;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Effect;
@@ -31,6 +32,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -64,6 +67,8 @@ public class HTMLGenerator {
 	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
 	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
+	private static final Pattern DOCS_PASSED_FOLDERS_PATTERN = Pattern.compile("css|js|assets");
+	private static final Pattern DOCS_ACCEPTED_FILES_PATTERN = Pattern.compile("(?i)(.*)\\.(html?|js|css|json)");
 
 	private final File template;
 	private final File output;
@@ -210,9 +215,9 @@ public class HTMLGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public void generate() {
-		for (File f : template.listFiles()) {
-			if (f.getName().matches("css|js|assets")) { // Copy CSS/JS/Assets folders
-				String slashName = "/" + f.getName();
+		for (File file : template.listFiles()) {
+			if (DOCS_PASSED_FOLDERS_PATTERN.matcher(file.getName()).matches()) { // Copy CSS/JS/Assets folders
+				String slashName = "/" + file.getName();
 				File fileTo = new File(output + slashName);
 				fileTo.mkdirs();
 				for (File filesInside : new File(template + slashName).listFiles()) {
@@ -223,7 +228,7 @@ public class HTMLGenerator {
 						writeFile(new File(fileTo + "/" + filesInside.getName()), readFile(filesInside));
 					}
 					
-					else if (!filesInside.getName().matches("(?i)(.*)\\.(html?|js|css|json)")) {
+					else if (!DOCS_ACCEPTED_FILES_PATTERN.matcher(filesInside.getName()).matches()) {
 						try {
 							Files.copy(filesInside, new File(fileTo + "/" + filesInside.getName()));
 						} catch (IOException e) {
@@ -233,23 +238,23 @@ public class HTMLGenerator {
 					}
 				}
 				continue;
-			} else if (f.isDirectory()) // Ignore other directories
+			} else if (file.isDirectory()) // Ignore other directories
 				continue;
-			if (f.getName().endsWith("template.html") || f.getName().endsWith(".md"))
+			if (file.getName().endsWith("template.html") || file.getName().endsWith(".md"))
 				continue; // Ignore skeleton and README
 
-			Skript.info("Creating documentation for " + f.getName());
+			Skript.info("Creating documentation for " + file.getName());
 
-			String content = readFile(f);
+			String content = readFile(file);
 			String page;
-			if (f.getName().endsWith(".html"))
+			if (file.getName().endsWith(".html"))
 				page = skeleton.replace("${content}", content); // Content to inside skeleton
 			else // Not HTML, so don't even try to use template.html
 				page = content;
 
 			page = page.replace("${skript.version}", Skript.getVersion().toString()); // Skript version
 			page = page.replace("${skript.build.date}", new SimpleDateFormat("dd/MM/yyyy").format(new Date())); // Build date
-			page = page.replace("${pagename}", f.getName().replace(".html", ""));
+			page = page.replace("${pagename}", file.getName().replace(".html", ""));
 
 			List<String> replace = Lists.newArrayList();
 			int include = page.indexOf("${include"); // Single file includes
@@ -375,7 +380,7 @@ public class HTMLGenerator {
 				generate = page.indexOf("${generate", nextBracket);
 			}
 			
-			String name = f.getName();
+			String name = file.getName();
 			if (name.endsWith(".html")) { // Fix some stuff specially for HTML
 				page = page.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;"); // Tab to 4 non-collapsible spaces
 				assert page != null;
@@ -493,12 +498,12 @@ public class HTMLGenerator {
 			}
 			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
 		}
-		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
+		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join(events.value()));
 
 		// RequiredPlugins
 		RequiredPlugins plugins = c.getAnnotation(RequiredPlugins.class);
 		desc = handleIf(desc, "${if required-plugins}", plugins != null);
-		desc = desc.replace("${element.required-plugins}", plugins == null ? "" : Joiner.on(", ").join((plugins != null ? plugins.value() : null)));
+		desc = desc.replace("${element.required-plugins}", plugins == null ? "" : Joiner.on(", ").join(plugins.value()));
 
 		// Return Type
 		ClassInfo<?> returnType = info instanceof ExpressionInfo ? Classes.getSuperClassInfo(((ExpressionInfo<?,?>) info).getReturnType()) : null;
@@ -510,6 +515,24 @@ public class HTMLGenerator {
 //		desc = handleIf(desc, "${if by-addon}", true && !addon.isEmpty());
 //		desc = desc.replace("${element.by-addon}", addon);
 		desc = handleIf(desc, "${if by-addon}", false);
+
+		// Accepted Changers
+		if (info instanceof ExpressionInfo<?,?>) {
+			List<Changer.ChangeMode> acceptedChangeModes = new ArrayList<>(4); // 4 is common, SET/ADD/REMOVE/DELETE
+			AcceptedChangeModes annotation = c.getAnnotation(AcceptedChangeModes.class);
+			if (annotation != null) {
+				acceptedChangeModes = Arrays.stream(annotation.value()).toList();
+			} else {
+				try {
+					acceptedChangeModes = ((SimpleExpression<?>) info.getElementClass().newInstance()).getAcceptedChangeModes().keySet().stream().toList();
+				} catch (Exception ignored) {}
+			}
+
+			desc = handleIf(desc, "${if accepted-change-modes}", acceptedChangeModes.size() > 0);
+			desc = desc.replace("${element.accepted-change-modes}", acceptedChangeModes.size() == 0 ? "" :Joiner.on(", ").join(acceptedChangeModes.toArray()));
+		} else {
+			desc = handleIf(desc, "${if accepted-change-modes}", false);
+		}
 
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
@@ -625,12 +648,12 @@ public class HTMLGenerator {
 			}
 			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
 		}
-		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
+		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join(events.value()));
 
 		// Required Plugins
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		desc = desc.replace("${element.required-plugins}", requiredPlugins == null ? "" : Joiner.on(", ").join(requiredPlugins));
 
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
@@ -729,12 +752,12 @@ public class HTMLGenerator {
 			}
 			desc = desc.replace("${element.events}", Joiner.on(", ").join(eventLinks));
 		}
-		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
+		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join(events.value()));
 
 		// Required Plugins
 		String[] requiredPlugins = info.getRequiredPlugins();
 		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		desc = desc.replace("${element.required-plugins}", requiredPlugins == null ? "" : Joiner.on(", ").join(requiredPlugins));
 
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());

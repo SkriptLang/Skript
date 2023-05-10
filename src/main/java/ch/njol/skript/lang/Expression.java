@@ -18,26 +18,17 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.conditions.CondIsSet;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
@@ -45,9 +36,11 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -291,15 +284,25 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	public Class<?>[] acceptChange(ChangeMode mode);
 
 	/**
-	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
+	 * Tests all accepted change modes, and if so what data type it expects the <code>delta</code> to be.
+	 * Keep in mind that this can't be very accurate if a change mode requires a specific condition to be met
+	 * this will not be able to grab that most likely, therefore {@link ch.njol.skript.doc.AcceptedChangeModes} annotation
+	 * exists to override the accepted change modes value in docs however, currently that annotation is missing the accepted data type.
+	 *
+	 * Skript errors that occur during testing {@link #acceptChange(ChangeMode)} method will be ignored.
 	 * @return A Map contains ChangeMode as the key and accepted types of that mode as the value
 	 */
 	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
-		HashMap<ChangeMode, Class<?>[]> map = new HashMap<>();
-		for (ChangeMode cm : ChangeMode.values()) {
-			Class<?>[] ac = acceptChange(cm);
-			if (ac != null)
-				map.put(cm, ac);
+		LogHandler logHandler = SkriptLogger.startLogHandler(new BlockingLogHandler());
+		Map<ChangeMode, Class<?>[]> map = new HashMap<>();
+		try {
+			for (ChangeMode cm : ChangeMode.values()) {
+				Class<?>[] ac = acceptChange(cm);
+				if (ac != null)
+					map.put(cm, ac);
+			}
+		} finally {
+			logHandler.stop();
 		}
 		return map;
 	}
