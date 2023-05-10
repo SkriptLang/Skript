@@ -32,10 +32,9 @@ jobs:
             - name: Build Skript and generate docsa
               run: |
                 ls -lRa .
-            - name: Setup documenttion environment
-              uses: ./skript/.github/workflows/docs/setup
-              env:
-                  DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
+            - uses: ./skript/.github/workflows/docs/setup
+              with:
+                  docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
             - name: Build Skript and generate docs
               run: |
                 cd ./skript
