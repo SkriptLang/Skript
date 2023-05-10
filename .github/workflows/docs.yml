@@ -29,19 +29,9 @@ jobs:
                   repository: 'SkriptLang/skript-docs'
                   path: skript-docs
                   ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
-            - name: Setup documentation environment
+            - uses: ./.github/workflows/docs/setup
               env:
                   DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
-              run: |
-                eval `ssh-agent`
-                DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}"
-                rm -r ${DOC_DIR}/* || true
-                echo "DOC_DIR=${DOC_DIR}" >> $GITHUB_ENV
-                echo "SKRIPT_DOCS_TEMPLATE_DIR=${GITHUB_WORKSPACE}/skript-docs/doc-templates" >> $GITHUB_ENV
-                echo "SKRIPT_DOCS_OUTPUT_DIR=${DOC_DIR}/" >> $GITHUB_ENV
-                echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-                mkdir ~/.ssh
-                ssh-keyscan www.github.com >> ~/.ssh/known_hosts
             - name: Build Skript and generate docs
               run: |
                 cd ./skript
