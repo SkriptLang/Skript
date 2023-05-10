@@ -517,6 +517,7 @@ public class HTMLGenerator {
 		desc = handleIf(desc, "${if by-addon}", false);
 
 		// Accepted Changers
+		// TODO grab the accepted data type as well (find a way to include that in annotation as well)
 		if (info instanceof ExpressionInfo<?,?>) {
 			List<Changer.ChangeMode> acceptedChangeModes = new ArrayList<>(4); // 4 is common, SET/ADD/REMOVE/DELETE
 			AcceptedChangeModes annotation = c.getAnnotation(AcceptedChangeModes.class);
