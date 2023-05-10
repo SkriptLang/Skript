@@ -18,19 +18,20 @@
  */
 package ch.njol.skript.registrations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.collect.ImmutableList;
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.util.Getter;
+import com.google.common.collect.ImmutableList;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Peter Güttinger
@@ -39,7 +40,7 @@ public class EventValues {
 	
 	private EventValues() {}
 	
-	private final static class EventValueInfo<E extends Event, T> {
+	public final static class EventValueInfo<E extends Event, T> {
 		
 		public final Class<E> event;
 		public final Class<T> c;
@@ -48,7 +49,22 @@ public class EventValues {
 		public final Class<? extends E>[] excludes;
 		@Nullable
 		public final String excludeErrorMessage;
-		
+		@Nullable
+		public final int time;
+
+		public EventValueInfo(Class<E> event, Class<T> c, Getter<T, E> getter, @Nullable String excludeErrorMessage, @Nullable Class<? extends E>[] excludes, int time) {
+			assert event != null;
+			assert c != null;
+			assert getter != null;
+			this.event = event;
+			this.c = c;
+			this.getter = getter;
+			this.excludes = excludes;
+			this.excludeErrorMessage = excludeErrorMessage;
+			this.time = time;
+		}
+
+		@Deprecated
 		public EventValueInfo(Class<E> event, Class<T> c, Getter<T, E> getter, @Nullable String excludeErrorMessage, @Nullable Class<? extends E>[] excludes) {
 			assert event != null;
 			assert c != null;
@@ -58,8 +74,9 @@ public class EventValues {
 			this.getter = getter;
 			this.excludes = excludes;
 			this.excludeErrorMessage = excludeErrorMessage;
+			this.time = 0;
 		}
-		
+
 		/**
 		 * Get the class that represents the Event.
 		 * @return The class of the Event associated with this event value
@@ -89,13 +106,35 @@ public class EventValues {
 		}
 		
 		/**
-		 * Get the error message used when encountering an exclude value.
-		 * @return The error message to use when encountering an exclude
+		 * Get the error message used when encountering an excluded event.
+		 * @return The error message to use when encountering an excluded event
 		 */
 		@Nullable
 		public String getExcludeErrorMessage() {
 			return excludeErrorMessage;
 		}
+
+		/**
+		 * Get the time state of this event value.
+		 * @return Either {@link #TIME_PAST}, {@link #TIME_NOW} or {@link #TIME_FUTURE}
+		 */
+		public int getTime() {
+			return time;
+		}
+
+		/**
+		 * Whether the provided event is one of the excluded events of this {@link EventValueInfo}
+		 * @return Either {@link #TIME_PAST}, {@link #TIME_NOW} or {@link #TIME_FUTURE}
+		 */
+		public boolean isEventExcluded(Class<? extends Event> c) {
+			if (excludes != null)
+				for (Class<? extends Event> exclude : excludes) {
+					if (exclude.isAssignableFrom(c))
+						return true;
+				}
+			return false;
+		}
+
 	}
 	
 	private final static List<EventValueInfo<?, ?>> defaultEventValues = new ArrayList<>(30);
@@ -169,11 +208,11 @@ public class EventValues {
 		for (int i = 0; i < eventValues.size(); i++) {
 			EventValueInfo<?, ?> info = eventValues.get(i);
 			if (info.event != e ? info.event.isAssignableFrom(e) : info.c.isAssignableFrom(c)) {
-				eventValues.add(i, new EventValueInfo<>(e, c, g, excludeErrorMessage, excludes));
+				eventValues.add(i, new EventValueInfo<>(e, c, g, excludeErrorMessage, excludes, time));
 				return;
 			}
 		}
-		eventValues.add(new EventValueInfo<>(e, c, g, excludeErrorMessage, excludes));
+		eventValues.add(new EventValueInfo<>(e, c, g, excludeErrorMessage, excludes, time));
 	}
 	
 	/**
@@ -354,6 +393,24 @@ public class EventValues {
 	
 	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> e, Class<?> c) {
 		return getEventValueGetter(e, c, -1, false) != null || getEventValueGetter(e, c, 1, false) != null;
+	}
+
+	/**
+	 * @return All the event values for each registered event.
+	 */
+	public static Map<Class<? extends Event>, List<EventValueInfo<?, ?>>> getPerEventEventValues() {
+		Map<Class<? extends Event>, List<EventValues.EventValueInfo<?, ?>>> eventValuesCache = new HashMap<>();
+		for (int i = -1; i < 2; i++) {
+			for (EventValues.EventValueInfo<?, ?> eventValueInfo : EventValues.getEventValuesListForTime(i)) {
+				List<EventValueInfo<?, ?>> list = new ArrayList<>(0);
+				List<EventValueInfo<?, ?>> oldList = eventValuesCache.get(eventValueInfo.event);
+				if (oldList != null)
+					list.addAll(oldList);
+				list.add(eventValueInfo);
+				eventValuesCache.put(eventValueInfo.event, list);
+			}
+		}
+		return eventValuesCache;
 	}
 	
 }
