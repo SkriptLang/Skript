@@ -1,6 +1,11 @@
+inputs:
+  docs_deploy_key: 
+     description: "Deploy key for the skript-docs repo"
+     required: true
+
 name: Setup documentation environment
 env:
-    DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
+    DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
 run: |
   eval `ssh-agent`
   DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}"
