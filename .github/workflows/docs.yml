@@ -29,7 +29,7 @@ jobs:
                   repository: 'SkriptLang/skript-docs'
                   path: skript-docs
                   ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
-            - uses: ./.github/workflows/docs/setup
+            - uses: ./skript/.github/workflows/docs/setup
               env:
                   DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
             - name: Build Skript and generate docs
