@@ -612,7 +612,7 @@ public class HTMLGenerator {
 		boolean cancellable = false;
 		for (Class<? extends Event> event : info.events) {
 			if (Cancellable.class.isAssignableFrom(event)) {
-				cancellable = true; // let's assume all are cancellable otherwise EffCancellable would do the rest in action
+				cancellable = true; // let's assume all are cancellable otherwise EffCancelEvent would do the rest in action
 				break;
 			}
 		}
