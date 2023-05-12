@@ -1,0 +1,20 @@
+test "formatted time":
+	set {_default} to "yyyy-MM-dd HH:mm:ss z"
+	set {_now} to now
+
+	set {_date1} to {_now} formatted
+	assert {_date1} = {_now} formatted as {_default} with "default date format failed ##1"
+
+	set {_date2} to {_now} formatted human-readable
+	assert {_date2} = {_now} formatted as {_default} with "default date format failed ##2"
+
+	set {_date3} to {_now} formatted as "HH:mm"
+	assert length of {_date3} = 5 with "custom date format failed ##1"
+
+	set {_cFormat} to "hh:mm"
+	set {_date4} to {_now} formatted as {_cFormat}
+	assert length of {_date4} = 5 with "custom date format failed ##2"
+
+	set {_cFormat2} to "i"
+	set {_date5} to {_now} formatted as {_cFormat2}
+	assert {_date5} is not set with "custom date format failed ##3"

@@ -68,6 +68,9 @@ public class ExprPortal extends SimpleExpression<Block> {
 	@Nullable
 	@Override
 	protected Block[] get(Event e) {
+		if (!(e instanceof PortalCreateEvent))
+			return null;
+
 		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
 		if (USING_BLOCKSTATE)
 			return blocks.stream()
@@ -81,6 +84,9 @@ public class ExprPortal extends SimpleExpression<Block> {
 	@Nullable
 	@Override
 	public Iterator<Block> iterator(Event e) {
+		if (!(e instanceof PortalCreateEvent))
+			return null;
+
 		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
 		if (USING_BLOCKSTATE) 
 			return blocks.stream()

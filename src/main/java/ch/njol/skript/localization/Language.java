@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Version;
 import org.bukkit.plugin.Plugin;
 import org.eclipse.jdt.annotation.Nullable;
@@ -197,8 +198,8 @@ public class Language {
 				englishIs = null;
 			}
 		}
-		HashMap<String, String> def = load(defaultIs, "default");
-		HashMap<String, String> en = load(englishIs, "english");
+		HashMap<String, String> def = load(defaultIs, "default", false);
+		HashMap<String, String> en = load(englishIs, "english", addon == Skript.getAddonInstance());
 
 		String v = def.get("version");
 		if (v == null)
@@ -220,9 +221,9 @@ public class Language {
 		name = "" + name.toLowerCase(Locale.ENGLISH);
 
 		localizedLanguage = new HashMap<>();
-		boolean exists = load(Skript.getAddonInstance(), name);
+		boolean exists = load(Skript.getAddonInstance(), name, true);
 		for (SkriptAddon addon : Skript.getAddons()) {
-			exists |= load(addon, name);
+			exists |= load(addon, name, false);
 		}
 		if (!exists) {
 			if (name.equals("english")) {
@@ -241,18 +242,18 @@ public class Language {
 		return true;
 	}
 	
-	private static boolean load(SkriptAddon addon, String name) {
+	private static boolean load(SkriptAddon addon, String name, boolean tryUpdate) {
 		if (addon.getLanguageFileDirectory() == null)
 			return false;
 		// Backwards addon compatibility
 		if (name.equals("english") && addon.plugin.getResource(addon.getLanguageFileDirectory() + "/default.lang") == null)
 			return true;
 
-		HashMap<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name);
+		HashMap<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name, tryUpdate);
 		File file = new File(addon.plugin.getDataFolder(), addon.getLanguageFileDirectory() + File.separator + name + ".lang");
 		try {
 			if (file.exists())
-				l.putAll(load(new FileInputStream(file), name));
+				l.putAll(load(new FileInputStream(file), name, tryUpdate));
 		} catch (FileNotFoundException e) {
 			assert false;
 		}
@@ -289,11 +290,39 @@ public class Language {
 		return true;
 	}
 	
-	private static HashMap<String, String> load(@Nullable InputStream in, String name) {
+	private static HashMap<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
 		if (in == null)
 			return new HashMap<>();
+
 		try {
-			return new Config(in, name + ".lang", false, false, ":").toMap(".");
+			Config langConfig = new Config(in, name + ".lang", false, false, ":");
+
+			String langVersion = langConfig.get("version");
+			if (tryUpdate && (langVersion == null || Skript.getVersion().compareTo(new Version(langVersion)) != 0)) {
+				String langFileName = "lang/" + name + ".lang";
+
+				InputStream newConfigIn = Skript.getInstance().getResource(langFileName);
+				if (newConfigIn == null) {
+					Skript.error("The lang file '" + name + ".lang' is outdated, but Skript couldn't find the newest version of it in its jar.");
+					return new HashMap<>();
+				}
+				Config newLangConfig = new Config(newConfigIn, "Skript.jar/" + langFileName, false, false, ":");
+				newConfigIn.close();
+
+				File langFile = new File(Skript.getInstance().getDataFolder(), langFileName);
+				if (!newLangConfig.compareValues(langConfig, "version")) {
+					File langFileBackup = FileUtils.backup(langFile);
+					newLangConfig.getMainNode().set("version", Skript.getVersion().toString());
+					langConfig = newLangConfig;
+					langConfig.save(langFile);
+					Skript.info("The lang file '" + name + ".lang' has been updated to the latest version. A backup of your old lang file has been created as " + langFileBackup.getName());
+				} else { // Only the version changed, don't bother creating a backup
+					langConfig.getMainNode().set("version", Skript.getVersion().toString());
+					langConfig.save(langFile);
+				}
+			}
+
+			return langConfig.toMap(".");
 		} catch (IOException e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load the language file '" + name + ".lang': " + ExceptionUtils.toString(e));

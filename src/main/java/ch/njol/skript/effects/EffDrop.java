@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -32,7 +33,6 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
@@ -79,13 +79,13 @@ public class EffDrop extends Effect {
 			for (Object o : os) {
 				if (o instanceof Experience) {
 					ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
-					orb.setExperience(((Experience) o).getXP());
+					orb.setExperience(((Experience) o).getXP() + orb.getExperience()); // ensure we maintain previous experience, due to spigot xp merging behavior
 					EffSecSpawn.lastSpawned = orb;
 				} else {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (!isAir(is.getType()) && is.getAmount() > 0) {
+						if (!ItemUtils.isAir(is.getType()) && is.getAmount() > 0) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {
@@ -99,21 +99,6 @@ public class EffDrop extends Effect {
 				}
 			}
 		}
-	}
-
-	// Only 1.15 and versions after have Material#isAir method
-	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
-	// Version 1.14 have multiple air types but no Material#isAir method
-	private static final boolean OTHER_AIR_EXISTS = Skript.isRunningMinecraft(1, 14);
-
-	private static boolean isAir(Material type) {
-		if (IS_AIR_EXISTS) {
-			return type.isAir();
-		} else if (OTHER_AIR_EXISTS) { 
-			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
-		} 
-		// All versions prior to 1.14 only have 1 air type
-		return type == Material.AIR;
 	}
 
 	@Override

@@ -64,6 +64,9 @@ public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	@Nullable
 	@Override
 	protected BlockStateBlock[] get(Event e) {
+		if (!(e instanceof BlockFertilizeEvent))
+			return null;
+
 		return ((BlockFertilizeEvent) e).getBlocks().stream()
 				.map(BlockStateBlock::new)
 				.toArray(BlockStateBlock[]::new);
@@ -72,6 +75,9 @@ public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	@Nullable
 	@Override
 	public Iterator<? extends BlockStateBlock> iterator(Event e) {
+		if (!(e instanceof BlockFertilizeEvent))
+			return null;
+
 		return ((BlockFertilizeEvent) e).getBlocks().stream()
 				.map(BlockStateBlock::new)
 				.iterator();

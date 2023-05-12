@@ -1,0 +1,7 @@
+function functionCallConversion() :: item:
+	return stone named "abc"
+
+test "function call conversion":
+	assert name of functionCallConversion() is "abc" with "Name of item from function call failed"
+
+	set {_p}'s velocity to vector({_x}, {_y}, {_z})

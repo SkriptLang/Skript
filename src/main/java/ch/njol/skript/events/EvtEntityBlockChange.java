@@ -18,9 +18,13 @@
  */
 package ch.njol.skript.events;
 
-import java.util.Locale;
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Checker;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Sheep;
@@ -29,109 +33,76 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
+import java.util.Locale;
 
-/**
- * @author Peter Güttinger
- */
 public class EvtEntityBlockChange extends SkriptEvent {
 	
 	static {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
-				.description("Called when an enderman places or picks up a block, a sheep eats grass, ",
-						"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively.")
-				.examples("on sheep eat:",
-						"\tkill entity",
-						"\tbroadcast \"A sheep stole some grass!\"",
+				.description(
+						"Called when an enderman places or picks up a block, a sheep eats grass, " +
+						"a silverfish boops into/out of a block or a falling block lands and turns into a block respectively."
+				)
+				.examples(
+						"on sheep eat:",
+							"\tkill event-entity",
+							"\tbroadcast \"A sheep stole some grass!\"",
+						"",
 						"on falling block land:",
-						"\tif event-entity is a falling dirt:",
-						"\t\tcancel event")
+							"\tevent-entity is a falling dirt",
+							"\tcancel event"
+				)
 				.since("<i>unknown</i>, 2.5.2 (falling block)");
 	}
 	
-	static final ItemType monsterEgg = Aliases.javaItemType("any spawn egg");
-	
-	private static enum ChangeEvent {
-		ENDERMAN_PLACE("enderman place", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(final EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof Enderman && e.getTo() != Material.AIR;
-			}
-		}),
-		ENDERMAN_PICKUP("enderman pickup", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(final EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof Enderman && e.getTo() == Material.AIR;
-			}
-		}),
-		SHEEP_EAT("sheep eat", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(final EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof Sheep;
-			}
-		}),
-		SILVERFISH_ENTER("silverfish enter", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(final EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof Silverfish && e.getTo() != monsterEgg.getMaterial();
-			}
-		}),
-		SILVERFISH_EXIT("silverfish exit", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(final EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof Silverfish && e.getTo() != monsterEgg.getMaterial();
-			}
-		}),
-		FALLING_BLOCK_LANDING("falling block land[ing]", new Checker<EntityChangeBlockEvent>() {
-			@Override
-			public boolean check(EntityChangeBlockEvent e) {
-				return e.getEntity() instanceof FallingBlock;
-			}
-		});
-		
+	private enum ChangeEvent {
+
+		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
+		ENDERMAN_PICKUP("enderman pickup", event -> event.getEntity() instanceof Enderman && ItemUtils.isAir(event.getTo())),
+
+		SHEEP_EAT("sheep eat", event -> event.getEntity() instanceof Sheep),
+
+		SILVERFISH_ENTER("silverfish enter", event -> event.getEntity() instanceof Silverfish && !ItemUtils.isAir(event.getTo())),
+		SILVERFISH_EXIT("silverfish exit", event -> event.getEntity() instanceof Silverfish && ItemUtils.isAir(event.getTo())),
+
+		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo()));
+
 		private final String pattern;
-		final Checker<EntityChangeBlockEvent> checker;
-		
-		private ChangeEvent(final String pattern, final Checker<EntityChangeBlockEvent> c) {
+		private final Checker<EntityChangeBlockEvent> checker;
+
+		ChangeEvent(String pattern, Checker<EntityChangeBlockEvent> c) {
 			this.pattern = pattern;
 			checker = c;
 		}
-		
-		static String[] patterns;
+
+		private static final String[] patterns;
+
 		static {
 			patterns = new String[ChangeEvent.values().length];
-			for (int i = 0; i < patterns.length; i++) {
+			for (int i = 0; i < patterns.length; i++)
 				patterns[i] = values()[i].pattern;
-			}
 		}
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private ChangeEvent event;
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		event = ChangeEvent.values()[matchedPattern];
 		return true;
 	}
 	
 	@Override
-	public boolean check(final Event e) {
-		if (!(e instanceof EntityChangeBlockEvent))
+	public boolean check(Event event) {
+		if (!(event instanceof EntityChangeBlockEvent))
 			return false;
-		return event.checker.check((EntityChangeBlockEvent) e);
+		return this.event.checker.check((EntityChangeBlockEvent) event);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "" + event.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+	public String toString(@Nullable Event event, boolean debug) {
+		return this.event.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 	}
 	
 }
