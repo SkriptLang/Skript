@@ -400,7 +400,7 @@ public class EventValues {
 	 */
 	public static Map<Class<? extends Event>, List<EventValueInfo<?, ?>>> getPerEventEventValues() {
 		Map<Class<? extends Event>, List<EventValues.EventValueInfo<?, ?>>> eventValuesCache = new HashMap<>();
-		for (int i = -1; i < 2; i++) {
+		for (int i = TIME_PAST; i <= TIME_FUTURE; i++) {
 			for (EventValues.EventValueInfo<?, ?> eventValueInfo : EventValues.getEventValuesListForTime(i)) {
 				List<EventValueInfo<?, ?>> list = new ArrayList<>(0);
 				List<EventValueInfo<?, ?>> oldList = eventValuesCache.get(eventValueInfo.event);
