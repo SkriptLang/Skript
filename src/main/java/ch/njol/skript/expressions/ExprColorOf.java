@@ -18,30 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.njol.skript.Skript;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.material.Colorable;
-import org.bukkit.material.MaterialData;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -51,18 +33,51 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.DyeColor;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockDataMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.material.Colorable;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Color of")
 @Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".")
-@Examples({"on click on wool:",
-		"	message \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
-		"	set the colour of the block to black"})
+@Examples({
+	"on click on wool:",
+		"\tmessage \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
+		"\tset the colour of the block to black"
+})
 @Since("1.2, INSERT VERSION (potions, maps and leather armor)")
+@Keywords("colour")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
+	private static final Pattern MATERIAL_COLORS_PATTERN;
 
 	static {
+		DyeColor[] dyeColors = DyeColor.values();
+		StringBuilder colors = new StringBuilder();
+		for (int i = 0; i < dyeColors.length; i++) {
+			colors.append(dyeColors[i].name()).append(i + 1 != dyeColors.length ? "|" : "");
+		}
+		MATERIAL_COLORS_PATTERN = Pattern.compile("^(" + colors + ")_.+");
+
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects");
 	}
 	
@@ -111,6 +126,16 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				}
 			}
 			return colors.toArray(new Color[0]);
+		}
+
+		if (source instanceof Block[]) {
+			for (Block block : (Block[]) source) {
+				Material material = block.getType();
+				Matcher matcher = MATERIAL_COLORS_PATTERN.matcher(material.name());
+				if (matcher.matches() && matcher.group(1) != null) {
+					return new SkriptColor[]{SkriptColor.fromName(matcher.group(1).toLowerCase(Locale.ENGLISH))};
+				}
+			}
 		}
 
 		return get(source, o -> {
@@ -162,38 +187,37 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		return null;
 	}
 
-	@SuppressWarnings("deprecated")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		DyeColor color = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asDyeColor();;
 
-		for (Object o : getExpr().getArray(e)) {
-			if (o instanceof Item || o instanceof ItemType) {
-				ItemStack stack = o instanceof Item ? ((Item) o).getItemStack() : ((ItemType) o).getRandom();
+		for (Object obj : getExpr().getArray(event)) {
+			if (obj instanceof Item || obj instanceof ItemType) {
+				ItemStack stack = obj instanceof Item ? ((Item) obj).getItemStack() : ((ItemType) obj).getRandom();
 
 				if (stack == null)
 					continue;
 
-				MaterialData data = stack.getData();
+				BlockData data = stack.getType().createBlockData();
 
-				if (!(o instanceof Colorable)) { // Items such as Leather armor, potions and maps
-					ItemType item = (ItemType) o;
+				if (!(obj instanceof Colorable)) { // Items such as Leather armor, potions and maps
+					ItemType item = (ItemType) obj;
 					org.bukkit.Color c = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
 					ItemMeta meta = item.getItemMeta();
 
 					if (meta instanceof LeatherArmorMeta) {
-						LeatherArmorMeta m = (LeatherArmorMeta) meta;
-						m.setColor(c);
-						item.setItemMeta(m);
+						LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
+						leatherArmorMeta.setColor(c);
+						item.setItemMeta(leatherArmorMeta);
 					} else if (MAPS_AND_POTIONS_COLORS) {
 						if (meta instanceof MapMeta) {
-							MapMeta m = (MapMeta) meta;
-							m.setColor(c);
-							item.setItemMeta(m);
+							MapMeta mapMeta = (MapMeta) meta;
+							mapMeta.setColor(c);
+							item.setItemMeta(mapMeta);
 						} else if (meta instanceof PotionMeta) {
-							PotionMeta m = (PotionMeta) meta;
-							m.setColor(c);
-							item.setItemMeta(m);
+							PotionMeta potionMeta = (PotionMeta) meta;
+							potionMeta.setColor(c);
+							item.setItemMeta(potionMeta);
 						}
 					}
 				}
@@ -202,12 +226,13 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					continue;
 
 				((Colorable) data).setColor(color);
-				stack.setData(data);
+//				stack.setData(data);
+				((BlockDataMeta) stack).setBlockData(data);
 
-				if (o instanceof Item)
-					((Item) o).setItemStack(stack);
-			} else if (o instanceof Block || o instanceof Colorable) {
-				Colorable colorable = getColorable(o);
+				if (obj instanceof Item)
+					((Item) obj).setItemStack(stack);
+			} else if (obj instanceof Block || obj instanceof Colorable) {
+				Colorable colorable = getColorable(obj);
 
 				if (colorable != null) {
 					try {
@@ -222,18 +247,18 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 //						else if (ex instanceof NullPointerException) { } // Some of Colorable subclasses do not accept null as a color
 					}
 				}
-			} else if (o instanceof FireworkEffect) {
+			} else if (obj instanceof FireworkEffect) {
 				Color[] input = (Color[]) delta;
-				FireworkEffect effect = ((FireworkEffect) o);
+				FireworkEffect effect = ((FireworkEffect) obj);
 				switch (mode) {
 					case ADD:
-						for (Color c : input)
-							effect.getColors().add(c.asBukkitColor());
+						for (Color inputColor : input)
+							effect.getColors().add(inputColor.asBukkitColor());
 						break;
 					case REMOVE:
 					case REMOVE_ALL:
-						for (Color c : input)
-							effect.getColors().remove(c.asBukkitColor());
+						for (Color inputColor : input)
+							effect.getColors().remove(inputColor.asBukkitColor());
 						break;
 					case DELETE:
 					case RESET:
@@ -241,8 +266,8 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 						break;
 					case SET:
 						effect.getColors().clear();
-						for (Color c : input)
-							effect.getColors().add(c.asBukkitColor());
+						for (Color inputColor : input)
+							effect.getColors().add(inputColor.asBukkitColor());
 						break;
 					default:
 						break;
@@ -252,7 +277,6 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	}
 
 	@Nullable
-	@SuppressWarnings("deprecated")
 	private Colorable getColorable(Object colorable) {
 		if (colorable instanceof Item || colorable instanceof ItemType) {
 			ItemStack item = colorable instanceof Item ?
@@ -260,15 +284,11 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 			if (item == null)
 				return null;
-			MaterialData data = item.getData();
+
+			BlockData data = item.getType().createBlockData();
 
 			if (data instanceof Colorable)
 				return (Colorable) data;
-		} else if (colorable instanceof Block) {
-			BlockState state = ((Block) colorable).getState();
-
-			if (state instanceof Colorable)
-				return (Colorable) state;
 		} else if (colorable instanceof Colorable) {
 			return (Colorable) colorable;
 		}
