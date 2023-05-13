@@ -114,7 +114,9 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern != 2;
+		if (pattern == 2)
+			return false;
+		return locations.isSingle();
 	}
 
 	@Override
