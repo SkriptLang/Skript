@@ -28,18 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.njol.util.coll.iterator.ArrayIterator;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -92,14 +80,25 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import io.papermc.paper.world.MoonPhase;
 
 /**
  * @author Peter Güttinger
@@ -390,15 +389,21 @@ public class BukkitClasses {
 					}
 				}).serializer(new Serializer<Location>() {
 					@Override
-					public Fields serialize(final Location l) {
-						final Fields f = new Fields();
-						f.putObject("world", l.getWorld());
-						f.putPrimitive("x", l.getX());
-						f.putPrimitive("y", l.getY());
-						f.putPrimitive("z", l.getZ());
-						f.putPrimitive("yaw", l.getYaw());
-						f.putPrimitive("pitch", l.getPitch());
-						return f;
+					public Fields serialize(Location location) {
+						Fields fields = new Fields();
+						World world = null;
+						try {
+							world = location.getWorld();
+						} catch (IllegalArgumentException exception) {
+							Skript.warning("A location failed to serialize with its defined world, as the world was unloaded.");
+						}
+						fields.putObject("world", world);
+						fields.putPrimitive("x", location.getX());
+						fields.putPrimitive("y", location.getY());
+						fields.putPrimitive("z", location.getZ());
+						fields.putPrimitive("yaw", location.getYaw());
+						fields.putPrimitive("pitch", location.getPitch());
+						return fields;
 					}
 					
 					@Override
