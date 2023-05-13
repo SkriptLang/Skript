@@ -73,7 +73,7 @@ public class EvtItem extends SkriptEvent {
 						"on entity drop of an egg:",
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
-				.since("<i>unknown</i> (before 2.1), INSERT VERSION (entity)");
+				.since("<i>unknown</i> (before 2.1), 2.7 (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Class<? extends Event>[] events;
 			if (hasPlayerStonecutterRecipeSelectEvent) {
