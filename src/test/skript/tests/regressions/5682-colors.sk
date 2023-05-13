@@ -55,3 +55,7 @@ test "item colors":
 	# set
 	set color of slot 0 of block at spawn of world "world" to light blue
 	assert color of slot 0 of block at spawn of world "world" is light blue "Color check of slot ##10 failed"
+
+	# clean up
+	set block at spawn of world "world" to {_originalBlock}
+
