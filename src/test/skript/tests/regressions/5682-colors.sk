@@ -1,6 +1,6 @@
 test "block colors":
 	set {_loc} to spawn of world "world"
-	set {_originalBlock} to block at {_loc}
+	set {_originalBlock} to type of block at {_loc}
 
 	loop all colors:
 		set block at {_loc} to white wool
