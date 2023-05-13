@@ -82,8 +82,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(LiteralUtils.defendExpression(exprs[0]));
-//		LiteralUtils.defendExpression(getExpr());
+		setExpr(exprs[0]);
 		return true;
 	}
 	
@@ -168,7 +167,6 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		Class<?> returnType = getExpr().getReturnType();
-		Expression<?> converted = getExpr().getConvertedExpression(Object.class);
 
 		if (FireworkEffect.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color[].class);
