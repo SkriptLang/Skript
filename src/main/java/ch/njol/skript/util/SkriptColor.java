@@ -18,6 +18,15 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
@@ -26,44 +35,27 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.variables.Variables;
-import ch.njol.yggdrasil.Fields;
 
 @SuppressWarnings("null")
 public enum SkriptColor implements Color {
 
-	BLACK(DyeColor.BLACK, ChatColor.BLACK),
+	WHITE(DyeColor.WHITE, ChatColor.WHITE),
+	ORANGE(DyeColor.ORANGE, ChatColor.GOLD),
+	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE),
+	LIGHT_CYAN(DyeColor.LIGHT_BLUE, ChatColor.AQUA),
+	YELLOW(DyeColor.YELLOW, ChatColor.YELLOW),
+	LIGHT_GREEN(DyeColor.LIME, ChatColor.GREEN),
+	LIGHT_RED(DyeColor.PINK, ChatColor.RED),
 	DARK_GREY(DyeColor.GRAY, ChatColor.DARK_GRAY),
 	// DyeColor.LIGHT_GRAY on 1.13, DyeColor.SILVER on earlier (dye colors were changed in 1.12)
 	LIGHT_GREY(DyeColor.LIGHT_GRAY, ChatColor.GRAY),
-	WHITE(DyeColor.WHITE, ChatColor.WHITE),
-	
+	DARK_CYAN(DyeColor.CYAN, ChatColor.DARK_AQUA),
+	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE),
 	DARK_BLUE(DyeColor.BLUE, ChatColor.DARK_BLUE),
 	BROWN(DyeColor.BROWN, ChatColor.BLUE),
-	DARK_CYAN(DyeColor.CYAN, ChatColor.DARK_AQUA),
-	LIGHT_CYAN(DyeColor.LIGHT_BLUE, ChatColor.AQUA),
-	
 	DARK_GREEN(DyeColor.GREEN, ChatColor.DARK_GREEN),
-	LIGHT_GREEN(DyeColor.LIME, ChatColor.GREEN),
-	
-	YELLOW(DyeColor.YELLOW, ChatColor.YELLOW),
-	ORANGE(DyeColor.ORANGE, ChatColor.GOLD),
-	
 	DARK_RED(DyeColor.RED, ChatColor.DARK_RED),
-	LIGHT_RED(DyeColor.PINK, ChatColor.RED),
-	
-	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE),
-	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE);
+	BLACK(DyeColor.BLACK, ChatColor.BLACK);
 
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();

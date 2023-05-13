@@ -129,9 +129,8 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		String hand = offHand ? "off hand" : "";
-		return String.format("%s tool of %s", hand, getExpr().toString(e, debug));
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return offHand ? "off hand " : "" + "tool of " + getExpr().toString(event, debug);
 	}
 
 	@SuppressWarnings("unchecked")

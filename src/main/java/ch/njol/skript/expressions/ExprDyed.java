@@ -40,6 +40,8 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.regex.Matcher;
+
 @Name("Dyed")
 @Description("An expression to return items/entities with a color.")
 @Examples({
@@ -69,33 +71,40 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	
 	@Override
 	@Nullable
-	protected ItemType[] get(Event e) {
-		Color color = this.color.getSingle(e);
-		ItemType[] targets = this.targets.getArray(e);
-		org.bukkit.Color c;
+	protected ItemType[] get(Event event) {
+		Color color = this.color.getSingle(event);
+		ItemType[] targets = this.targets.getArray(event);
+		org.bukkit.Color bukkitColor;
 
-		if (color == null) {
+		if (color == null)
 			return new ItemType[0];
-		}
 
-		c = color.asBukkitColor();
+		bukkitColor = color.asBukkitColor();
 		for (ItemType item : targets) {
 			ItemMeta meta = item.getItemMeta();
 
 			if (meta instanceof LeatherArmorMeta) {
 				LeatherArmorMeta m = (LeatherArmorMeta) meta;
-				m.setColor(c);
+				m.setColor(bukkitColor);
 				item.setItemMeta(m);
-			} else if (MAPS_AND_POTIONS_COLORS) {
-				if (meta instanceof MapMeta) {
-					MapMeta m = (MapMeta) meta;
-					m.setColor(c);
-					item.setItemMeta(m);
-				} else if (meta instanceof PotionMeta) {
-					PotionMeta m = (PotionMeta) meta;
-					m.setColor(c);
-					item.setItemMeta(m);
+			} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
+				MapMeta mapMeta = (MapMeta) meta;
+				mapMeta.setColor(bukkitColor);
+				item.setItemMeta(mapMeta);
+			} else if (meta instanceof PotionMeta && MAPS_AND_POTIONS_COLORS) {
+				PotionMeta potionMeta = (PotionMeta) meta;
+				potionMeta.setColor(bukkitColor);
+				item.setItemMeta(potionMeta);
+			} else {
+				Material material = item.getMaterial();
+				Matcher matcher = ExprColorOf.MATERIAL_COLORS_PATTERN.matcher(material.name());
+				if (!matcher.matches()) {
+					continue;
 				}
+				try {
+					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName()));
+					item.setTo(new ItemType(newItem));
+				} catch (Exception ignored) {}
 			}
 		}
 		return targets.clone();
@@ -112,8 +121,8 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return targets.toString(e, debug) + " dyed " + color;
+	public String toString(@Nullable Event event, boolean debug) {
+		return targets.toString(event, debug) + " dyed " + color;
 	}
 	
 }

@@ -362,7 +362,7 @@ colors:
 		names: blue, dark blue
 	brown:
 		adjective: brown
-		names: brown, light blue, indigo
+		names: brown, indigo
 	dark_cyan:
 		adjective: cyan
 		names: cyan, aqua, dark cyan, dark aqua, dark turquoise, dark turquois

@@ -1,0 +1,26 @@
+test "block colors":
+	set {_loc} to spawn of world "world"
+	set {_originalBlock} to block at {_loc}
+
+	loop all colors:
+		set block at {_loc} to white wool
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of wool doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white terracotta
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of terracotta doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white carpet
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of carpet doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white stained glass
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of stained glass doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	# clean
+	set block at {_loc} to {_originalBlock}
