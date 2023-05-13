@@ -1,0 +1,57 @@
+test "block colors":
+	set {_loc} to spawn of world "world"
+	set {_originalBlock} to block at {_loc}
+
+	loop all colors:
+		set block at {_loc} to white wool
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of wool doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white terracotta
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of terracotta doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white carpet
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of carpet doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	loop all colors:
+		set block at {_loc} to white stained glass
+		set color of block at {_loc} to loop-color
+		assert color of block at {_loc} is loop-color with "color of stained glass doesn't match set color (block color: %color of block at {_loc}% - set color: %loop-color%)"
+
+	# clean
+	set block at {_loc} to {_originalBlock}
+
+test "item colors":
+	# item types - get
+	set {_item1} to red carpet
+	set {_item2} to blue terracotta
+	set {_item3} to lime glass pain
+	set {_item4} to orange wool
+	assert color of {_item1} is red with "Color check of item ##1 failed"
+	assert color of {_item2} is blue with "Color check of item ##2 failed"
+	assert color of {_item3} is lime with "Color check of item ##3 failed"
+	assert color of {_item4} is orange with "Color check of item ##4 failed"
+
+	# item types - set
+	set color of {_item1} to purple
+	set color of {_item2} to red
+	set color of {_item3} to white
+	set color of {_item4} to yellow
+	assert color of {_item1} is purple with "Color check of item ##5 failed"
+	assert color of {_item2} is red with "Color check of item ##6 failed"
+	assert color of {_item3} is white with "Color check of item ##7 failed"
+	assert color of {_item4} is yellow with "Color check of item ##8 failed"
+
+	# slots
+	set {_originalBlock} to type of block at spawn of world "world"
+	set block at spawn of world "world" to chest
+	set slot 0 of block at spawn of world "world" to orange carpet
+	# get
+	assert color of slot 0 of block at spawn of world "world" is red "Color check of slot ##9 failed"
+	# set
+	set color of slot 0 of block at spawn of world "world" to light blue
+	assert color of slot 0 of block at spawn of world "world" is light blue "Color check of slot ##10 failed"
