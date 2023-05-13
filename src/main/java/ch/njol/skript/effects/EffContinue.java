@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 		"\tif loop-value does not have permission \"moderator\":",
 		"\t\tcontinue # filter out non moderators",
 		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast"})
-@Since("2.2-dev37, INSERT VERSION (while loops)")
+@Since("2.2-dev37, 2.7 (while loops)")
 public class EffContinue extends Effect {
 
 	static {

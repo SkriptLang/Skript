@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -52,12 +53,17 @@ public class ExprScript extends SimpleExpression<String> {
 		);
 	}
 	
-	@SuppressWarnings("NotNullFieldNotIntialized")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private String name;
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		String name = getParser().getCurrentScript().getConfig().getFileName();
+		ParserInstance parser = getParser();
+		if (!parser.isActive()) {
+			Skript.error("You can't use the script expression outside of scripts!");
+			return false;
+		}
+		String name = parser.getCurrentScript().getConfig().getFileName();
 		if (name.contains("."))
 			name = name.substring(0, name.lastIndexOf('.'));
 		this.name = name;
@@ -65,7 +71,7 @@ public class ExprScript extends SimpleExpression<String> {
 	}
 	
 	@Override
-	protected String[] get(Event e) {
+	protected String[] get(Event event) {
 		return new String[]{name};
 	}
 	
@@ -80,7 +86,7 @@ public class ExprScript extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the script's name";
 	}
 	
