@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 		"\tmessage \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
 		"\tset the colour of the block to black"
 })
-@Since("1.2, INSERT VERSION (potions, maps and leather armor, fix block colors)")
+@Since("1.2, INSERT VERSION (potions, maps and leather armor, block colors for MC 1.14+)")
 @Keywords("colour")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
