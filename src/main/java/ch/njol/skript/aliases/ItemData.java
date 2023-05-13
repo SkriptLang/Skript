@@ -593,6 +593,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (stack.hasItemMeta()) {
 			ItemMeta meta = stack.getItemMeta(); // Creates a copy
 			meta.setDisplayName(null); // Clear display name
+			if (!itemFactory.getItemMeta(type).equals(meta)) // there may be different tags (e.g. potions)
+				data.itemFlags |= ItemFlags.CHANGED_TAGS;
 			data.stack.setItemMeta(meta);
 		}
 		ItemUtils.setDamage(data.stack, 0); // Set to undamaged
@@ -601,34 +603,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		data.blockValues = blockValues;
 		data.itemForm = itemForm;
 		return data;
-	}
-
-	/**
-	 * Applies an item meta to this item. Currently, it copies the following,
-	 * provided that they exist in given meta:
-	 * <ul>
-	 * <li>Lore
-	 * <li>Display name
-	 * <li>Enchantments
-	 * <li>Item flags
-	 * </ul>
-	 * @param meta Item meta.
-	 */
-	public void applyMeta(ItemMeta meta) {
-		ItemMeta our = getItemMeta();
-		if (meta.hasLore())
-			our.setLore(meta.getLore());
-		if (meta.hasDisplayName())
-			our.setDisplayName(meta.getDisplayName());
-		if (meta.hasEnchants()) {
-			for (Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet()) {
-				our.addEnchant(entry.getKey(), entry.getValue(), true);
-			}
-		}
-		for (ItemFlag flag : meta.getItemFlags()) {
-			our.addItemFlags(flag);
-		}
-		setItemMeta(meta);
 	}
 	
 	/**
