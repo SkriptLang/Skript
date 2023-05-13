@@ -63,7 +63,7 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		pattern = matchedPattern;
 		if (pattern == 0) {
 			locations = (Expression<Location>) exprs[1];
@@ -97,7 +97,7 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.RESET)
 			return new Class[0];
 		return null;
