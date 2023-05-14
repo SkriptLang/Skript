@@ -50,7 +50,7 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean hasConsumeEvent = Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent");
 	private final static boolean hasPrepareCraftEvent = Skript.classExists("org.bukkit.event.inventory.PrepareItemCraftEvent");
 	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
-	private final static boolean hasPlayerStonecutterRecipeSelectEvent = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
+	private final static boolean HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
 
 	static {
 		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
@@ -75,20 +75,10 @@ public class EvtItem extends SkriptEvent {
 						"\t\tset item of event-dropped item to a diamond")
 				.since("<i>unknown</i> (before 2.1), 2.7 (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
-			Class<? extends Event>[] events;
-			if (hasPlayerStonecutterRecipeSelectEvent) {
-				events = CollectionUtils.array(PrepareItemCraftEvent.class, PlayerStonecutterRecipeSelectEvent.class);
-			} else {
-				events = CollectionUtils.array(PrepareItemCraftEvent.class);
-			}
-			Skript.registerEvent("Prepare Craft", EvtItem.class, events, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
+			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
-					.examples(
-							"on preparing craft of torch:",
-							"on preparing craft of stone slabs:"
-					)
-					.since("2.2-Fixes-V10, INSERT VERSION (Stonecutter)")
-					.requiredPlugins("Paper 1.16+ (Stonecutter)");
+					.examples("on preparing craft of torch:")
+					.since("2.2-Fixes-V10)");
 		}
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
 		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
@@ -138,14 +128,27 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
+		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
+			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
+				.description("Called when a player selects a recipe in a stonecutter.")
+				.examples(
+					"on stonecutting stone slabs",
+						"\tcancel the event",
+					"",
+					"on stonecutting:",
+						"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper 1.16+");
+		}
 	}
 	
 	@Nullable
 	private Literal<ItemType> types;
 	private boolean entity;
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
 		types = (Literal<ItemType>) args[0];
 		entity = parser.mark == 1;
@@ -181,7 +184,7 @@ public class EvtItem extends SkriptEvent {
 			} else {
 				return false;
 			}
-		} else if (hasPlayerStonecutterRecipeSelectEvent && event instanceof PlayerStonecutterRecipeSelectEvent) {
+		} else if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT && event instanceof PlayerStonecutterRecipeSelectEvent) {
 			itemStack = ((PlayerStonecutterRecipeSelectEvent) event).getStonecuttingRecipe().getResult();
 		} else if (event instanceof EntityPickupItemEvent) {
 			itemStack = ((EntityPickupItemEvent) event).getItem().getItemStack();
@@ -208,7 +211,7 @@ public class EvtItem extends SkriptEvent {
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge" + (types == null ? "" : " of " + types);
+		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/stonecutting" + (types == null ? "" : " of " + types);
 	}
 	
 }
