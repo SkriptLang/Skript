@@ -29,7 +29,7 @@ test "item colors":
 	# item types - get
 	set {_item1} to red carpet
 	set {_item2} to blue terracotta
-	set {_item3} to lime glass pain
+	set {_item3} to lime stained glass
 	set {_item4} to orange wool
 	assert color of {_item1} is red with "Color check of item ##1 failed"
 	assert color of {_item2} is blue with "Color check of item ##2 failed"
