@@ -49,12 +49,12 @@ test "item colors":
 	# slots
 	set {_originalBlock} to type of block at spawn of world "world"
 	set block at spawn of world "world" to chest
-	set slot 0 of block at spawn of world "world" to orange carpet
+	set slot 0 of inventory of block at spawn of world "world" to orange carpet
 	# get
-	assert color of slot 0 of block at spawn of world "world" is red "Color check of slot ##9 failed"
+	assert color of slot 0 of inventory of block at spawn of world "world" is orange with "Color check of slot ##9 failed"
 	# set
-	set color of slot 0 of block at spawn of world "world" to light blue
-	assert color of slot 0 of block at spawn of world "world" is light blue "Color check of slot ##10 failed"
+	set color of slot 0 of inventory of block at spawn of world "world" to light blue
+	assert color of slot 0 of inventory of block at spawn of world "world" is light blue with "Color check of slot ##10 failed"
 
 	# clean up
 	set block at spawn of world "world" to {_originalBlock}

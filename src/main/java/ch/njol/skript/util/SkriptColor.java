@@ -97,7 +97,7 @@ public enum SkriptColor implements Color {
 	@Override
 	public String getName() {
 		assert adjective != null;
-		return adjective.toString();
+		return toString();
 	}
 	
 	@Override
