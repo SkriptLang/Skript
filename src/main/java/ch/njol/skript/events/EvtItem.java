@@ -154,9 +154,9 @@ public class EvtItem extends SkriptEvent {
 		entity = parser.mark == 1;
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
+	@SuppressWarnings("null")
 	public boolean check(final Event event) {
 		if (event instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
 			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) event).getEntity();
