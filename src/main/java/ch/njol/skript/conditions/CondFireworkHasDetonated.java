@@ -39,7 +39,7 @@ import org.bukkit.entity.Projectile;
 		"\twait 10 ticks"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.19+")
+@RequiredPlugins("MC 1.19+")
 public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 
 	static {
