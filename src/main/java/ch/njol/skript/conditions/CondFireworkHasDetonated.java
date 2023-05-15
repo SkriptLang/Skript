@@ -66,4 +66,5 @@ public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 	protected String getPropertyName() {
 		return "detonated";
 	}
+
 }

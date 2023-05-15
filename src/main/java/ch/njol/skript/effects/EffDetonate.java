@@ -36,13 +36,13 @@ import org.jetbrains.annotations.Nullable;
 @Description("Forces all fireworks to explode immediately, as if it has no remaining fuse.")
 @Examples("detonate all fireworks")
 @Since("INSERT VERSION")
-
 public class EffDetonate extends Effect {
 
 	static {
 		Skript.registerEffect(EffDetonate.class, "detonate %projectiles%");
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Projectile> projectiles;
 
 	@Override
