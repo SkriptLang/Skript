@@ -23,6 +23,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -38,16 +39,20 @@ import org.bukkit.entity.Projectile;
 		"\twait 10 ticks"
 })
 @Since("INSERT VERSION")
-public class CondFireworkIsDetonated extends PropertyCondition<Projectile> {
+@RequiredPlugins("Minecraft 1.19+")
+public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 
 	static {
-		Skript.registerCondition(CondFireworkIsDetonated.class, "%projectiles% (had|has|have) [:not] [been] detonated");
+		if (Skript.methodExists(Firework.class, "isDetonated"))
+			Skript.registerCondition(CondFireworkHasDetonated.class, "%projectiles% (had|has|have) [:not] [been] detonated");
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<? extends Projectile>) exprs[0]);
 		setNegated(parseResult.hasTag("not"));
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		return true;
 	}
 
 	@Override
