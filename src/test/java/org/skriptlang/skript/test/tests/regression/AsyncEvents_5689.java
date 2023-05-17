@@ -37,11 +37,11 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 @SuppressWarnings("deprecation") // Paper wants AsyncChatEvent for AdventureAPI
 public class AsyncEvents_5689 extends SkriptJUnitTest {
 
-	private static Player njol = createMock(Player.class);
+	private static Player player = createMock(Player.class);
 
 	@Test
 	public void execute() {
-		AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(true, njol, "Issue 5689", Sets.newHashSet(njol));
+		AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(true, player, "Issue 5689", Sets.newHashSet(player));
 		CompletableFuture.runAsync(() -> Bukkit.getPluginManager().callEvent(event));
 	}
 
