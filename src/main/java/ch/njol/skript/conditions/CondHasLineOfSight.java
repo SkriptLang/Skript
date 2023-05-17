@@ -57,8 +57,7 @@ public class CondHasLineOfSight extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		viewers = (Expression<LivingEntity>) exprs[0];
 		targets = exprs[1];
-		if (matchedPattern > 0)
-			setNegated(true);
+		setNegated(matchedPattern > 0);
 		return true;
 	}
 
