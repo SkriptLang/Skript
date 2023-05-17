@@ -20,6 +20,7 @@ package ch.njol.skript;
 
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.util.Task;
 import ch.njol.util.NonNullPair;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
@@ -104,8 +105,8 @@ public final class SkriptEventHandler {
 	 * @param e The Event to check.
 	 * @param priority The priority of the Event.
 	 */
-	private static void check(Event e, EventPriority priority) {
-		Iterator<Trigger> ts = getTriggers(e.getClass());
+	private static void check(Event event, EventPriority priority) {
+		Iterator<Trigger> ts = getTriggers(event.getClass());
 		if (!ts.hasNext())
 			return;
 
@@ -113,21 +114,21 @@ public final class SkriptEventHandler {
 			boolean hasTrigger = false;
 			while (ts.hasNext()) {
 				Trigger trigger = ts.next();
-				if (trigger.getEvent().getEventPriority() == priority && trigger.getEvent().check(e)) {
+				if (trigger.getEvent().getEventPriority() == priority && trigger.getEvent().check(event)) {
 					hasTrigger = true;
 					break;
 				}
 			}
 			if (!hasTrigger)
 				return;
-			Class<? extends Event> c = e.getClass();
+			Class<? extends Event> c = event.getClass();
 			ts = getTriggers(c);
 
-			logEventStart(e);
+			logEventStart(event);
 		}
 		
-		boolean isCancelled = e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass());
-		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY);
+		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
+		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
 
 		if (isCancelled && isResultDeny) {
 			if (Skript.logVeryHigh())
@@ -136,17 +137,21 @@ public final class SkriptEventHandler {
 		}
 
 		while (ts.hasNext()) {
-			Trigger t = ts.next();
-			if (t.getEvent().getEventPriority() != priority || !t.getEvent().check(e))
+			Trigger trigger = ts.next();
+			if (trigger.getEvent().getEventPriority() != priority || !trigger.getEvent().check(event))
 				continue;
 
-			logTriggerStart(t);
-			Object timing = SkriptTimings.start(t.getDebugLabel());
+			logTriggerStart(trigger);
+			Object timing = SkriptTimings.start(trigger.getDebugLabel());
 
-			t.execute(e);
+			if (!Bukkit.isPrimaryThread() && !trigger.getEvent().allowAsynchronous()) {
+				Task.callSync(() -> trigger.execute(event));
+			} else {
+				trigger.execute(event);
+			}
 
 			SkriptTimings.stop(timing);
-			logTriggerEnd(t);
+			logTriggerEnd(trigger);
 		}
 
 		logEventEnd();
