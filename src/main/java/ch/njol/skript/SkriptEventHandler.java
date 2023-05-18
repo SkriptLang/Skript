@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -109,8 +110,6 @@ public final class SkriptEventHandler {
 	 */
 	private static void check(Event event, EventPriority priority) {
 		List<Trigger> triggers = getTriggers(event.getClass());
-		if (triggers.isEmpty())
-			return;
 
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
@@ -252,9 +251,9 @@ public final class SkriptEventHandler {
 	 * @param trigger The Trigger to unregister events for.
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
-		Iterator<Map.Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
+		Iterator<Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
 		entryLoop: while (entryIterator.hasNext()) {
-			Map.Entry<Class<? extends Event>, Trigger> entry = entryIterator.next();
+			Entry<Class<? extends Event>, Trigger> entry = entryIterator.next();
 			if (entry.getValue() != trigger)
 				continue;
 			Class<? extends Event> event = entry.getKey();
