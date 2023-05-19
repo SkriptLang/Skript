@@ -18,8 +18,8 @@
  */
 package org.skriptlang.skript.lang.comparator;
 
-import ch.njol.skript.classes.Converter;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * A ConvertedComparator is a comparator that converts its parameters so that they may be used

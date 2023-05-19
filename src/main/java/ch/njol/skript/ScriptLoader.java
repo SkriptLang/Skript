@@ -29,7 +29,6 @@ import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
@@ -45,7 +44,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -599,6 +597,8 @@ public class ScriptLoader {
 	 */
 	// Whenever you call this method, make sure to also call PreScriptLoadEvent
 	private static NonNullPair<Script, List<Structure>> loadScript(Config config) {
+		if (config.getFile() == null)
+			throw new IllegalArgumentException("A config must have a file to be loaded.");
 
 		ParserInstance parser = getParser();
 		List<Structure> structures = new ArrayList<>();
@@ -791,14 +791,15 @@ public class ScriptLoader {
 	 *         This data is calculated by using {@link ScriptInfo#add(ScriptInfo)}.
 	 */
 	public static ScriptInfo unloadScripts(Set<Script> scripts) {
-		ParserInstance parser = getParser();
-		ScriptInfo info = new ScriptInfo();
-
-		// ensure unloaded scripts are not being loaded
+		// ensure unloaded scripts are not being unloaded
 		for (Script script : scripts) {
 			if (!loadedScripts.contains(script))
 				throw new SkriptAPIException("The script at '" + script.getConfig().getPath() + "' is not loaded!");
+			if (script.getConfig().getFile() == null)
+				throw new IllegalArgumentException("A script must have a file to be unloaded.");
 		}
+
+		ParserInstance parser = getParser();
 
 		// initial unload stage
 		for (Script script : scripts) {
@@ -810,6 +811,7 @@ public class ScriptLoader {
 		parser.setInactive();
 
 		// finish unloading + data collection
+		ScriptInfo info = new ScriptInfo();
 		for (Script script : scripts) {
 			List<Structure> structures = script.getStructures();
 
@@ -1213,11 +1215,7 @@ public class ScriptLoader {
 	@SafeVarargs
 	@Deprecated
 	public static void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
-		if (events.length == 0) {
-			getParser().setCurrentEvent(name, CollectionUtils.array(ContextlessEvent.class));
-		} else {
-			getParser().setCurrentEvent(name, events);
-		}
+		getParser().setCurrentEvent(name, events);
 	}
 
 	/**
