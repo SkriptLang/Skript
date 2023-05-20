@@ -42,7 +42,8 @@ public class EvtTestCase extends SkriptEvent {
 					.since("2.5");
 			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<Block, SkriptTestEvent>() {
 				@Override
-				public @Nullable Block get(SkriptTestEvent ignored) {
+				@Nullable
+				public Block get(SkriptTestEvent ignored) {
 					return SkriptJUnitTest.getBlock();
 				}
 			}, EventValues.TIME_NOW);
