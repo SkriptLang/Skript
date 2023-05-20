@@ -49,7 +49,8 @@ public class EvtTestCase extends SkriptEvent {
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<Location, SkriptTestEvent>() {
 				@Override
-				public @Nullable Location get(SkriptTestEvent ignored) {
+				@Nullable
+				public Location get(SkriptTestEvent ignored) {
 					return SkriptJUnitTest.getTestLocation();
 				}
 			}, EventValues.TIME_NOW);
