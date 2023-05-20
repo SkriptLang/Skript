@@ -32,10 +32,13 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Utils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -48,9 +51,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -68,6 +75,7 @@ public class HTMLGenerator {
 	private final File template;
 	private final File output;
 	private final String skeleton;
+	private Map<Class<? extends Event>, List<EventValues.EventValueInfo<?, ?>>> eventValuesCache = new HashMap<>();
 
 	public HTMLGenerator(File templateDir, File outputDir) {
 		this.template = templateDir;
@@ -210,6 +218,9 @@ public class HTMLGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public void generate() {
+		// cache event values per event before generating events
+		eventValuesCache = EventValues.getPerEventEventValues();
+
 		for (File f : template.listFiles()) {
 			if (f.getName().matches("css|js|assets")) { // Copy CSS/JS/Assets folders
 				String slashName = "/" + f.getName();
@@ -470,6 +481,9 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
+
 		// Documentation ID
 		DocumentationId docId = c.getAnnotation(DocumentationId.class);
 		String ID = docId != null ? (docId != null ? docId.value() : null) : info.c.getSimpleName();
@@ -603,6 +617,31 @@ public class HTMLGenerator {
 		String[] keywords = info.getKeywords();
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
+		// Event Values
+		Set<String> eventValuesSet = new TreeSet<>(); // sort and remove duplicates due to having multiple events
+		for (Class<? extends Event> event : info.events) {
+			for (Class<? extends Event> index : eventValuesCache.keySet()) {
+				if (!(event.isAssignableFrom(index) || index.isAssignableFrom(event))) // index.isAssignableFrom(event) has inaccuracy like TeleportCause in PlayerMoveEvent but also needed for superclass event values such as event-location
+					continue;
+				for (EventValues.EventValueInfo<?, ?> eventValueInfo : eventValuesCache.get(index)) {
+					if (eventValueInfo.isEventExcluded(event))
+						continue;
+					String prefix = "";
+					if (eventValueInfo.getTime() == EventValues.TIME_PAST)
+						prefix = "past ";
+					else if (eventValueInfo.getTime() == EventValues.TIME_FUTURE)
+						prefix = "future ";
+					String className = eventValueInfo.c.getSimpleName().toLowerCase(Locale.ENGLISH);
+					eventValuesSet.add(prefix + "event-" + (className.contains("[]") ? Utils.toEnglishPlural((className.replace("[]", ""))) : className));
+				}
+			}
+		}
+		List<String> eventValues = new ArrayList<>(0);
+		for (String value : eventValuesSet)
+			eventValues.add("<span class='event-value'>" + value + "</span>");
+		desc = handleIf(desc, "${if event-values}", eventValues.size() > 0);
+		desc = desc.replace("${element.event-values}", eventValues.size() == 0 ? "" : Joiner.on(", ").join(eventValues));
+
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
 		// Fix duplicated IDs
@@ -706,6 +745,9 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
 
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
@@ -812,6 +854,9 @@ public class HTMLGenerator {
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
