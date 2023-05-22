@@ -106,7 +106,7 @@ public class CondCompare extends Condition {
 
 	@Nullable
 	@SuppressWarnings("rawtypes")
-	private Comparator comp;
+	private Comparator comparator;
 	
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
@@ -136,7 +136,7 @@ public class CondCompare extends Condition {
 			}
 		}
 		@SuppressWarnings("rawtypes")
-		final Comparator comp = this.comp;
+		final Comparator comp = this.comparator;
 		if (comp != null) {
 			if (third == null) {
 				if (!relation.isImpliedBy(Relation.EQUAL, Relation.NOT_EQUAL) && !comp.supportsOrdering()) {
@@ -210,9 +210,9 @@ public class CondCompare extends Condition {
 		if (firstReturnType == Object.class || secondReturnType == Object.class)
 			return true;
 
-		comp = Comparators.getComparator(firstReturnType, secondReturnType);
+		comparator = Comparators.getComparator(firstReturnType, secondReturnType);
 
-		if (comp == null) { // Try to re-parse with more context
+		if (comparator == null) { // Try to re-parse with more context
 			/*
 			 * SkriptParser sees that CondCompare takes two objects. Most of the time,
 			 * this works fine. However, when there are multiple conflicting literals,
@@ -228,18 +228,18 @@ public class CondCompare extends Condition {
 			SimpleLiteral<?> reparsedSecond = reparseLiteral(firstReturnType, second);
 			if (reparsedSecond != null) {
 				second = reparsedSecond;
-				comp = Comparators.getComparator(firstReturnType, second.getReturnType());
+				comparator = Comparators.getComparator(firstReturnType, second.getReturnType());
 			} else {
 				SimpleLiteral<?> reparsedFirst = reparseLiteral(second.getReturnType(), first);
 				if (reparsedFirst != null) {
 					first = reparsedFirst;
-					comp = Comparators.getComparator(first.getReturnType(), secondReturnType);
+					comparator = Comparators.getComparator(first.getReturnType(), secondReturnType);
 				}
 			}
 			
 		}
 
-		return comp != null;
+		return comparator != null;
 	}
 
 	/**
@@ -340,14 +340,14 @@ public class CondCompare extends Condition {
 		return first.check(e, (Checker<Object>) o1 ->
 			second.check(e, (Checker<Object>) o2 -> {
 				if (third == null)
-					return relation.isImpliedBy(comp != null ? comp.compare(o1, o2) : Comparators.compare(o1, o2));
+					return relation.isImpliedBy(comparator != null ? comparator.compare(o1, o2) : Comparators.compare(o1, o2));
 				return third.check(e, (Checker<Object>) o3 -> {
 					boolean isBetween;
-					if (comp != null) {
+					if (comparator != null) {
 						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)))
+							(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
 							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)));
+							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
 					} else {
 						isBetween =
 							(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
@@ -369,7 +369,7 @@ public class CondCompare extends Condition {
 		else
 			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
 		if (debug)
-			s += " (comparator: " + comp + ")";
+			s += " (comparator: " + comparator + ")";
 		return s;
 	}
 	
