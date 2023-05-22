@@ -29,7 +29,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -56,7 +55,6 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	}
 
 	private Expression<Direction> direction;
-	private static final Location DEFAULT_LOCATION = new Location(null, 0, 0, 0);
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -73,12 +71,9 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	@Override
 	@Nullable
 	protected Vector[] get(Event event) {
-		Direction[] directions = this.direction.getArray(event);
-		Vector[] vectors = new Vector[directions.length];
-		for (int i = 0; i < directions.length; i++) {
-			vectors[i] = directions[i].getDirection(DEFAULT_LOCATION); // all relative directions are relative to the default location
-		}
-		return vectors;
+		return direction.stream(event)
+				.map(Direction::getDirection)
+				.toArray(Vector[]::new);
 	}
 
 	@Override
