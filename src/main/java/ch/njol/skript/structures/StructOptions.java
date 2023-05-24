@@ -49,11 +49,13 @@ import java.util.regex.Matcher;
 @Examples({
 	"options:",
 	"\tno_permission: You're missing the required permission to execute this command!",
+	"",
 	"command /ping:",
 	"\tpermission: command.ping",
 	"\tpermission message: {@no_permission}",
 	"\ttrigger:",
 	"\t\tmessage \"Pong!\"",
+	"",
 	"command /pong:",
 	"\tpermission: command.pong",
 	"\tpermission message: {@no_permission}",
