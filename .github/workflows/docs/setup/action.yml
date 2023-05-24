@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - env:
-          DOCS_DEPLOY_KEY: ${{ github.event.inputs.docs_deploy_key }}
+          DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         run: |
           eval `ssh-agent`
           DOC_DIR="${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}"
