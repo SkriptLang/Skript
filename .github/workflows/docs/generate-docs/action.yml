@@ -2,7 +2,7 @@ name: Generate documentation
 
 inputs:
   docs_output_dir:
-    description: "The directory to put the docs in"
+    description: "The directory to generate the documentation into"
     required: true
     type: string
   docs_repo_dir:
