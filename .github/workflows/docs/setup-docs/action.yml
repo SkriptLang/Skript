@@ -17,15 +17,6 @@ runs:
         distribution: 'adopt'
         cache: gradle
     - run: chmod +x ./skript/gradlew
-    - uses: actions/checkout@v3
-      with:
-          submodules: recursive
-          path: skript
-    - uses: actions/checkout@v3
-      with:
-          repository: 'SkriptLang/skript-docs'
-          path: skript-docs
-          ssh-key: ${{ inputs.docs_deploy_key }}
     - shell: bash
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
