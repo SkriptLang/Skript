@@ -17,14 +17,6 @@ jobs:
                 echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
                 echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
                 echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
-            - name: Set up JDK 17
-              uses: actions/setup-java@v3
-              with:
-                  java-version: '17'
-                  distribution: 'adopt'
-                  cache: gradle
-            - name: Grant execute permission for gradlew
-              run: chmod +x ./skript/gradlew
             - name: Setup documentation environment
               uses: ./skript/.github/workflows/docs/setup-docs
               with:
