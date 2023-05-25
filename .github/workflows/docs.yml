@@ -18,11 +18,9 @@ jobs:
                 echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
                 echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
             - name: Checkout Skript
-              uses: actions/checkout@v3
               with:
-                repository: 'SkriptLang/skript'
-                path: skript
-                ssh-key: ${{ inputs.docs_deploy_key }}
+                  submodules: recursive
+                  path: skript
             - name: Setup documentation environment
               uses: ./skript/.github/workflows/docs/setup-docs
               with:
