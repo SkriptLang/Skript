@@ -42,6 +42,7 @@ jobs:
               git_commit_message: Update release docs
   archive-docs:
       if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+      needs: release-docs
       runs-on: ubuntu-latest
       steps:
           - name: Configure workflow
