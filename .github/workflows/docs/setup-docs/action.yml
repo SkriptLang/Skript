@@ -7,6 +7,13 @@ inputs:
     type: string
   docs_output_dir:
     description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  cleanup_pattern:
+    description: "A pattern designating which files to delete when cleaning the documentation output directory"
+    required: false
+    default: "*"
+    type: string
 
 runs:
   using: 'composite'
@@ -28,9 +35,10 @@ runs:
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
+        CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
       run: |
         eval `ssh-agent`
-        rm -r ${DOCS_OUTPUT_DIR}/* || true
+        rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
         echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
         mkdir ~/.ssh
         ssh-keyscan www.github.com >> ~/.ssh/known_hosts
