@@ -11,6 +11,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Checkout skript-docs
+      uses: actions/checkout@v3
+      with:
+        repository: 'SkriptLang/skript-docs'
+        path: skript-docs
+        ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
     - uses: actions/setup-java@v3
       with:
         java-version: '17'
