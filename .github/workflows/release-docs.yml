@@ -32,6 +32,7 @@ jobs:
               docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+              build_task: genReleaseDocs
         - name: Push release documentation
           uses: ./skript/.github/workflows/docs/push-docs
           with:
@@ -67,6 +68,7 @@ jobs:
                 docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                 docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                 skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+                build_task: genReleaseDocs
           - name: Push archive documentation
             uses: ./skript/.github/workflows/docs/push-docs
             with:
