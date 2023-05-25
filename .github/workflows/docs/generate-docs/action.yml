@@ -16,6 +16,7 @@ runs:
   using: 'composite'
   steps:
     - name: generate-docs
+      shell: bash
       env:
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
