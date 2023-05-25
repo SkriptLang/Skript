@@ -29,18 +29,24 @@ jobs:
                   repository: 'SkriptLang/skript-docs'
                   path: skript-docs
                   ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
-            - name: Build Skript and generate docsa
+            - name: Test remove me
               run: |
                 ls -lRa .
-            - uses: ./skript/.github/workflows/docs/setup
+            - name: Configure workflow
+              id: configuration
+              run: |
+                echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+                echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
+                echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
+            - uses: ./skript/.github/workflows/docs/setup-docs
               with:
                   docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
-            - name: Build Skript and generate docs
-              run: |
-                cd ./skript
-                ./gradlew clean genDocs javadoc
-                mv "${GITHUB_WORKSPACE}/skript/build/docs/javadoc" "${DOC_DIR}/javadocs"
-                cd ..
+                  docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+            - uses: ./skript/.github/workflows/docs/generate-docs
+              with:
+                  docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+                  docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+                  skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
             - name: Push nightly docs
               if: success()
               run: |
