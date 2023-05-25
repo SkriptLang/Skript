@@ -11,8 +11,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: setup-docs
-      shell: bash
+    - uses: actions/checkout@v3
+      with:
+          submodules: recursive
+          path: skript
+    - uses: actions/checkout@v3
+      with:
+          repository: 'SkriptLang/skript-docs'
+          path: skript-docs
+          ssh-key: ${{ inputs.docs_deploy_key }}
+    - shell: bash
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
