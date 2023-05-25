@@ -22,7 +22,8 @@ runs:
         java-version: '17'
         distribution: 'adopt'
         cache: gradle
-    - run: chmod +x ./skript/gradlew
+    - shell: bash
+      run: chmod +x ./skript/gradlew
     - shell: bash
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
