@@ -1,10 +1,6 @@
 name: Nightly documentation
 
-on:
-    push:
-        branches:
-            - master
-            - 'dev/**'
+on: [push]
 
 jobs:
     docs:
