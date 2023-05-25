@@ -13,11 +13,11 @@ inputs:
     description: "The skript repository directory"
     required: true
     type: string
-  build_task:
-    description: "The build task to use"
+  is_release:
+    description: "Designates whether to generate nightly or release documentation"
     required: false
-    default: "genDocs"
-    type: string
+    default: false
+    type: boolean
     
 
 runs:
@@ -29,10 +29,14 @@ runs:
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
-        BUILD_TASK: ${{ inputs.build_task }}
+        IS_RELEASE: ${{ inputs.is_release }}
       run: |
         export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
         export SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
         cd $SKRIPT_REPO_DIR
-        ./gradlew clean $BUILD_TASK javadoc
+        if [[ "${IS_RELEASE}" == "true" ]]; then
+          ./gradlew clean genReleaseDocs releaseJavadoc
+        else
+          ./gradlew clean genDocs javadoc
+        fi
         mv "./build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
