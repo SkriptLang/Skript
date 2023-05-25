@@ -41,6 +41,7 @@ jobs:
               git_name: Release Docs Bot
               git_email: releasedocs@skriptlang.org
               git_commit_message: Update release docs
+
   archive-docs:
       if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
       needs: release-docs
