@@ -1,4 +1,4 @@
-name: Nightly Docs
+name: Nightly documentation
 
 on:
     push:
