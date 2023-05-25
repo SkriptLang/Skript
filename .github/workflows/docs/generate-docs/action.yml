@@ -22,8 +22,8 @@ runs:
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
       run: |
-        SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
-        SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
+        export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
+        export SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
         cd $SKRIPT_REPO_DIR
         ./gradlew clean genDocs javadoc
         mv "./build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
