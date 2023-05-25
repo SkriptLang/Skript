@@ -17,8 +17,6 @@ runs:
       run: |
         eval `ssh-agent`
         rm -r ${DOCS_OUTPUT_DIR}/* || true
-        echo "SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates" >> $GITHUB_ENV
-        echo "SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/" >> $GITHUB_ENV
         echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
         mkdir ~/.ssh
         ssh-keyscan www.github.com >> ~/.ssh/known_hosts
