@@ -38,4 +38,4 @@ runs:
         else
           ./gradlew clean genDocs javadoc
         fi
-        mv "./build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
+        cp -a "./build/docs/javadoc." "${DOCS_OUTPUT_DIR}/javadocs"
