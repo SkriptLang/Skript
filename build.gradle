@@ -181,17 +181,27 @@ tasks.register('testNaming') {
 }
 
 enum Modifiers {
-	DEV_MODE, GEN_DOCS, DEBUG, PROFILE, JUNIT
+	DEV_MODE, GEN_DOCS, GEN_RELEASE_DOCS, DEBUG, PROFILE, JUNIT
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
 void createTestTask(String name, String desc, String environments, int javaVersion, Modifiers... modifiers) {
 	boolean junit = modifiers.contains(Modifiers.JUNIT)
+	boolean releaseDocs = modifiers.contains(Modifiers.GEN_RELEASE_DOCS)
+	if (junit) {
+		artifact += 'Skript-JUnit.jar'
+	} else if (releaseDocs) {
+		artifact += 'Skript-github.jar'
+	} else {
+		artifact += 'Skript-nightly.jar'
+	}
 	tasks.register(name, JavaExec) {
 		description = desc;
 		dependsOn licenseTest
 		if (junit) {
 			dependsOn testJar
+		} else if (releaseDocs) {
+			dependsOn releaseDocs, testNaming
 		} else {
 			dependsOn nightlyRelease, testNaming
 		}
@@ -203,7 +213,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		}
 		group = 'execution'
 		classpath = files([
-			'build' + File.separator + 'libs' + File.separator + (junit ? 'Skript-JUnit.jar' : 'Skript-nightly.jar'),
+			artifact,
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
@@ -214,7 +224,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			'src/test/resources/runner_data',
 			environments,
 			modifiers.contains(Modifiers.DEV_MODE),
-			modifiers.contains(Modifiers.GEN_DOCS),
+			modifiers.contains(Modifiers.GEN_DOCS) || releaseDocs,
 			junit,
 			modifiers.contains(Modifiers.DEBUG),
 			project.findProperty('verbosity') ?: "null"
@@ -258,6 +268,7 @@ createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', envi
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, Modifiers.PROFILE)
 createTestTask('genDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, Modifiers.GEN_DOCS)
+createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
 	dependsOn skriptTestJava8, skriptTestJava17
