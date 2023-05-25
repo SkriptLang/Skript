@@ -20,8 +20,8 @@ jobs:
             - name: Checkout Skript
               uses: actions/checkout@v3
               with:
-                repository: 'SkriptLang/skript-docs'
-                path: skript-docs
+                repository: 'SkriptLang/skript'
+                path: skript
                 ssh-key: ${{ inputs.docs_deploy_key }}
             - name: Setup documentation environment
               uses: ./skript/.github/workflows/docs/setup-docs
