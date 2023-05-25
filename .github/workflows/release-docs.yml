@@ -39,3 +39,4 @@ jobs:
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               git_name: Release Docs Bot
               git_email: releasedocs@skriptlang.org
+              git_commit_message: Update release docs
