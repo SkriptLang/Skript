@@ -38,3 +38,4 @@ jobs:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   git_name: Archive Docs Bot
                   git_email: archivedocs@skriptlang.org
+                  commit_message: Update archive docs
