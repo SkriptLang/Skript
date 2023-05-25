@@ -40,3 +40,4 @@ jobs:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   git_name: Nightly Docs Bot
                   git_email: nightlydocs@skriptlang.org
+                  git_commit_message: Update nightly docs
