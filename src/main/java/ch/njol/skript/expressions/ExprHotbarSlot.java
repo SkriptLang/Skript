@@ -47,8 +47,8 @@ import ch.njol.util.Kleenean;
 @Examples({
 	"message \"%player's current hotbar slot%\"",
 	"set player's selected hotbar slot to slot 4 of player",
-  "",
-  "send \"index of player's current hotbar slot = 1\" # second slot from the left",
+	"",
+	"send \"index of player's current hotbar slot = 1\" # second slot from the left",
 	"",
 	"on item held change:",
 		"\tif the selected hotbar slot was a diamond:",
