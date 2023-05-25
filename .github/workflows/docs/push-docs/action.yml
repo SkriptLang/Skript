@@ -17,6 +17,10 @@ inputs:
     description: "The name to use for the Git commit"
     required: true
     type: string
+  git_commit_message:
+    description: "The message to use for the Git commit"
+    required: true
+    type: string
 
 runs:
   using: 'composite'
@@ -27,10 +31,11 @@ runs:
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
         GIT_EMAIL: ${{ inputs.git_email }}
         GIT_NAME: ${{ inputs.git_name }}
+        GIT_COMMIT_MESSAGE: ${{ inputs.git_commit_message }}
       run: |
         cd "${DOCS_REPO_DIR}"
         git config user.name "${GIT_NAME}"
         git config user.email "${GIT_EMAIL}"
         git add docs/nightly
-        git commit -m "Update nightly docs" || (echo "Nothing to push!" && exit 0)
+        git commit -m "${GIT_COMMIT_MESSAGE}" || (echo "Nothing to push!" && exit 0)
         git push origin main
