@@ -16,7 +16,7 @@ runs:
       with:
         repository: 'SkriptLang/skript-docs'
         path: skript-docs
-        ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
+        ssh-key: ${{ inputs.docs_deploy_key }}
     - uses: actions/setup-java@v3
       with:
         java-version: '17'
