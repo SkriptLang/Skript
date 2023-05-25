@@ -36,6 +36,6 @@ runs:
         cd "${DOCS_REPO_DIR}"
         git config user.name "${GIT_NAME}"
         git config user.email "${GIT_EMAIL}"
-        git add docs/nightly
+        git add -A
         git commit -m "${GIT_COMMIT_MESSAGE}" || (echo "Nothing to push!" && exit 0)
         git push origin main
