@@ -12,6 +12,7 @@ runs:
   using: 'composite'
   steps:
     - name: setup-docs
+      shell: bash
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
