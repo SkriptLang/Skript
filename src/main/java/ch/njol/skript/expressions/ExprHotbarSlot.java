@@ -119,7 +119,7 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 	public boolean setTime(int time) {
 		if (current)
 			return super.setTime(time);
-		return super.setTime(time, PlayerItemHeldEvent.class);
+		return super.setTime(time, getExpr(), PlayerItemHeldEvent.class);
 	}
 
 	@Override
