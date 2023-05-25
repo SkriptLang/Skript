@@ -25,4 +25,4 @@ runs:
         SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
         cd $SKRIPT_REPO_DIR
         ./gradlew clean genDocs javadoc
-        mv "${SKRIPT_REPO_DIR}/build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
+        mv "./build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
