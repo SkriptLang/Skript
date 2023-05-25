@@ -1,0 +1,28 @@
+name: Generate documentation
+
+inputs:
+  docs_output_dir:
+    description: "The directory to put the docs in"
+    required: true
+    type: string
+  docs_repo_dir:
+    description: "The skript-docs repository directory"
+    required: true
+    type: string
+  skript_repo_dir:
+    description: "The skript repository directory"
+
+runs:
+  using: 'composite'
+  steps:
+    - name: generate-docs
+      env:
+        DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
+        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
+      run: |
+        SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
+        SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
+        cd $SKRIPT_REPO_DIR
+        ./gradlew clean genDocs javadoc
+        mv "${SKRIPT_REPO_DIR}/build/docs/javadoc" "${DOCS_OUTPUT_DIR}/javadocs"
