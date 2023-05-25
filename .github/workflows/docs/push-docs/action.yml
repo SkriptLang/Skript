@@ -21,7 +21,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - if: success()
+    - shell: bash
+      if: success()
       env:
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
         GIT_EMAIL: ${{ inputs.git_email }}
