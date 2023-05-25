@@ -5,6 +5,8 @@ inputs:
     description: "Deploy key for the skript-docs repo"
     required: true
     type: string
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
 
 runs:
   using: 'composite'
@@ -13,7 +15,6 @@ runs:
       env:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
-        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
       run: |
         eval `ssh-agent`
         rm -r ${DOCS_OUTPUT_DIR}/* || true
