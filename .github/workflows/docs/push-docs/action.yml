@@ -1,0 +1,35 @@
+name: Generate documentation
+
+inputs:
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  docs_repo_dir:
+    description: "The skript-docs repository directory"
+    required: true
+    type: string
+  git_email:
+    description: "The email to use for the Git commit"
+    required: true
+    type: string
+  git_name:
+    description: "The name to use for the Git commit"
+    required: true
+    type: string
+
+runs:
+  using: 'composite'
+  steps:
+    - if: success()
+      env:
+        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        GIT_EMAIL: ${{ inputs.git_email }}
+        GIT_NAME: ${{ inputs.git_name }}
+      run: |
+        cd "${DOCS_REPO_DIR}"
+        git config user.name "${GIT_NAME}"
+        git config user.email "${GIT_EMAIL}"
+        git add docs/nightly
+        git commit -m "Update nightly docs" || (echo "Nothing to push!" && exit 0)
+        git push origin main
