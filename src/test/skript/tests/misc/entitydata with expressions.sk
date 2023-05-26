@@ -1,0 +1,6 @@
+test "entity data with expressions":
+	loop diamond, iron ingot, gold ingot and dirt:
+		spawn dropped loop-value at spawn of world "world":
+			add event-entity to {_entities::*}
+	assert size of {_entities::*} is 4 with "failed to collect all dropped items"
+	clear values within {_entities::*}

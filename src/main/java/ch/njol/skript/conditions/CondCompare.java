@@ -168,7 +168,7 @@ public class CondCompare extends Condition {
 			if (first.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (first instanceof UnparsedLiteral)
-					expression = attemptReconstruct((UnparsedLiteral) first, second);
+					expression = attemptReconstruction((UnparsedLiteral) first, second);
 				if (expression == null)
 					expression = first.getConvertedExpression(Object.class);
 				if (expression == null) {
@@ -180,7 +180,7 @@ public class CondCompare extends Condition {
 			if (second.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (second instanceof UnparsedLiteral)
-					expression = attemptReconstruct((UnparsedLiteral) second, first);
+					expression = attemptReconstruction((UnparsedLiteral) second, first);
 				if (expression == null)
 					expression = second.getConvertedExpression(Object.class);
 				if (expression == null) {
@@ -192,7 +192,7 @@ public class CondCompare extends Condition {
 			if (third != null && third.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (third instanceof UnparsedLiteral)
-					expression = attemptReconstruct((UnparsedLiteral) third, first);
+					expression = attemptReconstruction((UnparsedLiteral) third, first);
 				if (expression == null)
 					expression = third.getConvertedExpression(Object.class);
 				if (expression == null) {
@@ -279,7 +279,7 @@ public class CondCompare extends Condition {
 	 * @return The newly formed Literal, will be SimpleLiteral in most cases.
 	 */
 	@SuppressWarnings("unchecked")
-	private Literal<?> attemptReconstruct(UnparsedLiteral one, Expression<?> two) {
+	private Literal<?> attemptReconstruction(UnparsedLiteral one, Expression<?> two) {
 		Expression<?> expression = null;
 		// Must handle numbers first.
 		expression = one.getConvertedExpression(Number.class);
