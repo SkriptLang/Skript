@@ -1565,23 +1565,6 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 		// EntityResurrectEvent
-		EventValues.registerEventValue(EntityResurrectEvent.class, ItemStack.class, new Getter<ItemStack, EntityResurrectEvent>() {
-			@Override
-			@Nullable
-			public ItemStack get(EntityResurrectEvent event) {
-				EquipmentSlot hand = event.getHand();
-				EntityEquipment equipment = event.getEntity().getEquipment();
-				if (equipment == null)
-					return null;
-
-				if (hand == EquipmentSlot.HAND) {
-					return equipment.getItemInMainHand();
-				} else if (hand == EquipmentSlot.OFF_HAND) {
-					return equipment.getItemInOffHand();
-				}
-				return null;
-			}
-		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
 			@Override
 			@Nullable
