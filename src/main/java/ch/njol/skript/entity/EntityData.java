@@ -435,10 +435,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	private E apply(E entity) {
-		if (baby.isTrue())
+		if (baby.isTrue()) {
 			EntityUtils.setBaby(entity);
-		else if (baby.isFalse())
+		} else if (baby.isFalse()) {
 			EntityUtils.setAdult(entity);
+		}
 		set(entity);
 		return entity;
 	}
