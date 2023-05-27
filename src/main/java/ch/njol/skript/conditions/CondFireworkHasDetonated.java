@@ -34,25 +34,24 @@ import org.bukkit.entity.Projectile;
 @Name("Firework Is Detonated")
 @Description("Checks whether a firework has been detonated.")
 @Examples({
+	"set {_firework} to last launched firework",
 	"while {_firework} has not been detonated:",
 		"\tspawn tnt at {_firework}",
 		"\twait 10 ticks"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("MC 1.19+")
+@RequiredPlugins("Spigot 1.19.4")
 public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 
 	static {
 		if (Skript.methodExists(Firework.class, "isDetonated"))
-			Skript.registerCondition(CondFireworkHasDetonated.class, "%projectiles% (had|has|have) [:not] [been] detonated");
+			Skript.registerCondition(CondFireworkHasDetonated.class, "%projectiles% (has|have) [:not] [been] detonated");
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends Projectile>) exprs[0]);
 		setNegated(parseResult.hasTag("not"));
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
