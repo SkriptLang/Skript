@@ -49,7 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({
 	"on item damage:",
 		"\tevent-item is any tool",
-		"\tdelete damage # unbreakable tools",
+		"\tclear damage # unbreakable tools as the damage will be 0",
 	"on damage:",
 		"\tincrease the damage by 2"
 })
