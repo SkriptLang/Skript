@@ -63,6 +63,9 @@ public class PlatformMain {
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
+		// If we're generating the docs, we want to force register hook syntaxes so they are in the docs
+		if (genDocs)
+			System.setProperty("skript.forceregisterhooks", "true");
 		boolean jUnit = "true".equals(args[6]);
 		boolean debug = "true".equals(args[7]);
 		String verbosity = args[8].toUpperCase(Locale.ENGLISH);
