@@ -3,7 +3,7 @@ name: Nightly documentation
 on: [push]
 
 jobs:
-    docs:
+    nightly-docs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         steps:
