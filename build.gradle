@@ -240,10 +240,6 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			modifiers.contains(Modifiers.DEBUG),
 			project.findProperty('verbosity') ?: "null"
 		]
-		
-		if (docs) {
-			args += '-Dskript.forceregisterhooks'
-		}
 
 		// Do first is used when throwing exceptions.
 		// This way it's not called when defining the task.
