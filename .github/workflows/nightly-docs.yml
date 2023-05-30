@@ -11,6 +11,7 @@ jobs:
               id: configuration
               run: |
                 BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+                echo "PRETTY_COMMIT=$(git show -s --pretty=reference $GITHUB_SHA)" >> $GITHUB_OUTPUT
                 echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
@@ -38,4 +39,4 @@ jobs:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   git_name: Nightly Docs Bot
                   git_email: nightlydocs@skriptlang.org
-                  git_commit_message: "Update nightly docs for ${{ steps.configuration.outputs.BRANCH_NAME }} to https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+                  git_commit_message: "Update nightly docs for ${{ steps.configuration.outputs.BRANCH_NAME }} to ${{ github.repository }}@${{ steps.configuration.outputs.PRETTY_COMMIT }}"
