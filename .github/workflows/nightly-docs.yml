@@ -10,7 +10,7 @@ jobs:
             - name: Configure workflow
               id: configuration
               run: |
-                BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+                BRANCH_NAME="${GITHUB_REF#refs/*/}"
                 echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
