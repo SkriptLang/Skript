@@ -12,6 +12,7 @@ jobs:
         - name: Configure workflow
           id: configuration
           run: |
+            echo "BRANCH_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
             echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/" >> $GITHUB_OUTPUT
             echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
             echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
@@ -40,7 +41,7 @@ jobs:
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               git_name: Release Docs Bot
               git_email: releasedocs@skriptlang.org
-              git_commit_message: Update release docs
+              git_commit_message: "Update release docs to ${{ steps.configuration.outputs.BRANCH_NAME }}"
 
   archive-docs:
       if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
@@ -50,6 +51,7 @@ jobs:
           - name: Configure workflow
             id: configuration
             run: |
+              echo "BRANCH_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
               echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/archives/${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
               echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
               echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
@@ -77,4 +79,4 @@ jobs:
                 docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                 git_name: Archive Docs Bot
                 git_email: archivedocs@skriptlang.org
-                git_commit_message: Update archive docs
+                git_commit_message: "Update ${{ steps.configuration.outputs.BRANCH_NAME }} archive docs"
