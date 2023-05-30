@@ -22,8 +22,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
 
 import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.ComparatorInfo;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -284,14 +286,19 @@ public class CondCompare extends Condition {
 		// Must handle numbers first.
 		expression = one.getConvertedExpression(Number.class);
 		if (expression == null) {
-			for (ConverterInfo<?, ?> converter : Converters.getConverterInfos()) {
-				// We're comparing the 'two' expression, so we need the 'from' for comparing.
-				if (!converter.getFrom().isAssignableFrom(two.getReturnType()))
+			for (ClassInfo<?> classinfo : Classes.getClassInfos()) {
+				if (classinfo.getParser() == null)
 					continue;
-				// Must be comparable if we're going to attempt to convert this UnparsedLiteral. Otherwise why attempt something that won't work.
-				if (Comparators.getComparator(two.getReturnType(), converter.getTo()) == null)
+				ComparatorInfo<?, ?> comparator = Comparators.getComparatorInfo(two.getReturnType(), classinfo.getC());
+				if (comparator == null)
 					continue;
-				expression = reparseLiteral(converter.getTo(), one);
+				// We don't care about comparators that take in an object. This just causes more issues accepting and increases iterations by half.
+				// Let getConvertedExpression deal with it in the end if no other possible reparses against the remaining classinfos exist.
+				if (comparator.getFirstType() == Object.class)
+					continue;
+				expression = reparseLiteral(classinfo.getC(), one);
+				if (expression != null)
+					break;
 			}
 		}
 		if (expression == null)
