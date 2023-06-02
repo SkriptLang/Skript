@@ -1,2 +1,3 @@
 test "redundant":
 	assert "true" is "true" with "logic failed"
+	assert "true" is "false" with "logic failed"

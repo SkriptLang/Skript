@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.test.runner;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class TestTracker {
 
 	public static void testFailed(String msg, Script script) {
 		String file = script.getConfig().getFileName();
-		file = file.substring(file.lastIndexOf("\\") + 1);
+		file = file.substring(file.lastIndexOf(File.separator) + 1);
 		failedTests.put(currentTest, msg + " [" + file + "]");
 	}
 
