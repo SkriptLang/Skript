@@ -308,6 +308,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (item.getType() != getType()) {
 			return MatchQuality.DIFFERENT;
 		}
+
 		BlockValues values = blockValues;
 		// Items (held in inventories) don't have block values
 		// If this is an item, given item must not have them either
@@ -341,7 +342,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		
 		// See if we need to compare item metas (excluding durability)
-		if (quality.isAtLeast(MatchQuality.SAME_ITEM)) { // Item meta checks could lower this
+		if (quality.isAtLeast(MatchQuality.SAME_ITEM) && stack.hasItemMeta() || item.stack.hasItemMeta()) { // Item meta checks could lower this
 			MatchQuality metaQuality = compareItemMetas(getItemMeta(), item.getItemMeta());
 			
 			// If given item doesn't care about meta, promote to SAME_ITEM
