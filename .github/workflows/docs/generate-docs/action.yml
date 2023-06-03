@@ -34,8 +34,8 @@ runs:
         export SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
-          ./gradlew clean genReleaseDocs releaseJavadoc
+          ./gradlew genReleaseDocs releaseJavadoc
         else
-          ./gradlew clean genDocs javadoc
+          ./gradlew genDocs javadoc
         fi
         cp -a "./build/docs/javadoc/." "${DOCS_OUTPUT_DIR}/javadocs"
