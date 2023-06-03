@@ -36,6 +36,6 @@ runs:
         if [[ "${IS_RELEASE}" == "true" ]]; then
           ./gradlew genReleaseDocs releaseJavadoc
         else
-          ./gradlew genDocs javadoc
+          ./gradlew genNightlyDocs javadoc
         fi
         cp -a "./build/docs/javadoc/." "${DOCS_OUTPUT_DIR}/javadocs"
