@@ -707,6 +707,9 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(Documentation.escapeHTML(examples))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
+		Keywords keywords = c.getAnnotation(Keywords.class);
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
+
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
 		// Fix duplicated IDs
@@ -813,6 +816,9 @@ public class HTMLGenerator {
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
+		String[] keywords = info.getKeywords();
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
+
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
 
@@ -914,7 +920,7 @@ public class HTMLGenerator {
 		if (returnType == null)
 			return handleIf(desc, "${if return-type}", false);
 
-		boolean noDoc = returnType.hasDocs();
+		boolean noDoc = !returnType.hasDocs();
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 
