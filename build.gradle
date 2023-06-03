@@ -190,14 +190,14 @@ tasks.register('testNaming') {
 }
 
 enum Modifiers {
-	DEV_MODE, GEN_DOCS, GEN_RELEASE_DOCS, DEBUG, PROFILE, JUNIT
+	DEV_MODE, GEN_NIGHTLY_DOCS, GEN_RELEASE_DOCS, DEBUG, PROFILE, JUNIT
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
 void createTestTask(String name, String desc, String environments, int javaVersion, Modifiers... modifiers) {
 	boolean junit = modifiers.contains(Modifiers.JUNIT)
 	boolean releaseDocs = modifiers.contains(Modifiers.GEN_RELEASE_DOCS)
-	boolean docs = modifiers.contains(Modifiers.GEN_DOCS) || releaseDocs
+	boolean docs = modifiers.contains(Modifiers.GEN_NIGHTLY_DOCS) || releaseDocs
 	def artifact = 'build' + File.separator + 'libs' + File.separator
 	if (junit) {
 		artifact += 'Skript-JUnit.jar'
@@ -278,7 +278,7 @@ createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', en
 createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', environments + 'java8', oldestJava)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, Modifiers.PROFILE)
-createTestTask('genDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, Modifiers.GEN_DOCS)
+createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
