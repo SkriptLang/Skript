@@ -20,6 +20,7 @@ package ch.njol.skript.test.runner;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -46,6 +47,7 @@ public class EffAssert extends Effect  {
 
 	@Nullable
 	private Condition condition;
+	private Script script;
 
 	private Expression<String> errorMsg;
 	private boolean shouldFail;
@@ -56,6 +58,7 @@ public class EffAssert extends Effect  {
 		String conditionString = parseResult.regexes.get(0).group();
 		errorMsg = (Expression<String>) exprs[0];
 		shouldFail = parseResult.mark != 0;
+		script = getParser().getCurrentScript();
 		
 		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
 		try {
@@ -91,7 +94,7 @@ public class EffAssert extends Effect  {
 			if (SkriptJUnitTest.getCurrentJUnitTest() != null) {
 				TestTracker.junitTestFailed(SkriptJUnitTest.getCurrentJUnitTest(), message);
 			} else {
-				TestTracker.testFailed(message);
+				TestTracker.testFailed(message, script);
 			}
 			return null;
 		}
