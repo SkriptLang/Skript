@@ -39,7 +39,6 @@ jobs:
             - name: Push nightly documentation
               uses: ./skript/.github/workflows/docs/push-docs
               with:
-                  docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   git_name: Nightly Docs Bot
                   git_email: nightlydocs@skriptlang.org
