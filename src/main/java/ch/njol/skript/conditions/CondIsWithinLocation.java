@@ -18,7 +18,10 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -29,9 +32,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.AABB;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Within Location")
 @Description({
@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if player's location is within {_loc1} and {_loc2}:",
 		"\tsend \"You are in a PvP zone!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsWithinLocation extends Condition {
 
 	static {

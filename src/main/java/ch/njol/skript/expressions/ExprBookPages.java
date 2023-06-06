@@ -48,7 +48,7 @@ import java.util.List;
 	"\tmessage \"Book Page 1: %page 1 of event-item%\"",
 	"set page 1 of player's held item to \"Book writing\""
 })
-@Since("2.2-dev31, INSERT VERSION (changers)")
+@Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<String> {
 
 	static {

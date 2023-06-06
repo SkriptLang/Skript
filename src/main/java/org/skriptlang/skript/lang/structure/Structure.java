@@ -51,7 +51,6 @@ import java.util.Iterator;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link EntryData}.
  */
-// TODO STRUCTURE add Structures to docs
 public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**

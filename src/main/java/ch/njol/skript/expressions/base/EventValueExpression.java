@@ -57,7 +57,6 @@ import ch.njol.util.Kleenean;
  * }
  * </pre>
  * 
- * @author Peter Güttinger
  * @see Classes#registerClass(ClassInfo)
  * @see ClassInfo#defaultExpression(DefaultExpression)
  * @see DefaultExpression
@@ -70,14 +69,30 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private Changer<? super T> changer;
 	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
 	private final boolean single;
+	private final boolean exact;
 	
 	public EventValueExpression(Class<? extends T> c) {
 		this(c, null);
 	}
-	
+
+	/**
+	 * Construct an event value expression.
+	 * 
+	 * @param c The class that this event value represents.
+	 * @param exact If false, the event value can be a subclass or a converted event value.
+	 */
+	public EventValueExpression(Class<? extends T> c, boolean exact) {
+		this(c, null, exact);
+	}
+
 	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer) {
+		this(c, changer, false);
+	}
+
+	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer, boolean exact) {
 		assert c != null;
 		this.c = c;
+		this.exact = exact;
 		this.changer = changer;
 		single = !c.isArray();
 		componentType = single ? c : c.getComponentType();
@@ -89,14 +104,14 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	protected T[] get(Event event) {
 		T value = getValue(event);
 		if (value == null)
-			return (T[]) Array.newInstance(c, 0);
+			return (T[]) Array.newInstance(componentType, 0);
 		if (single) {
 			T[] one = (T[]) Array.newInstance(c, 1);
 			one[0] = value;
 			return one;
 		}
 		T[] dataArray = (T[]) value;
-		T[] array = (T[]) Array.newInstance(c.getComponentType(), ((T[]) value).length);
+		T[] array = (T[]) Array.newInstance(componentType, dataArray.length);
 		System.arraycopy(dataArray, 0, array, 0, array.length);
 		return array;
 	}
@@ -143,7 +158,12 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = getters.get(event) != null;
 					continue;
 				}
-				Getter<? extends T, ?> getter = EventValues.getEventValueGetter(event, c, getTime());
+				Getter<? extends T, ?> getter;
+				if (exact) {
+					getter = EventValues.getExactEventValueGetter(event, c, getTime());
+				} else {
+					getter = EventValues.getEventValueGetter(event, c, getTime());
+				}
 				if (getter != null) {
 					getters.put(event, getter);
 					hasValue = true;
@@ -161,8 +181,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<? extends T> getReturnType() {
-		return c;
+		return (Class<? extends T>) componentType;
 	}
 	
 	@Override
@@ -176,13 +197,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
 		return Classes.getDebugMessage(getValue(event));
 	}
-	
+
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (changer == null)
-			changer = (Changer<? super T>) Classes.getSuperClassInfo(c).getChanger();
+			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
 	}
 	
@@ -202,7 +223,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		}
 		for (Class<? extends Event> event : events) {
 			assert event != null;
-			if (EventValues.doesEventValueHaveTimeStates(event, c)) {
+			boolean has;
+			if (exact) {
+				has = EventValues.doesExactEventValueHaveTimeStates(event, c);
+			} else {
+				has = EventValues.doesEventValueHaveTimeStates(event, c);
+			}
+			if (has) {
 				super.setTime(time);
 				// Since the time was changed, we now need to re-initalize the getters we already got. START
 				getters.clear();
