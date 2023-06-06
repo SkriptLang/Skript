@@ -1,10 +1,6 @@
-name: Generate documentation
+name: Push documentation
 
 inputs:
-  docs_output_dir:
-    description: "The directory to generate the documentation into"
-    required: true
-    type: string
   docs_repo_dir:
     description: "The skript-docs repository directory"
     required: true
