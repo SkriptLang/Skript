@@ -1,0 +1,32 @@
+name: Delete nightly docs
+on: delete
+jobs:
+  delete-docs:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure workflow
+        id: configuration
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/*/}"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
+      - name: Setup documentation environment
+        uses: ./skript/.github/workflows/docs/setup-docs
+        with:
+            docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
+            docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+      - name: Delete nightly documentation0
+        env:
+          DOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+        run: |
+          rm -rf ${DOCS_OUTPUT_DIR} || true
+      - name: Push nightly documentation deletion
+        uses: ./skript/.github/workflows/docs/push-docs
+        with:
+            docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+            docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+            git_name: Nightly Docs Bot
+            git_email: nightlydocs@skriptlang.org
+            git_commit_message: "Delete ${{ steps.configuration.outputs.BRANCH_NAME }} branch nightly docs"
