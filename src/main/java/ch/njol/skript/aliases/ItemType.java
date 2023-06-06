@@ -165,7 +165,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			this.block = block;
 		}
 	}
-	
+
 	public ItemType() {}
 	
 	public ItemType(Material id) {
@@ -1306,7 +1306,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		
 		// Apply new meta to all datas
 		for (ItemData data : types) {
-			data.applyMeta(meta);
+			data.setItemMeta(meta);
 		}
 	}
 	
@@ -1334,7 +1334,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	public ItemType getBaseType() {
 		ItemType copy = new ItemType();
 		for (ItemData data : types) {
-			copy.add(data.aliasCopy());
+			copy.add_(data.aliasCopy());
 		}
 		return copy;
 	}
