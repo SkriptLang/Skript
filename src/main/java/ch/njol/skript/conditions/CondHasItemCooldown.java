@@ -75,7 +75,7 @@ public class CondHasItemCooldown extends Condition {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, players,
-			itemtypes.toString(event, debug) + " on cooldown");
+				itemtypes.toString(event, debug) + " on cooldown");
 	}
 
 }

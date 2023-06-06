@@ -53,8 +53,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	static {
 		Skript.registerExpression(ExprItemCooldown.class, Timespan.class, ExpressionType.COMBINED, 
-			"[the] [item] cooldown of %itemtypes% for %players%",
-			"%players%'[s] [item] cooldown for %itemtypes%");
+				"[the] [item] cooldown of %itemtypes% for %players%",
+				"%players%'[s] [item] cooldown for %itemtypes%");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -138,7 +138,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the cooldown of " + itemtypes.toString(event, debug) + " for " + players.toString(event, debug);
+		return "cooldown of " + itemtypes.toString(event, debug) + " for " + players.toString(event, debug);
 	}
 
 }
