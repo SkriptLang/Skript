@@ -7,8 +7,10 @@ jobs:
     steps:
       - name: Configure workflow
         id: configuration
+        env:
+          DELETED_BRANCH: ${{ github.event.ref }}
         run: |
-          BRANCH_NAME="${GITHUB_REF#refs/*/}"
+          BRANCH_NAME="${DELETED_BRANCH#refs/*/}"
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
@@ -23,7 +25,7 @@ jobs:
         with:
             docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
             docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
-      - name: Delete nightly documentation0
+      - name: Delete nightly documentation
         env:
           DOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
         run: |
