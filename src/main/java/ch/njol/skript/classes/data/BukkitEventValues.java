@@ -1221,6 +1221,13 @@ public final class BukkitEventValues {
 				return e.getInventory();
 			}
 		}, 0);
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
+				@Override
+				public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
+					return event.getReason();
+				}
+			}, EventValues.TIME_NOW);
 		//InventoryPickupItemEvent
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Inventory.class, new Getter<Inventory, InventoryPickupItemEvent>() {
 			@Nullable
@@ -1343,13 +1350,6 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		// InventoryCloseEvent
-		EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
-			@Override
-			public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
-				return event.getReason();
-			}
-		}, EventValues.TIME_NOW);
 		//PlayerMoveEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
 			@Override
