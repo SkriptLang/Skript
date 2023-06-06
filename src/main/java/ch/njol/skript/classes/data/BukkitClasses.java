@@ -1502,6 +1502,7 @@ public class BukkitClasses {
 					.user("inventory ?close ?reasons?")
 					.name("Inventory Close Reasons")
 					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
+					.requiredPlugins("Paper")
 					.since("INSERT VERSION"));
 	}
 
