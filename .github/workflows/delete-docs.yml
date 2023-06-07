@@ -1,7 +1,7 @@
 name: Delete nightly docs
 on: delete
 jobs:
-  delete-docs:
+  delete-nightly-docs:
     if: github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +33,6 @@ jobs:
       - name: Push nightly documentation deletion
         uses: ./skript/.github/workflows/docs/push-docs
         with:
-            docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
             docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
             git_name: Nightly Docs Bot
             git_email: nightlydocs@skriptlang.org
