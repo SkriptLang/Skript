@@ -1,7 +1,7 @@
-name: Delete nightly docs
+name: Cleanup nightly documentation
 on: delete
 jobs:
-  delete-nightly-docs:
+  cleanup-nightly-docs:
     if: github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
@@ -25,12 +25,12 @@ jobs:
         with:
             docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
             docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
-      - name: Delete nightly documentation
+      - name: Cleanup nightly documentation
         env:
           DOCS_OUTPUT_DIR: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
         run: |
           rm -rf ${DOCS_OUTPUT_DIR} || true
-      - name: Push nightly documentation deletion
+      - name: Push nightly documentation cleanup
         uses: ./skript/.github/workflows/docs/push-docs
         with:
             docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
