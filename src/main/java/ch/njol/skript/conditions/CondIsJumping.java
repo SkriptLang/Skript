@@ -37,7 +37,7 @@ import org.bukkit.entity.LivingEntity;
 @Examples({
 	"on spawn of zombie:",
 		"\twhile event-entity is not jumping:",
-		"\t\twait 5 ticks",
+			"\t\twait 5 ticks",
 		"\tpush event-entity upwards"
 })
 @Since("INSERT VERSION")
