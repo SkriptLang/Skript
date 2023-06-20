@@ -24,13 +24,13 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import org.bukkit.util.Vector;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 
 public class DefaultOperations {
 
 	static {
-
+		// Number - Number
 		Arithmetics.registerOperation(Operator.ADDITION, Number.class, (left, right) -> {
 			if (Utils.isInteger(left, right))
 				return left.longValue() + right.longValue();
@@ -59,15 +59,18 @@ public class DefaultOperations {
 		});
 		Arithmetics.registerDefaultValue(Number.class, () -> 0L);
 
+		// Vector - Vector
 		Arithmetics.registerOperation(Operator.ADDITION, Vector.class, (left, right) -> left.clone().add(right));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Vector.class, (left, right) -> left.clone().subtract(right));
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, (left, right) -> left.clone().multiply(right));
+		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, (left, right) -> left.clone().divide(right));
+
+		// Vector - Number
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, Number.class, (left, right) -> left.clone().multiply(right.doubleValue()), (left, right) -> {
 			double number = left.doubleValue();
 			Vector leftVector = new Vector(number, number, number);
 			return leftVector.multiply(right);
 		});
-		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, (left, right) -> left.clone().divide(right));
 		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, Number.class, (left, right) -> {
 			double number = right.doubleValue();
 			Vector rightVector = new Vector(number, number, number);
@@ -81,15 +84,18 @@ public class DefaultOperations {
 			(left, right) -> new Vector(Math.abs(left.getX() - right.getX()), Math.abs(left.getY() - right.getY()), Math.abs(left.getZ() - right.getZ())));
 		Arithmetics.registerDefaultValue(Vector.class, Vector::new);
 
+		// Timespan - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(left.getMilliSeconds() + right.getMilliSeconds()));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
+		// Date - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
 		Arithmetics.registerDifference(Date.class, Timespan.class, Date::difference);
 
+		// Money - Money
 		Arithmetics.registerOperation(Operator.ADDITION, Money.class, (left, right) -> new Money(left.getAmount() + right.getAmount()));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Money.class, (left, right) -> new Money(left.getAmount() - right.getAmount()));
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Money.class, (left, right) -> new Money(left.getAmount() * right.getAmount()));

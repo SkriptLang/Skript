@@ -21,6 +21,7 @@ package org.skriptlang.skript.lang.arithmetic;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,6 +91,16 @@ public final class Arithmetics {
 					&& handler.getRight().isAssignableFrom(right)
 					&& handler.getReturnType().isAssignableFrom(returnType))
 			.findFirst().orElse(null);
+	}
+
+	public static OperationInfo<?, ?, ?> lookupOperation(Operator operator, Class<?> left, Class<?> right) {
+		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
+			if (!info.getLeft().isAssignableFrom(left) && !info.getRight().isAssignableFrom(right))
+				continue;
+			if (Converters.converterExists(left, info.getLeft()) && Converters.converterExists(right, info.getLeft()))
+				return info;
+		}
+		return null;
 	}
 
 	@Nullable

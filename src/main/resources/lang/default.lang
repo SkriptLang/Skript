@@ -1947,7 +1947,7 @@ operators:
 	subtract: subtraction
 	multiply: multiplication
 	divide: division
-	exponent: exponentiation
+	exponentiate: exponentiation
 
 # -- Types --
 types:

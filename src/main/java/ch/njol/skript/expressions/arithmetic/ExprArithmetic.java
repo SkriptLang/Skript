@@ -18,32 +18,31 @@
  */
 package ch.njol.skript.expressions.arithmetic;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -58,12 +57,12 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 @SuppressWarnings("null")
 public class ExprArithmetic extends SimpleExpression<Object> {
 	
-	private static Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
+	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 	
 	private static class PatternInfo {
-		public Operator operator;
-		public boolean leftGrouped;
-		public boolean rightGrouped;
+		public final Operator operator;
+		public final boolean leftGrouped;
+		public final boolean rightGrouped;
 		
 		public PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 			this.operator = operator;
@@ -72,7 +71,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		}
 	}
 	
-	private static Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
+	private static final Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
 
 		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, true, true)},
 		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, true, false)},
@@ -111,7 +110,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	private Class<?> returnType;
 	
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
-	private List<Object> chain = new ArrayList<>();
+	private final List<Object> chain = new ArrayList<>();
 	
 	// A parsed chain, like a tree
 	private ArithmeticGettable<?> arithmeticGettable;
@@ -119,7 +118,7 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	private boolean leftGrouped, rightGrouped;
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
+	@SuppressWarnings({"ConstantConditions", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		first = LiteralUtils.defendExpression(exprs[0]);
 		second = LiteralUtils.defendExpression(exprs[1]);
@@ -135,12 +134,27 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		op = patternInfo.operator;
 		OperationInfo<?, ?, ?> operationInfo = null;
 
-		if ((!hasHandlers(firstClass, secondClass))
-				|| (firstClass != Object.class
-				&& secondClass != Object.class
-				&& (operationInfo = Arithmetics.findOperation(op, firstClass, secondClass)) == null)) {
-			return error(firstClass, secondClass);
+		Expression<?> convertedLeft, convertedRight;
+		boolean hasOperation = false;
+		for (OperationInfo<?, ?, ?> info : Arithmetics.getOperations(op)) {
+			if (!info.getLeft().isAssignableFrom(firstClass) && !info.getRight().isAssignableFrom(secondClass))
+				continue;
+
+			hasOperation = true;
+			convertedLeft = first.getConvertedExpression(info.getLeft());
+			convertedRight = second.getConvertedExpression(info.getRight());
+			if (convertedLeft != null && convertedRight != null) {
+				first = convertedLeft;
+				second = convertedRight;
+				operationInfo = info;
+				break;
+			}
 		}
+
+		if (!hasOperation && (firstClass != Object.class || secondClass != Object.class))
+			return error(firstClass, secondClass);
+		if (operationInfo == null && firstClass != Object.class && secondClass != Object.class)
+			return error(firstClass, secondClass);
 
 		returnType = operationInfo == null ? Object.class : operationInfo.getReturnType();
 
@@ -151,8 +165,8 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 				boolean firstIsInt = false;
 				boolean secondIsInt = false;
 				for (Class<?> i : INTEGER_CLASSES) {
-					firstIsInt |= i.isAssignableFrom(firstClass);
-					secondIsInt |= i.isAssignableFrom(secondClass);
+					firstIsInt |= i.isAssignableFrom(first.getReturnType());
+					secondIsInt |= i.isAssignableFrom(second.getReturnType());
 				}
 
 				returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
@@ -173,9 +187,8 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		}
 
 		arithmeticGettable = ArithmeticChain.parse(chain);
-		if (arithmeticGettable == null) {
+		if (arithmeticGettable == null)
 			return error(firstClass, secondClass);
-		}
 
 		return true;
 	}
@@ -192,14 +205,6 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
 		Skript.error(op.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
 		return false;
-	}
-
-	private boolean hasHandlers(Class<?>... classes) {
-		for (Class<?> type : classes) {
-			if (type != Object.class && Arithmetics.getOperations(op, type).size() == 0)
-				return false;
-		}
-		return true;
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.converter.Converters;
 
 public class ArithmeticChain implements ArithmeticGettable<Object> {
 
@@ -92,10 +93,15 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 			return left;
 
 		if (operationInfo == null) {
-			operationInfo = Arithmetics.findOperation(operator, leftClass, rightClass);
+			operationInfo = Arithmetics.lookupOperation(operator, leftClass, rightClass);
 			if (operationInfo == null)
 				return null;
 		}
+
+		if (!operationInfo.getLeft().isAssignableFrom(leftClass))
+			left = Converters.convert(left, operationInfo.getLeft());
+		if (!operationInfo.getRight().isAssignableFrom(rightClass))
+			right = Converters.convert(right, operationInfo.getRight());
 
 		return operationInfo.getOperation().calculate(left, right);
 	}

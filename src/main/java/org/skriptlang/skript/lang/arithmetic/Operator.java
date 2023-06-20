@@ -34,7 +34,7 @@ public enum Operator {
 	SUBTRACTION('-', "subtract"),
 	MULTIPLICATION('*', "multiply"),
 	DIVISION('/', "divide"),
-	EXPONENTIATION('^', "exponent");
+	EXPONENTIATION('^', "exponentiate");
 
 	private final char sign;
 	private final Noun m_name;
