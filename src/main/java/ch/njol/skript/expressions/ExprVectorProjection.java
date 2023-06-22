@@ -28,35 +28,39 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Random;
+@Name("Vectors - Vector Projection")
+@Description("An expression to get the vector projection of two vectors.")
+@Examples("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
+@Since("INSERT VERSION")
+public class ExprVectorProjection extends SimpleExpression<Vector> {
 
-@Name("Vectors - Random Vector")
-@Description("Creates a random unit vector.")
-@Examples("set {_v} to a random vector")
-@Since("2.2-dev28, 2.7 (signed components)")
-public class ExprVectorRandom extends SimpleExpression<Vector> {
-
-	private static final Random RANDOM = new Random();
-	
 	static {
-		Skript.registerExpression(ExprVectorRandom.class, Vector.class, ExpressionType.SIMPLE, "[a] random vector");
+		Skript.registerExpression(ExprVectorProjection.class, Vector.class, ExpressionType.COMBINED, "[vector] projection [of] %vector% on[to] %vector%");
 	}
 
+	private Expression<Vector> left, right;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.left = (Expression<Vector>) exprs[0];
+		this.right = (Expression<Vector>) exprs[1];
 		return true;
 	}
 
 	@Override
+	@Nullable
 	protected Vector[] get(Event event) {
-		// Generating uniform random numbers leads to bias towards the corners of the cube.
-		// Gaussian distribution is radially symmetric, so it avoids this bias.
-		return CollectionUtils.array(new Vector(RANDOM.nextGaussian(), RANDOM.nextGaussian(), RANDOM.nextGaussian()).normalize());
+		Vector left = this.left.getOptionalSingle(event).orElse(new Vector());
+		Vector right = this.right.getOptionalSingle(event).orElse(new Vector());
+		double dot = left.dot(right);
+		double length = right.lengthSquared();
+		double scalar = dot / length;
+		return new Vector[] {right.clone().multiply(scalar)};
 	}
 
 	@Override
@@ -71,7 +75,7 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "random vector";
+		return "vector projection of " + left.toString(event, debug) + " onto " + right.toString(event, debug);
 	}
 
 }

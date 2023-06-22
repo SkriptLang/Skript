@@ -16,38 +16,43 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.conditions;
+
+import org.bukkit.entity.LivingEntity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
-import org.bukkit.entity.Egg;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-@Name("The Egg")
-@Description("The egg thrown in a Player Egg Throw event.")
-@Examples("spawn an egg at the egg")
-@Events("Egg Throw")
-@Since("2.7")
-public class ExprEgg extends EventValueExpression<Egg> {
+@Name("Is Climbing")
+@Description("Whether a living entity is climbing, such as a spider up a wall or a player on a ladder.")
+@Examples({
+	"spawn a spider at location of spawn",
+	"wait a second",
+	"if the last spawned spider is climbing:",
+		"\tmessage\"The spider is now climbing!\""
+})
+@RequiredPlugins("Minecraft 1.17+")
+@Since("INSERT VERSION")
+public class CondIsClimbing extends PropertyCondition<LivingEntity> {
 
 	static {
-		Skript.registerExpression(ExprEgg.class, Egg.class, ExpressionType.SIMPLE, "[the] [thrown] egg");
-	}
-
-	public ExprEgg() {
-		super(Egg.class, true);
+		if (Skript.methodExists(LivingEntity.class, "isClimbing"))
+			register(CondIsClimbing.class, "climbing", "livingentities");
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the egg";
+	public boolean check(LivingEntity entity) {
+		return entity.isClimbing();
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "climbing";
 	}
 
 }
