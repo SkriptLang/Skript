@@ -249,7 +249,7 @@ public class Environment {
 		if (!verbosity.equalsIgnoreCase("null"))
 			args.add("-Dskript.testing.verbosity=" + verbosity);
 		if (genDocs)
-			args.add("-Dskript.forceregisterhooks");
+			args.add("-Dskript.forceregisterhooks=true");
 		args.add("-Dskript.testing.results=test_results.json");
 		args.add("-Ddisable.watchdog=true");
 		if (debug)
