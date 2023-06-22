@@ -1299,6 +1299,8 @@ damage causes:
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
 	sonic_boom: sonic boom
+	kill: kill, killed
+	world_border: world border
 
 # -- Teleport Causes --
 teleport causes:
