@@ -1106,6 +1106,18 @@ public final class BukkitEventValues {
 				return event.getWhoClicked().getWorld();
 			}
 		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
+			@Override
+			public @Nullable ItemStack get(InventoryDragEvent event) {
+				return event.getOldCursor();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
+			@Override
+			public @Nullable ItemStack get(InventoryDragEvent event) {
+				return event.getCursor();
+			}
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack[].class, new Getter<ItemStack[], InventoryDragEvent>() {
 			@Override
 			public @Nullable ItemStack[] get(InventoryDragEvent event) {
@@ -1122,6 +1134,7 @@ public final class BukkitEventValues {
 					int slot = view.convertSlot(rawSlot);
 					if (inventory == null)
 						continue;
+					// Not all indices point to inventory slots. Equipment, for example
 					if (inventory instanceof PlayerInventory && slot >= 36) {
 						slots.add(new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) view.getBottomInventory()).getHolder(), slot));
 					} else {
@@ -1141,12 +1154,10 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Inventory[] get(InventoryDragEvent event) {
-				Set<Inventory> inventories = new HashSet<>(2);
+				Set<Inventory> inventories = new HashSet<>();
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
 					inventories.add(view.getInventory(rawSlot));
-					if (inventories.size() == 2)
-						break;
 				}
 				return inventories.toArray(new Inventory[0]);
 			}
