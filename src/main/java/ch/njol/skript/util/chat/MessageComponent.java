@@ -89,6 +89,9 @@ public class MessageComponent {
 	 */
 	@Nullable
 	public String font;
+
+	@Nullable
+	public String translation;
 	
 	public static class ClickEvent {
 		public ClickEvent(ClickEvent.Action action, String value) {

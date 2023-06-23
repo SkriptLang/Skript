@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -309,6 +308,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (item.getType() != getType()) {
 			return MatchQuality.DIFFERENT;
 		}
+
 		BlockValues values = blockValues;
 		// Items (held in inventories) don't have block values
 		// If this is an item, given item must not have them either
@@ -342,7 +342,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 		
 		// See if we need to compare item metas (excluding durability)
-		if (quality.isAtLeast(MatchQuality.SAME_ITEM)) { // Item meta checks could lower this
+		if (quality.isAtLeast(MatchQuality.SAME_ITEM) && stack.hasItemMeta() || item.stack.hasItemMeta()) { // Item meta checks could lower this
 			MatchQuality metaQuality = compareItemMetas(getItemMeta(), item.getItemMeta());
 			
 			// If given item doesn't care about meta, promote to SAME_ITEM
@@ -415,18 +415,25 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		}
 
 		// awful but we have to make these values the same so that they don't matter for comparison
-		second = second.clone(); // don't actually change it
+		// clone to avoid affecting user
+		first = first.clone();
+		second = second.clone();
 
-		second.setDisplayName(ourName); // set our name
-		second.setLore(ourLore); // set our lore
-		for (Enchantment theirEnchant : theirEnchants.keySet()) // remove their enchants
+		first.setDisplayName(null);
+		second.setDisplayName(null);
+
+		first.setLore(null);
+		second.setLore(null);
+
+		for (Enchantment ourEnchant : ourEnchants.keySet())
+			first.removeEnchant(ourEnchant);
+		for (Enchantment theirEnchant : theirEnchants.keySet())
 			second.removeEnchant(theirEnchant);
-		for (Entry<Enchantment, Integer> ourEnchant : ourEnchants.entrySet()) // add our enchants
-			second.addEnchant(ourEnchant.getKey(), ourEnchant.getValue(), true);
-		for (ItemFlag theirFlag : theirFlags) // remove their flags
+
+		for (ItemFlag ourFlag : ourFlags)
+			first.removeItemFlags(ourFlag);
+		for (ItemFlag theirFlag : theirFlags)
 			second.removeItemFlags(theirFlag);
-		for (ItemFlag ourFlag : ourFlags) // add our flags
-			second.addItemFlags(ourFlag);
 
 		return first.equals(second) ? quality : MatchQuality.SAME_MATERIAL;
 	}
@@ -587,6 +594,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (stack.hasItemMeta()) {
 			ItemMeta meta = stack.getItemMeta(); // Creates a copy
 			meta.setDisplayName(null); // Clear display name
+			if (!itemFactory.getItemMeta(type).equals(meta)) // there may be different tags (e.g. potions)
+				data.itemFlags |= ItemFlags.CHANGED_TAGS;
 			data.stack.setItemMeta(meta);
 		}
 		ItemUtils.setDamage(data.stack, 0); // Set to undamaged
@@ -595,34 +604,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		data.blockValues = blockValues;
 		data.itemForm = itemForm;
 		return data;
-	}
-
-	/**
-	 * Applies an item meta to this item. Currently, it copies the following,
-	 * provided that they exist in given meta:
-	 * <ul>
-	 * <li>Lore
-	 * <li>Display name
-	 * <li>Enchantments
-	 * <li>Item flags
-	 * </ul>
-	 * @param meta Item meta.
-	 */
-	public void applyMeta(ItemMeta meta) {
-		ItemMeta our = getItemMeta();
-		if (meta.hasLore())
-			our.setLore(meta.getLore());
-		if (meta.hasDisplayName())
-			our.setDisplayName(meta.getDisplayName());
-		if (meta.hasEnchants()) {
-			for (Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet()) {
-				our.addEnchant(entry.getKey(), entry.getValue(), true);
-			}
-		}
-		for (ItemFlag flag : meta.getItemFlags()) {
-			our.addItemFlags(flag);
-		}
-		setItemMeta(meta);
 	}
 	
 	/**

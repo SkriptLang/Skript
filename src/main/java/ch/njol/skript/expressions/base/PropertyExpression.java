@@ -112,14 +112,15 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @return An array containing the converted values
 	 * @throws ArrayStoreException if the converter returned invalid values
 	 */
-	protected T[] get(final F[] source, final Converter<? super F, ? extends T> converter) {
+	@SuppressWarnings("deprecation") // for backwards compatibility
+	protected T[] get(final F[] source, final ch.njol.skript.classes.Converter<? super F, ? extends T> converter) {
 		assert source != null;
 		assert converter != null;
-		return Converters.convertUnsafe(source, getReturnType(), converter);
+		return ch.njol.skript.registrations.Converters.convertUnsafe(source, getReturnType(), converter);
 	}
 
 	@Override
-	public final boolean isSingle() {
+	public boolean isSingle() {
 		return expr.isSingle();
 	}
 
