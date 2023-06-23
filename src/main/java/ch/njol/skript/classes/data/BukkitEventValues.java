@@ -1096,37 +1096,43 @@ public final class BukkitEventValues {
 		// InventoryDragEvent
 		EventValues.registerEventValue(InventoryDragEvent.class, Player.class, new Getter<Player, InventoryDragEvent>() {
 			@Override
-			public @Nullable Player get(InventoryDragEvent event) {
+			@Nullable
+			public Player get(InventoryDragEvent event) {
 				return event.getWhoClicked() instanceof Player ? (Player) event.getWhoClicked() : null;
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, World.class, new Getter<World, InventoryDragEvent>() {
 			@Override
-			public @Nullable World get(InventoryDragEvent event) {
+			@Nullable
+			public World get(InventoryDragEvent event) {
 				return event.getWhoClicked().getWorld();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
 			@Override
-			public @Nullable ItemStack get(InventoryDragEvent event) {
+			@Nullable
+			public ItemStack get(InventoryDragEvent event) {
 				return event.getOldCursor();
 			}
 		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
 			@Override
-			public @Nullable ItemStack get(InventoryDragEvent event) {
+			@Nullable
+			public ItemStack get(InventoryDragEvent event) {
 				return event.getCursor();
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack[].class, new Getter<ItemStack[], InventoryDragEvent>() {
 			@Override
-			public @Nullable ItemStack[] get(InventoryDragEvent event) {
+			@Nullable
+			public ItemStack[] get(InventoryDragEvent event) {
 				return event.getNewItems().values().toArray(new ItemStack[0]);
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, Slot[].class, new Getter<Slot[], InventoryDragEvent>() {
 			@Override
-			public @Nullable Slot[] get(InventoryDragEvent event) {
+			@Nullable
+			public Slot[] get(InventoryDragEvent event) {
 				List<Slot> slots = new ArrayList<>(event.getRawSlots().size());
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
@@ -1146,7 +1152,8 @@ public final class BukkitEventValues {
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryDragEvent.class, ClickType.class, new Getter<ClickType, InventoryDragEvent>() {
 			@Override
-			public @Nullable ClickType get(InventoryDragEvent event) {
+			@Nullable
+			public ClickType get(InventoryDragEvent event) {
 				return event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
 			}
 		}, EventValues.TIME_NOW);
