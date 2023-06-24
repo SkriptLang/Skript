@@ -62,7 +62,7 @@ public class ExprQuitReason extends EventValueExpression<QuitReason> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "quit reason";
 	}
 
