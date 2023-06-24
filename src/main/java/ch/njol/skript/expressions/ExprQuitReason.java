@@ -40,7 +40,7 @@ import ch.njol.skript.registrations.EventValues;
 		"\tplayer is banned",
 		"\tclear {server::player::%uuid of player%::*}"
 })
-@RequiredPlugins("Paper")
+@RequiredPlugins("Paper 1.16.5+")
 @Since("INSERT VERSION")
 public class ExprQuitReason extends EventValueExpression<QuitReason> {
 

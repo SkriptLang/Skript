@@ -1509,7 +1509,7 @@ public class BukkitClasses {
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
 					.description("Represents a quit reason from a player quit server event.")
-					.requiredPlugins("Paper")
+					.requiredPlugins("Paper 1.16.5+")
 					.since("INSERT VERSION"));
 	}
 }
