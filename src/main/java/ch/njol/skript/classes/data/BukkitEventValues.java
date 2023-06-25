@@ -101,9 +101,11 @@ import org.bukkit.event.hanging.HangingEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.DragType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -145,13 +147,17 @@ import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Peter Güttinger
@@ -1087,6 +1093,82 @@ public final class BukkitEventValues {
 				return e.getClickedInventory();
 			}
 		}, 0);
+		// InventoryDragEvent
+		EventValues.registerEventValue(InventoryDragEvent.class, Player.class, new Getter<Player, InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public Player get(InventoryDragEvent event) {
+				return event.getWhoClicked() instanceof Player ? (Player) event.getWhoClicked() : null;
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, World.class, new Getter<World, InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public World get(InventoryDragEvent event) {
+				return event.getWhoClicked().getWorld();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(InventoryDragEvent event) {
+				return event.getOldCursor();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack.class, new Getter<ItemStack, InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(InventoryDragEvent event) {
+				return event.getCursor();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, ItemStack[].class, new Getter<ItemStack[], InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public ItemStack[] get(InventoryDragEvent event) {
+				return event.getNewItems().values().toArray(new ItemStack[0]);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, Slot[].class, new Getter<Slot[], InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public Slot[] get(InventoryDragEvent event) {
+				List<Slot> slots = new ArrayList<>(event.getRawSlots().size());
+				InventoryView view = event.getView();
+				for (Integer rawSlot : event.getRawSlots()) {
+					Inventory inventory = view.getInventory(rawSlot);
+					int slot = view.convertSlot(rawSlot);
+					if (inventory == null)
+						continue;
+					// Not all indices point to inventory slots. Equipment, for example
+					if (inventory instanceof PlayerInventory && slot >= 36) {
+						slots.add(new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) view.getBottomInventory()).getHolder(), slot));
+					} else {
+						slots.add(new InventorySlot(inventory, view.convertSlot(rawSlot)));
+					}
+				}
+				return slots.toArray(new Slot[0]);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, ClickType.class, new Getter<ClickType, InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public ClickType get(InventoryDragEvent event) {
+				return event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryDragEvent.class, Inventory[].class, new Getter<Inventory[], InventoryDragEvent>() {
+			@Override
+			@Nullable
+			public Inventory[] get(InventoryDragEvent event) {
+				Set<Inventory> inventories = new HashSet<>();
+				InventoryView view = event.getView();
+				for (Integer rawSlot : event.getRawSlots()) {
+					inventories.add(view.getInventory(rawSlot));
+				}
+				return inventories.toArray(new Inventory[0]);
+			}
+		}, EventValues.TIME_NOW);
 		// PrepareAnvilEvent
 		EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, new Getter<ItemStack, PrepareAnvilEvent>() {
 			@Override
