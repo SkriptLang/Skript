@@ -77,7 +77,11 @@ public class EffPush extends Effect {
 			final Vector mod = d.getDirection(en);
 			if (v != null)
 				mod.normalize().multiply(v.doubleValue());
-			en.setVelocity(en.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players
+			try {
+				en.setVelocity(en.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players
+			} catch (IllegalArgumentException ignored) {
+				// The vector is zero length, so do nothing
+			}
 		}
 	}
 	
