@@ -702,18 +702,59 @@ public class AliasesParser {
 	
 	/**
 	 * Fixes an alias name by trimming it and removing all extraneous spaces
-	 * between the words.
+	 * between the words or before broken pipe characters (¦).
 	 * @param name Name to be fixed.
 	 * @return Name fixed.
 	 */
 	protected String fixName(String name) {
-		String result = org.apache.commons.lang.StringUtils.normalizeSpace(name);
-		
-		int i = result.indexOf('¦');
-		
-		if (i != -1 && Character.isWhitespace(result.codePointBefore(i)))
-			result = result.substring(0, i - 1) + result.substring(i);
-		return result;
+		/*
+		 * General logic:
+		 *
+		 * We rebuild the string from scratch, but skip any whitespace if
+		 * 	1. The previous character was also whitespace
+		 * 	2. The next character is a broken pipe (¦)
+		 *        - The broken pipe is used to separate the singular and plural forms of the alias
+		 *        - We want to allow a space before it for readability
+		 *        - We also don't want to literally include the space in the alias
+		 *
+		 * We also keep track of the first and last non-whitespace characters to trim the string manually.
+		 * Since we're also skipping whitespace, we need to keep track of how many characters we've skipped
+		 * so that our indices for those characters aren't misaligned.
+		 * */
+
+		StringBuilder sb = new StringBuilder(name.length());
+
+		int firstNonWhitespace = -1;
+		int lastNonWhitespace = -1;
+		int lastWhitespace = -1;
+		int stripped = 0;
+
+		for (int i = 0; i < name.length(); ++i) {
+			char c = name.charAt(i);
+			if (c > ' ') {
+				// The index will be off by the number of characters we've stripped so far
+				int adjustedIndex = i - stripped;
+
+				if (firstNonWhitespace == -1)
+					firstNonWhitespace = adjustedIndex;
+				lastNonWhitespace = adjustedIndex;
+			} else {
+				int oldLastWhitespace = lastWhitespace;
+				lastWhitespace = i;
+
+				if (
+					(oldLastWhitespace != -1 && oldLastWhitespace == i - 1)
+					|| (i < name.length() - 1 && name.charAt(i + 1) == '¦')
+				) {
+					stripped++;
+					continue;
+				}
+			}
+
+			sb.append(c);
+		}
+
+		return sb.substring(firstNonWhitespace, lastNonWhitespace + 1);
 	}
 	
 	public void registerCondition(String name, Function<String, Boolean> condition) {
