@@ -62,6 +62,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
@@ -1458,29 +1459,29 @@ public class BukkitClasses {
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-			.user("enchant[ment][ ]offers?")
-			.name("Enchantment Offer")
-			.description("The enchantmentoffer in an enchant prepare event.")
-			.examples("on enchant prepare:",
-				"\tset enchant offer 1 to sharpness 1",
-				"\tset the cost of enchant offer 1 to 10 levels")
-			.since("2.5")
-			.parser(new Parser<EnchantmentOffer>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(EnchantmentOffer eo, int flags) {
-					return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
-				}
-
-				@Override
-				public String toVariableNameString(EnchantmentOffer eo) {
-					return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-				}
-			}));
+				.user("enchant[ment][ ]offers?")
+				.name("Enchantment Offer")
+				.description("The enchantmentoffer in an enchant prepare event.")
+				.examples("on enchant prepare:",
+					"\tset enchant offer 1 to sharpness 1",
+					"\tset the cost of enchant offer 1 to 10 levels")
+				.since("2.5")
+				.parser(new Parser<EnchantmentOffer>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+	
+					@Override
+					public String toString(EnchantmentOffer eo, int flags) {
+						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+					}
+	
+					@Override
+					public String toVariableNameString(EnchantmentOffer eo) {
+						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+					}
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
 				.user("attribute ?types?")
@@ -1495,13 +1496,20 @@ public class BukkitClasses {
 				.description("Represents the environment of a world.")
 				.since("2.7"));
 
-		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
 			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
-				.user("(lunar|moon) ?phases?")
-				.name("Moon Phase")
-				.description("Represents the phase of a moon.")
-				.since("2.7")
-				.requiredPlugins("Paper 1.16+"));
-		}
+					.user("(lunar|moon) ?phases?")
+					.name("Moon Phase")
+					.description("Represents the phase of a moon.")
+					.requiredPlugins("Paper 1.16+")
+					.since("2.7"));
+
+		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
+			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
+					.user("(quit|disconnect) ?(reason|cause)s?")
+					.name("Quit Reason")
+					.description("Represents a quit reason from a player quit server event.")
+					.requiredPlugins("Paper 1.16.5+")
+					.since("INSERT VERSION"));
 	}
 }
