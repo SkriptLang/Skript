@@ -20,21 +20,31 @@ package ch.njol.skript.expressions.base;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -142,7 +152,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			throw new SkriptAPIException(this.getClass().getName() + " has expressions in its pattern but does not override init(...)");
 		return init();
 	}
-	
+
 	@Override
 	public boolean init() {
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
@@ -157,6 +167,12 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				if (getters.containsKey(event)) {
 					hasValue = getters.get(event) != null;
 					continue;
+				}
+				if (EventValues.hasMultipleGetters(event, c, getTime()) == Kleenean.TRUE) {
+					Noun typeName = Classes.getExactClassInfo(componentType).getName();
+					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(getParser().getCurrentEventName()) + " event. " +
+							"You must define which " + typeName + " to use.");
+					return false;
 				}
 				Getter<? extends T, ?> getter;
 				if (exact) {
