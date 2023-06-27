@@ -1299,6 +1299,8 @@ damage causes:
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
 	sonic_boom: sonic boom
+	kill: kill, killed
+	world_border: world border
 
 # -- Teleport Causes --
 teleport causes:
@@ -1930,6 +1932,13 @@ moon phases:
 	waxing_crescent: waxing crescent
 	waxing_gibbous: waxing gibbous
 
+# -- Quit Reasons --
+quit reasons:
+	disconnected: disconnected, quit
+	erroneous_state: erroneous, erroneous state
+	kicked: kicked
+	timed_out: timed out
+
 # -- Boolean --
 boolean:
 	true:
@@ -1998,6 +2007,7 @@ types:
 	resourcepackstate: resource pack state¦s @a
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
+	quitreason: quit reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

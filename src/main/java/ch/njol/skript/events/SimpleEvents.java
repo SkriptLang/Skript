@@ -59,6 +59,7 @@ import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -671,7 +672,7 @@ public class SimpleEvents {
 				"Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format.",
 				"Use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
 			)
-      .examples(
+			.examples(
 				"on chat:",
 				"\tif player has permission \"owner\":",
 				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
@@ -680,7 +681,7 @@ public class SimpleEvents {
 				"\telse: #default message format",
 				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
 			)
-      .since("1.4.1");
+			.since("1.4.1");
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
 				.description(
@@ -710,15 +711,26 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 
-			Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
 				.description("Called when a player picks up an arrow from the ground.")
 				.examples(
 						"on arrow pickup:",
-							"\tcancel the event",
-							"\tteleport event-projectile to block 5 above event-projectile"
+								"\tcancel the event",
+								"\tteleport event-projectile to block 5 above event-projectile"
 				)
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
+
+		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
+				.description("Called when a player drags an item in their cursor across the inventory.")
+				.examples(
+						"on inventory drag:",
+						"\tif player's current inventory is {_gui}:",
+						"\t\tsend \"You can't drag your items here!\" to player",
+						"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
+
 	}
 
 }
