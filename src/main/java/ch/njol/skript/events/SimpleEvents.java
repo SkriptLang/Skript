@@ -80,6 +80,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -709,6 +710,16 @@ public class SimpleEvents {
 					.since("2.7")
 					.requiredPlugins("Paper 1.16+");
 		}
+
+		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+				.description("Called when a player picks up an arrow from the ground.")
+				.examples(
+						"on arrow pickup:",
+								"\tcancel the event",
+								"\tteleport event-projectile to block 5 above event-projectile"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
 				.description("Called when a player drags an item in their cursor across the inventory.")
