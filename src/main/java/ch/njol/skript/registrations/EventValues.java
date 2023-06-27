@@ -174,8 +174,8 @@ public class EventValues {
 			// We don't care for exact duplicates. Prefer Skript's over any addon.
 			if (info.event.equals(event) && info.c.equals(type))
 				return;
-			// If the events do match, we prefer the bottom subclass event.
-			// If the events match, we prefer the bottom subclass type.
+			// If the events don't match, we prefer the highest subclass event.
+			// If the events match, we prefer the highest subclass type.
 			if (!info.event.equals(event) ? info.event.isAssignableFrom(event) : info.c.isAssignableFrom(type)) {
 				eventValues.add(i, new EventValueInfo<>(event, type, getter, excludeErrorMessage, excludes));
 				return;
