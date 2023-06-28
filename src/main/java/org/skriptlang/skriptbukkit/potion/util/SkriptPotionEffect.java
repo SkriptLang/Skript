@@ -65,6 +65,16 @@ public class SkriptPotionEffect {
 		return this;
 	}
 
+	public boolean infinite() {
+		return duration == PotionUtils.INFINITE_DURATION;
+	}
+
+	// TODO document that marking an effect as infinite modifies the duration field.
+	public SkriptPotionEffect infinite(boolean infinite) {
+		duration = infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS;
+		return this;
+	}
+
 	public int amplifier() {
 		return amplifier;
 	}
@@ -114,13 +124,19 @@ public class SkriptPotionEffect {
 		StringBuilder builder = new StringBuilder();
 		if (ambient)
 			builder.append("ambient ");
+		boolean infinite = infinite();
+		if (infinite)
+			builder.append("infinite ");
 		builder.append("potion effect of ");
 		builder.append(PotionUtils.toString(potionEffectType));
 		builder.append(" ");
 		builder.append(amplifier + 1);
 		if (!particles)
 			builder.append(" without particles");
-		builder.append(" for ").append(Timespan.fromTicks_i(duration));
+		if (!icon)
+			builder.append(" without an icon");
+		if (!infinite)
+			builder.append(" for ").append(Timespan.fromTicks_i(duration));
 		return builder.toString();
 	}
 
@@ -132,11 +148,11 @@ public class SkriptPotionEffect {
 			return true;
 		SkriptPotionEffect otherPotion = (SkriptPotionEffect) other;
 		return this.potionEffectType.equals(otherPotion.potionEffectType)
-			&& this.duration == otherPotion.duration
-			&& this.amplifier == otherPotion.amplifier
-			&& this.ambient == otherPotion.ambient
-			&& this.particles == otherPotion.particles
-			&& this.icon == otherPotion.icon;
+				&& this.duration == otherPotion.duration
+				&& this.amplifier == otherPotion.amplifier
+				&& this.ambient == otherPotion.ambient
+				&& this.particles == otherPotion.particles
+				&& this.icon == otherPotion.icon;
 	}
 
 }

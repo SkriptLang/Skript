@@ -47,6 +47,16 @@ public final class PotionUtils {
 	 */
 	public static final String DEFAULT_DURATION_STRING = Timespan.fromTicks_i(DEFAULT_DURATION_TICKS).toString();
 
+	/**
+	 * Whether infinite potion durations are supported by the server version.
+	 * See <a href="https://minecraft.fandom.com/wiki/Commands/effect">https://minecraft.fandom.com/wiki/Commands/effect</a>
+	 */
+	public static final boolean SUPPORTS_INFINITE_DURATION = Skript.methodExists(PotionEffect.class, "isInfinite");
+	/**
+	 * A constant denoting the duration of an infinite potion effect.
+	 * This value is the same as {@link Integer#MAX_VALUE} when {@link #SUPPORTS_INFINITE_DURATION} is false.
+	 */
+	public static final int INFINITE_DURATION = SUPPORTS_INFINITE_DURATION ? PotionEffect.INFINITE_DURATION : Integer.MAX_VALUE;
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
 

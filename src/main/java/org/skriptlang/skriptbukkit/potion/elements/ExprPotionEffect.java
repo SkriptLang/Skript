@@ -47,13 +47,20 @@ import org.eclipse.jdt.annotation.Nullable;
 	"add a potion effect of speed 1 to the potion effects of the player",
 	"apply ambient speed 2 to player for 30 seconds"
 })
-@Since("2.5.2, INSERT VERSION (syntax changes)")
+@Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
 public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
 	static {
+		// syntax sux but is backwards compatible
+		// e.g. you can do an ambient infinite potion effect of potion of speed of tier 2 without particles without an icon
+		String preProperties = "[a[n]] [:ambient] ";
+		String postProperties = " [:without particles] [without icon:without [an] icon]";
 		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.COMBINED,
-				"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] [:without particles] [for %-timespan%]",
-				"[a[n]] [:ambient] %potioneffecttype% [of tier] %number% [potion [effect]] [:without particles] [for %-timespan%]"
+			preProperties + "potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties + " [for %-timespan%]",
+			preProperties + "%potioneffecttype% [of tier] %number% [potion [effect]]" + postProperties + " [for %-timespan%]",
+			preProperties + "infinite potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties,
+			// in the syntax below, the amplifier is optional because the word "infinite" is required, thus allowing "apply infinite speed to player"
+			preProperties + "infinite %potioneffecttype% [[of tier] %-number%] [potion [effect]]" + postProperties
 		);
 	}
 
@@ -63,17 +70,23 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 	private Expression<Number> amplifier;
 	@Nullable
 	private Expression<Timespan> duration;
-	private boolean particles;
 	private boolean ambient;
+	private boolean infinite;
+	private boolean particles;
+	private boolean icon;
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		potionEffectType = (Expression<PotionEffectType>) exprs[0];
 		amplifier = (Expression<Number>) exprs[1];
-		duration = (Expression<Timespan>) exprs[2];
-		particles = !parseResult.hasTag("without particles");
+		infinite = matchedPattern >= 2;
+		if (!infinite)
+			duration = (Expression<Timespan>) exprs[2];
 		ambient = parseResult.hasTag("ambient");
+		particles = !parseResult.hasTag("without particles");
+		icon = !parseResult.hasTag("without icon");
+
 		return true;
 	}
 	
@@ -91,7 +104,7 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 				amplifier = amplifierNumber.intValue() - 1;
 		}
 
-		int duration = PotionUtils.DEFAULT_DURATION_TICKS;
+		int duration = infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS;
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan != null)
@@ -104,6 +117,7 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 						.amplifier(amplifier)
 						.ambient(ambient)
 						.particles(particles)
+						.icon(icon)
 		};
 	}
 	
@@ -122,16 +136,22 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		StringBuilder builder = new StringBuilder();
 		if (ambient)
 			builder.append("ambient ");
+		if (infinite)
+			builder.append("infinite ");
 		builder.append("potion effect of ").append(potionEffectType.toString(event, debug));
 		if (amplifier != null)
 			builder.append(" of tier ").append(amplifier.toString(event, debug));
 		if (!particles)
 			builder.append(" without particles");
-		builder.append(" for ");
-		if (duration != null) {
-			builder.append(duration.toString(event, debug));
-		} else {
-			builder.append(PotionUtils.DEFAULT_DURATION_STRING);
+		if (!icon)
+			builder.append(" without an icon");
+		if (!infinite) {
+			builder.append(" for ");
+			if (duration != null) {
+				builder.append(duration.toString(event, debug));
+			} else {
+				builder.append(PotionUtils.DEFAULT_DURATION_STRING);
+			}
 		}
 		return builder.toString();
 	}
