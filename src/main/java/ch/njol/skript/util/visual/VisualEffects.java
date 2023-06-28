@@ -40,7 +40,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -83,11 +88,11 @@ public class VisualEffects {
 	private static void generateTypes() {
 		List<VisualEffectType> types = new ArrayList<>();
 		Stream.of(Effect.class, EntityEffect.class, Particle.class)
-			.map(Class::getEnumConstants)
-			.flatMap(Arrays::stream)
-			.map(VisualEffectType::of)
-			.filter(Objects::nonNull)
-			.forEach(types::add);
+				.map(Class::getEnumConstants)
+				.flatMap(Arrays::stream)
+				.map(VisualEffectType::of)
+				.filter(Objects::nonNull)
+				.forEach(types::add);
 
 		for (VisualEffectType type : types) {
 			String id = type.getId();
