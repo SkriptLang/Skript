@@ -8,7 +8,7 @@ test "potion effects":
 	assert {_chicken} is poisoned with "The chicken isn't poisoned, but it should be" #CondIsPoisoned
 	unpoison {_chicken} #EffPoison
 	assert {_chicken} is not poisoned with "The chicken is poisoned, but it shouldn't be" #CondIsPoisoned
-	delete {_chicken}
+	delete entity within {_chicken}
 
 	# potion test 1
 
@@ -19,7 +19,7 @@ test "potion effects":
 	assert {_chicken} has potion effect speed with "The first chicken doesn't have speed, but it should" #CondHasPotion
 	clear the potion effects of {_chicken} #ExprPotionEffects
 	assert {_chicken} doesn't have potion effect speed with "The first chicken has speed, but it shouldn't" #CondHasPotion
-	delete {_chicken}
+	delete entity within {_chicken}
 
 	# potion test 2
 	spawn a chicken at spawn of world "world"
@@ -28,16 +28,16 @@ test "potion effects":
 	assert {_chicken} has potion effect haste with "The second chicken doesn't have speed, but it should" #CondHasPotion
 	remove haste from potion effects of {_chicken} #ExprPotionEffects
 	assert {_chicken} doesn't have potion effect haste with "The second chicken has speed, but it shouldn't" #CondHasPotion
-	delete {_chicken}
+	delete entity within {_chicken}
 
 	# potion test 3
 
 	spawn a chicken at spawn of world "world"
 	set {_chicken} to the last spawned chicken
-	set {_potion} to potion effect of speed 1 without particles for 10 minutes
+	set {_potion} to potion effect of speed of tier 1 without particles for 10 minutes
 	add {_potion} to potion effects of {_chicken}
 	assert type of potion effects of {_chicken} contains speed with "the chicken should have had the speed potion type"
-	delete {_chicken}
+	delete entity within {_chicken}
 
 	# potion test 4 (items)
 
@@ -52,3 +52,20 @@ test "potion effects":
 	set {_item} to potion of extended turtle master
 	assert type of potion effects of {_item} contains slowness and resistance with "the item should have the slowness and resistance potion effect types (1) ('%type of potion effects of {_item}%')"
 	assert potion effects of {_item} contains (potion effect of slowness 4 for 40 seconds and potion effect of resistance 3 for 40 seconds) with "the item should have the slowness and resistance potion effect types (2) ('%potion effects of {_item}%')"
+
+	# potion test 5 (infinite durations and icons, CondPotionProperties)
+
+	spawn a chicken at spawn of world "world"
+	set {_chicken} to the last spawned chicken
+	set {_potion} to an infinite potion effect of regeneration without an icon
+	apply {_potion} to {_chicken}
+	assert type of potion effects of {_chicken} contains regeneration with "the chicken should have had the regeneration potion type"
+	assert {_potion} is infinite with "the potion should be infinite but it is not"
+	assert {_potion} does not have an icon with "the potion should have an icon but it does not"
+	assert {_potion} is not ambient with "the potion shouldn't be ambient but it is"
+	assert {_potion} has particles with "the potion should have particles but it does not"
+
+	# make sure this parses
+	apply infinite speed to {_chicken}
+
+	delete entity within {_chicken}
