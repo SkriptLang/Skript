@@ -472,16 +472,16 @@ public class SimpleEvents {
 				.description("Called when a slime splits. Usually this happens when a big slime dies.")
 				.examples("on slime split:")
 				.since("2.2-dev26");
-		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
-			Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
-					.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
-					.examples("on resurrect attempt:",
-							"	entity is player",
-							"	entity has permission \"admin.undying\"",
-							"	uncancel the event")
-					.since("2.2-dev28");
-			SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
-		}
+		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
+				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
+				.examples(
+						"on resurrect attempt:",
+						"\tentity is player",
+						"\tentity has permission \"admin.undying\"",
+						"\tuncancel the event"
+				)
+				.since("2.2-dev28");
+		SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",

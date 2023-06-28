@@ -70,6 +70,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -132,6 +133,7 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -1650,6 +1652,21 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
+
+		// EntityResurrectEvent
+		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
+			@Override
+			@Nullable
+			public Slot get(EntityResurrectEvent event) {
+				EquipmentSlot hand = event.getHand();
+				EntityEquipment equipment = event.getEntity().getEquipment();
+				if (equipment == null || hand == null)
+					return null;
+				return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
+						(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
+						: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			}
+		}, EventValues.TIME_NOW);
 
     // PlayerItemHeldEvent
 		EventValues.registerEventValue(PlayerItemHeldEvent.class, Slot.class, new Getter<Slot, PlayerItemHeldEvent>() {
