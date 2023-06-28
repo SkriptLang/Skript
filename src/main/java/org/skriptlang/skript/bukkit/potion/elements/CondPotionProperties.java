@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skriptbukkit.potion.elements;
+package org.skriptlang.skript.bukkit.potion.elements;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skriptbukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 
 @Name("Potion Properties")
 @Description("Checks whether a potion effect has a certain property such as an infinite duration or particles.")

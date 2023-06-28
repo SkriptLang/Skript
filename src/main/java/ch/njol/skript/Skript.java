@@ -116,7 +116,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
-import org.skriptlang.skriptbukkit.potion.PotionModule;
+import org.skriptlang.skript.bukkit.potion.PotionModule;
 
 import java.io.File;
 import java.io.IOException;
