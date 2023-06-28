@@ -155,4 +155,28 @@ public class SkriptPotionEffect {
 				&& this.icon == otherPotion.icon;
 	}
 
+	/**
+	 * A property of a potion effect.
+	 * This includes properties such as a potion's duration, amplifier, and effect.
+	 */
+	public enum Property {
+		AMBIENT,
+		AMPLIFIER,
+		DURATION,
+		EFFECT,
+		ICON,
+		INFINITE,
+		PARTICLES;
+
+		private final String displayName;
+
+		Property() {
+			displayName = name().toLowerCase();
+		}
+
+		public String displayName() {
+			return displayName;
+		}
+	}
+
 }

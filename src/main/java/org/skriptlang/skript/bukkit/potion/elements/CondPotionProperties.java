@@ -27,6 +27,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
 
 @Name("Potion Properties")
 @Description("Checks whether a potion effect has a certain property such as an infinite duration or particles.")
@@ -40,13 +41,6 @@ public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> 
 	static {
 		register(CondPotionProperties.class, PropertyType.BE, "(AMBIENT:ambient|INFINITE:infinite)", "potioneffects");
 		register(CondPotionProperties.class, PropertyType.HAVE, "(ICON:(an icon|icons)|PARTICLES:particles)", "potioneffects");
-	}
-
-	private enum Property {
-		INFINITE,
-		AMBIENT,
-		PARTICLES,
-		ICON
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -70,7 +64,7 @@ public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> 
 			case PARTICLES:
 				return potionEffect.particles();
 			default:
-				throw new IllegalArgumentException("Invalid Potion Property: " + property);
+				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
 		}
 	}
 
@@ -84,24 +78,13 @@ public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> 
 			case PARTICLES:
 				return PropertyType.HAVE;
 			default:
-				throw new IllegalArgumentException("Invalid Potion Property: " + property);
+				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
 		}
 	}
 
 	@Override
 	protected String getPropertyName() {
-		switch (property) {
-			case AMBIENT:
-				return "ambient";
-			case ICON:
-				return "an icon";
-			case INFINITE:
-				return "infinite";
-			case PARTICLES:
-				return "particles";
-			default:
-				throw new IllegalArgumentException("Invalid Potion Property: " + property);
-		}
+		return (property == Property.ICON ? "an " : "") + property.displayName();
 	}
 
 }
