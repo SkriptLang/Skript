@@ -70,6 +70,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -107,8 +108,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
@@ -130,6 +133,7 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -1649,6 +1653,56 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 
+		// EntityResurrectEvent
+		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
+			@Override
+			@Nullable
+			public Slot get(EntityResurrectEvent event) {
+				EquipmentSlot hand = event.getHand();
+				EntityEquipment equipment = event.getEntity().getEquipment();
+				if (equipment == null || hand == null)
+					return null;
+				return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
+						(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
+						: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			}
+		}, EventValues.TIME_NOW);
+
+    // PlayerItemHeldEvent
+		EventValues.registerEventValue(PlayerItemHeldEvent.class, Slot.class, new Getter<Slot, PlayerItemHeldEvent>() {
+			@Override
+			@Nullable
+			public Slot get(PlayerItemHeldEvent event) {
+				return new InventorySlot(event.getPlayer().getInventory(), event.getNewSlot());
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerItemHeldEvent.class, Slot.class, new Getter<Slot, PlayerItemHeldEvent>() {
+			@Override
+			@Nullable
+			public Slot get(PlayerItemHeldEvent event) {
+				return new InventorySlot(event.getPlayer().getInventory(), event.getPreviousSlot());
+			}
+		}, EventValues.TIME_PAST);
+
+		// PlayerPickupArrowEvent
+		// This event value is restricted to MC 1.14+ due to an API change which has the return type changed
+		// which throws a NoSuchMethodError if used in a 1.13 server.
+		if (Skript.isRunningMinecraft(1, 14))
+			EventValues.registerEventValue(PlayerPickupArrowEvent.class, Projectile.class, new Getter<Projectile, PlayerPickupArrowEvent>() {
+				@Override
+				public Projectile get(PlayerPickupArrowEvent event) {
+					return event.getArrow();
+				}
+			}, EventValues.TIME_NOW);
+
+		EventValues.registerEventValue(PlayerPickupArrowEvent.class, ItemStack.class, new Getter<ItemStack, PlayerPickupArrowEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(PlayerPickupArrowEvent event) {
+				return event.getItem().getItemStack();
+			}
+		}, EventValues.TIME_NOW);
+
 		//PlayerQuitEvent
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
 			EventValues.registerEventValue(PlayerQuitEvent.class, QuitReason.class, new Getter<QuitReason, PlayerQuitEvent>() {
@@ -1658,5 +1712,7 @@ public final class BukkitEventValues {
 					return event.getReason();
 				}
 			}, EventValues.TIME_NOW);
+
 	}
+
 }
