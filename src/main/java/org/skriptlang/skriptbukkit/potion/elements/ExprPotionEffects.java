@@ -42,18 +42,18 @@ import java.util.List;
 
 @Name("Potion Effects")
 @Description({
-		"Returns the active potion effects of entities or items.",
-		"You can clear all potion effects of an entity or item and add or remove a potion effect to/from an entity or item.",
-		"Please note that you can't clear the base potion effects of a potion item. If you wish to do so, just set the item to a water bottle.",
-		"Also note that you can't modify the properties of these potion effects, as they have already been applied."
+	"An expression to obtain the active potion effects of entities or items.",
+	"You can clear all potion effects of an entity or item and add or remove a potion effect to/from an entity or item.",
+	"Note that you can't clear the base potion effects of a potion item. If you wish to do so, just set the item to a water bottle.",
+	"Note that you can't modify the properties of these potion effects, as they have already been applied."
 })
 @Examples({
-		"set {_p::*} to the active potion effects of player",
-		"clear the potion effects of player",
-		"clear the potion effects of player's tool",
-		"add potion effects of player to potion effects of player's tool",
-		"add speed to potion effects of target entity",
-		"remove speed and night vision from potion effects of player"
+	"set {_p::*} to the active potion effects of player",
+	"clear the potion effects of player",
+	"clear the potion effects of player's tool",
+	"add potion effects of player to potion effects of player's tool",
+	"add speed to potion effects of target entity",
+	"remove speed and night vision from potion effects of player"
 })
 @Since("2.5.2, INSERT VERSION (syntax changes, reset support)")
 public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEffect> {
@@ -97,11 +97,8 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	}
 	
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if ((delta == null || delta.length == 0) && mode != ChangeMode.DELETE)
-			return;
-
-		Object[] holders = getExpr().getArray(e);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Object[] holders = getExpr().getArray(event);
 
 		switch (mode) {
 			case ADD:
@@ -156,13 +153,18 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	}
 
 	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
 	public Class<? extends SkriptPotionEffect> getReturnType() {
 		return SkriptPotionEffect.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "active potion effects of " + getExpr().toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the active potion effects of " + getExpr().toString(event, debug);
 	}
 
 }

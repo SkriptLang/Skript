@@ -39,9 +39,14 @@ public final class PotionUtils {
 
 	/**
 	 * 30 seconds is the default length for the /effect command
-	 * https://minecraft.fandom.com/wiki/Commands/effect
+	 * See <a href="https://minecraft.fandom.com/wiki/Commands/effect">https://minecraft.fandom.com/wiki/Commands/effect</a>
 	 */
 	public static final int DEFAULT_DURATION_TICKS = 600;
+	/**
+	 * A string representation of a {@link Timespan} of {@link #DEFAULT_DURATION_TICKS}.
+	 */
+	public static final String DEFAULT_DURATION_STRING = Timespan.fromTicks_i(DEFAULT_DURATION_TICKS).toString();
+
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
 

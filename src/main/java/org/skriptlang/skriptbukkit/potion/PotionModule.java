@@ -21,15 +21,16 @@ package org.skriptlang.skriptbukkit.potion;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skriptbukkit.potion.util.PotionUtils;
 import org.skriptlang.skriptbukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -69,134 +70,136 @@ public class PotionModule {
 
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "potioneffect")
-			.user("potion ?effects?")
-			.name("Potion Effect")
-			.description("A potion effect, including the potion effect type, tier and duration.")
-			.usage("speed of tier 1 for 10 seconds")
-			.since("2.5.2")
-			.parser(new Parser<SkriptPotionEffect>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
+				.user("potion ?effects?")
+				.name("Potion Effect")
+				.description("A potion effect, including the potion effect type, tier and duration.")
+				.usage("speed of tier 1 for 10 seconds")
+				.since("2.5.2")
+				.parser(new Parser<SkriptPotionEffect>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
 
-				@Override
-				public String toString(SkriptPotionEffect potionEffect, int flags) {
-					return potionEffect.toString(flags);
-				}
+					@Override
+					public String toString(SkriptPotionEffect potionEffect, int flags) {
+						return potionEffect.toString(flags);
+					}
 
-				@Override
-				public String toVariableNameString(SkriptPotionEffect potionEffect) {
-					return "potioneffect:" + potionEffect.toPotionEffect().getType().getName();
-				}
-			})
-			.serializer(new Serializer<SkriptPotionEffect>() {
-				@Override
-				public Fields serialize(SkriptPotionEffect potionEffect) {
-					Fields fields = new Fields();
-					fields.putObject("type", potionEffect.potionEffectType().getName());
-					fields.putPrimitive("duration", potionEffect.duration());
-					fields.putPrimitive("amplifier", potionEffect.amplifier());
-					fields.putPrimitive("ambient", potionEffect.ambient());
-					fields.putPrimitive("particles", potionEffect.particles());
-					fields.putPrimitive("icon", potionEffect.icon());
-					return fields;
-				}
+					@Override
+					public String toVariableNameString(SkriptPotionEffect potionEffect) {
+						return "potioneffect:" + potionEffect.toPotionEffect().getType().getName();
+					}
+				})
+				.serializer(new Serializer<SkriptPotionEffect>() {
+					@Override
+					public Fields serialize(SkriptPotionEffect potionEffect) {
+						Fields fields = new Fields();
+						fields.putObject("type", potionEffect.potionEffectType().getName());
+						fields.putPrimitive("duration", potionEffect.duration());
+						fields.putPrimitive("amplifier", potionEffect.amplifier());
+						fields.putPrimitive("ambient", potionEffect.ambient());
+						fields.putPrimitive("particles", potionEffect.particles());
+						fields.putPrimitive("icon", potionEffect.icon());
+						return fields;
+					}
 
-				@Override
-				public void deserialize(SkriptPotionEffect o, Fields f) {
-					assert false;
-				}
+					@Override
+					public void deserialize(SkriptPotionEffect o, Fields f) {
+						assert false;
+					}
 
-				@Override
-				protected SkriptPotionEffect deserialize(Fields fields) throws StreamCorruptedException {
-					String typeName = fields.getObject("type", String.class);
-					assert typeName != null;
-					PotionEffectType type = PotionEffectType.getByName(typeName);
-					if (type == null)
-						throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
+					@Override
+					protected SkriptPotionEffect deserialize(Fields fields) throws StreamCorruptedException {
+						String typeName = fields.getObject("type", String.class);
+						assert typeName != null;
+						PotionEffectType type = PotionEffectType.getByName(typeName);
+						if (type == null)
+							throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
 
-					int duration = fields.getPrimitive("duration", int.class);
-					int amplifier = fields.getPrimitive("amplifier", int.class);
-					boolean ambient = fields.getPrimitive("ambient", boolean.class);
-					boolean particles = fields.getPrimitive("particles", boolean.class);
-					boolean icon = fields.getPrimitive("icon", boolean.class);
+						int duration = fields.getPrimitive("duration", int.class);
+						int amplifier = fields.getPrimitive("amplifier", int.class);
+						boolean ambient = fields.getPrimitive("ambient", boolean.class);
+						boolean particles = fields.getPrimitive("particles", boolean.class);
+						boolean icon = fields.getPrimitive("icon", boolean.class);
 
-					return new SkriptPotionEffect(type).duration(duration).amplifier(amplifier).ambient(ambient).particles(particles).icon(icon);
-				}
+						return new SkriptPotionEffect(type).duration(duration).amplifier(amplifier).ambient(ambient).particles(particles).icon(icon);
+					}
 
-				@Override
-				public boolean mustSyncDeserialization() {
-					return false;
-				}
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
 
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				})
+		);
 
 		Classes.registerClass(new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
-			.user("potion( ?effect)? ?types?") // "type" is non-optional to prevent clashing with potion effects
-			.name("Potion Effect Type")
-			.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-			.usage(StringUtils.join(PotionUtils.getNames(), ", "))
-			.examples(
-				"apply swiftness 5 to the player",
-				"apply potion of speed 2 to the player for 60 seconds",
-				"remove invisibility from the victim"
-			)
-			.since("")
-			.parser(new Parser<PotionEffectType>() {
-				@Override
-				@Nullable
-				public PotionEffectType parse(String s, ParseContext context) {
-					return PotionUtils.fromString(s);
-				}
+				.user("potion( ?effect)? ?types?") // "type" is non-optional to prevent clashing with potion effects
+				.name("Potion Effect Type")
+				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
+				.usage(StringUtils.join(PotionUtils.getNames(), ", "))
+				.examples(
+					"apply swiftness 5 to the player",
+					"apply potion of speed 2 to the player for 60 seconds",
+					"remove invisibility from the victim"
+				)
+				.since("")
+				.supplier(PotionEffectType.values())
+				.parser(new Parser<PotionEffectType>() {
+					@Override
+					@Nullable
+					public PotionEffectType parse(String s, ParseContext context) {
+						return PotionUtils.fromString(s);
+					}
 
-				@Override
-				public String toString(PotionEffectType p, int flags) {
-					return PotionUtils.toString(p, flags);
-				}
+					@Override
+					public String toString(PotionEffectType p, int flags) {
+						return PotionUtils.toString(p, flags);
+					}
 
-				@Override
-				public String toVariableNameString(PotionEffectType p) {
-					return "potioneffecttype:" + p.getName();
-				}
-			})
-			.serializer(new Serializer<PotionEffectType>() {
-				@Override
-				public Fields serialize(final PotionEffectType o) {
-					final Fields f = new Fields();
-					f.putObject("name", o.getName());
-					return f;
-				}
+					@Override
+					public String toVariableNameString(PotionEffectType p) {
+						return "potioneffecttype:" + p.getName();
+					}
+				})
+				.serializer(new Serializer<PotionEffectType>() {
+					@Override
+					public Fields serialize(final PotionEffectType o) {
+						final Fields f = new Fields();
+						f.putObject("name", o.getName());
+						return f;
+					}
 
-				@Override
-				public void deserialize(final PotionEffectType o, final Fields f) {
-					assert false;
-				}
+					@Override
+					public void deserialize(final PotionEffectType o, final Fields f) {
+						assert false;
+					}
 
-				@Override
-				protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
-					final String name = fields.getObject("name", String.class);
-					assert name != null;
-					final PotionEffectType t = PotionEffectType.getByName(name);
-					if (t == null)
-						throw new StreamCorruptedException("Invalid PotionEffectType " + name);
-					return t;
-				}
+					@Override
+					protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
+						final String name = fields.getObject("name", String.class);
+						assert name != null;
+						final PotionEffectType t = PotionEffectType.getByName(name);
+						if (t == null)
+							throw new StreamCorruptedException("Invalid PotionEffectType " + name);
+						return t;
+					}
 
-				@Override
-				public boolean mustSyncDeserialization() {
-					return false;
-				}
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
 
-				@Override
-				public boolean canBeInstantiated() {
-					return false;
-				}
-			})
+					@Override
+					public boolean canBeInstantiated() {
+						return false;
+					}
+				})
 		);
 
 		// Load Syntax

@@ -30,9 +30,9 @@ import ch.njol.skript.doc.Since;
 @Name("Is Poisoned")
 @Description("Checks whether an entity is poisoned.")
 @Examples({
-	"player is poisoned:",
-	"\tcure the player from poison",
-	"\tmessage \"You have been cured!\""
+	"if the player is poisoned:",
+		"\tcure the player from poison",
+		"\tmessage \"You have been cured!\" to the player"
 })
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
@@ -42,8 +42,8 @@ public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 	}
 	
 	@Override
-	public boolean check(LivingEntity e) {
-		return e.hasPotionEffect(PotionEffectType.POISON);
+	public boolean check(LivingEntity entity) {
+		return entity.hasPotionEffect(PotionEffectType.POISON);
 	}
 	
 	@Override

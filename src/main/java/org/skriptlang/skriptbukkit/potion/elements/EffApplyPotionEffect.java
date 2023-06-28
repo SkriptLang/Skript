@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({
 	"apply swiftness 2 to the player",
 	"on join:",
-	"\tapply potion of strength of tier {strength::%player's uuid%} to the player for 999 days",
+		"\tapply potion of strength of tier {strength::%player's uuid%} to the player for 999 days",
 	"apply potion effects of player's tool to player"
 })
 @Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (syntax changes)")
@@ -73,27 +73,28 @@ public class EffApplyPotionEffect extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		SkriptPotionEffect[] potionEffects = this.potionEffects.getArray(e);
+	protected void execute(Event event) {
+		SkriptPotionEffect[] potionEffects = this.potionEffects.getArray(event);
 
 		if (duration != null) {
-			Timespan timespan = duration.getSingle(e);
+			Timespan timespan = duration.getSingle(event);
 			if (timespan != null) {
 				int ticks = (int) timespan.getTicks_i();
 				for (SkriptPotionEffect potionEffect : potionEffects)
+					// TODO not sure if this should actually modify the potion effect
 					potionEffect.duration(ticks);
 			}
 		}
 
-		for (LivingEntity livingEntity : entities.getArray(e)) {
+		for (LivingEntity livingEntity : entities.getArray(event)) {
 			for (PotionEffect potionEffect : PotionUtils.convertSkriptPotionEffects(potionEffects))
 				livingEntity.addPotionEffect(potionEffect);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "apply " + potionEffects.toString(e, debug) + " to " + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "apply " + potionEffects.toString(event, debug) + " to " + entities.toString(event, debug);
 	}
 
 }

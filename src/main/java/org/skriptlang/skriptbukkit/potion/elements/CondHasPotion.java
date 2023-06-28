@@ -36,11 +36,12 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
-@Examples({"if player has potion speed:",
+@Examples({
+	"if player has potion speed:",
 		"\tsend \"You are sonic!\"",
-		"",
-		"if all players have potion effects speed and haste:",
-		"\tbroadcast \"You are ready to MINE!\""})
+	"if all players have potion effects speed and haste:",
+		"\tbroadcast \"You are ready to MINE!\""
+})
 @Since("2.6.1")
 public class CondHasPotion extends Condition {
 
@@ -66,18 +67,20 @@ public class CondHasPotion extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return livingEntities.check(e,
-			livingEntity -> potionEffects.check(e,
-				livingEntity::hasPotionEffect
-			), isNegated()
+	public boolean check(Event event) {
+		return livingEntities.check(event,
+				livingEntity -> potionEffects.check(event,
+						livingEntity::hasPotionEffect
+				), isNegated()
 		);
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, livingEntities,
-				"potion effects " + potionEffects.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(
+				this, PropertyType.HAVE, event, debug, livingEntities,
+				"potion effects " + potionEffects.toString(event, debug)
+		);
 	}
 
 }
