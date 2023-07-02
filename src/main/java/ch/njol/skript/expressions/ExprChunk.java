@@ -84,8 +84,8 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 					.toArray(Chunk[]::new);
 		}
 		return worlds.stream(event)
-			.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
-			.toArray(Chunk[]::new);
+				.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
+				.toArray(Chunk[]::new);
 	}
 
 	@Override
