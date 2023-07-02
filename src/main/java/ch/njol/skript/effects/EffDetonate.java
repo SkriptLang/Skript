@@ -33,7 +33,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Detonate Fireworks")
-@Description("Forces all fireworks to explode immediately, as if it has no remaining fuse.")
+@Description("Forces fireworks to explode immediately, as if they have no remaining fuses.")
 @Examples("detonate all fireworks")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {

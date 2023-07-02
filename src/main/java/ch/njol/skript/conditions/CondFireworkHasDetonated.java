@@ -45,6 +45,7 @@ public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 
 	static {
 		if (Skript.methodExists(Firework.class, "isDetonated"))
+			// The negated pattern of PropertyCondition is not grammatically correct for this syntax
 			Skript.registerCondition(CondFireworkHasDetonated.class, "%projectiles% (has|have) [:not] [been] detonated");
 	}
 
