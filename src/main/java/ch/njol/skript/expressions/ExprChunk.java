@@ -18,9 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -50,10 +48,10 @@ import org.jetbrains.annotations.Nullable;
 public class ExprChunk extends SimpleExpression<Chunk> {
 	
 	static {
-		Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
-			"[the] chunk[s] (of|%-directions%) %locations%",
-			"%locations%'[s] chunk[s]",
-			"[all [of]] [the] loaded chunks (of|in) %worlds%"
+			Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
+				"[all [of]] [the] chunk[s] (of|%-directions%) %locations%",
+				"%locations%'[s] chunk[s]",
+				"[all [of]] [the] loaded chunks (of|in) %worlds%"
 		);
 	}
 
@@ -79,20 +77,15 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	}
 
 	@Override
-	protected @Nullable Chunk[] get(Event event) {
+	protected Chunk[] get(Event event) {
 		if (pattern != 2) {
 			return locations.stream(event)
-				.map(Location::getChunk)
-				.toArray(Chunk[]::new);
+					.map(Location::getChunk)
+					.toArray(Chunk[]::new);
 		}
-		World[] worlds = this.worlds.getArray(event);
-		if (worlds.length == 0)
-			return new Chunk[0];
-		List<Chunk> chunks = new ArrayList<>();
-		for (World world : worlds) {
-			chunks.addAll(Arrays.asList(world.getLoadedChunks()));
-		}
-		return chunks.toArray(new Chunk[0]);
+		return worlds.stream(event)
+			.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
+			.toArray(Chunk[]::new);
 	}
 
 	@Override
@@ -107,8 +100,7 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	@SuppressWarnings("deprecation")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert mode == ChangeMode.RESET;
-		Chunk[] chunks = get(event);
-		for (Chunk chunk : chunks)
+		for (Chunk chunk : get(event))
 			chunk.getWorld().regenerateChunk(chunk.getX(), chunk.getZ());
 	}
 
@@ -127,8 +119,8 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (pattern == 2)
-			return "the loaded chunks of " + worlds.toString(event, debug);
-		return "the chunk at " + locations.toString(event, debug);
+			return "loaded chunks of " + worlds.toString(event, debug);
+		return "chunk at " + locations.toString(event, debug);
 	}
 
 }
