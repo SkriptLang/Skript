@@ -59,7 +59,7 @@ public class EffPotion extends Effect {
 	static {
 		Skript.registerEffect(EffPotion.class,
 				"apply %potioneffects% to %livingentities%",
-				"apply infinit(e|y) [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [particles:without [any] particles] to %livingentities% [replacing:replacing [the] existing effect] [icon:hide [the] [potion] icon]",
+				"apply infinit(e|y) [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [particles:without [any] particles] to %livingentities% [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]",
 				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [particles:without [any] particles] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]"
 		);
 	}
