@@ -44,18 +44,18 @@ import org.bukkit.inventory.Inventory;
 @Since("INSERT VERSION")
 public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
-	public ExprEvtInitiator() {
-		super(Inventory.class);
-	}
-
 	static {
 		Skript.registerExpression(ExprEvtInitiator.class, Inventory.class, ExpressionType.SIMPLE, "[the] [event-]initiator[( |-)inventory]");
+	}
+
+	public ExprEvtInitiator() {
+		super(Inventory.class);
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (!getParser().isCurrentEvent(InventoryMoveItemEvent.class)) {
-			Skript.error("'event-initiator' can only be used in 'inventory item move' event.");
+			Skript.error("'event-initiator' can only be used in an 'inventory item move' event.");
 			return false;
 		}
 		return super.init(exprs, matchedPattern, isDelayed, parser);
@@ -63,7 +63,7 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
 	@Override
 	public String toString() {
-		return "the event-initiator-inventory in 'inventory item move' event";
+		return "event-initiator-inventory in 'inventory item move' event";
 	}
 
 }
