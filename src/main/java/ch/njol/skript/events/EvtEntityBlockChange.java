@@ -69,7 +69,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo())),
 
 		// Covers all possible entity block changes.
-		GENERIC("entity change block");
+		GENERIC("entity change block[s]");
 
 		@Nullable
 		private final Checker<EntityChangeBlockEvent> checker;
