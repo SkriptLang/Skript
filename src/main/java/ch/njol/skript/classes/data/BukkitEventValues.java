@@ -34,6 +34,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
@@ -609,14 +610,37 @@ public final class BukkitEventValues {
 				return e.getEntity();
 			}
 		}, 0);
+
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
 			@Override
 			@Nullable
-			public Block get(final EntityChangeBlockEvent e) {
-				return e.getBlock();
+			public Block get(EntityChangeBlockEvent event) {
+				return event.getBlock();
+			}
+		}, -1);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public Block get(EntityChangeBlockEvent event) {
+				return event.getBlock();
 			}
 		}, 0);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public BlockData get(EntityChangeBlockEvent event) {
+				return event.getBlockData();
+			}
+		}, 0);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public BlockData get(EntityChangeBlockEvent event) {
+				return event.getBlockData();
+			}
+		}, 1);
+
 		// AreaEffectCloudApplyEvent
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, LivingEntity[].class, new Getter<LivingEntity[], AreaEffectCloudApplyEvent>() {
 			@Override

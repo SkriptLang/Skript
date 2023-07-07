@@ -31,12 +31,12 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
 public class EvtEntityBlockChange extends SkriptEvent {
-	
+
 	static {
 		Skript.registerEvent("Enderman/Sheep/Silverfish/Falling Block", EvtEntityBlockChange.class, EntityChangeBlockEvent.class, ChangeEvent.patterns)
 				.description(
@@ -52,9 +52,9 @@ public class EvtEntityBlockChange extends SkriptEvent {
 							"\tevent-entity is a falling dirt",
 							"\tcancel event"
 				)
-				.since("<i>unknown</i>, 2.5.2 (falling block)");
+				.since("<i>unknown</i>, 2.5.2 (falling block), INSERT VERSION (any entity support)");
 	}
-	
+
 	private enum ChangeEvent {
 
 		ENDERMAN_PLACE("enderman place", event -> event.getEntity() instanceof Enderman && !ItemUtils.isAir(event.getTo())),
@@ -66,12 +66,20 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		SILVERFISH_EXIT("silverfish exit", event -> event.getEntity() instanceof Silverfish && ItemUtils.isAir(event.getTo())),
 
 		FALLING_BLOCK_FALLING("falling block fall[ing]", event -> event.getEntity() instanceof FallingBlock && ItemUtils.isAir(event.getTo())),
-		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo()));
+		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo())),
 
-		private final String pattern;
+		// Covers all possible entity block changes.
+		GENERIC("entity change block");
+
+		@Nullable
 		private final Checker<EntityChangeBlockEvent> checker;
+		private final String pattern;
 
-		ChangeEvent(String pattern, Checker<EntityChangeBlockEvent> checker) {
+		ChangeEvent(String pattern) {
+			this(pattern, null);
+		}
+
+		ChangeEvent(String pattern, @Nullable Checker<EntityChangeBlockEvent> checker) {
 			this.pattern = pattern;
 			this.checker = checker;
 		}
@@ -84,8 +92,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 				patterns[i] = values()[i].pattern;
 		}
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private ChangeEvent event;
 
 	@Override
@@ -93,17 +100,19 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		event = ChangeEvent.values()[matchedPattern];
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(Event event) {
 		if (!(event instanceof EntityChangeBlockEvent))
 			return false;
+		if (this.event.checker == null)
+			return true;
 		return this.event.checker.check((EntityChangeBlockEvent) event);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return this.event.name().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 	}
-	
+
 }
