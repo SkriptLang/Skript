@@ -20,6 +20,7 @@ package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -69,7 +70,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		FALLING_BLOCK_LANDING("falling block land[ing]", event -> event.getEntity() instanceof FallingBlock && !ItemUtils.isAir(event.getTo())),
 
 		// Covers all possible entity block changes.
-		GENERIC("entity change block[s]");
+		GENERIC("(entity|%*entitydatas%) change block[s]");
 
 		@Nullable
 		private final Checker<EntityChangeBlockEvent> checker;
@@ -93,17 +94,24 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		}
 	}
 
+	@Nullable
+	private Literal<EntityData<?>> datas;
 	private ChangeEvent event;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		event = ChangeEvent.values()[matchedPattern];
+		if (event == ChangeEvent.GENERIC)
+			datas = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
 		if (!(event instanceof EntityChangeBlockEvent))
+			return false;
+		if (datas != null && !datas.check(event, data -> data.isInstance(((EntityChangeBlockEvent) event).getEntity())))
 			return false;
 		if (this.event.checker == null)
 			return true;
