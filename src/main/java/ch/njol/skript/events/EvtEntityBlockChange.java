@@ -100,7 +100,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		event = ChangeEvent.values()[matchedPattern];
 		if (event == ChangeEvent.GENERIC)
 			datas = (Literal<EntityData<?>>) args[0];
