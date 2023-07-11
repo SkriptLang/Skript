@@ -19,6 +19,7 @@
 package org.skriptlang.skript.lang.comparator;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.lang.converter.Converter;
 
 /**
@@ -40,6 +41,7 @@ final class ConvertedComparator<T1, T2, C1, C2> implements Comparator<T1, T2> {
 	@Nullable
 	private final Converter<T2, C2> secondConverter;
 
+	@Contract("null, _, null -> fail")
 	ConvertedComparator(
 		@Nullable Converter<T1, C1> firstConverter,
 		Comparator<C1, C2> c,
@@ -75,7 +77,7 @@ final class ConvertedComparator<T1, T2, C1, C2> implements Comparator<T1, T2> {
 
 	@Override
 	public String toString() {
-		return "ConvertedComparator(" + firstConverter + "," + comparator + "," + secondConverter + ")";
+		return "ConvertedComparator{first=" + firstConverter + ",comparator=" + comparator + ",second=" + secondConverter + "}";
 	}
 
 }
