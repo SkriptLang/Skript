@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -214,6 +215,28 @@ public final class Comparators {
 					firstType,
 					secondType,
 					new InverseComparator<>((Comparator<T2, T1>) info.comparator)
+				);
+			}
+		}
+
+		// Attempt the simplest conversion (first -> second, second -> first)
+		if (Utils.getSuperType(firstType, secondType) == Object.class) { // ensure unrelated classes
+			Converter<T1, T2> fs = Converters.getConverter(firstType, secondType);
+			if (fs != null) {
+				//noinspection ConstantConditions - getComparator call will never return null
+				return new ComparatorInfo<>(
+					firstType,
+					secondType,
+					new ConvertedComparator<>(fs, Comparators.getComparator(secondType, secondType), null)
+				);
+			}
+			Converter<T2, T1> sf = Converters.getConverter(secondType, firstType);
+			if (sf != null) {
+				//noinspection ConstantConditions - getComparator call will never return null
+				return new ComparatorInfo<>(
+					firstType,
+					secondType,
+					new ConvertedComparator<>(null, Comparators.getComparator(firstType, firstType), sf)
 				);
 			}
 		}
