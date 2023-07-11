@@ -59,7 +59,7 @@ public class StructFunction extends Structure {
 
 	static {
 		Skript.registerStructure(StructFunction.class,
-			"[:local] function <(" + Functions.functionNamePattern + "\)\\((.*)\\)(?:\\s*(?:::| returns )\\s*(.+))?>"
+			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*(?:::| returns )\\s*(.+))?>"
 		);
 	}
 
