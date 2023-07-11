@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.sections.EffSecSpawn;
+import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,6 +31,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
@@ -77,13 +79,13 @@ public class EffTeleport extends Effect {
 		location = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
 		isAsync = CAN_RUN_ASYNC && parseResult.mark == 0;
 
-		if (isAsync)
-			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
-
-		if (getParser().getCurrentSection(EffSecSpawn.class) != null) {
+		if (getParser().isCurrentEvent(SpawnEvent.class)) {
 			Skript.error("You cannot be teleporting an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
 			return false;
 		}
+
+		if (isAsync)
+			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
 		return true;
 	}
 
