@@ -166,6 +166,13 @@ public class DefaultConverters {
 				return (Entity) holder;
 			return null;
 		});
+
+		// Entity - InventoryHolder
+		Converters.registerConverter(Entity.class, InventoryHolder.class, entity -> {
+			if (entity instanceof InventoryHolder)
+				return (InventoryHolder) entity;
+			return null;
+		});
 		
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
