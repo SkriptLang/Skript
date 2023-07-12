@@ -45,7 +45,7 @@ public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan>
 
 	static {
 		if (Skript.methodExists(Player.class, "getNewCooldown"))
-			register(ExprExpCooldown.class, Timespan.class, "cooldown change", "players");
+			register(ExprExpCooldown.class, Timespan.class, "exp[erience] [pickup] cooldown change", "players");
 	}
 
 	@Override
