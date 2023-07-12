@@ -48,7 +48,7 @@ import java.util.regex.MatchResult;
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
 	"",
 	"local function giveApple(amount: number) :: item:",
-	"\treturn {_amount} of apple"
+	"\treturn {_amount} of apple",
 	"",
 	"function getPoints(p: player) returns object:",
 	"\treturn {points::%{_p}%}"
