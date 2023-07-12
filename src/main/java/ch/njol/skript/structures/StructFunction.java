@@ -49,6 +49,9 @@ import java.util.regex.MatchResult;
 	"",
 	"local function giveApple(amount: number) :: item:",
 	"\treturn {_amount} of apple"
+	"",
+	"function getPoints(p: player) returns object:",
+	"\treturn {points::%{_p}%}"
 })
 @Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
