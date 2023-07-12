@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Makes a function return a value")
 @Examples({
 	"function double(i: number) :: number:",
-		"\treturn 2 * {_i}"
+		"\treturn 2 * {_i}",
 	"",
 	"function divide(i: number) :: number:",
 		"\treturn {_i} / 2"
