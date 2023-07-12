@@ -59,7 +59,7 @@ import java.util.List;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, INSERT VERSION (Reset)")
+@Since("1.4.2, 2.7 (Reset)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
