@@ -44,6 +44,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({
 	"function double(i: number) :: number:",
 		"\treturn 2 * {_i}"
+	"",
+	"function divide(i: number) :: number:",
+		"\treturn {_i} / 2"
 })
 @Since("2.2")
 public class EffReturn extends Effect {
