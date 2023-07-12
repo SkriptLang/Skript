@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
 public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan> {
 
 	static {
-		if (Skript.methodExists(Player.class, "getNewCooldown"))
+		if (Skript.methodExists(Player.class, "getExpCooldown"))
 			register(ExprExpCooldown.class, Timespan.class, "exp[erience] [pickup] cooldown change", "players");
 	}
 
