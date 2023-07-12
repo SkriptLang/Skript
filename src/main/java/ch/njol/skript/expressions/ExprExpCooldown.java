@@ -35,8 +35,12 @@ import javax.annotation.Nullable;
 
 @Name("Exp Cooldown")
 @Description("The exp cooldown of a player")
-@Examples("")
-@Since("")
+@Examples({
+	"player's exp cooldown is less than 3 ticks:",
+	"\tsend \"increasing your exp cooldown!\" to player",
+	"\t\tset player's exp cooldown to 40 ticks"
+})
+@Since("2.7")
 public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan> {
 
 	static {
