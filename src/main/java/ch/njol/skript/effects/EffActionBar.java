@@ -52,16 +52,16 @@ public class EffActionBar extends Effect {
 	@SuppressWarnings("null")
 	private Expression<Player> recipients;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		message = (Expression<String>) exprs[0];
 		recipients = (Expression<Player>) exprs[1];
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
+	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
 		String msg = message.getSingle(event);
 		assert msg != null;
