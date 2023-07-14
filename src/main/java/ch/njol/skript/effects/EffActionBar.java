@@ -64,7 +64,6 @@ public class EffActionBar extends Effect {
 	@Override
 	protected void execute(Event event) {
 		String msg = message.getSingle(event);
-		assert msg != null;
 		if (msg == null)
 			return;
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
