@@ -38,9 +38,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Player Time")
 @Description({
 	"Gets the player's time. This will set the player's own personal time.",
-	"When setting relative time for a player, their time will tick inline with the world, without it will be static."})
+	"When setting relative time for a player, their time will tick inline with the world, without it will be static."
+})
 @Examples({
-	"set player time of player to dusk, 10:00 or midnight",
+	"set player time of player to dusk, 10:00 or midnight # random out of the three options",
 	"add 10 hours to player's player time",
 	"remove 10:00 from player's player time",
 	"reset player time of players"
@@ -112,7 +113,7 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 			case ADD:
 				for (Player player : getExpr().getArray(event)) {
 					long newTime = player.getPlayerTime() + value;
-					player.setPlayerTime(Math.max(newTime,0), relative);
+					player.setPlayerTime(Math.max(newTime, 0), relative);
 				}
 				break;
 			default:
