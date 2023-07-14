@@ -106,4 +106,5 @@ public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan>
 			ticks = 0;
 		player.setExpCooldown(ticks);
 	}
+
 }
