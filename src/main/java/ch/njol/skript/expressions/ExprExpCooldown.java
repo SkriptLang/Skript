@@ -97,7 +97,9 @@ public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan>
 	public Class<? extends Timespan> getReturnType() { return Timespan.class; }
 
 	@Override
-	protected String getPropertyName() { return "exp cooldown"; }
+	protected String getPropertyName() {
+		return "exp cooldown";
+	}
 
 	private void setExpCooldown(Player player, int ticks) {
 		if (ticks < 0)
