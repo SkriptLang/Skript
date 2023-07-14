@@ -50,7 +50,9 @@ public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan>
 
 	@Override
 	@Nullable
-	public Timespan convert(Player player) { return Timespan.fromTicks_i(player.getExpCooldown()); }
+	public Timespan convert(Player player) {
+		return Timespan.fromTicks_i(player.getExpCooldown());
+	}
 
 	@Override
 	@Nullable
