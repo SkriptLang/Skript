@@ -94,7 +94,9 @@ public class ExprExpCooldown  extends SimplePropertyExpression<Player, Timespan>
 	}
 
 	@Override
-	public Class<? extends Timespan> getReturnType() { return Timespan.class; }
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
+	}
 
 	@Override
 	protected String getPropertyName() {
