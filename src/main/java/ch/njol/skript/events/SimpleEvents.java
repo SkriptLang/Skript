@@ -733,7 +733,7 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerExpCooldownChangeEvent")) {
-			Skript.registerEvent("Player Exp Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "[player] (exp cooldown change)")
+			Skript.registerEvent("Player Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "[player] (exp[erience] cooldown change)")
 					.description("Called when a player's experience pickup cooldown changes")
 					.examples(
 						"on player exp cooldown change:",
