@@ -91,6 +91,9 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 				case ADD:
 				case REMOVE:
 					value = ((Timespan) delta[0]).getTicks_i();
+					break;
+				default:
+					assert false;
 			}
 		}
 		switch (mode) {
@@ -106,7 +109,6 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 				break;
 			case REMOVE:
 				value = -value;
-				//$FALL-THROUGH$
 			case ADD:
 				for (Player player : getExpr().getArray(event)) {
 					long newTime = player.getPlayerTime() + value;
