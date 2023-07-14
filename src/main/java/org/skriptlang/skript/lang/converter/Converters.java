@@ -129,7 +129,7 @@ public final class Converters {
 						CONVERTERS.add(new ConverterInfo<>(
 							info1.getFrom(),
 							info2.getTo(),
-							new ChainedConverter<>(info1.getConverter(), info2.getConverter()),
+							new ChainedConverter<>(info1, info2),
 							info1.getFlags() | info2.getFlags()
 						));
 					}
@@ -149,7 +149,7 @@ public final class Converters {
 						CONVERTERS.add(new ConverterInfo<>(
 							info2.getFrom(),
 							info1.getTo(),
-							new ChainedConverter<>(info2.getConverter(), info1.getConverter()),
+							new ChainedConverter<>(info2, info1),
 							info2.getFlags() | info1.getFlags()
 						));
 					}
