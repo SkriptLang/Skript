@@ -53,7 +53,7 @@ public class EffActionBar extends Effect {
 	private Expression<Player> recipients;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		message = (Expression<String>) exprs[0];
 		recipients = (Expression<Player>) exprs[1];
