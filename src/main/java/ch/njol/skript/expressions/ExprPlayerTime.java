@@ -78,8 +78,9 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 				return CollectionUtils.array(Timespan.class);
 			case SET:
 				return CollectionUtils.array(Time.class, Timeperiod.class);
+			default:
+				return null;
 		}
-		return null;
 	}
 
 	@Override
