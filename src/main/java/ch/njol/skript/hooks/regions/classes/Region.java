@@ -38,10 +38,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class Region implements YggdrasilExtendedSerializable {
+
 	static {
 		Classes.registerClass(new ClassInfo<>(Region.class, "region")
 				.name("Region")
@@ -57,7 +55,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 				.parser(new Parser<Region>() {
 					@Override
 					@Nullable
-					public Region parse(String s, final ParseContext context) {
+					public Region parse(String name, ParseContext context) {
 						final boolean quoted;
 						switch (context) {
 							case DEFAULT:
@@ -73,20 +71,20 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 								assert false;
 								return null;
 						}
-						if (!VariableString.isQuotedCorrectly(s, quoted))
+						if (!VariableString.isQuotedCorrectly(name, quoted))
 							return null;
-						s = VariableString.unquote(s, quoted);
-						return Region.parse(s, true);
+						name = VariableString.unquote(name, quoted);
+						return Region.parse(name, true);
 					}
 					
 					@Override
-					public String toString(final Region r, final int flags) {
-						return r.toString();
+					public String toString(Region region, int flags) {
+						return region.toString();
 					}
 					
 					@Override
-					public String toVariableNameString(final Region r) {
-						return r.toString();
+					public String toVariableNameString(Region region) {
+						return region.toString();
 					}
                 })
 				.serializer(new YggdrasilSerializer<Region>() {
@@ -95,52 +93,54 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 						return true;
 					}
 				}));
-		Converters.registerConverter(String.class, Region.class, s -> Region.parse(s, false));
+		Converters.registerConverter(String.class, Region.class, name -> Region.parse(name, false));
 	}
 
 	@Nullable
-	private static Region parse(String s, boolean error) {
-		Region r = null;
-		for (World w : Bukkit.getWorlds()) {
-			Region r2 = RegionsPlugin.getRegion(w, s);
-			if (r2 == null)
+	private static Region parse(String name, boolean error) {
+		Region region = null;
+		for (World world : Bukkit.getWorlds()) {
+			Region current = RegionsPlugin.getRegion(world, name);
+			if (current == null)
 				continue;
-			if (r != null) {
+			if (region != null) {
 				if (error)
-					Skript.error("Multiple regions with the name '" + s + "' exist");
+					Skript.error("Multiple regions with the name '" + name + "' exist");
 				return null;
 			}
-			r = r2;
+			region = current;
 		}
-		if (r == null) {
+
+		if (region == null) {
 			if (error)
-				Skript.error("Region '" + s + "' could not be found");
+				Skript.error("Region '" + name + "' could not be found");
 			return null;
 		}
-		return r;
+
+		return region;
 	}
-	
-	public abstract boolean contains(Location l);
-	
-	public abstract boolean isMember(OfflinePlayer p);
-	
+
+	public abstract boolean contains(Location location);
+
+	public abstract boolean isMember(OfflinePlayer player);
+
 	public abstract Collection<OfflinePlayer> getMembers();
-	
-	public abstract boolean isOwner(OfflinePlayer p);
-	
+
+	public abstract boolean isOwner(OfflinePlayer player);
+
 	public abstract Collection<OfflinePlayer> getOwners();
-	
+
 	public abstract Iterator<Block> getBlocks();
-	
+
 	@Override
 	public abstract String toString();
-	
-	public abstract RegionsPlugin<?> getPlugin();
-	
+
+	public abstract RegionsPlugin getPlugin();
+
 	@Override
-	public abstract boolean equals(@Nullable Object o);
-	
+	public abstract boolean equals(@Nullable Object other);
+
 	@Override
 	public abstract int hashCode();
-	
+
 }

@@ -18,7 +18,24 @@
  */
 package ch.njol.skript.hooks.regions;
 
-import java.io.IOException;
+import ch.njol.skript.hooks.regions.WorldGuardHook.WorldGuardRegion;
+import ch.njol.skript.hooks.regions.classes.Region;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilID;
+import com.bekvon.bukkit.residence.Residence;
+import com.bekvon.bukkit.residence.containers.Flags;
+import com.bekvon.bukkit.residence.protection.ClaimedResidence;
+import com.bekvon.bukkit.residence.protection.ResidencePermissions;
+import com.google.common.base.Objects;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
@@ -27,71 +44,45 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.eclipse.jdt.annotation.Nullable;
+public final class ResidenceHook extends RegionsPlugin<Residence> {
 
-import com.bekvon.bukkit.residence.Residence;
-import com.bekvon.bukkit.residence.containers.Flags;
-import com.bekvon.bukkit.residence.protection.ClaimedResidence;
-import com.bekvon.bukkit.residence.protection.ResidencePermissions;
-import com.google.common.base.Objects;
+	public ResidenceHook() {
+		super("Residence");
+	}
 
-import ch.njol.skript.hooks.regions.WorldGuardHook.WorldGuardRegion;
-import ch.njol.skript.hooks.regions.classes.Region;
-import ch.njol.skript.variables.Variables;
-import ch.njol.yggdrasil.Fields;
-import ch.njol.yggdrasil.YggdrasilID;
-
-/**
- * Hook for Residence protection plugin. Currently supports
- * only basic operations.
- * @author bensku
- */
-public class ResidenceHook extends RegionsPlugin<Residence> {
-	
-	public ResidenceHook() throws IOException {}
-	
 	@Override
-	protected boolean init() {
+	public boolean init() {
 		return super.init();
 	}
 	
 	@Override
-	public String getName() {
-		return "Residence";
-	}
-	
-	@Override
-	public boolean canBuild_i(final Player p, final Location l) {
-		final ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(l);
-		if (res == null)
+	public boolean canBuild_i(Player player, Location location) {
+		ClaimedResidence residence = Residence.getInstance().getResidenceManager().getByLoc(location);
+		if (residence == null)
 			return true; // No claim here
-		ResidencePermissions perms = res.getPermissions();
-		return perms.playerHas(p, Flags.build, true);
+		ResidencePermissions perms = residence.getPermissions();
+		return perms.playerHas(player, Flags.build, true);
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public Collection<? extends Region> getRegionsAt_i(final Location l) {
-		final List<ResidenceRegion> ress = new ArrayList<>();
-		final ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(l);
-		if (res == null)
+	public Collection<? extends Region> getRegionsAt_i(Location location) {
+		List<ResidenceRegion> residences = new ArrayList<>();
+		ClaimedResidence residence = Residence.getInstance().getResidenceManager().getByLoc(location);
+		if (residence == null)
 			return Collections.emptyList();
-		ress.add(new ResidenceRegion(l.getWorld(), res));
-		return ress;
+		residences.add(new ResidenceRegion(location.getWorld(), residence));
+		return residences;
 	}
 	
 	@Override
 	@Nullable
-	public Region getRegion_i(final World world, final String name) {
-		final ClaimedResidence res = Residence.getInstance().getResidenceManager().getByName(name);
-		if (res == null)
+	public Region getRegion_i(World world, String name) {
+		ClaimedResidence residence = Residence.getInstance()
+				.getResidenceManager()
+				.getByName(name);
+		if (residence == null)
 			return null;
-		return new ResidenceRegion(world, res);
+		return new ResidenceRegion(world, residence);
 	}
 	
 	@Override
@@ -109,26 +100,28 @@ public class ResidenceHook extends RegionsPlugin<Residence> {
 	}
 	
 	@YggdrasilID("ResidenceRegion")
-	public class ResidenceRegion extends Region {
-		
-		private transient ClaimedResidence res;
+	public final class ResidenceRegion extends Region {
+
+		@UnknownNullability
+		private transient ClaimedResidence residence;
+		@UnknownNullability
 		final World world;
 		
-		@SuppressWarnings({"null", "unused"})
+		@SuppressWarnings("unused")
 		private ResidenceRegion() {
 			world = null;
 		}
 		
-		public ResidenceRegion(final World w, ClaimedResidence r) {
-			res = r;
-			world = w;
+		public ResidenceRegion(World world, ClaimedResidence residence) {
+			this.residence = residence;
+			this.world = world;
 		}
 		
 		@Override
 		public Fields serialize() throws NotSerializableException {
-			final Fields f = new Fields(this);
-			f.putObject("region", res.getName());
-			return f;
+			Fields fields = new Fields(this);
+			fields.putObject("region", residence.getName());
+			return fields;
 		}
 
 		@Override
@@ -137,40 +130,39 @@ public class ResidenceHook extends RegionsPlugin<Residence> {
 			if (!(region instanceof String))
 				throw new StreamCorruptedException("Tried to deserialize Residence region with no valid name!");
 			fields.setFields(this);
-			ClaimedResidence res = Residence.getInstance().getResidenceManager().getByName((String) region);
-			if (res == null)
+			ClaimedResidence residence = Residence.getInstance()
+					.getResidenceManager()
+					.getByName((String) region);
+			if (residence == null)
 				throw new StreamCorruptedException("Invalid region " + region + " in world " + world);
-			this.res = res;
+			this.residence = residence;
 		}
 
 		@Override
-		public boolean contains(Location l) {
-			return res.containsLoc(l);
+		public boolean contains(Location location) {
+			return residence.containsLoc(location);
 		}
 
 		@Override
-		public boolean isMember(OfflinePlayer p) {
-			return res.getPermissions().playerHas(p.getName(), Flags.build, false);
+		public boolean isMember(OfflinePlayer player) {
+			return residence.getPermissions().playerHas(player.getName(), Flags.build, false);
 		}
 
-		@SuppressWarnings("null")
 		@Override
 		public Collection<OfflinePlayer> getMembers() {
 			return Collections.emptyList();
 		}
 
 		@Override
-		public boolean isOwner(OfflinePlayer p) {
-			return Objects.equal(res.getPermissions().getOwnerUUID(), p.getUniqueId());
+		public boolean isOwner(OfflinePlayer player) {
+			return Objects.equal(residence.getPermissions().getOwnerUUID(), player.getUniqueId());
 		}
 
-		@SuppressWarnings("null")
 		@Override
 		public Collection<OfflinePlayer> getOwners() {
-			return Collections.singleton(Residence.getInstance().getOfflinePlayer(res.getPermissions().getOwner()));
+			return Collections.singleton(Residence.getInstance().getOfflinePlayer(residence.getPermissions().getOwner()));
 		}
 
-		@SuppressWarnings("null")
 		@Override
 		public Iterator<Block> getBlocks() {
 			return Collections.emptyIterator();
@@ -178,29 +170,27 @@ public class ResidenceHook extends RegionsPlugin<Residence> {
 
 		@Override
 		public String toString() {
-			return res.getName() + " in world " + world.getName();
+			return residence.getName() + " in world " + world.getName();
 		}
 
 		@Override
-		public RegionsPlugin<?> getPlugin() {
+		public RegionsPlugin<Residence> getPlugin() {
 			return ResidenceHook.this;
 		}
 
 		@Override
-		public boolean equals(@Nullable Object o) {
-			if (o == this)
+		public boolean equals(@Nullable Object other) {
+			if (other == this)
 				return true;
-			if (!(o instanceof ResidenceRegion))
+			if (!(other instanceof ResidenceRegion))
 				return false;
-			if (o.hashCode() == this.hashCode())
-				return true;
-			return false;
+			return other.hashCode() == this.hashCode();
 		}
 
 		@Override
 		public int hashCode() {
-			return res.getName().hashCode();
+			return residence.getName().hashCode();
 		}
-		
 	}
+
 }

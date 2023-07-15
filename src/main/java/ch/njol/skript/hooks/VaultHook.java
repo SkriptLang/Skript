@@ -18,58 +18,66 @@
  */
 package ch.njol.skript.hooks;
 
-import java.io.IOException;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.doc.Documentation;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
-import ch.njol.skript.Skript;
+import java.io.IOException;
 
-/**
- * @author Peter Güttinger
- */
-public class VaultHook extends Hook<Vault> {
+@ApiStatus.Internal
+public final class VaultHook extends SimpleHook<Vault> {
 
 	public static final String NO_GROUP_SUPPORT = "The permissions plugin you are using does not support groups.";
 
-	public VaultHook() throws IOException {}
-	
-	@SuppressWarnings("null")
+	@Nullable
 	public static Economy economy;
-	@SuppressWarnings("null")
+	@Nullable
 	public static Chat chat;
-
-	@SuppressWarnings("null")
+	@Nullable
 	public static Permission permission;
-	
-	@SuppressWarnings("null")
+
+	public VaultHook() {
+		super("Vault");
+	}
+
 	@Override
-	protected boolean init() {
-		economy = Bukkit.getServicesManager().getRegistration(Economy.class) == null ? null : Bukkit.getServicesManager().getRegistration(Economy.class).getProvider();
-		chat = Bukkit.getServicesManager().getRegistration(Chat.class) == null ? null : Bukkit.getServicesManager().getRegistration(Chat.class).getProvider();
-		permission = Bukkit.getServicesManager().getRegistration(Permission.class) == null ? null : Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
+	public boolean init() {
+		economy = obtain(Economy.class);
+		chat = obtain(Chat.class);
+		permission = obtain(Permission.class);
+
 		return economy != null || chat != null || permission != null;
 	}
-	
-	@Override
-	@SuppressWarnings("null")
-	protected void loadClasses() throws IOException {
-		if (economy != null || Documentation.canGenerateUnsafeDocs())
-			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".economy");
-		if (chat != null || (Documentation.canGenerateUnsafeDocs()))
-			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".chat");
-		if (permission != null || (Documentation.canGenerateUnsafeDocs()))
-			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".permission");
 
-	}
-	
 	@Override
-	public String getName() {
-		return "Vault";
+	protected void loadClasses() {
+		try {
+			SkriptAddon addon = Skript.getAddonInstance();
+			String root = getClass().getPackage().getName() + ".";
+			boolean docs = Documentation.canGenerateUnsafeDocs();
+			if (economy != null || docs)
+				addon.loadClasses(root + "economy");
+			if (chat != null || docs)
+				addon.loadClasses(root + "chat");
+			if (permission != null || docs)
+				addon.loadClasses(root + "permission");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
-	
+
+	@Nullable
+	private static <T> T obtain(Class<T> clazz) {
+		RegisteredServiceProvider<T> service = Bukkit.getServicesManager().getRegistration(clazz);
+		return service == null ? null : service.getProvider();
+	}
+
 }

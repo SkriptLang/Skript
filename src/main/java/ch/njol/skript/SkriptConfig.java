@@ -304,7 +304,7 @@ public class SkriptConfig {
 	/**
 	 * Disables the specified hook depending on the option value, or gives an error if this isn't allowed at this time.
 	 */
-	private static void userDisableHooks(Class<? extends Hook<?>> hookClass, boolean value) {
+	private static void userDisableHooks(Class<? extends Hook> hookClass, boolean value) {
 		if (Skript.isFinishedLoadingHooks()) {
 			Skript.error("Hooks cannot be disabled once the server has started. " +
 				"Please restart the server to disable the hooks.");
