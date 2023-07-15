@@ -62,7 +62,8 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 	}
 
 	@Override
-	public @Nullable Time convert(Player player) {
+	@Nullable
+	public Time convert(Player player) {
 		return new Time((int) player.getPlayerTime());
 	}
 
@@ -113,7 +114,7 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 			case ADD:
 				for (Player player : getExpr().getArray(event)) {
 					long newTime = player.getPlayerTime() + value;
-					player.setPlayerTime(Math.max(newTime, 0), relative);
+					player.setPlayerTime(Math.max(0, newTime), relative);
 				}
 				break;
 			default:
@@ -130,4 +131,5 @@ public class ExprPlayerTime extends SimplePropertyExpression<Player, Time> {
 	protected String getPropertyName() {
 		return (relative ? "relative " : "") + "player time";
 	}
+
 }
