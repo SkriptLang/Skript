@@ -34,6 +34,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -41,6 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class DefaultFunctions {
 	
@@ -500,6 +502,22 @@ public class DefaultFunctions {
 		}).description("Returns a RGB color from the given red, green and blue parameters.")
 			.examples("dye player's leggings rgb(120, 30, 45)")
 			.since("2.5");
+
+		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("player", new Parameter[] {
+			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
+		}, DefaultClasses.OFFLINE_PLAYER, true) {
+			@Override
+			public OfflinePlayer[] executeSimple(Object[][] params) {
+				String name = (String) params[0][0];
+				UUID uuid = null;
+				try {
+					uuid = UUID.fromString(name);
+				} catch (IllegalArgumentException ignored) {}
+				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
+			}
+		}).description("Returns a player from their name or UUID.")
+			.examples("set {_p} to player(\"Notch\")", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
+			.since("INSERT VERSION");
 	}
 	
 }
