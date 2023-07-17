@@ -46,15 +46,13 @@ public class EffActionBar extends Effect {
 		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %string% [to %players%]");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<String> message;
 
-	@SuppressWarnings("null")
 	private Expression<Player> recipients;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		message = (Expression<String>) exprs[0];
 		recipients = (Expression<Player>) exprs[1];
 		return true;
