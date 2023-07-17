@@ -40,6 +40,8 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
 
+import java.util.Arrays;
+
 /**
  * @author Peter Güttinger
  */
@@ -205,36 +207,19 @@ public class DefaultChangers {
 						//$FALL-THROUGH$
 					case ADD:
 						assert delta != null;
-						
-						if(delta instanceof ItemStack[]) { // Old behavior - legacy code (is it used? no idea)
-							ItemStack[] items = (ItemStack[]) delta;
-							if(items.length > 36) {
-								return;
-							}
-							for (final Object d : delta) {
-								if (d instanceof Inventory) {
-									for (final ItemStack i : (Inventory) d) {
-										if (i != null)
-											invi.addItem(i);
-									}
-								} else {
-									((ItemType) d).addTo(invi);
-								}
-							}
-						} else {
-							for (final Object d : delta) {
-								if (d instanceof ItemStack) {
-									new ItemType((ItemStack) d).addTo(invi); // Can't imagine why would be ItemStack, but just in case...
-								} else if (d instanceof ItemType) {
-									((ItemType) d).addTo(invi);
-								} else if (d instanceof Block) {
-									new ItemType((Block) d).addTo(invi);
-								} else {
-									Skript.error("Can't " + d.toString() + " to an inventory!");
-								}
+						for (Object d : delta) {
+							if (d instanceof ItemStack) {
+								new ItemType((ItemStack) d).addTo(invi); // Can't imagine why would be ItemStack, but just in case...
+							} else if (d instanceof ItemType) {
+								((ItemType) d).addTo(invi);
+							} else if (d instanceof Block) {
+								new ItemType((Block) d).addTo(invi);
+							} else if (d instanceof Inventory) {
+								invi.setContents(((Inventory) d).getContents());
+							} else {
+								Skript.error("Can't " + d.toString() + " to an inventory!");
 							}
 						}
-						
 						break;
 					case REMOVE:
 					case REMOVE_ALL:
