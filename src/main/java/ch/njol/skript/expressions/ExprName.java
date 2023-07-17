@@ -124,7 +124,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	static {
 		// Check for Adventure API
-		if (Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+		if (Skript.classExists("net.kyori.adventure.text.Component") &&
+				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
 		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
