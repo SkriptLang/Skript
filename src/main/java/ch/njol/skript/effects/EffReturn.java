@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"function double(i: number) :: number:",
 		"\treturn 2 * {_i}",
 	"",
-	"function divide(i: number) :: number:",
+	"function divide(i: number) returns number:",
 		"\treturn {_i} / 2"
 })
 @Since("2.2")
