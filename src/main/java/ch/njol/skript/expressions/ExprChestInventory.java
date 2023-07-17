@@ -62,7 +62,8 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	private static BungeeComponentSerializer serializer;
 
 	static {
-		if (Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+		if (Skript.classExists("net.kyori.adventure.text.Component") &&
+				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		Skript.registerExpression(ExprChestInventory.class, Inventory.class, ExpressionType.COMBINED,
 				"[a] [new] chest inventory (named|with name) %string% [with %-number% row[s]]",
