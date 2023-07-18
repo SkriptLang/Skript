@@ -22,8 +22,14 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+
 import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.ComparatorInfo;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
+
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -31,6 +37,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
@@ -39,15 +46,13 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+
 import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Comparison")
 @Description({"A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
 		"but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.",
@@ -93,19 +98,18 @@ public class CondCompare extends Condition {
 		Skript.registerCondition(CondCompare.class, patterns.getPatterns());
 	}
 	
-	@SuppressWarnings("null")
 	private Expression<?> first;
-	@SuppressWarnings("null")
 	private Expression<?> second;
+
 	@Nullable
 	private Expression<?> third;
-	@SuppressWarnings("null")
+
 	private Relation relation;
-	@SuppressWarnings("rawtypes")
+
 	@Nullable
-	private Comparator comp;
+	@SuppressWarnings("rawtypes")
+	private Comparator comparator;
 	
-	@SuppressWarnings("null")
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		first = vars[0];
@@ -134,7 +138,7 @@ public class CondCompare extends Condition {
 			}
 		}
 		@SuppressWarnings("rawtypes")
-		final Comparator comp = this.comp;
+		final Comparator comp = this.comparator;
 		if (comp != null) {
 			if (third == null) {
 				if (!relation.isImpliedBy(Relation.EQUAL, Relation.NOT_EQUAL) && !comp.supportsOrdering()) {
@@ -158,60 +162,59 @@ public class CondCompare extends Condition {
 		return Classes.getSuperClassInfo(e.getReturnType()).getName().withIndefiniteArticle();
 	}
 	
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings("unchecked")
 	private boolean init(String expr) {
-		final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		Expression<?> third = this.third;
 		try {
 			if (first.getReturnType() == Object.class) {
-				final Expression<?> e = first.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (first instanceof UnparsedLiteral)
+					expression = attemptReconstruction((UnparsedLiteral) first, second);
+				if (expression == null)
+					expression = first.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				first = e;
+				first = expression;
 			}
 			if (second.getReturnType() == Object.class) {
-				final Expression<?> e = second.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (second instanceof UnparsedLiteral)
+					expression = attemptReconstruction((UnparsedLiteral) second, first);
+				if (expression == null)
+					expression = second.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				second = e;
+				second = expression;
 			}
 			if (third != null && third.getReturnType() == Object.class) {
-				final Expression<?> e = third.getConvertedExpression(Object.class);
-				if (e == null) {
+				Expression<?> expression = null;
+				if (third instanceof UnparsedLiteral)
+					expression = attemptReconstruction((UnparsedLiteral) third, first);
+				if (expression == null)
+					expression = third.getConvertedExpression(Object.class);
+				if (expression == null) {
 					log.printErrors();
 					return false;
 				}
-				this.third = third = e;
+				this.third = third = expression;
 			}
 			log.printLog();
 		} finally {
 			log.stop();
 		}
-		final Class<?> f = first.getReturnType(), s = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
-		if (f == Object.class || s == Object.class)
+		Class<?> firstReturnType = first.getReturnType();
+		Class<?> secondReturnType = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
+		if (firstReturnType == Object.class || secondReturnType == Object.class)
 			return true;
-		/*
-		 * https://github.com/Mirreski/Skript/issues/10
-		 * 
-		if(Entity.class.isAssignableFrom(s)){
-			String[] split = expr.split(" ");
-			System.out.println(expr);
-			if(!split[split.length - 1].equalsIgnoreCase("player") && EntityData.parseWithoutIndefiniteArticle(split[split.length - 1]) != null){
-				comp = Comparators.getComparator(f, EntityData.class);
-				second = SkriptParser.parseLiteral(split[split.length - 1], EntityData.class, ParseContext.DEFAULT);
-			}else
-				comp = Comparators.getComparator(f, s);
-			
-		}
-		*///else
-		
-		comp = Comparators.getComparator(f, s);
-		
-		if (comp == null) { // Try to re-parse with more context
+
+		comparator = Comparators.getComparator(firstReturnType, secondReturnType);
+
+		if (comparator == null) { // Try to re-parse with more context
 			/*
 			 * SkriptParser sees that CondCompare takes two objects. Most of the time,
 			 * this works fine. However, when there are multiple conflicting literals,
@@ -224,23 +227,23 @@ public class CondCompare extends Condition {
 			 * Some damage types not working (issue #2184) would be a good example
 			 * of issues that SkriptParser's lack of context can cause.
 			 */
-			SimpleLiteral<?> reparsedSecond = reparseLiteral(first.getReturnType(), second);
+			SimpleLiteral<?> reparsedSecond = reparseLiteral(firstReturnType, second);
 			if (reparsedSecond != null) {
 				second = reparsedSecond;
-				comp = Comparators.getComparator(f, second.getReturnType());
+				comparator = Comparators.getComparator(firstReturnType, second.getReturnType());
 			} else {
 				SimpleLiteral<?> reparsedFirst = reparseLiteral(second.getReturnType(), first);
 				if (reparsedFirst != null) {
 					first = reparsedFirst;
-					comp = Comparators.getComparator(first.getReturnType(), s);
+					comparator = Comparators.getComparator(first.getReturnType(), secondReturnType);
 				}
 			}
 			
 		}
-		
-		return comp != null;
+
+		return comparator != null;
 	}
-	
+
 	/**
 	 * Attempts to parse given expression again as a literal of given type.
 	 * This will only work if the expression is a literal and its unparsed
@@ -251,22 +254,58 @@ public class CondCompare extends Condition {
 	 * @return A literal value, or null if parsing failed.
 	 */
 	@Nullable
-	private <T> SimpleLiteral<T> reparseLiteral(Class<T> type, Expression<?> expr) {
-		if (expr instanceof SimpleLiteral) { // Only works for simple literals
-			Expression<?> source = expr.getSource();
-			
-			// Try to get access to unparsed content of it
-			if (source instanceof UnparsedLiteral) {
-				String unparsed = ((UnparsedLiteral) source).getData();
-				T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
-				if (data != null) { // Success, let's make a literal of it
-					return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
-				}
+	private <T> SimpleLiteral<T> reparseLiteral(Class<T> type, Expression<?> expression) {
+		Expression<?> source = expression;
+		if (expression instanceof SimpleLiteral) // Only works for simple literals
+			source = expression.getSource();
+
+		// Try to get access to unparsed content of it
+		if (source instanceof UnparsedLiteral) {
+			String unparsed = ((UnparsedLiteral) source).getData();
+			T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
+			if (data != null) { // Success, let's make a literal of it
+				return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
 			}
 		}
 		return null; // Context-sensitive parsing failed; can't really help it
 	}
-	
+
+	/**
+	 * Attempts to transform an UnparsedLiteral into a type that is comparable to another.
+	 * For example 'fire' will be VisualEffect without this, but if the user attempts to compare 'fire'
+	 * with a block. This method will see if 'fire' can be compared to the block, and it will find ItemType.
+	 * Essentially solving something a human sees as comparable, but Skript doesn't understand.
+	 * 
+	 * @param one The UnparsedLiteral expression to attempt to reconstruct.
+	 * @param two any expression to grab the return type from.
+	 * @return The newly formed Literal, will be SimpleLiteral in most cases.
+	 */
+	@SuppressWarnings("unchecked")
+	private Literal<?> attemptReconstruction(UnparsedLiteral one, Expression<?> two) {
+		Expression<?> expression = null;
+		// Must handle numbers first.
+		expression = one.getConvertedExpression(Number.class);
+		if (expression == null) {
+			for (ClassInfo<?> classinfo : Classes.getClassInfos()) {
+				if (classinfo.getParser() == null)
+					continue;
+				ComparatorInfo<?, ?> comparator = Comparators.getComparatorInfo(two.getReturnType(), classinfo.getC());
+				if (comparator == null)
+					continue;
+				// We don't care about comparators that take in an object. This just causes more issues accepting and increases iterations by half.
+				// Let getConvertedExpression deal with it in the end if no other possible reparses against the remaining classinfos exist.
+				if (comparator.getFirstType() == Object.class)
+					continue;
+				expression = reparseLiteral(classinfo.getC(), one);
+				if (expression != null)
+					break;
+			}
+		}
+		if (expression == null)
+			expression = one.getConvertedExpression(two.getReturnType());
+		return (Literal<?>) expression;
+	}
+
 	/*
 	 * # := condition (e.g. is, is less than, contains, is enchanted with, has permission, etc.)
 	 * !# := not #
@@ -302,20 +341,20 @@ public class CondCompare extends Condition {
 	 * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
 	 */
 	@Override
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean check(final Event e) {
 		final Expression<?> third = this.third;
 		return first.check(e, (Checker<Object>) o1 ->
 			second.check(e, (Checker<Object>) o2 -> {
 				if (third == null)
-					return relation.isImpliedBy(comp != null ? comp.compare(o1, o2) : Comparators.compare(o1, o2));
+					return relation.isImpliedBy(comparator != null ? comparator.compare(o1, o2) : Comparators.compare(o1, o2));
 				return third.check(e, (Checker<Object>) o3 -> {
 					boolean isBetween;
-					if (comp != null) {
+					if (comparator != null) {
 						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)))
+							(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
 							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comp.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comp.compare(o1, o2)));
+							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
 					} else {
 						isBetween =
 							(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
@@ -337,7 +376,7 @@ public class CondCompare extends Condition {
 		else
 			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
 		if (debug)
-			s += " (comparator: " + comp + ")";
+			s += " (comparator: " + comparator + ")";
 		return s;
 	}
 	
