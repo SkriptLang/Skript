@@ -47,6 +47,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.event.PreScriptInitEvent;
 import org.skriptlang.skript.lang.script.event.ScriptInitEvent;
 import org.skriptlang.skript.lang.script.event.ScriptLoadEvent;
 import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
@@ -491,6 +492,9 @@ public class ScriptLoader {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
+		getEventRegister().getEvents(PreScriptInitEvent.class)
+				.forEach(event -> event.onPreInit(configs));
+		//noinspection deprecation - we still need to call it
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
