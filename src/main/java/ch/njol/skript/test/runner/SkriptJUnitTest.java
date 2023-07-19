@@ -86,14 +86,14 @@ public abstract class SkriptJUnitTest {
 	/**
 	 * @return the test world.
 	 */
-	protected World getTestWorld() {
+	public static World getTestWorld() {
 		return Bukkit.getWorlds().get(0);
 	}
 
 	/**
 	 * @return the testing location at the spawn of the testing world.
 	 */
-	protected Location getTestLocation() {
+	public static Location getTestLocation() {
 		return getTestWorld().getSpawnLocation().add(0, 1, 0);
 	}
 
@@ -102,7 +102,7 @@ public abstract class SkriptJUnitTest {
 	 * 
 	 * @return Pig that has been spawned.
 	 */
-	protected Pig spawnTestPig() {
+	public static Pig spawnTestPig() {
 		if (delay <= 0D)
 			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
 		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
@@ -114,7 +114,7 @@ public abstract class SkriptJUnitTest {
 	 * @param material The material to set the block to.
 	 * @return the Block after it has been updated.
 	 */
-	protected Block setBlock(Material material) {
+	public static Block setBlock(Material material) {
 		Block block = getBlock();
 		block.setType(material);
 		return block;
@@ -125,7 +125,7 @@ public abstract class SkriptJUnitTest {
 	 * 
 	 * @return the Block after it has been updated.
 	 */
-	protected Block getBlock() {
+	public static Block getBlock() {
 		return getTestWorld().getSpawnLocation().add(10, 1, 0).getBlock();
 	}
 

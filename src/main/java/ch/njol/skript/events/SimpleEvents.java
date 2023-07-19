@@ -59,6 +59,7 @@ import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -79,6 +80,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -470,16 +472,16 @@ public class SimpleEvents {
 				.description("Called when a slime splits. Usually this happens when a big slime dies.")
 				.examples("on slime split:")
 				.since("2.2-dev26");
-		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
-			Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
-					.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
-					.examples("on resurrect attempt:",
-							"	entity is player",
-							"	entity has permission \"admin.undying\"",
-							"	uncancel the event")
-					.since("2.2-dev28");
-			SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
-		}
+		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
+				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
+				.examples(
+						"on resurrect attempt:",
+						"\tentity is player",
+						"\tentity has permission \"admin.undying\"",
+						"\tuncancel the event"
+				)
+				.since("2.2-dev28");
+		SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
@@ -670,7 +672,7 @@ public class SimpleEvents {
 				"Use <a href='./expressions.html#ExprChatFormat'>chat format</a> to change message format.",
 				"Use <a href='./expressions.html#ExprChatRecipients'>chat recipients</a> to edit chat recipients."
 			)
-      .examples(
+			.examples(
 				"on chat:",
 				"\tif player has permission \"owner\":",
 				"\t\tset chat format to \"&lt;red&gt;[player]&lt;light gray&gt;: &lt;light red&gt;[message]\"",
@@ -679,21 +681,21 @@ public class SimpleEvents {
 				"\telse: #default message format",
 				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
 			)
-      .since("1.4.1");
+			.since("1.4.1");
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-				.description(
-					"Called when a loot table of an inventory is generated in the world.",
-					"For example, when opening a shipwreck chest."
-				)
-				.examples(
-					"on loot generate:",
-					"\tchance of %10",
-					"\tadd 64 diamonds",
-					"\tsend \"You hit the jackpot!!\""
-				)
-				.since("2.7")
-				.requiredPlugins("MC 1.16+");
+					.description(
+						"Called when a loot table of an inventory is generated in the world.",
+						"For example, when opening a shipwreck chest."
+					)
+					.examples(
+						"on loot generate:",
+						"\tchance of 10%",
+						"\tadd 64 diamonds to the loot",
+						"\tsend \"You hit the jackpot at %event-location%!\""
+					)
+					.since("2.7")
+					.requiredPlugins("MC 1.16+");
 		}
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
@@ -708,6 +710,26 @@ public class SimpleEvents {
 					.since("2.7")
 					.requiredPlugins("Paper 1.16+");
 		}
+
+		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+				.description("Called when a player picks up an arrow from the ground.")
+				.examples(
+						"on arrow pickup:",
+								"\tcancel the event",
+								"\tteleport event-projectile to block 5 above event-projectile"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
+
+		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
+				.description("Called when a player drags an item in their cursor across the inventory.")
+				.examples(
+						"on inventory drag:",
+						"\tif player's current inventory is {_gui}:",
+						"\t\tsend \"You can't drag your items here!\" to player",
+						"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
 
 	}
 
