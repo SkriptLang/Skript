@@ -16,14 +16,15 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.script;
+package org.skriptlang.skript.lang.script.event;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 /**
- * A ScriptLoaderEvent is used for listening to and performing actions for different Script events on a global scale.
+ * A ScriptLoaderEvent is used for listening to and performing actions for different {@link Script} events on a global scale.
  * Note that some of these events may be used on a Script-specific scale, if they extend {@link ScriptEvent}.
  * @see ScriptLoader#getEventRegister()
  */

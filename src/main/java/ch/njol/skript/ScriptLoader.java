@@ -47,9 +47,9 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.api.event.EventRegister;
+import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptLoaderEvent;
+import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;

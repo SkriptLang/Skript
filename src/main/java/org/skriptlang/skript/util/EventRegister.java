@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.api.event;
+package org.skriptlang.skript.util;
 
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * EventRegisters are generic containers for registering events.
  * They are used across Skript to provide additional API with consistent organization.
- * @param <E> The umbrella class representing the type of events this register will hold.
+ * @param <E> The class representing the type of events this register will hold.
  */
 public class EventRegister<E> {
 

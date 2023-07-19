@@ -22,7 +22,8 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.api.event.EventRegister;
+import org.skriptlang.skript.lang.script.event.ScriptEvent;
+import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;

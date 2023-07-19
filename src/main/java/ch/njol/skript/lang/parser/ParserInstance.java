@@ -34,7 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptLoaderEvent;
+import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;

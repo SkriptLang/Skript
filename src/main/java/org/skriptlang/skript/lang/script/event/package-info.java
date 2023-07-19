@@ -16,15 +16,8 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.script;
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package org.skriptlang.skript.lang.script.event;
 
-/**
- * A ScriptEvent is used for listening to and performing actions for different Script events on a Script-specific scale.
- * Note that some {@link ScriptLoaderEvent}s may be used on a Script-specific scale too.
- * @see Script#getEventRegister()
- */
-public interface ScriptEvent {
-
-
-
-}
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
