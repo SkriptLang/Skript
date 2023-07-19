@@ -34,6 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.event.ScriptActivityChangeEvent;
 import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -113,15 +114,15 @@ public final class ParserInstance {
 
 		// "Script" events
 		if (previous != null) { // the 'previous' script is becoming inactive
-			ScriptLoader.getEventRegister().getEvents(ScriptLoaderEvent.ScriptActivityChangeEvent.class)
+			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
 				.forEach(eventHandler -> eventHandler.onActivityChange(this, previous, false, currentScript));
-			previous.getEventRegister().getEvents(ScriptLoaderEvent.ScriptActivityChangeEvent.class)
+			previous.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
 				.forEach(eventHandler -> eventHandler.onActivityChange(this, previous, false, currentScript));
 		}
 		if (currentScript != null) { // the 'currentScript' is becoming active
-			ScriptLoader.getEventRegister().getEvents(ScriptLoaderEvent.ScriptActivityChangeEvent.class)
+			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
 				.forEach(eventHandler -> eventHandler.onActivityChange(this, currentScript, true, previous));
-			currentScript.getEventRegister().getEvents(ScriptLoaderEvent.ScriptActivityChangeEvent.class)
+			currentScript.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
 				.forEach(eventHandler -> eventHandler.onActivityChange(this, currentScript, true, previous));
 		}
 	}

@@ -47,6 +47,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
 import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
@@ -808,9 +809,9 @@ public class ScriptLoader {
 			parser.setActive(script);
 
 			// trigger unload event before beginning
-			eventRegister.getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
+			eventRegister.getEvents(ScriptUnloadEvent.class)
 				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
-			script.getEventRegister().getEvents(ScriptLoaderEvent.ScriptUnloadEvent.class)
+			script.getEventRegister().getEvents(ScriptUnloadEvent.class)
 				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
 
 			for (Structure structure : script.getStructures())
