@@ -5,8 +5,8 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.script.Script;
 
 /**
- * Called when a Script is unloaded in the {@link ScriptLoader}.
- * Note that this event triggers <b>before</b> the script is actually unloaded.
+ * Called when a {@link Script} is unloaded in the {@link ScriptLoader}.
+ * Note that this event triggers <b>before</b> the script is unloaded.
  *
  * @see ScriptLoader#unloadScript(Script)
  */
