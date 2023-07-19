@@ -47,6 +47,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.event.ScriptInitEvent;
+import org.skriptlang.skript.lang.script.event.ScriptLoadEvent;
 import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
 import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.script.Script;
@@ -567,7 +569,8 @@ public class ScriptLoader {
 					parser.setInactive();
 
 					for (NonNullPair<Script, List<Structure>> pair : scripts) {
-						parser.setActive(pair.getFirst());
+						Script script = pair.getFirst();
+						parser.setActive(script);
 						pair.getSecond().removeIf(structure -> {
 							parser.setCurrentStructure(structure);
 							parser.setNode(structure.getEntryContainer().getSource());
@@ -579,6 +582,11 @@ public class ScriptLoader {
 								return true;
 							}
 						});
+
+						ScriptLoader.getEventRegister().getEvents(ScriptLoadEvent.class)
+								.forEach(event -> event.onLoad(parser, script));
+						script.getEventRegister().getEvents(ScriptLoadEvent.class)
+								.forEach(event -> event.onLoad(parser, script));
 					}
 
 					return scriptInfo;
@@ -659,10 +667,13 @@ public class ScriptLoader {
 			assert file != null;
 			File disabledFile = new File(file.getParentFile(), DISABLED_SCRIPT_PREFIX + file.getName());
 			disabledScripts.remove(disabledFile);
-			
+
 			// Add to loaded files to use for future reloads
 			loadedScripts.add(script);
-			
+
+			ScriptLoader.getEventRegister().getEvents(ScriptInitEvent.class)
+					.forEach(event -> event.onInit(script));
+
 			return null;
 		};
 		if (isAsync()) { // Need to delegate to main thread
@@ -809,10 +820,10 @@ public class ScriptLoader {
 			parser.setActive(script);
 
 			// trigger unload event before beginning
-			eventRegister.getEvents(ScriptUnloadEvent.class)
-				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
+			getEventRegister().getEvents(ScriptUnloadEvent.class)
+					.forEach(event -> event.onUnload(parser, script));
 			script.getEventRegister().getEvents(ScriptUnloadEvent.class)
-				.forEach(eventHandler -> eventHandler.onUnload(parser, script));
+					.forEach(event -> event.onUnload(parser, script));
 
 			for (Structure structure : script.getStructures())
 				structure.unload();

@@ -115,15 +115,15 @@ public final class ParserInstance {
 		// "Script" events
 		if (previous != null) { // the 'previous' script is becoming inactive
 			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
-				.forEach(eventHandler -> eventHandler.onActivityChange(this, previous, false, currentScript));
+				.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
 			previous.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
-				.forEach(eventHandler -> eventHandler.onActivityChange(this, previous, false, currentScript));
+				.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
 		}
 		if (currentScript != null) { // the 'currentScript' is becoming active
 			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
-				.forEach(eventHandler -> eventHandler.onActivityChange(this, currentScript, true, previous));
+				.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
 			currentScript.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
-				.forEach(eventHandler -> eventHandler.onActivityChange(this, currentScript, true, previous));
+				.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
 		}
 	}
 

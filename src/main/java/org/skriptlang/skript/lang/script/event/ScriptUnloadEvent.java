@@ -18,7 +18,6 @@ public interface ScriptUnloadEvent extends ScriptLoaderEvent, ScriptEvent {
 	 *
 	 * @param parser The ParserInstance handling the unloading of <code>script</code>.
 	 * @param script The Script being unloaded.
-	 * @see ScriptLoader#unloadScript(Script)
 	 */
 	void onUnload(ParserInstance parser, Script script);
 

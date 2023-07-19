@@ -24,7 +24,6 @@ public interface ScriptActivityChangeEvent extends ScriptLoaderEvent, ScriptEven
 	 *               That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
 	 *               Null if <code>parser</code> was inactive (meaning no script became inactive)
 	 *               or became inactive (meaning no script became active).
-	 * @see ParserInstance#isActive()
 	 */
 	void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
 
