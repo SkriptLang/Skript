@@ -302,7 +302,7 @@ public final class Converters {
 				// 'from' doesn't exactly match and needs to be filtered
 				// Basically, this converter will only convert certain 'F' objects
 				return new ConverterInfo<>(fromType, toType, fromObject -> {
-					if (!info.getFrom().isInstance(fromType)) {
+					if (!info.getFrom().isInstance(fromObject)) {
 						return null;
 					}
 					return info.getConverter().convert((SubType) fromObject);
