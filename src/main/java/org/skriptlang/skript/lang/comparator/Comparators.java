@@ -25,6 +25,7 @@ import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
@@ -221,22 +222,22 @@ public final class Comparators {
 
 		// Attempt the simplest conversion (first -> second, second -> first)
 		if (Utils.getSuperType(firstType, secondType) == Object.class) { // ensure unrelated classes
-			Converter<T1, T2> fs = Converters.getConverter(firstType, secondType);
+			ConverterInfo<T1, T2> fs = Converters.getConverterInfo(firstType, secondType);
 			if (fs != null) {
 				//noinspection ConstantConditions - getComparator call will never return null
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new ConvertedComparator<>(fs, Comparators.getComparator(secondType, secondType), null)
+					new ConvertedComparator<>(fs, Comparators.getComparatorInfo(secondType, secondType), null)
 				);
 			}
-			Converter<T2, T1> sf = Converters.getConverter(secondType, firstType);
+			ConverterInfo<T2, T1> sf = Converters.getConverterInfo(secondType, firstType);
 			if (sf != null) {
 				//noinspection ConstantConditions - getComparator call will never return null
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new ConvertedComparator<>(null, Comparators.getComparator(firstType, firstType), sf)
+					new ConvertedComparator<>(null, Comparators.getComparatorInfo(firstType, firstType), sf)
 				);
 			}
 		}
@@ -246,23 +247,23 @@ public final class Comparators {
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
 			if (info.firstType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the second comparator type
-				Converter<T2, C2> sc2 = Converters.getConverter(secondType, info.secondType);
+				ConverterInfo<T2, C2> sc2 = Converters.getConverterInfo(secondType, info.secondType);
 				if (sc2 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new ConvertedComparator<>(null, info.comparator, sc2)
+						new ConvertedComparator<>(null, info, sc2)
 					);
 				}
 			}
 
 			if (info.secondType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the first comparator type
-				Converter<T1, C1> fc1 = Converters.getConverter(firstType, info.firstType);
+				ConverterInfo<T1, C1> fc1 = Converters.getConverterInfo(firstType, info.firstType);
 				if (fc1 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new ConvertedComparator<>(fc1, info.comparator, null)
+						new ConvertedComparator<>(fc1, info, null)
 					);
 				}
 			}
@@ -278,23 +279,23 @@ public final class Comparators {
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
 			if (info.secondType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the first comparator type
-				Converter<T2, C1> sc1 = Converters.getConverter(secondType, info.firstType);
+				ConverterInfo<T2, C1> sc1 = Converters.getConverterInfo(secondType, info.firstType);
 				if (sc1 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(sc1, info.comparator, null))
+						new InverseComparator<>(new ConvertedComparator<>(sc1, info, null))
 					);
 				}
 			}
 
 			if (info.firstType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the second comparator type
-				Converter<T1, C2> fc2 = Converters.getConverter(firstType, info.secondType);
+				ConverterInfo<T1, C2> fc2 = Converters.getConverterInfo(firstType, info.secondType);
 				if (fc2 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(null, info.comparator, fc2))
+						new InverseComparator<>(new ConvertedComparator<>(null, info, fc2))
 					);
 				}
 			}
@@ -305,13 +306,13 @@ public final class Comparators {
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			Converter<T1, C1> c1 = Converters.getConverter(firstType, info.firstType);
-			Converter<T2, C2> c2 = Converters.getConverter(secondType, info.secondType);
+			ConverterInfo<T1, C1> c1 = Converters.getConverterInfo(firstType, info.firstType);
+			ConverterInfo<T2, C2> c2 = Converters.getConverterInfo(secondType, info.secondType);
 			if (c1 != null && c2 != null) {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new ConvertedComparator<>(c1, info.comparator, c2)
+					new ConvertedComparator<>(c1, info, c2)
 				);
 			}
 
@@ -325,13 +326,13 @@ public final class Comparators {
 
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			Converter<T1, C2> c1 = Converters.getConverter(firstType, info.secondType);
-			Converter<T2, C1> c2 = Converters.getConverter(secondType, info.firstType);
+			ConverterInfo<T1, C2> c1 = Converters.getConverterInfo(firstType, info.secondType);
+			ConverterInfo<T2, C1> c2 = Converters.getConverterInfo(secondType, info.firstType);
 			if (c1 != null && c2 != null) {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new InverseComparator<>(new ConvertedComparator<>(c2, info.comparator, c1))
+					new InverseComparator<>(new ConvertedComparator<>(c2, info, c1))
 				);
 			}
 
