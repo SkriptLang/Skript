@@ -78,7 +78,7 @@ public class EvtItem extends SkriptEvent {
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
-					.since("2.2-Fixes-V10)");
+					.since("2.2-Fixes-V10");
 		}
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
 		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
@@ -130,16 +130,16 @@ public class EvtItem extends SkriptEvent {
 				.since("2.2-dev35");
 		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
 			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
-				.description("Called when a player selects a recipe in a stonecutter.")
-				.examples(
-					"on stonecutting stone slabs",
-						"\tcancel the event",
-					"",
-					"on stonecutting:",
-						"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
-				)
-				.since("INSERT VERSION")
-				.requiredPlugins("Paper 1.16+");
+					.description("Called when a player selects a recipe in a stonecutter.")
+					.examples(
+							"on stonecutting stone slabs",
+								"\tcancel the event",
+							"",
+							"on stonecutting:",
+								"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Paper 1.16+");
 		}
 	}
 	
