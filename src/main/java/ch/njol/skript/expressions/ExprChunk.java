@@ -48,10 +48,10 @@ import org.jetbrains.annotations.Nullable;
 public class ExprChunk extends SimpleExpression<Chunk> {
 	
 	static {
-			Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
-				"[all [of]] [the] chunk[s] (of|%-directions%) %locations%",
-				"%locations%'[s] chunk[s]",
-				"[all [of]] [the] loaded chunks (of|in) %worlds%"
+		Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
+			"[(all [[of] the]|the)] chunk[s] (of|%-directions%) %locations%",
+			"%locations%'[s] chunk[s]",
+			"[(all [[of] the]|the)] loaded chunks (of|in) %worlds%"
 		);
 	}
 
