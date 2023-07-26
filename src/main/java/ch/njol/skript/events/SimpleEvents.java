@@ -684,18 +684,18 @@ public class SimpleEvents {
 			.since("1.4.1");
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-				.description(
-					"Called when a loot table of an inventory is generated in the world.",
-					"For example, when opening a shipwreck chest."
-				)
-				.examples(
-					"on loot generate:",
-					"\tchance of %10",
-					"\tadd 64 diamonds",
-					"\tsend \"You hit the jackpot!!\""
-				)
-				.since("2.7")
-				.requiredPlugins("MC 1.16+");
+					.description(
+						"Called when a loot table of an inventory is generated in the world.",
+						"For example, when opening a shipwreck chest."
+					)
+					.examples(
+						"on loot generate:",
+						"\tchance of 10%",
+						"\tadd 64 diamonds to the loot",
+						"\tsend \"You hit the jackpot at %event-location%!\""
+					)
+					.since("2.7")
+					.requiredPlugins("MC 1.16+");
 		}
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
