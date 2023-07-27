@@ -115,17 +115,18 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 					if (entity.equals(targetEvent.getEntity()))
 						targetEvent.setTarget(target);
 				}
-				return;
-			}
-			for (LivingEntity entity : getExpr().getArray(event)) {
-				if (entity instanceof Mob) {
-					((Mob) entity).setTarget(target);
-				} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-					Entity playerTarget = getTarget(entity, type);
-					if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
-						playerTarget.remove();
+			} else {
+				for (LivingEntity entity : getExpr().getArray(event)) {
+					if (entity instanceof Mob) {
+						((Mob) entity).setTarget(target);
+					} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
+						Entity playerTarget = getTarget(entity, type);
+						if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
+							playerTarget.remove();
+					}
 				}
 			}
+			return;
 		}
 		super.change(event, delta, mode);
 	}
