@@ -63,7 +63,7 @@ public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
 	@Override
 	public String toString() {
-		return "event-initiator-inventory in 'inventory item move' event";
+		return "event-initiator-inventory";
 	}
 
 }
