@@ -43,7 +43,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"reset the durability of {_item}",
 	"set durability of player's held item to 0"
 })
-@Since("1.2, INSERT VERSION (durability reversed)")
+@Since("1.2, 2.7 (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	private boolean durability;
