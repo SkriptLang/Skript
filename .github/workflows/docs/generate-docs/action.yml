@@ -1,0 +1,41 @@
+name: Generate documentation
+
+inputs:
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  docs_repo_dir:
+    description: "The skript-docs repository directory"
+    required: true
+    type: string
+  skript_repo_dir:
+    description: "The skript repository directory"
+    required: true
+    type: string
+  is_release:
+    description: "Designates whether to generate nightly or release documentation"
+    required: false
+    default: false
+    type: boolean
+
+runs:
+  using: 'composite'
+  steps:
+    - name: generate-docs
+      shell: bash
+      env:
+        DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
+        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
+        IS_RELEASE: ${{ inputs.is_release }}
+      run: |
+        export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
+        export SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
+        cd $SKRIPT_REPO_DIR
+        if [[ "${IS_RELEASE}" == "true" ]]; then
+          ./gradlew genReleaseDocs releaseJavadoc
+        else
+          ./gradlew genNightlyDocs javadoc
+        fi
+        cp -a "./build/docs/javadoc/." "${DOCS_OUTPUT_DIR}/javadocs"
