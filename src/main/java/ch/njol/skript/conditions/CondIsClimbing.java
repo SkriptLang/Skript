@@ -16,40 +16,43 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.entity.LivingEntity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
 
-@Name("Teleport Cause")
-@Description("The <a href='classes.html#teleportcause'>teleport cause</a> within a player <a href='events.html#teleport'>teleport</a> event.")
+@Name("Is Climbing")
+@Description("Whether a living entity is climbing, such as a spider up a wall or a player on a ladder.")
 @Examples({
-	"on teleport:",
-		"\tteleport cause is nether portal, end portal or end gateway"
+	"spawn a spider at location of spawn",
+	"wait a second",
+	"if the last spawned spider is climbing:",
+		"\tmessage\"The spider is now climbing!\""
 })
-@Since("2.2-dev35")
-public class ExprTeleportCause extends EventValueExpression<TeleportCause> {
+@RequiredPlugins("Minecraft 1.17+")
+@Since("INSERT VERSION")
+public class CondIsClimbing extends PropertyCondition<LivingEntity> {
 
 	static {
-		Skript.registerExpression(ExprTeleportCause.class, TeleportCause.class, ExpressionType.SIMPLE, "[the] teleport (cause|reason|type)");
-	}
-
-	public ExprTeleportCause() {
-		super(TeleportCause.class);
+		if (Skript.methodExists(LivingEntity.class, "isClimbing"))
+			register(CondIsClimbing.class, "climbing", "livingentities");
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "teleport cause";
+	public boolean check(LivingEntity entity) {
+		return entity.isClimbing();
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "climbing";
 	}
 
 }
