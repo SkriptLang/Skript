@@ -55,8 +55,8 @@ runs:
         fi
 
         mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
-        
-        mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
+
+        mkdir -p "/tmp/normalized-output-docs" && cp -a "/tmp/output-docs" "$_"
         mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
 
         replace_in_directory "/tmp/normalized-output-docs" `get_skript_version_of_directory "/tmp/normalized-output-docs"` "Skript"
