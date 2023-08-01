@@ -32,8 +32,10 @@ import ch.njol.skript.lang.ExpressionType;
 
 @Name("Teleport Cause")
 @Description("The <a href='classes.html#teleportcause'>teleport cause</a> within a player <a href='events.html#teleport'>teleport</a> event.")
-@Examples({"on teleport",
-	"\tteleport cause is nether portal, end portal or end gateway"})
+@Examples({
+	"on teleport:",
+		"\tteleport cause is nether portal, end portal or end gateway"
+})
 @Since("2.2-dev35")
 public class ExprTeleportCause extends EventValueExpression<TeleportCause> {
 
@@ -46,8 +48,8 @@ public class ExprTeleportCause extends EventValueExpression<TeleportCause> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the teleport cause";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "teleport cause";
 	}
 
 }
