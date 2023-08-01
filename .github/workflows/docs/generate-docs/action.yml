@@ -74,7 +74,7 @@ runs:
         echo "Output hash ${output_dir_hash}"
         echo "Generated hash ${generated_docs_hash}"
         if [[ "${output_dir_hash}" != "${generated_docs_hash}" ]]; then
-          echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT"
+          echo "DOCS_CHANGED=true" >> "$GITHUB_OUTPUT"
         fi
         
         rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
