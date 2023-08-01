@@ -118,11 +118,11 @@ public class SecConditional extends Section {
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
-		SecConditional lastIf;
+		SecConditional precedingIf;
 		if (type != ConditionalType.IF) {
 			// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
-			lastIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
-			if (lastIf == null) {
+			precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+			if (precedingIf == null) {
 				if (type == ConditionalType.ELSE_IF) {
 					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
 				} else if (type == ConditionalType.ELSE) {
@@ -139,8 +139,8 @@ public class SecConditional extends Section {
 				/  then: # this shouldn't be possible
 				/    set {_uh oh} to true
 				*/
-				SecConditional lastConditional = getPrecedingConditional(triggerItems, null);
-				if (lastConditional == null || !lastConditional.multiline) {
+				SecConditional precedingConditional = getPrecedingConditional(triggerItems, null);
+				if (precedingConditional == null || !precedingConditional.multiline) {
 					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 					return false;
 				}
@@ -161,7 +161,7 @@ public class SecConditional extends Section {
 					return false;
 				}
 			}
-			lastIf = null;
+			precedingIf = null;
 		}
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
@@ -244,7 +244,7 @@ public class SecConditional extends Section {
 		if (type == ConditionalType.ELSE) {
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
-					&& lastIf.hasDelayAfter.isTrue()
+					&& precedingIf.hasDelayAfter.isTrue()
 					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
