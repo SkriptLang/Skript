@@ -7,9 +7,6 @@ on:
     tags-ignore:
       - '**'
 
-env:
-  docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
-
 jobs:
     nightly-docs:
         if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]') && env.docs_deploy_key != ''"
@@ -17,29 +14,39 @@ jobs:
         steps:
             - name: Configure workflow
               id: configuration
+              env:
+                docs_deploy_key: ${{ secrets.DOCS_DEPLOY+KEY }}
               run: |
+                if [ -z "$var" ]
+                then
+                  echo "DOCS_DEPLOY_KEY_PRESENT=true"
+                fi
                 BRANCH_NAME="${GITHUB_REF#refs/*/}"
                 echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
                 echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
                 echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
             - name: Checkout Skript
+              if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
               uses: actions/checkout@v3
               with:
                   submodules: recursive
                   path: skript
             - name: Setup documentation environment
+              if: success()
               uses: ./skript/.github/workflows/docs/setup-docs
               with:
                   docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
             - name: Generate documentation
+              if: success()
               uses: ./skript/.github/workflows/docs/generate-docs
               with:
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
             - name: Push nightly documentation
+              if: success()
               uses: ./skript/.github/workflows/docs/push-docs
               with:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
