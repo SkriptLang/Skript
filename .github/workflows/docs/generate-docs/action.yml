@@ -18,6 +18,11 @@ inputs:
     required: false
     default: false
     type: boolean
+  cleanup_pattern:
+    description: "A pattern designating which files to delete when cleaning the documentation output directory"
+    required: false
+    default: "*"
+    type: string
 
 runs:
   using: 'composite'
@@ -29,6 +34,7 @@ runs:
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
         IS_RELEASE: ${{ inputs.is_release }}
+        CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
       run: |
         get_directory_hash() {
           tar -cf - --sort=name --mtime='UTC 2019-01-01' --group=0 --owner=0 --numeric-owner --mode=777 "$1" | sha256sum
@@ -56,7 +62,7 @@ runs:
 
         mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
 
-        mkdir -p "/tmp/normalized-output-docs" && cp -a "/tmp/output-docs" "$_"
+        mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
         mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
 
         replace_in_directory "/tmp/normalized-output-docs" `get_skript_version_of_directory "/tmp/normalized-output-docs"` "Skript"
@@ -71,5 +77,6 @@ runs:
           echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT"
         fi
         
+        rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
         mkdir -p "${DOCS_OUTPUT_DIR}/" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
 
