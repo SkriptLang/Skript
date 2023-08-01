@@ -36,10 +36,6 @@ runs:
         IS_RELEASE: ${{ inputs.is_release }}
         CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
       run: |
-        get_directory_hash() {
-          tar -cf - --sort=name --mtime='UTC 2019-01-01' --group=0 --owner=0 --numeric-owner --mode=777 "$1" | sha256sum
-        }
-
         replace_in_directory() {
           find $1 -type f -exec sed -i -e 's/$2/$3/g' {} \;
         }
@@ -47,7 +43,7 @@ runs:
         # this should be replaced with a more reliable jq command,
         # but it can't be right now because docs.json is actually not valid json.
         get_skript_version_of_directory() {
-          grep skriptVersion "$1/docs.json" | cut -d\" -f 4
+          grep skriptVersion "$1/docs.json" | cut -d\" -f 4 | cut -c2-
         }
 
         export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
@@ -65,23 +61,12 @@ runs:
         mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
         mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
 
-        echo "Normalized output docs"
-        echo `get_skript_version_of_directory "/tmp/normalized-output-docs"`
-        ls -lRa /tmp/normalized-output-docs
+        replace_in_directory "/tmp/normalized-output-docs" $(get_skript_version_of_directory "/tmp/normalized-output-docs") "Skript"
+        replace_in_directory "/tmp/normalized-generated-docs" $(get_skript_version_of_directory "/tmp/normalized-generated-docs") "Skript"
 
-        echo "Normalized generated docs"
-        echo `get_skript_version_of_directory "/tmp/normalized-generated-docs"`
-        ls -lRa /tmp/normalized-generated-docs
-
-        replace_in_directory "/tmp/normalized-output-docs" `get_skript_version_of_directory "/tmp/normalized-output-docs"` "Skript"
-        replace_in_directory "/tmp/normalized-generated-docs" `get_skript_version_of_directory "/tmp/normalized-generated-docs"` "Skript"
-        
-        output_dir_hash=`get_directory_hash /tmp/normalized-output-docs`
-        generated_docs_hash=`get_directory_hash /tmp/normalized-generated-docs`
-
-        echo "Output hash ${output_dir_hash}"
-        echo "Generated hash ${generated_docs_hash}"
-        if [[ "${output_dir_hash}" != "${generated_docs_hash}" ]]; then
+        diff -qr /tmp/normalized-output-docs /tmp/normalized-generated-docs
+        # If diff exists with exit code 1, that means there were some differences
+        if [[ $? -eq 1 ]]; then
           echo "DOCS_CHANGED=true" >> "$GITHUB_OUTPUT"
         fi
         
