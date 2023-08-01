@@ -40,6 +40,7 @@ jobs:
                   docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
             - name: Generate documentation
+              id: generate
               if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
               uses: ./skript/.github/workflows/docs/generate-docs
               with:
@@ -55,7 +56,7 @@ jobs:
                 name: normalized-generated-docs
                 path: /tmp/normalized-generated-docs
             - name: Push nightly documentation
-              if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
+              if: steps.generate.outputs.DOCS_CHANGED == 'true'
               uses: ./skript/.github/workflows/docs/push-docs
               with:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
