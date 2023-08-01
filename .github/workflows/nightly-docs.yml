@@ -17,7 +17,7 @@ jobs:
               env:
                 docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
               run: |
-                if [ -z "$DOCS_DEPLOY_KEY" ]
+                if [ -n "$DOCS_DEPLOY_KEY" ]
                 then
                   echo "DOCS_DEPLOY_KEY_PRESENT=true" >> $GITHUB_OUTPUT
                 else
@@ -40,14 +40,14 @@ jobs:
                   docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
             - name: Generate documentation
-              if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
+              if: success()
               uses: ./skript/.github/workflows/docs/generate-docs
               with:
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
             - name: Push nightly documentation
-              if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
+              if: success()
               uses: ./skript/.github/workflows/docs/push-docs
               with:
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
