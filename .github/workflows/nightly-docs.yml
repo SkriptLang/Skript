@@ -7,9 +7,12 @@ on:
     tags-ignore:
       - '**'
 
+env:
+  docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
+
 jobs:
     nightly-docs:
-        if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+        if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]') && env.docs_deploy_key != ''"
         runs-on: ubuntu-latest
         steps:
             - name: Configure workflow
