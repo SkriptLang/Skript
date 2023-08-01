@@ -120,7 +120,8 @@ public class SecConditional extends Section {
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		SecConditional lastIf;
 		if (type != ConditionalType.IF) {
-			lastIf = getClosestIf(triggerItems);
+			// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before and 'else')
+			lastIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
 			if (lastIf == null) {
 				if (type == ConditionalType.ELSE_IF) {
 					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
@@ -130,9 +131,19 @@ public class SecConditional extends Section {
 					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
 				}
 				return false;
-			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
-				Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
-				return false;
+			} else if (type == ConditionalType.THEN) {
+				/* if this is a 'then' section, the preceding conditional has to be a multiline conditional section
+				/ otherwise, you could put a 'then' section after a non-multiline 'if'. for example:
+				/  if 1 is 1:
+				/    set {_example} to true
+				/  then: # this shouldn't be possible
+				/    set {_uh oh} to true
+				*/
+				SecConditional lastConditional = getPrecedingConditional(triggerItems, null);
+				if (lastConditional == null || !lastConditional.multiline) {
+					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
+					return false;
+				}
 			}
 		} else {
 			// if this is a multiline if, we need to check if there is a "then" section after this
@@ -314,21 +325,27 @@ public class SecConditional extends Section {
 		return hasDelayAfter;
 	}
 
+	/**
+	 * Gets the closest conditional section in the list of trigger items
+	 * @param triggerItems the list of items to search for the closest conditional section in
+	 * @param type the type of conditional section to find. if null is provided, any type is allowed.
+	 * @return the closest conditional section
+	 */
 	@Nullable
-	private static SecConditional getClosestIf(List<TriggerItem> triggerItems) {
+	private static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
 			if (triggerItem instanceof SecConditional) {
-				SecConditional secConditional = (SecConditional) triggerItem;
+				SecConditional conditionalSection = (SecConditional) triggerItem;
 
-				if (secConditional.type == ConditionalType.IF)
-					// if the condition is an if, we found our most recent preceding "if"
-					return secConditional;
-				else if (secConditional.type == ConditionalType.ELSE)
+				if (conditionalSection.type == ConditionalType.ELSE)
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
 					return null;
+				else if (type == null || conditionalSection.type == type)
+					// if the conditional matches the type argument, we found our most recent preceding conditional section
+					return conditionalSection;
 			} else {
 				return null;
 			}
