@@ -21,6 +21,7 @@ package ch.njol.skript.registrations;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -47,6 +48,7 @@ public class DefaultClasses {
 	public static ClassInfo<Date> DATE = getClassInfo(Date.class);
 	public static ClassInfo<Timespan> TIMESPAN = getClassInfo(Timespan.class);
 	public static ClassInfo<OfflinePlayer> OFFLINE_PLAYER = getClassInfo(OfflinePlayer.class);
+	public static ClassInfo<Player> PLAYER = getClassInfo(Player.class);
 
 	@NonNull
 	private static <T> ClassInfo<T> getClassInfo(Class<T> tClass) {

@@ -36,6 +36,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -503,20 +504,40 @@ public class DefaultFunctions {
 			.examples("dye player's leggings rgb(120, 30, 45)")
 			.since("2.5");
 
-		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("player", new Parameter[] {
+		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
+			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
+		}, DefaultClasses.PLAYER, true) {
+			@Override
+			public Player[] executeSimple(Object[][] params) {
+				String name = (String) params[0][0];
+				UUID uuid = null;
+				if (name.length() > 16 || name.contains("-")) { // shortcut
+					try {
+						uuid = UUID.fromString(name);
+					} catch (IllegalArgumentException ignored) {}
+				}
+				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : Bukkit.getPlayer(name));
+			}
+		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.")
+			.examples("set {_p} to player(\"SomeOnlinePlayer\")", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
 		}, DefaultClasses.OFFLINE_PLAYER, true) {
 			@Override
 			public OfflinePlayer[] executeSimple(Object[][] params) {
 				String name = (String) params[0][0];
 				UUID uuid = null;
-				try {
-					uuid = UUID.fromString(name);
-				} catch (IllegalArgumentException ignored) {}
+				if (name.length() > 16 || name.contains("-")) { // shortcut
+					try {
+						uuid = UUID.fromString(name);
+					} catch (IllegalArgumentException ignored) {}
+				}
 				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
 			}
-		}).description("Returns a player from their name or UUID.")
-			.examples("set {_p} to player(\"Notch\")", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
+		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
+			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
 			.since("INSERT VERSION");
 	}
 	
