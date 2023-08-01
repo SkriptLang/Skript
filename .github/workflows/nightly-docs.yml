@@ -46,6 +46,14 @@ jobs:
                   docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                   docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                   skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+            - uses: actions/upload-artifact@v3
+              with:
+                name: normalized-output-docs
+                path: /tmp/normalized-output-docs
+            - uses: actions/upload-artifact@v3
+              with:
+                name: normalized-generated-docs
+                path: /tmp/normalized-generated-docs
             - name: Push nightly documentation
               if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
               uses: ./skript/.github/workflows/docs/push-docs
