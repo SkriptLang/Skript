@@ -17,9 +17,9 @@ jobs:
               env:
                 docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
               run: |
-                if [ -z "$var" ]
+                if [ -z "$DOCS_DEPLOY_KEY" ]
                 then
-                  echo "DOCS_DEPLOY_KEY_PRESENT=true"
+                  echo "DOCS_DEPLOY_KEY_PRESENT=true" >> $GITHUB_OUTPUT
                 else
                   echo "Secret 'DOCS_DEPLOY_KEY' not present. Exiting job."
                 fi
