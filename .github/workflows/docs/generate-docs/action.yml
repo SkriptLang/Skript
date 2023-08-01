@@ -43,7 +43,7 @@ runs:
         # this should be replaced with a more reliable jq command,
         # but it can't be right now because docs.json is actually not valid json.
         get_skript_version_of_directory() {
-          grep skriptVersion "$1/docs.json" | cut -d\" -f 4 | cut -c2-
+          grep skriptVersion "$1/docs.json" | cut -d\" -f 4
         }
 
         export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
@@ -72,6 +72,9 @@ runs:
         # If diff exits with exit code 1, that means there were some differences
         if [[ $? -eq 1 ]]; then
           echo "DOCS_CHANGED=true" >> "$GITHUB_OUTPUT"
+          echo "Documentation has changed since last push"
+        else
+          echo "Documentation hasn't changed since last push"
         fi
         
         rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
