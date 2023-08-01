@@ -35,7 +35,7 @@ runs:
         }
 
         replace_in_directory() {
-          find $1 -exec sed -i -e 's/$2/$3/g' {} \;
+          find $1 -type f -exec sed -i -e 's/$2/$3/g' {} \;
         }
 
         # this should be replaced with a more reliable jq command,
