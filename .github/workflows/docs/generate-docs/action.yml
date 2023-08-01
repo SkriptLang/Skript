@@ -68,7 +68,7 @@ runs:
         replace_in_directory "/tmp/normalized-output-docs" "${output_skript_version}" "Skript"
         replace_in_directory "/tmp/normalized-generated-docs" "${generated_skript_version}" "Skript"
 
-        diff -qr /tmp/normalized-output-docs /tmp/normalized-generated-docs || true > /dev/null
+        diff -qr /tmp/normalized-output-docs /tmp/normalized-generated-docs > /dev/null || true 
         # If diff exits with exit code 1, that means there were some differences
         if [[ $? -eq 1 ]]; then
           echo "DOCS_CHANGED=true" >> "$GITHUB_OUTPUT"
