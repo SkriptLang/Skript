@@ -71,7 +71,7 @@ runs:
         diff -qbr /tmp/normalized-output-docs /tmp/normalized-generated-docs || diff_exit_code=$?
         # If diff exits with exit code 1, that means there were some differences
         if [[ ${diff_exit_code} -eq 1 ]]; then
-          echo "DOCS_CHANGED=true" >> "$GITHUB_OUTPUT"
+          echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT
           echo "Documentation has changed since last push"
         else
           echo "Documentation hasn't changed since last push"
