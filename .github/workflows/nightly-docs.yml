@@ -9,7 +9,7 @@ on:
 
 jobs:
     nightly-docs:
-        if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]') && env.docs_deploy_key != ''"
+        if: "!contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         steps:
             - name: Configure workflow
