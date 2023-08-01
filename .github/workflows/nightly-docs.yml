@@ -15,7 +15,7 @@ jobs:
             - name: Configure workflow
               id: configuration
               env:
-                docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
+                DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
               run: |
                 if [ -n "$DOCS_DEPLOY_KEY" ]
                 then
