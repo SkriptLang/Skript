@@ -65,6 +65,14 @@ runs:
         mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
         mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
 
+        echo "Normalized output docs"
+        echo `get_skript_version_of_directory "/tmp/normalized-output-docs"`
+        ls -lRa /tmp/normalized-output-docs
+
+        echo "Normalized generated docs"
+        echo `get_skript_version_of_directory "/tmp/normalized-generated-docs"`
+        ls -lRa /tmp/normalized-generated-docs
+
         replace_in_directory "/tmp/normalized-output-docs" `get_skript_version_of_directory "/tmp/normalized-output-docs"` "Skript"
         replace_in_directory "/tmp/normalized-generated-docs" `get_skript_version_of_directory "/tmp/normalized-generated-docs"` "Skript"
         
