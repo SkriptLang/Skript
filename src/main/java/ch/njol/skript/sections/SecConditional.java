@@ -120,7 +120,7 @@ public class SecConditional extends Section {
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		SecConditional lastIf;
 		if (type != ConditionalType.IF) {
-			// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before and 'else')
+			// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
 			lastIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
 			if (lastIf == null) {
 				if (type == ConditionalType.ELSE_IF) {
