@@ -30,12 +30,46 @@ runs:
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
         IS_RELEASE: ${{ inputs.is_release }}
       run: |
+        get_directory_hash() {
+          tar -cf - --sort=name --mtime='UTC 2019-01-01' --group=0 --owner=0 --numeric-owner --mode=777 "$1" | sha256sum
+        }
+
+        replace_in_directory() {
+          find $1 -exec sed -i -e 's/$2/$3/g' {} \;
+        }
+
+        # this should be replaced with a more reliable jq command,
+        # but it can't be right now because docs.json is actually not valid json.
+        get_skript_version_of_directory() {
+          grep skriptVersion "$1/docs.json" | cut -d\" -f 4
+        }
+
         export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
-        export SKRIPT_DOCS_OUTPUT_DIR=${DOCS_OUTPUT_DIR}/
+        export SKRIPT_DOCS_OUTPUT_DIR=/tmp/generated-docs
+
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
           ./gradlew genReleaseDocs releaseJavadoc
         else
           ./gradlew genNightlyDocs javadoc
         fi
-        cp -a "./build/docs/javadoc/." "${DOCS_OUTPUT_DIR}/javadocs"
+
+        mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
+        
+        mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
+        mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
+
+        replace_in_directory "/tmp/normalized-output-docs" `get_skript_version_of_directory "/tmp/normalized-output-docs"` "Skript"
+        replace_in_directory "/tmp/normalized-generated-docs" `get_skript_version_of_directory "/tmp/normalized-generated-docs"` "Skript"
+        
+        output_dir_hash=`get_directory_hash /tmp/normalized-output-docs`
+        generated_docs_hash=`get_directory_hash /tmp/normalized-generated-docs`
+
+        echo "Output hash ${output_dir_hash}"
+        echo "Generated hash ${generated_docs_hash}"
+        if [[ "${output_dir_hash}" != "${generated_docs_hash}" ]]; then
+          echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT"
+        fi
+        
+        mkdir -p "${DOCS_OUTPUT_DIR}/" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
+
