@@ -676,9 +676,9 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND) {
 							if (string.isEmpty())
 								return null;
-							String name = string.toLowerCase(Locale.ENGLISH);
 							if (UUID_PATTERN.matcher(string).matches())
 								return Bukkit.getPlayer(UUID.fromString(string));
+							String name = string.toLowerCase(Locale.ENGLISH);
 							List<Player> players = new ArrayList<>();
 							for (Player player : Bukkit.getOnlinePlayers()) {
 								String lowerName = player.getName().toLowerCase(Locale.ENGLISH);
