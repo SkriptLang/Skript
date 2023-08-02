@@ -665,8 +665,10 @@ public class BukkitClasses {
 								"The first requires that the player is online and also accepts only part of the name, " +
 								"while the latter doesn't require that the player is online, but the player's name has to be entered exactly.")
 				.usage("")
-				.examples("set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online")
-				.since("1.0")
+				.examples(
+					"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online",
+					"set {_p} to \"N\" parsed as a player # returns Notch if Notch is online because their name starts with 'N' (case insensitive) however, it would return nothing if no player whose name starts with 'N' is online."
+				).since("1.0")
 				.defaultExpression(new EventValueExpression<>(Player.class))
 				.after("string", "world")
 				.parser(new Parser<Player>() {
@@ -679,13 +681,15 @@ public class BukkitClasses {
 							if (UUID_PATTERN.matcher(string).matches())
 								return Bukkit.getPlayer(UUID.fromString(string));
 							String name = string.toLowerCase(Locale.ENGLISH);
+							int nameLength = name.length();
 							List<Player> players = new ArrayList<>();
 							for (Player player : Bukkit.getOnlinePlayers()) {
 								String lowerName = player.getName().toLowerCase(Locale.ENGLISH);
-								if (lowerName.equals(name))
-									return player;
-								if (lowerName.startsWith(name))
+								if (lowerName.startsWith(name)) {
+									if (lowerName.length() == nameLength)
+										return player;
 									players.add(player);
+								}
 							}
 							if (players.size() == 1)
 								return players.get(0);
