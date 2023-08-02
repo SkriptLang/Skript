@@ -58,7 +58,7 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 
 	/**
 	 * Used to collect the property type used in the register method.
-	 * This is used to create the toString for the SimplePropertyExpression.
+	 * This forms the toString of this SimplePropertyExpression.
 	 * 
 	 * @return The name of the type used when registering this SimplePropertyExpression.
 	 */
