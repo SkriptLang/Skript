@@ -505,18 +505,20 @@ public class DefaultFunctions {
 			.since("2.5");
 
 		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
+			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
+			new Parameter<>("getExactPlayer", DefaultClasses.BOOLEAN, true, new SimpleLiteral<Boolean>(false, true)) // getExactPlayer -- grammar ¯\_ (ツ)_/¯
 		}, DefaultClasses.PLAYER, true) {
 			@Override
 			public Player[] executeSimple(Object[][] params) {
 				String name = (String) params[0][0];
+				boolean isExact = (boolean) params[1][0];
 				UUID uuid = null;
 				if (name.length() > 16 || name.contains("-")) { // shortcut
 					try {
 						uuid = UUID.fromString(name);
 					} catch (IllegalArgumentException ignored) {}
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : Bukkit.getPlayer(name));
+				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
 			}
 		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.")
 			.examples("set {_p} to player(\"SomeOnlinePlayer\")", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
