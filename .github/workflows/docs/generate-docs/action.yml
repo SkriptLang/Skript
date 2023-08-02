@@ -24,10 +24,16 @@ inputs:
     default: "*"
     type: string
 
+outputs:
+  DOCS_CHANGED:
+    description: "Whether or not the documentation has changed since the last push"
+    value: ${{ steps.generate.outputs.DOCS_CHANGED }}
+
 runs:
   using: 'composite'
   steps:
     - name: generate-docs
+      id: generate
       shell: bash
       env:
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
