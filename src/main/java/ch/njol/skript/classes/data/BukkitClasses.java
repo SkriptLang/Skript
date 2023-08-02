@@ -684,9 +684,8 @@ public class BukkitClasses {
 							int nameLength = name.length();
 							List<Player> players = new ArrayList<>();
 							for (Player player : Bukkit.getOnlinePlayers()) {
-								String lowerName = player.getName().toLowerCase(Locale.ENGLISH);
-								if (lowerName.startsWith(name)) {
-									if (lowerName.length() == nameLength)
+								if (player.getName().toLowerCase(Locale.ENGLISH).startsWith(name)) {
+									if (player.getName().length() == nameLength)
 										return player;
 									players.add(player);
 								}
