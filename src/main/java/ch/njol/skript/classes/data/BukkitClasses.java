@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -664,26 +665,34 @@ public class BukkitClasses {
 								"The first requires that the player is online and also accepts only part of the name, " +
 								"while the latter doesn't require that the player is online, but the player's name has to be entered exactly.")
 				.usage("")
-				.examples("")
+				.examples("set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Player.class))
 				.after("string", "world")
 				.parser(new Parser<Player>() {
 					@Override
 					@Nullable
-					public Player parse(String s, ParseContext context) {
+					public Player parse(String string, ParseContext context) {
 						if (context == ParseContext.COMMAND) {
-							if (s.isEmpty())
+							if (string.isEmpty())
 								return null;
-							if (UUID_PATTERN.matcher(s).matches())
-								return Bukkit.getPlayer(UUID.fromString(s));
-							List<Player> ps = Bukkit.matchPlayer(s);
-							if (ps.size() == 1)
-								return ps.get(0);
-							if (ps.size() == 0)
-								Skript.error(String.format(Language.get("commands.no player starts with"), s));
+							String name = string.toLowerCase(Locale.ENGLISH);
+							if (UUID_PATTERN.matcher(string).matches())
+								return Bukkit.getPlayer(UUID.fromString(string));
+							List<Player> players = new ArrayList<>();
+							for (Player player : Bukkit.getOnlinePlayers()) {
+								String lowerName = player.getName().toLowerCase(Locale.ENGLISH);
+								if (lowerName.equals(name))
+									return player;
+								if (lowerName.startsWith(name))
+									players.add(player);
+							}
+							if (players.size() == 1)
+								return players.get(0);
+							if (players.size() == 0)
+								Skript.error(String.format(Language.get("commands.no player starts with"), string));
 							else
-								Skript.error(String.format(Language.get("commands.multiple players start with"), s));
+								Skript.error(String.format(Language.get("commands.multiple players start with"), string));
 							return null;
 						}
 						assert false;
@@ -723,7 +732,7 @@ public class BukkitClasses {
 						"Please note that while all effects and conditions that require a player can be used with an " +
 						"offline player as well, they will not work if the player is not actually online.")
 				.usage("")
-				.examples("")
+				.examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
 				.since("")
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
