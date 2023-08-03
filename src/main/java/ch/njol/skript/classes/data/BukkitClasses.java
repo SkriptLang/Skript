@@ -666,7 +666,7 @@ public class BukkitClasses {
 								"while the latter doesn't require that the player is online, but the player's name has to be entered exactly.")
 				.usage("")
 				.examples(
-					"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online",
+					"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online or starts with Notch like Notchan",
 					"set {_p} to \"N\" parsed as a player # returns Notch if Notch is online because their name starts with 'N' (case insensitive) however, it would return nothing if no player whose name starts with 'N' is online."
 				).since("1.0")
 				.defaultExpression(new EventValueExpression<>(Player.class))
