@@ -33,7 +33,7 @@ jobs:
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
               is_release: true
-              cleanup_pattern: "!(nightly|archives)"
+              cleanup_pattern: "!(nightly|archives|templates)"
         - name: Push release documentation
           uses: ./skript/.github/workflows/docs/push-docs
           with:
