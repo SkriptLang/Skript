@@ -223,7 +223,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 					break;
 			}
 			if (serializer != null) {
-				if (!bookMeta.hasTitle() && !bookMeta.hasDisplayName())
+				if (!bookMeta.hasTitle() && bookMeta.hasDisplayName())
 					bookMeta.title(bookMeta.displayName());
 				List<Component> components = pages.stream()
 						.map(ChatMessages::parseToArray)
