@@ -736,7 +736,7 @@ public class BukkitClasses {
 						"offline player as well, they will not work if the player is not actually online.")
 				.usage("")
 				.examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
-				.since("")
+				.since("2.0 beta 8")
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
