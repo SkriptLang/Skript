@@ -32,7 +32,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Entity AI")
 @Description("Returns whether an entity has AI.")
-@Examples("set artificial intelligence of target entity to false")
+@Examples("set artificial intelligence of target entity to falsetest")
 @Since("2.5")
 public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	
