@@ -171,7 +171,7 @@ public class ExprParse extends SimpleExpression<Object> {
 				assert parser != null; // checked in init()
 
 				// Parse and return value
-				Object value = parser.parse(text, ParseContext.SCRIPT);
+				Object value = parser.parse(text, ParseContext.PARSE);
 				if (value != null) {
 					Object[] valueArray = (Object[]) Array.newInstance(classInfo.getC(), 1);
 					valueArray[0] = value;
@@ -180,7 +180,7 @@ public class ExprParse extends SimpleExpression<Object> {
 			} else {
 				assert pattern != null && patternExpressions != null;
 
-				MatchResult matchResult = pattern.match(text, SkriptParser.PARSE_LITERALS, ParseContext.SCRIPT);
+				MatchResult matchResult = pattern.match(text, SkriptParser.PARSE_LITERALS, ParseContext.PARSE);
 
 				if (matchResult != null) {
 					Expression<?>[] exprs = matchResult.getExpressions();
@@ -256,7 +256,7 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	private static boolean canParse(ClassInfo<?> classInfo) {
 		Parser<?> parser = classInfo.getParser();
-		if (parser == null || !parser.canParse(ParseContext.SCRIPT)) {
+		if (parser == null || !parser.canParse(ParseContext.PARSE)) {
 			Skript.error("Text cannot be parsed as " + classInfo.getName().withIndefiniteArticle());
 			return false;
 		}
