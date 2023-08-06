@@ -92,7 +92,7 @@ public class ExprParse extends SimpleExpression<Object> {
 	private SkriptPattern pattern;
 	@Nullable
 	private NonNullPair<ClassInfo<?>, Boolean>[] patternExpressions;
-	private boolean patternHasSingleExpression = false;
+	private boolean single = true;
 	public boolean flatten = true;
 
 	@Nullable
@@ -124,6 +124,8 @@ public class ExprParse extends SimpleExpression<Object> {
 			for (NonNullPair<ClassInfo<?>, Boolean> patternExpression : patternExpressions) {
 				if (!canParse(patternExpression.getFirst()))
 					return false;
+				if (patternExpression.getSecond())
+					single = false;
 			}
 
 			// Escape '¦' and ':' (used for parser tags/marks)
@@ -138,8 +140,9 @@ public class ExprParse extends SimpleExpression<Object> {
 				return false;
 			}
 
-			// If the pattern contains at most 1 type, this expression is single
-			this.patternHasSingleExpression = this.pattern.countNonNullTypes() <= 1;
+			// If the pattern contains at most 1 type, and this type is single, this expression is single
+			if (single)
+				this.single = this.pattern.countNonNullTypes() <= 1;
 		} else {
 			classInfo = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
 
@@ -241,7 +244,7 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern == null || patternHasSingleExpression;
+		return single;
 	}
 
 	@Override
