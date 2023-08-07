@@ -18,17 +18,10 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.util.Calendar;
-
-import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.JavaFunction;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.util.Vector;
-
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -39,12 +32,16 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("null")
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Calendar;
+
 public class DefaultFunctions {
 	
 	private static String str(double n) {
@@ -68,16 +65,26 @@ public class DefaultFunctions {
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2"));
 		
-		Functions.registerFunction(new SimpleJavaFunction<Long>("round", numberParam, DefaultClasses.LONG, true) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
-			public Long[] executeSimple(Object[][] params) {
+			public Number[] executeSimple(Object[][] params) {
 				if (params[0][0] instanceof Long)
 					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.round(((Number) params[0][0]).doubleValue())};
+				double value = ((Number) params[0][0]).doubleValue();
+				int placement = ((Number) params[1][0]).intValue();
+				if (placement == 0)
+					return new Long[] {Math2.round(value)};
+				if (placement >= 0) {
+					BigDecimal decimal = new BigDecimal(Double.toString(value));
+					decimal = decimal.setScale(placement, RoundingMode.HALF_UP);
+					return new Double[] {decimal.doubleValue()};
+				}
+				long rounded = Math2.round(value);
+				return new Double[] {(int) Math2.round(rounded * Math.pow(10.0, placement)) / Math.pow(10.0, placement)};
 			}
-		}.description("Rounds a number, i.e. returns the closest integer to the argument.")
+		}.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
-			.since("2.2"));
+			.since("2.2, 2.7 (decimal placement)"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
 			@Override
@@ -297,7 +304,37 @@ public class DefaultFunctions {
 		}.description("Returns the minimum number from a list of numbers.")
 			.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 			.since("2.2"));
-		
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[]{
+			new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+			new Parameter<>("min", DefaultClasses.NUMBER, true, null),
+			new Parameter<>("max", DefaultClasses.NUMBER, true, null)
+		}, DefaultClasses.NUMBER, false) {
+			@Override
+			public @Nullable Number[] executeSimple(Object[][] params) {
+				Number[] values = (Number[]) params[0];
+				Double[] clampedValues = new Double[values.length];
+				double min = ((Number) params[1][0]).doubleValue();
+				double max = ((Number) params[2][0]).doubleValue();
+				// we'll be nice and swap them if they're in the wrong order
+				double trueMin = Math.min(min, max);
+				double trueMax = Math.max(min, max);
+				for (int i = 0; i < values.length; i++) {
+					double value = values[i].doubleValue();
+					clampedValues[i] = Math.max(Math.min(value, trueMax), trueMin);
+				}
+				return clampedValues;
+			}
+		}).description("Clamps one or more values between two numbers.")
+			.examples(
+					"clamp(5, 0, 10) = 5",
+					"clamp(5.5, 0, 5) = 5",
+					"clamp(0.25, 0, 0.5) = 0.25",
+					"clamp(5, 7, 10) = 7",
+					"clamp((5, 0, 10, 9, 13), 7, 10) = (7, 7, 10, 9, 10)",
+					"set {_clamped::*} to clamp({_values::*}, 0, 10)")
+			.since("INSERT VERSION");
+
 		// misc
 		
 		Functions.registerFunction(new SimpleJavaFunction<World>("world", new Parameter[] {
@@ -311,9 +348,7 @@ public class DefaultFunctions {
 		}).description("Gets a world from its name.")
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
-		
-		// the location expression doesn't work, so why not make a function for the same purpose
-		// FIXME document on ExprLocation as well
+
 		Functions.registerFunction(new JavaFunction<Location>("location", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
@@ -395,7 +430,7 @@ public class DefaultFunctions {
 					Number n = (Number) params[i][0];
 					
 					double value = n.doubleValue() * scale[i] + offsets[i] + carry;
-					int v = Math2.floorI(value);
+					int v = (int) Math2.floor(value);
 					carry = (value - v) * relations[i];
 					//noinspection MagicConstant
 					c.set(field, v);
@@ -433,13 +468,13 @@ public class DefaultFunctions {
 			public Long[] executeSimple(Object[][] params) {
 				long level = (long) params[0][0];
 				long exp;
-			    if (level <= 0) {
+				if (level <= 0) {
 					exp = 0;
 				} else if (level >= 1 && level <= 15) {
 					exp = level * level + 6 * level;
 				} else if (level >= 16 && level <= 30) { // Truncating decimal parts probably works
-			        exp = (int) (2.5 * level * level - 40.5 * level + 360);
-			    } else { // Half experience points do not exist, anyway
+					exp = (int) (2.5 * level * level - 40.5 * level + 360);
+				} else { // Half experience points do not exist, anyway
 					exp = (int) (4.5 * level * level - 162.5 * level + 2220);
 				}
 				

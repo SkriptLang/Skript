@@ -18,7 +18,7 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.tests.runner.TestMode;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -60,24 +60,28 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
 			try (Stream<Path> files = Files.walk(scripts.toPath())) {
 				files.map(Path::toFile)
-					.forEach(f -> {
-						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(f))
+					.forEach(file -> {
+						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
 							return;
 
-						String fileString = f.toString().substring(scriptsPathLength);
+						// Ignore hidden files like .git/ for users that use git source control.
+						if (file.isHidden())
+							return;
+
+						String fileString = file.toString().substring(scriptsPathLength);
 						if (fileString.isEmpty())
 							return;
 
-						if (f.isDirectory()) {
+						if (file.isDirectory()) {
 							fileString = fileString + fs; // Add file separator at the end of directories
-						} else if (f.getParentFile().toPath().toString().equals(scriptsPathString)) {
+						} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
 							fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
 							if (fileString.isEmpty())
 								return;
 						}
 
 						// Make sure the user's argument matches with the file's name or beginning of file path
-						if (scriptArg.length() > 0 && !f.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
+						if (scriptArg.length() > 0 && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
 							return;
 
 						// Trim off previous arguments if needed

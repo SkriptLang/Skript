@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
 
-import ch.njol.skript.classes.Comparator.Relation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -166,7 +165,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			this.block = block;
 		}
 	}
-	
+
 	public ItemType() {}
 	
 	public ItemType(Material id) {
@@ -345,6 +344,14 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Useful for checking if materials represent an item or a block. Materials that are not items don't have ItemData
+	 * @return Whether this ItemType has at least one ItemData that represents it whether it's a block or an item
+	 */
+	public boolean hasType() {
+		return !types.isEmpty();
 	}
 	
 	/**
@@ -1299,7 +1306,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		
 		// Apply new meta to all datas
 		for (ItemData data : types) {
-			data.applyMeta(meta);
+			data.setItemMeta(meta);
 		}
 	}
 	
@@ -1327,7 +1334,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	public ItemType getBaseType() {
 		ItemType copy = new ItemType();
 		for (ItemData data : types) {
-			copy.add(data.aliasCopy());
+			copy.add_(data.aliasCopy());
 		}
 		return copy;
 	}
