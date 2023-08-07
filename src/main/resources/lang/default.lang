@@ -1314,6 +1314,7 @@ teleport causes:
 	spectate: spectate, spectator
 	unknown: unknown
 	dismount: dismount, dismounted
+	exit_bed: exit bed, exiting bed, bed exit
 
 # -- Game Modes --
 game modes:
