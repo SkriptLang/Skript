@@ -245,6 +245,8 @@ public class SecConditional extends Section {
 			return true;
 
 		if (type == ConditionalType.ELSE) {
+			precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+			assert precedingIf != null; // at this point, we've validated the section so this can't be null
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
 					&& precedingIf.hasDelayAfter.isTrue()
