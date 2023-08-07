@@ -39,7 +39,7 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends F>) exprs[0]);
 		return true;
 	}
