@@ -62,13 +62,13 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 	 * @return The Event that was used in this expression.
 	 */
 	@Nullable
-	public Event getEvent() {
+	protected Event getEvent() {
 		return event;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the " + getPropertyName() + " of " + getExpr().toString(event, debug);
+		return getPropertyName() + " of " + getExpr().toString(event, debug);
 	}
 
 }
