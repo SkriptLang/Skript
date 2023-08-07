@@ -22,73 +22,56 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.List;
-
-@Name("Continue")
-@Description("Immediately moves the (while) loop on to the next iteration.")
+@Name("Handedness")
+@Description("Make mobs left or right-handed. This does not affect players.")
 @Examples({
-	"# Broadcast online moderators",
-	"loop all players:",
-		"\tif loop-value does not have permission \"moderator\":",
-			"\t\tcontinue # filter out non moderators",
-		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
-	" ",
-	"# Game starting counter",
-	"set {_counter} to 11",
-	"while {_counter} > 0:",
-		"\tremove 1 from {_counter}",
-		"\twait a second",
-		"\tif {_counter} != 1, 2, 3, 5 or 10:",
-			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
-		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
+	"spawn skeleton at spawn of world \"world\":",
+		"\tmake entity left handed",
+	"",
+	"make all zombies in radius 10 of player right handed"
 })
-@Since("2.2-dev37, 2.7 (while loops)")
-public class EffContinue extends Effect {
+@Since("INSERT VERSION")
+@RequiredPlugins("Paper 1.17.1+")
+public class EffHandedness extends Effect {
 
 	static {
-		Skript.registerEffect(EffContinue.class, "continue [loop]");
+		if (Skript.methodExists(Mob.class, "setLeftHanded", boolean.class))
+			Skript.registerEffect(EffHandedness.class, "make %livingentities% (:left|right)( |-)handed");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private LoopSection loop;
+	private boolean leftHanded;
+	private Expression<LivingEntity> livingEntities;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
-		
-		if (currentLoops.isEmpty()) {
-			Skript.error("The 'continue' effect may only be used in while and regular loops");
-			return false;
-		}
-		
-		loop = currentLoops.get(currentLoops.size() - 1);
+		leftHanded = parseResult.hasTag("left");
+		livingEntities = (Expression<LivingEntity>) exprs[0];
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		return loop;
+		for (LivingEntity livingEntity : livingEntities.getArray(event)) {
+			if (livingEntity instanceof Mob) {
+				((Mob) livingEntity).setLeftHanded(leftHanded);
+			}
+		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "continue";
+		return "make " + livingEntities.toString(event, debug) + " " + (leftHanded ? "left" : "right") + " handed";
 	}
 
 }

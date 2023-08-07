@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -28,6 +29,7 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -90,7 +92,7 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("<i>unknown</i> (before 2.1), 2.5 (entity)")
-				.requiredPlugins("1.12.2+ for entity");
+				.keywords("pickup");
 		} else {
 			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
@@ -127,6 +129,17 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
+		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
+				.description(
+						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
+						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"If this event is cancelled, the items will be returned to the source inventory."
+				)
+				.examples(
+						"on inventory item move:",
+							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+				)
+				.since("INSERT VERSION");
 	}
 	
 	@Nullable
@@ -184,6 +197,8 @@ public class EvtItem extends SkriptEvent {
 			is = ((ItemDespawnEvent) event).getEntity().getItemStack();
 		} else if (event instanceof ItemMergeEvent) {
 			is = ((ItemMergeEvent) event).getTarget().getItemStack();
+		} else if (event instanceof InventoryMoveItemEvent) {
+			is = ((InventoryMoveItemEvent) event).getItem();
 		} else {
 			assert false;
 			return false;
@@ -201,8 +216,8 @@ public class EvtItem extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge" + (types == null ? "" : " of " + types);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/move" + (types == null ? "" : " of " + types);
 	}
 	
 }
