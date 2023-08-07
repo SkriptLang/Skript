@@ -120,28 +120,31 @@ public class SecConditional extends Section {
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		SecConditional precedingIf;
 		if (type != ConditionalType.IF) {
-			// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
-			precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
-			if (precedingIf == null) {
-				if (type == ConditionalType.ELSE_IF) {
-					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.ELSE) {
-					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.THEN) {
-					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
-				}
-				return false;
-			} else if (type == ConditionalType.THEN) {
-				/* if this is a 'then' section, the preceding conditional has to be a multiline conditional section
-				/ otherwise, you could put a 'then' section after a non-multiline 'if'. for example:
-				/  if 1 is 1:
-				/    set {_example} to true
-				/  then: # this shouldn't be possible
-				/    set {_uh oh} to true
-				*/
+			if (type == ConditionalType.THEN) {
+				/*
+				 * if this is a 'then' section, the preceding conditional has to be a multiline conditional section
+				 * otherwise, you could put a 'then' section after a non-multiline 'if'. for example:
+				 *  if 1 is 1:
+				 *    set {_example} to true
+				 *  then: # this shouldn't be possible
+				 *    set {_uh oh} to true
+				 */
 				SecConditional precedingConditional = getPrecedingConditional(triggerItems, null);
 				if (precedingConditional == null || !precedingConditional.multiline) {
 					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
+					return false;
+				}
+			} else {
+				// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
+				precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+				if (precedingIf == null) {
+					if (type == ConditionalType.ELSE_IF) {
+						Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
+					} else if (type == ConditionalType.ELSE) {
+						Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
+					} else if (type == ConditionalType.THEN) {
+						Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
+					}
 					return false;
 				}
 			}
