@@ -284,73 +284,72 @@ public class BukkitClasses {
 				}));
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-			.user("block ?datas?")
-			.name("Block Data")
-			.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-				"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-				"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-				"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-				"The 'minecraft:' namespace is optional, as well as are underscores.")
-			.examples("set block at player to campfire[lit=false]",
-				"set target block of player to oak stairs[facing=north;waterlogged=true]",
-				"set block at player to grass_block[snowy=true]",
-				"set loop-block to minecraft:chest[facing=north]",
-				"set block above player to oak_log[axis=y]",
-				"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-			.after("itemtype")
-			.requiredPlugins("Minecraft 1.13+")
-			.since("2.5")
-			.parser(new Parser<BlockData>() {
-				@Nullable
-				@Override
-				public BlockData parse(String s, ParseContext context) {
-					return BlockUtils.createBlockData(s);
-				}
-
-				@Override
-				public String toString(BlockData o, int flags) {
-					return o.getAsString().replace(",", ";");
-				}
-
-				@Override
-				public String toVariableNameString(BlockData o) {
-					return "blockdata:" + o.getAsString();
-				}
-			})
-			.serializer(new Serializer<BlockData>() {
-				@Override
-				public Fields serialize(BlockData o) {
-					Fields f = new Fields();
-					f.putObject("blockdata", o.getAsString());
-					return f;
-				}
-
-				@Override
-				public void deserialize(BlockData o, Fields f) {
-					assert false;
-				}
-
-				@Override
-				protected BlockData deserialize(Fields f) throws StreamCorruptedException {
-					String data = f.getObject("blockdata", String.class);
-					assert data != null;
-					try {
-						return Bukkit.createBlockData(data);
-					} catch (IllegalArgumentException ex) {
-						throw new StreamCorruptedException("Invalid block data: " + data);
+				.user("block ?datas?")
+				.name("Block Data")
+				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
+						"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
+						"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
+						"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
+						"The 'minecraft:' namespace is optional, as well as are underscores.")
+				.examples("set block at player to campfire[lit=false]",
+						"set target block of player to oak stairs[facing=north;waterlogged=true]",
+						"set block at player to grass_block[snowy=true]",
+						"set loop-block to minecraft:chest[facing=north]",
+						"set block above player to oak_log[axis=y]",
+						"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
+				.after("itemtype")
+				.since("2.5")
+				.parser(new Parser<BlockData>() {
+					@Nullable
+					@Override
+					public BlockData parse(String input, ParseContext context) {
+						return BlockUtils.createBlockData(input);
 					}
-				}
-
-				@Override
-				public boolean mustSyncDeserialization() {
-					return true;
-				}
-
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
+	
+					@Override
+					public String toString(BlockData o, int flags) {
+						return o.getAsString().replace(",", ";");
+					}
+	
+					@Override
+					public String toVariableNameString(BlockData o) {
+						return "blockdata:" + o.getAsString();
+					}
+				})
+				.serializer(new Serializer<BlockData>() {
+					@Override
+					public Fields serialize(BlockData o) {
+						Fields f = new Fields();
+						f.putObject("blockdata", o.getAsString());
+						return f;
+					}
+	
+					@Override
+					public void deserialize(BlockData o, Fields f) {
+						assert false;
+					}
+	
+					@Override
+					protected BlockData deserialize(Fields f) throws StreamCorruptedException {
+						String data = f.getObject("blockdata", String.class);
+						assert data != null;
+						try {
+							return Bukkit.createBlockData(data);
+						} catch (IllegalArgumentException ex) {
+							throw new StreamCorruptedException("Invalid block data: " + data);
+						}
+					}
+	
+					@Override
+					public boolean mustSyncDeserialization() {
+						return true;
+					}
+	
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
