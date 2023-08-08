@@ -26,11 +26,14 @@ import java.util.function.Function;
 
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
+import ch.njol.skript.util.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -55,7 +58,16 @@ import ch.njol.util.Kleenean;
 	"aliases of command \"bukkit:help\"",
 	"permission of command \"/op\"",
 	"command \"op\"'s permission message",
-	"command \"sk\"'s plugin owner"
+	"command \"sk\"'s plugin owner",
+	"",
+	"command /greet <player>:",
+		"\tusage: /greet <target>",
+		"\ttrigger:",
+			"\t\tif arg-1 is sender:",
+				"\t\t\tsend \"&cYou can't greet yourself! Usage: %the usage%\"",
+				"\t\t\tstop",
+			"\t\tsend \"%sender% greets you!\" to arg-1",
+			"\t\tsend \"You greeted %arg-1%!\""
 })
 @Since("2.6")
 public class ExprCommandInfo extends SimpleExpression<String> {
@@ -111,8 +123,10 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		commandName = (Expression<String>) exprs[0];
-		if (commandName == null && !getParser().isCurrentEvent(ScriptCommandEvent.class))
+		if (commandName == null && !getParser().isCurrentEvent(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
+			Skript.error("There's no command in " + Utils.a(getParser().getCurrentEventName()) + " event. Please provide a command");
 			return false;
+		}
 		type = InfoType.values()[Math.floorDiv(matchedPattern, 2)];
 		return true;
 	}
@@ -120,17 +134,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	@Nullable
 	@Override
 	protected String[] get(Event event) {
-		Command[] commands;
-		if (commandName == null) {
-			if (!(event instanceof ScriptCommandEvent))
-				return new String[0];
-			commands = new Command[] {((ScriptCommandEvent) event).getScriptCommand().getBukkitCommand()};
-		} else {
-			CommandMap map = Commands.getCommandMap();
-			if (map == null)
-				return new String[0];
-			commands = commandName.stream(event).map(map::getCommand).filter(Objects::nonNull).toArray(Command[]::new);
-		}
+		Command[] commands = getCommands(event);
 		if (type == InfoType.ALIASES) {
 			ArrayList<String> result = new ArrayList<>();
 			for (Command command : commands)
@@ -157,6 +161,31 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + type.name().toLowerCase(Locale.ENGLISH).replace("_", " ") +
 			(commandName == null ? "" : " of command " + commandName.toString(event, debug));
+	}
+
+	@Nullable
+	private Command[] getCommands(Event event) {
+		if (event instanceof ScriptCommandEvent && commandName == null)
+			return new Command[] {((ScriptCommandEvent) event).getScriptCommand().getBukkitCommand()};
+
+		CommandMap map = Commands.getCommandMap();
+		if (map == null)
+			return null;
+
+		if (commandName != null)
+			return commandName.stream(event).map(map::getCommand).filter(Objects::nonNull).toArray(Command[]::new);
+
+		String commandName;
+		if (event instanceof ServerCommandEvent) {
+			commandName = ((ServerCommandEvent) event).getCommand();
+		} else if (event instanceof PlayerCommandPreprocessEvent) {
+			commandName = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1);
+		} else {
+			return null;
+		}
+		commandName = commandName.split(":")[0];
+		Command command = map.getCommand(commandName);
+		return command != null ? new Command[] {command} : null;
 	}
 
 	private static List<String> getAliases(Command command) {
