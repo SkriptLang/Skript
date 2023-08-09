@@ -25,70 +25,55 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.List;
-
-@Name("Continue")
-@Description("Immediately moves the (while) loop on to the next iteration.")
+@Name("Toggle Picking Up Items")
+@Description("Determines whether living entities are able to pick up items or not")
 @Examples({
-	"# Broadcast online moderators",
-	"loop all players:",
-		"\tif loop-value does not have permission \"moderator\":",
-			"\t\tcontinue # filter out non moderators",
-		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
-	" ",
-	"# Game starting counter",
-	"set {_counter} to 11",
-	"while {_counter} > 0:",
-		"\tremove 1 from {_counter}",
-		"\twait a second",
-		"\tif {_counter} != 1, 2, 3, 5 or 10:",
-			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
-		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
+	"forbid player from picking up items",
+	"send \"You can no longer pick up items!\" to player",
+	"",
+	"on drop:",
+		"\tif player can't pick	up items:",
+			"\t\tallow player to pick up items"
 })
-@Since("2.2-dev37, 2.7 (while loops)")
-public class EffContinue extends Effect {
+@Since("INSERT VERSION")
+public class EffToggleCanPickUpItems extends Effect {
 
 	static {
-		Skript.registerEffect(EffContinue.class, "continue [loop]");
+		Skript.registerEffect(EffToggleCanPickUpItems.class,
+				"allow %livingentities% to pick([ ]up items| items up)",
+				"(forbid|disallow) %livingentities% (from|to) pick([ing | ]up items|[ing] items up)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private LoopSection loop;
+	private Expression<LivingEntity> entities;
+	private boolean allowPickUp;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
-		
-		if (currentLoops.isEmpty()) {
-			Skript.error("The 'continue' effect may only be used in while and regular loops");
-			return false;
-		}
-		
-		loop = currentLoops.get(currentLoops.size() - 1);
+		entities = (Expression<LivingEntity>) exprs[0];
+		allowPickUp = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		return loop;
+		for (LivingEntity entity : entities.getArray(event)) {
+			entity.setCanPickupItems(allowPickUp);
+		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "continue";
+		if (allowPickUp) {
+			return "allow " + entities.toString(event, debug) + " to pick up items";
+		} else {
+			return "forbid " + entities.toString(event, debug) + " from picking up items";
+		}
 	}
 
 }

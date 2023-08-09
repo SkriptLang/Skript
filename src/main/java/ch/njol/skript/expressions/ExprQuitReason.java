@@ -19,37 +19,51 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.registrations.EventValues;
 
-@Name("Teleport Cause")
-@Description("The <a href='classes.html#teleportcause'>teleport cause</a> within a player <a href='events.html#teleport'>teleport</a> event.")
+@Name("Quit Reason")
+@Description("The <a href='classes.html#quitreason'>quit reason</a> as to why a player disconnected in a <a href='events.html#quit'>quit</a> event.")
 @Examples({
-	"on teleport:",
-		"\tteleport cause is nether portal, end portal or end gateway"
+	"on quit:",
+		"\tquit reason was kicked",
+		"\tplayer is banned",
+		"\tclear {server::player::%uuid of player%::*}"
 })
-@Since("2.2-dev35")
-public class ExprTeleportCause extends EventValueExpression<TeleportCause> {
+@RequiredPlugins("Paper 1.16.5+")
+@Since("INSERT VERSION")
+public class ExprQuitReason extends EventValueExpression<QuitReason> {
 
 	static {
-		Skript.registerExpression(ExprTeleportCause.class, TeleportCause.class, ExpressionType.SIMPLE, "[the] teleport (cause|reason|type)");
+		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
+			Skript.registerExpression(ExprQuitReason.class, QuitReason.class, ExpressionType.SIMPLE, "[the] (quit|disconnect) (cause|reason)");
 	}
 
-	public ExprTeleportCause() {
-		super(TeleportCause.class);
+	public ExprQuitReason() {
+		super(QuitReason.class);
+	}
+
+	// Allow for 'the quit reason was ...' as that's proper grammar support for this event value.
+	@Override
+	public boolean setTime(int time) {
+		if (time == EventValues.TIME_FUTURE)
+			return super.setTime(time);
+		return true;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "teleport cause";
+		return "quit reason";
 	}
 
 }
