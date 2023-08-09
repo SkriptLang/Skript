@@ -344,13 +344,14 @@ public class SecConditional extends Section {
 			if (triggerItem instanceof SecConditional) {
 				SecConditional conditionalSection = (SecConditional) triggerItem;
 
-				if (conditionalSection.type == ConditionalType.ELSE)
+				if (conditionalSection.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
 					return null;
-				else if (type == null || conditionalSection.type == type)
+				} else if (type == null || conditionalSection.type == type) {
 					// if the conditional matches the type argument, we found our most recent preceding conditional section
 					return conditionalSection;
+				}
 			} else {
 				return null;
 			}
