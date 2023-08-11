@@ -1,0 +1,64 @@
+name: Cherry picks version targeted pull requests automatically.
+
+on:
+    pull_request:
+        branches:
+            - master
+        types:
+            - closed
+
+jobs:
+    cherry_pick_v2_7:
+        runs-on: ubuntu-latest
+        name: Cherry pick into v2_7
+        if: ${{ contains(github.event.pull_request.labels.*.name, '2.7') && github.event.pull_request.merged == true }}
+        steps:
+            - name: Checkout
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            - name: Cherry pick into 2.7
+                uses: carloscastrojumo/github-cherry-pick-action@v1.0.1
+                with:
+                    branch: dev/2.7
+                    labels: |
+                        2.7
+                    title: '[2.7 target] {old_title}'
+                    body: 'Cherry picking #{old_pull_request_id} into dev/2.7'
+    cherry_pick_v2_8:
+        runs-on: ubuntu-latest
+        name: Cherry pick into v2_8
+        if: ${{ contains(github.event.pull_request.labels.*.name, '2.8') && github.event.pull_request.merged == true }}
+        steps:
+            - name: Checkout
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            - name: Cherry pick into 2.8
+                uses: carloscastrojumo/github-cherry-pick-action@v1.0.1
+                with:
+                    branch: dev/2.8
+                    labels: |
+                        2.8
+                    title: '[2.8 target] {old_title}'
+                    body: 'Cherry picking #{old_pull_request_id} into dev/2.8'
+    cherry_pick_v2_9:
+        runs-on: ubuntu-latest
+        name: Cherry pick into v2_9
+        if: ${{ contains(github.event.pull_request.labels.*.name, '2.9') && github.event.pull_request.merged == true }}
+        steps:
+            - name: Checkout
+                uses: actions/checkout@v2
+                with:
+                    fetch-depth: 0
+            - name: Cherry pick into 2.9
+                uses: carloscastrojumo/github-cherry-pick-action@v1.0.1
+                with:
+                    branch: dev/2.9
+                    labels: |
+                        2.9
+                    title: '[2.9 target] {old_title}'
+                    body: 'Cherry picking #{old_pull_request_id} into dev/2.9'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
