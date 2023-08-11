@@ -199,7 +199,7 @@ public abstract class Utils {
 			for (String c : classNames) {
 				try {
 					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException ex) {
+				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
 					Skript.exception(ex, "Cannot load class " + c);
 				} catch (ExceptionInInitializerError err) {
 					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
