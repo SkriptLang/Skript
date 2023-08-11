@@ -90,6 +90,10 @@ public class DefaultOperations {
 		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
+		// Timespan - Number
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Timespan.class, Number.class, (left, right) -> new Timespan(left.getMilliSeconds() * right.longValue()));
+		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> new Timespan(left.getMilliSeconds() / right.longValue()));
+
 		// Date - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
