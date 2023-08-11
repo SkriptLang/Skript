@@ -249,7 +249,9 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return classInfo != null ? classInfo.getC() : Object.class;
+		if (classInfo != null)
+			return classInfo.getC();
+		return patternExpressions.length == 1 ? patternExpressions[0].getFirst().getC() : Object.class;
 	}
 
 	@Override
