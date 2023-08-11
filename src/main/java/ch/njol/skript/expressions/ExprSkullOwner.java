@@ -25,9 +25,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The skull owner of a player skull.")
 @Examples({
 	"set {_owner} to the skull owner of event-block",
-	"set skull owner of {_block} to player"
+	"set skull owner of {_block} to \"Njol\" parsed as offlineplayer"
 })
 @Since("INSERT VERSION")
 public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlayer> {
@@ -47,14 +47,15 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 
 	@Override
 	public @Nullable OfflinePlayer convert(Block block) {
-		if (block.getType().equals(Material.PLAYER_HEAD) || block.getType().equals(Material.PLAYER_WALL_HEAD)) {
-			return ((Skull) block.getState()).getOwningPlayer();
-		}
-		return null;
+		BlockState state = block.getState();
+		if (!(state instanceof Skull))
+			return null;
+		return ((Skull) state).getOwningPlayer();
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(OfflinePlayer.class);
 		return null;
@@ -62,11 +63,13 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		OfflinePlayer offlinePlayer = (OfflinePlayer) delta[0];
 		for (Block block : getExpr().getArray(event)) {
-			if (block.getType().equals(Material.PLAYER_HEAD) || block.getType().equals(Material.PLAYER_WALL_HEAD)) {
-				Skull skull = (Skull) block.getState();
-				skull.setOwningPlayer((OfflinePlayer) delta[0]);
-				skull.update();
+			BlockState state = block.getState();
+			if (state instanceof Skull) {
+				Skull skull = (Skull) state;
+				skull.setOwningPlayer(offlinePlayer);
+				skull.update(true, false);
 			}
 		}
 	}
