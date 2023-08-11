@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -33,9 +28,10 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
@@ -52,10 +48,10 @@ public class CondIsWhitelisted extends Condition {
 
 	static {
 		String[] patterns = new String[ENFORCE_SUPPORT ? 3 : 2];
-		patterns[0] = "[the] server (is|not:(isn't|is not)) white[ ]listed";
+		patterns[0] = "[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)";
 		patterns[1] = "%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed";
 		if (ENFORCE_SUPPORT)
-			patterns[2] = "[the] white[ ]list (is|not:(isn't|is not)) enforced";
+			patterns[2] = "[the] server white[ ]list (is|not:(isn't|is not)) enforced";
 		Skript.registerCondition(CondIsWhitelisted.class, patterns);
 	}
 
