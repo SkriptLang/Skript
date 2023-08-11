@@ -118,7 +118,6 @@ public class SecConditional extends Section {
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
-		SecConditional precedingIf;
 		if (type != ConditionalType.IF) {
 			if (type == ConditionalType.THEN) {
 				/*
@@ -136,7 +135,7 @@ public class SecConditional extends Section {
 				}
 			} else {
 				// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
-				precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+				SecConditional precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
 				if (precedingIf == null) {
 					if (type == ConditionalType.ELSE_IF) {
 						Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
@@ -164,7 +163,6 @@ public class SecConditional extends Section {
 					return false;
 				}
 			}
-			precedingIf = null;
 		}
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
@@ -245,7 +243,7 @@ public class SecConditional extends Section {
 			return true;
 
 		if (type == ConditionalType.ELSE) {
-			precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+			SecConditional precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
 			assert precedingIf != null; // at this point, we've validated the section so this can't be null
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
