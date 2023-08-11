@@ -150,20 +150,20 @@ license {
 }
 
 javadoc {
-	source = sourceSets.main.allJava.matching {
-		exclude("ch/njol/skript/conditions/**")
-		exclude("ch/njol/skript/expressions/**")
-		exclude("ch/njol/skript/effects/**")
-		exclude("ch/njol/skript/events/**")
-		exclude("ch/njol/skript/sections/**")
-		exclude("ch/njol/skript/structures/**")
-		exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
-		exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
-		exclude("ch/njol/skript/hooks/**")
-		exclude("ch/njol/skript/tests/**")
-	}
+	source = sourceSets.main.allJava
+
+	exclude("ch/njol/skript/conditions/**")
+	exclude("ch/njol/skript/expressions/**")
+	exclude("ch/njol/skript/effects/**")
+	exclude("ch/njol/skript/events/**")
+	exclude("ch/njol/skript/sections/**")
+	exclude("ch/njol/skript/structures/**")
+	exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
+	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
+	exclude("ch/njol/skript/hooks/**")
+	exclude("ch/njol/skript/tests/**")
 	
-	classpath = configurations.compileClasspath
+	classpath = configurations.compileClasspath + sourceSets.main.output
 	options.encoding = 'UTF-8'
 	// currently our javadoc has a lot of errors, so we need to suppress the linter
 	options.addStringOption('Xdoclint:none', '-quiet')
