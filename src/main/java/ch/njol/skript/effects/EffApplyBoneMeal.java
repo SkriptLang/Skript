@@ -22,11 +22,13 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.Event;
@@ -35,11 +37,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Apply Bone Meal")
 @Description("Applies bone meal to a crop, sapling, or composter")
 @Examples("apply 3 bone meal to event-block")
+@RequiredPlugins("Spigot 1.16+")
 @Since("INSERT VERSION")
 public class EffApplyBoneMeal extends Effect {
+	static Boolean version = Skript.isRunningMinecraft(1, 16);
 
 	static {
-		Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] to %blocks%");
+		if (version) {
+			Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] to %blocks%");
+		}
 	}
 
 	private Expression<Block> blocks;
