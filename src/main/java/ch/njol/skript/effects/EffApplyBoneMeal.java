@@ -40,12 +40,10 @@ import org.eclipse.jdt.annotation.Nullable;
 @RequiredPlugins("Spigot 1.16.2+")
 @Since("INSERT VERSION")
 public class EffApplyBoneMeal extends Effect {
-	static Boolean version = Skript.isRunningMinecraft(1, 16);
 
 	static {
-		if (version) {
+		if (Skript.isRunningMinecraft(1, 16, 2))
 			Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] to %blocks%");
-		}
 	}
 
 	@Nullable
