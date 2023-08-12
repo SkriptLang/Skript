@@ -56,12 +56,8 @@ public class EffApplyBoneMeal extends Effect {
 	@Override
 	protected void execute(Event event) {
 		int times = 1;
-		if (amount != null) {
-			Number n = amount.getSingle(event);
-			if (n == null)
-				return;
-			times = n.intValue();
-		}
+		if (amount != null)
+			times = amount.getOptionalSingle(event).orElse(1).intValue();
 		for (Block block : blocks.getArray(event)) {
 			for (int i = 0; i < times; i++) {
 				block.applyBoneMeal(BlockFace.UP);
