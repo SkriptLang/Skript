@@ -48,9 +48,9 @@ public class EffApplyBoneMeal extends Effect {
 		}
 	}
 
-	private Expression<Block> blocks;
 	@Nullable
 	private Expression<Number> amount;
+	private Expression<Block> blocks;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
