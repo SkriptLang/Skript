@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Apply Bone Meal")
 @Description("Applies bone meal to a crop, sapling, or composter")
 @Examples("apply 3 bone meal to event-block")
-@RequiredPlugins("Spigot 1.16.2+")
+@RequiredPlugins("MC 1.16.2+")
 @Since("INSERT VERSION")
 public class EffApplyBoneMeal extends Effect {
 
