@@ -43,7 +43,7 @@ public class EffApplyBoneMeal extends Effect {
 
 	static {
 		if (Skript.isRunningMinecraft(1, 16, 2))
-			Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] to %blocks%");
+			Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] [to %blocks%]");
 	}
 
 	@Nullable
