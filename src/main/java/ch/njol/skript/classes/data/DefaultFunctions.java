@@ -53,6 +53,20 @@ public class DefaultFunctions {
 		Parameter<?>[] numbersParam = new Parameter[] {new Parameter<>("ns", DefaultClasses.NUMBER, false, null)};
 		
 		// basic math functions
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("average", numbersParam, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number[] executeSimple(Object[][] params) {
+				double sum = 0.0;
+				int length = params[0].length;
+				for (int i = 0; i < length; i++) {
+					sum += ((Number) params[0][i]).doubleValue();
+				}
+				return new Number[] {sum / length};
+			}
+		}.description("Returns the average of all numbers in the list.")
+			.examples("average(10, 20) = 15", "average(11, 99) = 55", "average(10, 190, 299.20) = 166.4")
+			.since("INSERT VERSION"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
 			@Override

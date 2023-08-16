@@ -1,0 +1,4 @@
+test "average function":
+	assert average(10, 300, 300, 3000) = 902.5 with "average function passed ##1"
+	assert average(10, 3002, -320, -300) = 598 with "average function passed ##2"
+	assert average(400, 20, 1, 328.2, 39.22) = 157.684 with "average function passed ##3"
