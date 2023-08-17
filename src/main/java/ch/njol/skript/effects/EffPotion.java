@@ -121,7 +121,7 @@ public class EffPotion extends Effect {
 			if (this.tier != null)
 				tier = this.tier.getOptionalSingle(event).orElse(1).intValue() - 1;
 
-			int duration = infinite ? (Skript.isRunningMinecraft(1,  19, 4) ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
+			int duration = infinite ? (Skript.isRunningMinecraft(1,  19, 4) ? PotionEffect.INFINITE_DURATION : Integer.MAX_VALUE) : DEFAULT_DURATION;
 			if (this.duration != null && !infinite) {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
