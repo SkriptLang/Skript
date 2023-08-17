@@ -41,6 +41,7 @@ import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
+import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -196,13 +197,13 @@ public class SkriptConfig {
 	
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
-				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Paper server
+				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings
 					if (t) // Warn the server admin that timings won't work
 						Skript.warning("Timings cannot be enabled! You are running Bukkit/Spigot, but Paper is required.");
 					SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
 					return;
 				}
-				if (Skript.isRunningMinecraft(1, 19, 4)) { // check for valid paper version (<1.19.4)
+				if (Timings.class.isAnnotationPresent(Deprecated.class)) { // check for deprecated Timings
 					if (t) // Warn the server admin that timings won't work
 						Skript.warning("Timings cannot be enabled! Paper no longer supports Timings as of 1.19.4.");
 					SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
