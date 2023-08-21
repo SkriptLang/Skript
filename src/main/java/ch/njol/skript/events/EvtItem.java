@@ -18,15 +18,18 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -51,40 +54,47 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
 	
 	static {
-		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %itemtypes%]")
+		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
 				.description("Called when a dispenser dispenses an item.")
 				.examples("on dispense of iron block:",
 						"\tsend \"that'd be 19.99 please!\"")
 				.since("<i>unknown</i> (before 2.1)");
-		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %itemtypes%]")
+		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %-itemtypes%]")
 				.description("Called whenever an item stack is spawned in a world, e.g. as drop of a block or mob, a player throwing items out of their inventory, or a dispenser dispensing an item (not shooting it).")
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
 				.since("<i>unknown</i> (before 2.1)");
-		Skript.registerEvent("Drop", EvtItem.class, PlayerDropItemEvent.class, "[player] drop[ing] [[of] %itemtypes%]")
-				.description("Called when a player drops an item from their inventory.")
-				.examples("on drop:")
-				.since("<i>unknown</i> (before 2.1)");
+		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
+				"[player|1:entity] drop[ping] [[of] %-itemtypes%]")
+				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
+				.examples("on drop:",
+						"\tif event-item is compass:",
+						"\t\tcancel event",
+						"",
+						"on entity drop of an egg:",
+						"\tif event-entity is a chicken:",
+						"\t\tset item of event-dropped item to a diamond")
+				.since("<i>unknown</i> (before 2.1), 2.7 (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
-			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %itemtypes%]")
+			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
 					.examples("on preparing craft of torch:")
 					.since("2.2-Fixes-V10");
 		}
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
-		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %itemtypes%]")
+		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
 				.since("<i>unknown</i> (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
-					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %itemtypes%]")
+					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("<i>unknown</i> (before 2.1), 2.5 (entity)")
-				.requiredPlugins("1.12.2+ for entity");
+				.keywords("pickup");
 		} else {
-			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %itemtypes%]")
+			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:")
 				.since("<i>unknown</i> (before 2.1)");
@@ -95,12 +105,12 @@ public class EvtItem extends SkriptEvent {
 //				.examples("on brew:")
 //				.since("2.0");
 		if (hasConsumeEvent) {
-			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %itemtypes%]")
+			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 					.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 					.examples("on consume:")
 					.since("2.0");
 		}
-		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %itemtypes%]")
+		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
 				.description("Called when clicking on inventory slot.")
 				.examples("on inventory click:",
 						"\tif event-item is stone:",
@@ -119,6 +129,17 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
+		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
+				.description(
+						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
+						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"If this event is cancelled, the items will be returned to the source inventory."
+				)
+				.examples(
+						"on inventory item move:",
+							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+				)
+				.since("INSERT VERSION");
 	}
 	
 	@Nullable
@@ -135,44 +156,49 @@ public class EvtItem extends SkriptEvent {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean check(final Event e) {
-		if (e instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
-			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
-		if (hasEntityPickupItemEvent && ((!entity && e instanceof EntityPickupItemEvent) || (entity && e instanceof PlayerPickupItemEvent)))
+	public boolean check(final Event event) {
+		if (event instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
+			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) event).getEntity();
+		if (hasEntityPickupItemEvent && ((!entity && event instanceof EntityPickupItemEvent) || (entity && event instanceof PlayerPickupItemEvent)))
+			return false;
+		if ((!entity && event instanceof EntityDropItemEvent) || (entity && event instanceof PlayerDropItemEvent))
 			return false;
 		if (types == null)
 			return true;
 		final ItemStack is;
-		if (e instanceof BlockDispenseEvent) {
-			is = ((BlockDispenseEvent) e).getItem();
-		} else if (e instanceof ItemSpawnEvent) {
-			is = ((ItemSpawnEvent) e).getEntity().getItemStack();
-		} else if (e instanceof PlayerDropItemEvent) {
-			is = ((PlayerDropItemEvent) e).getItemDrop().getItemStack();
-		} else if (e instanceof CraftItemEvent) {
-			is = ((CraftItemEvent) e).getRecipe().getResult();
-		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
-			PrepareItemCraftEvent event = (PrepareItemCraftEvent) e;
-			Recipe recipe = event.getRecipe();
+		if (event instanceof BlockDispenseEvent) {
+			is = ((BlockDispenseEvent) event).getItem();
+		} else if (event instanceof ItemSpawnEvent) {
+			is = ((ItemSpawnEvent) event).getEntity().getItemStack();
+		} else if (event instanceof PlayerDropItemEvent) {
+			is = ((PlayerDropItemEvent) event).getItemDrop().getItemStack();
+		} else if (event instanceof EntityDropItemEvent) {
+			is = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
+		} else if (event instanceof CraftItemEvent) {
+			is = ((CraftItemEvent) event).getRecipe().getResult();
+		} else if (hasPrepareCraftEvent && event instanceof PrepareItemCraftEvent) {
+			Recipe recipe = ((PrepareItemCraftEvent) event).getRecipe();
 			if (recipe != null) {
 				is = recipe.getResult();
 			} else {
 				return false;
 			}
-		} else if (e instanceof EntityPickupItemEvent) {
-			is = ((EntityPickupItemEvent) e).getItem().getItemStack();
-		} else if (e instanceof PlayerPickupItemEvent) {
-			is = ((PlayerPickupItemEvent) e).getItem().getItemStack();
-		} else if (hasConsumeEvent && e instanceof PlayerItemConsumeEvent) {
-			is = ((PlayerItemConsumeEvent) e).getItem();
+		} else if (event instanceof EntityPickupItemEvent) {
+			is = ((EntityPickupItemEvent) event).getItem().getItemStack();
+		} else if (event instanceof PlayerPickupItemEvent) {
+			is = ((PlayerPickupItemEvent) event).getItem().getItemStack();
+		} else if (hasConsumeEvent && event instanceof PlayerItemConsumeEvent) {
+			is = ((PlayerItemConsumeEvent) event).getItem();
 //		} else if (e instanceof BrewEvent)
 //			is = ((BrewEvent) e).getContents().getContents()
-		} else if (e instanceof InventoryClickEvent) {
-			is = ((InventoryClickEvent) e).getCurrentItem();
-		} else if (e instanceof ItemDespawnEvent) {
-			is = ((ItemDespawnEvent) e).getEntity().getItemStack();
-		} else if (e instanceof ItemMergeEvent) {
-			is = ((ItemMergeEvent) e).getTarget().getItemStack();
+		} else if (event instanceof InventoryClickEvent) {
+			is = ((InventoryClickEvent) event).getCurrentItem();
+		} else if (event instanceof ItemDespawnEvent) {
+			is = ((ItemDespawnEvent) event).getEntity().getItemStack();
+		} else if (event instanceof ItemMergeEvent) {
+			is = ((ItemMergeEvent) event).getTarget().getItemStack();
+		} else if (event instanceof InventoryMoveItemEvent) {
+			is = ((InventoryMoveItemEvent) event).getItem();
 		} else {
 			assert false;
 			return false;
@@ -181,7 +207,7 @@ public class EvtItem extends SkriptEvent {
 		if (is == null)
 			return false;
 
-		return types.check(e, new Checker<ItemType>() {
+		return types.check(event, new Checker<ItemType>() {
 			@Override
 			public boolean check(final ItemType t) {
 				return t.isOfType(is);
@@ -190,8 +216,8 @@ public class EvtItem extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge" + (types == null ? "" : " of " + types);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/move" + (types == null ? "" : " of " + types);
 	}
 	
 }

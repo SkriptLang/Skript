@@ -30,3 +30,151 @@ test "SecConditional":
 		exit 1 section
 	else:
 		assert 1 = 2 with "conditional failed ##5"
+
+test "SecConditional - if all true":
+	if:
+		1 is 1
+		2 is 2
+	then:
+		set {_a} to true
+	assert {_a} is set with "if all did not run"
+
+test "SecConditional - if all false":
+	if:
+		1 is 1
+		2 is 1
+	then:
+		set {_a} to true
+	assert {_a} is not set with "if all ran when conditions were false"
+
+test "SecConditional - if any true":
+	if any:
+		1 is 3
+		2 is 2
+	then:
+		set {_a} to true
+	assert {_a} is set with "if any did not run when at least one condition was true"
+
+test "SecConditional - if any false":
+	if any:
+		1 is 3
+		2 is 7
+	then:
+		set {_a} to true
+	assert {_a} is not set with "if any ran when no condition was true"
+
+
+test "SecConditional - if any else":
+	if any:
+		1 is 3
+		2 is 7
+	then:
+		set {_a} to true
+	else:
+		set {_a} to false
+	assert {_a} is false with "if any did not run else when no condition was true"
+
+test "SecConditional - if all else":
+	if all:
+		1 is 3
+		2 is 7
+	then:
+		set {_a} to true
+	else:
+		set {_a} to false
+	assert {_a} is false with "if all did not run else when at least one condition was false"
+
+test "SecConditional - if all by default":
+	if:
+		1 is 2
+		2 is 7
+	then:
+		set {_a} to true
+	assert {_a} is not set with "bare 'if' did not require all conditions to be true"
+
+test "SecConditional - else if all true":
+	if:
+		1 is 2
+		2 is 7
+	then:
+		set {_a} to true
+	else if:
+		1 is 1
+		2 is 2
+	then:
+		set {_a} to false
+	assert {_a} is false with "'else if all' did not run when preceding 'if' was false and conditions were true"
+
+test "SecConditional - else if any true":
+	if:
+		1 is 2
+		2 is 7
+	then:
+		set {_a} to true
+	else if any:
+		1 is 1
+		2 is 7
+	then:
+		set {_a} to false
+	assert {_a} is false with "'else if any' did not run when preceding 'if' was false and at least one condition was true"
+
+test "SecConditional - else if any false":
+	if:
+		1 is 2
+		2 is 7
+	then:
+		set {_b} to true
+	else if any:
+		1 is 8
+		2 is 7
+	then:
+		set {_a} to false
+	assert {_a} is not set with "'else if any' ran even though all conditions were false"
+
+test "SecConditional - else if all false":
+	if:
+		1 is 2
+		2 is 7
+	then:
+		set {_b} to true
+	else if:
+		1 is 8
+		2 is 7
+	then:
+		set {_a} to false
+	assert {_a} is not set with "'else if all' ran even though all conditions were false"
+
+test "SecConditional - starting with a non-multiline conditional":
+	if 1 is 1:
+		set {_a} to true
+	else if:
+		1 is 8
+		2 is 7
+	then:
+		set {_b} to true
+	assert {_a} is set with "non-multiline 'if' didn't run when before a multiline 'else if'"
+
+test "SecConditional - non-multiline conditional in the middle":
+	if:
+		1 is 2
+		3 is 4
+	then:
+		set {_b} to true
+	else if 1 is 1:
+		set {_a} to true
+	else if:
+		5 is 6
+		7 is 8
+	then:
+		set {_c} to true
+	assert {_a} is set with "non-multiline 'if' didn't run when used in the middle of a multiline 'else if'"
+
+test "SecConditional - non-multiline conditional at the end":
+	if:
+		1 is 2
+		3 is 4
+	then:
+		set {_b} to true
+	else if 1 is 1:
+		set {_a} to true
+	assert {_a} is set with "non-multiline 'if' didn't run used at the end of a multiline 'if'"

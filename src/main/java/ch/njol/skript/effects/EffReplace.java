@@ -29,6 +29,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -100,9 +101,20 @@ public class EffReplace extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
+	@Override
 	protected void execute(Event event) {
-		Object[] haystack = this.haystack.getAll(event);
 		Object[] needles = this.needles.getAll(event);
+		if (haystack instanceof ExpressionList) {
+			for (Expression<?> haystackExpr : ((ExpressionList<?>) haystack).getExpressions()) {
+				replace(event, needles, haystackExpr);
+			}
+		} else {
+			replace(event, needles, haystack);
+		}
+	}
+
+	private void replace(Event event, Object[] needles, Expression<?> haystackExpr) {
+		Object[] haystack = haystackExpr.getAll(event);
 		Object replacement = this.replacement.getSingle(event);
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
@@ -157,9 +169,11 @@ public class EffReplace extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "replace " + (replaceFirst ? "first " : (replaceRegex ? "regex " : "")) + needles.toString(event, debug)
-			+ " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
-			+ (caseSensitive ? " with case sensitivity" : "");
+		if (replaceFirst)
+			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+					+ "(case sensitive: " + caseSensitive + ")";
+		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+				+ "(case sensitive: " + caseSensitive + ")";
 	}
 	
 }

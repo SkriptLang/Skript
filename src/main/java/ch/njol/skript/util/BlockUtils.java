@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
@@ -102,11 +104,26 @@ public class BlockUtils {
 		data = data.replaceAll("\\s+\\[", "[");
 		// And replace white space between namespace with underscores
 		data = data.replace(" ", "_");
-		
+
+		String errorData = new String(data);
+
 		try {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
-		} catch (IllegalArgumentException ignore) {
-			return null;
+		} catch (IllegalArgumentException ignored) {
+			try {
+				// we use the original dataString param here as we want the alias before modifications
+				String alias = dataString.substring(0, dataString.lastIndexOf("["));
+				data = data.substring(data.lastIndexOf("["));
+				ItemType type = Aliases.parseItemType(alias);
+				if (type == null)
+					return null;
+				return Bukkit.createBlockData(type.getMaterial(), data);
+			} catch (StringIndexOutOfBoundsException alsoIgnored) {
+				return null;
+			} catch (IllegalArgumentException alsoIgnored) {
+				Skript.error("Block data '" + errorData + "' is not valid for this material");
+				return null;
+			}
 		}
 	}
 
@@ -141,7 +158,7 @@ public class BlockUtils {
 	 * @return the actual CB block from the given argument
 	 */
 	public static Block extractBlock(Block block) {
-		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
+		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
 	}
 
 }

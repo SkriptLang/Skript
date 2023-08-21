@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -74,23 +74,19 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	protected World[] get(final Event e, final Object[] source) {
 		if (source instanceof World[]) // event value (see init)
 			return (World[]) source;
-		return get(source, new Converter<Object, World>() {
-			@Override
-			@Nullable
-			public World convert(final Object o) {
-				if (o instanceof Entity) {
-					if (getTime() > 0 && e instanceof PlayerTeleportEvent && o.equals(((PlayerTeleportEvent) e).getPlayer()) && !Delay.isDelayed(e))
-						return ((PlayerTeleportEvent) e).getTo().getWorld();
-					else
-						return ((Entity) o).getWorld();
-				} else if (o instanceof Location) {
-					return ((Location) o).getWorld();
-				} else if (o instanceof Chunk) {
-					return ((Chunk) o).getWorld();
-				}
-				assert false : o;
-				return null;
+		return get(source, obj -> {
+			if (obj instanceof Entity) {
+				if (getTime() > 0 && e instanceof PlayerTeleportEvent && obj.equals(((PlayerTeleportEvent) e).getPlayer()) && !Delay.isDelayed(e))
+					return ((PlayerTeleportEvent) e).getTo().getWorld();
+				else
+					return ((Entity) obj).getWorld();
+			} else if (obj instanceof Location) {
+				return ((Location) obj).getWorld();
+			} else if (obj instanceof Chunk) {
+				return ((Chunk) obj).getWorld();
 			}
+			assert false : obj;
+			return null;
 		});
 	}
 

@@ -9,13 +9,13 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: 따옴표(")가 잘못되었습니다. 인용문 텍스트에서 따옴표를 사용하려면 따옴표를 두 개 입력해야 합니다.
 	brackets error: 대괄호의 양 또는 위치가 잘못되었습니다. 각 여는 대괄호에 닫는 대괄호가 입력되어있는지 확인하십시오.
 	invalid reload: Skript는 Bukkit의 '/reload' 또는 스크립트의 '/skript reload' 로만 다시 로드할 수 있습니다.
 	no scripts: 스크립트를 찾을 수 없습니다. 일부 스크립트를 작성해야 합니다 ;)
 	no errors: 모든 스크립트가 오류없이 로드되었습니다.
-	scripts loaded: %s개의 스크립트 중 총 %s개의 트리거, %s개의 명령어를 %s 만에 로드했습니다.
+	scripts loaded: %s개의 스크립트에서 총 %s개의 구조를 %s 만에 로드했습니다.
 	finished loading: 로딩을 완료했습니다.
 
 # -- Skript command --

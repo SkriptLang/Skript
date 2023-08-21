@@ -20,8 +20,11 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.effects.EffFireworkLaunch;
 import ch.njol.skript.sections.EffSecSpawn;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.event.Event;
@@ -43,51 +46,54 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Last Spawned Entity")
 @Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
 		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
 		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
-@Examples({"spawn a priest",
-		"set {healer::%spawned priest%} to true",
-		"shoot an arrow from the last spawned entity",
-		"ignite the shot projectile",
-		"drop a diamond sword",
-		"push last dropped item upwards",
-		"teleport player to last struck lightning"})
-@Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), SINCE VERSION (struck lightning)")
+@Examples({
+	"spawn a priest",
+	"set {healer::%spawned priest%} to true",
+	"shoot an arrow from the last spawned entity",
+	"ignite the shot projectile",
+	"drop a diamond sword",
+	"push last dropped item upwards",
+	"teleport player to last struck lightning",
+	"delete last launched firework"
+})
+@Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), 2.7 (struck lightning, firework)")
 public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	
 	static {
 		Skript.registerExpression(ExprLastSpawnedEntity.class, Entity.class, ExpressionType.SIMPLE,
 			"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
 			"[the] [last[ly]] dropped (2:item)",
-			"[the] [last[ly]] (created|struck) (3:lightning)");
+			"[the] [last[ly]] (created|struck) (3:lightning)",
+			"[the] [last[ly]] (launched|deployed) (4:firework)");
 	}
 	
-	int from;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private EntityData<?> type;
-	
-	@SuppressWarnings("unchecked")
+	private int from;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (parseResult.mark == 2) {// It's just to make an extra expression for item only
+		from = parseResult.mark;
+		if (from == 2) { // It's just to make an extra expression for item only
 			type = EntityData.fromClass(Item.class);
-		} else if (parseResult.mark == 3) {
+		} else if (from == 3) {
 			type = EntityData.fromClass(LightningStrike.class);
+		} else if (from == 4) {
+			type = EntityData.fromClass(Firework.class);
 		} else {
 			type = ((Literal<EntityData<?>>) exprs[0]).getSingle();
 		}
-		from = parseResult.mark;
 		return true;
 	}
 	
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		Entity en;
 		switch (from) {
 			case 0:
@@ -102,13 +108,18 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 			case 3:
 				en = EffLightning.lastSpawned;
 				break;
+			case 4:
+				en = EffFireworkLaunch.lastSpawned;
+				break;
 			default:
 				en = null;
 		}
+
 		if (en == null)
 			return null;
 		if (!type.isInstance(en))
 			return null;
+
 		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
 		one[0] = en;
 		return one;
@@ -125,8 +136,8 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		String word;
+	public String toString(@Nullable Event event, boolean debug) {
+		String word = "";
 		switch (from) {
 			case 0:
 				word = "spawned";
@@ -140,8 +151,11 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 			case 3:
 				word = "struck";
 				break;
+			case 4:
+				word = "launched";
+				break;
 			default:
-				throw new IllegalStateException();
+				assert false;
 		}
 		return "the last " + word + " " + type;
 	}
