@@ -1,0 +1,17 @@
+test "spawn xp orb overwriting merged value" when running minecraft "1.14.4":
+	# 1.13.2 seems not to merge xp orbs in the same way, so this test is skipped
+
+	# sanitize
+	kill all xp orbs
+	set {_spawn} to spawn of world "world"
+
+	# test drop effect
+	loop 10 times:
+		drop 10 xp at {_spawn}
+	assert experience of (all xp orbs) is 100 with "merged xp orb from drop should have 100 xp, but has %experience of (all xp orbs)%"
+
+	# test spawn effect
+	kill all xp orbs
+	loop 10 times:
+		spawn 10 xp at {_spawn}
+	assert experience of (all xp orbs) is 100 with "merged xp orb from spawn should have 100 xp, but has %experience of (all xp orbs)%"

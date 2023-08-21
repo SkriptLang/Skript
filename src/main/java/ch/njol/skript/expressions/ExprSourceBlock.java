@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tif the source block is a grass block:",
 			"\t\tset the source block to a dirt block"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprSourceBlock extends SimpleExpression<Block> {
 
 	static {

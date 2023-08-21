@@ -476,16 +476,23 @@ public class Documentation {
 		return html;
 	}
 
-	private static String escapeSQL(final String s) {
-		return "" + s.replace("'", "\\'").replace("\"", "\\\"");
+	private static String escapeSQL(String value) {
+		return "" + value.replace("'", "\\'").replace("\"", "\\\"");
 	}
 
-	public static String escapeHTML(final @Nullable String s) {
-		if (s == null) {
+	public static String escapeHTML(@Nullable String value) {
+		if (value == null) {
 			assert false;
 			return "";
 		}
-		return "" + s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+		return "" + value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+	}
+
+	public static String[] escapeHTML(@Nullable String[] values) {
+		for (int i = 0; i < values.length; i++) {
+			values[i] = escapeHTML(values[i]);
+		}
+		return values;
 	}
 
 }

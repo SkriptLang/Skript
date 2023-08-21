@@ -275,6 +275,26 @@ public abstract class Functions {
 	}
 
 	/**
+	 * Gets a local function, if it doesn't exist it'll fall back to a global function,
+	 * if it exists. Note that even if function exists in scripts,
+	 * it might not have been parsed yet. If you want to check for existence,
+	 * then use {@link #getSignature(String, String)}.
+	 *
+	 * @param name Name of function.
+	 * @param script The script where the function is declared in. Used to get local functions.
+	 * @return Function, or null if it does not exist.
+	 */
+	@Nullable
+	public static Function<?> getFunction(String name, @Nullable String script) {
+		if (script == null)
+			return getGlobalFunction(name);
+		Function<?> function = getLocalFunction(name, script);
+		if (function == null)
+			return getGlobalFunction(name);
+		return function;
+	}
+
+	/**
 	 * Gets a signature of function with given name.
 	 * 
 	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name.
@@ -315,6 +335,24 @@ public abstract class Functions {
 		namespace = getScriptNamespace(script);
 		if (namespace != null)
 			signature = namespace.getSignature(name);
+		return signature;
+	}
+
+	/**
+	 * Gets a signature of local function with the given name, if no signature was found,
+	 * it will fall back to a global function.
+	 *
+	 * @param name Name of function.
+	 * @param script The script where the function is declared in. Used to get local functions.
+	 * @return Signature, or null if function does not exist.
+	 */
+	@Nullable
+	public static Signature<?> getSignature(String name, @Nullable String script) {
+		if (script == null)
+			return getGlobalSignature(name);
+		Signature<?> signature = getLocalSignature(name, script);
+		if (signature == null)
+			return getGlobalSignature(name);
 		return signature;
 	}
 
