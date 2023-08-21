@@ -59,10 +59,12 @@ public class EffPotion extends Effect {
 	static {
 		Skript.registerEffect(EffPotion.class,
 				"apply %potioneffects% to %livingentities%",
-				"apply infinit(e|y) [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [particles:without [any] particles] to %livingentities% [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]",
-				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [particles:without [any] particles] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]"
+				"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] to %livingentities% [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]",
+				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect] [icon:[whilst] hid(e|ing) [the] [potion] icon]"
 		);
 	}
+
+	private final static boolean COMPATIBLE = Skript.isRunningMinecraft(1,  19, 4);
 
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
 
@@ -78,7 +80,7 @@ public class EffPotion extends Effect {
 
 	private boolean replaceExisting; // Replace the existing potion if present.
 	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes.
-	private boolean particles;
+	private boolean noParticles;
 	private boolean infinite; // 1.19.4+ has an infinite option.
 	private boolean ambient; // Ambient means less particles
 	private boolean icon;
@@ -88,22 +90,19 @@ public class EffPotion extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		potionEffect = matchedPattern == 0;
 		replaceExisting = parseResult.hasTag("replacing");
-		particles = !parseResult.hasTag("particles");
+		noParticles = parseResult.hasTag("noparticles");
 		ambient = parseResult.hasTag("ambient");
 		icon = !parseResult.hasTag("icon");
 		infinite = matchedPattern == 1;
 		if (potionEffect) {
 			effects = (Expression<PotionEffect>) exprs[0];
 			entities = (Expression<LivingEntity>) exprs[1];
-		} else if (infinite) {
-			potions = (Expression<PotionEffectType>) exprs[0];
-			tier = (Expression<Number>) exprs[1];
-			entities = (Expression<LivingEntity>) exprs[2];
 		} else {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			tier = (Expression<Number>) exprs[1];
 			entities = (Expression<LivingEntity>) exprs[2];
-			duration = (Expression<Timespan>) exprs[3];
+			if (infinite)
+				duration = (Expression<Timespan>) exprs[3];
 		}
 		return true;
 	}
@@ -121,7 +120,7 @@ public class EffPotion extends Effect {
 			if (this.tier != null)
 				tier = this.tier.getOptionalSingle(event).orElse(1).intValue() - 1;
 
-			int duration = infinite ? (Skript.isRunningMinecraft(1,  19, 4) ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
+			int duration = infinite ? (COMPATIBLE ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
 			if (this.duration != null && !infinite) {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
@@ -141,7 +140,7 @@ public class EffPotion extends Effect {
 							}
 						}
 					}
-					entity.addPotionEffect(new PotionEffect(potionEffectType, finalDuration, tier, ambient, particles, icon));
+					entity.addPotionEffect(new PotionEffect(potionEffectType, finalDuration, tier, ambient, !noParticles, icon));
 				}
 			}
 		}
