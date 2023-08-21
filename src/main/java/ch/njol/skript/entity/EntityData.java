@@ -434,23 +434,26 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return spawn(loc, null);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public E spawn(Location loc, @Nullable Consumer<E> consumer) {
-		assert loc != null;
-		try {
-			E e;
-			if (consumer != null)
-				e = loc.getWorld().spawn(loc, (Class<E>) getType(), consumer);
-			else
-				e = loc.getWorld().spawn(loc, getType());
+	private E apply(E entity) {
+		if (baby.isTrue()) {
+			EntityUtils.setBaby(entity);
+		} else if (baby.isFalse()) {
+			EntityUtils.setAdult(entity);
+		}
+		set(entity);
+		return entity;
+	}
 
-			if (baby.isTrue())
-				EntityUtils.setBaby(e);
-			else if (baby.isFalse())
-				EntityUtils.setAdult(e);
-			set(e);
-			return e;
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public E spawn(Location location, @Nullable Consumer<E> consumer) {
+		assert location != null;
+		try {
+			if (consumer != null) {
+				return location.getWorld().spawn(location, (Class<E>) getType(), e -> consumer.accept(apply(e)));
+			} else {
+				return apply(location.getWorld().spawn(location, getType()));
+			}
 		} catch (IllegalArgumentException e) {
 			if (Skript.testing())
 				Skript.error("Can't spawn " + getType().getName());

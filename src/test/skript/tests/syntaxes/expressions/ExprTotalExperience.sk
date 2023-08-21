@@ -1,0 +1,15 @@
+test "total experience":
+	spawn 10 xp at spawn of world "world":
+		assert experience of entity is 10 with "spawned orb should have 10 experience in section"
+		set experience of entity to 100
+		assert experience of entity is 100 with "set experience of entity did not work"
+		reset experience of entity
+		assert experience of entity is 0 with "reset experience of entity did not work"
+		add 50 to experience of entity
+		assert experience of entity is 50 with "add experience to entity did not work"
+		remove 25 from experience of entity
+		assert experience of entity is 25 with "remove experience from entity did not work"
+		remove 50 from experience of entity
+		assert experience of entity is 0 with "remove too much experience from entity did not work"
+	assert experience of last spawned entity is 0 with "entity should have 0 experience after section"
+	delete last spawned entity

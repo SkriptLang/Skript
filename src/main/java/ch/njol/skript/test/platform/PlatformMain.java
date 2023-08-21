@@ -18,29 +18,30 @@
  */
 package ch.njol.skript.test.platform;
 
+import ch.njol.skript.test.utils.TestResults;
+import ch.njol.util.NonNullPair;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
-import ch.njol.skript.test.utils.TestResults;
-import ch.njol.util.NonNullPair;
 
 /**
  * Main entry point of test platform. It allows running this Skript on
@@ -51,7 +52,7 @@ public class PlatformMain {
 	public static void main(String... args) throws IOException, InterruptedException {
 		System.out.println("Initializing Skript test platform...");
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		
+
 		Path runnerRoot = Paths.get(args[0]);
 		assert runnerRoot != null;
 		Path testsRoot = Paths.get(args[1]).toAbsolutePath();
@@ -62,8 +63,13 @@ public class PlatformMain {
 		assert envsRoot != null;
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
-		boolean junit = "true".equals(args[6]);
-		
+		boolean jUnit = "true".equals(args[6]);
+		boolean debug = "true".equals(args[7]);
+		String verbosity = args[8].toUpperCase(Locale.ENGLISH);
+		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 9, args.length));
+		if (jvmArgs.stream().noneMatch(arg -> arg.contains("-Xmx")))
+			jvmArgs.add("-Xmx5G");
+
 		// Load environments
 		List<Environment> envs;
 		if (Files.isDirectory(envsRoot)) {
@@ -81,22 +87,17 @@ public class PlatformMain {
 		}
 		System.out.println("Test environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-
-		Map<String, List<NonNullPair<Environment, String>>> failures = new HashMap<>();
+		
 		Set<String> allTests = new HashSet<>();
-
+		Map<String, List<NonNullPair<Environment, String>>> failures = new HashMap<>();
+		
 		boolean docsFailed = false;
 		// Run tests and collect the results
 		envs.sort(Comparator.comparing(Environment::getName));
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = null;
-			if (junit) {
-				results = env.runJUnit(runnerRoot, testsRoot, "-Xmx5G");
-			} else {
-				results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, "-Xmx5G");
-			}
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.
@@ -142,7 +143,7 @@ public class PlatformMain {
 		StringBuilder output = new StringBuilder(String.format("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25)));
 		output.append("\nTested environments: " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		output.append("\nSucceeded:\n  " + String.join((junit ? "\n  " : ", "), succeeded));
+		output.append("\nSucceeded:\n  " + String.join((jUnit ? "\n  " : ", "), succeeded));
 
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
 			output.append("\nFailed:");

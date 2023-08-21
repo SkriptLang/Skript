@@ -471,18 +471,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
-		
-		// And then not-so-safe classes
-		Throwable classLoadError = null;
-		try {
-			new SkriptClasses();
-		} catch (Throwable e) {
-			classLoadError = e;
-		}
-		
-		// Config must be loaded after Java and Skript classes are parseable
-		// ... but also before platform check, because there is a config option to ignore some errors
-		SkriptConfig.load();
 
 		// Check server software, Minecraft version, etc.
 		if (!checkServerPlatform()) {
@@ -490,6 +478,23 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false); // Cannot continue; user got errors in console to tell what happened
 			return;
 		}
+
+		// And then not-so-safe classes
+		Throwable classLoadError = null;
+		try {
+			new SkriptClasses();
+			new BukkitClasses();
+		} catch (Throwable e) {
+			classLoadError = e;
+		}
+		
+		// Config must be loaded after Java and Skript classes are parseable
+		// ... but also before platform check, because there is a config option to ignore some errors
+		SkriptConfig.load();
+		
+		// Now override the verbosity if test mode is enabled
+		if (TestMode.VERBOSITY != null)
+			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
 		
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
@@ -526,7 +531,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitClasses();
 		new BukkitEventValues();
 		
 		new DefaultComparators();
@@ -599,11 +603,12 @@ public final class Skript extends JavaPlugin implements Listener {
 				
 				
 				Documentation.generate(); // TODO move to test classes?
-				
+
+				// Variable loading
 				if (logNormal())
 					info("Loading variables...");
-				final long vls = System.currentTimeMillis();
-				
+				long vls = System.currentTimeMillis();
+
 				LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
 					@Override
 					public LogResult log(final LogEntry entry) {
@@ -615,14 +620,14 @@ public final class Skript extends JavaPlugin implements Listener {
 							return LogResult.LOG;
 						}
 					}
-					
+
 					@Override
 					protected void beforeErrors() {
 						logEx();
 						logEx("===!!!=== Skript variable load error ===!!!===");
 						logEx("Unable to load (all) variables:");
 					}
-					
+
 					@Override
 					protected void afterErrors() {
 						logEx();
@@ -630,7 +635,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						logEx();
 					}
 				});
-				
+
 				try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
 					if (!Variables.load())
 						if (c.getCount() == 0)
@@ -638,7 +643,11 @@ public final class Skript extends JavaPlugin implements Listener {
 				} finally {
 					h.stop();
 				}
-				
+
+				long vld = System.currentTimeMillis() - vls;
+				if (logNormal())
+					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
+
 				// Skript initialization done
 				debug("Early init done");
 
@@ -741,10 +750,6 @@ public final class Skript extends JavaPlugin implements Listener {
 						}, shutdownDelay);
 					}, 100);
 				}
-				
-				final long vld = System.currentTimeMillis() - vls;
-				if (logNormal())
-					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 
 				// Enable metrics and register custom charts
 				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID
@@ -1434,7 +1439,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	// ================ EVENTS ================
 
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
-	
+
 	/**
 	 * Registers an event.
 	 * 
@@ -1465,7 +1470,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + " [with priority (lowest|low|normal|high|highest|monitor)]";
+			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
 		structures.add(r);
