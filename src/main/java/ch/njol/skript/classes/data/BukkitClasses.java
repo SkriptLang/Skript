@@ -659,13 +659,16 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(Player.class, "player")
 				.user("players?")
 				.name("Player")
-				.description("A player. Depending on whether a player is online or offline several actions can be performed with them, " +
-								"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
-						"You have two possibilities to use players as command arguments: &lt;player&gt; and &lt;offline player&gt;. " +
-								"The first requires that the player is online and also accepts only part of the name, " +
-								"while the latter doesn't require that the player is online, but the player's name has to be entered exactly.")
-				.usage("")
-				.examples(
+				.description(
+					"A player. Depending on whether a player is online or offline several actions can be performed with them, " +
+					"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
+					"You have two possibilities to use players as command arguments: &lt;player&gt; and &lt;offline player&gt;. " +
+					"The first requires that the player is online and also accepts only part of the name, " +
+					"while the latter doesn't require that the player is online, but the player's name has to be entered exactly."
+				).usage(
+					"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
+					"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
+				).examples(
 					"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online or starts with Notch like Notchan",
 					"set {_p} to \"N\" parsed as a player # returns Notch if Notch is online because their name starts with 'N' (case insensitive) however, it would return nothing if no player whose name starts with 'N' is online."
 				).since("1.0")
@@ -681,11 +684,11 @@ public class BukkitClasses {
 							if (UUID_PATTERN.matcher(string).matches())
 								return Bukkit.getPlayer(UUID.fromString(string));
 							String name = string.toLowerCase(Locale.ENGLISH);
-							int nameLength = name.length();
+							int nameLength = name.length(); // caching
 							List<Player> players = new ArrayList<>();
 							for (Player player : Bukkit.getOnlinePlayers()) {
 								if (player.getName().toLowerCase(Locale.ENGLISH).startsWith(name)) {
-									if (player.getName().length() == nameLength)
+									if (player.getName().length() == nameLength) // a little better in performance than String#equals()
 										return player;
 									players.add(player);
 								}
@@ -731,18 +734,20 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
 				.user("offline ?players?")
 				.name("Offline Player")
-				.description("A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
-						"Please note that while all effects and conditions that require a player can be used with an " +
-						"offline player as well, they will not work if the player is not actually online.")
-				.usage("")
-				.examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
+				.description(
+					"A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
+					"Please note that while all effects and conditions that require a player can be used with an " +
+					"offline player as well, they will not work if the player is not actually online."
+				).usage(
+					"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
+					"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
+				).examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
 				.since("2.0 beta 8")
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
 					@Override
 					@Nullable
-					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
 						if (context == ParseContext.COMMAND) {
 							if (UUID_PATTERN.matcher(s).matches())
