@@ -109,7 +109,7 @@ public class EffCommand extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + (senders != null ? senders.toString(event, debug) : "the console") + " execute the command " + commands.toString(event, debug);
+		return "make " + (senders != null ? senders.toString(event, debug) : "the console") + " execute " + (bungeecord ? "bungeecord " : "") + "command " + commands.toString(event, debug);
 	}
 
 }
