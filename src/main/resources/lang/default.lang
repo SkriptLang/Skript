@@ -1317,7 +1317,7 @@ teleport causes:
 inventory close reasons:
 	unknown: unknown
 	teleport: teleport
-	cant_use: cant use, can not use
+	cant_use: can't use, can not use, cannot use
 	unloaded: unloaded
 	open_new: open new, new opened
 	player: player
