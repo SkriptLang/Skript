@@ -18,9 +18,11 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.util.NonNullPair;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -36,13 +38,14 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
 
@@ -79,55 +82,52 @@ public final class SkriptEventHandler {
 	}
 
 	/**
-	 * A list tracking what Triggers are paired with what Events.
+	 * A Multimap tracking what Triggers are paired with what Events.
+	 * Each Event effectively maps to an ArrayList of Triggers.
 	 */
-	private static final List<NonNullPair<Class<? extends Event>, Trigger>> triggers = new ArrayList<>();
+	private static final Multimap<Class<? extends Event>, Trigger> triggers = ArrayListMultimap.create();
 
 	/**
-	 * A utility method to get all Triggers paired with the provided Event class.
+	 * A utility method to get all Triggers registered under the provided Event class.
 	 * @param event The event to find pairs from.
-	 * @return An iterator containing all Triggers paired with the provided Event class.
+	 * @return A List containing all Triggers registered under the provided Event class.
 	 */
-	private static Iterator<Trigger> getTriggers(Class<? extends Event> event) {
+	private static List<Trigger> getTriggers(Class<? extends Event> event) {
 		HandlerList eventHandlerList = getHandlerList(event);
 		assert eventHandlerList != null; // It had one at some point so this should remain true
-		return new ArrayList<>(triggers).stream()
-			.filter(pair -> pair.getFirst().isAssignableFrom(event) && eventHandlerList == getHandlerList(pair.getFirst()))
-			.map(NonNullPair::getSecond)
-			.iterator();
+		return triggers.asMap().entrySet().stream()
+				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
+				.flatMap(entry -> entry.getValue().stream())
+				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
 	}
 
 	/**
 	 * This method is used for validating that the provided Event may be handled by Skript.
 	 * If validation is successful, all Triggers associated with the provided Event are executed.
 	 * A Trigger will only be executed if its priority matches the provided EventPriority.
-	 * @param e The Event to check.
+	 * @param event The Event to check.
 	 * @param priority The priority of the Event.
 	 */
-	private static void check(Event e, EventPriority priority) {
-		Iterator<Trigger> ts = getTriggers(e.getClass());
-		if (!ts.hasNext())
-			return;
+	private static void check(Event event, EventPriority priority) {
+		List<Trigger> triggers = getTriggers(event.getClass());
 
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
-			while (ts.hasNext()) {
-				Trigger trigger = ts.next();
-				if (trigger.getEvent().getEventPriority() == priority && trigger.getEvent().check(e)) {
+			for (Trigger trigger : triggers) {
+				SkriptEvent triggerEvent = trigger.getEvent();
+				if (triggerEvent.getEventPriority() == priority && triggerEvent.check(event)) {
 					hasTrigger = true;
 					break;
 				}
 			}
 			if (!hasTrigger)
 				return;
-			Class<? extends Event> c = e.getClass();
-			ts = getTriggers(c);
 
-			logEventStart(e);
+			logEventStart(event);
 		}
 		
-		boolean isCancelled = e instanceof Cancellable && ((Cancellable) e).isCancelled() && !listenCancelled.contains(e.getClass());
-		boolean isResultDeny = !(e instanceof PlayerInteractEvent && (((PlayerInteractEvent) e).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) e).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) e).useItemInHand() != Result.DENY);
+		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
+		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
 
 		if (isCancelled && isResultDeny) {
 			if (Skript.logVeryHigh())
@@ -135,18 +135,18 @@ public final class SkriptEventHandler {
 			return;
 		}
 
-		while (ts.hasNext()) {
-			Trigger t = ts.next();
-			if (t.getEvent().getEventPriority() != priority || !t.getEvent().check(e))
+		for (Trigger trigger : triggers) {
+			SkriptEvent triggerEvent = trigger.getEvent();
+			if (triggerEvent.getEventPriority() != priority || !triggerEvent.check(event))
 				continue;
 
-			logTriggerStart(t);
-			Object timing = SkriptTimings.start(t.getDebugLabel());
+			logTriggerStart(trigger);
+			Object timing = SkriptTimings.start(trigger.getDebugLabel());
 
-			t.execute(e);
+			trigger.execute(event);
 
 			SkriptTimings.stop(timing);
-			logTriggerEnd(t);
+			logTriggerEnd(trigger);
 		}
 
 		logEventEnd();
@@ -236,7 +236,7 @@ public final class SkriptEventHandler {
 		if (handlerList == null)
 			return;
 
-		triggers.add(new NonNullPair<>(event, trigger));
+		triggers.put(event, trigger);
 
 		EventPriority priority = trigger.getEvent().getEventPriority();
 
@@ -251,35 +251,39 @@ public final class SkriptEventHandler {
 	 * @param trigger The Trigger to unregister events for.
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
-		triggers.removeIf(pair -> {
-			if (pair.getSecond() != trigger)
-				return false;
+		Iterator<Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
+		entryLoop: while (entryIterator.hasNext()) {
+			Entry<Class<? extends Event>, Trigger> entry = entryIterator.next();
+			if (entry.getValue() != trigger)
+				continue;
+			Class<? extends Event> event = entry.getKey();
 
-			HandlerList handlerList = getHandlerList(pair.getFirst());
-			assert handlerList != null;
+			// Remove the trigger from the map
+			entryIterator.remove();
 
+			// check if we can unregister the listener
 			EventPriority priority = trigger.getEvent().getEventPriority();
-			if (triggers.stream().noneMatch(pair2 ->
-				trigger != pair2.getSecond() // Don't match the trigger we are unregistering
-				&& pair2.getFirst().isAssignableFrom(pair.getFirst()) // Basic similarity check
-				&& priority == pair2.getSecond().getEvent().getEventPriority() // Ensure same priority
-				&& handlerList == getHandlerList(pair2.getFirst()) // Ensure same handler list
-			)) { // We can attempt to unregister this listener
-				Skript skript = Skript.getInstance();
-				for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
-					Listener listener = registeredListener.getListener();
-					if (
-						registeredListener.getPlugin() == skript
-						&& listener instanceof PriorityListener
-						&& ((PriorityListener) listener).priority == priority
-					) {
-						handlerList.unregister(listener);
-					}
-				}
+			for (Trigger eventTrigger : triggers.get(event)) {
+				if (eventTrigger.getEvent().getEventPriority() == priority)
+					continue entryLoop;
 			}
 
-			return true;
-		});
+			// We can attempt to unregister this listener
+			HandlerList handlerList = getHandlerList(event);
+			if (handlerList == null)
+				continue;
+			Skript skript = Skript.getInstance();
+			for (RegisteredListener registeredListener : handlerList.getRegisteredListeners()) {
+				Listener listener = registeredListener.getListener();
+				if (
+					registeredListener.getPlugin() == skript
+					&& listener instanceof PriorityListener
+					&& ((PriorityListener) listener).priority == priority
+				) {
+					handlerList.unregister(listener);
+				}
+			}
+		}
 	}
 
 	/**
