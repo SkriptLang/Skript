@@ -147,7 +147,7 @@ public class EffReplace extends Effect {
 					}
 				}
 			}
-			this.haystack.change(event, haystack, ChangeMode.SET);
+			haystackExpr.change(event, haystack, ChangeMode.SET);
 		} else if (replaceItems) {
 			for (Inventory inventory : (Inventory[]) haystack) {
 				for (ItemType needle : (ItemType[]) needles) {
