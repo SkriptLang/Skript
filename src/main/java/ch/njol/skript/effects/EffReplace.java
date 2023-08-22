@@ -101,7 +101,6 @@ public class EffReplace extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
-	@Override
 	protected void execute(Event event) {
 		Object[] needles = this.needles.getAll(event);
 		if (haystack instanceof ExpressionList) {
@@ -170,9 +169,9 @@ public class EffReplace extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (replaceFirst)
-			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+			return "replace first " + needles.toString(event, debug) + (replaceRegex ? " (regex) " : "") + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 					+ "(case sensitive: " + caseSensitive + ")";
-		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+		return "replace " + needles.toString(event, debug) + (replaceRegex ? " (regex) " : "") + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 				+ "(case sensitive: " + caseSensitive + ")";
 	}
 	
