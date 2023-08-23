@@ -387,7 +387,7 @@ task nightlyRelease(type: ShadowJar) {
 	}
 }
 
-task javadoc {
+javadoc {
 	dependsOn nightlyResources
 	
 	source = sourceSets.main.allJava
