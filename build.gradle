@@ -150,6 +150,8 @@ license {
 }
 
 javadoc {
+	dependsOn nightlyResources
+	
 	source = sourceSets.main.allJava
 
 	exclude("ch/njol/skript/conditions/**")
