@@ -57,8 +57,8 @@ public class EffEnchant extends Effect {
 	@Nullable
 	private Expression<EnchantmentType> enchantments;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = (Expression<ItemType>) exprs[0];
 		if (!ChangerUtils.acceptsChange(items, ChangeMode.SET, ItemStack.class)) {
