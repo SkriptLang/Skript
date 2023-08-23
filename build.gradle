@@ -401,7 +401,7 @@ javadoc {
 	exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
 	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
 	exclude("ch/njol/skript/hooks/**")
-	exclude("ch/njol/skript/tests/**")
+	exclude("ch/njol/skript/test/**")
 	
 	classpath = configurations.compileClasspath + sourceSets.main.output
 	options.encoding = 'UTF-8'
