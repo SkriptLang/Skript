@@ -412,6 +412,7 @@ chat styles:
 	font: font, f
 	insertion: insertion, insert, ins
 	translate: translate, tr, lang
+	keybind: keybind, key
 
 # -- Directions --
 directions:
