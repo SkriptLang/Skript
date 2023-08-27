@@ -154,8 +154,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 				return;
 
 			FurnaceBurnEvent event = (FurnaceBurnEvent) e;
-			int i = (int) value.apply(Timespan.fromTicks(event.getBurnTime())).getTicks();
-			event.setBurnTime(i);
+			event.setBurnTime((int) value.apply(Timespan.fromTicks(event.getBurnTime())).getTicks());
 			return;
 		}
 
