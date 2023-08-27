@@ -59,7 +59,6 @@ import ch.njol.util.Kleenean;
  * }
  * </pre>
  * 
- * @author Peter Güttinger
  * @see Classes#registerClass(ClassInfo)
  * @see ClassInfo#defaultExpression(DefaultExpression)
  * @see DefaultExpression
