@@ -52,9 +52,15 @@ runs:
           grep skriptVersion "$1/docs.json" | cut -d\" -f 4
         }
 
-        export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
-        export SKRIPT_DOCS_OUTPUT_DIR=/tmp/generated-docs
+        if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
+        then
+          export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/docs/templates
+        else
+          export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
+        fi
 
+        export SKRIPT_DOCS_OUTPUT_DIR=/tmp/generated-docs
+                  
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
           ./gradlew genReleaseDocs releaseJavadoc
