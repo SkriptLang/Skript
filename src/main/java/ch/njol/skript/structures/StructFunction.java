@@ -46,10 +46,14 @@ import java.util.regex.MatchResult;
 @Examples({
 	"function sayMessage(message: text):",
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
+	"",
 	"local function giveApple(amount: number) :: item:",
-	"\treturn {_amount} of apple"
+	"\treturn {_amount} of apple",
+	"",
+	"function getPoints(p: player) returns number:",
+	"\treturn {points::%{_p}%}"
 })
-@Since("2.2, INSERT VERSION (local functions)")
+@Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);
@@ -58,7 +62,7 @@ public class StructFunction extends Structure {
 
 	static {
 		Skript.registerStructure(StructFunction.class,
-			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*::\\s*(.+))?>"
+			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*(?:::| returns )\\s*(.+))?>"
 		);
 	}
 

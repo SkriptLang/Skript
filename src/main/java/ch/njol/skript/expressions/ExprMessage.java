@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -35,7 +34,6 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.util.PlayerChatEventHandler;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -72,22 +70,15 @@ public class ExprMessage extends SimpleExpression<String> {
 	
 	@SuppressWarnings("unchecked")
 	private static enum MessageType {
-		CHAT("chat", "[chat( |-)]message", PlayerChatEventHandler.usesAsyncEvent ? AsyncPlayerChatEvent.class : PlayerChatEvent.class) {
+		CHAT("chat", "[chat( |-)]message", AsyncPlayerChatEvent.class) {
 			@Override
-			@Nullable
-			String get(final Event e) {
-				if (PlayerChatEventHandler.usesAsyncEvent)
-					return ((AsyncPlayerChatEvent) e).getMessage();
-				else
-					return ((PlayerChatEvent) e).getMessage();
+			String get(Event event) {
+				return ((AsyncPlayerChatEvent) event).getMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (PlayerChatEventHandler.usesAsyncEvent)
-					((AsyncPlayerChatEvent) e).setMessage(message);
-				else
-					((PlayerChatEvent) e).setMessage(message);
+			void set(Event event, String message) {
+				((AsyncPlayerChatEvent) event).setMessage(message);
 			}
 		},
 		JOIN("join", "(join|log[ ]in)( |-)message", PlayerJoinEvent.class) {

@@ -67,7 +67,7 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 	@Override
 	public void set(final ExperienceOrb entity) {
 		if (xp != -1)
-			entity.setExperience(xp);
+			entity.setExperience(xp + entity.getExperience());
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 		if (orb == null)
 			return null;
 		if (xp == -1)
-			orb.setExperience(1);
+			orb.setExperience(1 + orb.getExperience());
 		return orb;
 	}
 

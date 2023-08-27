@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"player's freeze time is less than 3 seconds:",
 	"\tsend \"you're about to freeze!\" to the player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {

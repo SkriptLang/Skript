@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"drop diamond sword at {_location} without velocity",
 	"set pickup delay of last dropped item to 5 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
