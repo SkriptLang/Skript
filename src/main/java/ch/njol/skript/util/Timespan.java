@@ -167,9 +167,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 	/**
-	 * Returns the amount of Minecraft ticks this timespan represents.
-	 * 
-	 * @return
+	 * @return the amount of Minecraft ticks this timespan represents.
 	 */
 	public long getTicks() {
 		return Math.round((millis / 50.0));
