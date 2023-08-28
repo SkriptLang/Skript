@@ -37,7 +37,7 @@ runs:
         # Attempt rebasing and pushing 5 times in case another job pushes before us
         for i in 1 2 3 4 5
         do
-          git pull --rebase origin main
+          git pull --rebase -X theirs origin main
           git push origin main && break
           sleep 5
         done
