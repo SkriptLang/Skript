@@ -1,0 +1,11 @@
+test "left handedness" when running minecraft "1.17.1":
+	spawn skeleton at spawn of world "world":
+		make entity right handed
+		assert entity is not left handed with "zombie is left handed after being made right handed"
+		assert entity is right handed with "zombie is not right handed after being made right handed"
+		make entity left handed
+		assert entity is not right handed with "zombie is right handed after being made left handed"
+		assert entity is left handed with "zombie is not left handed after being made left handed"
+		make entity left handed
+		assert entity is left handed with "zombie is not left handed after being made left handed again"
+		delete entity
