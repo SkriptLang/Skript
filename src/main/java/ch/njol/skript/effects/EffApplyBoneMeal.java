@@ -73,4 +73,5 @@ public class EffApplyBoneMeal extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "apply " + amount != null ? amount.toString(event, debug) + " " : "" + "bone meal to " + blocks.toString(event, debug);
 	}
+
 }
