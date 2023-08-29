@@ -671,7 +671,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								errorCounter.start();
 								File testDir = TestMode.TEST_DIR.toFile();
 								assert testDir != null;
-								ScriptLoader.loadScripts(testDir, errorCounter);
+								ScriptLoader.loadScript(testDir, errorCounter);
 							} finally {
 								errorCounter.stop();
 							}
@@ -811,7 +811,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				File scriptsFolder = getScriptsFolder();
 				ScriptLoader.updateDisabledScripts(scriptsFolder.toPath());
-				ScriptLoader.loadScripts(scriptsFolder, logHandler)
+				ScriptLoader.loadScript(scriptsFolder, logHandler)
 					.thenAccept(scriptInfo -> {
 						try {
 							if (logHandler.getCount() == 0)

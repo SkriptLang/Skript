@@ -138,7 +138,7 @@ public class SkriptCommand implements CommandExecutor {
 					Aliases.load();
 
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
-					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
+					ScriptLoader.loadScript(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(info -> {
 							if (info.files == 0)
 								Skript.warning(Skript.m_no_scripts.toString());
@@ -150,7 +150,7 @@ public class SkriptCommand implements CommandExecutor {
 					reloading(sender, "scripts");
 
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
-					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
+					ScriptLoader.loadScript(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
 						.thenAccept(info -> {
 							if (info.files == 0)
 								Skript.warning(Skript.m_no_scripts.toString());
@@ -187,7 +187,7 @@ public class SkriptCommand implements CommandExecutor {
 						Script script = ScriptLoader.getScript(scriptFile);
 						if (script != null)
 							ScriptLoader.unloadScript(script);
-						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
+						ScriptLoader.loadScript(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo ->
 								reloaded(sender, logHandler, timingLogHandler, "script", scriptFile.getName())
 							);
@@ -195,7 +195,7 @@ public class SkriptCommand implements CommandExecutor {
 						final String fileName = scriptFile.getName();
 						reloading(sender, "scripts in folder", fileName);
 						ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
-						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
+						ScriptLoader.loadScript(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo -> {
 								if (scriptInfo.files == 0) {
 									info(sender, "reload.empty folder", fileName);
@@ -246,7 +246,7 @@ public class SkriptCommand implements CommandExecutor {
 
 						final String fileName = scriptFile.getName();
 						info(sender, "enable.single.enabling", fileName);
-						ScriptLoader.loadScripts(scriptFile, logHandler)
+						ScriptLoader.loadScript(scriptFile, logHandler)
 							.thenAccept(scriptInfo -> {
 								if (logHandler.numErrors() == 0) {
 									info(sender, "enable.single.enabled", fileName);
@@ -430,7 +430,7 @@ public class SkriptCommand implements CommandExecutor {
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				ScriptLoader.loadScript(scriptFile, logHandler)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
