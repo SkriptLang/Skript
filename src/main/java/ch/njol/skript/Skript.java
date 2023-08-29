@@ -603,11 +603,12 @@ public final class Skript extends JavaPlugin implements Listener {
 				
 				
 				Documentation.generate(); // TODO move to test classes?
-				
+
+				// Variable loading
 				if (logNormal())
 					info("Loading variables...");
-				final long vls = System.currentTimeMillis();
-				
+				long vls = System.currentTimeMillis();
+
 				LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
 					@Override
 					public LogResult log(final LogEntry entry) {
@@ -619,14 +620,14 @@ public final class Skript extends JavaPlugin implements Listener {
 							return LogResult.LOG;
 						}
 					}
-					
+
 					@Override
 					protected void beforeErrors() {
 						logEx();
 						logEx("===!!!=== Skript variable load error ===!!!===");
 						logEx("Unable to load (all) variables:");
 					}
-					
+
 					@Override
 					protected void afterErrors() {
 						logEx();
@@ -634,7 +635,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						logEx();
 					}
 				});
-				
+
 				try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
 					if (!Variables.load())
 						if (c.getCount() == 0)
@@ -642,7 +643,11 @@ public final class Skript extends JavaPlugin implements Listener {
 				} finally {
 					h.stop();
 				}
-				
+
+				long vld = System.currentTimeMillis() - vls;
+				if (logNormal())
+					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
+
 				// Skript initialization done
 				debug("Early init done");
 
@@ -745,10 +750,6 @@ public final class Skript extends JavaPlugin implements Listener {
 						}, shutdownDelay);
 					}, 100);
 				}
-				
-				final long vld = System.currentTimeMillis() - vls;
-				if (logNormal())
-					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 
 				// Enable metrics and register custom charts
 				Metrics metrics = new Metrics(Skript.this, 722); // 722 is our bStats plugin ID

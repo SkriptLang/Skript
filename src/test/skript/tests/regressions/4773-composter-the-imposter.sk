@@ -1,0 +1,5 @@
+test "composter the imposter" when running minecraft "1.14.4":
+	set {_block} to type of block at spawn of world "world"
+	set block at spawn of world "world" to composter
+	assert block at spawn of world "world" is composter with "failed to compare composter (itemtype) with a block"
+	set block at spawn of world "world" to {_block}
