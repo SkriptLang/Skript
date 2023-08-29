@@ -36,7 +36,8 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 	"make the command sender execute \"/say hi!\"",
 	"",
 	"on command:",
-		"\tlog \"%executor% used command /%command% %arguments%\" to \"commands.log\""})
+		"\tlog \"%executor% used command /%command% %arguments%\" to \"commands.log\""
+})
 @Since("2.0")
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
