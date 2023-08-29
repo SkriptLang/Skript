@@ -1032,20 +1032,6 @@ public class ScriptLoader {
 	 */
 
 	/**
-	 * Reloads a single script.
-	 * @param scriptFile The file representing the script to reload.
-	 * @return Future of statistics of the newly loaded script.
-	 * @deprecated Use {@link #reloadScript(Script, OpenCloseable)}.
-	 */
-	@Deprecated
-	public static CompletableFuture<ScriptInfo> reloadScript(File scriptFile, OpenCloseable openCloseable) {
-		Script script = getScript(scriptFile);
-		if (script == null)
-			return CompletableFuture.completedFuture(new ScriptInfo());
-		return reloadScript(script, openCloseable);
-	}
-
-	/**
 	 * Unloads the provided script.
 	 * @param scriptFile The file representing the script to unload.
 	 * @return Statistics for the unloaded script.
@@ -1072,6 +1058,18 @@ public class ScriptLoader {
 	}
 
 	/**
+	 * Reloads a single script.
+	 * @param scriptFile The file representing the script to reload.
+	 * @return Future of statistics of the newly loaded script.
+	 * @deprecated Use {@link #reloadScript(Script, OpenCloseable)}.
+	 */
+	@Deprecated
+	public static CompletableFuture<ScriptInfo> reloadScript(File scriptFile, OpenCloseable openCloseable) {
+		unloadScript(scriptFile);
+		return loadScripts(scriptFile, openCloseable);
+	}
+
+	/**
 	 * Reloads all scripts in the given folder and its subfolders.
 	 * @param folder A folder.
 	 * @return Future of statistics of newly loaded scripts.
@@ -1080,7 +1078,7 @@ public class ScriptLoader {
 	@Deprecated
 	public static CompletableFuture<ScriptInfo> reloadScripts(File folder, OpenCloseable openCloseable) {
 		unloadScripts(folder);
-		return loadScripts(loadStructures(folder), openCloseable);
+		return loadScripts(folder, openCloseable);
 	}
 
 	/**
