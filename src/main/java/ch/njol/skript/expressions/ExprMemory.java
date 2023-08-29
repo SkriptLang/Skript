@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The free, max or total memory of the server in Megabytes.")
 @Examples({
 	"while player is online:",
-		"\tsend action bar \"Memory left: %free memory%MB\" to player",
+		"\tsend action bar \"Memory left: %free memory%/%max memory%MB\" to player",
 		"\twait 5 ticks"
 })
 @Since("INSERT VERSION")
@@ -48,7 +48,7 @@ public class ExprMemory extends SimpleExpression<Double> {
 	private static final Runtime RUNTIME = Runtime.getRuntime();
 
 	static {
-		Skript.registerExpression(ExprMemory.class, Double.class, ExpressionType.SIMPLE, "[the] [server] (:free|:max[imum]|total) (memory|ram)");
+		Skript.registerExpression(ExprMemory.class, Double.class, ExpressionType.SIMPLE, "[the] [server] (:free|max:max[imum]|total) (memory|ram)");
 	}
 
 	private enum Type {
