@@ -1074,7 +1074,7 @@ public final class BukkitEventValues {
 				if (invi instanceof PlayerInventory && slotIndex >= 36) {
 					return new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) invi).getHolder(), slotIndex);
 				} else {
-					return new InventorySlot(invi, slotIndex);
+					return new InventorySlot(invi, slotIndex, e.getRawSlot());
 				}
 			}
 		}, 0);
