@@ -96,7 +96,7 @@ public class EffScriptFile extends Effect {
 					return;
 				}
 
-				ScriptLoader.loadScript(scriptFile, OpenCloseable.EMPTY);
+				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			}
 			case RELOAD: {
@@ -107,7 +107,7 @@ public class EffScriptFile extends Effect {
 				if (script != null)
 					ScriptLoader.unloadScript(script);
 				
-				ScriptLoader.loadScript(scriptFile, OpenCloseable.EMPTY);
+				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			}
 			case DISABLE: {

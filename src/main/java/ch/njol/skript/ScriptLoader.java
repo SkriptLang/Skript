@@ -453,7 +453,7 @@ public class ScriptLoader {
 	 * @param openCloseable An {@link OpenCloseable} that will be called before and after
 	 *                         each individual script load (see {@link #makeFuture(Supplier, OpenCloseable)}).
 	 */
-	public static CompletableFuture<ScriptInfo> loadScript(File file, OpenCloseable openCloseable) {
+	public static CompletableFuture<ScriptInfo> loadScripts(File file, OpenCloseable openCloseable) {
 		return loadScripts(loadStructures(file), openCloseable);
 	}
 
@@ -807,15 +807,6 @@ public class ScriptLoader {
 	 */
 
 	/**
-	 * Unloads the provided script.
-	 * @param script The script to unload.
-	 * @return Statistics for the unloaded script.
-	 */
-	public static ScriptInfo unloadScript(Script script) {
-		return unloadScripts(Collections.singleton(script));
-	}
-
-	/**
 	 * Unloads all scripts present in the provided collection.
 	 * @param scripts The scripts to unload.
 	 * @return Combined statistics for the unloaded scripts.
@@ -862,6 +853,15 @@ public class ScriptLoader {
 		}
 
 		return info;
+	}
+	
+	/**
+	 * Unloads the provided script.
+	 * @param script The script to unload.
+	 * @return Statistics for the unloaded script.
+	 */
+	public static ScriptInfo unloadScript(Script script) {
+		return unloadScripts(Collections.singleton(script));
 	}
 	
 	/*
@@ -1104,12 +1104,12 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * @deprecated Use {@link #loadScript(File, OpenCloseable)}
+	 * @deprecated Use {@link #loadScripts(File, OpenCloseable)}
 	 */
 	@Deprecated
 	static void loadScripts() {
 		unloadScripts(getLoadedScripts());
-		loadScript(Skript.getInstance().getScriptsFolder(), OpenCloseable.EMPTY).join();
+		loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.EMPTY).join();
 	}
 
 	/**
