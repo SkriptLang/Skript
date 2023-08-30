@@ -1317,6 +1317,18 @@ teleport causes:
 	dismount: dismount, dismounted
 	exit_bed: exit bed, exiting bed, bed exit
 
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: can't use, can not use, cannot use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
+
 # -- Game Modes --
 game modes:
 	survival: survival
@@ -2010,6 +2022,7 @@ types:
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
 	quitreason: quit reason¦s @a
+	inventoryclosereason: inventory close reason¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
