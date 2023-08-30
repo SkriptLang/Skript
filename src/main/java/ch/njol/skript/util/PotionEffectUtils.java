@@ -42,15 +42,15 @@ import ch.njol.skript.localization.LanguageChangeListener;
 
 @SuppressWarnings("deprecation")
 public abstract class PotionEffectUtils {
-	
+
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
-	
+
 	private PotionEffectUtils() {}
-	
+
 	final static Map<String, PotionEffectType> types = new HashMap<>();
-	
+
 	final static String[] names = new String[getMaxPotionId() + 1];
-	
+
 	// MCPC+ workaround
 	private static int getMaxPotionId() {
 		int i = 0;
@@ -113,7 +113,7 @@ public abstract class PotionEffectUtils {
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(potionEffect.getDuration() == PotionEffect.INFINITE_DURATION ? "infinity" : Timespan.fromTicks_i(Math.abs(potionEffect.getDuration())));
+		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : Timespan.fromTicks_i(Math.abs(potionEffect.getDuration())));
 		if (!potionEffect.hasIcon())
 			builder.append(" without icon");
 		return builder.toString();
