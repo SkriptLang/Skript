@@ -31,6 +31,7 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -82,7 +83,7 @@ public class ExprRawString extends SimpleExpression<String> {
 			for (String string : message.getArray(event)) {
 				String raw = SkriptColor.replaceColorChar(string);
 				if (raw.toLowerCase().contains("&x")) {
-					raw = HEX_PATTERN.matcher(raw).replaceAll(matchResult ->
+					raw = StringUtils.replaceAll(raw, HEX_PATTERN, matchResult ->
 						"<#" + matchResult.group(1).replace("&", "") + '>');
 				}
 				strings.add(raw);
