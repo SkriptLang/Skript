@@ -618,28 +618,28 @@ public final class BukkitEventValues {
 			public Block get(EntityChangeBlockEvent event) {
 				return event.getBlock();
 			}
-		}, -1);
+		}, EventValues.TIME_PAST);
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
 			@Override
 			@Nullable
 			public Block get(EntityChangeBlockEvent event) {
 				return event.getBlock();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
 			@Override
 			@Nullable
 			public BlockData get(EntityChangeBlockEvent event) {
 				return event.getBlockData();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
 			@Override
 			@Nullable
 			public BlockData get(EntityChangeBlockEvent event) {
 				return event.getBlockData();
 			}
-		}, 1);
+		}, EventValues.TIME_FUTURE);
 
 		// AreaEffectCloudApplyEvent
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, LivingEntity[].class, new Getter<LivingEntity[], AreaEffectCloudApplyEvent>() {
