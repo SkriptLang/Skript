@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -103,7 +104,9 @@ public class BlockUtils {
 		data = data.replaceAll("\\s+\\[", "[");
 		// And replace white space between namespace with underscores
 		data = data.replace(" ", "_");
-		
+
+		String errorData = new String(data);
+
 		try {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
 		} catch (IllegalArgumentException ignored) {
@@ -115,7 +118,10 @@ public class BlockUtils {
 				if (type == null)
 					return null;
 				return Bukkit.createBlockData(type.getMaterial(), data);
-			} catch (IllegalArgumentException | StringIndexOutOfBoundsException alsoIgnored) {
+			} catch (StringIndexOutOfBoundsException alsoIgnored) {
+				return null;
+			} catch (IllegalArgumentException alsoIgnored) {
+				Skript.error("Block data '" + errorData + "' is not valid for this material");
 				return null;
 			}
 		}

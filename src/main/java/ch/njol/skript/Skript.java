@@ -603,52 +603,51 @@ public final class Skript extends JavaPlugin implements Listener {
 				
 				
 				Documentation.generate(); // TODO move to test classes?
-				
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.this, () -> {
-					if (logNormal())
-						info("Loading variables...");
-					long vls = System.currentTimeMillis();
-					
-					LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
-						@Override
-						public LogResult log(final LogEntry entry) {
-							super.log(entry);
-							if (entry.level.intValue() >= Level.SEVERE.intValue()) {
-								logEx(entry.message); // no [Skript] prefix
-								return LogResult.DO_NOT_LOG;
-							} else {
-								return LogResult.LOG;
-							}
+
+				// Variable loading
+				if (logNormal())
+					info("Loading variables...");
+				long vls = System.currentTimeMillis();
+
+				LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
+					@Override
+					public LogResult log(final LogEntry entry) {
+						super.log(entry);
+						if (entry.level.intValue() >= Level.SEVERE.intValue()) {
+							logEx(entry.message); // no [Skript] prefix
+							return LogResult.DO_NOT_LOG;
+						} else {
+							return LogResult.LOG;
 						}
-						
-						@Override
-						protected void beforeErrors() {
-							logEx();
-							logEx("===!!!=== Skript variable load error ===!!!===");
-							logEx("Unable to load (all) variables:");
-						}
-						
-						@Override
-						protected void afterErrors() {
-							logEx();
-							logEx("Skript will work properly, but old variables might not be available at all and new ones may or may not be saved until Skript is able to create a backup of the old file and/or is able to connect to the database (which requires a restart of Skript)!");
-							logEx();
-						}
-					});
-					
-					try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
-						if (!Variables.load())
-							if (c.getCount() == 0)
-								error("(no information available)");
-					} finally {
-						h.stop();
 					}
-					
-					long vld = System.currentTimeMillis() - vls;
-					if (logNormal())
-						info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
+
+					@Override
+					protected void beforeErrors() {
+						logEx();
+						logEx("===!!!=== Skript variable load error ===!!!===");
+						logEx("Unable to load (all) variables:");
+					}
+
+					@Override
+					protected void afterErrors() {
+						logEx();
+						logEx("Skript will work properly, but old variables might not be available at all and new ones may or may not be saved until Skript is able to create a backup of the old file and/or is able to connect to the database (which requires a restart of Skript)!");
+						logEx();
+					}
 				});
-				
+
+				try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
+					if (!Variables.load())
+						if (c.getCount() == 0)
+							error("(no information available)");
+				} finally {
+					h.stop();
+				}
+
+				long vld = System.currentTimeMillis() - vls;
+				if (logNormal())
+					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
+
 				// Skript initialization done
 				debug("Early init done");
 
