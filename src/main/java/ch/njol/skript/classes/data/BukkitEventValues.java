@@ -23,6 +23,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.events.bukkit.ScriptEvent;
+import ch.njol.skript.events.bukkit.SkriptStartEvent;
+import ch.njol.skript.events.bukkit.SkriptStopEvent;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.BlockStateBlock;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.DelayedChangeBlock;
+import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.slot.InventorySlot;
+import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -142,30 +164,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
-
-import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.events.bukkit.ScriptEvent;
-import ch.njol.skript.events.bukkit.SkriptStartEvent;
-import ch.njol.skript.events.bukkit.SkriptStopEvent;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.BlockStateBlock;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.DelayedChangeBlock;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.slot.InventorySlot;
-import ch.njol.skript.util.slot.Slot;
-import io.papermc.paper.event.entity.EntityMoveEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
 
 /**
  * @author Peter Güttinger
@@ -1076,7 +1074,7 @@ public final class BukkitEventValues {
 				if (invi instanceof PlayerInventory && slotIndex >= 36) {
 					return new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) invi).getHolder(), slotIndex);
 				} else {
-					return new InventorySlot(invi, slotIndex);
+					return new InventorySlot(invi, slotIndex, e.getRawSlot());
 				}
 			}
 		}, 0);
@@ -1311,6 +1309,13 @@ public final class BukkitEventValues {
 				return e.getInventory();
 			}
 		}, 0);
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
+				@Override
+				public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
+					return event.getReason();
+				}
+			}, EventValues.TIME_NOW);
 		//InventoryPickupItemEvent
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Inventory.class, new Getter<Inventory, InventoryPickupItemEvent>() {
 			@Nullable
