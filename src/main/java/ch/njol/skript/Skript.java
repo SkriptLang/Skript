@@ -770,7 +770,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					SkriptConfig.defaultEventPriority.value().name().toLowerCase(Locale.ENGLISH).replace('_', ' ')
 				));
 				metrics.addCustomChart(new SimplePie("logPlayerCommands", () ->
-					SkriptConfig.logPlayerCommands.value().toString()
+					SkriptConfig.logEffectCommands.value().toString()
 				));
 				metrics.addCustomChart(new SimplePie("maxTargetDistance", () ->
 					SkriptConfig.maxTargetBlockDistance.value().toString()
