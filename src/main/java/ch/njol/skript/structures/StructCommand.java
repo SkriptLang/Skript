@@ -256,33 +256,33 @@ public class StructCommand extends Structure {
 		});
 		desc = Commands.unescape(desc).trim();
 
-		String usage = entryContainer.getOptional("usage", false);
+		String usage = entryContainer.getOptional("usage", String.class, false);
 		if (usage == null) {
 			usage = Commands.m_correct_usage + " " + desc;
 		}
 
-		String description = entryContainer.get("description", true);
-		String prefix = entryContainer.getOptional("prefix", false);
+		String description = entryContainer.get("description", String.class, true);
+		String prefix = entryContainer.getOptional("prefix", String.class, false);
 
-		String permission = entryContainer.get("permission", true);
-		VariableString permissionMessage = entryContainer.getOptional("permission message", false);
+		String permission = entryContainer.get("permission", String.class, true);
+		VariableString permissionMessage = entryContainer.getOptional("permission message", VariableString.class, false);
 		if (permissionMessage != null && permission.isEmpty())
 			Skript.warning("command /" + command + " has a permission message set, but not a permission");
 
-		List<String> aliases = entryContainer.get("aliases", true);
-		int executableBy = entryContainer.get("executable by", true);
+		List<String> aliases = entryContainer.get("aliases", List.class,true);
+		int executableBy = entryContainer.get("executable by", Integer.class, true);
 
-		Timespan cooldown = entryContainer.getOptional("cooldown", false);
-		VariableString cooldownMessage = entryContainer.getOptional("cooldown message", false);
+		Timespan cooldown = entryContainer.getOptional("cooldown", Timespan.class, false);
+		VariableString cooldownMessage = entryContainer.getOptional("cooldown message", VariableString.class, false);
 		if (cooldownMessage != null && cooldown == null)
 			Skript.warning("command /" + command + " has a cooldown message set, but not a cooldown");
-		String cooldownBypass = entryContainer.getOptional("cooldown bypass", false);
+		String cooldownBypass = entryContainer.getOptional("cooldown bypass", String.class, false);
 		if (cooldownBypass == null) {
 			cooldownBypass = "";
 		} else if (cooldownBypass.isEmpty() && cooldown == null) {
 			Skript.warning("command /" + command + " has a cooldown bypass set, but not a cooldown");
 		}
-		VariableString cooldownStorage = entryContainer.getOptional("cooldown storage", false);
+		VariableString cooldownStorage = entryContainer.getOptional("cooldown storage", VariableString.class, false);
 		if (cooldownStorage != null && cooldown == null)
 			Skript.warning("command /" + command + " has a cooldown storage set, but not a cooldown");
 
@@ -295,7 +295,7 @@ public class StructCommand extends Structure {
 		try {
 			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, prefix,
 				usage, aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
-				executableBy, entryContainer.get("trigger", false));
+				executableBy, entryContainer.get("trigger", SectionNode.class, false));
 		} finally {
 			Commands.currentArguments = null;
 		}
