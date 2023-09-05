@@ -127,8 +127,7 @@ public final class SkriptEventHandler {
 			}
 			if (!hasTrigger)
 				return;
-			Class<? extends Event> c = event.getClass();
-			triggers = getTriggers(c);
+
 			logEventStart(event);
 		}
 		
