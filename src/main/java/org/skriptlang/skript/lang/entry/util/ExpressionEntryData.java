@@ -37,18 +37,28 @@ public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? exten
 
 	private final int flags;
 	
-	private final Class<? extends Event>[] events;
+	private final @Nullable Class<? extends Event>[] events;
+
+	/**
+	 * @param returnType The expected return type of the matched expression.
+	 */
+	public ExpressionEntryData(
+		String key, @Nullable Expression<T> defaultValue, boolean optional, Class<T> returnType
+	) {
+		this(key, defaultValue, optional, returnType, SkriptParser.ALL_FLAGS, (Class<? extends Event>[]) null);
+	}
 
 	/**
 	 * @param returnType The expected return type of the matched expression.
 	 * @param events Events to be present during parsing and Trigger execution.
 	 *               This allows the usage of event-restricted syntax and event-values.
+	 *               If null, the current events will not be changed.
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
 	public ExpressionEntryData(
 		String key, @Nullable Expression<T> defaultValue, boolean optional,
-		Class<T> returnType, Class<? extends Event>... events
+		Class<T> returnType, @Nullable Class<? extends Event>... events
 	) {
 		this(key, defaultValue, optional, returnType, SkriptParser.ALL_FLAGS, events);
 	}
@@ -59,12 +69,13 @@ public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? exten
 	 *              javadoc for more details.
 	 * @param events Events to be present during parsing and Trigger execution.
 	 *               This allows the usage of event-restricted syntax and event-values.
+	 *               If null, the current events will not be changed.
 	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
 	@SafeVarargs
 	public ExpressionEntryData(
 		String key, @Nullable Expression<T> defaultValue, boolean optional,
-		Class<T> returnType, int flags, Class<? extends Event>... events
+		Class<T> returnType, int flags, @Nullable Class<? extends Event>... events
 	) {
 		super(key, defaultValue, optional);
 		this.returnType = returnType;
@@ -76,18 +87,25 @@ public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? exten
 	@Nullable
 	@SuppressWarnings("unchecked")
 	protected Expression<? extends T> getValue(String value) {
-		ParserInstance parser = ParserInstance.get();
+		ParserInstance parser = null;
+		Class<? extends Event>[] oldEvents = null;
+		Kleenean oldHasDelayBefore = null;
 
-		Class<? extends Event>[] oldEvents = parser.getCurrentEvents();
-		Kleenean oldHasDelayBefore = parser.getHasDelayBefore();
+		if (events != null) {
+			parser = ParserInstance.get();
+			oldEvents = parser.getCurrentEvents();
+			oldHasDelayBefore = parser.getHasDelayBefore();
 
-		parser.setCurrentEvents(events);
-		parser.setHasDelayBefore(Kleenean.FALSE);
+			parser.setCurrentEvents(events);
+			parser.setHasDelayBefore(Kleenean.FALSE);
+		}
 
 		Expression<? extends T> expression = new SkriptParser(value, flags, ParseContext.DEFAULT).parseExpression(returnType);
 
-		parser.setCurrentEvents(oldEvents);
-		parser.setHasDelayBefore(oldHasDelayBefore);
+		if (events != null) {
+			parser.setCurrentEvents(oldEvents);
+			parser.setHasDelayBefore(oldHasDelayBefore);
+		}
 
 		return expression;
 	}

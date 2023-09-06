@@ -79,7 +79,7 @@ public abstract class TriggerSection extends TriggerItem {
 			}
 		}
 	}
-	
+
 	@Override
 	public TriggerSection setNext(@Nullable TriggerItem next) {
 		super.setNext(next);
