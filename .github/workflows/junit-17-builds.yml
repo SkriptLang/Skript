@@ -12,7 +12,7 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   submodules: recursive
             - name: Set up JDK 17
