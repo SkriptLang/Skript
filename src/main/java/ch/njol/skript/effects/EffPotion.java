@@ -64,7 +64,7 @@ public class EffPotion extends Effect {
 		);
 	}
 
-	private final static boolean COMPATIBLE = Skript.isRunningMinecraft(1,  19, 4);
+	private final static boolean COMPATIBLE = Skript.isRunningMinecraft(1, 19, 4);
 
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
 
