@@ -73,8 +73,8 @@ public class EffBroadcast extends Effect {
 	@Nullable
 	private Expression<World> worlds;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		messageExpr = LiteralUtils.defendExpression(exprs[0]);
 		messages = messageExpr instanceof ExpressionList ?
