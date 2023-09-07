@@ -57,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
 	"broadcast \"Welcome %player% to the server!\"",
 	"broadcast \"Woah! It's a message!\""
 })
-@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
+@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting), INSERT VERSION (calls broadcast event)")
 public class EffBroadcast extends Effect {
 
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)&x((?:&\\p{XDigit}){6})");
@@ -85,31 +85,31 @@ public class EffBroadcast extends Effect {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void execute(Event e) {
+	public void execute(Event event) {
 		List<CommandSender> receivers = new ArrayList<>();
 		if (worlds == null) {
 			receivers.addAll(Bukkit.getOnlinePlayers());
 			receivers.add(Bukkit.getConsoleSender());
 		} else {
-			for (World world : worlds.getArray(e))
+			for (World world : worlds.getArray(event))
 				receivers.addAll(world.getPlayers());
 		}
 
 		for (Expression<?> message : getMessages()) {
 			if (message instanceof VariableString) {
-				if (!dispatchEvent(getRawString(e, (VariableString) message), receivers))
+				if (!dispatchEvent(getRawString(event, (VariableString) message), receivers))
 					continue;
-				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(e));
+				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(event));
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
-				for (Object realMessage : message.getArray(e)) {
+				for (Object realMessage : message.getArray(event)) {
 					if (!dispatchEvent(Utils.replaceChatStyles((String) realMessage), receivers))
 						continue;
 					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parse((String) realMessage));
 					receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
 				}
 			} else {
-				for (Object messageObject : message.getArray(e)) {
+				for (Object messageObject : message.getArray(event)) {
 					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
 					if (!dispatchEvent(Utils.replaceChatStyles(realMessage), receivers))
 						continue;
@@ -117,6 +117,11 @@ public class EffBroadcast extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "broadcast " + messageExpr.toString(event, debug) + (worlds == null ? "" : " to " + worlds.toString(event, debug));
 	}
 
 	private Expression<?>[] getMessages() {
@@ -148,11 +153,6 @@ public class EffBroadcast extends Effect {
 				"<#" + matchResult.group(1).replace("&", "") + '>');
 		}
 		return rawString;
-	}
-
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "broadcast " + messageExpr.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
 	}
 
 }
