@@ -142,14 +142,18 @@ public final class SkriptEventHandler {
 
 		for (Trigger trigger : triggers) {
 			SkriptEvent triggerEvent = trigger.getEvent();
-			if (triggerEvent.getEventPriority() != priority || !triggerEvent.check(event))
+			if (triggerEvent.getEventPriority() != priority)
 				continue;
 
 			logTriggerStart(trigger);
 			Object timing = SkriptTimings.start(trigger.getDebugLabel());
-			if (!Bukkit.isPrimaryThread() && !trigger.getEvent().allowAsynchronous()) {
+			if (!Bukkit.isPrimaryThread() && !trigger.getEvent().canExecuteAsynchronously()) {
+				if (Task.callSync(() ->!triggerEvent.check(event)))
+					continue;
 				Task.callSync(() -> trigger.execute(event));
 			} else {
+				if (!triggerEvent.check(event))
+					continue;
 				trigger.execute(event);
 			}
 
