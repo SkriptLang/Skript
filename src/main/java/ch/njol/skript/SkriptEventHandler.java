@@ -147,11 +147,12 @@ public final class SkriptEventHandler {
 
 			logTriggerStart(trigger);
 			Object timing = SkriptTimings.start(trigger.getDebugLabel());
-			if (!Bukkit.isPrimaryThread() && !trigger.getEvent().canExecuteAsynchronously()) {
+			if (!trigger.getEvent().canExecuteAsynchronously()) {
 				if (Task.callSync(() ->!triggerEvent.check(event)))
 					continue;
 				Task.callSync(() -> trigger.execute(event));
 			} else {
+				//This can be !Bukkit.isPrimaryThread()
 				if (!triggerEvent.check(event))
 					continue;
 				trigger.execute(event);
