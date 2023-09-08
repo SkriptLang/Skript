@@ -120,7 +120,7 @@ public final class SkriptEventHandler {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
 				SkriptEvent triggerEvent = trigger.getEvent();
-				if (triggerEvent.getEventPriority() == priority && triggerEvent.check(event)) {
+				if (triggerEvent.getEventPriority() == priority && Task.callSync(() ->!triggerEvent.check(event))) {
 					hasTrigger = true;
 					break;
 				}
