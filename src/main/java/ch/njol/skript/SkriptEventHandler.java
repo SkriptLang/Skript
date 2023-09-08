@@ -120,7 +120,8 @@ public final class SkriptEventHandler {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
 				SkriptEvent triggerEvent = trigger.getEvent();
-				if (triggerEvent.getEventPriority() == priority && Task.callSync(() ->!triggerEvent.check(event))) {
+				Boolean check = Task.callSync(() ->!triggerEvent.check(event));
+				if (triggerEvent.getEventPriority() == priority && check != null && check) {
 					hasTrigger = true;
 					break;
 				}
@@ -147,13 +148,14 @@ public final class SkriptEventHandler {
 
 			logTriggerStart(trigger);
 			Object timing = SkriptTimings.start(trigger.getDebugLabel());
+			Boolean check = Task.callSync(() ->!triggerEvent.check(event));
 			if (!trigger.getEvent().canExecuteAsynchronously()) {
-				if (Task.callSync(() ->!triggerEvent.check(event)))
+				if (check == null || check)
 					continue;
 				Task.callSync(() -> trigger.execute(event));
 			} else {
 				//This can be !Bukkit.isPrimaryThread()
-				if (!triggerEvent.check(event))
+				if (check == null || check)
 					continue;
 				trigger.execute(event);
 			}
