@@ -41,19 +41,23 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Name("Entity Attribute")
-@Description({"The numerical value of an entity's particular attribute.",
-			 "Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
-			 "Resetting an entity's attribute is only available in Minecraft 1.11 and above."})
-@Examples({"on damage of player:",
-		"	send \"You are wounded!\"",
-		"	set victim's attack speed attribute to 2"})
+@Description({
+	"The numerical value of an entity's particular attribute.",
+	"Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
+	"Resetting an entity's attribute is only available in Minecraft 1.11 and above."
+})
+@Examples({
+	"on damage of player:",
+		"\tsend \"You are wounded!\"",
+		"\tset victim's attack speed attribute to 2"
+})
 @Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
 		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"[the] %attributetype% [(1¦(total|final|modified))] attribute [value] of %entities%",
-				"%entities%'[s] %attributetype% [(1¦(total|final|modified))] attribute [value]");
+				"[the] %attributetype% [(1:(total|final|modified))] attribute [value] of %entities%",
+				"%entities%'[s] %attributetype% [(1:(total|final|modified))] attribute [value]");
 	}
 
 	@Nullable
