@@ -18,6 +18,16 @@
  */
 package org.skriptlang.skript.lang.structure;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.entry.EntryData;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
@@ -33,14 +43,6 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ConsumingIterator;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.entry.EntryData;
-import org.skriptlang.skript.lang.entry.EntryValidator;
-
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -53,16 +55,24 @@ import java.util.Iterator;
  */
 public abstract class Structure implements SyntaxElement, Debuggable {
 
+	// TODO Remove ~2.8 or 2.9
 	/**
 	 * The default {@link Priority} of every registered Structure.
+	 * @deprecated See {@link org.skriptlang.skript.lang.comparator.Priority#DEFAULT_PRIORITY}
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public static final Priority DEFAULT_PRIORITY = new Priority(1000);
 
 	/**
 	 * Priorities are used to determine the order in which Structures should be loaded.
 	 * As the priority approaches 0, it becomes more important. Example:
 	 * priority of 1 (loads first), priority of 2 (loads second), priority of 3 (loads third)
+	 * 
+	 * @deprecated Moved {@link org.skriptlang.skript.lang.comparator.Priority}
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public static class Priority implements Comparable<Priority> {
 
 		private final int priority;
@@ -162,9 +172,23 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * The priority of a Structure determines the order in which it should be loaded.
 	 * For more information, see the javadoc of {@link Priority}.
 	 * @return The priority of this Structure. By default, this is {@link Structure#DEFAULT_PRIORITY}.
+	 * 
+	 * @deprecated Moved {@link org.skriptlang.skript.lang.comparator.Priority}
+	 * See the updated {@link #getStructurePriority()} (You may need a direct package reference)
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public Priority getPriority() {
 		return DEFAULT_PRIORITY;
+	}
+
+	/**
+	 * The priority of a Structure determines the order in which it should be loaded.
+	 * For more information, see the javadoc of {@link Priority}.
+	 * @return The priority of this Structure. By default, this is {@link Structure#DEFAULT_PRIORITY}.
+	 */
+	public org.skriptlang.skript.lang.comparator.Priority getStructurePriority() {
+		return org.skriptlang.skript.lang.comparator.Priority.DEFAULT_PRIORITY;
 	}
 
 	@Override

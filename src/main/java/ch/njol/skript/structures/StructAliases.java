@@ -42,6 +42,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 @Since("1.0")
 public class StructAliases extends Structure {
 
+	// TODO use the moved Priority and rename method 'getPriority' to 'getStructurePriority'
 	public static final Priority PRIORITY = new Priority(200);
 
 	static {

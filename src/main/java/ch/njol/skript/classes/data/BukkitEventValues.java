@@ -164,11 +164,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Priority;
 
 /**
  * @author Peter Güttinger
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "unchecked" })
 public final class BukkitEventValues {
 	
 	public BukkitEventValues() {}
@@ -176,7 +177,6 @@ public final class BukkitEventValues {
 	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
 
 	static {
-		
 		// === WorldEvents ===
 		EventValues.registerEventValue(WorldEvent.class, World.class, new Getter<World, WorldEvent>() {
 			@Override
@@ -237,7 +237,7 @@ public final class BukkitEventValues {
 			public Chunk get(final ChunkEvent e) {
 				return e.getChunk();
 			}
-		}, 0);
+		}, 0, new Priority(EventValues.DEFAULT_PRIORITY - 3));
 		
 		// === BlockEvents ===
 		EventValues.registerEventValue(BlockEvent.class, Block.class, new Getter<Block, BlockEvent>() {
@@ -246,14 +246,14 @@ public final class BukkitEventValues {
 			public Block get(final BlockEvent e) {
 				return e.getBlock();
 			}
-		}, 0);
+		}, 0, new Priority(EventValues.DEFAULT_PRIORITY / 2));
 		EventValues.registerEventValue(BlockEvent.class, World.class, new Getter<World, BlockEvent>() {
 			@Override
 			@Nullable
 			public World get(final BlockEvent e) {
 				return e.getBlock().getWorld();
 			}
-		}, 0);
+		}, 0, new Priority(EventValues.DEFAULT_PRIORITY / 2));
 		// REMIND workaround of the event's location being at the entity in block events that have an entity event value
 		EventValues.registerEventValue(BlockEvent.class, Location.class, new Getter<Location, BlockEvent>() {
 			@Override
@@ -261,7 +261,7 @@ public final class BukkitEventValues {
 			public Location get(final BlockEvent e) {
 				return BlockUtils.getLocation(e.getBlock());
 			}
-		}, 0);
+		}, 0, new Priority(EventValues.DEFAULT_PRIORITY / 2));
 		// BlockPlaceEvent
 		EventValues.registerEventValue(BlockPlaceEvent.class, Player.class, new Getter<Player, BlockPlaceEvent>() {
 			@Override
@@ -1718,6 +1718,7 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 
+		Bukkit.getScheduler().runTaskLater(Skript.getInstance(), () -> EventValues.debug(), 1);
 	}
 
 }
