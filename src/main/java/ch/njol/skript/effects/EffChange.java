@@ -40,6 +40,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
@@ -47,6 +48,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.TypeHints;
 import ch.njol.util.Kleenean;
 
 /**
@@ -254,19 +256,28 @@ public class EffChange extends Effect {
 					Skript.error("only one " + Classes.getSuperClassInfo(x).getName() + " can be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + changed + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				return false;
 			}
-			
-			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
-				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
-				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
-					if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-						Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
+
+			if (changed instanceof Variable) {
+				Variable<?> variable = (Variable<?>) changed;
+				VariableString name = variable.getName();
+				if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
+					if (variable.isLocal()) {
+						if (name.isSimple()) // Emit a type hint if possible
+							TypeHints.add(name.toString(), ch.getReturnType());
+					} else {
+						ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
+						if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
+							if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
+								Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
+							}
+						}
 					}
 				}
 			}
 		}
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event e) {
 		Object[] delta = changer == null ? null : changer.getArray(e);

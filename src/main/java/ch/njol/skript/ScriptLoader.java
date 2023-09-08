@@ -922,68 +922,65 @@ public class ScriptLoader {
 	/**
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
-	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
+	public static List<TriggerItem> loadItems(SectionNode node) {
 		ParserInstance parser = getParser();
-
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation() + "    ");
-		
+
 		ArrayList<TriggerItem> items = new ArrayList<>();
-
-		for (Node subNode : node) {
-			parser.setNode(subNode);
-
-			String subNodeKey = subNode.getKey();
-			if (subNodeKey == null)
-				throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
-			String expr = replaceOptions(subNodeKey);
-			if (!SkriptParser.validateLine(expr))
-				continue;
-
-			if (subNode instanceof SimpleNode) {
-				long start = System.currentTimeMillis();
-				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
-				if (stmt == null)
+		try {
+			TypeHints.enterScope();
+			for (Node subNode : node) {
+				parser.setNode(subNode);
+	
+				String subNodeKey = subNode.getKey();
+				if (subNodeKey == null)
+					throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
+				String expr = replaceOptions(subNodeKey);
+				if (!SkriptParser.validateLine(expr))
 					continue;
-				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
-				if (requiredTime > 0) {
-					long timeTaken = System.currentTimeMillis() - start;
-					if (timeTaken > requiredTime)
-						Skript.warning(
-							"The current line took a long time to parse (" + new Timespan(timeTaken) + ")."
-								+ " Avoid using long lines and use parentheses to create clearer instructions."
-						);
+	
+				if (subNode instanceof SimpleNode) {
+					long start = System.currentTimeMillis();
+					Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
+					if (stmt == null)
+						continue;
+					long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
+					if (requiredTime > 0) {
+						long timeTaken = System.currentTimeMillis() - start;
+						if (timeTaken > requiredTime)
+							Skript.warning(
+								"The current line took a long time to parse (" + new Timespan(timeTaken) + "). " +
+									"Avoid using long lines and use parentheses to create clearer instructions."
+							);
+					}
+	
+					if (Skript.debug() || subNode.debug())
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + stmt.toString(null, true)));
+	
+					items.add(stmt);
+				} else if (subNode instanceof SectionNode) {
+					Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+					if (section == null)
+						continue;
+	
+					if (Skript.debug() || subNode.debug())
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
+	
+					items.add(section);
 				}
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + stmt.toString(null, true)));
-
-				items.add(stmt);
-			} else if (subNode instanceof SectionNode) {
-				TypeHints.enterScope(); // Begin conditional type hints
-
-				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
-				if (section == null)
-					continue;
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
-
-				items.add(section);
-
-				// Destroy these conditional type hints
-				TypeHints.exitScope();
 			}
+	
+			for (int i = 0; i < items.size() - 1; i++)
+				items.get(i).setNext(items.get(i + 1));
+	
+			parser.setNode(node);
+	
+			if (Skript.debug())
+				parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
+		} finally {
+			TypeHints.exitScope();
 		}
-		
-		for (int i = 0; i < items.size() - 1; i++)
-			items.get(i).setNext(items.get(i + 1));
-
-		parser.setNode(node);
-		
-		if (Skript.debug())
-			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
-		
 		return items;
 	}
 

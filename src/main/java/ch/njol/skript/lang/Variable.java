@@ -235,12 +235,12 @@ public class Variable<T> implements Expression<T> {
 				for (int i = 0; i < types.length; i++) {
 					infos[i] = Classes.getExactClassInfo(types[i]);
 				}
-				Skript.warning("Variable '{_" + name + "}' is " + Classes.toString(Classes.getExactClassInfo(hint))
-					+ ", not " + Classes.toString(infos, false));
+				if (parser.isActive() && !currentScript.suppressesWarning(ScriptWarning.LOCAL_VARIABLE_TYPE)) {
+					Skript.warning("Variable '{" + name + "}' is of type " + Classes.toString(Classes.getExactClassInfo(hint)) + ", and is " + SkriptParser.notOfType(infos));
+				}
 				// Fall back to not having any type hints
 			}
 		}
-
 		return new Variable<>(vs, types, isLocal, isPlural, null);
 	}
 
@@ -493,15 +493,21 @@ public class Variable<T> implements Expression<T> {
 		return Converters.convert((Object[]) get(e), types, superType);
 	}
 
-	private void set(Event e, @Nullable Object value) {
-		Variables.setVariable("" + name.toString(e), value, e, local);
+	private void set(String string, @Nullable Object value, Event event) {
+		if (local && value != null && name.isSimple())
+			TypeHints.add(name.toString(), value.getClass());
+		Variables.setVariable(string, value, event, local);
 	}
 
-	private void setIndex(Event e, String index, @Nullable Object value) {
+	private void set(Event event, @Nullable Object value) {
+		set(name.toString(event), value, event);
+	}
+
+	private void setIndex(Event event, String index, @Nullable Object value) {
 		assert list;
-		String s = name.toString(e);
-		assert s.endsWith("::*") : s + "; " + name;
-		Variables.setVariable(s.substring(0, s.length() - 1) + index, value, e, local);
+		String string = name.toString(event);
+		assert string.endsWith("::*") : string + "; " + name;
+		set(string.substring(0, string.length() - 1) + index, value, event);
 	}
 
 	@Override
@@ -511,8 +517,8 @@ public class Variable<T> implements Expression<T> {
 		return CollectionUtils.array(Object[].class);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		switch (mode) {
 			case DELETE:

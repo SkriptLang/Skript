@@ -27,6 +27,8 @@ public enum ScriptWarning {
 
 	MISSING_CONJUNCTION, // Missing "and" or "or"
 
-	VARIABLE_STARTS_WITH_EXPRESSION // Variable starts with an Expression
+	VARIABLE_STARTS_WITH_EXPRESSION, // Variable starts with an Expression
+
+	LOCAL_VARIABLE_TYPE // Variable '{_example}' is of type 'string', not a 'player, entity type or entity data'
 
 }

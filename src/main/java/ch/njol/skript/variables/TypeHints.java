@@ -18,12 +18,15 @@
  */
 package ch.njol.skript.variables;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.jdt.annotation.Nullable;
+
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.lang.Variable;
 
 /**
  * This is used to manage local variable type hints.
@@ -36,26 +39,40 @@ import org.eclipse.jdt.annotation.Nullable;
  * </ul>
  */
 public class TypeHints {
-	
-	private static final Deque<Map<String, Class<?>>> typeHints = new ArrayDeque<>();
-	
+
+	private static final Queue<Map<String, Class<?>>> TYPE_HINTS = new LinkedBlockingQueue<>();
+
 	static {
 		clear(); // Initialize type hints
 	}
-	
+
 	public static void add(String variable, Class<?> hint) {
 		if (hint.equals(Object.class)) // Ignore useless type hint
 			return;
-		
-		// Take top of stack, without removing it
-		Map<String, Class<?>> hints = typeHints.getFirst();
+		Map<String, Class<?>> hints = TYPE_HINTS.peek();
+		Class<?> existing = hints.get(variable);
+		if (existing != null && existing.equals(hint))
+			return;
 		hints.put(variable, hint);
 	}
-	
+
+	/**
+	 * Return any known type hints of a local variable.
+	 * 
+	 * @param variable The local variable expression to check against.
+	 * @return The return type that the local variable has been set to otherwise null if unset.
+	 */
+	@Nullable
+	public static Class<?> get(Variable<?> variable) {
+		if (!variable.isLocal())
+			throw new SkriptAPIException("Must only get TypeHints of local variables.");
+		return get(variable.getName().toString());
+	}
+
 	@Nullable
 	public static Class<?> get(String variable) {
 		// Go through stack of hints for different scopes
-		for (Map<String, Class<?>> hints : typeHints) {
+		for (Map<String, Class<?>> hints : TYPE_HINTS) {
 			Class<?> hint = hints.get(variable);
 			if (hint != null) // Found in this scope
 				return hint;
@@ -63,17 +80,18 @@ public class TypeHints {
 		
 		return null; // No type hint available
 	}
-	
+
 	public static void enterScope() {
-		typeHints.push(new HashMap<>());
+		TYPE_HINTS.add(new HashMap<>());
 	}
-	
+
 	public static void exitScope() {
-		typeHints.pop();
+		TYPE_HINTS.poll();
 	}
-	
+
 	public static void clear() {
-		typeHints.clear();
-		typeHints.push(new HashMap<>());
+		TYPE_HINTS.clear();
+		TYPE_HINTS.add(new HashMap<>());
 	}
+
 }

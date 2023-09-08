@@ -1,0 +1,33 @@
+test "type hints":
+	set {_string} to "empty"
+	set helmet of last spawned zombie to 1 of {_string}
+	# {_string} still a string
+	add stone to {_string} # Fails and does nothing
+	# {_string} still a string
+	set helmet of last spawned zombie to 1 of {_string}
+	# {_string} still a string
+
+	set {_timespan} to a second
+	set helmet of last spawned zombie to 1 of {_timespan}
+
+	spawn a cow at spawn of world "world":
+		set {_entity} to event-entity
+	set helmet of last spawned zombie to {_entity}
+
+# TODO LimeGlass - Move to regression test #3753 when adding warning test runner checking.
+command /test:
+	trigger:
+		set {_test} to a chicken
+		if {_test} is an entity:
+			message "%{_test}% is an entity"
+		else:
+			message "%{_test}% is not an entity"
+		spawn {_test} at player's location
+
+# TODO LimeGlass - Move to regression test #1229 when adding warning test runner checking.
+function test(player: player):
+	broadcast "%{_player}% is {_player}"
+
+test "function type hints":
+	set {_function} to "a string"
+	assert test({_function}) to fail with "Testing function failed"
