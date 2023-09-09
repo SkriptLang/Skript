@@ -120,8 +120,7 @@ public final class SkriptEventHandler {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
 				SkriptEvent triggerEvent = trigger.getEvent();
-				Boolean check = Task.callSync(() ->!triggerEvent.check(event));
-				if (triggerEvent.getEventPriority() == priority && check != null && check) {
+				if (triggerEvent.getEventPriority() == priority && Boolean.TRUE.equals(Task.callSync(() -> triggerEvent.check(event)))) {
 					hasTrigger = true;
 					break;
 				}
@@ -146,22 +145,28 @@ public final class SkriptEventHandler {
 			if (triggerEvent.getEventPriority() != priority)
 				continue;
 
-			logTriggerStart(trigger);
-			Object timing = SkriptTimings.start(trigger.getDebugLabel());
-			Boolean check = Task.callSync(() ->!triggerEvent.check(event));
-			if (!trigger.getEvent().canExecuteAsynchronously()) {
-				if (check == null || check)
-					continue;
-				Task.callSync(() -> trigger.execute(event));
-			} else {
-				//This can be !Bukkit.isPrimaryThread()
-				if (check == null || check)
-					continue;
+			// these methods need to be run on whatever thread the trigger is
+			Runnable execute = () -> {
+				logTriggerStart(trigger);
+				Object timing = SkriptTimings.start(trigger.getDebugLabel());
 				trigger.execute(event);
-			}
+				SkriptTimings.stop(timing);
+				logTriggerEnd(trigger);
+			};
 
-			SkriptTimings.stop(timing);
-			logTriggerEnd(trigger);
+			if (trigger.getEvent().canExecuteAsynchronously()) {
+				// check should be performed on the main thread
+				if (Boolean.FALSE.equals(Task.callSync(() -> triggerEvent.check(event))))
+					continue;
+				execute.run();
+			} else { // Ensure main thread
+				Task.callSync(() -> {
+					if (!triggerEvent.check(event))
+						return null;
+					execute.run();
+					return null; // we don't care about a return value
+				});
+			}
 		}
 
 		logEventEnd();
