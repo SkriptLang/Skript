@@ -82,10 +82,9 @@ public class StructCommand extends Structure {
 
 	public static final Priority PRIORITY = new Priority(500);
 
-	private static final Pattern
-		COMMAND_PATTERN = Pattern.compile("(?i)^command /?(\\S+)\\s*(\\s+(.+))?$"),
-		ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>"),
-		DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$");
+	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("<\\s*(?:([^>]+?)\\s*:\\s*)?(.+?)\\s*(?:=\\s*(" + SkriptParser.wildcard + "))?\\s*>");
+	private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("(?<!\\\\)%-?(.+?)%");
 
 	private static final AtomicBoolean SYNC_COMMANDS = new AtomicBoolean();
 
@@ -97,7 +96,7 @@ public class StructCommand extends Structure {
 				.addEntry("description", "", true)
 				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
-				.addEntryData(new VariableStringEntryData("permission message", null, true, ScriptCommandEvent.class))
+				.addEntryData(new VariableStringEntryData("permission message", null, true))
 				.addEntryData(new KeyValueEntryData<List<String>>("aliases", new ArrayList<>(), true) {
 					private final Pattern pattern = Pattern.compile("\\s*,\\s*/?");
 
@@ -132,9 +131,9 @@ public class StructCommand extends Structure {
 					}
 				})
 				.addEntryData(new LiteralEntryData<>("cooldown", null, true, Timespan.class))
-				.addEntryData(new VariableStringEntryData("cooldown message", null, true, ScriptCommandEvent.class))
+				.addEntryData(new VariableStringEntryData("cooldown message", null, true))
 				.addEntry("cooldown bypass", null, true)
-				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME, ScriptCommandEvent.class))
+				.addEntryData(new VariableStringEntryData("cooldown storage", null, true, StringMode.VARIABLE_NAME))
 				.addSection("trigger", false)
 				.unexpectedEntryMessage(key ->
 					"Unexpected entry '" + key + "'. Check that it's spelled correctly, and ensure that you have put all code into a trigger."
@@ -153,7 +152,6 @@ public class StructCommand extends Structure {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean load() {
 		getParser().setCurrentEvent("command", ScriptCommandEvent.class);
 
@@ -184,7 +182,10 @@ public class StructCommand extends Structure {
 
 		Matcher matcher = COMMAND_PATTERN.matcher(fullCommand);
 		boolean matches = matcher.matches();
-		assert matches;
+		if (!matches) {
+			Skript.error("Invalid command structure pattern");
+			return false;
+		}
 
 		String command = matcher.group(1).toLowerCase();
 		ScriptCommand existingCommand = Commands.getScriptCommand(command);
@@ -270,8 +271,8 @@ public class StructCommand extends Structure {
 		if (permissionMessage != null && permission.isEmpty())
 			Skript.warning("command /" + command + " has a permission message set, but not a permission");
 
-		List<String> aliases = (List<String>) entryContainer.get("aliases", true);
-		int executableBy = (Integer) entryContainer.get("executable by", true);
+		List<String> aliases = entryContainer.get("aliases", List.class,true);
+		int executableBy = entryContainer.get("executable by", Integer.class, true);
 
 		Timespan cooldown = entryContainer.getOptional("cooldown", Timespan.class, false);
 		VariableString cooldownMessage = entryContainer.getOptional("cooldown message", VariableString.class, false);

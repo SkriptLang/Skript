@@ -163,6 +163,13 @@ public enum SkriptChatCode implements ChatCode {
         public void updateComponent(MessageComponent component, String param) {
 			component.translation = param;
 		}
+    },
+
+    keybind(true) {
+	    @Override
+        public void updateComponent(MessageComponent component, String param) {
+			component.keybind = param;
+		}
     };
 
 	private boolean hasParam;
