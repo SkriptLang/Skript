@@ -79,6 +79,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.scheduler.TaskManager;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -529,14 +530,19 @@ public final class Skript extends JavaPlugin implements Listener {
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
-		
+
+		try {
+			new TaskManager(this);
+		} catch (IllegalAccessException e) {
+			Skript.exception(e, "Failed to initalize the Skript TaskManager, ensure you dont have two instances of Skript running.");
+		}
+
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitEventValues();
-		
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
-		
+
 		ChatMessages.registerListeners();
 		
 		try {

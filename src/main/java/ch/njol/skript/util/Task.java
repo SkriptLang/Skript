@@ -26,13 +26,16 @@ import java.util.concurrent.Future;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.Closeable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Moved package to {@link com.skriptlang.skript.scheduler.Task}
  */
+@ScheduledForRemoval
+@Deprecated
 public abstract class Task implements Runnable, Closeable {
 	
 	private final Plugin plugin;
@@ -142,8 +145,12 @@ public abstract class Task implements Runnable, Closeable {
 	
 	/**
 	 * Equivalent to <tt>{@link #callSync(Callable, Plugin) callSync}(c, {@link Skript#getInstance()})</tt>
+	 * 
+	 * @deprecated callSync has been moved in to {@link org.skriptlang.skript.scheduler.platforms.SpigotScheduler#callSync(Callable)} and you must cast
+	 * {@link org.skriptlang.skript.scheduler.TaskManager#getScheduler()} to {@link org.skriptlang.skript.scheduler.platforms.SpigotScheduler} for access.
 	 */
 	@Nullable
+	@Deprecated
 	public static <T> T callSync(final Callable<T> c) {
 		return callSync(c, Skript.getInstance());
 	}
@@ -156,8 +163,12 @@ public abstract class Task implements Runnable, Closeable {
 	 * @param c The method
 	 * @param p The plugin that owns the task. Must be enabled.
 	 * @return What the method returned or null if it threw an error or was stopped (usually due to the server shutting down)
+	 * 
+	 * @deprecated callSync has been moved in to {@link org.skriptlang.skript.scheduler.platforms.SpigotScheduler#callSync(Callable, Plugin)} and you must cast
+	 * {@link org.skriptlang.skript.scheduler.TaskManager#getScheduler()} to {@link org.skriptlang.skript.scheduler.platforms.SpigotScheduler} for access.
 	 */
 	@Nullable
+	@Deprecated
 	public static <T> T callSync(final Callable<T> c, final Plugin p) {
 		if (Bukkit.isPrimaryThread()) {
 			try {
