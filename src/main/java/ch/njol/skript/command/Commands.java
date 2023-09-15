@@ -149,9 +149,8 @@ public abstract class Commands {
 			if (event.getCommand().isEmpty() || event.isCancelled())
 				return;
 			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
-				if (handleEffectCommand(event.getSender(), event.getCommand())) {
+				if (handleEffectCommand(event.getSender(), event.getCommand()))
 					event.setCancelled(true);
-				}
 			}
 		}
 	};
@@ -263,7 +262,7 @@ public abstract class Commands {
 
 			Bukkit.getPluginManager().registerEvents(new Listener() {
 				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-				public void onPlayerChat(final AsyncPlayerChatEvent event) {
+				public void onPlayerChat(AsyncPlayerChatEvent event) {
 					if (!SkriptConfig.enableEffectCommands.value() || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
 						return;
 					if (!event.isAsynchronous()) {
@@ -280,7 +279,7 @@ public abstract class Commands {
 								} catch (final InterruptedException ignored) {
 								}
 							}
-						} catch (final ExecutionException e) {
+						} catch (ExecutionException e) {
 							Skript.exception(e);
 						}
 					}
