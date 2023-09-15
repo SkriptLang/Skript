@@ -99,7 +99,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 		double deltaValue = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		for (Entity entity : getExpr().getArray(event)) {
 			AttributeInstance instance = getAttribute(entity, attribute);
-			if(instance != null) {
+			if (instance != null) {
 				switch(mode) {
 					case ADD:
 						instance.setBaseValue(instance.getBaseValue() + deltaValue);
