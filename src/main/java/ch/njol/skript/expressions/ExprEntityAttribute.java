@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 })
 @Examples({
 	"on damage of player:",
-		"\tsend \"You are wounded!\"",
+		"\tsend \"You are wounded!\" to victim",
 		"\tset victim's attack speed attribute to 2"
 })
 @Since("2.5, 2.6.1 (final attribute value)")
