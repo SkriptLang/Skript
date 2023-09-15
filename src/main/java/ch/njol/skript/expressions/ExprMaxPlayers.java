@@ -1,30 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -40,18 +36,18 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Max Players")
 @Description({"The count of max players. This can be changed in a <a href='events.html#server_list_ping'>server list ping</a> event only.",
-		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
+	"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
 @Examples({"on server list ping:",
-		"	set the max players count to (online players count + 1)"})
+	"	set the max players count to (online players count + 1)"})
 @RequiredPlugins("Paper 1.16+ (modify max real players)")
 @Since("2.3, 2.7 (modify max real players)")
 public class ExprMaxPlayers extends SimpleExpression<Integer> {
 
 	static {
 		Skript.registerExpression(ExprMaxPlayers.class, Integer.class, ExpressionType.PROPERTY,
-				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] player[s] [count|amount|number|size]",
-				"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] (count|amount|number|size) of players"
-			);
+			"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] player[s] [count|amount|number|size]",
+			"[the] [1:(real|default)|2:(fake|shown|displayed)] max[imum] (count|amount|number|size) of players"
+		);
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -62,13 +58,13 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
-		
+			(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+
 		if (parseResult.mark == 2 && !isServerPingEvent) {
 			Skript.error("The 'shown' max players count expression can't be used outside of a server list ping event");
 			return false;
 		}
-		
+
 		isReal = (parseResult.mark == 0 && !isServerPingEvent) || parseResult.mark == 1;
 		return true;
 	}
@@ -93,12 +89,12 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 			Skript.error("Can't change the fake max players count anymore after the server list ping event has already passed");
 			return null;
 		}
-		
+
 		if (isReal && !SET_MAX_PLAYERS_EXISTS) {
 			Skript.error("Modifying the 'real max player count' is only supported on Paper 1.16 and newer");
 			return null;
 		}
-		
+
 		switch (mode) {
 			case SET:
 			case ADD:
@@ -109,7 +105,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 				if (!isReal)
 					return CollectionUtils.array(Number.class);
 		}
-		
+
 		return null;
 	}
 
@@ -117,7 +113,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int amount = delta == null ? 0 : ((Number) delta[0]).intValue();
-		
+
 		if (!isReal && !(event instanceof ServerListPingEvent))
 			return;
 

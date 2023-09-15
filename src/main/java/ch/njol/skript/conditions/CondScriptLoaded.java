@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
@@ -27,12 +27,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 
@@ -44,19 +44,19 @@ import java.io.File;
 })
 @Since("2.2-dev31")
 public class CondScriptLoaded extends Condition {
-	
+
 	static {
 		Skript.registerCondition(CondScriptLoaded.class,
-				"script[s] [%-strings%] (is|are) loaded",
-				"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded"
+			"script[s] [%-strings%] (is|are) loaded",
+			"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded"
 		);
 	}
-	
+
 	@Nullable
 	private Expression<String> scripts;
 	@Nullable
 	private Script currentScript;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -85,7 +85,7 @@ public class CondScriptLoaded extends Condition {
 			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
 		}, isNegated());
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String scriptName = scripts == null ?
@@ -94,5 +94,5 @@ public class CondScriptLoaded extends Condition {
 			return scriptName + (isNegated() ? " isn't" : " is") + " loaded";
 		return scriptName + (isNegated() ? " aren't" : " are") + " loaded";
 	}
-	
+
 }

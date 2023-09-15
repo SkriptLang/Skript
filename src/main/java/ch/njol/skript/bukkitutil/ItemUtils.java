@@ -1,30 +1,29 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 
 /**
  * Miscellaneous static utility methods related to items.
@@ -42,7 +41,7 @@ public class ItemUtils {
 			return ((Damageable) meta).getDamage();
 		return 0; // Not damageable item
 	}
-	
+
 	/**
 	 * Sets damage/durability of an item if possible.
 	 * @param stack Item to modify.
@@ -71,7 +70,7 @@ public class ItemUtils {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets an item material corresponding to given block material, which might
 	 * be the given material.
@@ -82,7 +81,7 @@ public class ItemUtils {
 		// Assume (naively) that all types are valid items
 		return type;
 	}
-	
+
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
@@ -105,5 +104,5 @@ public class ItemUtils {
 			return type.isAir();
 		return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
 	}
-	
+
 }

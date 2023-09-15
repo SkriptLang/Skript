@@ -1,23 +1,28 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -25,30 +30,20 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-
 /**
  * @author Peter Güttinger
  */
 @Name("Level")
 @Description("The level of a player.")
 @Examples({"reduce the victim's level by 1",
-		"set the player's level to 0"})
+	"set the player's level to 0"})
 @Since("<i>unknown</i> (before 2.1)")
 @Events("level change")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	static {
 		register(ExprLevel.class, Long.class, "level", "players");
 	}
-	
+
 	@Override
 	protected Long[] get(final Event e, final Player[] source) {
 		return super.get(source, p -> {
@@ -58,19 +53,19 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 			return (long) p.getLevel();
 		});
 	}
-	
+
 	@Override
 	@Nullable
 	public Long convert(final Player p) {
 		assert false;
 		return null;
 	}
-	
+
 	@Override
 	public Class<Long> getReturnType() {
 		return Long.class;
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
@@ -82,19 +77,19 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 		}
 		if (getParser().isCurrentEvent(PlayerDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !getParser().getHasDelayBefore().isTrue()) {
 			Skript.warning("Changing the player's level in a death event will change the player's level before he dies. " +
-					"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after he dies.");
+				"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after he dies.");
 		}
 		if (getTime() == -1 && !getParser().isCurrentEvent(PlayerDeathEvent.class))
 			return null;
-		return new Class[] {Number.class};
+		return new Class[]{Number.class};
 	}
-	
+
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
 		assert mode != ChangeMode.REMOVE_ALL;
-		
+
 		final int l = delta == null ? 0 : ((Number) delta[0]).intValue();
-		
+
 		for (final Player p : getExpr().getArray(e)) {
 			int level;
 			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
@@ -129,16 +124,16 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setTime(final int time) {
 		return super.setTime(time, getExpr(), PlayerLevelChangeEvent.class, PlayerDeathEvent.class);
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "level";
 	}
-	
+
 }

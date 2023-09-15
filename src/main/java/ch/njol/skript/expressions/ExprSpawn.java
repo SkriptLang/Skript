@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -48,8 +48,8 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 
 	static {
 		Skript.registerExpression(ExprSpawn.class, Location.class, ExpressionType.PROPERTY,
-				"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
-				"%worlds%'[s] spawn[s] [(point|location)[s]]"
+			"[the] spawn[s] [(point|location)[s]] [of %worlds%]",
+			"%worlds%'[s] spawn[s] [(point|location)[s]]"
 		);
 	}
 
@@ -63,7 +63,7 @@ public class ExprSpawn extends PropertyExpression<World, Location> {
 	@Override
 	protected Location[] get(Event event, World[] source) {
 		if (getTime() == -1 && event instanceof SpawnChangeEvent && !Delay.isDelayed(event))
-			return new Location[] {((SpawnChangeEvent) event).getPreviousLocation()};
+			return new Location[]{((SpawnChangeEvent) event).getPreviousLocation()};
 		return get(source, World::getSpawnLocation);
 	}
 

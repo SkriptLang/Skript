@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -37,9 +37,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Bed")
 @Description({
 	"Returns the bed location of a player, " +
-	"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed however, " +
-	"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore " +
-	"and that's the default behavior of this expression otherwise you will need to be specific i.e. <code>safe bed location</code>.",
+		"i.e. the spawn point of a player if they ever slept in a bed and the bed still exists and is unobstructed however, " +
+		"you can set the unsafe bed location of players and they will respawn there even if it has been obstructed or doesn't exist anymore " +
+		"and that's the default behavior of this expression otherwise you will need to be specific i.e. <code>safe bed location</code>.",
 	"",
 	"NOTE: Offline players can not have their bed location changed, only online players."
 })
@@ -74,13 +74,13 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 	public Location convert(OfflinePlayer p) {
 		return p.getBedSpawnLocation();
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return mode == ChangeMode.SET || mode == ChangeMode.DELETE ? CollectionUtils.array(Location.class) : null;
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		Location loc = delta == null ? null : (Location) delta[0];
@@ -90,15 +90,15 @@ public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 				op.setBedSpawnLocation(loc, !isSafe);
 		}
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "bed";
 	}
-	
+
 	@Override
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
 	}
-	
+
 }

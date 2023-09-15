@@ -1,34 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.lang.reflect.Array;
-
-import ch.njol.skript.effects.EffFireworkLaunch;
-import ch.njol.skript.sections.EffSecSpawn;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LightningStrike;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -36,6 +24,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffDrop;
+import ch.njol.skript.effects.EffFireworkLaunch;
 import ch.njol.skript.effects.EffLightning;
 import ch.njol.skript.effects.EffShoot;
 import ch.njol.skript.entity.EntityData;
@@ -44,12 +33,21 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LightningStrike;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
 
 @Name("Last Spawned Entity")
 @Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
-		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
-		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
+	"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
+	"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
 @Examples({
 	"spawn a priest",
 	"set {healer::%spawned priest%} to true",
@@ -62,7 +60,7 @@ import ch.njol.util.Kleenean;
 })
 @Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), 2.7 (struck lightning, firework)")
 public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
-	
+
 	static {
 		Skript.registerExpression(ExprLastSpawnedEntity.class, Entity.class, ExpressionType.SIMPLE,
 			"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
@@ -70,7 +68,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 			"[the] [last[ly]] (created|struck) (3:lightning)",
 			"[the] [last[ly]] (launched|deployed) (4:firework)");
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private EntityData<?> type;
 	private int from;
@@ -90,7 +88,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
 	protected Entity[] get(Event event) {
@@ -124,17 +122,17 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 		one[0] = en;
 		return one;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return type.getType();
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String word = "";
@@ -159,5 +157,5 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 		}
 		return "the last " + word + " " + type;
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript;
@@ -38,15 +38,11 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 	@Nullable
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		ArrayList<String> options = new ArrayList<>();
-		
+
 		if (!command.getName().equalsIgnoreCase("skript"))
 			return null;
-		
-		if (args[0].equalsIgnoreCase("update") && args.length == 2) {
-			options.add("check");
-			options.add("changes");
-			options.add("download");
-		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
+
+		if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
 			File scripts = Skript.getInstance().getScriptsFolder();
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
@@ -98,7 +94,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
 			}
-			
+
 			// These will be added even if there are incomplete script arg
 			if (args.length == 2) {
 				options.add("all");
@@ -114,14 +110,13 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("reload");
 			options.add("enable");
 			options.add("disable");
-			options.add("update");
 			options.add("info");
 			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
 				options.add("test");
 		}
-		
+
 		return options;
 	}
 

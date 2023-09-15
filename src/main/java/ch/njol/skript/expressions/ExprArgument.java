@@ -1,30 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.List;
-import java.util.regex.MatchResult;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -45,11 +37,18 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
+import java.util.regex.MatchResult;
 
 @Name("Argument")
 @Description({
 	"Usable in script commands and command events. Holds the value of an argument given to the command, " +
-	"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is used like \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
+		"e.g. if the command \"/tell &lt;player&gt; &lt;text&gt;\" is used like \"/tell Njol Hello Njol!\" argument 1 is the player named \"Njol\" and argument 2 is \"Hello Njol!\".",
 	"One can also use the type of the argument instead of its index to address the argument, e.g. in the above example 'player-argument' is the same as 'argument 1'.",
 	"Please note that specifying the argument type is only supported in script commands."
 })
@@ -65,12 +64,12 @@ public class ExprArgument extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprArgument.class, Object.class, ExpressionType.SIMPLE,
-				"[the] last arg[ument]", // LAST
-				"[the] arg[ument](-| )<(\\d+)>", // ORDINAL
-				"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]", // ORDINAL
-				"[(all [[of] the]|the)] arg[ument][(1:s)]", // SINGLE OR ALL
-				"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
-				"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
+			"[the] last arg[ument]", // LAST
+			"[the] arg[ument](-| )<(\\d+)>", // ORDINAL
+			"[the] <(\\d*1)st|(\\d*2)nd|(\\d*3)rd|(\\d*[4-90])th> arg[ument][s]", // ORDINAL
+			"[(all [[of] the]|the)] arg[ument][(1:s)]", // SINGLE OR ALL
+			"[the] %*classinfo%( |-)arg[ument][( |-)<\\d+>]", // CLASSINFO
+			"[the] arg[ument]( |-)%*classinfo%[( |-)<\\d+>]" // CLASSINFO
 		);
 	}
 
@@ -81,7 +80,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -210,7 +209,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
 	protected Object[] get(final Event e) {
@@ -260,7 +259,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	public boolean isSingle() {
 		return argument != null ? argument.isSingle() : what != ALL;
 	}
-	
+
 	@Override
 	public Class<?> getReturnType() {
 		return argument != null ? argument.getType() : String.class;
@@ -291,5 +290,5 @@ public class ExprArgument extends SimpleExpression<Object> {
 				return "argument";
 		}
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
@@ -41,23 +41,23 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 @Name("Kill")
 @Description({"Kills an entity.",
-		"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
+	"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
 @Examples({"kill the player",
-		"kill all creepers in the player's world",
-		"kill all endermen, witches and bats"})
+	"kill all creepers in the player's world",
+	"kill all endermen, witches and bats"})
 @Since("1.0")
 public class EffKill extends Effect {
 
 	static {
 		Skript.registerEffect(EffKill.class, "kill %entities%");
 	}
-	
+
 	// Absolutely make sure it dies
 	public static final int DAMAGE_AMOUNT = Integer.MAX_VALUE;
-	
+
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
@@ -88,10 +88,10 @@ public class EffKill extends Effect {
 			// We also don't want to remove a player as this would remove the player's data from the server.
 			if (entity.isValid() && !(entity instanceof Player))
 				entity.remove();
-			
+
 		}
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "kill" + entities.toString(e, debug);

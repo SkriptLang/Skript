@@ -1,30 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -36,27 +28,34 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Send Block Change")
 @Description("Makes a player see a block as something it really isn't. BlockData support is only for MC 1.13+")
 @Examples({"make player see block at player as dirt",
-		"make player see target block as campfire[facing=south]"})
+	"make player see target block as campfire[facing=south]"})
 @Since("2.2-dev37c, 2.5.1 (block data support)")
 public class EffSendBlockChange extends Effect {
 
 	private static final boolean BLOCK_DATA_SUPPORT = Skript.classExists("org.bukkit.block.data.BlockData");
 	private static final boolean SUPPORTED =
-			Skript.methodExists(
-					Player.class,
-					"sendBlockChange",
-					Location.class,
-					Material.class,
-					byte.class
-			);
+		Skript.methodExists(
+			Player.class,
+			"sendBlockChange",
+			Location.class,
+			Material.class,
+			byte.class
+		);
 
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
-				BLOCK_DATA_SUPPORT ? "make %players% see %blocks% as %itemtype/blockdata%" : "make %players% see %blocks% as %itemtype%"
+			BLOCK_DATA_SUPPORT ? "make %players% see %blocks% as %itemtype/blockdata%" : "make %players% see %blocks% as %itemtype%"
 		);
 	}
 
@@ -68,7 +67,7 @@ public class EffSendBlockChange extends Effect {
 
 	@SuppressWarnings("null")
 	private Expression<Object> as;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
@@ -108,10 +107,10 @@ public class EffSendBlockChange extends Effect {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return String.format(
-				"make %s see %s as %s",
-				players.toString(e, debug),
-				blocks.toString(e, debug),
-				as.toString(e, debug)
+			"make %s see %s as %s",
+			players.toString(e, debug),
+			blocks.toString(e, debug),
+			as.toString(e, debug)
 		);
 	}
 

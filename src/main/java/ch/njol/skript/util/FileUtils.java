@@ -1,42 +1,39 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.skriptlang.skript.lang.converter.Converter;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.skriptlang.skript.lang.converter.Converter;
-
 /**
  * @author Peter Güttinger
  */
 public abstract class FileUtils {
-	
+
 	private static boolean RUNNINGJAVA6 = true;// = System.getProperty("java.version").startsWith("1.6"); // doesn't work reliably?
+
 	static {
 		try {
 			new File(".").toPath();
@@ -47,11 +44,12 @@ public abstract class FileUtils {
 			RUNNINGJAVA6 = false;
 		}
 	}
-	
-	private FileUtils() {}
-	
+
+	private FileUtils() {
+	}
+
 	private final static SimpleDateFormat backupFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-	
+
 	/**
 	 * @return The current date and time
 	 */
@@ -60,7 +58,7 @@ public abstract class FileUtils {
 			return "" + backupFormat.format(System.currentTimeMillis());
 		}
 	}
-	
+
 	public static File backup(final File f) throws IOException {
 		String name = f.getName();
 		final int c = name.lastIndexOf('.');
@@ -76,7 +74,7 @@ public abstract class FileUtils {
 		copy(f, backup);
 		return backup;
 	}
-	
+
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
@@ -105,7 +103,7 @@ public abstract class FileUtils {
 		}
 		return to;
 	}
-	
+
 	public static void copy(final File from, final File to) throws IOException {
 		if (!RUNNINGJAVA6) {
 			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
@@ -125,17 +123,19 @@ public abstract class FileUtils {
 				if (in != null) {
 					try {
 						in.close();
-					} catch (final IOException e) {}
+					} catch (final IOException e) {
+					}
 				}
 				if (out != null) {
 					try {
 						out.close();
-					} catch (final IOException e) {}
+					} catch (final IOException e) {
+					}
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * @param directory
 	 * @param renamer Renames files. Return null to leave a file as-is.
@@ -161,10 +161,10 @@ public abstract class FileUtils {
 		}
 		return changed;
 	}
-	
+
 	/**
 	 * Saves the contents of an InputStream in a file.
-	 * 
+	 *
 	 * @param in The InputStream to read from. This stream will not be closed when this method returns.
 	 * @param file The file to save to. Will be replaced if it exists, or created if it doesn't.
 	 * @throws IOException
@@ -184,5 +184,5 @@ public abstract class FileUtils {
 				out.close();
 		}
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang.parser;
@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public final class ParserInstance {
-	
+
 	private static final ThreadLocal<ParserInstance> PARSER_INSTANCES = ThreadLocal.withInitial(ParserInstance::new);
 
 	/**
@@ -282,7 +282,7 @@ public final class ParserInstance {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
-		for (int i = currentSections.size(); i-- > 0;) {
+		for (int i = currentSections.size(); i-- > 0; ) {
 			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
 				return (T) triggerSection;
@@ -394,7 +394,7 @@ public final class ParserInstance {
 	public void setIndentation(String indentation) {
 		this.indentation = indentation;
 	}
-	
+
 	public String getIndentation() {
 		return indentation;
 	}
@@ -409,13 +409,13 @@ public final class ParserInstance {
 	 * {@code ParserInstance.registerData(MyData.class, MyData::new)}
 	 */
 	public static abstract class Data {
-		
+
 		private final ParserInstance parserInstance;
-		
+
 		public Data(ParserInstance parserInstance) {
 			this.parserInstance = parserInstance;
 		}
-		
+
 		protected final ParserInstance getParser() {
 			return parserInstance;
 		}
@@ -424,16 +424,18 @@ public final class ParserInstance {
 		 * @deprecated See {@link ScriptEvent}.
 		 */
 		@Deprecated
-		public void onCurrentScriptChange(@Nullable Config currentScript) { }
+		public void onCurrentScriptChange(@Nullable Config currentScript) {
+		}
 
-		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
-		
+		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) {
+		}
+
 	}
-	
+
 	private static final Map<Class<? extends Data>, Function<ParserInstance, ? extends Data>> dataRegister = new HashMap<>();
 	// Should be Map<Class<? extends Data>, ? extends Data>, but that caused issues (with generics) in #getData(Class)
 	private final Map<Class<? extends Data>, Data> dataMap = new HashMap<>();
-	
+
 	/**
 	 * Registers a data class to all {@link ParserInstance}s.
 	 *
@@ -444,11 +446,11 @@ public final class ParserInstance {
 													 Function<ParserInstance, T> dataFunction) {
 		dataRegister.put(dataClass, dataFunction);
 	}
-	
+
 	public static boolean isRegistered(Class<? extends Data> dataClass) {
 		return dataRegister.containsKey(dataClass);
 	}
-	
+
 	/**
 	 * @return the data object for the given class from this {@link ParserInstance},
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
@@ -465,7 +467,7 @@ public final class ParserInstance {
 		assert false;
 		return null;
 	}
-	
+
 	private List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
@@ -536,5 +538,5 @@ public final class ParserInstance {
 		if (script != null)
 			setActive(script);
 	}
-	
+
 }

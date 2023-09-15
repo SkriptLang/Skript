@@ -1,23 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.yggdrasil;
 
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +28,6 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A class that acts as a "pseudo-enum", i.e. a class which only has immutable, (public,) final static instances, which can be identified by their unique name. The instances don't
@@ -43,12 +42,12 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 @ThreadSafe
 public abstract class PseudoEnum<T extends PseudoEnum<T>> {
-	
+
 	private final String name;
 	private final int ordinal;
-	
+
 	private final Info<T> info;
-	
+
 	/**
 	 * @param name The unique name of this constant.
 	 * @throws IllegalArgumentException If the given name is already in use.
@@ -68,7 +67,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.writeLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * Returns the unique name of this constant.
 	 *
@@ -78,7 +77,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final String name() {
 		return name;
 	}
-	
+
 	/**
 	 * Returns {@link #name()}.
 	 *
@@ -89,7 +88,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public String toString() {
 		return name;
 	}
-	
+
 	/**
 	 * Returns the unique ID of this constant. This will not be used by Yggdrasil and can thus change freely across version, in particular reordering and inserting constants is
 	 * permitted.
@@ -100,7 +99,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final int ordinal() {
 		return ordinal;
 	}
-	
+
 	/**
 	 * Returns {@link #ordinal()}, i.e. distinct hash codes for distinct constants.
 	 */
@@ -108,7 +107,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final int hashCode() {
 		return ordinal;
 	}
-	
+
 	/**
 	 * Checks for reference equality (==).
 	 */
@@ -116,7 +115,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final boolean equals(@Nullable final Object obj) {
 		return obj == this;
 	}
-	
+
 	/**
 	 * Prevents cloning of pseudo-enums. If you want to make your enums cloneable, create a <tt>(name, constantToClone)</tt> constructor.
 	 *
@@ -127,7 +126,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	protected final Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	/**
 	 * Returns this constant's pseudo-enum class, i.e. the first non-anonymous superclass of this constant. This class is the same for all constants inheriting from a common class
 	 * independently from whether they define an anonymous subclass.
@@ -139,7 +138,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final Class<T> getDeclaringClass() {
 		return (Class<T>) getDeclaringClass(getClass());
 	}
-	
+
 	/**
 	 * Returns the common base class for constants of the given type, i.e. the first non-anonymous superclass of <tt>type</tt>.
 	 *
@@ -152,7 +151,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			c = c.getSuperclass();
 		return c;
 	}
-	
+
 	/**
 	 * Returns all constants registered so far, ordered by their {@link #ordinal() id} (i.e. <tt>c.values()[c.ordinal()] == c</tt> is true for any constant c).
 	 * <p>
@@ -166,7 +165,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 	public final List<T> values() {
 		return values(getDeclaringClass(), info);
 	}
-	
+
 	/**
 	 * Returns all constants of the given class registered so far, ordered by their {@link #ordinal() id} (i.e. <tt>c.values()[c.ordinal()] == c</tt> is true for any constant
 	 * c).
@@ -182,7 +181,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			throw new IllegalArgumentException(c + " != " + getDeclaringClass(c));
 		return values(c, getInfo(c));
 	}
-	
+
 	private static <T extends PseudoEnum<T>> List<T> values(final Class<T> c, final Info<T> info) {
 		info.readLock.lock();
 		try {
@@ -191,7 +190,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.readLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * Returns the constant with the given ID.
 	 *
@@ -209,7 +208,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.readLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * @return How many constants are currently registered
 	 */
@@ -221,7 +220,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.readLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * @param name The name of the constant to find
 	 * @return The constant with the given name, or null if no constant with that exact name was found.
@@ -236,7 +235,7 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.readLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * @param c The class of the constant to find
 	 * @param name The name of the constant to find
@@ -253,23 +252,24 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			info.readLock.unlock();
 		}
 	}
-	
+
 	@SuppressWarnings("null")
 	private final static class Info<T extends PseudoEnum<T>> {
 		final List<T> values = new ArrayList<>();
 		final Map<String, T> map = new HashMap<>();
-		
+
 		final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 		final Lock readLock = lock.readLock(), writeLock = lock.writeLock();
-		
-		public Info() {}
+
+		public Info() {
+		}
 	}
-	
+
 	/**
 	 * Must be synchronised
 	 */
 	private final static Map<Class<? extends PseudoEnum<?>>, Info<?>> infos = new HashMap<>();
-	
+
 	private static <T extends PseudoEnum<T>> Info<T> getInfo(final Class<T> c) {
 		synchronized (infos) {
 			Info<T> info = (Info<T>) infos.get(getDeclaringClass(c));
@@ -278,5 +278,5 @@ public abstract class PseudoEnum<T extends PseudoEnum<T>> {
 			return info;
 		}
 	}
-	
+
 }

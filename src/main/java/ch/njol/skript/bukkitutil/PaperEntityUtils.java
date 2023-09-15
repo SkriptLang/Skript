@@ -1,25 +1,28 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.bukkitutil;
 
-import java.util.EnumSet;
-
+import ch.njol.skript.Skript;
+import com.destroystokyo.paper.entity.ai.Goal;
+import com.destroystokyo.paper.entity.ai.GoalKey;
+import com.destroystokyo.paper.entity.ai.GoalType;
+import io.papermc.paper.entity.LookAnchor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -30,12 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.destroystokyo.paper.entity.ai.Goal;
-import com.destroystokyo.paper.entity.ai.GoalKey;
-import com.destroystokyo.paper.entity.ai.GoalType;
-
-import ch.njol.skript.Skript;
-import io.papermc.paper.entity.LookAnchor;
+import java.util.EnumSet;
 
 public class PaperEntityUtils {
 
@@ -55,7 +53,7 @@ public class PaperEntityUtils {
 	/**
 	 * Instruct a Mob (1.17+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
-	 * 
+	 *
 	 * @param target The vector/location/entity to make the livingentity look at.
 	 * @param entities The living entities to make look at something.
 	 */
@@ -66,7 +64,7 @@ public class PaperEntityUtils {
 	/**
 	 * Instruct a Mob (1.17+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
-	 * 
+	 *
 	 * @param target The vector/location/entity to make the livingentity look at.
 	 * @param headRotationSpeed The rotation speed at which the living entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
 	 * @param maxHeadPitch The maximum pitch at which the eyes/feet can go to. Doesn't apply to players.
@@ -91,7 +89,7 @@ public class PaperEntityUtils {
 	 * Instruct a Mob (1.17+) or Players (1.19.1+) to look at a specific vector/location/entity.
 	 * Object can be a {@link org.bukkit.util.Vector}, {@link org.bukkit.Location} or {@link org.bukkit.entity.Entity}
 	 * THIS METHOD IS FOR 1.19.1+ ONLY. Use {@link lookAt(Object, Float, Float, LivingEntity...)} otherwise.
-	 * 
+	 *
 	 * @param entityAnchor What part of the entity the player should face assuming the LivingEntity argument contains a player. Only for players.
 	 * @param target The vector/location/entity to make the livingentity or player look at.
 	 * @param headRotationSpeed The rotation speed at which the living entities will rotate their head to the target. Vanilla default values range from 10-50. Doesn't apply to players.
@@ -150,7 +148,7 @@ public class PaperEntityUtils {
 		public void tick() {
 			switch (type) {
 				case VECTOR:
-					Vector vector = ((Vector)target);
+					Vector vector = ((Vector) target);
 					mob.lookAt(vector.getX(), vector.getY(), vector.getZ(), speed, maxPitch);
 					break;
 				case LOCATION:

@@ -1,29 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.Set;
-import java.util.stream.Stream;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -37,23 +30,29 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Name("Scoreboard Tags")
 @Description({"Scoreboard tags are simple list of texts stored directly in the data of an <a href='classes.html#entity'>entity</a>.",
-		"So this is a Minecraft related thing, not Bukkit, so the tags will not get removed when the server stops. " +
+	"So this is a Minecraft related thing, not Bukkit, so the tags will not get removed when the server stops. " +
 		"You can visit <a href='https://minecraft.gamepedia.com/Scoreboard#Tags'>visit Minecraft Wiki</a> for more info.",
-		"This is changeable and valid for any type of entity. " +
+	"This is changeable and valid for any type of entity. " +
 		"Also you can use use the <a href='conditions.html#CondHasScoreboardTag'>Has Scoreboard Tag</a> condition to check whether an entity has the given tags.",
-		"",
-		"Requires Minecraft 1.11+ (actually added in 1.9 to the game, but added in 1.11 to Spigot)."})
+	"",
+	"Requires Minecraft 1.11+ (actually added in 1.9 to the game, but added in 1.11 to Spigot)."})
 @Examples({"on spawn of a monster:",
-        "\tif the spawn reason is mob spawner:",
-        "\t\tadd \"spawned by a spawner\" to the scoreboard tags of event-entity",
-        "",
-        "on death of a monster:",
-        "\tif the attacker is a player:",
-        "\t\tif the victim doesn't have the scoreboard tag \"spawned by a spawner\":",
-        "\t\t\tadd 1$ to attacker's balance"})
+	"\tif the spawn reason is mob spawner:",
+	"\t\tadd \"spawned by a spawner\" to the scoreboard tags of event-entity",
+	"",
+	"on death of a monster:",
+	"\tif the attacker is a player:",
+	"\t\tif the victim doesn't have the scoreboard tag \"spawned by a spawner\":",
+	"\t\t\tadd 1$ to attacker's balance"})
 @Since("2.3")
 public class ExprScoreboardTags extends SimpleExpression<String> {
 
@@ -77,9 +76,9 @@ public class ExprScoreboardTags extends SimpleExpression<String> {
 	@Nullable
 	public String[] get(Event e) {
 		return Stream.of(entities.getArray(e))
-				.map(Entity::getScoreboardTags)
-				.flatMap(Set::stream)
-				.toArray(String[]::new);
+			.map(Entity::getScoreboardTags)
+			.flatMap(Set::stream)
+			.toArray(String[]::new);
 	}
 
 	@Override

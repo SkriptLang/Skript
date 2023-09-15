@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util.chat;
@@ -25,14 +25,14 @@ import org.eclipse.jdt.annotation.Nullable;
  * and also, some formatting codes (mostly <a href="https://wiki.vg/Chat">this</a>)
  */
 public interface ChatCode {
-	
+
 	/**
 	 * Applies style of this chat code to given component.
 	 * @param component Component to update.
 	 * @param param String parameter. May be empty string.
 	 */
 	void updateComponent(MessageComponent component, String param);
-	
+
 	/**
 	 * Checks if this chat code takes a string parameter. If yes, scripters
 	 * will use it like:
@@ -40,19 +40,19 @@ public interface ChatCode {
 	 * @return
 	 */
 	boolean hasParam();
-	
+
 	/**
 	 * Gets color code of this chat code. Skript will apply it automatically.
 	 * Note that setting color code is usually not useful for addon developers,
 	 * because Skript supports all colors that Minecraft client does.
-	 * 
+	 *
 	 * <p>If null is returned, {@link #updateComponent(MessageComponent, String)}
 	 * is called instead. You probably want that, as it is more versatile.
 	 * @return Color code.
 	 */
 	@Nullable
 	String getColorCode();
-	
+
 	/**
 	 * Name to be used in scripts. if {@link #isLocalized()} is true, this is
 	 * used as a language file key instead.
@@ -60,7 +60,7 @@ public interface ChatCode {
 	 */
 	@Nullable
 	String getLangName();
-	
+
 	/**
 	 * For internal usage.
 	 * @return True for Skript's color codes.
@@ -68,11 +68,11 @@ public interface ChatCode {
 	default boolean isLocalized() {
 		return false;
 	}
-	
+
 	/**
 	 * Gets the color char that is an alternative way to use this chat code.
 	 * Return 0 unless you wish to use a color char.
-	 * 
+	 *
 	 * <p>If not 0, it can be used in scripts in following way:
 	 * <code>&amp;x</code> or <code>§x</code>, if the code is <code>x</code>.
 	 * It is not case sensitive if you return a character from which there is
@@ -81,5 +81,5 @@ public interface ChatCode {
 	 * @return Color char.
 	 */
 	char getColorChar();
-	
+
 }

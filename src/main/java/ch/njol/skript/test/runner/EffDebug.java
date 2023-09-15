@@ -1,28 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.test.runner;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -38,6 +32,11 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 @Name("Debug")
 @Description({
@@ -47,14 +46,14 @@ import ch.njol.util.Kleenean;
 })
 @Since("2.7")
 @NoDoc
-public class EffDebug extends Effect  {
+public class EffDebug extends Effect {
 
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffDebug.class,
-					"debug [:verbose] %objects%",
-					"debug-effect <.+>",
-					"debug-condition <.+>"
+				"debug [:verbose] %objects%",
+				"debug-effect <.+>",
+				"debug-condition <.+>"
 			);
 	}
 
@@ -136,8 +135,8 @@ public class EffDebug extends Effect  {
 			return;
 		}
 		Skript.info("\tChangers: " + Arrays.toString(expressions.getAcceptedChangeModes().entrySet().stream()
-				.map(entry -> entry.getValue().getClass().getSimpleName() + ":" + entry.getKey().name())
-				.toArray(String[]::new)));
+			.map(entry -> entry.getValue().getClass().getSimpleName() + ":" + entry.getKey().name())
+			.toArray(String[]::new)));
 		Skript.info("\tAnd: " + expressions.getAnd());
 		Skript.info("\tReturn type: " + expressions.getReturnType());
 		Skript.info("\tisDefault: " + expressions.isDefault());

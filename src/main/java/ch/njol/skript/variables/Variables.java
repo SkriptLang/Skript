@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.variables;
@@ -34,6 +34,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.SynchronizedReference;
 import ch.njol.yggdrasil.Yggdrasil;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -42,21 +44,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -116,9 +107,9 @@ public class Variables {
 			@Nullable
 			public String getID(@NonNull Class<?> c) {
 				if (ConfigurationSerializable.class.isAssignableFrom(c)
-						&& Classes.getSuperClassInfo(c) == Classes.getExactClassInfo(Object.class))
+					&& Classes.getSuperClassInfo(c) == Classes.getExactClassInfo(Object.class))
 					return CONFIGURATION_SERIALIZABLE_PREFIX +
-							ConfigurationSerialization.getAlias(c.asSubclass(ConfigurationSerializable.class));
+						ConfigurationSerialization.getAlias(c.asSubclass(ConfigurationSerializable.class));
 
 				return null;
 			}
@@ -128,7 +119,7 @@ public class Variables {
 			public Class<? extends ConfigurationSerializable> getClass(@NonNull String id) {
 				if (id.startsWith(CONFIGURATION_SERIALIZABLE_PREFIX))
 					return ConfigurationSerialization.getClassByAlias(
-							id.substring(CONFIGURATION_SERIALIZABLE_PREFIX.length()));
+						id.substring(CONFIGURATION_SERIALIZABLE_PREFIX.length()));
 
 				return null;
 			}
@@ -142,7 +133,7 @@ public class Variables {
 
 	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
-	 * 
+	 *
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
@@ -189,7 +180,8 @@ public class Variables {
 			while (true) {
 				try {
 					Thread.sleep(Skript.logNormal() ? 1000 : 5000); // low verbosity won't disable these messages, but makes them more rare
-				} catch (InterruptedException ignored) {}
+				} catch (InterruptedException ignored) {
+				}
 
 				synchronized (TEMP_VARIABLES) {
 					Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
@@ -222,9 +214,9 @@ public class Variables {
 					// Initiate the right VariablesStorage class
 					VariablesStorage variablesStorage;
 					Optional<?> optional = TYPES.entries().stream()
-							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
-							.map(Entry::getKey)
-							.findFirst();
+						.filter(entry -> entry.getValue().equalsIgnoreCase(type))
+						.map(Entry::getKey)
+						.findFirst();
 					if (!optional.isPresent()) {
 						if (!type.equalsIgnoreCase("disabled") && !type.equalsIgnoreCase("none")) {
 							Skript.error("Invalid database type '" + type + "'");
@@ -239,7 +231,8 @@ public class Variables {
 						Constructor<?> constructor = storageClass.getDeclaredConstructor(String.class);
 						constructor.setAccessible(true);
 						variablesStorage = (VariablesStorage) constructor.newInstance(type);
-					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+							 InvocationTargetException | NoSuchMethodException | SecurityException e) {
 						Skript.error("Failed to initalize database type '" + type + "'");
 						successful = false;
 						continue;
@@ -295,8 +288,8 @@ public class Variables {
 			int notStoredVariablesCount = onStoragesLoaded();
 			if (notStoredVariablesCount != 0) {
 				Skript.warning(notStoredVariablesCount + " variables were possibly discarded due to not belonging to any database " +
-						"(SQL databases keep such variables and will continue to generate this warning, " +
-						"while CSV discards them).");
+					"(SQL databases keep such variables and will continue to generate this warning, " +
+					"while CSV discards them).");
 			}
 
 			// Interrupt the loading logger thread to make it exit earlier
@@ -454,11 +447,11 @@ public class Variables {
 			if (!changeQueue.isEmpty()) {
 				// Gets the last VariableChange made
 				VariableChange variableChange = changeQueue.stream()
-						.filter(change -> change.name.equals(n))
-						.reduce((first, second) -> second)
-								// Gets last value, as iteration is from head to tail,
-								//  and adding occurs at the tail (and we want the most recently added)
-						.orElse(null);
+					.filter(change -> change.name.equals(n))
+					.reduce((first, second) -> second)
+					// Gets last value, as iteration is from head to tail,
+					//  and adding occurs at the tail (and we want the most recently added)
+					.orElse(null);
 
 				if (variableChange != null) {
 					return variableChange.value;
@@ -621,7 +614,7 @@ public class Variables {
 	 * Access must be synchronised.
 	 */
 	private static final SynchronizedReference<Map<String, NonNullPair<Object, VariablesStorage>>> TEMP_VARIABLES =
-			new SynchronizedReference<>(new HashMap<>());
+		new SynchronizedReference<>(new HashMap<>());
 
 	/**
 	 * The amount of variable conflicts between variable storages where
@@ -666,7 +659,8 @@ public class Variables {
 				NonNullPair<Object, VariablesStorage> existingVariable = tvs.get(name);
 
 				// Check for conflicts with other storages
-				conflict: if (existingVariable != null) {
+				conflict:
+				if (existingVariable != null) {
 					VariablesStorage existingVariableStorage = existingVariable.getSecond();
 
 					if (existingVariableStorage == source) {
@@ -849,7 +843,8 @@ public class Variables {
 						break;
 					}
 				}
-			} catch (InterruptedException ignored) {}
+			} catch (InterruptedException ignored) {
+			}
 		}
 	}, "Skript variable save thread");
 
@@ -872,7 +867,8 @@ public class Variables {
 		while (saveQueue.size() > 0) {
 			try {
 				Thread.sleep(10);
-			} catch (InterruptedException ignored) {}
+			} catch (InterruptedException ignored) {
+			}
 		}
 
 		// Then we can safely interrupt and stop the thread

@@ -1,37 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
-
-import org.bukkit.Material;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Steerable;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.LlamaInventory;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -45,26 +30,34 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Material;
+import org.bukkit.entity.*;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.LlamaInventory;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Equip")
 @Description("Equips or unequips an entity with some given armor. This will replace any armor that the entity is wearing.")
 @Examples({
-		"equip player with diamond helmet",
-		"equip player with all diamond armor",
-		"unequip diamond chestplate from player",
-		"unequip all armor from player",
-		"unequip player's armor"
+	"equip player with diamond helmet",
+	"equip player with all diamond armor",
+	"unequip diamond chestplate from player",
+	"unequip all armor from player",
+	"unequip player's armor"
 })
 @Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
 	static {
 		Skript.registerEffect(EffEquip.class,
-				"equip [%livingentities%] with %itemtypes%",
-				"make %livingentities% wear %itemtypes%",
-				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armor|equipment)"
-			);
+			"equip [%livingentities%] with %itemtypes%",
+			"make %livingentities% wear %itemtypes%",
+			"unequip %itemtypes% [from %livingentities%]",
+			"unequip %livingentities%'[s] (armor|equipment)"
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -101,7 +94,7 @@ public class EffEquip extends Effect {
 	private static final ItemType CHEST = Aliases.javaItemType("chest");
 	private static final ItemType CARPET = Aliases.javaItemType("carpet");
 
-	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
+	private static final ItemType[] ALL_EQUIPMENT = new ItemType[]{CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
 
 	@Override
 	protected void execute(Event event) {

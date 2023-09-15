@@ -1,60 +1,55 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-import java.util.List;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+import java.util.Iterator;
+import java.util.List;
 
 @Name("Portal")
 @Description("The blocks associated with a portal in the portal creation event.")
 @Examples({"on portal creation:",
-		"	loop portal blocks:",
-		"		broadcast \"%loop-block% is part of a portal!\""})
+	"	loop portal blocks:",
+	"		broadcast \"%loop-block% is part of a portal!\""})
 @Since("2.4")
 @Events("portal_create")
 public class ExprPortal extends SimpleExpression<Block> {
 
 	// 1.14+ returns List<BlockState>, 1.13.2 and below returns ArrayList<Block> 
 	private static final boolean USING_BLOCKSTATE = Skript.isRunningMinecraft(1, 14);
-	
+
 	static {
-		Skript.registerExpression(ExprPortal.class, Block.class, ExpressionType.SIMPLE, 
-				"[the] portal['s] blocks",
-				"[the] blocks of [the] portal");
+		Skript.registerExpression(ExprPortal.class, Block.class, ExpressionType.SIMPLE,
+			"[the] portal['s] blocks",
+			"[the] blocks of [the] portal");
 	}
 
 	@Override
@@ -74,11 +69,11 @@ public class ExprPortal extends SimpleExpression<Block> {
 		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
 		if (USING_BLOCKSTATE)
 			return blocks.stream()
-					.map(block -> ((BlockState) block).getBlock())
-					.toArray(Block[]::new);
-		return blocks.stream()
-				.map(Block.class::cast)
+				.map(block -> ((BlockState) block).getBlock())
 				.toArray(Block[]::new);
+		return blocks.stream()
+			.map(Block.class::cast)
+			.toArray(Block[]::new);
 	}
 
 	@Nullable
@@ -88,10 +83,10 @@ public class ExprPortal extends SimpleExpression<Block> {
 			return null;
 
 		List<?> blocks = ((PortalCreateEvent) e).getBlocks();
-		if (USING_BLOCKSTATE) 
+		if (USING_BLOCKSTATE)
 			return blocks.stream()
-					.map(block -> ((BlockState) block).getBlock())
-					.iterator();
+				.map(block -> ((BlockState) block).getBlock())
+				.iterator();
 		return (Iterator<Block>) blocks.iterator();
 	}
 

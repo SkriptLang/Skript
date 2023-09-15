@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.classes.data;
@@ -24,22 +24,11 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.WeatherType;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.StructureType;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
@@ -52,26 +41,25 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Wither;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Objects;
 
 @SuppressWarnings({"rawtypes"})
 public class DefaultComparators {
-	
-	public DefaultComparators() {}
-	
+
+	public DefaultComparators() {
+	}
+
 	static {
-		
+
 		// Number - Number
 		Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
 			@Override
@@ -79,7 +67,7 @@ public class DefaultComparators {
 				if (n1 instanceof Long && n2 instanceof Long)
 					return Relation.get(n1.longValue() - n2.longValue());
 				Double d1 = n1.doubleValue(),
-					   d2 = n2.doubleValue();
+					d2 = n2.doubleValue();
 				if (d1.isNaN() || d2.isNaN()) {
 					return Relation.SMALLER;
 				} else if (d1.isInfinite() || d2.isInfinite()) {
@@ -97,7 +85,7 @@ public class DefaultComparators {
 				return true;
 			}
 		});
-		
+
 		// Slot - Slot
 		Comparators.registerComparator(Slot.class, Slot.class, new Comparator<Slot, Slot>() {
 
@@ -116,7 +104,7 @@ public class DefaultComparators {
 			}
 
 		});
-		
+
 		// Slot - Number
 		Comparators.registerComparator(Slot.class, Number.class, new Comparator<Slot, Number>() {
 
@@ -134,7 +122,7 @@ public class DefaultComparators {
 			}
 
 		});
-		
+
 		// Slot - ItemType
 		Comparators.registerComparator(Slot.class, ItemType.class, new Comparator<Slot, ItemType>() {
 			@Override
@@ -192,7 +180,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Block - ItemType
 		Comparators.registerComparator(Block.class, ItemType.class, new Comparator<Block, ItemType>() {
 			@Override
@@ -205,7 +193,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Block - BlockData
 		Comparators.registerComparator(Block.class, BlockData.class, new Comparator<Block, BlockData>() {
 			@Override
@@ -254,7 +242,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Block - Block
 		Comparators.registerComparator(Block.class, Block.class, new Comparator<Block, Block>() {
 			@Override
@@ -267,7 +255,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Entity - EntityData
 		Comparators.registerComparator(Entity.class, EntityData.class, new Comparator<Entity, EntityData>() {
 			@Override
@@ -293,7 +281,7 @@ public class DefaultComparators {
 			}
 		});
 	}
-	
+
 	// EntityData - ItemType
 	public final static Comparator<EntityData, ItemType> entityItemComparator = new Comparator<EntityData, ItemType>() {
 		@Override
@@ -307,7 +295,7 @@ public class DefaultComparators {
 //			if (Skript.classExists("org.bukkit.entity.WitherSkull") && e instanceof WitherSkull)
 //				return Relation.get(i.isOfType(Material.SKULL_ITEM.getId(), (short) 1));
 			if (e instanceof BoatData)
-				return Relation.get(((BoatData)e).isOfItemType(i));
+				return Relation.get(((BoatData) e).isOfItemType(i));
 			if (e instanceof BoatChestData)
 				return Relation.get(((BoatChestData) e).isOfItemType(i));
 			if (e instanceof RabbitData)
@@ -326,9 +314,10 @@ public class DefaultComparators {
 			return false;
 		}
 	};
+
 	static {
 		Comparators.registerComparator(EntityData.class, ItemType.class, entityItemComparator);
-		
+
 		// Entity - ItemType
 		// This skips (entity -> entitydata) == itemtype
 		// It was not working reliably, because there is a converter chain
@@ -347,7 +336,7 @@ public class DefaultComparators {
 
 		});
 	}
-	
+
 	static {
 		// CommandSender - CommandSender
 		Comparators.registerComparator(CommandSender.class, CommandSender.class, new Comparator<CommandSender, CommandSender>() {
@@ -361,7 +350,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// OfflinePlayer - OfflinePlayer
 		Comparators.registerComparator(OfflinePlayer.class, OfflinePlayer.class, new Comparator<OfflinePlayer, OfflinePlayer>() {
 			@Override
@@ -374,7 +363,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// OfflinePlayer - String
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
@@ -388,7 +377,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// World - String
 		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {
 			@Override
@@ -401,7 +390,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// String - String
 		Comparators.registerComparator(String.class, String.class, new Comparator<String, String>() {
 			@Override
@@ -414,7 +403,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Date - Date
 		Comparators.registerComparator(Date.class, Date.class, new Comparator<Date, Date>() {
 			@Override
@@ -427,7 +416,7 @@ public class DefaultComparators {
 				return true;
 			}
 		});
-		
+
 		// Time - Time
 		Comparators.registerComparator(Time.class, Time.class, new Comparator<Time, Time>() {
 			@Override
@@ -440,7 +429,7 @@ public class DefaultComparators {
 				return true;
 			}
 		});
-		
+
 		// Timespan - Timespan
 		Comparators.registerComparator(Timespan.class, Timespan.class, new Comparator<Timespan, Timespan>() {
 			@Override
@@ -453,7 +442,7 @@ public class DefaultComparators {
 				return true;
 			}
 		});
-		
+
 		// Time - Timeperiod
 		Comparators.registerComparator(Time.class, Timeperiod.class, new Comparator<Time, Timeperiod>() {
 			@Override
@@ -466,7 +455,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// StructureType - StructureType
 		Comparators.registerComparator(StructureType.class, StructureType.class, new Comparator<StructureType, StructureType>() {
 			@Override
@@ -479,7 +468,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// Object - ClassInfo
 		Comparators.registerComparator(Object.class, ClassInfo.class, new Comparator<Object, ClassInfo>() {
 			@Override
@@ -492,7 +481,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		// DamageCause - ItemType
 		ItemType lava = Aliases.javaItemType("lava");
 		Comparators.registerComparator(DamageCause.class, ItemType.class, new Comparator<DamageCause, ItemType>() {
@@ -530,7 +519,7 @@ public class DefaultComparators {
 						return Relation.get(EntityData.fromClass(Wither.class).isSupertypeOf(e));
 					case FALLING_BLOCK:
 						return Relation.get(EntityData.fromClass(FallingBlock.class).isSupertypeOf(e));
-						//$CASES-OMITTED$
+					//$CASES-OMITTED$
 					default:
 						return Relation.NOT_EQUAL;
 				}
@@ -541,7 +530,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		Comparators.registerComparator(GameruleValue.class, GameruleValue.class, new Comparator<GameruleValue, GameruleValue>() {
 			@Override
 			public Relation compare(GameruleValue o1, GameruleValue o2) {
@@ -553,7 +542,7 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-		
+
 		Comparators.registerComparator(GameruleValue.class, Number.class, new Comparator<GameruleValue, Number>() {
 			@Override
 			public Relation compare(GameruleValue o1, Number o2) {
@@ -567,7 +556,7 @@ public class DefaultComparators {
 				return true;
 			}
 		});
-		
+
 		Comparators.registerComparator(GameruleValue.class, Boolean.class, new Comparator<GameruleValue, Boolean>() {
 			@Override
 			public Relation compare(GameruleValue o1, Boolean o2) {
@@ -601,7 +590,8 @@ public class DefaultComparators {
 				return Relation.get(eo.getCost() == exp.getXP());
 			}
 
-			@Override public boolean supportsOrdering() {
+			@Override
+			public boolean supportsOrdering() {
 				return false;
 			}
 		});
@@ -631,5 +621,5 @@ public class DefaultComparators {
 			}
 		});
 	}
-	
+
 }

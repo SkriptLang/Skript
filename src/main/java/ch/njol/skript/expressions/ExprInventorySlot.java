@@ -1,31 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.PlayerInventory;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -40,6 +31,14 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Inventory Slot")
 @Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
@@ -50,26 +49,26 @@ import ch.njol.util.Kleenean;
 	"\tclear slot 1 of player"})
 @Since("2.2-dev24")
 public class ExprInventorySlot extends SimpleExpression<Slot> {
-	
+
 	static {
 		Skript.registerExpression(ExprInventorySlot.class, Slot.class, ExpressionType.COMBINED,
-				"[the] slot[s] %numbers% of %inventory%", "%inventory%'[s] slot[s] %numbers%");
+			"[the] slot[s] %numbers% of %inventory%", "%inventory%'[s] slot[s] %numbers%");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<Number> slots;
 	@SuppressWarnings("null")
 	private Expression<Inventory> invis;
-	
+
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0){
-			 slots = (Expression<Number>) exprs[0];
-			 invis = (Expression<Inventory>) exprs[1];
+		if (matchedPattern == 0) {
+			slots = (Expression<Number>) exprs[0];
+			invis = (Expression<Inventory>) exprs[1];
 		} else {
-			 slots = (Expression<Number>) exprs[1];
-			 invis = (Expression<Inventory>) exprs[0];			
+			slots = (Expression<Number>) exprs[1];
+			invis = (Expression<Inventory>) exprs[0];
 		}
 		return true;
 	}
@@ -80,7 +79,7 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 		Inventory invi = invis.getSingle(event);
 		if (invi == null)
 			return null;
-		
+
 		List<Slot> inventorySlots = new ArrayList<>();
 		for (Number slot : slots.getArray(event)) {
 			if (slot.intValue() >= 0 && slot.intValue() < invi.getSize()) {
@@ -95,12 +94,12 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 				}
 			}
 		}
-		
+
 		if (inventorySlots.isEmpty())
 			return null;
 		return inventorySlots.toArray(new Slot[inventorySlots.size()]);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return slots.isSingle();
@@ -110,7 +109,7 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	public Class<? extends Slot> getReturnType() {
 		return Slot.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "slots " + slots.toString(e, debug) + " of " + invis.toString(e, debug);

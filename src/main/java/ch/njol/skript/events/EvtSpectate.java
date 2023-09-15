@@ -1,29 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.events;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
-import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
@@ -31,19 +24,24 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 public class EvtSpectate extends SkriptEvent {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent"))
 			Skript.registerEvent("Spectate", EvtSpectate.class, CollectionUtils.array(PlayerStartSpectatingEntityEvent.class, PlayerStopSpectatingEntityEvent.class),
-						"[player] stop spectating [(of|from) %-*entitydatas%]",
-						"[player] (swap|switch) spectating [(of|from) %-*entitydatas%]",
-						"[player] start spectating [of %-*entitydatas%]")
-					.description("Called with a player starts, stops or swaps spectating an entity.")
-					.examples("on player start spectating of a zombie:")
-					.requiredPlugins("Paper")
-					.since("2.7");
+					"[player] stop spectating [(of|from) %-*entitydatas%]",
+					"[player] (swap|switch) spectating [(of|from) %-*entitydatas%]",
+					"[player] start spectating [of %-*entitydatas%]")
+				.description("Called with a player starts, stops or swaps spectating an entity.")
+				.examples("on player start spectating of a zombie:")
+				.requiredPlugins("Paper")
+				.since("2.7");
 	}
 
 	private Literal<EntityData<?>> datas;
@@ -98,7 +96,7 @@ public class EvtSpectate extends SkriptEvent {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (pattern == START ? "start" : pattern == SWAP ? "swap" : "stop") + " spectating" +
-					(datas != null ? "of " + datas.toString(event, debug) : "");
+			(datas != null ? "of " + datas.toString(event, debug) : "");
 	}
 
 }

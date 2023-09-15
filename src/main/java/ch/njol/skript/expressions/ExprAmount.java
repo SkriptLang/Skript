@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -23,12 +23,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -37,35 +33,35 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author Peter Güttinger
  */
 @Name("Amount")
 @Description({"The amount of something.",
-		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",
-		"",
-		"Also, you can get the recursive size of a list, which will return the recursive size of the list with sublists included, e.g.",
-		"",
-		"<pre>",
-		"{list::*} Structure<br>",
-		"  ├──── {list::1}: 1<br>",
-		"  ├──── {list::2}: 2<br>",
-		"  │     ├──── {list::2::1}: 3<br>",
-		"  │     │    └──── {list::2::1::1}: 4<br>",
-		"  │     └──── {list::2::2}: 5<br>",
-		"  └──── {list::3}: 6",
-		"</pre>",
-		"",
-		"Where using %size of {list::*}% will only return 3 (the first layer of indices only), while %recursive size of {list::*}% will return 6 (the entire list)",
-		"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
+	"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",
+	"",
+	"Also, you can get the recursive size of a list, which will return the recursive size of the list with sublists included, e.g.",
+	"",
+	"<pre>",
+	"{list::*} Structure<br>",
+	"  ├──── {list::1}: 1<br>",
+	"  ├──── {list::2}: 2<br>",
+	"  │     ├──── {list::2::1}: 3<br>",
+	"  │     │    └──── {list::2::1::1}: 4<br>",
+	"  │     └──── {list::2::2}: 5<br>",
+	"  └──── {list::3}: 6",
+	"</pre>",
+	"",
+	"Where using %size of {list::*}% will only return 3 (the first layer of indices only), while %recursive size of {list::*}% will return 6 (the entire list)",
+	"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
 @Examples({"message \"There are %number of all players% players online!\""})
 @Since("1.0")
 public class ExprAmount extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprAmount.class, Long.class, ExpressionType.PROPERTY,
-				"[the] (amount|number|size) of %objects%",
-				"[the] recursive (amount|number|size) of %objects%");
+			"[the] (amount|number|size) of %objects%",
+			"[the] recursive (amount|number|size) of %objects%");
 	}
 
 	@SuppressWarnings("null")

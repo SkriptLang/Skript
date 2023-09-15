@@ -1,31 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -33,7 +28,7 @@ import java.util.Set;
 /**
  * Allows binary-patching old versions of Skript from this jar. This should
  * probably be only used for fixing security issues etc.
- * 
+ *
  * <p>Command-line usage:
  * <pre>
  * java -cp Skript.jar ch.njol.Skript.PatcherTool OLD_JAR [OPTIONS]
@@ -44,12 +39,12 @@ import java.util.Set;
  * </pre>
  */
 public class PatcherTool {
-	
+
 	private static enum Option {
 		SECURITY,
 		MEMORY_LEAK
 	}
-	
+
 	public static void main(String... args) throws IOException, URISyntaxException {
 		// Figure out paths for current jar and patched jar
 		Path currentFile = Paths.get(PatcherTool.class.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -58,7 +53,7 @@ public class PatcherTool {
 		System.out.println("Old jar: " + oldFile);
 		Path patchedFile = Paths.get("patched-" + oldFile.getFileName());
 		Files.copy(oldFile, patchedFile, StandardCopyOption.REPLACE_EXISTING);
-		
+
 		// Parse all options.
 		Set<Option> options = new HashSet<>();
 		for (int i = 1; i < args.length; i++) {
@@ -66,20 +61,20 @@ public class PatcherTool {
 			assert option != null;
 			options.add(Option.valueOf(option));
 		}
-		
+
 		// Open jars and patch target
 		try (FileSystem source = FileSystems.newFileSystem(currentFile, (ClassLoader) null);
-				FileSystem target = FileSystems.newFileSystem(patchedFile, (ClassLoader) null)) {
+			 FileSystem target = FileSystems.newFileSystem(patchedFile, (ClassLoader) null)) {
 			assert source != null;
 			assert target != null;
 			new PatcherTool(source, target).patch(options);
 		}
 		System.out.println("Successfully patched to " + patchedFile);
 	}
-	
+
 	private final FileSystem source;
 	private final FileSystem target;
-	
+
 	private PatcherTool(FileSystem source, FileSystem target) {
 		this.source = source;
 		this.target = target;
@@ -89,7 +84,7 @@ public class PatcherTool {
 		if (options.isEmpty()) {
 			System.out.println("Patched nothing, as requested. For minimal changes, use --security.");
 		}
-		
+
 		if (options.contains(Option.SECURITY)) {
 			// JSON injection, see issue #2198
 			copy("effects.EffMessage", true);
@@ -108,7 +103,7 @@ public class PatcherTool {
 			copy("util.AsyncEffect", true);
 		}
 	}
-	
+
 	private void copy(String className, boolean overwrite) throws IOException {
 		String fileName = "/ch/njol/skript/" + className.replace('.', '/') + ".class";
 		Path targetFile = target.getPath(fileName);

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
@@ -41,11 +41,11 @@ import java.util.regex.Pattern;
 
 @Name("Play Sound")
 @Description({"Plays a sound at given location for everyone or just for given players, or plays a sound to specified players. " +
-		"Both Minecraft sound names and " +
-		"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
-		"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
-		"",
-		"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."})
+	"Both Minecraft sound names and " +
+	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
+	"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
+	"",
+	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."})
 @Examples({
 	"play sound \"block.note_block.pling\" # It is block.note.pling in 1.12.2",
 	"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
@@ -55,13 +55,13 @@ import java.util.regex.Pattern;
 public class EffPlaySound extends Effect {
 
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
-	
+
 	static {
 		Skript.registerEffect(EffPlaySound.class,
-				"play sound[s] %strings% [(in|from) %-soundcategory%] " +
-						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] at %locations% [(to|for) %-players%]",
-				"play sound[s] %strings% [(in|from) %-soundcategory%] " +
-						"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]"
+			"play sound[s] %strings% [(in|from) %-soundcategory%] " +
+				"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] at %locations% [(to|for) %-players%]",
+			"play sound[s] %strings% [(in|from) %-soundcategory%] " +
+				"[(at|with) volume %-number%] [(and|at|with) pitch %-number%] [(to|for) %players%] [(at|from) %-locations%]"
 		);
 	}
 
@@ -92,7 +92,7 @@ public class EffPlaySound extends Effect {
 			players = (Expression<Player>) exprs[4];
 			locations = (Expression<Location>) exprs[5];
 		}
-		
+
 		return true;
 	}
 
@@ -106,7 +106,7 @@ public class EffPlaySound extends Effect {
 		float pitch = this.pitch == null ? 1 : this.pitch.getOptionalSingle(event)
 			.orElse(1)
 			.floatValue();
-		
+
 		if (players != null) {
 			if (locations == null) {
 				for (Player player : players.getArray(event)) {
@@ -134,49 +134,50 @@ public class EffPlaySound extends Effect {
 		StringBuilder builder = new StringBuilder()
 			.append("play sound ")
 			.append(sounds.toString(event, debug));
-		
+
 		if (category != null)
 			builder.append(" in ").append(category.toString(event, debug));
-		
+
 		if (volume != null)
 			builder.append(" with volume ").append(volume.toString(event, debug));
-		
+
 		if (pitch != null)
 			builder.append(" with pitch ").append(pitch.toString(event, debug));
-		
+
 		if (locations != null)
 			builder.append(" at ").append(locations.toString(event, debug));
-		
+
 		if (players != null)
 			builder.append(" to ").append(players.toString(event, debug));
-		
+
 		return builder.toString();
 	}
-	
+
 	@FunctionalInterface
 	private interface SoundReceiver<T, S> {
 		void play(
 			@NotNull T receiver, @NotNull Location location, @NotNull S sound,
 			@NotNull SoundCategory category, float volume, float pitch
 		);
-		
+
 		static <T> void play(
 			@NotNull SoundReceiver<T, String> stringReceiver,
 			@NotNull SoundReceiver<T, Sound> soundReceiver,
 			@NotNull T receiver, @NotNull Location location, @NotNull String[] sounds,
 			@NotNull SoundCategory category, float volume, float pitch
-		) {	
+		) {
 			for (String sound : sounds) {
 				try {
 					Sound enumSound = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
 					soundReceiver.play(receiver, location, enumSound, category, volume, pitch);
 					continue;
-				} catch (IllegalArgumentException ignored) {}
-				
+				} catch (IllegalArgumentException ignored) {
+				}
+
 				sound = sound.toLowerCase(Locale.ENGLISH);
 				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				
+
 				stringReceiver.play(receiver, location, sound, category, volume, pitch);
 			}
 		}

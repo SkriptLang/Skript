@@ -1,36 +1,35 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.classes;
 
+import ch.njol.skript.lang.Debuggable;
+import ch.njol.skript.registrations.Classes;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.lang.Debuggable;
-import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
-
 /**
  * Converts data from type to another.
- * 
+ *
  * @param <F> The accepted type of objects to convert <b>f</b>rom
  * @param <T> The type to convert <b>t</b>o
  * @see Converters#registerConverter(Class, Class, Converter)
@@ -38,38 +37,38 @@ import org.skriptlang.skript.lang.converter.Converters;
  */
 @Deprecated
 public interface Converter<F, T> {
-	
+
 	/**
 	 * Disallow other converters from being chained to this.
 	 */
 	public final static int NO_LEFT_CHAINING = 1;
-	
+
 	/**
 	 * Disallow chaining this with other converters.
 	 */
 	public final static int NO_RIGHT_CHAINING = 2;
-	
+
 	/**
 	 * Disallow all chaining.
 	 */
 	public final static int NO_CHAINING = NO_LEFT_CHAINING | NO_RIGHT_CHAINING;
-	
+
 	public final static int NO_COMMAND_ARGUMENTS = 4;
-	
+
 	/**
 	 * holds information about a converter
-	 * 
+	 *
 	 * @author Peter Güttinger
 	 * @param <F> same as in {@link Converter}
 	 * @param <T> dito
 	 */
 	public final static class ConverterInfo<F, T> implements Debuggable {
-		
+
 		public final Class<F> from;
 		public final Class<T> to;
 		public final Converter<F, T> converter;
 		public final int options;
-		
+
 		/**
 		 * Chain of types this converter will go through from right to left.
 		 * For normal converters, contains from at 0 and to at 1. For chained
@@ -77,17 +76,17 @@ public interface Converter<F, T> {
 		 * together.
 		 */
 		private final Class<?>[] chain;
-		
+
 		public ConverterInfo(Class<F> from, Class<T> to, Converter<F, T> converter, int options) {
 			this.from = from;
 			this.to = to;
 			this.converter = converter;
 			this.options = options;
-			this.chain = new Class[] {from, to};
+			this.chain = new Class[]{from, to};
 		}
-		
+
 		@SuppressWarnings("unchecked")
-		public ConverterInfo(ConverterInfo<?,?> first, ConverterInfo<?,?> second, Converter<F, T> converter, int options) {
+		public ConverterInfo(ConverterInfo<?, ?> first, ConverterInfo<?, ?> second, Converter<F, T> converter, int options) {
 			this.from = (Class<F>) first.from;
 			this.to = (Class<T>) second.to;
 			this.converter = converter;
@@ -106,24 +105,24 @@ public interface Converter<F, T> {
 			}
 			return Classes.getExactClassName(from) + " to " + Classes.getExactClassName(to);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Converts an object from the given to the desired type.
-	 * 
+	 *
 	 * @param f The object to convert.
 	 * @return the converted object
 	 */
 	@Nullable
 	public T convert(F f);
-	
+
 	public final static class ConverterUtils {
-		
+
 		public static <F, T> Converter<?, T> createInstanceofConverter(final ConverterInfo<F, T> conv) {
 			return createInstanceofConverter(conv.from, conv.converter);
 		}
-		
+
 		public static <F, T> Converter<?, T> createInstanceofConverter(final Class<F> from, final Converter<F, T> conv) {
 			return new Converter<Object, T>() {
 				@SuppressWarnings("unchecked")
@@ -136,7 +135,7 @@ public interface Converter<F, T> {
 				}
 			};
 		}
-		
+
 		/**
 		 * Wraps a converter in a filter that will only accept conversion
 		 * results of given type. All other results are replaced with nulls.
@@ -157,11 +156,11 @@ public interface Converter<F, T> {
 				}
 			};
 		}
-		
+
 		public static <F, T> Converter<?, T> createDoubleInstanceofConverter(final ConverterInfo<F, ?> conv, final Class<T> to) {
 			return createDoubleInstanceofConverter(conv.from, conv.converter, to);
 		}
-		
+
 		/**
 		 * Wraps a converter. When values given to the wrapper converter are
 		 * not of accepted type, it will not be called; instead, a null is
@@ -187,6 +186,6 @@ public interface Converter<F, T> {
 				}
 			};
 		}
-		
+
 	}
 }

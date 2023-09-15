@@ -1,33 +1,23 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.server.ServerListPingEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import com.google.common.collect.Iterators;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -37,19 +27,28 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.google.common.collect.Iterators;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.server.ServerListPingEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Iterator;
 
 @Name("Hide Player from Server List")
 @Description({"Hides a player from the <a href='expressions.html#ExprHoverList'>hover list</a> " +
-		"and decreases the <a href='expressions.html#ExprOnlinePlayersCount'>online players count</a> (only if the player count wasn't changed before)."})
+	"and decreases the <a href='expressions.html#ExprOnlinePlayersCount'>online players count</a> (only if the player count wasn't changed before)."})
 @Examples({"on server list ping:",
-		"	hide {vanished::*} from the server list"})
+	"	hide {vanished::*} from the server list"})
 @Since("2.3")
 public class EffHidePlayerFromServerList extends Effect {
 
 	static {
 		Skript.registerEffect(EffHidePlayerFromServerList.class,
-				"hide %players% (in|on|from) [the] server list",
-				"hide %players%'[s] info[rmation] (in|on|from) [the] server list");
+			"hide %players% (in|on|from) [the] server list",
+			"hide %players%'[s] info[rmation] (in|on|from) [the] server list");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -61,7 +60,7 @@ public class EffHidePlayerFromServerList extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+			(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
 		if (!isServerPingEvent) {
 			Skript.error("The hide player from server list effect can't be used outside of a server list ping event");
 			return false;
@@ -78,7 +77,7 @@ public class EffHidePlayerFromServerList extends Effect {
 		if (!(e instanceof ServerListPingEvent))
 			return;
 
-		Iterator<Player> it = ((ServerListPingEvent) e).iterator();		
+		Iterator<Player> it = ((ServerListPingEvent) e).iterator();
 		Iterators.removeAll(it, Arrays.asList(players.getArray(e)));
 	}
 

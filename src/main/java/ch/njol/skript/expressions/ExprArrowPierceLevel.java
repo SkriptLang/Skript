@@ -1,38 +1,33 @@
 /**
  * This file is part of Skript.
- *
+ * <p>
  * Skript is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * Skript is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
+ * <p>
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.coll.CollectionUtils;
 
 @Name("Arrow Pierce Level")
 @Description("An arrow's pierce level.")
@@ -42,20 +37,20 @@ import ch.njol.util.coll.CollectionUtils;
 @RequiredPlugins("Minecraft 1.14+")
 @Since("2.5.1")
 public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, Long> {
-	
+
 	private final static boolean CAN_USE_PIERCE = Skript.methodExists(Arrow.class, "getPierceLevel");
-	
+
 	static {
 		if (CAN_USE_PIERCE)
 			register(ExprArrowPierceLevel.class, Long.class, "arrow pierce level", "projectiles");
 	}
-	
+
 	@Nullable
 	@Override
 	public Long convert(Projectile arrow) {
 		return (long) ((Arrow) arrow).getPierceLevel();
 	}
-	
+
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -69,7 +64,7 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 				return null;
 		}
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		int strength = delta != null ? Math.max(((Number) delta[0]).intValue(), 0) : 0;
@@ -97,15 +92,15 @@ public class ExprArrowPierceLevel extends SimplePropertyExpression<Projectile, L
 				assert false;
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "arrow pierce level";
 	}
-	
+
 }

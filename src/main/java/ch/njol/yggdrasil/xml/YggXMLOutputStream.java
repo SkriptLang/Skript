@@ -1,45 +1,41 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.yggdrasil.xml;
-
-import static ch.njol.yggdrasil.Tag.T_NULL;
-import static ch.njol.yggdrasil.Tag.getPrimitiveFromWrapper;
-import static ch.njol.yggdrasil.Tag.getType;
-
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.OutputStream;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Tag;
 import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilException;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.OutputStream;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import static ch.njol.yggdrasil.Tag.*;
 
 /**
  * @deprecated XML has so many quirks that storing arbitrary data cannot be guaranteed.
@@ -47,12 +43,12 @@ import ch.njol.yggdrasil.YggdrasilOutputStream;
  */
 @Deprecated
 public final class YggXMLOutputStream extends YggdrasilOutputStream {
-	
+
 	private final OutputStream os;
 	private final XMLStreamWriter out;
-	
+
 	private final short version;
-	
+
 	@SuppressWarnings("null")
 	public YggXMLOutputStream(final Yggdrasil y, final OutputStream out) throws IOException, FactoryConfigurationError {
 		super(y);
@@ -67,9 +63,9 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	// private
-	
+
 	@SuppressWarnings("null")
 	private String getTypeName(Class<?> c) throws NotSerializableException {
 		String a = "";
@@ -112,15 +108,15 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 		}
 		return s + a;
 	}
-	
+
 	@SuppressWarnings("null")
 	private final static Pattern valid = Pattern.compile("[\\u0009 \\u000A \\u000D \\u0020-\\u007E \\u0085 \\u00A0-\\uD7FF \\uE000-\\uFFFD \\x{10000}–\\x{10FFFF}]*", Pattern.COMMENTS);
-	
+
 	private static void validateString(final String s) throws IOException {
 		if (!valid.matcher(s).matches())
 			throw new IOException("The string '" + s + "' contains characters illegal in XML 1.0: '" + toUnicodeEscapes("" + valid.matcher(s).replaceAll("")) + "'");
 	}
-	
+
 	private static String toUnicodeEscapes(final String s) {
 		final StringBuilder b = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
@@ -128,7 +124,7 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 		}
 		return "" + b;
 	}
-	
+
 	private void writeEndElement() throws IOException {
 		try {
 			out.writeEndElement();
@@ -136,7 +132,7 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	private void writeAttribute(final String s, final String value) throws IOException {
 		validateString(s);
 		validateString(value);
@@ -146,7 +142,7 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	private void writeCharacters(final String s) throws IOException {
 		validateString(s);
 		try {
@@ -155,9 +151,9 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	// Tag
-	
+
 	@Override
 	protected void writeTag(final Tag t) throws IOException {
 		try {
@@ -170,15 +166,15 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	// Primitives
-	
+
 	@Override
 	protected void writePrimitiveValue(final Object o) throws IOException {
 		writeCharacters("" + o);
 		writeEndElement();
 	}
-	
+
 	@Override
 	protected void writePrimitive_(final Object o) throws IOException {
 		final Tag type = getPrimitiveFromWrapper(o.getClass());
@@ -224,96 +220,96 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 		final String s = Long.toHexString(value).toUpperCase(Locale.ENGLISH);
 		writeCharacters(StringUtils.multiply('0', Math.max(0, 2 * size - s.length())) + s);
 	}
-	
+
 	// String
-	
+
 	@Override
 	protected void writeStringValue(final String s) throws IOException {
 		writeCharacters(s);
 		writeEndElement();
 	}
-	
+
 	// Array
-	
+
 	@Override
 	protected void writeArrayComponentType(final Class<?> contentType) throws IOException {
 		writeAttribute("componentType", getTypeName(contentType));
 	}
-	
+
 	@Override
 	protected void writeArrayLength(final int length) throws IOException {
 		writeAttribute("length", "" + length);
 	}
-	
+
 	@Override
 	protected void writeArrayEnd() throws IOException {
 		writeEndElement();
 	}
-	
+
 	// Enum
-	
+
 	@Override
 	protected void writeEnumType(final String type) throws IOException {
 		writeAttribute("type", type);
 	}
-	
+
 	@Override
 	protected void writeEnumID(final String id) throws IOException {
 		writeCharacters(id);
 		writeEndElement();
 	}
-	
+
 	// Class
-	
+
 	@Override
 	protected void writeClassType(final Class<?> c) throws IOException {
 		writeCharacters(getTypeName(c));
 		writeEndElement();
 	}
-	
+
 	// Reference
-	
+
 	@Override
 	protected void writeReferenceID(final int ref) throws IOException {
 		writeCharacters("" + ref);
 		writeEndElement();
 	}
-	
+
 	// generic Object
-	
+
 	@Override
 	protected void writeObjectType(final String type) throws IOException {
 		writeAttribute("type", type);
 	}
-	
+
 	@Override
 	protected void writeNumFields(final short numFields) throws IOException {
 		writeAttribute("numFields", "" + numFields);
 	}
-	
+
 	// name of the next field
 	@Nullable
 	private String id = null;
-	
+
 	private final void writeID() throws IOException {
 		if (id != null) {
 			writeAttribute("id", id);
 			id = null;
 		}
 	}
-	
+
 	@Override
 	protected void writeFieldID(final String id) throws IOException {
 		this.id = id;
 	}
-	
+
 	@Override
 	protected void writeObjectEnd() throws IOException {
 		writeEndElement();
 	}
-	
+
 	// stream
-	
+
 	@Override
 	public void flush() throws IOException {
 		try {
@@ -323,7 +319,7 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		try {
@@ -335,5 +331,5 @@ public final class YggXMLOutputStream extends YggdrasilOutputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 }

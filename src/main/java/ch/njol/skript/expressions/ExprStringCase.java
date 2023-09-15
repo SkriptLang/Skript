@@ -1,26 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.apache.commons.lang.WordUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -32,6 +28,9 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Case Text")
 @Description("Copy of given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, and Kebab-Case")
@@ -51,33 +50,33 @@ import ch.njol.util.Kleenean;
 	"\"What is your name?\" in upper kebab case # WHAT-IS-YOUR-NAME?"})
 @Since("2.2-dev16 (lowercase and uppercase), 2.5 (advanced cases)")
 public class ExprStringCase extends SimpleExpression<String> {
-	
+
 	static {
 		Skript.registerExpression(ExprStringCase.class, String.class, ExpressionType.SIMPLE,
-				"%strings% in (0¦upper|1¦lower)[ ]case", 
-				"(0¦upper|1¦lower)[ ]case %strings%",
-				"capitali(s|z)ed %strings%",
-				"%strings% in [(0¦lenient|1¦strict) ](proper|title)[ ]case",
-				"[(0¦lenient|1¦strict) ](proper|title)[ ]case %strings%",
-				"%strings% in [(0¦lenient|1¦strict) ]camel[ ]case",
-				"[(0¦lenient|1¦strict) ]camel[ ]case %strings%",
-				"%strings% in [(0¦lenient|1¦strict) ]pascal[ ]case",
-				"[(0¦lenient|1¦strict) ]pascal[ ]case %strings%",
-				"%strings% in [(1¦lower|2¦upper|3¦capital|4¦screaming)[ ]]snake[ ]case",
-				"[(1¦lower|2¦upper|3¦capital|4¦screaming)[ ]]snake[ ]case %strings%",
-				"%strings% in [(1¦lower|2¦upper|3¦capital)[ ]]kebab[ ]case",
-				"[(1¦lower|2¦upper|3¦capital)[ ]]kebab[ ]case %strings%");
+			"%strings% in (0¦upper|1¦lower)[ ]case",
+			"(0¦upper|1¦lower)[ ]case %strings%",
+			"capitali(s|z)ed %strings%",
+			"%strings% in [(0¦lenient|1¦strict) ](proper|title)[ ]case",
+			"[(0¦lenient|1¦strict) ](proper|title)[ ]case %strings%",
+			"%strings% in [(0¦lenient|1¦strict) ]camel[ ]case",
+			"[(0¦lenient|1¦strict) ]camel[ ]case %strings%",
+			"%strings% in [(0¦lenient|1¦strict) ]pascal[ ]case",
+			"[(0¦lenient|1¦strict) ]pascal[ ]case %strings%",
+			"%strings% in [(1¦lower|2¦upper|3¦capital|4¦screaming)[ ]]snake[ ]case",
+			"[(1¦lower|2¦upper|3¦capital|4¦screaming)[ ]]snake[ ]case %strings%",
+			"%strings% in [(1¦lower|2¦upper|3¦capital)[ ]]kebab[ ]case",
+			"[(1¦lower|2¦upper|3¦capital)[ ]]kebab[ ]case %strings%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<String> expr;
-	
+
 	/* 0: No Change, 1: Upper Case, 2: Lower Case, 3: Strict */
 	private int casemode = 0; // Defaults to No Change 
-	
+
 	/* 0: Basic Case Change, 1: Proper Case, 2: Camel Case, 3: Pascal Case, 4: Snake Case, 5: Kebab Case */
 	private int type = 0; // Defaults to Basic Case Change 
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -109,7 +108,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	@Nullable
@@ -141,7 +140,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return strs;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return expr.isSingle();
@@ -170,7 +169,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return ""; // Shouldn't reach here anyways 
 	}
-	
+
 	@SuppressWarnings("null")
 	private static String toCamelCase(String str, boolean strict) {
 		String[] words = str.split(" "); // Splits at spaces 
@@ -179,7 +178,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 			buf += strict ? WordUtils.capitalizeFully(words[i]) : WordUtils.capitalize(words[i]);
 		return buf;
 	}
-	
+
 	private static String toPascalCase(String str, boolean strict) {
 		String[] words = str.split(" "); // Splits at spaces 
 		String buf = "";
@@ -187,7 +186,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 			buf += strict ? WordUtils.capitalizeFully(words[i]) : WordUtils.capitalize(words[i]);
 		return buf;
 	}
-	
+
 	@SuppressWarnings("null")
 	private static String toSnakeCase(String str, int mode) {
 		if (mode == 0)
@@ -198,7 +197,7 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return sb.toString();
 	}
-	
+
 	@SuppressWarnings("null")
 	private static String toKebabCase(String str, int mode) {
 		if (mode == 0)
@@ -209,5 +208,5 @@ public class ExprStringCase extends SimpleExpression<String> {
 		}
 		return sb.toString();
 	}
-	
+
 }

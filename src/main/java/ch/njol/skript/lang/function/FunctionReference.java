@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang.function;
@@ -28,11 +28,11 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,31 +42,31 @@ import java.util.List;
  * Reference to a Skript function.
  */
 public class FunctionReference<T> {
-	
+
 	/**
 	 * Name of function that is called, for logging purposes.
 	 */
 	final String functionName;
-	
+
 	/**
 	 * Signature of referenced function. If {@link #validateFunction(boolean)}
 	 * succeeds, this is not null.
 	 */
 	@Nullable
 	private Signature<? extends T> signature;
-	
+
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
 	 */
 	@Nullable
 	private Function<? extends T> function;
-	
+
 	/**
 	 * If all function parameters can be condensed to a single list.
 	 */
 	private boolean singleListParam;
-	
+
 	/**
 	 * Definitions of function parameters.
 	 */
@@ -77,30 +77,30 @@ public class FunctionReference<T> {
 	 * Used for verifying correctness of the function signature.
 	 */
 	private boolean single;
-	
+
 	/**
 	 * Return types expected from this function. Used for verifying correctness
 	 * of the function signature.
 	 */
 	@Nullable
 	final Class<? extends T>[] returnTypes;
-	
+
 	/**
 	 * Node for {@link #validateFunction(boolean)} to use for logging.
 	 */
 	@Nullable
 	private final Node node;
-	
+
 	/**
 	 * Script in which this reference is found. Used for function unload
 	 * safety checks.
 	 */
 	@Nullable
 	public final String script;
-	
+
 	public FunctionReference(
-			String functionName, @Nullable Node node, @Nullable String script,
-			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+		String functionName, @Nullable Node node, @Nullable String script,
+		@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
 	) {
 		this.functionName = functionName;
 		this.node = node;
@@ -108,7 +108,7 @@ public class FunctionReference<T> {
 		this.returnTypes = returnTypes;
 		parameters = params;
 	}
-	
+
 	/**
 	 * Validates this function reference. Prints errors if needed.
 	 * @param first True if this is called while loading a script. False when
@@ -136,7 +136,7 @@ public class FunctionReference<T> {
 			}
 			return false;
 		}
-		
+
 		// Validate that return types are what caller expects they are
 		Class<? extends T>[] returnTypes = this.returnTypes;
 		if (returnTypes != null) {
@@ -165,12 +165,12 @@ public class FunctionReference<T> {
 				single = sign.single;
 			} else if (single && !sign.single) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
-						+ " These will continue to use the old version of the function until Skript restarts.");
+					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 				return false;
 			}
 		}
-		
+
 		// Validate parameter count
 		singleListParam = sign.getMaxParameters() == 1 && !sign.getParameter(0).single;
 		if (!singleListParam) { // Check that parameter count is within allowed range
@@ -193,7 +193,7 @@ public class FunctionReference<T> {
 				return false;
 			}
 		}
-		
+
 		// Not enough parameters
 		if (parameters.length < sign.getMinParameters()) {
 			if (first) {
@@ -206,7 +206,7 @@ public class FunctionReference<T> {
 			}
 			return false;
 		}
-		
+
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
@@ -244,10 +244,10 @@ public class FunctionReference<T> {
 				log.printLog();
 			}
 		}
-		
+
 		signature = (Signature<? extends T>) sign;
 		sign.calls.add(this);
-		
+
 		return true;
 	}
 
@@ -273,7 +273,7 @@ public class FunctionReference<T> {
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
 			return null; // Return nothing and hope it works
 		}
-		
+
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
@@ -281,7 +281,7 @@ public class FunctionReference<T> {
 			for (Expression<?> parameter : parameters)
 				l.addAll(Arrays.asList(parameter.getArray(e)));
 			params[0] = l.toArray();
-			
+
 			// Don't allow mutating across function boundary; same hack is applied to variables
 			for (int i = 0; i < params[0].length; i++) {
 				params[0][i] = Classes.clone(params[0][i]);
@@ -296,25 +296,25 @@ public class FunctionReference<T> {
 				}
 			}
 		}
-		
+
 		// Execute the function
 		return function.execute(params);
 	}
-	
+
 	public boolean isSingle() {
 		return single;
 	}
-	
+
 	@Nullable
 	public Class<? extends T> getReturnType() {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
-		
+
 		@SuppressWarnings("ConstantConditions")
 		ClassInfo<? extends T> ret = signature.returnType;
 		return ret == null ? null : ret.getC();
 	}
-	
+
 	public String toString(@Nullable Event e, boolean debug) {
 		StringBuilder b = new StringBuilder(functionName + "(");
 		for (int i = 0; i < parameters.length; i++) {
@@ -325,5 +325,5 @@ public class FunctionReference<T> {
 		b.append(")");
 		return b.toString();
 	}
-	
+
 }

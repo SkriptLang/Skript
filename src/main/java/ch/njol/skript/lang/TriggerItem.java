@@ -1,59 +1,59 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang;
 
-import java.io.File;
-
-import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.Skript;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
-import ch.njol.skript.Skript;
-import ch.njol.util.StringUtils;
+import java.io.File;
 
 /**
  * Represents a trigger item, i.e. a trigger section, a condition or an effect.
- * 
+ *
  * @author Peter Güttinger
  * @see TriggerSection
  * @see Trigger
  * @see Statement
  */
 public abstract class TriggerItem implements Debuggable {
-	
+
 	@Nullable
 	protected TriggerSection parent = null;
 	@Nullable
 	private TriggerItem next = null;
-	
-	protected TriggerItem() {}
-	
+
+	protected TriggerItem() {
+	}
+
 	protected TriggerItem(final TriggerSection parent) {
 		this.parent = parent;
 	}
-	
+
 	/**
 	 * Executes this item and returns the next item to run.
 	 * <p>
 	 * Overriding classes must call {@link #debug(Event, boolean)}. If this method is overridden, {@link #run(Event)} is not used anymore and can be ignored.
-	 * 
+	 *
 	 * @param e
 	 * @return The next item to run or null to stop execution
 	 */
@@ -68,15 +68,15 @@ public abstract class TriggerItem implements Debuggable {
 			return parent == null ? null : parent.getNext();
 		}
 	}
-	
+
 	/**
 	 * Executes this item.
-	 * 
+	 *
 	 * @param e
 	 * @return True if the next item should be run, or false for the item following this item's parent.
 	 */
 	protected abstract boolean run(Event e);
-	
+
 	/**
 	 * @param start
 	 * @param e
@@ -88,7 +88,7 @@ public abstract class TriggerItem implements Debuggable {
 		try {
 			while (i != null)
 				i = i.walk(e);
-			
+
 			return true;
 		} catch (final StackOverflowError err) {
 			Trigger t = start.getTrigger();
@@ -114,15 +114,15 @@ public abstract class TriggerItem implements Debuggable {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * how much to indent each level
 	 */
 	private final static String indent = "  ";
-	
+
 	@Nullable
 	private String indentation = null;
-	
+
 	public String getIndentation() {
 		String ind = indentation;
 		if (ind == null) {
@@ -134,28 +134,28 @@ public abstract class TriggerItem implements Debuggable {
 		}
 		return ind;
 	}
-	
+
 	protected final void debug(final Event e, final boolean run) {
 		if (!Skript.debug())
 			return;
 		Skript.debug(SkriptColor.replaceColorChar(getIndentation() + (run ? "" : "-") + toString(e, true)));
 	}
-	
+
 	@Override
 	public final String toString() {
 		return toString(null, false);
 	}
-	
+
 	public TriggerItem setParent(final @Nullable TriggerSection parent) {
 		this.parent = parent;
 		return this;
 	}
-	
+
 	@Nullable
 	public final TriggerSection getParent() {
 		return parent;
 	}
-	
+
 	/**
 	 * @return The trigger this item belongs to, or null if this is a stand-alone item (e.g. the effect of an effect command)
 	 */
@@ -168,15 +168,15 @@ public abstract class TriggerItem implements Debuggable {
 //			throw new IllegalStateException("TriggerItem without a Trigger detected!");
 		return (Trigger) i;
 	}
-	
+
 	public TriggerItem setNext(final @Nullable TriggerItem next) {
 		this.next = next;
 		return this;
 	}
-	
+
 	@Nullable
 	public TriggerItem getNext() {
 		return next;
 	}
-	
+
 }

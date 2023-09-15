@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -44,8 +44,8 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Cause of last damage done to an entity")
 @Examples({"set last damage cause of event-entity to fire tick"})
 @Since("2.2-Fixes-V10")
-public class ExprLastDamageCause extends PropertyExpression<LivingEntity, DamageCause>{
-	
+public class ExprLastDamageCause extends PropertyExpression<LivingEntity, DamageCause> {
+
 	static {
 		register(ExprLastDamageCause.class, DamageCause.class, "last damage (cause|reason|type)", "livingentities");
 	}
@@ -56,7 +56,7 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 		setExpr((Expression<LivingEntity>) exprs[0]);
 		return true;
 	}
-	
+
 	@Override
 	protected DamageCause[] get(Event e, LivingEntity[] source) {
 		return get(source, new Getter<DamageCause, LivingEntity>() {
@@ -68,12 +68,12 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 			}
 		});
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the damage cause " + getExpr().toString(e, debug);
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -81,7 +81,7 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 			return null;
 		return CollectionUtils.array(DamageCause.class);
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		DamageCause d = delta == null ? DamageCause.CUSTOM : (DamageCause) delta[0];
@@ -107,7 +107,7 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 				break;
 		}
 	}
-	
+
 	@Override
 	public Class<DamageCause> getReturnType() {
 		return DamageCause.class;

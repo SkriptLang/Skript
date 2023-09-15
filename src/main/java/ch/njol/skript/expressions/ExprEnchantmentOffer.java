@@ -1,41 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -44,11 +29,20 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @Name("Enchantment Offer")
 @Description("The enchantment offer in enchant prepare events.")
 @Examples({"on enchant prepare:",
-			"\tsend \"Your enchantment offers are: %the enchantment offers%\" to player"})
+	"\tsend \"Your enchantment offers are: %the enchantment offers%\" to player"})
 @Since("2.5")
 @Events("enchant prepare")
 @RequiredPlugins("1.11 or newer")
@@ -56,10 +50,10 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 
 	static {
 		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
-			Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE, 
-					"[all [of]] [the] enchant[ment] offers",
-					"enchant[ment] offer[s] %numbers%",
-					"[the] %number%(st|nd|rd|th) enchant[ment] offer");
+			Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE,
+				"[all [of]] [the] enchant[ment] offers",
+				"enchant[ment] offer[s] %numbers%",
+				"[the] %number%(st|nd|rd|th) enchant[ment] offer");
 		}
 	}
 
@@ -202,10 +196,14 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 		// (from 1 to 8) + floor(bookshelves / 2) + (from 0 to bookshelves)
 		int base = (int) ((rand.nextInt(7) + 1) + Math.floor(bookshelves / 2) + (rand.nextInt(bookshelves + 1)));
 		switch (slot) {
-			case 1: return Math.max(base / 3, 1);
-			case 2: return (base * 2) / 3 + 1;
-			case 3: return Math.max(base, bookshelves * 2);
-			default: return 1;
+			case 1:
+				return Math.max(base / 3, 1);
+			case 2:
+				return (base * 2) / 3 + 1;
+			case 3:
+				return Math.max(base, bookshelves * 2);
+			default:
+				return 1;
 		}
 	}
 

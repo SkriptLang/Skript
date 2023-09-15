@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -44,7 +44,7 @@ import java.util.Arrays;
 @Since("2.2-dev19")
 public class ExprSortedList extends SimpleExpression<Object> {
 
-	static{
+	static {
 		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.COMBINED, "sorted %objects%");
 	}
 
@@ -70,7 +70,7 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	protected Object[] get(Event e) {
 		Object[] unsorted = list.getArray(e);
 		Object[] sorted = (Object[]) Array.newInstance(getReturnType(), unsorted.length); // Not yet sorted...
-		
+
 		for (int i = 0; i < sorted.length; i++) {
 			Object value = unsorted[i];
 			if (value instanceof Long) {
@@ -81,7 +81,7 @@ public class ExprSortedList extends SimpleExpression<Object> {
 				sorted[i] = value;
 			}
 		}
-		
+
 		try {
 			Arrays.sort(sorted); // Now sorted
 		} catch (IllegalArgumentException | ClassCastException ex) { // In case elements are not comparable

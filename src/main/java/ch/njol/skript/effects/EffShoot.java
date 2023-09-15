@@ -1,32 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
-import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -39,6 +29,15 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
+import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -46,18 +45,18 @@ import ch.njol.util.Kleenean;
 @Name("Shoot")
 @Description("Shoots a projectile (or any other entity) from a given entity.")
 @Examples({"shoot an arrow",
-		"make the player shoot a creeper at speed 10",
-		"shoot a pig from the creeper"})
+	"make the player shoot a creeper at speed 10",
+	"shoot a pig from the creeper"})
 @Since("1.4")
 public class EffShoot extends Effect {
 	static {
 		Skript.registerEffect(EffShoot.class,
-				"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
-				"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]");
+			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
+			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]");
 	}
-	
+
 	private final static Double DEFAULT_SPEED = 5.;
-	
+
 	@SuppressWarnings("null")
 	private Expression<EntityData<?>> types;
 	@SuppressWarnings("null")
@@ -66,10 +65,10 @@ public class EffShoot extends Effect {
 	private Expression<Number> velocity;
 	@Nullable
 	private Expression<Direction> direction;
-	
+
 	@Nullable
 	public static Entity lastSpawned = null;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -79,7 +78,7 @@ public class EffShoot extends Effect {
 		direction = (Expression<Direction>) exprs[3];
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(final Event e) {
@@ -101,8 +100,7 @@ public class EffShoot extends Effect {
 						projectile.setVelocity(vel);
 						lastSpawned = projectile;
 					} else if (Projectile.class.isAssignableFrom(type)) {
-						@SuppressWarnings("unchecked")
-						final Projectile projectile = ((LivingEntity) shooter).launchProjectile((Class<? extends Projectile>) type);
+						@SuppressWarnings("unchecked") final Projectile projectile = ((LivingEntity) shooter).launchProjectile((Class<? extends Projectile>) type);
 						set(projectile, d);
 						projectile.setVelocity(vel);
 						lastSpawned = projectile;
@@ -124,15 +122,15 @@ public class EffShoot extends Effect {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static <E extends Entity> void set(final Entity e, final EntityData<E> d) {
 		d.set((E) e);
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " + velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
 	}
-	
+
 }

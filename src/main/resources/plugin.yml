@@ -18,11 +18,11 @@
 #
 
 
-name: Skript
+name: SkriptModified
 
 description: Customize Minecraft's mechanics with simple scripts written in plain English sentences.
 
-authors: [Njol, Mirreski, 'SkriptLang Team', Contributors]
+authors: [ Njol, Mirreski, 'SkriptLang Team', Contributors ]
 
 website: https://skriptlang.github.io/Skript
 
@@ -34,11 +34,11 @@ api-version: 1.13
 commands:
     skript:
         description: Skript's main command. Type '/skript help' for more information.
-        aliases: [sk]
+        aliases: [ sk ]
         permission: skript.admin
         usage: /skript help
 
-softdepend: [SQLibrary, Vault, WorldGuard, Residence, PreciousStones, GriefPrevention]
+softdepend: [ SQLibrary, Vault, WorldGuard, Residence, PreciousStones, GriefPrevention ]
 
 permissions:
     skript.*:

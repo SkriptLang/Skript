@@ -1,7 +1,10 @@
 {
 	"name": "paper-1.17.1",
 	"resources": [
-		{"source": "server.properties.generic", "target": "server.properties"}
+		{
+			"source": "server.properties.generic",
+			"target": "server.properties"
+		}
 	],
 	"paperDownloads": [
 		{
@@ -12,6 +15,8 @@
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
 		"-Dcom.mojang.eula.agree=true",
-		"-jar", "paperclip.jar", "--nogui"
+		"-jar",
+		"paperclip.jar",
+		"--nogui"
 	]
 }

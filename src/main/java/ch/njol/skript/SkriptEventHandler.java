@@ -1,58 +1,48 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.util.Task;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
+import org.bukkit.event.*;
 import org.bukkit.event.Event.Result;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.skript.util.Task;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
 
-	private SkriptEventHandler() { }
+	private SkriptEventHandler() {
+	}
 
 	/**
 	 * An event listener for one priority.
@@ -99,9 +89,9 @@ public final class SkriptEventHandler {
 		HandlerList eventHandlerList = getHandlerList(event);
 		assert eventHandlerList != null; // It had one at some point so this should remain true
 		return triggers.asMap().entrySet().stream()
-				.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
-				.flatMap(entry -> entry.getValue().stream())
-				.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
+			.filter(entry -> entry.getKey().isAssignableFrom(event) && getHandlerList(entry.getKey()) == eventHandlerList)
+			.flatMap(entry -> entry.getValue().stream())
+			.collect(Collectors.toList()); // forces evaluation now and prevents us from having to call getTriggers again if very high logging is enabled
 	}
 
 	/**
@@ -130,7 +120,7 @@ public final class SkriptEventHandler {
 
 			logEventStart(event);
 		}
-		
+
 		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
 		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
 
@@ -228,7 +218,8 @@ public final class SkriptEventHandler {
 	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them here).
 	 */
 	@Deprecated
-	public static void addSelfRegisteringTrigger(Trigger t) { }
+	public static void addSelfRegisteringTrigger(Trigger t) {
+	}
 
 	/**
 	 * A utility method that calls {@link #registerBukkitEvent(Trigger, Class)} for each Event class provided.
@@ -272,7 +263,8 @@ public final class SkriptEventHandler {
 	 */
 	public static void unregisterBukkitEvents(Trigger trigger) {
 		Iterator<Entry<Class<? extends Event>, Trigger>> entryIterator = triggers.entries().iterator();
-		entryLoop: while (entryIterator.hasNext()) {
+		entryLoop:
+		while (entryIterator.hasNext()) {
 			Entry<Class<? extends Event>, Trigger> entry = entryIterator.next();
 			if (entry.getValue() != trigger)
 				continue;
@@ -297,8 +289,8 @@ public final class SkriptEventHandler {
 				Listener listener = registeredListener.getListener();
 				if (
 					registeredListener.getPlugin() == skript
-					&& listener instanceof PriorityListener
-					&& ((PriorityListener) listener).priority == priority
+						&& listener instanceof PriorityListener
+						&& ((PriorityListener) listener).priority == priority
 				) {
 					handlerList.unregister(listener);
 				}
@@ -368,8 +360,8 @@ public final class SkriptEventHandler {
 		} catch (NoSuchMethodException e) {
 			if (
 				eventClass.getSuperclass() != null
-				&& !eventClass.getSuperclass().equals(Event.class)
-				&& Event.class.isAssignableFrom(eventClass.getSuperclass())
+					&& !eventClass.getSuperclass().equals(Event.class)
+					&& Event.class.isAssignableFrom(eventClass.getSuperclass())
 			) {
 				return getHandlerListMethod(eventClass.getSuperclass().asSubclass(Event.class));
 			} else {
@@ -383,8 +375,8 @@ public final class SkriptEventHandler {
 			Listener listener = registeredListener.getListener();
 			if (
 				registeredListener.getPlugin() == Skript.getInstance()
-				&& listener instanceof PriorityListener
-				&& ((PriorityListener) listener).priority == priority
+					&& listener instanceof PriorityListener
+					&& ((PriorityListener) listener).priority == priority
 			) {
 				return true;
 			}

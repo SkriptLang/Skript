@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.util;
@@ -32,9 +32,10 @@ import java.util.Arrays;
  */
 @ApiStatus.Internal
 public final class Math2 {
-	
-	private Math2() {}
-	
+
+	private Math2() {
+	}
+
 	/**
 	 * Fits an int into the given interval. The method's behaviour when min > max is unspecified.
 	 *
@@ -44,7 +45,7 @@ public final class Math2 {
 		assert min <= max : min + "," + value + "," + max;
 		return Math.min(Math.max(value, min), max);
 	}
-	
+
 	/**
 	 * Fits a long into the given interval. The method's behaviour when min > max is unspecified.
 	 *
@@ -64,17 +65,17 @@ public final class Math2 {
 		assert min <= max : min + "," + value + "," + max;
 		return Math.min(Math.max(value, min), max);
 	}
-	
+
 	/**
 	 * Fits a double into the given interval. The method's behaviour when min > max is unspecified.
-	 * 
+	 *
 	 * @return A double in between min and max
 	 */
 	public static double fit(double min, double value, double max) {
 		assert min <= max : min + "," + value + "," + max;
 		return Math.min(Math.max(value, min), max);
 	}
-	
+
 	/**
 	 * Modulo that returns positive values even for negative arguments.
 	 *
@@ -83,7 +84,7 @@ public final class Math2 {
 	public static int mod(int value, int mod) {
 		return (value % mod + mod) % mod;
 	}
-	
+
 	/**
 	 * Modulo that returns positive values even for negative arguments.
 	 *
@@ -92,7 +93,7 @@ public final class Math2 {
 	public static long mod(long value, long mod) {
 		return (value % mod + mod) % mod;
 	}
-	
+
 	/**
 	 * Modulo that returns positive values even for negative arguments.
 	 *
@@ -101,7 +102,7 @@ public final class Math2 {
 	public static float mod(float value, float mod) {
 		return (value % mod + mod) % mod;
 	}
-	
+
 	/**
 	 * Modulo that returns positive values even for negative arguments.
 	 *
@@ -110,42 +111,42 @@ public final class Math2 {
 	public static double mod(double value, double mod) {
 		return (value % mod + mod) % mod;
 	}
-	
+
 	/**
 	 * Ceils the given float and returns the result as an int.
 	 */
 	public static int ceil(float value) {
 		return (int) Math.ceil(value - Skript.EPSILON);
 	}
-	
+
 	/**
 	 * Rounds the given float (where .5 is rounded up) and returns the result as an int.
 	 */
 	public static int round(float value) {
 		return (int) Math.round(value + Skript.EPSILON);
 	}
-	
+
 	/**
 	 * Floors the given double and returns the result as a long.
 	 */
 	public static long floor(double value) {
 		return (long) Math.floor(value + Skript.EPSILON);
 	}
-	
+
 	/**
 	 * Ceils the given double and returns the result as a long.
 	 */
 	public static long ceil(double value) {
 		return (long) Math.ceil(value - Skript.EPSILON);
 	}
-	
+
 	/**
 	 * Rounds the given double (where .5 is rounded up) and returns the result as a long.
 	 */
 	public static long round(double value) {
 		return Math.round(value + Skript.EPSILON);
 	}
-	
+
 	/**
 	 * Guarantees a float is neither NaN nor infinite.
 	 * Useful for situations when safe floats are required.
@@ -155,89 +156,89 @@ public final class Math2 {
 	public static float safe(float value) {
 		return Float.isFinite(value) ? value : 0;
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int floorI(double value) {
 		return (int) Math.floor(value + Skript.EPSILON);
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int ceilI(double value) {
 		return (int) Math.ceil(value - Skript.EPSILON);
 	}
-	
+
 	// Change signature to return int instead of removing.
 	@Deprecated
 	@MarkedForRemoval
 	public static long floor(float value) {
 		return (long) Math.floor(value + Skript.EPSILON);
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int min(int a, int b, int c) {
 		return Math.min(a, Math.min(b, c));
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int min(int... numbers) {
 		if (numbers.length == 0)
 			return 0;
-		
+
 		return Arrays.stream(numbers)
 			.min()
 			.getAsInt();
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int max(int a, int b, int c) {
 		return Math.max(a, Math.max(b, c));
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static int max(int... numbers) {
 		if (numbers.length == 0)
 			return 0;
-		
+
 		return Arrays.stream(numbers)
 			.max()
 			.getAsInt();
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static double min(double a, double b, double c) {
 		return Math.min(a, Math.min(b, c));
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static double min(double... numbers) {
 		if (numbers.length == 0)
 			return Double.NaN;
-		
+
 		return Arrays.stream(numbers)
 			.min()
 			.getAsDouble();
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static double max(double a, double b, double c) {
 		return Math.max(a, Math.max(b, c));
 	}
-	
+
 	@Deprecated
 	@MarkedForRemoval
 	public static double max(double... numbers) {
 		if (numbers.length == 0)
 			return Double.NaN;
-		
+
 		return Arrays.stream(numbers)
 			.max()
 			.getAsDouble();

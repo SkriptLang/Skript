@@ -1,26 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -33,6 +29,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author bi0qaw
@@ -40,47 +39,47 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Vectors - XYZ Component")
 @Description("Gets or changes the x, y or z component of a vector.")
 @Examples({"set {_v} to vector 1, 2, 3",
-		"send \"%x of {_v}%, %y of {_v}%, %z of {_v}%\"",
-		"add 1 to x of {_v}",
-		"add 2 to y of {_v}",
-		"add 3 to z of {_v}",
-		"send \"%x of {_v}%, %y of {_v}%, %z of {_v}%\"",
-		"set x component of {_v} to 1",
-		"set y component of {_v} to 2",
-		"set z component of {_v} to 3",
-		"send \"%x component of {_v}%, %y component of {_v}%, %z component of {_v}%\"",})
+	"send \"%x of {_v}%, %y of {_v}%, %z of {_v}%\"",
+	"add 1 to x of {_v}",
+	"add 2 to y of {_v}",
+	"add 3 to z of {_v}",
+	"send \"%x of {_v}%, %y of {_v}%, %z of {_v}%\"",
+	"set x component of {_v} to 1",
+	"set y component of {_v} to 2",
+	"set z component of {_v} to 3",
+	"send \"%x component of {_v}%, %y component of {_v}%, %z component of {_v}%\"",})
 @Since("2.2-dev28")
 public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
-	
+
 	static {
 		register(ExprVectorXYZ.class, Number.class, "[vector] (0¦x|1¦y|2¦z) [component[s]]", "vectors");
 	}
-	
-	private final static Character[] axes = new Character[] {'x', 'y', 'z'};
-	
+
+	private final static Character[] axes = new Character[]{'x', 'y', 'z'};
+
 	private int axis;
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		super.init(exprs, matchedPattern, isDelayed, parseResult);
 		axis = parseResult.mark;
 		return true;
 	}
-	
+
 	@Override
 	public Number convert(Vector v) {
 		return axis == 0 ? v.getX() : (axis == 1 ? v.getY() : v.getZ());
 	}
-	
+
 	@Override
 	@SuppressWarnings("null")
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET)
-				&& getExpr().isSingle() && Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class))
+			&& getExpr().isSingle() && Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class))
 			return CollectionUtils.array(Number.class);
 		return null;
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		assert delta != null;
@@ -99,7 +98,7 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 					v.setY(v.getY() + n);
 				else
 					v.setZ(v.getZ() + n);
-				getExpr().change(e, new Vector[] {v}, ChangeMode.SET);
+				getExpr().change(e, new Vector[]{v}, ChangeMode.SET);
 				break;
 			case SET:
 				if (axis == 0)
@@ -108,18 +107,18 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 					v.setY(n);
 				else
 					v.setZ(n);
-				getExpr().change(e, new Vector[] {v}, ChangeMode.SET);
+				getExpr().change(e, new Vector[]{v}, ChangeMode.SET);
 		}
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return axes[axis] + " component";
 	}
-	
+
 	@Override
 	public Class<Number> getReturnType() {
 		return Number.class;
 	}
-	
+
 }

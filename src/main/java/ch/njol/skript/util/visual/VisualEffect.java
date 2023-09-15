@@ -1,20 +1,20 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util.visual;
@@ -45,8 +45,9 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 	private float speed = 0f;
 	private float dX, dY, dZ = 0f;
 
-	public VisualEffect() {}
-	
+	public VisualEffect() {
+	}
+
 	@SuppressWarnings({"null", "ConstantConditions"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -143,7 +144,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 	public String toString() {
 		return toString(0);
 	}
-	
+
 	public String toString(int flags) {
 		return type.getName().toString(flags);
 	}
@@ -162,5 +163,5 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 		VisualEffect that = (VisualEffect) o;
 		return type == that.type && Objects.equals(data, that.data);
 	}
-	
+
 }

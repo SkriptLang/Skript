@@ -1,29 +1,25 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -42,20 +38,20 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Is Within")
 @Description({
 	"Whether a location is within something else. The \"something\" can be a block, an entity, a chunk, a world, " +
-	"or a cuboid formed by two other locations.",
+		"or a cuboid formed by two other locations.",
 	"Note that using the <a href='conditions.html#CondCompare'>is between</a> condition will refer to a straight line " +
-	"between locations, while this condition will refer to the cuboid between locations."
+		"between locations, while this condition will refer to the cuboid between locations."
 })
 @Examples({
 	"if player's location is within {_loc1} and {_loc2}:",
-		"\tsend \"You are in a PvP zone!\" to player",
+	"\tsend \"You are in a PvP zone!\" to player",
 	"",
 	"if player is in world(\"world\"):",
-		"\tsend \"You are in the overworld!\" to player",
+	"\tsend \"You are in the overworld!\" to player",
 	"",
 	"if attacker's location is inside of victim:",
-		"\tcancel event",
-		"\tsend \"Back up!\" to attacker and victim",
+	"\tcancel event",
+	"\tsend \"Back up!\" to attacker and victim",
 })
 @Since("2.7")
 @RequiredPlugins("MC 1.17+ (within block)")
@@ -67,10 +63,10 @@ public class CondIsWithin extends Condition {
 			validTypes += "/block";
 
 		Skript.registerCondition(CondIsWithin.class,
-				"%locations% (is|are) within %location% and %location%",
-				"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
-				"%locations% (is|are) (within|in[side [of]]) %" + validTypes + "%",
-				"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %" + validTypes + "%"
+			"%locations% (is|are) within %location% and %location%",
+			"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
+			"%locations% (is|are) (within|in[side [of]]) %" + validTypes + "%",
+			"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %" + validTypes + "%"
 		);
 	}
 

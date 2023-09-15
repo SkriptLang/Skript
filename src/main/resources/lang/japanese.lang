@@ -23,7 +23,7 @@ skript command:
 	usage: 使用方法:
 	help:
 		description: Skriptのメインコマンドです。
-		help: このメッセージを表示します。 '/skript reload/enable/disable/update' を使用してより詳細な情報を入手できます。
+		help: このメッセージを表示します。 '/skript reload/enable/disable' を使用してより詳細な情報を入手できます。
 		reload:
 			description: 指定されたスクリプト, 全てのスクリプト, コンフィグ, または全てを再読み込みします。
 			all: コンフィグ, 全てのエイリアス設定, 全てのスクリプトを再読み込みします。
@@ -39,11 +39,6 @@ skript command:
 			description: 指定されたスクリプト、もしくは全てのスクリプトを無効化します。
 			all: 全てのスクリプトを無効化します。
 			<script>: 特定のスクリプト、もしくはフォルダ内のスクリプトを無効化します。
-		update:
-			description: アップデートのチェック, 変更履歴を見る, もしくは最新バージョンのSkriptをダウンロードします。
-			check: 新しいバージョンが存在するか確認します。
-			changes: 現在のバージョンとの変更点を表示します。
-			download: 最新バージョンをダウンロードします。
 		info: Skriptのエイリアスとドキュメントをリンク付きで表示します。
 		gen-docs: pluginフォルダ内にテンプレートを使用してドキュメントを生成します。
 		test: 内部テストを実行するために使用します。
@@ -100,15 +95,6 @@ skript command:
 			empty: <gold>%s<reset>フォルダ内に有効化されたスクリプトが見つかりませんでした。
 			disabled: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトが無効化されました。
 			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのファイル名を変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): %s
-	update:
-		# check/download: Upadater をご確認ください
-		changes:
-			# multiple versions:
-			# 	title: <gold>%s<r>個のアップデートが 現在のSkriptバージョン (<gold>%s<r>) に存在します:
-			# 	footer: このバージョンの変更履歴を確認したい場合は<gold>/skript update changes <version><reset>を実行してください。
-			# invalid version: バージョン<gold>%s<red>の変更履歴はありません。
-			title: <bold><cyan>%s<reset> (%s)
-			next page: <grey>(%s/%s) <gold>/skript update changes %s<gray> で次のページを表示します。 (ヒント: 上矢印キーを押すと良いかもしれません)
 	info:
 		aliases: Skriptのエイリアス一覧はこちらからご覧いただけます: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skriptのドキュメントはこちらからご覧いただけます: <aqua>https://docs.skriptlang.org/
@@ -117,24 +103,6 @@ skript command:
 		server: サーバーのバージョン: <aqua>%s
 		addons: インストール済みのSkriptアドオン: <aqua>%s
 		dependencies: インストール済みの依存関係: <aqua>%s
-
-# -- Updater --
-updater:
-	not started: Skriptは最新バージョンの確認をしていません。 確認をするには<gold>/skript update check<reset>を使用してください。
-	checking: Skriptの最新バージョンを確認中...
-	check in progress: 最新バージョンは現在確認中です。
-	updater disabled: 更新が無効化されているため、Skriptの最新バージョンの確認は行われませんでした。
-	check error: <red>Skriptの最新バージョンの確認中にエラーが発生しました:<light red> %s
-	running latest version: 最新安定版のSkriptが動作しています。
-	running latest version (beta): <i>ベータ版<r>のSkriptが動作しています。 また新しい<i>安定版<r>のSkriptはありません。 新しいベータ版へのアップデートは手動で行う必要があるためご注意ください！
-	update available: 新しいバージョンのSkriptが存在します: <gold>%s<reset> (現在は<gold>%s<reset>が動作しています。)
-	downloading: Skript <gold>%s<reset>をダウンロード中...
-	download in progress: Skriptの最新バージョンは現在ダウンロード中です。
-	download error: <red>Skriptの最新バージョンをダウンロード中にエラーが発生しました:<light red> %s
-	downloaded: Skriptの最新バージョンがダウンロードされました！ サーバーを再起動、または/reloadを使用し更新を適用してください。
-	internal error: 内部エラーが発生したためSkriptの最新バージョンの確認に失敗しました。 詳細はサーバーログをご確認ください。
-	custom version: カスタマイズされたSkriptが動作しています。 アップデートは自動的にインストールされません。
-	nightly build: 開発版のSkriptが動作しています。 アップデートは自動的にインストールされません。
 
 # -- Commands --
 commands:

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.sections;
@@ -76,7 +76,7 @@ import java.util.List;
 public class SecConditional extends Section {
 
 	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
-	private static final Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][] {
+	private static final Patterns<ConditionalType> CONDITIONAL_PATTERNS = new Patterns<>(new Object[][]{
 		{"else", ConditionalType.ELSE},
 		{"else [:parse] if <.+>", ConditionalType.ELSE_IF},
 		{"else [:parse] if (:any|any:at least one [of])", ConditionalType.ELSE_IF},
@@ -247,8 +247,8 @@ public class SecConditional extends Section {
 			assert precedingIf != null; // at this point, we've validated the section so this can't be null
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
-					&& precedingIf.hasDelayAfter.isTrue()
-					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
+				&& precedingIf.hasDelayAfter.isTrue()
+				&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
 				getParser().setHasDelayBefore(Kleenean.TRUE);

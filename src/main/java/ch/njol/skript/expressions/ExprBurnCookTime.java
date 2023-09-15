@@ -1,31 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.Arrays;
-import java.util.function.Function;
-
-import org.bukkit.block.Block;
-import org.bukkit.block.Furnace;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -45,23 +36,31 @@ import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.block.Block;
+import org.bukkit.block.Furnace;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.function.Function;
 
 @Name("Burn/Cook Time")
 @Description({"The time a furnace takes to burn an item in a <a href='events.html#fuel_burn'>fuel burn</a> event.",
-			"Can also be used to change the burn/cook time of a placed furnace."})
+	"Can also be used to change the burn/cook time of a placed furnace."})
 @Examples({"on fuel burn:",
-		"	if fuel slot is coal:",
-		"		set burning time to 1 tick"})
+	"	if fuel slot is coal:",
+	"		set burning time to 1 tick"})
 @Since("2.3")
 public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 
 	static {
 		Skript.registerExpression(ExprBurnCookTime.class, Timespan.class, ExpressionType.PROPERTY,
-				"[the] burn[ing] time",
-				"[the] (burn|1¦cook)[ing] time of %blocks%",
-				"%blocks%'[s] (burn|1¦cook)[ing] time");
+			"[the] burn[ing] time",
+			"[the] (burn|1¦cook)[ing] time of %blocks%",
+			"%blocks%'[s] (burn|1¦cook)[ing] time");
 	}
-	
+
 	static final ItemType anyFurnace = Aliases.javaItemType("any furnace");
 
 	private boolean cookTime;
@@ -89,12 +88,12 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) e).getBurnTime()));
 		} else {
 			Timespan[] result = Arrays.stream(source)
-					.filter(block -> anyFurnace.isOfType(block))
-					.map(furnace -> {
-						Furnace state = (Furnace) furnace.getState();
-						return Timespan.fromTicks_i(cookTime ? state.getCookTime() : state.getBurnTime());
-					})
-					.toArray(Timespan[]::new);
+				.filter(block -> anyFurnace.isOfType(block))
+				.map(furnace -> {
+					Furnace state = (Furnace) furnace.getState();
+					return Timespan.fromTicks_i(cookTime ? state.getCookTime() : state.getBurnTime());
+				})
+				.toArray(Timespan[]::new);
 			assert result != null;
 			return result;
 		}

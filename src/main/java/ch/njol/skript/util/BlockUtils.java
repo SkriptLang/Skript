@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util;
@@ -40,7 +40,7 @@ import java.util.Arrays;
  * TODO !Update with every version [blocks] - also update aliases-*.sk
  */
 public class BlockUtils {
-	
+
 	/**
 	 * Sets the given block.
 	 * @param block Block to set.
@@ -57,25 +57,25 @@ public class BlockUtils {
 
 		return true;
 	}
-	
+
 	public static boolean set(Block block, ItemData type, boolean applyPhysics) {
 		return set(block, type.getType(), type.getBlockValues(), applyPhysics);
 	}
-	
+
 	public static void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues blockValues) {
 		BlockCompat.SETTER.sendBlockChange(player, location, type, blockValues);
 	}
-	
+
 	@SuppressWarnings("null")
 	public static Iterable<Block> getBlocksAround(Block b) {
 		return Arrays.asList(b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST));
 	}
-	
+
 	@SuppressWarnings("null")
 	public static Iterable<BlockFace> getFaces() {
 		return Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
 	}
-	
+
 	/**
 	 * @param b A block
 	 * @return Location of the block, including its direction
@@ -92,7 +92,7 @@ public class BlockUtils {
 		}
 		return l;
 	}
-	
+
 	@Nullable
 	public static BlockData createBlockData(String dataString) {
 		// Skript uses a comma to separate lists, so we use a semi colon as a delimiter

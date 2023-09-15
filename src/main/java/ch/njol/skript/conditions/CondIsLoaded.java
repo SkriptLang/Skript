@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
@@ -28,7 +28,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -38,26 +37,26 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Is Loaded")
 @Description("Checks whether or not a chunk/world is loaded. 'chunk at 1, 1' uses chunk coords, which are location coords divided by 16.")
 @Examples({"if chunk at {home::%player's uuid%} is loaded:",
-		"if chunk 1, 10 in world \"world\" is loaded:",
-		"if world(\"lobby\") is loaded:"})
+	"if chunk 1, 10 in world \"world\" is loaded:",
+	"if world(\"lobby\") is loaded:"})
 @Since("2.3, 2.5 (revamp with chunk at location/coords)")
 public class CondIsLoaded extends Condition {
-	
+
 	static {
 		Skript.registerCondition(CondIsLoaded.class,
 			"chunk[s] %directions% [%locations%] (is|are)[(1¦(n't| not))] loaded",
 			"chunk [at] %number%, %number% (in|of) [world] %world% is[(1¦(n't| not))] loaded",
 			"[world[s]] %worlds% (is|are)[(1¦(n't| not))] loaded");
 	}
-	
+
 	@Nullable
 	private Expression<Location> locations;
 	@Nullable
-	private Expression<Number> x,z;
+	private Expression<Number> x, z;
 	@Nullable
 	private Expression<World> world;
 	private int pattern;
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		pattern = matchedPattern;
@@ -68,7 +67,7 @@ public class CondIsLoaded extends Condition {
 		setNegated(parseResult.mark == 1);
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public boolean check(Event e) {
@@ -93,15 +92,15 @@ public class CondIsLoaded extends Condition {
 		}
 		return false;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public String toString(@Nullable Event e, boolean d) {
 		String neg = isNegated() ? " not " : " ";
 		String chunk = pattern == 0 ? "chunk[s] at " + locations.toString(e, d) + (locations.isSingle() ? " is" : " are") + neg + "loaded" : "";
-		String chunkC = pattern == 1 ? "chunk (x:" + x.toString(e, d) + ",z:" + z.toString(e, d) + ",w:" + world.toString(e,d) + ") is" + neg + "loaded" : "";
+		String chunkC = pattern == 1 ? "chunk (x:" + x.toString(e, d) + ",z:" + z.toString(e, d) + ",w:" + world.toString(e, d) + ") is" + neg + "loaded" : "";
 		String world = pattern == 2 ? "world[s] " + this.world.toString(e, d) + (this.world.isSingle() ? " is" : " are") + neg + "loaded" : "";
 		return chunk + chunkC + world;
 	}
-	
+
 }

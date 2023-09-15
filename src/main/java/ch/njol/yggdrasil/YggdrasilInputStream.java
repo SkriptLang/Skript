@@ -1,26 +1,25 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.yggdrasil;
 
-import static ch.njol.yggdrasil.Tag.T_NULL;
-import static ch.njol.yggdrasil.Tag.T_REFERENCE;
-import static ch.njol.yggdrasil.Tag.getType;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -29,38 +28,36 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import static ch.njol.yggdrasil.Tag.*;
 
 public abstract class YggdrasilInputStream implements Closeable {
-	
+
 	protected final Yggdrasil yggdrasil;
-	
+
 	protected YggdrasilInputStream(final Yggdrasil yggdrasil) {
 		this.yggdrasil = yggdrasil;
 	}
-	
+
 	// Tag
-	
+
 	protected abstract Tag readTag() throws IOException;
-	
+
 	// Primitives
-	
+
 	protected abstract Object readPrimitive(Tag type) throws IOException;
-	
+
 	protected abstract Object readPrimitive_(Tag type) throws IOException;
-	
+
 	// String
-	
+
 	protected abstract String readString() throws IOException;
-	
+
 	// Array
-	
+
 	protected abstract Class<?> readArrayComponentType() throws IOException;
-	
+
 	protected abstract int readArrayLength() throws IOException;
-	
+
 	private final void readArrayContents(final Object array) throws IOException {
 		if (array.getClass().getComponentType().isPrimitive()) {
 			final int length = Array.getLength(array);
@@ -74,13 +71,13 @@ public abstract class YggdrasilInputStream implements Closeable {
 			}
 		}
 	}
-	
+
 	// Enum
-	
+
 	protected abstract Class<?> readEnumType() throws IOException;
-	
+
 	protected abstract String readEnumID() throws IOException;
-	
+
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private final Object readEnum() throws IOException {
 		final Class<?> c = readEnumType();
@@ -99,23 +96,23 @@ public abstract class YggdrasilInputStream implements Closeable {
 			throw new StreamCorruptedException(c + " is not an enum type");
 		}
 	}
-	
+
 	// Class
-	
+
 	protected abstract Class<?> readClass() throws IOException;
-	
+
 	// Reference
-	
+
 	protected abstract int readReference() throws IOException;
-	
+
 	// generic Object
-	
+
 	protected abstract Class<?> readObjectType() throws IOException;
-	
+
 	protected abstract short readNumFields() throws IOException;
-	
+
 	protected abstract String readFieldID() throws IOException;
-	
+
 	private final Fields readFields() throws IOException {
 		final Fields fields = new Fields(yggdrasil);
 		final short numFields = readNumFields();
@@ -129,17 +126,17 @@ public abstract class YggdrasilInputStream implements Closeable {
 		}
 		return fields;
 	}
-	
+
 	// any Objects
-	
+
 	private final List<Object> readObjects = new ArrayList<>();
-	
+
 	@Nullable
 	public final Object readObject() throws IOException {
 		final Tag t = readTag();
 		return readObject(t);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public final <T> T readObject(final Class<T> expectedType) throws IOException {
@@ -149,7 +146,7 @@ public abstract class YggdrasilInputStream implements Closeable {
 			throw new StreamCorruptedException("Object " + o + " is of " + o.getClass() + " but expected " + expectedType);
 		return (T) o;
 	}
-	
+
 	@SuppressWarnings({"rawtypes", "unchecked", "null", "unused"})
 	@Nullable
 	private final Object readObject(final Tag t) throws IOException {
@@ -240,7 +237,7 @@ public abstract class YggdrasilInputStream implements Closeable {
 		readObjects.add(o);
 		return o;
 	}
-	
+
 //	private final static class Validation implements Comparable<Validation> {
 //		private final ObjectInputValidation v;
 //		private final int prio;
@@ -275,5 +272,5 @@ public abstract class YggdrasilInputStream implements Closeable {
 //			v.validate();
 //		validations.clear(); // if multiple objects are written to the stream this method will be called multiple times
 //	}
-	
+
 }

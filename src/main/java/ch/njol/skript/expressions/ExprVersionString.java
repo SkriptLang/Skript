@@ -1,31 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -39,13 +34,13 @@ import org.jetbrains.annotations.Nullable;
 @Name("Version String")
 @Description({
 	"The text to show if the protocol version of the server doesn't match with protocol version of the client. " +
-	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
+		"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
 	"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."
 })
 @Examples({
 	"on server list ping:",
-		"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
-		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
+	"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
+	"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2+")

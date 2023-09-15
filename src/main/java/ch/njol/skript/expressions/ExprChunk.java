@@ -1,24 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.Arrays;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -38,6 +36,8 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 @Name("Chunk")
 @Description("Returns the <a href='./classes.html#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
 @Examples({
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("2.0, INSERT VERSION (loaded chunks)")
 public class ExprChunk extends SimpleExpression<Chunk> {
-	
+
 	static {
 		Skript.registerExpression(ExprChunk.class, Chunk.class, ExpressionType.COMBINED,
 			"[(all [[of] the]|the)] chunk[s] (of|%-directions%) %locations%",
@@ -80,12 +80,12 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	protected Chunk[] get(Event event) {
 		if (pattern != 2) {
 			return locations.stream(event)
-					.map(Location::getChunk)
-					.toArray(Chunk[]::new);
+				.map(Location::getChunk)
+				.toArray(Chunk[]::new);
 		}
 		return worlds.stream(event)
-				.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
-				.toArray(Chunk[]::new);
+			.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
+			.toArray(Chunk[]::new);
 	}
 
 	@Override
@@ -115,7 +115,7 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	public Class<? extends Chunk> getReturnType() {
 		return Chunk.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (pattern == 2)

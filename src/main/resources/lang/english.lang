@@ -39,11 +39,6 @@ skript command:
 			description: Disables all scripts or a specific one
 			all: Disables all scripts
 			<script>: Disables a specific script or a folder of scripts
-		update:
-			description: Check for updates, read the changelog, or download the latest version of Skript
-			check: Checks for a new version
-			changes: Lists all changes since the current version
-			download: Download the newest version
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using doc-templates in plugin folder
 		test: Used for running internal Skript tests
@@ -100,15 +95,6 @@ skript command:
 			empty: <gold>%s<reset> does not contain any enabled scripts.
 			disabled: Successfully disabled <gold>%2$s<reset> script(s) in <gold>%1$s<reset>.
 			io error: Could not disable one or more scripts in <gold>%s<red> (some scripts might get disabled when the server restarts): %s
-	update:
-		# check/download: see Updater
-		changes:
-			# multiple versions:
-			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
-			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
-			# invalid version: No changelog for the version <gold>%s<red> available
-			title: <bold><cyan>%s<reset> (%s)
-			next page: <grey>page %s of %s. Type <gold>/skript update changes %s<gray> for the next page (hint: use the up arrow key)
 	info:
 		aliases: Skript's aliases can be found here: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skript's documentation can be found here: <aqua>https://docs.skriptlang.org/
@@ -117,24 +103,6 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
-
-# -- Updater --
-updater:
-	not started: Skript has not yet checked for the latest version. Use <gold>/skript update check<reset> to do so.
-	checking: Checking for the latest version of Skript...
-	check in progress: Checking for a new version is currently in progress.
-	updater disabled: The updater is disabled, so a check for the latest version of Skript was not performed.
-	check error: <red>There was an error checking for the latest version of Skript:<light red> %s
-	running latest version: You're currently running the latest stable version of Skript.
-	running latest version (beta): You're currently running a <i>beta<r> version of Skript, and no new <i>stable<r> version is available. Please note that you have to update to newer beta versions manually!
-	update available: A new version of Skript is available: <gold>%s<reset> (you're currently running <gold>%s<reset>)
-	downloading: Downloading Skript <gold>%s<reset>...
-	download in progress: The latest version of Skript is currently being downloaded.
-	download error: <red>There was an error downloading the latest version of Skript:<light red> %s
-	downloaded: The latest version of Skript has been downloaded! Restart the server or use /reload to apply the changes.
-	internal error: An internal error occurred while checking for the latest version of Skript. Please refer to the server log for details.
-	custom version: You're currently running a custom Skript version. No updates will be automatically installed.
-	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
 
 # -- Commands --
 commands:

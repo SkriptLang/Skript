@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package org.skriptlang.skript.lang.entry;
@@ -24,12 +24,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -50,7 +45,7 @@ public class EntryValidator {
 
 	private static final Function<String, String>
 		DEFAULT_UNEXPECTED_ENTRY_MESSAGE =
-			key -> "Unexpected entry '" + key + "'. Check whether it's spelled correctly or remove it",
+		key -> "Unexpected entry '" + key + "'. Check whether it's spelled correctly or remove it",
 		DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE =
 			key -> "Required entry '" + key + "' is missing";
 
@@ -96,7 +91,8 @@ public class EntryValidator {
 		List<Node> unhandledNodes = new ArrayList<>();
 
 		boolean ok = true;
-		nodeLoop: for (Node node : sectionNode) {
+		nodeLoop:
+		for (Node node : sectionNode) {
 			if (node.getKey() == null)
 				continue;
 
@@ -145,7 +141,8 @@ public class EntryValidator {
 		 */
 		public static final String DEFAULT_ENTRY_SEPARATOR = ": ";
 
-		private EntryValidatorBuilder() { }
+		private EntryValidatorBuilder() {
+		}
 
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;

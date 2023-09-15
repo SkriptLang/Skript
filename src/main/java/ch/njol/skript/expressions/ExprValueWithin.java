@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Value Within")
 @Description(
 	"Gets the value within objects. Usually used with variables to get the value they store rather than the variable itself, " +
-	"or with lists to get the values of a type."
+		"or with lists to get the values of a type."
 )
 @Examples({
 	"set {_entity} to a random entity out of all entities",
@@ -80,7 +80,7 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 			if (plural) {
 				Skript.error("You cannot get multiple elements of a single value");
 			} else {
-				Skript.error(exprs[1].toString(null, false) + " may contain more than one " + (classInfo == null ? "value" :  classInfo.getName()));
+				Skript.error(exprs[1].toString(null, false) + " may contain more than one " + (classInfo == null ? "value" : classInfo.getName()));
 			}
 			return false;
 		}

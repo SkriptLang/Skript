@@ -1,34 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.doc;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -47,6 +35,12 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * TODO list special expressions for events and event values
@@ -112,14 +106,14 @@ public class Documentation {
 		pw.println("-- syntax elements");
 //		pw.println("DROP TABLE IF EXISTS syntax_elements;");
 		pw.println("CREATE TABLE IF NOT EXISTS syntax_elements (" +
-				"id VARCHAR(20) NOT NULL PRIMARY KEY," +
-				"name VARCHAR(100) NOT NULL," +
-				"type ENUM('condition','effect','expression','event') NOT NULL," +
-				"patterns VARCHAR(2000) NOT NULL," +
-				"description VARCHAR(2000) NOT NULL," +
-				"examples VARCHAR(2000) NOT NULL," +
-				"since VARCHAR(100) NOT NULL" +
-				");");
+			"id VARCHAR(20) NOT NULL PRIMARY KEY," +
+			"name VARCHAR(100) NOT NULL," +
+			"type ENUM('condition','effect','expression','event') NOT NULL," +
+			"patterns VARCHAR(2000) NOT NULL," +
+			"description VARCHAR(2000) NOT NULL," +
+			"examples VARCHAR(2000) NOT NULL," +
+			"since VARCHAR(100) NOT NULL" +
+			");");
 		pw.println("UPDATE syntax_elements SET patterns='';");
 		pw.println();
 		pw.println("-- expressions");
@@ -151,14 +145,14 @@ public class Documentation {
 		pw.println("-- classes");
 //		pw.println("DROP TABLE IF EXISTS classes;");
 		pw.println("CREATE TABLE IF NOT EXISTS classes (" +
-				"id VARCHAR(20) NOT NULL PRIMARY KEY," +
-				"name VARCHAR(100) NOT NULL," +
-				"description VARCHAR(2000) NOT NULL," +
-				"patterns VARCHAR(2000) NOT NULL," +
-				"`usage` VARCHAR(2000) NOT NULL," +
-				"examples VARCHAR(2000) NOT NULL," +
-				"since VARCHAR(100) NOT NULL" +
-				");");
+			"id VARCHAR(20) NOT NULL PRIMARY KEY," +
+			"name VARCHAR(100) NOT NULL," +
+			"description VARCHAR(2000) NOT NULL," +
+			"patterns VARCHAR(2000) NOT NULL," +
+			"`usage` VARCHAR(2000) NOT NULL," +
+			"examples VARCHAR(2000) NOT NULL," +
+			"since VARCHAR(100) NOT NULL" +
+			");");
 		pw.println("UPDATE classes SET patterns='';");
 		pw.println();
 		for (final ClassInfo<?> info : Classes.getClassInfos()) {
@@ -170,12 +164,12 @@ public class Documentation {
 		pw.println();
 		pw.println("-- functions");
 		pw.println("CREATE TABLE IF NOT EXISTS functions (" +
-				"name VARCHAR(100) NOT NULL," +
-				"parameters VARCHAR(2000) NOT NULL," +
-				"description VARCHAR(2000) NOT NULL," +
-				"examples VARCHAR(2000) NOT NULL," +
-				"since VARCHAR(100) NOT NULL" +
-				");");
+			"name VARCHAR(100) NOT NULL," +
+			"parameters VARCHAR(2000) NOT NULL," +
+			"description VARCHAR(2000) NOT NULL," +
+			"examples VARCHAR(2000) NOT NULL," +
+			"since VARCHAR(100) NOT NULL" +
+			");");
 		for (final JavaFunction<?> func : Functions.getJavaFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
@@ -214,7 +208,7 @@ public class Documentation {
 			int depth = 0;
 			int charIndex = 0;
 			char[] chars = group.toCharArray();
-			for (int i = (startToEnd ? 0 : chars.length - 1); (startToEnd ? i < chars.length : i >= 0); i = (startToEnd ? i+1 : i-1)) {
+			for (int i = (startToEnd ? 0 : chars.length - 1); (startToEnd ? i < chars.length : i >= 0); i = (startToEnd ? i + 1 : i - 1)) {
 				char c = chars[i];
 				if (c == ')') {
 					depth++;
@@ -236,15 +230,14 @@ public class Documentation {
 				if (startToEnd) {
 					return "[" +
 						group.substring(0, charIndex)
-						.replace("(|", "") + // Ex. (|(t|y)) -> [(t|y)] & (|x(t|y)) -> [x(t|y)]
+							.replace("(|", "") + // Ex. (|(t|y)) -> [(t|y)] & (|x(t|y)) -> [x(t|y)]
 						"]" +
 						group.substring(charIndex + 1, chars.length); // Restore the unchanged after part
-				}
-				else {
+				} else {
 					return group.substring(0, charIndex) + // Restore the unchanged before part
 						"[" +
 						group.substring(charIndex + 1, chars.length)
-						.replace("|)", "") + // Ex. ((t|y)|) -> [(t|y)] & ((t|y)x|) -> [(t|y)x]
+							.replace("|)", "") + // Ex. ((t|y)|) -> [(t|y)] & ((t|y)x|) -> [(t|y)x]
 						"]";
 				}
 			} else {
@@ -319,15 +312,15 @@ public class Documentation {
 		}
 		final String patterns = cleanPatterns(StringUtils.join(info.patterns, "\n", 0, info.c == CondCompare.class ? 8 : info.patterns.length));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
-				"id, name, type, patterns, description, examples, since",
-				"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
-				escapeHTML("" + info.c.getSimpleName()),
-				escapeHTML(info.c.getAnnotation(Name.class).value()),
-				type,
-				patterns,
-				desc,
-				escapeHTML(StringUtils.join(info.c.getAnnotation(Examples.class).value(), "\n")),
-				since);
+			"id, name, type, patterns, description, examples, since",
+			"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
+			escapeHTML("" + info.c.getSimpleName()),
+			escapeHTML(info.c.getAnnotation(Name.class).value()),
+			type,
+			patterns,
+			desc,
+			escapeHTML(StringUtils.join(info.c.getAnnotation(Examples.class).value(), "\n")),
+			since);
 	}
 
 	private static void insertEvent(final PrintWriter pw, final SkriptEventInfo<?> info) {
@@ -351,15 +344,15 @@ public class Documentation {
 		}
 		final String patterns = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + StringUtils.join(info.patterns, "\n[on] ") : StringUtils.join(info.patterns, "\n"));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
-				"id, name, type, patterns, description, examples, since",
-				"patterns = '" + escapeSQL(patterns) + "'",
-				escapeHTML(info.getId()),
-				escapeHTML(info.getName()),
-				"event",
-				patterns,
-				desc,
-				escapeHTML(StringUtils.join(info.getExamples(), "\n")),
-				since);
+			"id, name, type, patterns, description, examples, since",
+			"patterns = '" + escapeSQL(patterns) + "'",
+			escapeHTML(info.getId()),
+			escapeHTML(info.getName()),
+			"event",
+			patterns,
+			desc,
+			escapeHTML(StringUtils.join(info.getExamples(), "\n")),
+			since);
 	}
 
 	private static void insertClass(final PrintWriter pw, final ClassInfo<?> info) {
@@ -378,15 +371,15 @@ public class Documentation {
 		}
 		final String patterns = info.getUserInputPatterns() == null ? "" : convertRegex(StringUtils.join(info.getUserInputPatterns(), "\n"));
 		insertOnDuplicateKeyUpdate(pw, "classes",
-				"id, name, description, patterns, `usage`, examples, since",
-				"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
-				escapeHTML(info.getCodeName()),
-				escapeHTML(info.getDocName()),
-				desc,
-				patterns,
-				usage,
-				escapeHTML(StringUtils.join(info.getExamples(), "\n")),
-				since);
+			"id, name, description, patterns, `usage`, examples, since",
+			"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
+			escapeHTML(info.getCodeName()),
+			escapeHTML(info.getDocName()),
+			desc,
+			patterns,
+			usage,
+			escapeHTML(StringUtils.join(info.getExamples(), "\n")),
+			since);
 	}
 
 	private static void insertFunction(final PrintWriter pw, final JavaFunction<?> func) {
@@ -403,11 +396,11 @@ public class Documentation {
 			return;
 		}
 		replaceInto(pw, "functions", "name, parameters, description, examples, since",
-				escapeHTML(func.getName()),
-				escapeHTML(params.toString()),
-				desc,
-				escapeHTML(StringUtils.join(func.getExamples(), "\n")),
-				since);
+			escapeHTML(func.getName()),
+			escapeHTML(params.toString()),
+			desc,
+			escapeHTML(StringUtils.join(func.getExamples(), "\n")),
+			since);
 	}
 
 	private static void insertOnDuplicateKeyUpdate(final PrintWriter pw, final String table, final String fields, final String update, final String... values) {
@@ -423,6 +416,7 @@ public class Documentation {
 	}
 
 	private static ArrayList<Pattern> validation = new ArrayList<>();
+
 	static {
 		validation.add(Pattern.compile("<" + "(?!a href='|/a>|br ?/|/?(i|b|u|code|pre|ul|li|em)>)"));
 		validation.add(Pattern.compile("(?<!</a|'|br ?/|/?(i|b|u|code|pre|ul|li|em))" + ">"));
@@ -442,7 +436,8 @@ public class Documentation {
 		}
 		html = "" + html.replaceAll("&(?!(amp|lt|gt|quot);)", "&amp;");
 		final Matcher m = Pattern.compile("<a href='(.*?)'>").matcher(html);
-		linkLoop: while (m.find()) {
+		linkLoop:
+		while (m.find()) {
 			final String url = m.group(1);
 			final String[] s = url.split("#");
 			if (s.length == 1)
@@ -467,7 +462,8 @@ public class Documentation {
 						try {
 							Class.forName("ch.njol.skript." + urls[i] + "." + s[1]);
 							continue;
-						} catch (final ClassNotFoundException e) {}
+						} catch (final ClassNotFoundException e) {
+						}
 					}
 				}
 			}

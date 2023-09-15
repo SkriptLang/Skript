@@ -1,29 +1,27 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.LanguageChangeListener;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,17 +33,15 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
+import java.util.*;
 
 @SuppressWarnings("deprecation")
 public abstract class PotionEffectUtils {
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
 
-	private PotionEffectUtils() {}
+	private PotionEffectUtils() {
+	}
 
 	final static Map<String, PotionEffectType> types = new HashMap<>();
 
@@ -60,7 +56,7 @@ public abstract class PotionEffectUtils {
 		}
 		return i;
 	}
-	
+
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -78,12 +74,12 @@ public abstract class PotionEffectUtils {
 			}
 		});
 	}
-	
+
 	@Nullable
 	public static PotionEffectType parseType(final String s) {
 		return types.get(s.toLowerCase(Locale.ENGLISH));
 	}
-	
+
 	// This is a stupid bandaid to fix comparison issues when converting potion datas
 	@Nullable
 	public static PotionEffectType parseByEffectType(PotionEffectType t) {
@@ -94,11 +90,11 @@ public abstract class PotionEffectUtils {
 		}
 		return null;
 	}
-	
+
 	public static String toString(PotionEffectType t) {
 		return names[t.getId()];
 	}
-	
+
 	// REMIND flags?
 	public static String toString(PotionEffectType t, int flags) {
 		return names[t.getId()];
@@ -122,7 +118,7 @@ public abstract class PotionEffectUtils {
 	public static String[] getNames() {
 		return names;
 	}
-	
+
 	public static short guessData(final ThrownPotion p) {
 		if (p.getEffects().size() == 1) {
 			final PotionEffect e = p.getEffects().iterator().next();
@@ -133,7 +129,7 @@ public abstract class PotionEffectUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Checks if given string represents a known potion type and returns that type.
 	 * Unused currently, will be used soon (TM).
@@ -188,10 +184,10 @@ public abstract class PotionEffectUtils {
 			case "luck":
 				return PotionType.LUCK;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Wrapper around deprecated API function, in case it gets removed.
 	 * Changing one method is easier that changing loads of them from different expressions.
@@ -202,7 +198,7 @@ public abstract class PotionEffectUtils {
 	public static PotionType effectToType(PotionEffectType effect) {
 		return PotionType.getByEffect(effect);
 	}
-	
+
 	/**
 	 * Get potion string representation.
 	 * @param effect
@@ -211,17 +207,17 @@ public abstract class PotionEffectUtils {
 	 * @return
 	 */
 	public static String getPotionName(@Nullable PotionEffectType effect, boolean extended, boolean strong) {
-		if (effect == null) return "bottle of water"; 
-		
+		if (effect == null) return "bottle of water";
+
 		String s = "";
 		if (extended) s += "extended";
 		else if (strong) s += "strong";
 		s += " potion of ";
 		s += toString(effect);
-		
+
 		return s;
 	}
-	
+
 	/**
 	 * Clear all the active {@link PotionEffect PotionEffects} from an Entity
 	 *
@@ -230,7 +226,7 @@ public abstract class PotionEffectUtils {
 	public static void clearAllEffects(LivingEntity entity) {
 		entity.getActivePotionEffects().forEach(potionEffect -> entity.removePotionEffect(potionEffect.getType()));
 	}
-	
+
 	/**
 	 * Add PotionEffects to an entity
 	 *
@@ -246,11 +242,11 @@ public abstract class PotionEffectUtils {
 				effect = new PotionEffect((PotionEffectType) object, 15 * 20, 0, false);
 			else
 				continue;
-			
+
 			entity.addPotionEffect(effect);
 		}
 	}
-	
+
 	/**
 	 * Remove a PotionEffect from an entity
 	 *
@@ -266,11 +262,11 @@ public abstract class PotionEffectUtils {
 				effectType = (PotionEffectType) object;
 			else
 				continue;
-			
+
 			entity.removePotionEffect(effectType);
 		}
 	}
-	
+
 	/**
 	 * Clear all {@link PotionEffect PotionEffects} from an ItemType
 	 *
@@ -284,7 +280,7 @@ public abstract class PotionEffectUtils {
 			((SuspiciousStewMeta) meta).clearCustomEffects();
 		itemType.setItemMeta(meta);
 	}
-	
+
 	/**
 	 * Add PotionEffects to an ItemTye
 	 *
@@ -301,7 +297,7 @@ public abstract class PotionEffectUtils {
 				effect = new PotionEffect((PotionEffectType) object, 15 * 20, 0, false);
 			else
 				continue;
-			
+
 			if (meta instanceof PotionMeta)
 				((PotionMeta) meta).addCustomEffect(effect, false);
 			else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)
@@ -309,7 +305,7 @@ public abstract class PotionEffectUtils {
 		}
 		itemType.setItemMeta(meta);
 	}
-	
+
 	/**
 	 * Remove a PotionEffect from an ItemType
 	 *
@@ -318,7 +314,7 @@ public abstract class PotionEffectUtils {
 	 */
 	public static void removeEffects(ItemType itemType, Object[] effects) {
 		ItemMeta meta = itemType.getItemMeta();
-		
+
 		for (Object object : effects) {
 			PotionEffectType effectType;
 			if (object instanceof PotionEffect)
@@ -327,7 +323,7 @@ public abstract class PotionEffectUtils {
 				effectType = (PotionEffectType) object;
 			else
 				continue;
-			
+
 			if (meta instanceof PotionMeta)
 				((PotionMeta) meta).removeCustomEffect(effectType);
 			else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)
@@ -335,7 +331,7 @@ public abstract class PotionEffectUtils {
 		}
 		itemType.setItemMeta(meta);
 	}
-	
+
 	/**
 	 * Get all the PotionEffects of an ItemType
 	 *
@@ -355,5 +351,5 @@ public abstract class PotionEffectUtils {
 			effects.addAll(((SuspiciousStewMeta) meta).getCustomEffects());
 		return effects;
 	}
-	
+
 }

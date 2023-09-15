@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.hooks.regions.events;
@@ -52,14 +52,14 @@ public class EvtRegionBorder extends SkriptEvent {
 		Skript.registerEvent("Region Enter/Leave", EvtRegionBorder.class, RegionBorderEvent.class,
 				"(:enter[ing]|leav(e|ing)|exit[ing]) [of] ([a] region|[[the] region] %-regions%)",
 				"region (:enter[ing]|leav(e|ing)|exit[ing])")
-				.description(
-					"Called when a player enters or leaves a <a href='./classes.html#region'>region</a>.",
-					"This event requires a supported regions plugin to be installed."
-				).examples(
-					"on region exit:",
-					"\tmessage \"Leaving %region%.\""
-				).since("2.1")
-				.requiredPlugins("Supported regions plugin");
+			.description(
+				"Called when a player enters or leaves a <a href='./classes.html#region'>region</a>.",
+				"This event requires a supported regions plugin to be installed."
+			).examples(
+				"on region exit:",
+				"\tmessage \"Leaving %region%.\""
+			).since("2.1")
+			.requiredPlugins("Supported regions plugin");
 		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, new Getter<Region, RegionBorderEvent>() {
 			@Override
 			public Region get(RegionBorderEvent e) {
@@ -122,9 +122,9 @@ public class EvtRegionBorder extends SkriptEvent {
 	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());
 
 	private static final AtomicBoolean REGISTERED_EXECUTORS = new AtomicBoolean();
-	
+
 	private boolean enter;
-	
+
 	@Nullable
 	private Literal<Region> regions;
 
@@ -141,9 +141,12 @@ public class EvtRegionBorder extends SkriptEvent {
 		TRIGGERS.add(trigger);
 		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
-			Bukkit.getPluginManager().registerEvent(PlayerMoveEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
-			Bukkit.getPluginManager().registerEvent(PlayerTeleportEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
-			Bukkit.getPluginManager().registerEvent(PlayerPortalEvent.class, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerMoveEvent.class, new Listener() {
+			}, priority, EXECUTOR, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerTeleportEvent.class, new Listener() {
+			}, priority, EXECUTOR, Skript.getInstance(), true);
+			Bukkit.getPluginManager().registerEvent(PlayerPortalEvent.class, new Listener() {
+			}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
 		return true;
 	}
@@ -167,7 +170,7 @@ public class EvtRegionBorder extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return (enter ? "enter" : "leave") + " of " + (regions == null ? "a region" : regions.toString(event, debug));
 	}
-	
+
 	private boolean applies(RegionBorderEvent event) {
 		if (enter != event.isEntering())
 			return false;
@@ -176,5 +179,5 @@ public class EvtRegionBorder extends SkriptEvent {
 		Region region = event.getRegion();
 		return regions.check(event, r -> r.equals(region));
 	}
-	
+
 }

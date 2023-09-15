@@ -1,27 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -31,15 +26,19 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Creeper Max Fuse Ticks")
 @Description("The max fuse ticks that a creeper has.")
 @Examples("set target entity's max fuse ticks to 20 #1 second")
 @Since("2.5")
 public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEntity, Long> {
-	
+
 	static {
-		if(Skript.methodExists(LivingEntity.class, "getMaxFuseTicks"))
+		if (Skript.methodExists(LivingEntity.class, "getMaxFuseTicks"))
 			register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
 	}
 
@@ -47,7 +46,7 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 	public Long convert(LivingEntity e) {
 		return e instanceof Creeper ? (long) ((Creeper) e).getMaxFuseTicks() : 0;
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
@@ -55,7 +54,7 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 			return null;
 		return CollectionUtils.array(Number.class);
 	}
-	
+
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
 		int d = delta == null ? 0 : ((Number) delta[0]).intValue();
@@ -83,7 +82,7 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 						c.setMaxFuseTicks(r2);
 						break;
 					case REMOVE_ALL:
-						assert false;		
+						assert false;
 				}
 			}
 		}
@@ -98,5 +97,5 @@ public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEnti
 	protected String getPropertyName() {
 		return "creeper max fuse ticks";
 	}
-	
+
 }

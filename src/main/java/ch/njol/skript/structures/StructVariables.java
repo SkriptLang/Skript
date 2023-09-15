@@ -1,42 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.structures;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptData;
-import org.skriptlang.skript.lang.structure.Structure;
-
-import com.google.common.collect.ImmutableList;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -58,6 +38,17 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.ImmutableList;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptData;
+import org.skriptlang.skript.lang.structure.Structure;
+
+import java.util.*;
 
 @Name("Variables")
 @Description({
@@ -66,12 +57,12 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Examples({
 	"variables:",
-		"\t{joins} = 0",
-		"\t{balance::%player%} = 0",
+	"\t{joins} = 0",
+	"\t{balance::%player%} = 0",
 	"",
 	"on join:",
-		"\tadd 1 to {joins}",
-		"\tmessage \"Your balance is %{balance::%player%}%\"",
+	"\tadd 1 to {joins}",
+	"\tmessage \"Your balance is %{balance::%player%}%\"",
 	""
 })
 @Since("1.0")
@@ -115,7 +106,7 @@ public class StructVariables extends Structure {
 		/**
 		 * Returns the type hints of a variable.
 		 * Can be null if no type hint was saved.
-		 * 
+		 *
 		 * @param variable The variable string of a variable.
 		 * @return type hints of a variable if found otherwise null.
 		 */
@@ -160,7 +151,7 @@ public class StructVariables extends Structure {
 			} else {
 				// TODO deprecated, remove this ability soon.
 				Skript.warning(
-						"It is suggested to use brackets around the name of a variable. Example: {example::%player%} = 5\n" +
+					"It is suggested to use brackets around the name of a variable. Example: {example::%player%} = 5\n" +
 						"Excluding brackets is deprecated, meaning this warning will become an error in the future."
 				);
 			}

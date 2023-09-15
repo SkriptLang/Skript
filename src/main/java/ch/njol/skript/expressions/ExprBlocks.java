@@ -1,33 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.Iterator;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.collect.Lists;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -44,26 +33,35 @@ import ch.njol.skript.util.BlockLineIterator;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Iterator;
 
 @Name("Blocks")
 @Description({"Blocks relative to other blocks or between other blocks. Can be used to get blocks relative to other blocks or for looping.",
-		"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
+	"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
 @Examples({"loop blocks above the player:",
-		"loop blocks between the block below the player and the targeted block:",
-		"set the blocks below the player, the victim and the targeted block to air",
-		"set all blocks within {loc1} and {loc2} to stone",
-		"set all blocks within chunk at player to air"})
+	"loop blocks between the block below the player and the targeted block:",
+	"set the blocks below the player, the victim and the targeted block to air",
+	"set all blocks within {loc1} and {loc2} to stone",
+	"set all blocks within chunk at player to air"})
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
 
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
-				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
-				"[(all [[of] the]|the)] blocks from %location% to %location%",
-				"[(all [[of] the]|the)] blocks between %location% and %location%",
-				"[(all [[of] the]|the)] blocks within %location% and %location%",
-				"[(all [[of] the]|the)] blocks (in|within) %chunk%");
+			"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
+			"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
+			"[(all [[of] the]|the)] blocks from %location% to %location%",
+			"[(all [[of] the]|the)] blocks between %location% and %location%",
+			"[(all [[of] the]|the)] blocks within %location% and %location%",
+			"[(all [[of] the]|the)] blocks (in|within) %chunk%");
 	}
 
 	@Nullable
@@ -114,11 +112,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			if (direction == null)
 				return new Block[0];
 			return from.stream(event)
-					.filter(Location.class::isInstance)
-					.map(Location.class::cast)
-					.map(direction::getRelative)
-					.map(Location::getBlock)
-					.toArray(Block[]::new);
+				.filter(Location.class::isInstance)
+				.map(Location.class::cast)
+				.map(direction::getRelative)
+				.map(Location::getBlock)
+				.toArray(Block[]::new);
 		}
 		Iterator<Block> iterator = iterator(event);
 		if (iterator == null)

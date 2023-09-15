@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.variables;
@@ -23,21 +23,11 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
+import ch.njol.skript.util.*;
 import ch.njol.util.NotifyingReference;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -163,7 +153,7 @@ public class FlatFileStorage extends VariablesStorage {
 		boolean update2_1 = false;
 
 		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
+			new InputStreamReader(Files.newInputStream(file.toPath()), FILE_CHARSET))) {
 			String line;
 			int lineNum = 0;
 			while ((line = reader.readLine()) != null) {
@@ -238,7 +228,7 @@ public class FlatFileStorage extends VariablesStorage {
 			// Something's wrong (or just an old version)
 			if (unsuccessfulVariableCount > 0) {
 				Skript.error(unsuccessfulVariableCount + " variable" + (unsuccessfulVariableCount == 1 ? "" : "s") +
-						" could not be loaded!");
+					" could not be loaded!");
 				Skript.error("Affected variables: " + invalid.toString());
 			}
 
@@ -440,7 +430,7 @@ public class FlatFileStorage extends VariablesStorage {
 						FileUtils.move(tempFile, file, true);
 					} catch (IOException e) {
 						Skript.error("Unable to make a final save of the database '" + databaseName +
-								"' (no variables are lost): " + ExceptionUtils.toString(e));
+							"' (no variables are lost): " + ExceptionUtils.toString(e));
 						// FIXME happens at random - check locks/threads
 					}
 				} finally {

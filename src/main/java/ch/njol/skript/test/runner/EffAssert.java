@@ -1,26 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.test.runner;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -34,11 +30,14 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Assert")
 @Description("Assert that condition is true. Test fails when it is not.")
 @NoDoc
-public class EffAssert extends Effect  {
+public class EffAssert extends Effect {
 
 	static {
 		if (TestMode.ENABLED)
@@ -59,14 +58,14 @@ public class EffAssert extends Effect  {
 		errorMsg = (Expression<String>) exprs[0];
 		shouldFail = parseResult.mark != 0;
 		script = getParser().getCurrentScript();
-		
+
 		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
 		try {
 			condition = Condition.parse(conditionString, "Can't understand this condition: " + conditionString);
-			
+
 			if (shouldFail)
 				return true;
-			
+
 			if (condition == null) {
 				logHandler.printError();
 			} else {
@@ -75,12 +74,13 @@ public class EffAssert extends Effect  {
 		} finally {
 			logHandler.stop();
 		}
-		
+
 		return condition != null;
 	}
 
 	@Override
-	protected void execute(Event event) {}
+	protected void execute(Event event) {
+	}
 
 	@Nullable
 	@Override

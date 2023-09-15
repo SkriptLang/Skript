@@ -1,36 +1,36 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util;
+
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * @author Peter Güttinger
  */
 public class Version implements Serializable, Comparable<Version> {
 	private final static long serialVersionUID = 8687040355286333293L;
-	
+
 	private final Integer[] version = new Integer[3];
 	/**
 	 * Everything after the version, e.g. "alpha", "b", "rc 1", "build 2314", "-SNAPSHOT" etc. or null if nothing.
@@ -73,12 +73,12 @@ public class Version implements Serializable, Comparable<Version> {
 			return false;
 		return compareTo((Version) obj) == 0;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(version) * 31 + (postfix == null ? 0 : postfix.hashCode());
 	}
-	
+
 	@Override
 	public int compareTo(@Nullable Version other) {
 		if (other == null)
@@ -115,39 +115,39 @@ public class Version implements Serializable, Comparable<Version> {
 	private int get(int i) {
 		return version[i] == null ? 0 : version[i];
 	}
-	
+
 	public boolean isSmallerThan(final Version other) {
 		return compareTo(other) < 0;
 	}
-	
+
 	public boolean isLargerThan(final Version other) {
 		return compareTo(other) > 0;
 	}
-	
+
 	/**
 	 * @return Whether this is a stable version, i.e. a simple version number without any additional details (like alpha/beta/etc.)
 	 */
 	public boolean isStable() {
 		return postfix == null;
 	}
-	
+
 	public int getMajor() {
 		return version[0];
 	}
-	
+
 	public int getMinor() {
 		return version[1];
 	}
-	
+
 	public int getRevision() {
 		return version[2] == null ? 0 : version[2];
 	}
-	
+
 	@Override
 	public String toString() {
 		return version[0] + "." + version[1] + (version[2] == null ? "" : "." + version[2]) + (postfix == null ? "" : "-" + postfix);
 	}
-	
+
 	public static int compare(final String v1, final String v2) {
 		return new Version(v1).compareTo(new Version(v2));
 	}

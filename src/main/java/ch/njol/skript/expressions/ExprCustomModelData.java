@@ -1,37 +1,32 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Custom Model Data")
 @Description("Get/set the CustomModelData tag for an item. (Value is an integer between 0 and 99999999)")
@@ -40,13 +35,13 @@ import ch.njol.util.coll.CollectionUtils;
 @RequiredPlugins("1.14+")
 @Since("2.5")
 public class ExprCustomModelData extends SimplePropertyExpression<ItemType, Long> {
-	
+
 	static {
 		if (Skript.methodExists(ItemMeta.class, "hasCustomModelData")) {
 			register(ExprCustomModelData.class, Long.class, "[custom] model data", "itemtypes");
 		}
 	}
-	
+
 	@Override
 	public Long convert(ItemType item) {
 		ItemMeta meta = item.getItemMeta();
@@ -56,22 +51,22 @@ public class ExprCustomModelData extends SimplePropertyExpression<ItemType, Long
 		else
 			return 0L;
 	}
-	
+
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		return CollectionUtils.array(Number.class);
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "custom model data";
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		long data = delta == null ? 0 : ((Number) delta[0]).intValue();
@@ -97,10 +92,10 @@ public class ExprCustomModelData extends SimplePropertyExpression<ItemType, Long
 			item.setItemMeta(meta);
 		}
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean d) {
 		return "custom model data of " + getExpr().toString(e, d);
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.events;
@@ -64,16 +64,16 @@ public class EvtSkript extends SkriptEvent {
 			STOP.clear();
 		}
 	}
-	
+
 	private boolean isStart;
-	
+
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		isStart = matchedPattern == 0;
 		if (parseResult.hasTag("server"))
 			Skript.warning(
 				"Server start/stop events are actually called when Skript is started or stopped." +
-				"It is thus recommended to use 'on Skript start/stop' instead."
+					"It is thus recommended to use 'on Skript start/stop' instead."
 			);
 		return true;
 	}
@@ -98,10 +98,10 @@ public class EvtSkript extends SkriptEvent {
 	public boolean isEventPrioritySupported() {
 		return false;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "on skript " + (isStart ? "start" : "stop");
 	}
-	
+
 }

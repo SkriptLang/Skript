@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -39,11 +39,11 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples("message \"You have %number of ores in the player's inventory% ores in your inventory.\"")
 @Since("2.0")
 public class ExprAmountOfItems extends SimpleExpression<Long> {
-  
+
 	static {
 		Skript.registerExpression(ExprAmountOfItems.class, Long.class, ExpressionType.PROPERTY, "[the] (amount|number) of %itemtypes% (in|of) %inventories%");
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -56,13 +56,14 @@ public class ExprAmountOfItems extends SimpleExpression<Long> {
 		inventories = (Expression<Inventory>) exprs[1];
 		return true;
 	}
-	
+
 	@Override
 	protected Long[] get(Event e) {
 		ItemType[] itemTypes = items.getArray(e);
 		long amount = 0;
 		for (Inventory inventory : inventories.getArray(e)) {
-			itemsLoop: for (ItemStack itemStack : inventory.getContents()) {
+			itemsLoop:
+			for (ItemStack itemStack : inventory.getContents()) {
 				if (itemStack != null) {
 					for (ItemType itemType : itemTypes) {
 						if (new ItemType(itemStack).isSimilar(itemType)) {
@@ -75,17 +76,17 @@ public class ExprAmountOfItems extends SimpleExpression<Long> {
 		}
 		return new Long[]{amount};
 	}
-	
+
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the number of " + items.toString(e, debug) + " in " + inventories.toString(e, debug);

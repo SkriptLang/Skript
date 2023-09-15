@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.events;
@@ -50,16 +50,16 @@ public class EvtExperienceSpawn extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Experience Spawn", EvtExperienceSpawn.class, ExperienceSpawnEvent.class,
-				"[e]xp[erience] [orb] spawn",
-				"spawn of [a[n]] [e]xp[erience] [orb]"
-			).description(
-				"Called whenever experience is about to spawn.",
-				"Please note that this event will not fire for xp orbs spawned by plugins (including Skript) with Bukkit."
-			).examples(
-				"on xp spawn:",
-				"\tworld is \"minigame_world\"",
-				"\tcancel event"
-			).since("2.0");
+			"[e]xp[erience] [orb] spawn",
+			"spawn of [a[n]] [e]xp[erience] [orb]"
+		).description(
+			"Called whenever experience is about to spawn.",
+			"Please note that this event will not fire for xp orbs spawned by plugins (including Skript) with Bukkit."
+		).examples(
+			"on xp spawn:",
+			"\tworld is \"minigame_world\"",
+			"\tcancel event"
+		).since("2.0");
 		EventValues.registerEventValue(ExperienceSpawnEvent.class, Location.class, new Getter<Location, ExperienceSpawnEvent>() {
 			@Override
 			public Location get(ExperienceSpawnEvent event) {
@@ -130,7 +130,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 			((PlayerFishEvent) event).setExpToDrop(experienceEvent.getSpawnedXP());
 		}
 	};
-	
+
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		return true;
@@ -143,7 +143,8 @@ public class EvtExperienceSpawn extends SkriptEvent {
 			EventPriority priority = SkriptConfig.defaultEventPriority.value();
 			//noinspection unchecked
 			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
-				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);
+				Bukkit.getPluginManager().registerEvent(clazz, new Listener() {
+				}, priority, EXECUTOR, Skript.getInstance(), true);
 		}
 		return true;
 	}
@@ -162,10 +163,10 @@ public class EvtExperienceSpawn extends SkriptEvent {
 	public boolean isEventPrioritySupported() {
 		return false;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "experience spawn";
 	}
-	
+
 }

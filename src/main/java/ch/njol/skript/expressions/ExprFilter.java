@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -30,15 +30,14 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.iterator.ArrayIterator;
 import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -49,8 +48,8 @@ import java.util.regex.Pattern;
 
 @Name("Filter")
 @Description("Filters a list based on a condition. " +
-		"For example, if you ran 'broadcast \"something\" and \"something else\" where [string input is \"something\"]', " +
-		"only \"something\" would be broadcast as it is the only string that matched the condition.")
+	"For example, if you ran 'broadcast \"something\" and \"something else\" where [string input is \"something\"]', " +
+	"only \"something\" would be broadcast as it is the only string that matched the condition.")
 @Examples("send \"congrats on being staff!\" to all players where [player input has permission \"staff\"]")
 @Since("2.2-dev36")
 @SuppressWarnings({"null", "unchecked"})
@@ -61,7 +60,7 @@ public class ExprFilter extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprFilter.class, Object.class, ExpressionType.COMBINED,
-				"%objects% (where|that match) \\[<.+>\\]");
+			"%objects% (where|that match) \\[<.+>\\]");
 	}
 
 	private Object current;
@@ -158,16 +157,16 @@ public class ExprFilter extends SimpleExpression<Object> {
 
 	@Name("Filter Input")
 	@Description("Represents the input in a filter expression. " +
-			"For example, if you ran 'broadcast \"something\" and \"something else\" where [input is \"something\"]" +
-			"the condition would be checked twice, using \"something\" and \"something else\" as the inputs.")
+		"For example, if you ran 'broadcast \"something\" and \"something else\" where [input is \"something\"]" +
+		"the condition would be checked twice, using \"something\" and \"something else\" as the inputs.")
 	@Examples("send \"congrats on being staff!\" to all players where [input has permission \"staff\"]")
 	@Since("2.2-dev36")
 	public static class ExprInput<T> extends SimpleExpression<T> {
 
 		static {
 			Skript.registerExpression(ExprInput.class, Object.class, ExpressionType.COMBINED,
-					"input",
-					"%*classinfo% input"
+				"input",
+				"%*classinfo% input"
 			);
 		}
 

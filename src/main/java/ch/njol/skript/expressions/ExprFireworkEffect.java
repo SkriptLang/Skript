@@ -1,26 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.bukkit.FireworkEffect;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -34,6 +30,9 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.FireworkEffect;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Firework Effect")
 @Description("Represents a 'firework effect' which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.")
@@ -45,16 +44,16 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 
 	static {
 		Skript.registerExpression(ExprFireworkEffect.class, FireworkEffect.class, ExpressionType.COMBINED,
-				"(1¦|2¦flickering|3¦trailing|4¦flickering trailing|5¦trailing flickering) %fireworktype% [firework [effect]] colo[u]red %colors%",
-				"(1¦|2¦flickering|3¦trailing|4¦flickering trailing|5¦trailing flickering) %fireworktype% [firework [effect]] colo[u]red %colors% fad(e|ing) [to] %colors%");
+			"(1¦|2¦flickering|3¦trailing|4¦flickering trailing|5¦trailing flickering) %fireworktype% [firework [effect]] colo[u]red %colors%",
+			"(1¦|2¦flickering|3¦trailing|4¦flickering trailing|5¦trailing flickering) %fireworktype% [firework [effect]] colo[u]red %colors% fad(e|ing) [to] %colors%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<FireworkEffect.Type> type;
 	@SuppressWarnings("null")
 	private Expression<Color> color, fade;
 	private boolean flicker, trail, hasFade;
-	
+
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -67,7 +66,7 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 			fade = (Expression<Color>) exprs[2];
 		return true;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
@@ -77,7 +76,7 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 	public Class<? extends FireworkEffect> getReturnType() {
 		return FireworkEffect.class;
 	}
-	
+
 	@Override
 	@Nullable
 	protected FireworkEffect[] get(Event e) {
@@ -85,13 +84,13 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 		if (type == null)
 			return null;
 		FireworkEffect.Builder builder = FireworkEffect.builder().with(type);
-		
+
 		for (Color colour : color.getArray(e))
 			builder.withColor(colour.asBukkitColor());
 		if (hasFade)
 			for (Color colour : fade.getArray(e))
 				builder.withFade(colour.asBukkitColor());
-		
+
 		builder.flicker(flicker);
 		builder.trail(trail);
 		return CollectionUtils.array(builder.build());
@@ -100,6 +99,6 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "Firework effect " + type.toString(e, debug) + " with color " + color.toString(e, debug);
-	}	
-	
+	}
+
 }

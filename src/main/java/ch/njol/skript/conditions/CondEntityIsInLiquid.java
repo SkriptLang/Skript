@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
@@ -29,13 +29,13 @@ import org.bukkit.entity.Entity;
 @Name("Entity is in Liquid")
 @Description("Checks whether an entity is in rain, lava, water or a bubble column.")
 @Examples({"if player is in rain:",
-		"if player is in water:",
-		"player is in lava:",
-		"player is in bubble column"})
+	"if player is in water:",
+	"player is in lava:",
+	"player is in bubble column"})
 @RequiredPlugins("Minecraft 1.16+ (in water), Paper 1.16+ (in rain, lava and bubble column)")
 @Since("2.6.1")
 public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
-	
+
 	static {
 		StringBuilder patterns = new StringBuilder();
 		if (Skript.methodExists(Entity.class, "isInWater")) {
@@ -58,7 +58,7 @@ public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 		mark = parseResult.mark;
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(Entity entity) {
 		switch (mark) {

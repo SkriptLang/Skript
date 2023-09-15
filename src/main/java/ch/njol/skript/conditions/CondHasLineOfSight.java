@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
@@ -36,18 +36,18 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Has Line of Sight")
 @Description("Checks whether living entities have an unobstructed line of sight to other entities or locations.")
 @Examples({
-		"player has direct line of sight to location 5 blocks to the right of player",
-		"victim has line of sight to attacker",
-		"player has no line of sight to location 100 blocks in front of player"
+	"player has direct line of sight to location 5 blocks to the right of player",
+	"victim has line of sight to attacker",
+	"player has no line of sight to location 100 blocks in front of player"
 })
 @Since("INSERT VERSION")
 public class CondHasLineOfSight extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasLineOfSight.class,
-				"%livingentities% (has|have) [a] [direct] line of sight to %entities/locations%",
-				"%livingentities% does(n't| not) have [a] [direct] line of sight to %entities/locations%",
-				"%livingentities% (has|have) no [direct] line of sight to %entities/locations%");
+			"%livingentities% (has|have) [a] [direct] line of sight to %entities/locations%",
+			"%livingentities% does(n't| not) have [a] [direct] line of sight to %entities/locations%",
+			"%livingentities% (has|have) no [direct] line of sight to %entities/locations%");
 	}
 
 	private Expression<LivingEntity> viewers;
@@ -76,7 +76,7 @@ public class CondHasLineOfSight extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return viewers.toString(event, debug) + " has" + (isNegated() ? " no" : "") + " line of sight to " + targets.toString(event,debug);
+		return viewers.toString(event, debug) + " has" + (isNegated() ? " no" : "") + " line of sight to " + targets.toString(event, debug);
 	}
 
 }

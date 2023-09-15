@@ -1,29 +1,23 @@
 /**
  * This file is part of Skript.
- *
+ * <p>
  * Skript is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * Skript is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
+ * <p>
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -33,6 +27,11 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Projectile Critical State")
 @Description("A projectile's critical state. The only currently accepted projectiles are arrows and tridents.")
@@ -41,13 +40,13 @@ import ch.njol.util.coll.CollectionUtils;
 	"\tset projectile critical mode of event-projectile to true"})
 @Since("2.5.1")
 public class ExprProjectileCriticalState extends SimplePropertyExpression<Projectile, Boolean> {
-	
+
 	private static final boolean abstractArrowExists = Skript.classExists("org.bukkit.entity.AbstractArrow");
-	
+
 	static {
 		register(ExprProjectileCriticalState.class, Boolean.class, "(projectile|arrow) critical (state|ability|mode)", "projectiles");
 	}
-	
+
 	@Nullable
 	@Override
 	public Boolean convert(Projectile arrow) {
@@ -55,13 +54,13 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 			return arrow instanceof AbstractArrow ? ((AbstractArrow) arrow).isCritical() : null;
 		return arrow instanceof Arrow ? ((Arrow) arrow).isCritical() : null;
 	}
-	
+
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return (mode == ChangeMode.SET) ? CollectionUtils.array(Boolean.class) : null;
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null) return;
@@ -74,15 +73,15 @@ public class ExprProjectileCriticalState extends SimplePropertyExpression<Projec
 			}
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Boolean> getReturnType() {
 		return Boolean.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "critical arrow state";
 	}
-	
+
 }

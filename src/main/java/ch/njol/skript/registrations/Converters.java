@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.registrations;
@@ -31,9 +31,10 @@ import java.util.stream.Collectors;
  */
 @Deprecated
 public abstract class Converters {
-	
-	private Converters() {}
-	
+
+	private Converters() {
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <F, T> List<ConverterInfo<?, ?>> getConverters() {
 		return org.skriptlang.skript.lang.converter.Converters.getConverterInfos().stream()
@@ -43,10 +44,10 @@ public abstract class Converters {
 			})
 			.collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * Registers a converter.
-	 * 
+	 *
 	 * @param from Type that the converter converts from.
 	 * @param to  Type that the converter converts to.
 	 * @param converter Actual converter.
@@ -54,20 +55,20 @@ public abstract class Converters {
 	public static <F, T> void registerConverter(Class<F> from, Class<T> to, Converter<F, T> converter) {
 		registerConverter(from, to, converter, 0);
 	}
-	
+
 	public static <F, T> void registerConverter(Class<F> from, Class<T> to, Converter<F, T> converter, int options) {
 		org.skriptlang.skript.lang.converter.Converters.registerConverter(from, to, converter::convert, options);
 	}
-	
+
 	// REMIND how to manage overriding of converters? - shouldn't actually matter
 	public static void createMissingConverters() {
 		org.skriptlang.skript.lang.converter.Converters.createChainedConverters();
 	}
-	
+
 	/**
 	 * Converts the given value to the desired type. If you want to convert multiple values of the same type you should use {@link #getConverter(Class, Class)} to get a
 	 * converter to convert the values.
-	 * 
+	 *
 	 * @param o
 	 * @param to
 	 * @return The converted value or null if no converter exists or the converter returned null for the given value.
@@ -76,12 +77,12 @@ public abstract class Converters {
 	public static <F, T> T convert(final @Nullable F o, final Class<T> to) {
 		return org.skriptlang.skript.lang.converter.Converters.convert(o, to);
 	}
-	
+
 	/**
 	 * Converts an object into one of the given types.
 	 * <p>
 	 * This method does not convert the object if it is already an instance of any of the given classes.
-	 * 
+	 *
 	 * @param o
 	 * @param to
 	 * @return The converted object
@@ -90,11 +91,11 @@ public abstract class Converters {
 	public static <F, T> T convert(final @Nullable F o, final Class<? extends T>[] to) {
 		return org.skriptlang.skript.lang.converter.Converters.convert(o, to);
 	}
-	
+
 	/**
 	 * Converts all entries in the given array to the desired type, using {@link #convert(Object, Class)} to convert every single value. If you want to convert an array of values
 	 * of a known type, consider using {@link #convert(Object[], Class, Converter)} for much better performance.
-	 * 
+	 *
 	 * @param o
 	 * @param to
 	 * @return A T[] array without null elements
@@ -106,10 +107,10 @@ public abstract class Converters {
 			return null;
 		return converted;
 	}
-	
+
 	/**
 	 * Converts multiple objects into any of the given classes.
-	 * 
+	 *
 	 * @param o
 	 * @param to
 	 * @param superType The component type of the returned array
@@ -144,10 +145,10 @@ public abstract class Converters {
 	public static <T> T convertStrictly(Object original, Class<T> to) throws ClassCastException {
 		return org.skriptlang.skript.lang.converter.Converters.convertStrictly(original, to);
 	}
-	
+
 	/**
 	 * Tests whether a converter between the given classes exists.
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 * @return Whether a converter exists
@@ -155,14 +156,14 @@ public abstract class Converters {
 	public static boolean converterExists(final Class<?> from, final Class<?> to) {
 		return org.skriptlang.skript.lang.converter.Converters.converterExists(from, to);
 	}
-	
+
 	public static boolean converterExists(final Class<?> from, final Class<?>... to) {
 		return org.skriptlang.skript.lang.converter.Converters.converterExists(from, to);
 	}
-	
+
 	/**
 	 * Gets a converter
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 * @return the converter or null if none exist
@@ -175,10 +176,10 @@ public abstract class Converters {
 			return null;
 		return (Converter<F, T>) converter::convert;
 	}
-	
+
 	/**
 	 * Gets a converter that has been registered before.
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 * @return The converter info or null if no converters were found.
@@ -191,7 +192,7 @@ public abstract class Converters {
 			return null;
 		return new ConverterInfo<>(info.getFrom(), info.getTo(), info.getConverter()::convert, info.getFlags());
 	}
-	
+
 	/**
 	 * @param from
 	 * @param to
@@ -202,9 +203,9 @@ public abstract class Converters {
 	public static <F, T> T[] convertUnsafe(final F[] from, final Class<?> to, final Converter<? super F, ? extends T> conv) {
 		return org.skriptlang.skript.lang.converter.Converters.convertUnsafe(from, to, conv::convert);
 	}
-	
+
 	public static <F, T> T[] convert(final F[] from, final Class<T> to, final Converter<? super F, ? extends T> conv) {
 		return org.skriptlang.skript.lang.converter.Converters.convert(from, to, conv::convert);
 	}
-	
+
 }

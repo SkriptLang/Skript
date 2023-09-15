@@ -1,34 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.variables;
-
-import java.io.File;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -42,6 +30,17 @@ import ch.njol.util.SynchronizedReference;
 import lib.PatPeter.SQLibrary.Database;
 import lib.PatPeter.SQLibrary.DatabaseException;
 import lib.PatPeter.SQLibrary.SQLibrary;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * TODO create a metadata table to store some properties (e.g. Skript version, Yggdrasil version) -- but what if some variables cannot be converted? move them to a different table?
@@ -52,8 +51,8 @@ import lib.PatPeter.SQLibrary.SQLibrary;
 public abstract class SQLStorage extends VariablesStorage {
 
 	public final static int MAX_VARIABLE_NAME_LENGTH = 380, // MySQL: 767 bytes max; cannot set max bytes, only max characters
-			MAX_CLASS_CODENAME_LENGTH = 50, // checked when registering a class
-			MAX_VALUE_SIZE = 10000;
+		MAX_CLASS_CODENAME_LENGTH = 50, // checked when registering a class
+		MAX_VALUE_SIZE = 10000;
 
 	private final static String SELECT_ORDER = "name, type, value, rowid";
 
@@ -78,7 +77,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	/**
 	 * Creates a SQLStorage with a create table query.
-	 * 
+	 *
 	 * @param name The name to be sent through this constructor when newInstance creates this class.
 	 * @param createTableQuery The create table query to send to the SQL engine.
 	 */
@@ -98,7 +97,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	/**
 	 * Initializes an SQL database with the user provided configuration section for loading the database.
-	 * 
+	 *
 	 * @param config The configuration from the config.sk that defines this database.
 	 * @return A Database implementation from SQLibrary.
 	 */
@@ -159,7 +158,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				final boolean hasOldTable = db.isTable(OLD_TABLE_NAME);
 				final boolean hadNewTable = db.isTable(getTableName());
 
-				if (getFormattedCreateQuery() == null){
+				if (getFormattedCreateQuery() == null) {
 					Skript.error("Could not create the variables table in the database. The query to create the variables table '" + tableName + "' in the database '" + databaseName + "' is null.");
 					return false;
 				}
@@ -168,14 +167,14 @@ public abstract class SQLStorage extends VariablesStorage {
 					db.query(getFormattedCreateQuery());
 				} catch (final SQLException e) {
 					Skript.error("Could not create the variables table '" + tableName + "' in the database '" + databaseName + "': " + e.getLocalizedMessage() + ". "
-							+ "Please create the table yourself using the following query: " + String.format(createTableQuery, tableName).replace(",", ", ").replaceAll("\\s+", " "));
+						+ "Please create the table yourself using the following query: " + String.format(createTableQuery, tableName).replace(",", ", ").replaceAll("\\s+", " "));
 					return false;
 				}
 
 				if (!prepareQueries()) {
 					return false;
 				}
-				
+
 				// old
 				// Table name support was added after the verison that used the legacy database format
 				if (hasOldTable && !tableName.equals("variables")) {
@@ -205,8 +204,7 @@ public abstract class SQLStorage extends VariablesStorage {
 							Variables.getReadLock().lock();
 							for (final Entry<String, Object> v : Variables.getVariablesHashMap().entrySet()) {
 								if (accept(v.getKey())) {// only one database was possible, so only checking this database is correct
-									@SuppressWarnings("null")
-									final SerializedVariable var = Variables.serialize(v.getKey(), v.getValue());
+									@SuppressWarnings("null") final SerializedVariable var = Variables.serialize(v.getKey(), v.getValue());
 									final SerializedVariable.Value d = var.value;
 									save(var.name, d == null ? null : d.type, d == null ? null : d.data);
 								}
@@ -222,8 +220,8 @@ public abstract class SQLStorage extends VariablesStorage {
 					try {
 						if (r.next()) {// i.e. the old table is not empty
 							Skript.error("Could not successfully convert & transfer all variables to the new table in the database '" + databaseName + "'. "
-									+ "Variables that could not be transferred are left in the old table and Skript will reattempt to transfer them whenever it starts until the old table is empty or is manually deleted. "
-									+ "Please note that variables recreated by scripts will count as converted and will be removed from the old table on the next restart.");
+								+ "Variables that could not be transferred are left in the old table and Skript will reattempt to transfer them whenever it starts until the old table is empty or is manually deleted. "
+								+ "Please note that variables recreated by scripts will count as converted and will be removed from the old table on the next restart.");
 						} else {
 							boolean error = false;
 							try {
@@ -258,11 +256,13 @@ public abstract class SQLStorage extends VariablesStorage {
 								final Database db = SQLStorage.this.db.get();
 								if (db != null)
 									db.query("SELECT * FROM " + getTableName() + " LIMIT 1");
-							} catch (final SQLException e) {}
+							} catch (final SQLException e) {
+							}
 						}
 						try {
 							Thread.sleep(1000 * 10);
-						} catch (final InterruptedException e) {}
+						} catch (final InterruptedException e) {
+						}
 					}
 				}
 			}, "Skript database '" + databaseName + "' connection keep-alive thread").start();
@@ -293,7 +293,8 @@ public abstract class SQLStorage extends VariablesStorage {
 					}
 					try {
 						Thread.sleep(Math.max(0, lastCommit + TRANSACTION_DELAY - System.currentTimeMillis()));
-					} catch (final InterruptedException e) {}
+					} catch (final InterruptedException e) {
+					}
 				}
 			}
 		}, "Skript database '" + databaseName + "' transaction committing thread").start();
@@ -304,7 +305,8 @@ public abstract class SQLStorage extends VariablesStorage {
 				public void run() {
 					try { // variables were just downloaded, not need to check for modifications straight away
 						Thread.sleep(monitor_interval);
-					} catch (final InterruptedException e1) {}
+					} catch (final InterruptedException e1) {
+					}
 
 					long lastWarning = Long.MIN_VALUE;
 					final int WARING_INTERVAL = 10;
@@ -316,14 +318,15 @@ public abstract class SQLStorage extends VariablesStorage {
 						if (next < now && lastWarning + WARING_INTERVAL * 1000 < now) {
 							// TODO don't print this message when Skript loads (because scripts are loaded after variables and take some time)
 							Skript.warning("Cannot load variables from the database fast enough (loading took " + ((now - next + monitor_interval) / 1000.) + "s, monitor interval = " + (monitor_interval / 1000.) + "s). " +
-									"Please increase your monitor interval or reduce usage of variables. " +
-									"(this warning will be repeated at most once every " + WARING_INTERVAL + " seconds)");
+								"Please increase your monitor interval or reduce usage of variables. " +
+								"(this warning will be repeated at most once every " + WARING_INTERVAL + " seconds)");
 							lastWarning = now;
 						}
 						while (System.currentTimeMillis() < next) {
 							try {
 								Thread.sleep(next - System.currentTimeMillis());
-							} catch (final InterruptedException e) {}
+							} catch (final InterruptedException e) {
+							}
 						}
 					}
 				}
@@ -380,24 +383,28 @@ public abstract class SQLStorage extends VariablesStorage {
 				try {
 					if (writeQuery != null)
 						writeQuery.close();
-				} catch (final SQLException e) {}
+				} catch (final SQLException e) {
+				}
 				writeQuery = db.prepare("REPLACE INTO " + getTableName() + " (name, type, value, update_guid) VALUES (?, ?, ?, ?)");
 
 				try {
 					if (deleteQuery != null)
 						deleteQuery.close();
-				} catch (final SQLException e) {}
+				} catch (final SQLException e) {
+				}
 				deleteQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE name = ?");
 
 				try {
 					if (monitorQuery != null)
 						monitorQuery.close();
-				} catch (final SQLException e) {}
+				} catch (final SQLException e) {
+				}
 				monitorQuery = db.prepare("SELECT " + SELECT_ORDER + " FROM " + getTableName() + " WHERE rowid > ? AND update_guid != ?");
 				try {
 					if (monitorCleanUpQuery != null)
 						monitorCleanUpQuery.close();
-				} catch (final SQLException e) {}
+				} catch (final SQLException e) {
+				}
 				monitorCleanUpQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE value IS NULL AND rowid < ?");
 			} catch (final SQLException e) {
 				Skript.exception(e, "Could not prepare queries for the database '" + databaseName + "': " + e.getLocalizedMessage());

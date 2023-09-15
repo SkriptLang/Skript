@@ -5,13 +5,12 @@ import java.time.LocalTime
 
 plugins {
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
-	id 'com.github.hierynomus.license' version '0.16.1'
 	id 'maven-publish'
 	id 'java'
 }
 
 configurations {
-    testImplementation.extendsFrom testShadow
+	testImplementation.extendsFrom testShadow
 }
 
 allprojects {
@@ -54,7 +53,6 @@ task checkAliases {
 }
 
 task testJar(type: ShadowJar) {
-	dependsOn(compileTestJava, licenseTest)
 	archiveFileName = 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
@@ -140,15 +138,6 @@ publishing {
 	}
 }
 
-license {
-	header file('licenseheader.txt')
-	exclude('**/Metrics.java') // Not under GPLv3
-	exclude('**/BurgerHelper.java') // Not exclusively GPLv3
-	exclude('**/*.sk') // Sample scripts and maybe aliases
-	exclude('**/*.lang') // Language files do not have headers (still under GPLv3)
-	exclude('**/*.json') // JSON files do not have headers
-}
-
 task releaseJavadoc(type: Javadoc) {
 	title = project.property('version')
 	source = sourceSets.main.allJava
@@ -209,8 +198,8 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			dependsOn nightlyRelease, testNaming
 		}
 		javaLauncher = javaToolchains.launcherFor {
-	        languageVersion = JavaLanguageVersion.of(javaVersion)
-	    }
+			languageVersion = JavaLanguageVersion.of(javaVersion)
+		}
 		if (modifiers.contains(Modifiers.DEV_MODE)) {
 			standardInput = System.in
 		}
@@ -239,7 +228,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
 				if (!project.hasProperty('profiler'))
 					throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
-	
+
 				args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
 			}
 		}
@@ -251,7 +240,7 @@ def latestJava = 17
 def oldestJava = 8
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
+	toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -267,129 +256,9 @@ String env = project.property('testEnv') == null ? latestEnv : project.property(
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava)
 createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', latestJava)
-createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', environments + 'java8', oldestJava)
-createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
-createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, Modifiers.PROFILE)
-createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, Modifiers.GEN_NIGHTLY_DOCS)
-createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, Modifiers.GEN_RELEASE_DOCS)
-tasks.register('skriptTest') {
-	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava8, skriptTestJava17
-}
-
-createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, Modifiers.JUNIT)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', latestJava, Modifiers.JUNIT)
-createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', environments + 'java8', oldestJava, Modifiers.JUNIT)
-tasks.register('JUnit') {
-	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava8, JUnitJava17
-}
-
-// Build flavor configurations
-task githubResources(type: ProcessResources) {
-	from 'src/main/resources', {
-		include '**'
-		version = project.property('version')
-		def channel = 'stable'
-		if (version.contains('alpha'))
-			channel = 'alpha'
-		else if (version.contains('beta'))
-			channel = 'beta'
-		filter ReplaceTokens, tokens: [
-			'version'         : version,
-			'today'           : '' + LocalTime.now(),
-			'release-flavor'  : 'skriptlang-github', // SkriptLang build, distributed on Github
-			'release-channel' : channel, // Release channel, see above
-			'release-updater' : 'ch.njol.skript.update.GithubChecker', // Github API client
-			'release-source'  : 'https://api.github.com/repos/SkriptLang/Skript/releases', // Github API URL
-			'release-download': 'null' // Update checker will figure it out
-		]
-	}
-	into 'build/resources/main'
-}
-
-task githubRelease(type: ShadowJar) {
-	from sourceSets.main.output
-	dependsOn githubResources
-	archiveFileName = 'Skript-github.jar'
-	manifest {
-		attributes(
-			'Name': 'ch/njol/skript',
-			'Automatic-Module-Name': 'ch.njol.skript',
-			'Sealed': 'true'
-		)
-	}
-}
-
-task spigotResources(type: ProcessResources) {
-	from 'src/main/resources', {
-		include '**'
-		version = project.property('version')
-		def channel = 'stable'
-		if (version.contains('alpha'))
-			channel = 'alpha'
-		else if (version.contains('beta'))
-			channel = 'beta'
-		filter ReplaceTokens, tokens: [
-			'version'         : version,
-			'today'           : '' + LocalTime.now(),
-			'release-flavor'  : 'skriptlang-spigot', // SkriptLang build, distributed on Spigot resources
-			'release-channel' : channel, // Release channel, see above
-			'release-updater' : 'ch.njol.skript.update.GithubChecker', // Github API client
-			'release-source'  : 'https://api.github.com/repos/SkriptLang/Skript/releases', // Github API URL
-			'release-download': '\'http://example.com\'' // TODO insert Spigot URL
-		]
-	}
-	into 'build/resources/main'
-}
-
-task spigotRelease(type: ShadowJar) {
-	from sourceSets.main.output
-	dependsOn spigotResources
-	archiveFileName = 'Skript-spigot.jar'
-	manifest {
-		attributes(
-			'Name': 'ch/njol/skript',
-			'Automatic-Module-Name': 'ch.njol.skript',
-			'Sealed': 'true'
-		)
-	}
-}
-
-task nightlyResources(type: ProcessResources) {
-	from 'src/main/resources', {
-		include '**'
-		def hash = 'git rev-parse --short HEAD'.execute().text.trim()
-		version = project.property('version') + '-nightly-' + hash
-		filter ReplaceTokens, tokens: [
-			'version'         : version,
-			'today'           : '' + LocalTime.now(),
-			'release-flavor'  : 'skriptlang-nightly', // SkriptLang build, automatically done by CI
-			'release-channel' : 'alpha', // No update checking, but these are VERY unstable
-			'release-updater' : 'ch.njol.skript.update.NoUpdateChecker', // No autoupdates for now
-			'release-source'  : '',
-			'release-download': 'null'
-		]
-	}
-	into 'build/resources/main'
-}
-
-task nightlyRelease(type: ShadowJar) {
-	from sourceSets.main.output
-	dependsOn nightlyResources, licenseMain
-	archiveFileName = 'Skript-nightly.jar'
-	manifest {
-		attributes(
-			'Name': 'ch/njol/skript',
-			'Automatic-Module-Name': 'ch.njol.skript',
-			'Sealed': 'true'
-		)
-	}
-}
 
 javadoc {
-	dependsOn nightlyResources
-	
+
 	source = sourceSets.main.allJava
 
 	exclude("ch/njol/skript/conditions/**")
@@ -402,10 +271,9 @@ javadoc {
 	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
 	exclude("ch/njol/skript/hooks/**")
 	exclude("ch/njol/skript/test/**")
-	
+
 	classpath = configurations.compileClasspath + sourceSets.main.output
 	options.encoding = 'UTF-8'
 	// currently our javadoc has a lot of errors, so we need to suppress the linter
 	options.addStringOption('Xdoclint:none', '-quiet')
 }
-

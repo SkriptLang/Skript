@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.util;
@@ -29,25 +29,25 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public final class EnumUtils<E extends Enum<E>> {
-	
+
 	private final Class<E> c;
 	private final String languageNode;
 
 	private String[] names;
 	private final HashMap<String, E> parseMap = new HashMap<>();
-	
+
 	public EnumUtils(Class<E> c, String languageNode) {
 		assert c != null && c.isEnum() : c;
 		assert languageNode != null && !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
-		
+
 		this.c = c;
 		this.languageNode = languageNode;
 
 		names = new String[c.getEnumConstants().length];
-		
+
 		Language.addListener(() -> validate(true));
 	}
-	
+
 	/**
 	 * Updates the names if the language has changed or the enum was modified (using reflection).
 	 */
@@ -98,7 +98,7 @@ public final class EnumUtils<E extends Enum<E>> {
 			}
 		}
 	}
-	
+
 	@Nullable
 	public E parse(String s) {
 		validate(false);
@@ -109,10 +109,10 @@ public final class EnumUtils<E extends Enum<E>> {
 		validate(false);
 		return names[e.ordinal()];
 	}
-	
+
 	public String getAllNames() {
 		validate(false);
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
-	
+
 }

@@ -1,37 +1,36 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang.function;
 
-import java.util.Arrays;
-
-import org.bukkit.Bukkit;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
 
 /**
  * Functions can be called using arguments.
  */
 public abstract class Function<T> {
-	
+
 	/**
 	 * Execute functions even when some parameters are not present.
 	 * Field is updated by SkriptConfig in case of reloads.
@@ -39,11 +38,11 @@ public abstract class Function<T> {
 	public static boolean executeWithNulls = SkriptConfig.executeFunctionsWithMissingParams.value();
 
 	private final Signature<T> sign;
-	
+
 	public Function(Signature<T> sign) {
 		this.sign = sign;
 	}
-	
+
 	/**
 	 * Gets signature of this function that contains all metadata about it.
 	 * @return A function signature.
@@ -51,31 +50,31 @@ public abstract class Function<T> {
 	public Signature<T> getSignature() {
 		return sign;
 	}
-	
+
 	public String getName() {
 		return sign.getName();
 	}
-	
+
 	public Parameter<?>[] getParameters() {
 		return sign.getParameters();
 	}
-	
+
 	@SuppressWarnings("null")
 	public Parameter<?> getParameter(int index) {
 		return getParameters()[index];
 	}
-	
+
 	public boolean isSingle() {
 		return sign.isSingle();
 	}
-	
+
 	@Nullable
 	public ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
 	}
-	
+
 	// FIXME what happens with a delay in a function?
-	
+
 	/**
 	 * Executes this function with given parameter.
 	 * @param params Function parameters. Must contain at least
@@ -87,24 +86,24 @@ public abstract class Function<T> {
 	@Nullable
 	public final T[] execute(Object[][] params) {
 		FunctionEvent<? extends T> e = new FunctionEvent<>(this);
-		
+
 		// Call function event only if requested by addon
 		// Functions may be called VERY often, so this might have performance impact
 		if (Functions.callFunctionEvents)
 			Bukkit.getPluginManager().callEvent(e);
-		
+
 		// Parameters taken by the function.
 		Parameter<?>[] parameters = sign.getParameters();
-		
+
 		if (params.length > parameters.length) {
 			// Too many parameters, should have failed to parse
 			assert false : params.length;
 			return null;
 		}
-		
+
 		// If given less that max amount of parameters, pad remaining with nulls
 		Object[][] ps = params.length < parameters.length ? Arrays.copyOf(params, parameters.length) : params;
-		
+
 		// Execute parameters or default value expressions
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> p = parameters[i];
@@ -113,7 +112,7 @@ public abstract class Function<T> {
 				assert p.def != null; // Should've been parse error
 				val = p.def.getArray(e);
 			}
-			
+
 			/*
 			 * Cancel execution of function if one of parameters produces null.
 			 * This used to be the default behavior, but since scripts don't
@@ -124,7 +123,7 @@ public abstract class Function<T> {
 				return null;
 			ps[i] = val;
 		}
-		
+
 		// Execute function contents
 		T[] r = execute(e, ps);
 		// Assert that return value type makes sense
@@ -132,12 +131,12 @@ public abstract class Function<T> {
 			|| (r.length <= 1 || !sign.isSingle()) && !CollectionUtils.contains(r, null)
 			&& sign.getReturnType().getC().isAssignableFrom(r.getClass().getComponentType())
 			: this + "; " + Arrays.toString(r);
-				
+
 		// If return value is empty array, return null
 		// Otherwise, return the value (nullable)
 		return r == null || r.length > 0 ? r : null;
 	}
-	
+
 	/**
 	 * Executes this function with given parameters. Usually, using
 	 * {@link #execute(Object[][])} is better; it handles optional arguments
@@ -163,5 +162,5 @@ public abstract class Function<T> {
 	public String toString() {
 		return (sign.local ? "local " : "") + "function " + sign.getName();
 	}
-	
+
 }

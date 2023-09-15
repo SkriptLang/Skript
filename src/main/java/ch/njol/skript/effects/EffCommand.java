@@ -1,28 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -36,12 +30,17 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Command")
 @Description({
 	"Executes a command. This can be useful to use other plugins in triggers.",
 	"If the command is a bungeecord side command, " +
-	"you can use the [bungeecord] option to execute command on the proxy."
+		"you can use the [bungeecord] option to execute command on the proxy."
 })
 @Examples({
 	"make player execute command \"/home\"",
@@ -55,9 +54,9 @@ public class EffCommand extends Effect {
 
 	static {
 		Skript.registerEffect(EffCommand.class,
-				"[execute] [the] [bungee:bungee[cord]] command %strings% [by %-commandsenders%]",
-				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command %strings%",
-				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command] %strings%");
+			"[execute] [the] [bungee:bungee[cord]] command %strings% [by %-commandsenders%]",
+			"[execute] [the] %commandsenders% [bungee:bungee[cord]] command %strings%",
+			"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command] %strings%");
 	}
 
 	@Nullable

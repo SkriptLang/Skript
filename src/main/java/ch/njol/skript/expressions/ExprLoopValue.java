@@ -1,26 +1,24 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -32,12 +30,14 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
@@ -52,30 +52,30 @@ import java.util.regex.Pattern;
 @Examples({
 	"# Countdown",
 	"loop 10 times:",
-		"\tmessage \"%11 - loop-number%\"",
-		"\twait a second",
+	"\tmessage \"%11 - loop-number%\"",
+	"\twait a second",
 	"",
 	"# Generate a 10x10 floor made of randomly colored wool below the player",
 	"loop blocks from the block below the player to the block 10 east of the block below the player:",
-		"\tloop blocks from the loop-block to the block 10 north of the loop-block:",
-			"\t\tset loop-block-2 to any wool",
+	"\tloop blocks from the loop-block to the block 10 north of the loop-block:",
+	"\t\tset loop-block-2 to any wool",
 	"",
 	"loop {top-balances::*}:",
-		"\tloop-iteration <= 10",
-		"\tsend \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+	"\tloop-iteration <= 10",
+	"\tsend \"##%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("1.0, INSERT VERSION (loop-counter)")
 public class ExprLoopValue extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, "[the] loop-<.+>");
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private String name;
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SecLoop loop;
-	
+
 	// whether this loops a variable
 	boolean isVariableLoop = false;
 	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
@@ -128,12 +128,12 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		this.loop = loop;
 		return true;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -141,25 +141,25 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		if (isVariableLoop && !isIndex) {
 			Class<R> superType = (Class<R>) Utils.getSuperType(to);
 			return new ConvertedExpression<>(this, superType,
-					new ConverterInfo<>(Object.class, superType, new Converter<Object, R>() {
-				@Override
-				@Nullable
-				public R convert(Object o) {
-					return Converters.convert(o, to);
-				}
-			}, 0));
+				new ConverterInfo<>(Object.class, superType, new Converter<Object, R>() {
+					@Override
+					@Nullable
+					public R convert(Object o) {
+						return Converters.convert(o, to);
+					}
+				}, 0));
 		} else {
 			return super.getConvertedExpr(to);
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Object> getReturnType() {
 		if (isIndex)
 			return String.class;
 		return loop.getLoopedExpression().getReturnType();
 	}
-	
+
 	@Override
 	@Nullable
 	protected Object[] get(Event e) {
@@ -168,7 +168,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			if (current == null)
 				return null;
 			if (isIndex)
-				return new String[] {current.getKey()};
+				return new String[]{current.getKey()};
 			Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
 			one[0] = current.getValue();
 			return one;
@@ -178,7 +178,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		one[0] = loop.getCurrent(e);
 		return one;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		if (e == null)
@@ -191,5 +191,5 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 		return Classes.getDebugMessage(loop.getCurrent(e));
 	}
-	
+
 }

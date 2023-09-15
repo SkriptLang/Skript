@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -44,9 +44,9 @@ import java.util.List;
 @Examples("set {_ops::*} to all operators")
 @Since("2.7")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
-	
+
 	private boolean nonOps;
-	
+
 	static {
 		Skript.registerExpression(ExprOps.class, OfflinePlayer.class, ExpressionType.SIMPLE, "[all [[of] the]|the] [server] [:non(-| )]op[erator]s");
 	}
@@ -62,7 +62,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 		if (nonOps) {
 			List<Player> nonOpsList = new ArrayList<>();
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (!player.isOp()) 
+				if (!player.isOp())
 					nonOpsList.add(player);
 			}
 			return nonOpsList.toArray(new Player[0]);
@@ -125,7 +125,7 @@ public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (nonOps)
-				return "all non-operators";
+			return "all non-operators";
 		return "all operators";
 	}
 

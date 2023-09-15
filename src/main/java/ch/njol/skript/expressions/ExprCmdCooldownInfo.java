@@ -1,29 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.UUID;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
@@ -41,26 +34,32 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.UUID;
 
 @Name("Cooldown Time/Remaining Time/Elapsed Time/Last Usage/Bypass Permission")
 @Description({"Only usable in command events. Represents the cooldown time, the remaining time, the elapsed time,",
-		"the last usage date, or the cooldown bypass permission."})
+	"the last usage date, or the cooldown bypass permission."})
 @Examples({
-		"command /home:",
-		"\tcooldown: 10 seconds",
-		"\tcooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.",
-		"\ttrigger:",
-		"\t\tteleport player to {home::%player%}"})
+	"command /home:",
+	"\tcooldown: 10 seconds",
+	"\tcooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.",
+	"\ttrigger:",
+	"\t\tteleport player to {home::%player%}"})
 @Since("2.2-dev33")
 public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprCmdCooldownInfo.class, Object.class, ExpressionType.SIMPLE,
-				"[the] remaining [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] elapsed [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] ((cooldown|wait) time|[wait] time of [the] (cooldown|wait) [(of|for) [the] [current] command])",
-				"[the] last usage [date] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
-				"[the] [cooldown] bypass perm[ission] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]");
+			"[the] remaining [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
+			"[the] elapsed [time] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
+			"[the] ((cooldown|wait) time|[wait] time of [the] (cooldown|wait) [(of|for) [the] [current] command])",
+			"[the] last usage [date] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]",
+			"[the] [cooldown] bypass perm[ission] [of [the] (cooldown|wait) [(of|for) [the] [current] command]]");
 	}
 
 	private int pattern;
@@ -82,28 +81,28 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 			return null;
 		ScriptCommandEvent event = ((ScriptCommandEvent) e);
 		ScriptCommand scriptCommand = event.getScriptCommand();
-		
+
 		CommandSender sender = event.getSender();
 		if (scriptCommand.getCooldown() == null || !(sender instanceof Player))
 			return null;
 		Player player = (Player) event.getSender();
 		UUID uuid = player.getUniqueId();
-		
+
 		switch (pattern) {
 			case 0:
 			case 1:
 				long ms = pattern != 1
-						? scriptCommand.getRemainingMilliseconds(uuid, event)
-						: scriptCommand.getElapsedMilliseconds(uuid, event);
-				return new Timespan[] { new Timespan(ms) };
+					? scriptCommand.getRemainingMilliseconds(uuid, event)
+					: scriptCommand.getElapsedMilliseconds(uuid, event);
+				return new Timespan[]{new Timespan(ms)};
 			case 2:
-				return new Timespan[] { scriptCommand.getCooldown() };
+				return new Timespan[]{scriptCommand.getCooldown()};
 			case 3:
-				return new Date[] { scriptCommand.getLastUsage(uuid, event) };
+				return new Date[]{scriptCommand.getLastUsage(uuid, event)};
 			case 4:
-				return new String[] { scriptCommand.getCooldownBypass() };
+				return new String[]{scriptCommand.getCooldownBypass()};
 		}
-		
+
 		return null;
 	}
 
@@ -115,15 +114,15 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 			case REMOVE:
 				if (pattern <= 1)
 					// remaining or elapsed time
-					return new Class<?>[] { Timespan.class };
+					return new Class<?>[]{Timespan.class};
 			case RESET:
 			case SET:
 				if (pattern <= 1)
 					// remaining or elapsed time
-					return new Class<?>[] { Timespan.class };
+					return new Class<?>[]{Timespan.class};
 				else if (pattern == 3)
 					// last usage date
-					return new Class<?>[] { Date.class };
+					return new Class<?>[]{Date.class};
 		}
 		return null;
 	}
@@ -140,7 +139,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 			return;
 		long cooldownMs = cooldown.getMilliSeconds();
 		UUID uuid = ((Player) sender).getUniqueId();
-		
+
 		if (pattern <= 1) {
 			Timespan timespan = delta == null ? new Timespan(0) : (Timespan) delta[0];
 			switch (mode) {

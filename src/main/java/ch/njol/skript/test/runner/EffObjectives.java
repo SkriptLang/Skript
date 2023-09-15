@@ -1,32 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.test.runner;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -36,17 +26,25 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Objectives")
 @Description("An effect to setup required objectives for JUnit tests to complete.")
 @NoDoc
-public class EffObjectives extends Effect  {
+public class EffObjectives extends Effect {
 
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffObjectives.class,
-					"ensure [[junit] test] %string% completes [(objective|trigger)[s]] %strings%",
-					"complete [(objective|trigger)[s]] %strings% (for|on) [[junit] test] %string%"
+				"ensure [[junit] test] %string% completes [(objective|trigger)[s]] %strings%",
+				"complete [(objective|trigger)[s]] %strings% (for|on) [[junit] test] %string%"
 			);
 	}
 
@@ -88,7 +86,7 @@ public class EffObjectives extends Effect  {
 	/**
 	 * Check if the currently running JUnit test has passed all
 	 * it's required objectives that the script test setup.
-	 * 
+	 *
 	 * @return boolean true if the test passed.
 	 */
 	public static boolean isJUnitComplete() {
@@ -102,7 +100,7 @@ public class EffObjectives extends Effect  {
 	/**
 	 * Returns an array string containing all the objectives that the current
 	 * JUnit test failed to accomplish in the given time.
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getFailedObjectivesString() {

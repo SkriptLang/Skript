@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.events;
@@ -32,11 +32,7 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,11 +40,11 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	static {
 		Skript.registerEvent("*At Time", EvtAtTime.class, ScheduledEvent.class, "at %time% [in %worlds%]")
-				.description("An event that occurs at a given <a href='./classes.html#time'>minecraft time</a> in every world or only in specific worlds.")
-				.examples("at 18:00", "at 7am in \"world\"")
-				.since("1.3.4");
+			.description("An event that occurs at a given <a href='./classes.html#time'>minecraft time</a> in every world or only in specific worlds.")
+			.examples("at 18:00", "at 7am in \"world\"")
+			.since("1.3.4");
 	}
-	
+
 	private static final int CHECK_PERIOD = 10;
 
 	private static final Map<World, EvtAtInfo> TRIGGERS = new ConcurrentHashMap<>();
@@ -116,7 +112,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	}
 
 	private static int taskID = -1;
-	
+
 	private static void registerListener() {
 		if (taskID != -1)
 			return;
@@ -164,15 +160,15 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 			}
 		}, 0, CHECK_PERIOD);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "at " + Time.toString(tick) + " in worlds " + Classes.toString(worlds, true);
 	}
-	
+
 	@Override
 	public int compareTo(@Nullable EvtAtTime event) {
 		return event == null ? tick : tick - event.tick;
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.command;
@@ -21,9 +21,7 @@ package ch.njol.skript.command;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.Effect;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
@@ -50,15 +48,11 @@ import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -71,7 +65,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("deprecation")
 public abstract class Commands {
-	
+
 	public final static ArgsMessage m_too_many_arguments = new ArgsMessage("commands.too many arguments");
 	public final static Message m_internal_error = new Message("commands.internal error");
 	public final static Message m_correct_usage = new Message("commands.correct usage");
@@ -82,26 +76,27 @@ public abstract class Commands {
 	public static final int CONVERTER_NO_COMMAND_ARGUMENTS = 4;
 
 	private final static Map<String, ScriptCommand> commands = new HashMap<>();
-	
+
 	@Nullable
 	private static SimpleCommandMap commandMap = null;
 	@Nullable
 	private static Map<String, Command> cmKnownCommands;
 	@Nullable
 	private static Set<String> cmAliases;
-	
+
 	static {
 		init(); // separate method for the annotation
 	}
-	public static Set<String> getScriptCommands(){
+
+	public static Set<String> getScriptCommands() {
 		return commands.keySet();
 	}
-	
+
 	@Nullable
-	public static SimpleCommandMap getCommandMap(){
+	public static SimpleCommandMap getCommandMap() {
 		return commandMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static void init() {
 		try {
@@ -109,16 +104,17 @@ public abstract class Commands {
 				final Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
 				commandMapField.setAccessible(true);
 				commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getPluginManager());
-				
+
 				final Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
 				knownCommandsField.setAccessible(true);
 				cmKnownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
-				
+
 				try {
 					final Field aliasesField = SimpleCommandMap.class.getDeclaredField("aliases");
 					aliasesField.setAccessible(true);
 					cmAliases = (Set<String>) aliasesField.get(commandMap);
-				} catch (final NoSuchFieldException e) {}
+				} catch (final NoSuchFieldException e) {
+				}
 			}
 		} catch (final SecurityException e) {
 			Skript.error("Please disable the security manager");
@@ -128,23 +124,23 @@ public abstract class Commands {
 			commandMap = null;
 		}
 	}
-	
+
 	@Nullable
 	public static List<Argument<?>> currentArguments = null;
-	
+
 	@SuppressWarnings("null")
 	private final static Pattern escape = Pattern.compile("[" + Pattern.quote("(|)<>%\\") + "]");
 	@SuppressWarnings("null")
 	private final static Pattern unescape = Pattern.compile("\\\\[" + Pattern.quote("(|)<>%\\") + "]");
-	
+
 	public static String escape(String s) {
 		return "" + escape.matcher(s).replaceAll("\\\\$0");
 	}
-	
+
 	public static String unescape(String s) {
 		return "" + unescape.matcher(s).replaceAll("$0");
 	}
-	
+
 	private final static Listener commandListener = new Listener() {
 		@SuppressWarnings("null")
 		@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -152,7 +148,7 @@ public abstract class Commands {
 			if (handleCommand(e.getPlayer(), e.getMessage().substring(1)))
 				e.setCancelled(true);
 		}
-		
+
 		@SuppressWarnings("null")
 		@EventHandler(priority = EventPriority.HIGHEST)
 		public void onServerCommand(final ServerCommandEvent e) {
@@ -195,7 +191,7 @@ public abstract class Commands {
 		}
 		return false;
 	}
-	
+
 	static boolean handleEffectCommand(final CommandSender sender, String command) {
 		if (!(sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
 			return false;
@@ -211,7 +207,7 @@ public abstract class Commands {
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
 				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
-				
+
 				if (effect != null) {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
@@ -246,12 +242,12 @@ public abstract class Commands {
 	public static ScriptCommand getScriptCommand(String key) {
 		return commands.get(key);
 	}
-	
+
 	public static boolean skriptCommandExists(final String command) {
 		final ScriptCommand c = commands.get(command);
 		return c != null && c.getName().equals(command);
 	}
-	
+
 	public static void registerCommand(final ScriptCommand command) {
 		// Validate that there are no duplicates
 		final ScriptCommand existingCommand = commands.get(command.getLabel());
@@ -262,7 +258,7 @@ public abstract class Commands {
 			);
 			return;
 		}
-		
+
 		if (commandMap != null) {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			command.register(commandMap, cmKnownCommands, cmAliases);
@@ -294,9 +290,9 @@ public abstract class Commands {
 		}
 		commands.values().removeIf(command -> command == scriptCommand);
 	}
-	
+
 	private static boolean registeredListeners = false;
-	
+
 	public static void registerListeners() {
 		if (!registeredListeners) {
 			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
@@ -335,15 +331,15 @@ public abstract class Commands {
 			registeredListeners = true;
 		}
 	}
-	
+
 	/**
 	 * copied from CraftBukkit (org.bukkit.craftbukkit.help.CommandAliasHelpTopic)
 	 */
 	public static final class CommandAliasHelpTopic extends HelpTopic {
-		
+
 		private final String aliasFor;
 		private final HelpMap helpMap;
-		
+
 		public CommandAliasHelpTopic(final String alias, final String aliasFor, final HelpMap helpMap) {
 			this.aliasFor = aliasFor.startsWith("/") ? aliasFor : "/" + aliasFor;
 			this.helpMap = helpMap;
@@ -351,7 +347,7 @@ public abstract class Commands {
 			Validate.isTrue(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
 			shortText = ChatColor.YELLOW + "Alias for " + ChatColor.WHITE + this.aliasFor;
 		}
-		
+
 		@Override
 		public String getFullText(final CommandSender forWho) {
 			final StringBuilder sb = new StringBuilder(shortText);
@@ -362,7 +358,7 @@ public abstract class Commands {
 			}
 			return "" + sb.toString();
 		}
-		
+
 		@Override
 		public boolean canSee(final CommandSender commandSender) {
 			if (amendedPermission == null) {
@@ -378,5 +374,5 @@ public abstract class Commands {
 			}
 		}
 	}
-	
+
 }

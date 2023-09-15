@@ -1,36 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -49,6 +35,19 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * TODO make a 'line %number% of %text%' expression and figure out how to deal with signs (4 lines, delete = empty, etc...)
@@ -62,12 +61,12 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprLore extends SimpleExpression<String> {
 
 	static {
-			Skript.registerExpression(ExprLore.class, String.class, ExpressionType.PROPERTY,
-					"[the] lore of %itemstack/itemtype%", "%itemstack/itemtype%'[s] lore",
-					"[the] line %number% of [the] lore of %itemstack/itemtype%",
-					"[the] line %number% of %itemstack/itemtype%'[s] lore",
-					"[the] %number%(st|nd|rd|th) line of [the] lore of %itemstack/itemtype%",
-					"[the] %number%(st|nd|rd|th) line of %itemstack/itemtype%'[s] lore");
+		Skript.registerExpression(ExprLore.class, String.class, ExpressionType.PROPERTY,
+			"[the] lore of %itemstack/itemtype%", "%itemstack/itemtype%'[s] lore",
+			"[the] line %number% of [the] lore of %itemstack/itemtype%",
+			"[the] line %number% of %itemstack/itemtype%'[s] lore",
+			"[the] %number%(st|nd|rd|th) line of [the] lore of %itemstack/itemtype%",
+			"[the] %number%(st|nd|rd|th) line of %itemstack/itemtype%'[s] lore");
 	}
 
 	@Nullable
@@ -183,7 +182,7 @@ public class ExprLore extends SimpleExpression<String> {
 				case REMOVE_ALL:
 					assert stringDelta != null;
 					lore = Arrays.asList(handleRemove(
-							StringUtils.join(lore, "\n"), stringDelta[0], mode == ChangeMode.REMOVE_ALL).split("\n"));
+						StringUtils.join(lore, "\n"), stringDelta[0], mode == ChangeMode.REMOVE_ALL).split("\n"));
 					break;
 				case RESET:
 					assert false;
@@ -231,7 +230,7 @@ public class ExprLore extends SimpleExpression<String> {
 			item.change(e, itemDelta, ChangeMode.SET);
 		} else {
 			Object[] itemDelta = i instanceof ItemStack ? new ItemType[]{new ItemType((ItemStack) i)} :
-					new ItemStack[]{((ItemType) i).getRandom()};
+				new ItemStack[]{((ItemType) i).getRandom()};
 			item.change(e, itemDelta, ChangeMode.SET);
 		}
 	}
@@ -246,7 +245,7 @@ public class ExprLore extends SimpleExpression<String> {
 			}
 		} else {
 			final Matcher m = Pattern.compile(Pattern.quote(toRemove),
-					Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(input);
+				Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(input);
 			return all ? m.replaceAll("") : m.replaceFirst("");
 		}
 	}

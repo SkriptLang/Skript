@@ -1,39 +1,24 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.njol.skript.Skript;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Colorable;
-import org.bukkit.material.MaterialData;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -47,38 +32,52 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.DyeColor;
+import org.bukkit.FireworkEffect;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Colorable;
+import org.bukkit.material.MaterialData;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Color of")
 @Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".")
 @Examples({"on click on wool:",
-		"	message \"This wool block is <%color of block%>%color of block%<reset>!\"",
-		"	set the color of the block to black"})
+	"	message \"This wool block is <%color of block%>%color of block%<reset>!\"",
+	"	set the color of the block to black"})
 @Since("1.2")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects");
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	protected Color[] get(Event e, Object[] source) {
 		if (source instanceof FireworkEffect[]) {
 			List<Color> colors = new ArrayList<>();
-			
+
 			for (FireworkEffect effect : (FireworkEffect[]) source) {
 				effect.getColors().stream()
 					.map(SkriptColor::fromBukkitColor)
 					.forEach(colors::add);
 			}
-			
+
 			if (colors.size() == 0)
 				return null;
 			return colors.toArray(new Color[0]);
@@ -196,7 +195,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	private Colorable getColorable(Object colorable) {
 		if (colorable instanceof Item || colorable instanceof ItemType) {
 			ItemStack item = colorable instanceof Item ?
-					((Item) colorable).getItemStack() : ((ItemType) colorable).getRandom();
+				((Item) colorable).getItemStack() : ((ItemType) colorable).getRandom();
 
 			if (item == null)
 				return null;

@@ -1,29 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import ch.njol.util.Math2;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -35,6 +28,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Random Number")
 @Description({
@@ -50,7 +49,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprRandomNumber.class, Number.class, ExpressionType.COMBINED,
-				"[a] random (:integer|number) (from|between) %number% (to|and) %number%");
+			"[a] random (:integer|number) (from|between) %number% (to|and) %number%");
 	}
 
 	private Expression<Number> from, to;
@@ -83,15 +82,15 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 			long sup = Math2.floor(max);
 			if (max - min < 1 && inf - sup <= 1) {
 				if (sup == inf || min == inf)
-					return new Long[] {inf};
+					return new Long[]{inf};
 				if (max == sup)
-					return new Long[] {sup};
+					return new Long[]{sup};
 				return new Long[0];
 			}
-			return new Long[] {random.nextLong(inf, sup + 1)};
+			return new Long[]{random.nextLong(inf, sup + 1)};
 		}
 
-		return new Double[] {min + random.nextDouble() * (max - min)};
+		return new Double[]{min + random.nextDouble() * (max - min)};
 	}
 
 	@Override

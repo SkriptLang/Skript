@@ -1,27 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.lang.reflect.Array;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Arithmetic;
@@ -42,6 +37,10 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.lang.reflect.Array;
 
 /**
  * @author Peter Güttinger
@@ -49,23 +48,23 @@ import ch.njol.util.Kleenean;
 @Name("Difference")
 @Description("The difference between two values, e.g. <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> or <a href='./classes/#time'>times</a>.")
 @Examples({"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
-		"\tmessage \"You have to wait a minute before using this command again!\""})
+	"\tmessage \"You have to wait a minute before using this command again!\""})
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
-	
+
 	static {
 		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED, "difference (between|of) %object% and %object%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<?> first, second;
-	
+
 	@SuppressWarnings("rawtypes")
 	@Nullable
 	private Arithmetic math;
 	@SuppressWarnings("null")
 	private Class<?> relativeType;
-	
+
 	@SuppressWarnings({"unchecked", "null", "unused"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -112,7 +111,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
@@ -121,7 +120,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 		if (f == null || s == null)
 			return null;
 		final Object[] one = (Object[]) Array.newInstance(relativeType, 1);
-		
+
 		// If we're comparing object expressions, such as variables, math is null right now
 		if (relativeType.equals(Object.class)) {
 			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(f.getClass(), s.getClass()));
@@ -130,26 +129,26 @@ public class ExprDifference extends SimpleExpression<Object> {
 				return one;
 			}
 		}
-		
+
 		assert math != null; // NOW it cannot be null
 		one[0] = math.difference(f, s);
-		
+
 		return one;
 	}
-	
+
 	@Override
 	public Class<? extends Object> getReturnType() {
 		return relativeType;
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "difference between " + first.toString(e, debug) + " and " + second.toString(e, debug);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 }

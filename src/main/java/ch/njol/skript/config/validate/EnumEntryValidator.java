@@ -1,42 +1,41 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.config.validate;
-
-import java.util.Locale;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.util.Setter;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Locale;
 
 /**
  * @author Peter Güttinger
  */
 public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
-	
+
 	private final Class<E> enumType;
 	private final Setter<E> setter;
 	@Nullable
 	private String allowedValues = null;
-	
+
 	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter) {
 		assert enumType != null;
 		this.enumType = enumType;
@@ -51,14 +50,14 @@ public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 			allowedValues = "" + b.toString();
 		}
 	}
-	
+
 	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter, final String allowedValues) {
 		assert enumType != null;
 		this.enumType = enumType;
 		this.setter = setter;
 		this.allowedValues = allowedValues;
 	}
-	
+
 	@Override
 	public boolean validate(final Node node) {
 		if (!super.validate(node))
@@ -75,5 +74,5 @@ public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 		}
 		return true;
 	}
-	
+
 }

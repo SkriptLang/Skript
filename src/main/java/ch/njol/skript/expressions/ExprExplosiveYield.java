@@ -1,44 +1,39 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.coll.CollectionUtils;
-
 @Name("Explosive Yield")
 @Description({"The yield of an explosive (creeper, primed tnt, fireball, etc.). This is how big of an explosion is caused by the entity.",
-				"Read <a href='https://minecraft.gamepedia.com/Explosion'>this wiki page</a> for more information"})
+	"Read <a href='https://minecraft.gamepedia.com/Explosion'>this wiki page</a> for more information"})
 @Examples({"on spawn of a creeper:",
-			"\tset the explosive yield of the event-entity to 10"})
+	"\tset the explosive yield of the event-entity to 10"})
 @RequiredPlugins("Minecraft 1.12 or newer for creepers")
 @Since("2.5")
 public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number> {
@@ -96,7 +91,7 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 						if (subtract < 0)
 							return;
 						e.setYield(subtract);
-						break;	
+						break;
 					case DELETE:
 						e.setYield(0);
 						break;
@@ -123,7 +118,7 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 						if (subtract < 0)
 							return;
 						c.setExplosionRadius(subtract);
-						break;	
+						break;
 					case DELETE:
 						c.setExplosionRadius(0);
 						break;

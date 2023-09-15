@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
@@ -43,29 +43,25 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, " +
-		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
+	"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
 @Examples({"kill all creepers in the player's world",
-		"send \"Psst!\" to all players within 100 meters of the player",
-		"give a diamond to all ops",
-		"heal all tamed wolves in radius 2000 around {town center}",
-		"delete all monsters in chunk at player"})
+	"send \"Psst!\" to all players within 100 meters of the player",
+	"give a diamond to all ops",
+	"heal all tamed wolves in radius 2000 around {town center}",
+	"delete all monsters in chunk at player"})
 @Since("1.2.1, 2.5 (chunks)")
 public class ExprEntities extends SimpleExpression<Entity> {
 
 	static {
 		Skript.registerExpression(ExprEntities.class, Entity.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-				"[(all [[of] the]|the)] %*entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
-				"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
-				"[(all [[of] the]|the)] %*entitydatas% (within|[with]in radius) %number% [(block[s]|met(er|re)[s])] (of|around) %location%",
-				"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%");
+			"[(all [[of] the]|the)] %*entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
+			"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
+			"[(all [[of] the]|the)] %*entitydatas% (within|[with]in radius) %number% [(block[s]|met(er|re)[s])] (of|around) %location%",
+			"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%");
 	}
 
 	@SuppressWarnings("null")
@@ -172,14 +168,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			double radiusSquared = d * d * Skript.EPSILON_MULT;
 			EntityData<?>[] ts = types.getAll(e);
 			return new CheckedIterator<>(es.iterator(), e1 -> {
-					if (e1 == null || e1.getLocation().distanceSquared(l) > radiusSquared)
-						return false;
-					for (EntityData<?> t : ts) {
-						if (t.isInstance(e1))
-							return true;
-					}
+				if (e1 == null || e1.getLocation().distanceSquared(l) > radiusSquared)
 					return false;
-				});
+				for (EntityData<?> t : ts) {
+					if (t.isInstance(e1))
+						return true;
+				}
+				return false;
+			});
 		} else {
 			if (chunks == null || returnType == Player.class)
 				return super.iterator(e);
@@ -202,7 +198,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
 		return "all entities of type " + types.toString(e, debug) + (worlds != null ? " in " + worlds.toString(e, debug) :
-				radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "");
+			radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "");
 	}
 
 }

@@ -1,33 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
@@ -47,6 +36,16 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Name("Book Pages")
 @Description({
@@ -56,8 +55,8 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 })
 @Examples({
 	"on book sign:",
-		"\tmessage \"Book Pages: %pages of event-item%\"",
-		"\tmessage \"Book Page 1: %page 1 of event-item%\"",
+	"\tmessage \"Book Pages: %pages of event-item%\"",
+	"\tmessage \"Book Page 1: %page 1 of event-item%\"",
 	"",
 	"set page 1 of player's held item to \"Book writing\""
 })
@@ -68,10 +67,10 @@ public class ExprBookPages extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
-				"[all [[of] the]|the] [book] (pages|content) of %itemtypes/itemstacks%",
-				"%itemtypes/itemstacks%'[s] [book] (pages|content)",
-				"[book] page %number% of %itemtypes/itemstacks%",
-				"%itemtypes/itemstacks%'[s] [book] page %number%"
+			"[all [[of] the]|the] [book] (pages|content) of %itemtypes/itemstacks%",
+			"%itemtypes/itemstacks%'[s] [book] (pages|content)",
+			"[book] page %number% of %itemtypes/itemstacks%",
+			"%itemtypes/itemstacks%'[s] [book] page %number%"
 		);
 		if (Skript.isRunningMinecraft(1, 16) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER)
 			serializer = BungeeComponentSerializer.get();
@@ -226,10 +225,10 @@ public class ExprBookPages extends SimpleExpression<String> {
 				if (!bookMeta.hasTitle() && bookMeta.hasDisplayName())
 					bookMeta.title(bookMeta.displayName());
 				List<Component> components = pages.stream()
-						.map(ChatMessages::parseToArray)
-						.map(BungeeConverter::convert)
-						.map(serializer::deserialize)
-						.collect(Collectors.toList());
+					.map(ChatMessages::parseToArray)
+					.map(BungeeConverter::convert)
+					.map(serializer::deserialize)
+					.collect(Collectors.toList());
 				bookMeta.pages(components);
 			} else {
 				bookMeta.setPages(pages);

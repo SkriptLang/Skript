@@ -1,36 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-import org.skriptlang.skript.lang.script.Script;
-
-import com.google.common.collect.Lists;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -54,6 +40,18 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.ChatColor;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
@@ -86,27 +84,27 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * 
+	 *
 	 * @param input Content for string.
 	 */
 	private VariableString(String input) {
 		this.isSimple = true;
 		this.simpleUnformatted = input.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
 		this.simple = Utils.replaceChatStyles(simpleUnformatted);
-				
+
 		this.orig = simple;
 		this.string = null;
 		this.mode = StringMode.MESSAGE;
-		
+
 		ParserInstance parser = getParser();
 		this.script = parser.isActive() ? parser.getCurrentScript() : null;
-		
-		this.components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
+
+		this.components = new MessageComponent[]{ChatMessages.plainText(simpleUnformatted)};
 	}
 
 	/**
 	 * Creates a new VariableString which contains variables.
-	 * 
+	 *
 	 * @param orig Original string (unparsed).
 	 * @param string Objects, some of them are variables.
 	 * @param mode String mode.
@@ -118,7 +116,7 @@ public class VariableString implements Expression<String> {
 
 		ParserInstance parser = getParser();
 		this.script = parser.isActive() ? parser.getCurrentScript() : null;
-	
+
 		// Construct unformatted string and components
 		List<MessageComponent> components = new ArrayList<>(string.length);
 		for (int i = 0; i < string.length; i++) {
@@ -154,7 +152,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Creates an instance of VariableString by parsing given string.
 	 * Prints errors and returns null if it is somehow invalid.
-	 * 
+	 *
 	 * @param orig Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
@@ -173,15 +171,15 @@ public class VariableString implements Expression<String> {
 		if (mode != StringMode.VARIABLE_NAME) {
 			// Replace every double " character with a single ", except for those in expressions (between %)
 			StringBuilder stringBuilder = new StringBuilder();
-			
+
 			boolean expression = false;
 			for (int i = 0; i < orig.length(); i++) {
 				char c = orig.charAt(i);
 				stringBuilder.append(c);
-				
+
 				if (c == '%')
 					expression = !expression;
-				
+
 				if (!expression && c == '"')
 					i++;
 			}
@@ -197,7 +195,7 @@ public class VariableString implements Expression<String> {
 				string.add(s.substring(0, c));
 			while (c != s.length()) {
 				int c2 = s.indexOf('%', c + 1);
-				
+
 				int a = c;
 				int b;
 				while (c2 != -1 && (b = s.indexOf('{', a + 1)) != -1 && b < c2) {
@@ -260,9 +258,9 @@ public class VariableString implements Expression<String> {
 
 		Object[] sa = string.toArray();
 		if (string.size() == 1 && string.get(0) instanceof Expression &&
-				((Expression<?>) string.get(0)).getReturnType() == String.class &&
-				((Expression<?>) string.get(0)).isSingle() &&
-				mode == StringMode.MESSAGE) {
+			((Expression<?>) string.get(0)).getReturnType() == String.class &&
+			((Expression<?>) string.get(0)).isSingle() &&
+			mode == StringMode.MESSAGE) {
 			String expr = ((Expression<?>) string.get(0)).toString(null, false);
 			Skript.warning(expr + " is already a text, so you should not put it in one (e.g. " + expr + " instead of " + "\"%" + expr.replace("\"", "\"\"") + "%\")");
 		}
@@ -291,7 +289,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
-	 * 
+	 *
 	 * @param s The string
 	 * @param withQuotes Whether s must be surrounded by double quotes or not
 	 * @return Whether the string is quoted correctly
@@ -322,7 +320,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Removes quoted quotes from a string.
-	 * 
+	 *
 	 * @param s The string
 	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
 	 * @return The string with double quotes replaced with signle ones and optionally with removed surrounding quotes.
@@ -336,7 +334,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
-	 * 
+	 *
 	 * @param s
 	 * @param start Index after the opening bracket
 	 * @return The next closing curly bracket
@@ -354,7 +352,7 @@ public class VariableString implements Expression<String> {
 		}
 		return -1;
 	}
-	
+
 	public static VariableString[] makeStrings(String[] args) {
 		VariableString[] strings = new VariableString[args.length];
 		int j = 0;
@@ -367,7 +365,7 @@ public class VariableString implements Expression<String> {
 			strings = Arrays.copyOf(strings, j);
 		return strings;
 	}
-	
+
 	/**
 	 * @param args Quoted strings - This is not checked!
 	 * @return a new array containing all newly created VariableStrings, or null if one is invalid
@@ -384,7 +382,7 @@ public class VariableString implements Expression<String> {
 		}
 		return strings;
 	}
-	
+
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * Does not parse formatting codes!
@@ -408,7 +406,7 @@ public class VariableString implements Expression<String> {
 		}
 		return b.toString();
 	}
-	
+
 	/**
 	 * Gets message components from this string. Formatting is parsed only
 	 * in simple parts for security reasons.
@@ -420,7 +418,7 @@ public class VariableString implements Expression<String> {
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
 		}
-		
+
 		// Parse formating
 		Object[] string = this.stringUnformatted;
 		assert string != null;
@@ -436,7 +434,7 @@ public class VariableString implements Expression<String> {
 				}
 				Object o = string[stringPart];
 				previous = null;
-				
+
 				// Convert it to plain text
 				String text = null;
 				if (o instanceof ExprColoured && ((ExprColoured) o).isUnsafeFormat()) { // Special case: user wants to process formatting
@@ -448,7 +446,7 @@ public class VariableString implements Expression<String> {
 				} else if (o instanceof Expression<?>) {
 					text = Classes.toString(((Expression<?>) o).getArray(e), true, mode);
 				}
-				
+
 				assert text != null;
 				List<MessageComponent> components = ChatMessages.fromParsedString(text);
 				if (!message.isEmpty()) { // Copy styles from previous component
@@ -470,10 +468,10 @@ public class VariableString implements Expression<String> {
 				previous = componentCopy;
 			}
 		}
-		
+
 		return message;
 	}
-	
+
 	/**
 	 * Gets message components from this string. Formatting is parsed
 	 * everywhere, which is a potential security risk.
@@ -485,20 +483,20 @@ public class VariableString implements Expression<String> {
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
 		}
-		
+
 		return ChatMessages.parse(toUnformattedString(e));
 	}
-	
+
 	/**
 	 * Parses all expressions in the string and returns it in chat JSON format.
-	 * 
+	 *
 	 * @param e Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
 	public String toChatString(Event e) {
 		return ChatMessages.toJson(getMessageComponents(e));
 	}
-	
+
 	@Nullable
 	private static ChatColor getLastColor(CharSequence s) {
 		for (int i = s.length() - 2; i >= 0; i--) {
@@ -510,7 +508,7 @@ public class VariableString implements Expression<String> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString(null, false);
@@ -519,7 +517,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * If this is a simple string, the event may be null.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -579,7 +577,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Builds all possible default variable type hints based on the super type of the expression.
-	 * 
+	 *
 	 * @return List<String> of all possible super class code names.
 	 */
 	@NotNull
@@ -647,37 +645,37 @@ public class VariableString implements Expression<String> {
 			h.stop();
 		}
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public String getSingle(Event e) {
 		return toString(e);
 	}
-	
+
 	@Override
 	public String[] getArray(Event e) {
-		return new String[] {toString(e)};
+		return new String[]{toString(e)};
 	}
-	
+
 	@Override
 	public String[] getAll(Event e) {
-		return new String[] {toString(e)};
+		return new String[]{toString(e)};
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(Event e, Checker<? super String> c, boolean negated) {
 		return SimpleExpression.check(getAll(e), c, negated, false);
 	}
-	
+
 	@Override
 	public boolean check(Event e, Checker<? super String> c) {
 		return SimpleExpression.check(getAll(e), c, false, false);
@@ -696,53 +694,53 @@ public class VariableString implements Expression<String> {
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return null;
 	}
-	
+
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean getAnd() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean setTime(int time) {
 		return false;
 	}
-	
+
 	@Override
 	public int getTime() {
 		return 0;
 	}
-	
+
 	@Override
 	public boolean isDefault() {
 		return false;
 	}
-	
+
 	@Override
 	public Iterator<? extends String> iterator(Event e) {
 		return new SingleItemIterator<>(toString(e));
 	}
-	
+
 	@Override
 	public boolean isLoopOf(String s) {
 		return false;
 	}
-	
+
 	@Override
 	public Expression<?> getSource() {
 		return this;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T> Expression<T> setStringMode(Expression<T> e, StringMode mode) {
 		if (e instanceof ExpressionList) {
@@ -757,7 +755,7 @@ public class VariableString implements Expression<String> {
 		}
 		return e;
 	}
-	
+
 	@Override
 	public Expression<String> simplify() {
 		return this;

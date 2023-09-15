@@ -1,36 +1,31 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.test.runner;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import ch.njol.skript.Skript;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.junit.After;
 import org.junit.Before;
-
-import ch.njol.skript.Skript;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
@@ -62,7 +57,7 @@ public abstract class SkriptJUnitTest {
 	/**
 	 * The delay this JUnit test is requiring to run.
 	 * Do note this is global to all other tests. The most delay is the final waiting time.
-	 * 
+	 *
 	 * @return the delay in Minecraft ticks this junit test is requiring to run for.
 	 */
 	public static long getShutdownDelay() {
@@ -99,7 +94,7 @@ public abstract class SkriptJUnitTest {
 
 	/**
 	 * Spawns a testing pig at the spawn location of the testing world.
-	 * 
+	 *
 	 * @return Pig that has been spawned.
 	 */
 	public static Pig spawnTestPig() {
@@ -110,7 +105,7 @@ public abstract class SkriptJUnitTest {
 
 	/**
 	 * Set the type of the block at the testing location.
-	 * 
+	 *
 	 * @param material The material to set the block to.
 	 * @return the Block after it has been updated.
 	 */
@@ -122,7 +117,7 @@ public abstract class SkriptJUnitTest {
 
 	/**
 	 * Return the main block for testing in the getTestLocation();
-	 * 
+	 *
 	 * @return the Block after it has been updated.
 	 */
 	public static Block getBlock() {

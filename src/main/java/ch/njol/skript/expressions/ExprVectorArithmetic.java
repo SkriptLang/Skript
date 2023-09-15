@@ -1,26 +1,22 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
-
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -34,6 +30,9 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author bi0qaw
@@ -41,14 +40,14 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Vectors - Arithmetic")
 @Description("Arithmetic expressions for vectors.")
 @Examples({"set {_v} to vector 1, 2, 3 // 5",
-		"set {_v} to {_v} ++ {_v}",
-		"set {_v} to {_v} ++ 5",
-		"set {_v} to {_v} -- {_v}",
-		"set {_v} to {_v} -- 5",
-		"set {_v} to {_v} ** {_v}",
-		"set {_v} to {_v} ** 5",
-		"set {_v} to {_v} // {_v}",
-		"set {_v} to {_v} // 5"})
+	"set {_v} to {_v} ++ {_v}",
+	"set {_v} to {_v} ++ 5",
+	"set {_v} to {_v} -- {_v}",
+	"set {_v} to {_v} -- 5",
+	"set {_v} to {_v} ** {_v}",
+	"set {_v} to {_v} ** 5",
+	"set {_v} to {_v} // {_v}",
+	"set {_v} to {_v} // 5"})
 @Since("2.2-dev28")
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
@@ -92,11 +91,11 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 		}
 	}
 
-	private final static Patterns<Operator> patterns = new Patterns<>(new Object[][] {
-			{"%vector%[ ]++[ ]%vector%", Operator.PLUS},
-			{"%vector%[ ]--[ ]%vector%", Operator.MINUS},
-			{"%vector%[ ]**[ ]%vector%", Operator.MULT},
-			{"%vector%[ ]//[ ]%vector%", Operator.DIV}
+	private final static Patterns<Operator> patterns = new Patterns<>(new Object[][]{
+		{"%vector%[ ]++[ ]%vector%", Operator.PLUS},
+		{"%vector%[ ]--[ ]%vector%", Operator.MINUS},
+		{"%vector%[ ]**[ ]%vector%", Operator.MULT},
+		{"%vector%[ ]//[ ]%vector%", Operator.DIV}
 	});
 
 	static {
@@ -140,7 +139,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " " + op +  " " + second.toString(e, debug);
+		return first.toString(e, debug) + " " + op + " " + second.toString(e, debug);
 	}
 
 }

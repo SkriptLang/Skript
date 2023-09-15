@@ -1,48 +1,47 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.aliases;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.njol.skript.entity.EntityData;
 import org.bukkit.Material;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.entity.EntityData;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Stores the aliases.
  */
 public class AliasesMap {
-	
+
 	public static class Match {
-		
+
 		private final MatchQuality quality;
-		
+
 		@Nullable
 		private final AliasData data;
-		
+
 		public Match(MatchQuality quality, @Nullable AliasData data) {
 			this.quality = quality;
 			this.data = data;
 		}
-		
+
 		/**
 		 * Gets quality of this match.
 		 * @return Match quality.
@@ -50,7 +49,7 @@ public class AliasesMap {
 		public MatchQuality getQuality() {
 			return quality;
 		}
-		
+
 		/**
 		 * Retrieves the alias data of this match. Provided that
 		 * {@link #getQuality()} is at least {@link MatchQuality#SAME_MATERIAL}
@@ -62,30 +61,30 @@ public class AliasesMap {
 			return data;
 		}
 	}
-	
+
 	public static class AliasData {
-		
+
 		/**
 		 * The item associated with this alias.
 		 */
 		private final ItemData item;
-		
+
 		/**
 		 * Name of this alias.
 		 */
 		private final MaterialName name;
-		
+
 		/**
 		 * Minecraft ID of this alias.
 		 */
 		private final String minecraftId;
-		
+
 		/**
 		 * Entity related to this alias.
 		 */
 		@Nullable
 		private final EntityData<?> relatedEntity;
-		
+
 		public AliasData(ItemData item, MaterialName name, String minecraftId, @Nullable EntityData<?> relatedEntity) {
 			this.item = item;
 			this.name = name;
@@ -96,56 +95,56 @@ public class AliasesMap {
 		public ItemData getItem() {
 			return item;
 		}
-		
+
 		public MaterialName getName() {
 			return name;
 		}
-		
+
 		public String getMinecraftId() {
 			return minecraftId;
 		}
-		
+
 		@Nullable
 		public EntityData<?> getRelatedEntity() {
 			return relatedEntity;
 		}
 	}
-		
+
 	private static class MaterialEntry {
-		
+
 		/**
 		 * The default alias for this material.
 		 */
 		@Nullable
 		public AliasData defaultItem;
-		
+
 		/**
 		 * All different aliases that share this material.
 		 */
 		public final List<AliasData> items;
-		
+
 		public MaterialEntry() {
 			this.items = new ArrayList<>();
 		}
-		
+
 	}
-	
+
 	/**
 	 * One material entry per material. Ordinal of material is index of entry.
 	 */
 	private MaterialEntry[] materialEntries;
-	
+
 	@SuppressWarnings("null") // clear() initializes material entries
 	public AliasesMap() {
 		clear();
 	}
-	
+
 	private MaterialEntry getEntry(ItemData item) {
 		MaterialEntry entry = materialEntries[item.getType().ordinal()];
 		assert entry != null;
 		return entry;
 	}
-	
+
 	public void addAlias(AliasData data) {
 		MaterialEntry entry = getEntry(data.getItem());
 		if (data.getItem().isDefault()) {
@@ -154,7 +153,7 @@ public class AliasesMap {
 			entry.items.add(data);
 		}
 	}
-	
+
 	/**
 	 * Attempts to get the closest matching alias for given item.
 	 * @param item Item to find closest alias for.
@@ -162,12 +161,12 @@ public class AliasesMap {
 	 */
 	public Match matchAlias(ItemData item) {
 		MaterialEntry entry = getEntry(item);
-		
+
 		// Special case: no aliases available!
 		if (entry.defaultItem == null && entry.items.isEmpty()) {
 			return new Match(MatchQuality.DIFFERENT, null);
 		}
-		
+
 		// Try to find the best match
 		MatchQuality maxQuality = MatchQuality.DIFFERENT;
 		AliasData bestMatch = null;
@@ -178,7 +177,7 @@ public class AliasesMap {
 				bestMatch = data;
 			}
 		}
-		
+
 		// Check that we found a reasonably good match
 		// Just same material id -> default item
 		if (maxQuality.isBetter(MatchQuality.SAME_MATERIAL)) {
@@ -194,10 +193,10 @@ public class AliasesMap {
 				}
 			}
 		}
-		
+
 		throw new AssertionError(); // Shouldn't have reached here
 	}
-	
+
 	/**
 	 * Attempts to find an alias that exactly matches the given item.
 	 * @param item Item to match.
@@ -205,18 +204,18 @@ public class AliasesMap {
 	 */
 	public Match exactMatch(ItemData item) {
 		MaterialEntry entry = getEntry(item);
-		
+
 		// Special case: no aliases available!
 		if (entry.defaultItem == null && entry.items.isEmpty()) {
 			return new Match(MatchQuality.DIFFERENT, null);
 		}
-		
+
 		for (AliasData data : entry.items) {
 			if (item.matchAlias(data.getItem()) == MatchQuality.EXACT) {
 				return new Match(MatchQuality.EXACT, data);
 			}
 		}
-		
+
 		return new Match(MatchQuality.DIFFERENT, null);
 	}
 

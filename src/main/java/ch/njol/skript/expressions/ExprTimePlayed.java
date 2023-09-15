@@ -1,30 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
@@ -36,7 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Time Played")
 @Description({
 	"The amount of time a player has played for on the server. This info is stored in the player's statistics in " +
-	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
+		"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
 	"Using this expression on offline players on Minecraft 1.14 and below will return nothing <code>&lt;none&gt;</code>."
 })
 @Examples({
@@ -55,13 +51,13 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	static {
 		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
 	}
-	
+
 	@Nullable
 	@Override
 	public Timespan convert(OfflinePlayer offlinePlayer) {
 		return getTimePlayed(offlinePlayer);
 	}
-	
+
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -69,7 +65,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 			return CollectionUtils.array(Timespan.class);
 		return null;
 	}
-	
+
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
@@ -101,12 +97,12 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 			}
 		}
 	}
-	
+
 	@Override
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "time played";
@@ -121,5 +117,5 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 		}
 		return null;
 	}
-	
+
 }

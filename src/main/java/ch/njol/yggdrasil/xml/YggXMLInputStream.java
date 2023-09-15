@@ -1,23 +1,29 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.yggdrasil.xml;
 
+import ch.njol.yggdrasil.Tag;
+import ch.njol.yggdrasil.Yggdrasil;
+import ch.njol.yggdrasil.YggdrasilInputStream;
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.xml.stream.*;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,45 +31,35 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
 
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.yggdrasil.Tag;
-import ch.njol.yggdrasil.Yggdrasil;
-import ch.njol.yggdrasil.YggdrasilInputStream;
-
 /**
  * @deprecated XML has so many quirks that storing arbitrary data cannot be guaranteed.
  * @author Peter Güttinger
  */
 @Deprecated
 public final class YggXMLInputStream extends YggdrasilInputStream {
-	
+
 	private final XMLStreamReader in;
 	private final InputStream is;
-	
+
 	@SuppressWarnings("unused")
 	private final short version;
-	
+
 	@SuppressWarnings("null")
 	public YggXMLInputStream(final Yggdrasil y, final InputStream in) throws IOException {
 		super(y);
 		is = in;
 		try {
 			this.in = XMLInputFactory.newFactory().createXMLStreamReader(in);
-			while (this.in.next() != XMLStreamConstants.START_ELEMENT) {}
+			while (this.in.next() != XMLStreamConstants.START_ELEMENT) {
+			}
 			if (!this.in.getLocalName().equals("yggdrasil"))
 				throw new StreamCorruptedException("Not an Yggdrasil stream");
 			final String v = getAttribute("version");
 			short ver = 0;
 			try {
 				ver = Short.parseShort(v);
-			} catch (final NumberFormatException e) {}
+			} catch (final NumberFormatException e) {
+			}
 			if (ver <= 0 || ver > Yggdrasil.LATEST_VERSION)
 				throw new StreamCorruptedException("Input was saved using a later version of Yggdrasil");
 			version = ver;
@@ -73,9 +69,9 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 	// private
-	
+
 	private Class<?> getType(String s) throws StreamCorruptedException {
 		int dim = 0;
 		while (s.endsWith("[]")) {
@@ -96,19 +92,19 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			c = Array.newInstance(c, 0).getClass();
 		return c;
 	}
-	
+
 	private String getAttribute(final String name) throws StreamCorruptedException {
 		final String s = in.getAttributeValue(null, name);
 		if (s == null)
 			throw new StreamCorruptedException("Missing attribute " + name + " for <" + in.getLocalName() + ">");
 		return s;
 	}
-	
+
 	// Tag
-	
+
 	@Nullable
 	private Tag nextTag = null;
-	
+
 	@Override
 	protected Tag readTag() throws IOException {
 		if (nextTag != null) {
@@ -117,21 +113,21 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			return t;
 		}
 		try {
-			while (in.next() != XMLStreamConstants.START_ELEMENT) {}
+			while (in.next() != XMLStreamConstants.START_ELEMENT) {
+			}
 		} catch (final XMLStreamException e) {
 			throw new StreamCorruptedException(e.getMessage());
 		} catch (final NoSuchElementException e) {
 			throw new EOFException();
 		}
-		@SuppressWarnings("null")
-		final Tag t = Tag.byName(in.getLocalName());
+		@SuppressWarnings("null") final Tag t = Tag.byName(in.getLocalName());
 		if (t == null)
 			throw new StreamCorruptedException("Invalid tag " + in.getLocalName());
 		return t;
 	}
-	
+
 	// Primitives
-	
+
 	@Override
 	protected Object readPrimitive(final Tag type) throws IOException {
 		try {
@@ -155,7 +151,7 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 					if (v.length() > 1)
 						throw new StreamCorruptedException();
 					return v.charAt(0);
-					//$CASES-OMITTED$
+				//$CASES-OMITTED$
 				default:
 					throw new StreamCorruptedException();
 			}
@@ -165,11 +161,11 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	@Nullable
 	String primitiveData = null;
 	int primitiveDataIndex = 0;
-	
+
 	@Override
 	protected Object readPrimitive_(final Tag type) throws IOException {
 		try {
@@ -203,7 +199,7 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 					throw new StreamCorruptedException();
 				case T_CHAR:
 					return primitiveData.charAt(primitiveDataIndex++);
-					//$CASES-OMITTED$
+				//$CASES-OMITTED$
 				default:
 					throw new StreamCorruptedException();
 			}
@@ -215,9 +211,9 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// String
-	
+
 	@SuppressWarnings("null")
 	@Override
 	protected String readString() throws IOException {
@@ -227,14 +223,14 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// Array
-	
+
 	@Override
 	protected Class<?> readArrayComponentType() throws IOException {
 		return getType(getAttribute("componentType"));
 	}
-	
+
 	@Override
 	protected int readArrayLength() throws IOException {
 		try {
@@ -243,14 +239,14 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// Enum
-	
+
 	@Override
 	protected Class<?> readEnumType() throws IOException {
 		return getType(getAttribute("type"));
 	}
-	
+
 	@Override
 	protected String readEnumID() throws IOException {
 		try {
@@ -259,9 +255,9 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// Class
-	
+
 	@Override
 	protected Class<?> readClass() throws IOException {
 		try {
@@ -270,9 +266,9 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// Reference
-	
+
 	@Override
 	protected int readReference() throws IOException {
 		try {
@@ -283,14 +279,14 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	// generic Object
-	
+
 	@Override
 	protected Class<?> readObjectType() throws IOException {
 		return getType(getAttribute("type"));
 	}
-	
+
 	@Override
 	protected short readNumFields() throws IOException {
 		try {
@@ -299,15 +295,15 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new StreamCorruptedException();
 		}
 	}
-	
+
 	@Override
 	protected String readFieldID() throws IOException {
 		nextTag = readTag();
 		return getAttribute("id");
 	}
-	
+
 	// stream
-	
+
 	@Override
 	public void close() throws IOException {
 		try {
@@ -318,5 +314,5 @@ public final class YggXMLInputStream extends YggdrasilInputStream {
 			throw new IOException(e);
 		}
 	}
-	
+
 }

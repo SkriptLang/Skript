@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.lang.function;
@@ -23,9 +23,6 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
@@ -33,12 +30,7 @@ import ch.njol.util.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Static methods to work with functions.
@@ -51,7 +43,8 @@ public abstract class Functions {
 			"only contains letters and underscores. " +
 			"Refer to the documentation for more information.";
 
-	private Functions() {}
+	private Functions() {
+	}
 
 	@Nullable
 	public static ScriptFunction<?> currentFunction = null;
@@ -296,7 +289,7 @@ public abstract class Functions {
 
 	/**
 	 * Gets a signature of function with given name.
-	 * 
+	 *
 	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name.
 	 * @param name Name of function.
 	 * @return Signature, or null if function does not exist.
@@ -309,7 +302,7 @@ public abstract class Functions {
 
 	/**
 	 * Gets a signature of function with given name.
-	 * 
+	 *
 	 * @param name Name of function.
 	 * @return Signature, or null if function does not exist.
 	 */
@@ -323,7 +316,7 @@ public abstract class Functions {
 
 	/**
 	 * Gets a signature of function with given name.
-	 * 
+	 *
 	 * @param name Name of function.
 	 * @param script The script where the function is declared in. Used to get local functions.
 	 * @return Signature, or null if function does not exist.

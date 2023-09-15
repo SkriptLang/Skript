@@ -1,39 +1,33 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.entity;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import org.bukkit.entity.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import org.bukkit.entity.Cod;
-import org.bukkit.entity.Fish;
-import org.bukkit.entity.PufferFish;
-import org.bukkit.entity.Salmon;
-import org.bukkit.entity.Tadpole;
-import org.bukkit.entity.TropicalFish;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 public class FishData extends EntityData<Fish> {
 
@@ -46,18 +40,19 @@ public class FishData extends EntityData<Fish> {
 			PATTERNS.add("tadpole");
 		register(FishData.class, "fish", Fish.class, 0, PATTERNS.toArray(new String[0]));
 	}
-	
+
 	private boolean init = true;
 	private boolean wildcard = false;
 	private int pattern = -1;
-	
-	public FishData() {}
-	
+
+	public FishData() {
+	}
+
 	public FishData(int pattern) {
 		this.pattern = pattern;
 		super.matchedPattern = pattern;
 	}
-	
+
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 0)
@@ -124,7 +119,7 @@ public class FishData extends EntityData<Fish> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		return entityData instanceof Fish ? (wildcard ? true : getPattern((Fish) entityData) == pattern) : false;
 	}
-	
+
 	private static int getInitPattern(@Nullable Fish fish) {
 		if (fish == null)
 			return 0;
@@ -140,10 +135,10 @@ public class FishData extends EntityData<Fish> {
 			return 5;
 		return 0;
 	}
-	
+
 	private int getPattern(@Nullable Fish fish) {
 		int p = getInitPattern(fish);
 		return p == 0 ? pattern : p;
 	}
-	
+
 }

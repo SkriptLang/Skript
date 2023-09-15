@@ -1,35 +1,26 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -38,12 +29,16 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Applied Enchantments")
 @Description({"The applied enchantments in an enchant event.",
-				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
+	" Deleting or removing the applied enchantments will prevent the item's enchantment."})
 @Examples({"on enchant:",
-			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
+	"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
 @Events("enchant")
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
@@ -69,8 +64,8 @@ public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 			return null;
 
 		return ((EnchantItemEvent) e).getEnchantsToAdd().entrySet().stream()
-				.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
-				.toArray(EnchantmentType[]::new);
+			.map(entry -> new EnchantmentType(entry.getKey(), entry.getValue()))
+			.toArray(EnchantmentType[]::new);
 	}
 
 	@Override

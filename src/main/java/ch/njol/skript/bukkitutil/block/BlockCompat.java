@@ -1,25 +1,24 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.bukkitutil.block;
 
-import java.util.Map;
-
+import ch.njol.skript.aliases.ItemFlags;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -27,22 +26,21 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemFlags;
+import java.util.Map;
 
 /**
  * Methods which operate with blocks but are not compatible across some
  * Minecraft versions.
  */
 public interface BlockCompat {
-	
+
 	/**
 	 * Instance of BlockCompat for current Minecraft version.
 	 */
 	BlockCompat INSTANCE = new NewBlockCompat();
-	
+
 	static final BlockSetter SETTER = INSTANCE.getSetter();
-	
+
 	/**
 	 * Gets block values from a block state. They can be compared to other
 	 * values if needed, but cannot be used to retrieve any other data.
@@ -51,7 +49,7 @@ public interface BlockCompat {
 	 */
 	@Nullable
 	BlockValues getBlockValues(BlockState block);
-	
+
 	/**
 	 * Gets block values from a block. They can be compared to other values
 	 * if needed, but cannot be used to retrieve any other data.
@@ -62,7 +60,7 @@ public interface BlockCompat {
 	default BlockValues getBlockValues(Block block) {
 		return getBlockValues(block.getState());
 	}
-	
+
 	/**
 	 * Gets block values from a item stack. They can be compared to other values
 	 * if needed, but cannot be used to retrieve any other data.
@@ -71,14 +69,14 @@ public interface BlockCompat {
 	 */
 	@Nullable
 	BlockValues getBlockValues(ItemStack stack);
-	
+
 	/**
 	 * Creates a block state from a falling block.
 	 * @param entity Falling block entity
 	 * @return Block state.
 	 */
 	BlockState fallingBlockToState(FallingBlock entity);
-	
+
 	@Nullable
 	default BlockValues getBlockValues(FallingBlock entity) {
 		return getBlockValues(fallingBlockToState(entity));
@@ -96,7 +94,7 @@ public interface BlockCompat {
 	 */
 	@Nullable
 	BlockValues createBlockValues(Material type, Map<String, String> states, @Nullable ItemStack item, int itemFlags);
-	
+
 	/**
 	 * Creates new block values for given material and state.
 	 * @param type Block material.
@@ -107,14 +105,14 @@ public interface BlockCompat {
 	default BlockValues createBlockValues(Material type, Map<String, String> states) {
 		return createBlockValues(type, states, null, 0);
 	}
-	
+
 	/**
 	 * Gets block setter that understands block values produced by this
 	 * compatibility layer.
 	 * @return Block setter.
 	 */
 	BlockSetter getSetter();
-		
+
 	/**
 	 * Checks whether the given material implies emptiness. On Minecraft 1.13+,
 	 * there are several blocks that do so.
@@ -122,7 +120,7 @@ public interface BlockCompat {
 	 * @return Whether the material implies empty block.
 	 */
 	boolean isEmpty(Material type);
-	
+
 	/**
 	 * Checks whether the given material is a liquid.
 	 * @param type Material of block.
