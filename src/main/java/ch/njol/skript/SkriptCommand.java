@@ -27,9 +27,6 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -72,16 +69,6 @@ public class SkriptCommand implements CommandExecutor {
 			.add("<script>")
 		).add("info"
 		).add("help");
-
-	static {
-		// Add command to generate documentation
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
-			SKRIPT_COMMAND_HELP.add("gen-docs");
-
-		// Add command to run individual tests
-		if (TestMode.DEV_MODE)
-			SKRIPT_COMMAND_HELP.add("test");
-	}
 
 	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
@@ -344,54 +331,6 @@ public class SkriptCommand implements CommandExecutor {
 				}
 				if (!dependenciesFound)
 					info(sender, "info.dependencies", "None");
-
-			} else if (args[0].equalsIgnoreCase("gen-docs")) {
-				File templateDir = Documentation.getDocsTemplateDirectory();
-				if (!templateDir.exists()) {
-					Skript.error(sender, "Cannot generate docs! Documentation templates not found at 'plugins/Skript/doc-templates/'");
-					TestMode.docsFailed = true;
-					return true;
-				}
-				File outputDir = Documentation.getDocsOutputDirectory();
-				outputDir.mkdirs();
-				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
-				Skript.info(sender, "Generating docs...");
-				generator.generate(); // Try to generate docs... hopefully
-				Skript.info(sender, "Documentation generated!");
-			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
-				File scriptFile;
-				if (args.length == 1) {
-					scriptFile = TestMode.lastTestFile;
-					if (scriptFile == null) {
-						Skript.error(sender, "No test script has been run yet!");
-						return true;
-					}
-				} else {
-					scriptFile = TestMode.TEST_DIR.resolve(
-						Arrays.stream(args).skip(1).collect(Collectors.joining(" ")) + ".sk"
-					).toFile();
-					TestMode.lastTestFile = scriptFile;
-				}
-
-				if (!scriptFile.exists()) {
-					Skript.error(sender, "Test script doesn't exist!");
-					return true;
-				}
-
-				ScriptLoader.loadScripts(scriptFile, logHandler)
-					.thenAccept(scriptInfo ->
-						// Code should run on server thread
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-							Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
-							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
-
-							// Get results and show them
-							String[] lines = TestTracker.collectResults().createReport().split("\n");
-							for (String line : lines) {
-								Skript.info(sender, line);
-							}
-						})
-					);
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}

@@ -16,7 +16,6 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
@@ -28,7 +27,6 @@ import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -49,8 +47,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -349,9 +345,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		SkriptConfig.load();
 
-		if (TestMode.VERBOSITY != null)
-			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
-
 		try {
 			Aliases.load();
 		} catch (StackOverflowError e) {
@@ -434,17 +427,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 				finishedLoadingHooks = true;
 
-				if (TestMode.ENABLED) {
-					info("Preparing Skript for testing...");
-					tainted = true;
-					try {
-						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
-					} catch (IOException e) {
-						Skript.exception("Failed to load testing environment.");
-						Bukkit.getServer().shutdown();
-					}
-				}
-
 				stopAcceptingRegistrations();
 
 
@@ -495,97 +477,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
 
 				debug("Early init done");
-
-				if (TestMode.ENABLED) {
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-						long shutdownDelay = 0;
-						if (TestMode.GEN_DOCS) {
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
-						} else if (TestMode.DEV_MODE) {
-							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
-							return;
-						} else {
-							info("Loading all tests from " + TestMode.TEST_DIR);
-
-							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
-							try {
-								errorCounter.start();
-								File testDir = TestMode.TEST_DIR.toFile();
-								assert testDir != null;
-								ScriptLoader.loadScripts(testDir, errorCounter);
-							} finally {
-								errorCounter.stop();
-							}
-
-							Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
-							if (errorCounter.getCount() > 0) {
-								TestTracker.testStarted("parse scripts");
-								TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
-							}
-							if (errored) {
-								TestTracker.testStarted("run scripts");
-								TestTracker.testFailed("exception was thrown during execution");
-							}
-							if (TestMode.JUNIT) {
-								SkriptLogger.setVerbosity(Verbosity.DEBUG);
-								info("Running all JUnit tests...");
-								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
-								try {
-									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
-									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-									size = classes.size();
-									for (Class<?> clazz : classes) {
-										String test = clazz.getName();
-										SkriptJUnitTest.setCurrentJUnitTest(test);
-										SkriptJUnitTest.setShutdownDelay(0);
-
-										info("Running JUnit test '" + test + "'");
-										Result junit = JUnitCore.runClasses(clazz);
-										TestTracker.testStarted("JUnit: '" + test + "'");
-
-										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
-										tests += junit.getRunCount();
-										milliseconds += junit.getRunTime();
-										ignored += junit.getIgnoreCount();
-										fails += junit.getFailureCount();
-
-										junit.getFailures().forEach(failure -> {
-											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-											TestTracker.testFailed("'" + test + "': " + message);
-											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
-										});
-										SkriptJUnitTest.clearJUnitTest();
-									}
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to execute JUnit runtime tests.");
-								} catch (ClassNotFoundException e) {
-									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
-								}
-								if (ignored > 0)
-									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
-
-								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
-							}
-						}
-						double display = shutdownDelay / 20;
-						info("Testing done, shutting down the server in " + display + " second" + (display <= 1D ? "" : "s") + "...");
-						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-								TestTracker.testFailed(EffObjectives.getFailedObjectivesString());
-
-							info("Collecting results to " + TestMode.RESULTS_FILE);
-							String results = new Gson().toJson(TestTracker.collectResults());
-							try {
-								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-							} catch (IOException e) {
-								Skript.exception(e, "Failed to write test results.");
-							}
-
-							Bukkit.getServer().shutdown();
-						}, shutdownDelay);
-					}, 100);
-				}
 
 				Metrics metrics = new Metrics(Skript.this, 722);
 				metrics.addCustomChart(new SimplePie("pluginLanguage", Language::getName));

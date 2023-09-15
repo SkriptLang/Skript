@@ -16,7 +16,7 @@
  * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.test.runner;
+package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
