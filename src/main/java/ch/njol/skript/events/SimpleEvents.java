@@ -711,6 +711,7 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 
+<<<<<<< HEAD
 		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
 				.description("Called when a player picks up an arrow from the ground.")
 				.examples(
@@ -721,6 +722,8 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 
+=======
+>>>>>>> master
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
 				.description("Called when a player drags an item in their cursor across the inventory.")
 				.examples(

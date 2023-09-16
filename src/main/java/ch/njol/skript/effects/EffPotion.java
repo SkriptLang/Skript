@@ -101,7 +101,11 @@ public class EffPotion extends Effect {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			tier = (Expression<Number>) exprs[1];
 			entities = (Expression<LivingEntity>) exprs[2];
+<<<<<<< HEAD
 			if (!infinite)
+=======
+			if (infinite)
+>>>>>>> master
 				duration = (Expression<Timespan>) exprs[3];
 		}
 		return true;
@@ -125,7 +129,11 @@ public class EffPotion extends Effect {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
 					return;
+<<<<<<< HEAD
 				duration = (int) Math.min(timespan.getTicks_i(), Integer.MAX_VALUE);
+=======
+				duration = (int) Math.max(timespan.getTicks_i(), Integer.MAX_VALUE);
+>>>>>>> master
 			}
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {

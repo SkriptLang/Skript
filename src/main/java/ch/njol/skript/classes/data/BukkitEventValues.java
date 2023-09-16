@@ -165,6 +165,14 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
+<<<<<<< HEAD
+=======
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+>>>>>>> master
 /**
  * @author Peter Güttinger
  */

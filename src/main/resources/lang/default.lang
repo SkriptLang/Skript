@@ -1316,6 +1316,7 @@ teleport causes:
 	unknown: unknown
 	dismount: dismount, dismounted
 	exit_bed: exit bed, exiting bed, bed exit
+<<<<<<< HEAD
 
 # -- Inventory Close Reasons --
 inventory close reasons:
@@ -1328,6 +1329,8 @@ inventory close reasons:
 	disconnect: disconnected, disconnect
 	death: death
 	plugin: plugin
+=======
+>>>>>>> master
 
 # -- Game Modes --
 game modes:
