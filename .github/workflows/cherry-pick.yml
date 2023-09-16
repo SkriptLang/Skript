@@ -1,6 +1,6 @@
 name: Cherry picks version targeted pull requests
 
-on:
+on: 
   pull_request:
     branches:
       - master
