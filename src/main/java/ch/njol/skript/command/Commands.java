@@ -103,24 +103,24 @@ public abstract class Commands {
 	private static void init() {
 		try {
 			if (Bukkit.getPluginManager() instanceof SimplePluginManager) {
-				final Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
+				Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
 				commandMapField.setAccessible(true);
 				commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getPluginManager());
 				
-				final Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+				Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
 				knownCommandsField.setAccessible(true);
 				cmKnownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
 				
 				try {
-					final Field aliasesField = SimpleCommandMap.class.getDeclaredField("aliases");
+					Field aliasesField = SimpleCommandMap.class.getDeclaredField("aliases");
 					aliasesField.setAccessible(true);
 					cmAliases = (Set<String>) aliasesField.get(commandMap);
-				} catch (final NoSuchFieldException ignored) {}
+				} catch (NoSuchFieldException ignored) {}
 			}
-		} catch (final SecurityException e) {
+		} catch (SecurityException e) {
 			Skript.error("Please disable the security manager");
 			commandMap = null;
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			Skript.outdatedError(e);
 			commandMap = null;
 		}
@@ -145,7 +145,7 @@ public abstract class Commands {
 	private final static Listener commandListener = new Listener() {
 		@SuppressWarnings("null")
 		@EventHandler(priority = EventPriority.HIGHEST)
-		public void onServerCommand(final ServerCommandEvent event) {
+		public void onServerCommand(ServerCommandEvent event) {
 			if (event.getCommand().isEmpty() || event.isCancelled())
 				return;
 			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
@@ -155,12 +155,12 @@ public abstract class Commands {
 		}
 	};
 	
-	static boolean handleEffectCommand(final CommandSender sender, String command) {
+	static boolean handleEffectCommand(CommandSender sender, String command) {
 		if (!(sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
 			return false;
 		try {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
-			final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				// Call the event on the Bukkit API for addon developers.
 				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command);
@@ -194,7 +194,7 @@ public abstract class Commands {
 				log.stop();
 			}
 			return true;
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			Skript.exception(e, "Unexpected error while executing effect command '" + SkriptColor.replaceColorChar(command) + "' by '" + sender.getName() + "'");
 			sender.sendMessage(ChatColor.RED + "An internal error occurred while executing this effect. Please refer to the server log for details.");
 			return true;
@@ -205,15 +205,20 @@ public abstract class Commands {
 	public static ScriptCommand getScriptCommand(String key) {
 		return commands.get(key);
 	}
-	
-	public static boolean scriptCommandExists(final String command) {
-		final ScriptCommand scriptCommand = commands.get(command);
+
+	@Deprecated
+	public static boolean skriptCommandExists(String command) {
+		return scriptCommandExists(command);
+	}
+
+	public static boolean scriptCommandExists(String command) {
+		ScriptCommand scriptCommand = commands.get(command);
 		return scriptCommand != null && scriptCommand.getName().equals(command);
 	}
 	
-	public static void registerCommand(final ScriptCommand command) {
+	public static void registerCommand(ScriptCommand command) {
 		// Validate that there are no duplicates
-		final ScriptCommand existingCommand = commands.get(command.getLabel());
+		ScriptCommand existingCommand = commands.get(command.getLabel());
 		if (existingCommand != null && existingCommand.getLabel().equals(command.getLabel())) {
 			Script script = existingCommand.getScript();
 			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined"
@@ -227,7 +232,7 @@ public abstract class Commands {
 			command.register(commandMap, cmKnownCommands, cmAliases);
 		}
 		commands.put(command.getLabel(), command);
-		for (final String alias : command.getActiveAliases()) {
+		for (String alias : command.getActiveAliases()) {
 			commands.put(alias.toLowerCase(Locale.ENGLISH), command);
 		}
 		command.registerHelp();
@@ -269,14 +274,14 @@ public abstract class Commands {
 						if (handleEffectCommand(event.getPlayer(), event.getMessage()))
 							event.setCancelled(true);
 					} else {
-						final Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
+						Future<Boolean> f = Bukkit.getScheduler().callSyncMethod(Skript.getInstance(), () -> handleEffectCommand(event.getPlayer(), event.getMessage()));
 						try {
 							while (true) {
 								try {
 									if (f.get())
 										event.setCancelled(true);
 									break;
-								} catch (final InterruptedException ignored) {
+								} catch (InterruptedException ignored) {
 								}
 							}
 						} catch (ExecutionException e) {
@@ -298,7 +303,7 @@ public abstract class Commands {
 		private final String aliasFor;
 		private final HelpMap helpMap;
 		
-		public CommandAliasHelpTopic(final String alias, final String aliasFor, final HelpMap helpMap) {
+		public CommandAliasHelpTopic(String alias, String aliasFor, HelpMap helpMap) {
 			this.aliasFor = aliasFor.startsWith("/") ? aliasFor : "/" + aliasFor;
 			this.helpMap = helpMap;
 			name = alias.startsWith("/") ? alias : "/" + alias;
@@ -308,9 +313,9 @@ public abstract class Commands {
 		
 		@Override
 		@NotNull
-		public String getFullText(final CommandSender forWho) {
-			final StringBuilder fullText = new StringBuilder(shortText);
-			final HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
+		public String getFullText(CommandSender forWho) {
+			StringBuilder fullText = new StringBuilder(shortText);
+			HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
 			if (aliasForTopic != null) {
 				fullText.append("\n");
 				fullText.append(aliasForTopic.getFullText(forWho));
@@ -319,10 +324,10 @@ public abstract class Commands {
 		}
 		
 		@Override
-		public boolean canSee(final CommandSender commandSender) {
+		public boolean canSee(CommandSender commandSender) {
 			if (amendedPermission != null)
 				return commandSender.hasPermission(amendedPermission);
-			final HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
+			HelpTopic aliasForTopic = helpMap.getHelpTopic(aliasFor);
 			return aliasForTopic != null && aliasForTopic.canSee(commandSender);
 		}
 	}
