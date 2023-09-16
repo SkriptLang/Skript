@@ -204,7 +204,7 @@ public class PotionModule {
 
 		// Load Syntax
 		try {
-			addon.loadClasses("org.skriptlang.skriptbukkit.potion.elements");
+			addon.loadClasses("org.skriptlang.skript.bukkit.potion.elements");
 		} catch (IOException e) {
 			Skript.exception(e, "An error occurred while trying to load potion elements.");
 		}
