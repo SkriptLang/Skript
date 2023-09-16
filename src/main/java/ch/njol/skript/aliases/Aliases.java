@@ -379,7 +379,7 @@ public abstract class Aliases {
 		try {
 			long start = System.currentTimeMillis();
 			loadInternal();
-			Skript.info("Loaded " + provider.getAliasCount() + " aliases in " + (System.currentTimeMillis() - start) + "ms");
+			Skript.info(provider.getAliasCount() + " 個のエイリアスを " + (System.currentTimeMillis() - start) + "ミリ秒で読み込みました。");
 		} catch (IOException e) {
 			Skript.exception(e);
 		}
