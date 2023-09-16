@@ -1,0 +1,84 @@
+name: Cherry picks version targeted pull requests
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+    check_label:
+        runs-on: ubuntu-latest
+        name: Configure workflow
+        if: github.event.pull_request.merged == true
+        outputs:
+          TARGET_VERSION: ${{ steps.set-outputs.outputs.TARGET_VERSION }}
+          TARGET_BRANCH: ${{ steps.set-outputs.outputs.TARGET_BRANCH }}
+        steps:
+          - name: Checkout Skript
+            uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
+          - name: Set outputs
+            id: set-outputs
+            shell: bash
+            run: |
+              readarray -t labels < <(gh pr view --json labels --jq '.labels[].name | select(test("^[0-9].*"))' "${{ github.event.number }}")
+              if [ ${#labels[@]} -eq 0 ]
+              then
+                echo "No version labels found"
+                exit 0
+              fi
+              
+              for label in "${labels[@]}"
+              do
+                if git ls-remote --exit-code --heads origin "refs/heads/dev/$label"
+                then
+                  if [ -z "${target_branch}" ]
+                  then
+                    echo "Found target version label $label"
+                    target_version="$label"
+                    target_branch="dev/$label"
+                  else
+                    echo "Found multiple target version labels with branches (${labels[@]})"
+                    exit 0
+                  fi
+                else
+                  echo "Skipping $label as a dev/$label branch does not exist"
+                fi
+              done
+              
+              if [ -z "${target_branch}" ]
+              then
+                echo "No target version branch found (${labels[@]})"
+                exit 0
+              else
+                echo "TARGET_BRANCH=${target_branch}" >> $GITHUB_OUTPUT
+                echo "TARGET_VERSION=${target_version}" >> $GITHUB_OUTPUT
+              fi
+              
+    cherry_pick:
+        runs-on: ubuntu-latest
+        name: Cherry pick into version branch
+        needs: check_label
+        if: needs.check_label.outputs.TARGET_BRANCH != ''
+        steps:
+         - name: Checkout Skript
+           uses: actions/checkout@v3
+           with:
+             fetch-depth: 0
+         - name: Cherry pick into version branch
+           uses: carloscastrojumo/github-cherry-pick-action@v1.0.9
+           with:
+            branch: ${{ needs.check_label.outputs.TARGET_BRANCH }} 
+            labels: ${{ needs.check_label.outputs.TARGET_VERSION }}
+            title: "[${{ needs.check_label.outputs.TARGET_VERSION }} target] {old_title}"
+            body: "Cherry picking #{old_pull_request_id} into ${{ needs.check_label.outputs.TARGET_VERSION }}"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
