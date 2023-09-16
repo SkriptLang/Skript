@@ -1,3 +1,21 @@
+/**
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * Copyright Peter Güttinger, SkriptLang team and contributors
+ */
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
@@ -235,7 +253,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	@SafeVarargs
 	public static void disableHookRegistration(Class<? extends Hook<?>>... hooks) {
 		if (finishedLoadingHooks) { // Hooks have been registered if Skript is enabled
-			throw new SkriptAPIException("Disabling hooks is not possible after Skript has been enabled!");
+			throw new SkriptAPIException("Skript有効化後は連携プラグインを無効化できません。");
 		}
 		Collections.addAll(disabledHookRegistrations, hooks);
 	}
@@ -274,13 +292,13 @@ public final class Skript extends JavaPlugin implements Listener {
 			try {
 				if (!scriptsFolder.isDirectory()) {
 					if (!scriptsFolder.mkdirs())
-						throw new IOException("Could not create the directory " + scriptsFolder);
+						throw new IOException("以下のディレクトリが作成できませんでした: " + scriptsFolder);
 				}
 
 				boolean populateLanguageFiles = false;
 				if (!lang.isDirectory()) {
 					if (!lang.mkdirs())
-						throw new IOException("Could not create the directory " + lang);
+						throw new IOException("以下のディレクトリが作成できませんでした: " + lang);
 					populateLanguageFiles = true;
 				}
 
@@ -311,10 +329,10 @@ public final class Skript extends JavaPlugin implements Listener {
 						}
 					}
 				}
-				info("Successfully generated the config.");
+				info("正常にコンフィグを生成しました。");
 			} catch (ZipException ignored) {
 			} catch (IOException e) {
-				error("Error generating the default files: " + ExceptionUtils.toString(e));
+				error("基本ファイルを生成中にエラーが発生しました: " + ExceptionUtils.toString(e));
 			} finally {
 				if (f != null) {
 					try {
@@ -350,9 +368,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		} catch (StackOverflowError e) {
 			if (using32BitJava()) {
 				Skript.error("");
-				Skript.error("There was a StackOverflowError that occured while loading aliases.");
-				Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
-				Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
+				Skript.error("エラー出たから64bitのJava使え");
 				Skript.error("");
 			} else {
 				throw e;
@@ -382,7 +398,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 		} catch (final Exception e) {
-			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
+			exception(e, "以下のファイルを読み込めませんでした: " + e.getLocalizedMessage());
 			setEnabled(false);
 			return;
 		}
@@ -412,17 +428,17 @@ public final class Skript extends JavaPlugin implements Listener {
 										hook.getDeclaredConstructor().newInstance();
 									}
 								} catch (ClassNotFoundException ex) {
-									Skript.exception(ex, "Cannot load class " + c);
+									Skript.exception(ex, "以下のクラスを読み込めませんでした: " + c);
 								} catch (ExceptionInInitializerError err) {
-									Skript.exception(err.getCause(), "Class " + c + " generated an exception while loading");
+									Skript.exception(err.getCause(), "読み込み中にクラス " + c + " が例外を吐きました。");
 								} catch (Exception ex) {
-									Skript.exception(ex, "Exception initializing hook: " + c);
+									Skript.exception(ex, "連携プラグイン初期化中にエラーが発生しました: " + c);
 								}
 							}
 						}
 					}
 				} catch (IOException e) {
-					error("Error while loading plugin hooks" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
+					error("連携プラグインを読み込み中にエラーが発生しました" + (e.getLocalizedMessage() == null ? "" : ": " + e.getLocalizedMessage()));
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
@@ -434,7 +450,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				// Variable loading
 				if (logNormal())
-					info("Loading variables...");
+					info("変数の読み込みを開始します。");
 				long vls = System.currentTimeMillis();
 
 				LogHandler h = SkriptLogger.startLogHandler(new ErrorDescLogHandler() {
@@ -452,14 +468,13 @@ public final class Skript extends JavaPlugin implements Listener {
 					@Override
 					protected void beforeErrors() {
 						logEx();
-						logEx("===!!!=== Skript variable load error ===!!!===");
-						logEx("Unable to load (all) variables:");
+						logEx("===!!!=== 変数の読み込みに失敗 ===!!!===");
 					}
 
 					@Override
 					protected void afterErrors() {
 						logEx();
-						logEx("Skript will work properly, but old variables might not be available at all and new ones may or may not be saved until Skript is able to create a backup of the old file and/or is able to connect to the database (which requires a restart of Skript)!");
+						logEx("Skriptは正常に動作しますが、過去の変数データが使用出来ない可能性があります。また、この問題が解決するまで新たに変数を保存できない可能性があります。");
 						logEx();
 					}
 				});
@@ -467,16 +482,16 @@ public final class Skript extends JavaPlugin implements Listener {
 				try (CountingLogHandler c = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
 					if (!Variables.load())
 						if (c.getCount() == 0)
-							error("(no information available)");
+							error("(なんもない)");
 				} finally {
 					h.stop();
 				}
 
 				long vld = System.currentTimeMillis() - vls;
 				if (logNormal())
-					info("Loaded " + Variables.numVariables() + " variables in " + ((vld / 100) / 10.) + " seconds");
+					info(Variables.numVariables() + " 個の変数を " + ((vld / 100) / 10.) + " 秒で読み込みました。");
 
-				debug("Early init done");
+				debug("初期化終わり");
 
 				Metrics metrics = new Metrics(Skript.this, 722);
 				metrics.addCustomChart(new SimplePie("pluginLanguage", Language::getName));
