@@ -25,17 +25,20 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
 @Name("Continue")
-@Description("Immediately moves the (while) loop on to the next iteration.")
+@Description("Moves the loop to the next iteration. You may also continue an outer loop from an inner one." +
+	" The loops are labelled from 1 until the current loop, starting with the outermost one.")
 @Examples({
 	"# Broadcast online moderators",
 	"loop all players:",
@@ -52,26 +55,41 @@ import java.util.List;
 			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
 		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
 })
-@Since("2.2-dev37, 2.7 (while loops)")
+@Since("2.2-dev37, 2.7 (while loops), INSERT VERSION (outer loops)")
 public class EffContinue extends Effect {
 
 	static {
-		Skript.registerEffect(EffContinue.class, "continue [loop]");
+		Skript.registerEffect(EffContinue.class, "continue [[this|[the] (%*integer%(st|nd|rd|th)|current)] loop]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private LoopSection loop;
+	private List<LoopSection> innerLoops;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
-		
-		if (currentLoops.isEmpty()) {
-			Skript.error("The 'continue' effect may only be used in while and regular loops");
+
+		int size = currentLoops.size();
+		if (size == 0) {
+			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
 		}
-		
-		loop = currentLoops.get(currentLoops.size() - 1);
+
+		int levels = ((Literal<Integer>) exprs[0]).getSingle();
+		if (levels < 1) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(levels) + " loop");
+			return false;
+		}
+		if (levels > size) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(levels) + " loop as there " +
+				(size == 1 ? "is only 1 loop" : "are only " + size + " loops") + " present");
+			return false;
+		}
+
+		loop = currentLoops.get(levels - 1);
+		innerLoops = currentLoops.subList(levels, size);
 		return true;
 	}
 
@@ -83,6 +101,8 @@ public class EffContinue extends Effect {
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
+		for (LoopSection loop : innerLoops)
+			loop.exit(event);
 		return loop;
 	}
 
