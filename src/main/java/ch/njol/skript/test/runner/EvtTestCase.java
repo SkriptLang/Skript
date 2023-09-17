@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.test.runner;
 
+import ch.njol.skript.doc.NoDoc;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
@@ -32,6 +33,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 
+@NoDoc
 public class EvtTestCase extends SkriptEvent {
 
 	static {
