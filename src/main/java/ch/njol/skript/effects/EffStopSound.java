@@ -49,33 +49,31 @@ import java.util.regex.Pattern;
 @Examples({
 	"stop sound \"block.chest.open\" for the player",
 	"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player",
-	"stop all sound for all players",
-	"stop sound in record category"
+	"stop all sounds for all players",
+	"stop sound in the record category"
 })
 @Since("2.4, 2.7 (stop all sounds)")
 @RequiredPlugins("MC 1.17.1 (stop all sounds)")
 public class EffStopSound extends Effect {
-	
+
 	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
 
-	
 	static {
-		String stopPattern = STOP_ALL_SUPPORTED ? "(all:all sound[s]|sound[s] %strings%)" : "sound[s] %strings%";
-		
+		String stopPattern = STOP_ALL_SUPPORTED ? "(all:all sound[s]|sound[s] %-strings%)" : "sound[s] %strings%";
 		Skript.registerEffect(EffStopSound.class,
-			"stop " + stopPattern + " [(in|from) %-soundcategory%] [(from playing to|for) %players%]",
-			"stop playing sound[s] %strings% [(in|from) %-soundcategory%] [(to|for) %players%]"
+				"stop " + stopPattern + " [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]",
+				"stop playing sound[s] %strings% [(in [the]|from) %-soundcategory%] [(to|for) %players%]"
 		);
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<String> sounds;
+
 	@Nullable
 	private Expression<SoundCategory> category;
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
+	@Nullable
+	private Expression<String> sounds;
+
 	private Expression<Player> players;
-	
 	private boolean allSounds;
 
 	@Override
@@ -90,7 +88,6 @@ public class EffStopSound extends Effect {
 			category = (Expression<SoundCategory>) exprs[1];
 			players = (Expression<Player>) exprs[2];
 		}
-		
 		return true;
 	}
 
@@ -98,37 +95,31 @@ public class EffStopSound extends Effect {
 	protected void execute(Event event) {
 		// All sounds pattern wants explicitly defined master category
 		SoundCategory category = this.category == null ? null : this.category.getOptionalSingle(event)
-			.orElse(allSounds ? null : SoundCategory.MASTER);
+				.orElse(allSounds ? null : SoundCategory.MASTER);
+
 		Player[] targets = players.getArray(event);
-		
 		if (allSounds) {
 			if (category == null) {
-				for (Player player : targets) {
+				for (Player player : targets)
 					player.stopAllSounds();
-				}
 			} else {
-				for (Player player : targets) {
+				for (Player player : targets)
 					player.stopSound(category);
-				}
 			}
-		} else {
+		} else if (sounds != null) {
 			for (String sound : sounds.getArray(event)) {
 				try {
 					Sound soundEnum = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
-					for (Player player : targets) {
+					for (Player player : targets)
 						player.stopSound(soundEnum, category);
-					}
-					
+
 					continue;
-				} catch (IllegalArgumentException ignored) { }
-				
+				} catch (IllegalArgumentException ignored) {}
 				sound = sound.toLowerCase(Locale.ENGLISH);
 				if (!KEY_PATTERN.matcher(sound).matches())
 					continue;
-				
-				for (Player player : targets) {
+				for (Player player : targets)
 					player.stopSound(sound, category);
-				}
 			}
 		}
 	}
