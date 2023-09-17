@@ -20,7 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.eclipse.jdt.annotation.Nullable;
@@ -62,7 +62,7 @@ public class EffRespawn extends Effect {
 		players = (Expression<Player>) exprs[0];
 		// Force a delay before respawning the player if we're in the death event and there isn't already a delay
 		// Unexpected behavior may occur if we don't do this
-		forceDelay = getParser().isCurrentEvent(PlayerDeathEvent.class) && isDelayed.isFalse();
+		forceDelay = getParser().isCurrentEvent(EntityDeathEvent.class) && isDelayed.isFalse();
 		return true;
 	}
 
