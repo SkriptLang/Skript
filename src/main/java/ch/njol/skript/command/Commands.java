@@ -176,7 +176,8 @@ public abstract class Commands {
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
 						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
-						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
+						// TODO: remove logPlayerCommands for 2.8.0
+						if ((SkriptConfig.logEffectCommands.value() || SkriptConfig.logPlayerCommands.value()) && !(sender instanceof ConsoleCommandSender))
 							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
@@ -206,6 +207,9 @@ public abstract class Commands {
 		return commands.get(key);
 	}
 
+	/*
+	 * @deprecated Use {@link #scriptCommandExists(String)} instead.
+	 */
 	@Deprecated
 	public static boolean skriptCommandExists(String command) {
 		return scriptCommandExists(command);

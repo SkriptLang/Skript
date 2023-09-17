@@ -126,8 +126,14 @@ public class SkriptConfig {
 	public static final Option<Boolean> enableEffectCommands = new Option<>("enable effect commands", false);
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
+
+	/*
+	 * @deprecated Will be removed in 2.8.0. Use {@link #logEffectCommands} instead.
+	 */
+	@Deprecated
+	public static final Option<Boolean> logPlayerCommands = new Option<>("log player commands", false).optional(true);
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
-	
+
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
 	
