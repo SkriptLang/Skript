@@ -59,11 +59,15 @@ import java.util.List;
 public class EffContinue extends Effect {
 
 	static {
-		Skript.registerEffect(EffContinue.class, "continue [[this|[the] (%*integer%(st|nd|rd|th)|current)] loop]");
+		Skript.registerEffect(EffContinue.class,
+			"continue [this loop|[the] [current] loop]",
+			"continue [the] %*integer%(st|nd|rd|th) loop"
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private LoopSection loop;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private List<LoopSection> innerLoops;
 
 	@Override
@@ -77,19 +81,19 @@ public class EffContinue extends Effect {
 			return false;
 		}
 
-		int levels = ((Literal<Integer>) exprs[0]).getSingle();
-		if (levels < 1) {
-			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(levels) + " loop");
+		int level = matchedPattern == 0 ? size : ((Literal<Integer>) exprs[0]).getSingle();
+		if (level < 1) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
 			return false;
 		}
-		if (levels > size) {
-			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(levels) + " loop as there " +
+		if (level > size) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
 				(size == 1 ? "is only 1 loop" : "are only " + size + " loops") + " present");
 			return false;
 		}
 
-		loop = currentLoops.get(levels - 1);
-		innerLoops = currentLoops.subList(levels, size);
+		loop = currentLoops.get(level - 1);
+		innerLoops = currentLoops.subList(level, size);
 		return true;
 	}
 
