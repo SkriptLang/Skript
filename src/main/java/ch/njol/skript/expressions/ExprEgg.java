@@ -42,7 +42,7 @@ public class ExprEgg extends EventValueExpression<Egg> {
 	}
 
 	public ExprEgg() {
-		super(Egg.class);
+		super(Egg.class, true);
 	}
 
 	@Override
