@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
+import org.bukkit.boss.BarColor;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -42,28 +43,30 @@ import ch.njol.yggdrasil.Fields;
 @SuppressWarnings("null")
 public enum SkriptColor implements Color {
 
-	BLACK(DyeColor.BLACK, ChatColor.BLACK),
-	DARK_GREY(DyeColor.GRAY, ChatColor.DARK_GRAY),
+	BLACK(DyeColor.BLACK, ChatColor.BLACK, null),
+	DARK_GREY(DyeColor.GRAY, ChatColor.DARK_GRAY, null),
 	// DyeColor.LIGHT_GRAY on 1.13, DyeColor.SILVER on earlier (dye colors were changed in 1.12)
-	LIGHT_GREY(DyeColor.LIGHT_GRAY, ChatColor.GRAY),
-	WHITE(DyeColor.WHITE, ChatColor.WHITE),
+	LIGHT_GREY(DyeColor.LIGHT_GRAY, ChatColor.GRAY, null),
+	WHITE(DyeColor.WHITE, ChatColor.WHITE, BarColor.WHITE),
 	
-	DARK_BLUE(DyeColor.BLUE, ChatColor.DARK_BLUE),
-	BROWN(DyeColor.BROWN, ChatColor.BLUE),
-	DARK_CYAN(DyeColor.CYAN, ChatColor.DARK_AQUA),
-	LIGHT_CYAN(DyeColor.LIGHT_BLUE, ChatColor.AQUA),
+	DARK_BLUE(DyeColor.BLUE, ChatColor.DARK_BLUE, BarColor.BLUE),
+	BROWN(DyeColor.BROWN, ChatColor.BLUE, null),
+	DARK_CYAN(DyeColor.CYAN, ChatColor.DARK_AQUA, BarColor.BLUE),
+	LIGHT_CYAN(DyeColor.LIGHT_BLUE, ChatColor.AQUA, BarColor.BLUE),
 	
-	DARK_GREEN(DyeColor.GREEN, ChatColor.DARK_GREEN),
-	LIGHT_GREEN(DyeColor.LIME, ChatColor.GREEN),
+	DARK_GREEN(DyeColor.GREEN, ChatColor.DARK_GREEN, BarColor.GREEN),
+	LIGHT_GREEN(DyeColor.LIME, ChatColor.GREEN, BarColor.GREEN),
 	
-	YELLOW(DyeColor.YELLOW, ChatColor.YELLOW),
-	ORANGE(DyeColor.ORANGE, ChatColor.GOLD),
+	YELLOW(DyeColor.YELLOW, ChatColor.YELLOW, BarColor.YELLOW),
+	ORANGE(DyeColor.ORANGE, ChatColor.GOLD, BarColor.YELLOW),
 	
-	DARK_RED(DyeColor.RED, ChatColor.DARK_RED),
-	LIGHT_RED(DyeColor.PINK, ChatColor.RED),
+	DARK_RED(DyeColor.RED, ChatColor.DARK_RED, BarColor.RED),
+	LIGHT_RED(DyeColor.PINK, ChatColor.RED, BarColor.RED),
 	
-	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE),
-	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE);
+	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE, BarColor.PURPLE),
+	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE, BarColor.PURPLE),
+
+	PINK(DyeColor.PINK, ChatColor.LIGHT_PURPLE, BarColor.PINK);
 
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
@@ -84,12 +87,15 @@ public enum SkriptColor implements Color {
 	
 	private ChatColor chat;
 	private DyeColor dye;
+	private @Nullable BarColor bar;
+
 	@Nullable
 	private Adjective adjective;
 	
-	SkriptColor(DyeColor dye, ChatColor chat) {
+	SkriptColor(DyeColor dye, ChatColor chat, @Nullable BarColor bar) {
 		this.chat = chat;
 		this.dye = dye;
+		this.bar = bar;
 	}
 	
 	@Override
@@ -101,7 +107,12 @@ public enum SkriptColor implements Color {
 	public DyeColor asDyeColor() {
 		return dye;
 	}
-	
+
+	@Override
+	public @Nullable BarColor asBossBarColor() {
+		return bar;
+	}
+
 	@Override
 	public String getName() {
 		assert adjective != null;
@@ -117,6 +128,7 @@ public enum SkriptColor implements Color {
 	public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
 		dye = fields.getObject("dye", DyeColor.class);
 		chat = fields.getObject("chat", ChatColor.class);
+		bar = fields.getObject("bar", BarColor.class);
 		try {
 			adjective = fields.getObject("adjective", Adjective.class);
 		} catch (StreamCorruptedException ignored) {}
@@ -134,7 +146,7 @@ public enum SkriptColor implements Color {
 	public ChatColor asChatColor() {
 		return chat;
 	}
-	
+
 	@Deprecated
 	public byte getWoolData() {
 		return dye.getWoolData();
@@ -182,7 +194,15 @@ public enum SkriptColor implements Color {
 		assert false;
 		return null;
 	}
-	
+
+	public static SkriptColor fromBossBarColor(BarColor color) {
+		for (SkriptColor skriptColor : colors)
+			if (skriptColor.bar == color)
+				return skriptColor;
+		assert false;
+		return null;
+	}
+
 	/**
 	 * @deprecated Magic numbers
 	 * @param data short to match against a defined Skript Color.

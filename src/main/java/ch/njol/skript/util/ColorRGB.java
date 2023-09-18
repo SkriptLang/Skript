@@ -23,6 +23,7 @@ import ch.njol.util.Math2;
 import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
+import org.bukkit.boss.BarColor;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.NotSerializableException;
@@ -56,7 +57,12 @@ public class ColorRGB implements Color {
 	public DyeColor asDyeColor() {
 		return dye;
 	}
-	
+
+	@Override
+	public @Nullable BarColor asBossBarColor() {
+		return null;
+	}
+
 	@Override
 	public String getName() {
 		return "rgb " + bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();

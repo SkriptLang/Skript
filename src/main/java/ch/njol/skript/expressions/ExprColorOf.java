@@ -26,6 +26,8 @@ import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
@@ -57,7 +59,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {
-		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects");
+		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects/bossbars");
 	}
 	
 	@SuppressWarnings("null")
@@ -69,7 +71,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected Color[] get(Event e, Object[] source) {
+	protected Color[] get(Event event, Object[] source) {
 		if (source instanceof FireworkEffect[]) {
 			List<Color> colors = new ArrayList<>();
 			
@@ -79,6 +81,16 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					.forEach(colors::add);
 			}
 			
+			if (colors.size() == 0)
+				return null;
+			return colors.toArray(new Color[0]);
+		} else if (source instanceof BossBar[]) {
+			List<Color> colors = new ArrayList<>();
+
+			for (BossBar bar : (BossBar[]) source) {
+				colors.add(SkriptColor.fromBossBarColor(bar.getColor()));
+			}
+
 			if (colors.size() == 0)
 				return null;
 			return colors.toArray(new Color[0]);
@@ -110,8 +122,15 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		Class<?> returnType = getExpr().getReturnType();
 
+		// handle unknown return types at runtime
+		if (returnType == Object.class)
+			return CollectionUtils.array(Color[].class);
+
 		if (FireworkEffect.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color[].class);
+
+		if (mode == ChangeMode.SET && BossBar.class.isAssignableFrom(returnType))
+			return CollectionUtils.array(Color.class);
 
 		if (mode != ChangeMode.SET && !getExpr().isSingle())
 			return null;
@@ -120,19 +139,20 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			return CollectionUtils.array(Color.class);
 		else if (Block.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color.class);
-		if (ItemType.class.isAssignableFrom(returnType))
+		else if (ItemType.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color.class);
 		return null;
 	}
 
 	@SuppressWarnings("deprecated")
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
-		DyeColor color = ((Color) delta[0]).asDyeColor();
+		DyeColor dyeColor = ((Color) delta[0]).asDyeColor();
+		BarColor barColor = ((Color) delta[0]).asBossBarColor();
 
-		for (Object o : getExpr().getArray(e)) {
+		for (Object o : getExpr().getArray(event)) {
 			if (o instanceof Item || o instanceof ItemType) {
 				ItemStack stack = o instanceof Item ? ((Item) o).getItemStack() : ((ItemType) o).getRandom();
 
@@ -144,7 +164,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (!(data instanceof Colorable))
 					continue;
 
-				((Colorable) data).setColor(color);
+				((Colorable) data).setColor(dyeColor);
 				stack.setData(data);
 
 				if (o instanceof Item)
@@ -154,7 +174,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 				if (colorable != null) {
 					try {
-						colorable.setColor(color);
+						colorable.setColor(dyeColor);
 					} catch (UnsupportedOperationException ex) {
 						// https://github.com/SkriptLang/Skript/issues/2931
 						Skript.error("Tried setting the color of a bed, but this isn't possible in your Minecraft version, " +
@@ -187,6 +207,9 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					default:
 						break;
 				}
+			} else if (o instanceof BossBar) {
+				if (barColor != null)
+					((BossBar) o).setColor(barColor);
 			}
 		}
 	}

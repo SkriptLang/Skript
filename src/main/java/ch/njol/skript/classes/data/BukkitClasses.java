@@ -46,6 +46,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -1503,5 +1506,40 @@ public class BukkitClasses {
 				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
+
+		Classes.registerClass(new ClassInfo<>(BossBar.class, "bossbar")
+			.user("boss ? bars?")
+			.name("Boss Bar")
+			.description("Represents a boss bar")
+			.since("INSERT VERSION")
+			.parser(new Parser<BossBar>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(BossBar bossBar, int flags) {
+					return "bossbar with title \"" + bossBar.getTitle() + "\"";
+				}
+
+				@Override
+				public String toVariableNameString(BossBar bossBar) {
+					return toString(bossBar, 0);
+				}
+			}));
+
+		Classes.registerClass(new EnumClassInfo<>(BarStyle.class, "bossbarstyle", "bossbar styles")
+			.user("boss ?bar styles?")
+			.name("Boss Bar Style")
+			.description("Represents the style of a boss bar (e.g. segmented or solid)")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new EnumClassInfo<>(BarFlag.class, "bossbarflag", "bossbar flags")
+			.user("boss ? bar flags?")
+			.name("Boss Bar Flags")
+			.description("Represents a flag that can be added to a boss bar (e.g. darken sky or play boss music)")
+			.since("INSERT VERSION"));
+
 	}
 }
