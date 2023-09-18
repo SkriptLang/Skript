@@ -661,7 +661,7 @@ public class SimpleEvents {
 				)
 				.since("INSERT VERSION");
 			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border [bounds] finish chang(e|ing)")
-				.description("Called when a moving world border has finished it's move.")
+				.description("Called when a moving world border has finished its move.")
 				.requiredPlugins("Paper 1.16+")
 				.examples(
 					"on border bounds finish change:",

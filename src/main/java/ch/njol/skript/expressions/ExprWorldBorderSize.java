@@ -30,7 +30,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Size of World Border")
-@Description("The size of a world border.")
+@Description("An expression to obtain the size of a world border.")
 @Examples("set border size of {_worldborder} to 10")
 @Since("INSERT VERSION")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {

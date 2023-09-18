@@ -33,7 +33,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Inside World Border")
-@Description("Checks if a location is inside a world border.")
+@Description("A condition that determines whether a location is inside a world border.")
 @Examples({
 	"if player's location is not inside {_border}:",
 		"\tsend \"Get inside quick!\" to player"
