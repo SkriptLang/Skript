@@ -34,13 +34,16 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class DefaultFunctions {
 	
@@ -500,6 +503,44 @@ public class DefaultFunctions {
 		}).description("Returns a RGB color from the given red, green and blue parameters.")
 			.examples("dye player's leggings rgb(120, 30, 45)")
 			.since("2.5");
+
+		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
+			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
+			new Parameter<>("getExactPlayer", DefaultClasses.BOOLEAN, true, new SimpleLiteral<Boolean>(false, true)) // getExactPlayer -- grammar ¯\_ (ツ)_/¯
+		}, DefaultClasses.PLAYER, true) {
+			@Override
+			public Player[] executeSimple(Object[][] params) {
+				String name = (String) params[0][0];
+				boolean isExact = (boolean) params[1][0];
+				UUID uuid = null;
+				if (name.length() > 16 || name.contains("-")) { // shortcut
+					try {
+						uuid = UUID.fromString(name);
+					} catch (IllegalArgumentException ignored) {}
+				}
+				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
+			}
+		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
+			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
+			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
+		}, DefaultClasses.OFFLINE_PLAYER, true) {
+			@Override
+			public OfflinePlayer[] executeSimple(Object[][] params) {
+				String name = (String) params[0][0];
+				UUID uuid = null;
+				if (name.length() > 16 || name.contains("-")) { // shortcut
+					try {
+						uuid = UUID.fromString(name);
+					} catch (IllegalArgumentException ignored) {}
+				}
+				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
+			}
+		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
+			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
+			.since("INSERT VERSION");
 	}
 	
 }
