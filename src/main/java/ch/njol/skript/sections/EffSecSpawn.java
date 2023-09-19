@@ -137,16 +137,15 @@ public class EffSecSpawn extends EffectSection {
 	protected TriggerItem walk(Event event) {
 		lastSpawned = null;
 
-		Object localVars = Variables.copyLocalVariables(event);
-
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
 			consumer = o -> {
 				lastSpawned = o;
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
-				Variables.setLocalVariables(spawnEvent, localVars);
+				Variables.setLocalVariables(spawnEvent, Variables.copyLocalVariables(event));
 				TriggerItem.walk(trigger, spawnEvent);
+				// And copy our (possibly modified) local variables back to the calling code
 				Variables.setLocalVariables(event, Variables.copyLocalVariables(spawnEvent));
 				// Clear spawnEvent's local variables as it won't be done automatically
 				Variables.removeLocals(spawnEvent);
