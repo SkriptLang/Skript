@@ -479,7 +479,7 @@ public class SkriptClasses {
 
 		Classes.registerClass(new ClassInfo<>(Slot.class, "slot")
 				.user("(inventory )?slots?")
-				.name("Inventory Slot")
+				.name("Slot")
 				.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
 						"Notable slots are the <a href='./expressions.html#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
 						"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
