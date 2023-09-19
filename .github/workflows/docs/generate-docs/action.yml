@@ -52,10 +52,14 @@ runs:
           grep skriptVersion "$1/docs.json" | cut -d\" -f 4
         }
 
+        # pull before checking for docs templates
+        cd DOCS_REPO_DIR
+        git pull origin main
+
         if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
         then
           export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/docs/templates
-        else
+        else # compatibility for older versions
           export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
         fi
 
