@@ -53,7 +53,7 @@ runs:
         }
 
         # pull before checking for docs templates
-        cd DOCS_REPO_DIR
+        cd $DOCS_REPO_DIR
         git pull origin main
 
         if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
