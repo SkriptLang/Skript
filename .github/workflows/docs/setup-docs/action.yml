@@ -36,7 +36,7 @@ runs:
         DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
         DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
         CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
-      run: |
+      run: | 
         eval `ssh-agent`
         echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
         mkdir ~/.ssh
