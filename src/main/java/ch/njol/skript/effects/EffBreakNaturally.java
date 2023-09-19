@@ -62,7 +62,7 @@ public class EffBreakNaturally extends Effect {
 	static {
 		String pattern = "break %blocks% [naturally] [using %-itemtype%]";
 		if (HAS_METHOD_1_19) {
-			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and drop (xp|experience)[s]]";
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and [drop] (xp|experience)[s]]";
 		} else if (HAS_METHOD_1_17) {
 			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]]";
 		} else if (HAS_METHOD_1_15) {
