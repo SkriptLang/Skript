@@ -23,6 +23,7 @@ runs:
       with:
         repository: 'SkriptLang/skript-docs'
         path: skript-docs
+        ref: 'main'
         ssh-key: ${{ inputs.docs_deploy_key }}
     - uses: actions/setup-java@v3
       with:
