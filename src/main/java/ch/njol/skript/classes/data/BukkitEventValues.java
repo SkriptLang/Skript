@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -43,15 +48,16 @@ import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
+import org.bukkit.GameMode;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -62,7 +68,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.AbstractVillager;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -87,6 +92,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -124,9 +130,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -145,6 +155,7 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -153,11 +164,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Peter Güttinger
@@ -1068,7 +1074,7 @@ public final class BukkitEventValues {
 				if (invi instanceof PlayerInventory && slotIndex >= 36) {
 					return new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) invi).getHolder(), slotIndex);
 				} else {
-					return new InventorySlot(invi, slotIndex);
+					return new InventorySlot(invi, slotIndex, e.getRawSlot());
 				}
 			}
 		}, 0);
@@ -1303,6 +1309,13 @@ public final class BukkitEventValues {
 				return e.getInventory();
 			}
 		}, 0);
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
+				@Override
+				public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
+					return event.getReason();
+				}
+			}, EventValues.TIME_NOW);
 		//InventoryPickupItemEvent
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Inventory.class, new Getter<Inventory, InventoryPickupItemEvent>() {
 			@Nullable
@@ -1367,7 +1380,7 @@ public final class BukkitEventValues {
 				book.setItemMeta(event.getNewBookMeta());
 				return book;
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
 			public String[] get(PlayerEditBookEvent event) {
@@ -1379,7 +1392,7 @@ public final class BukkitEventValues {
 			public String[] get(PlayerEditBookEvent event) {
 				return event.getNewBookMeta().getPages().toArray(new String[0]);
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 		//ItemDespawnEvent
 		EventValues.registerEventValue(ItemDespawnEvent.class, Item.class, new Getter<Item, ItemDespawnEvent>() {
 			@Override
@@ -1644,5 +1657,67 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
+
+		// EntityResurrectEvent
+		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
+			@Override
+			@Nullable
+			public Slot get(EntityResurrectEvent event) {
+				EquipmentSlot hand = event.getHand();
+				EntityEquipment equipment = event.getEntity().getEquipment();
+				if (equipment == null || hand == null)
+					return null;
+				return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
+						(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
+						: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			}
+		}, EventValues.TIME_NOW);
+
+    // PlayerItemHeldEvent
+		EventValues.registerEventValue(PlayerItemHeldEvent.class, Slot.class, new Getter<Slot, PlayerItemHeldEvent>() {
+			@Override
+			@Nullable
+			public Slot get(PlayerItemHeldEvent event) {
+				return new InventorySlot(event.getPlayer().getInventory(), event.getNewSlot());
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerItemHeldEvent.class, Slot.class, new Getter<Slot, PlayerItemHeldEvent>() {
+			@Override
+			@Nullable
+			public Slot get(PlayerItemHeldEvent event) {
+				return new InventorySlot(event.getPlayer().getInventory(), event.getPreviousSlot());
+			}
+		}, EventValues.TIME_PAST);
+
+		// PlayerPickupArrowEvent
+		// This event value is restricted to MC 1.14+ due to an API change which has the return type changed
+		// which throws a NoSuchMethodError if used in a 1.13 server.
+		if (Skript.isRunningMinecraft(1, 14))
+			EventValues.registerEventValue(PlayerPickupArrowEvent.class, Projectile.class, new Getter<Projectile, PlayerPickupArrowEvent>() {
+				@Override
+				public Projectile get(PlayerPickupArrowEvent event) {
+					return event.getArrow();
+				}
+			}, EventValues.TIME_NOW);
+
+		EventValues.registerEventValue(PlayerPickupArrowEvent.class, ItemStack.class, new Getter<ItemStack, PlayerPickupArrowEvent>() {
+			@Override
+			@Nullable
+			public ItemStack get(PlayerPickupArrowEvent event) {
+				return event.getItem().getItemStack();
+			}
+		}, EventValues.TIME_NOW);
+
+		//PlayerQuitEvent
+		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
+			EventValues.registerEventValue(PlayerQuitEvent.class, QuitReason.class, new Getter<QuitReason, PlayerQuitEvent>() {
+				@Override
+				@Nullable
+				public QuitReason get(PlayerQuitEvent event) {
+					return event.getReason();
+				}
+			}, EventValues.TIME_NOW);
+
 	}
+
 }
