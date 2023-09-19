@@ -81,7 +81,9 @@ runs:
         fi
 
         if [ -d "${DOCS_OUTPUT_DIR}" ]; then
-          mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
+          if [[ "${GENERATE_JAVADOCS}" == "true" ]]; then
+              mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
+          fi
   
           mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
           mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
