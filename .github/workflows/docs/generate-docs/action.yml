@@ -23,6 +23,11 @@ inputs:
     required: false
     default: "*"
     type: string
+  generate_javadocs:
+    description: "Designates whether to generate javadocs for this nightly documentation"
+    required: false
+    default: false
+    type: boolean
 
 outputs:
   DOCS_CHANGED:
@@ -41,6 +46,7 @@ runs:
         SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
         IS_RELEASE: ${{ inputs.is_release }}
         CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
+        GENERATE_JAVADOCS: ${{ inputs.generate_javadocs }}
       run: |
         replace_in_directory() {
           find $1 -type f -exec sed -i -e "s/$2/$3/g" {} \;
@@ -68,8 +74,10 @@ runs:
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
           ./gradlew genReleaseDocs releaseJavadoc
-        else
+        elif [[ "${GENERATE_JAVADOCS}" == "true" ]]; then
           ./gradlew genNightlyDocs javadoc
+        else
+          ./gradlew genNightlyDocs
         fi
 
         if [ -d "${DOCS_OUTPUT_DIR}" ]; then
