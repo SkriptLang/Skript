@@ -18,7 +18,14 @@
  */
 package ch.njol.skript.structures;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
