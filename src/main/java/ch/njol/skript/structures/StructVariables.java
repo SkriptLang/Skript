@@ -87,6 +87,7 @@ public class StructVariables extends Structure {
 
 		private final Deque<Map<String, Class<?>[]>> hints = new ArrayDeque<>();
 		private final List<NonNullPair<String, Object>> variables;
+		private boolean loaded;
 
 		public DefaultVariables(Collection<NonNullPair<String, Object>> variables) {
 			this.variables = ImmutableList.copyOf(variables);
@@ -139,6 +140,10 @@ public class StructVariables extends Structure {
 		public List<NonNullPair<String, Object>> getVariables() {
 			return variables;
 		}
+		
+		public boolean isLoaded() {
+			return loaded;
+		}
 	}
 
 	@Override
@@ -149,19 +154,9 @@ public class StructVariables extends Structure {
 		Script script = getParser().getCurrentScript();
 		DefaultVariables existing = script.getData(DefaultVariables.class); // if the user has TWO variables: sections
 		if (existing != null && existing.hasDefaultVariables()) {
-			{
-				{
-					{
-						{
-							variables = new ArrayList<>(existing.variables);
-						}}}}}else {
-			{
-				{ {}{}{}
-					{
-						variables = new ArrayList<>();
-					}
-				}
-			}
+			variables = new ArrayList<>(existing.variables);
+		} else {
+			variables = new ArrayList<>();
 		}
 		for (Node n : node) {
 			if (!(n instanceof EntryNode)) {
@@ -252,6 +247,8 @@ public class StructVariables extends Structure {
 		if (data == null) { // this shouldn't happen
 			Skript.error("Default variables data missing");
 			return false;
+		} else if (data.isLoaded()) {
+			return true;
 		}
 		for (NonNullPair<String, Object> pair : data.getVariables()) {
 			String name = pair.getKey();
@@ -259,6 +256,7 @@ public class StructVariables extends Structure {
 				continue;
 			Variables.setVariable(name, pair.getValue(), null, false);
 		}
+		data.loaded = true;
 		return true;
 	}
 
