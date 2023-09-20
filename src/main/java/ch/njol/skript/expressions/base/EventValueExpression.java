@@ -57,7 +57,6 @@ import ch.njol.util.Kleenean;
  * }
  * </pre>
  * 
- * @author Peter Güttinger
  * @see Classes#registerClass(ClassInfo)
  * @see ClassInfo#defaultExpression(DefaultExpression)
  * @see DefaultExpression
@@ -70,14 +69,30 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private Changer<? super T> changer;
 	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
 	private final boolean single;
+	private final boolean exact;
 	
 	public EventValueExpression(Class<? extends T> c) {
 		this(c, null);
 	}
 
+	/**
+	 * Construct an event value expression.
+	 * 
+	 * @param c The class that this event value represents.
+	 * @param exact If false, the event value can be a subclass or a converted event value.
+	 */
+	public EventValueExpression(Class<? extends T> c, boolean exact) {
+		this(c, null, exact);
+	}
+
 	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer) {
+		this(c, changer, false);
+	}
+
+	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer, boolean exact) {
 		assert c != null;
 		this.c = c;
+		this.exact = exact;
 		this.changer = changer;
 		single = !c.isArray();
 		componentType = single ? c : c.getComponentType();
@@ -143,7 +158,12 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = getters.get(event) != null;
 					continue;
 				}
-				Getter<? extends T, ?> getter = EventValues.getEventValueGetter(event, c, getTime());
+				Getter<? extends T, ?> getter;
+				if (exact) {
+					getter = EventValues.getExactEventValueGetter(event, c, getTime());
+				} else {
+					getter = EventValues.getEventValueGetter(event, c, getTime());
+				}
 				if (getter != null) {
 					getters.put(event, getter);
 					hasValue = true;
@@ -203,7 +223,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		}
 		for (Class<? extends Event> event : events) {
 			assert event != null;
-			if (EventValues.doesEventValueHaveTimeStates(event, c)) {
+			boolean has;
+			if (exact) {
+				has = EventValues.doesExactEventValueHaveTimeStates(event, c);
+			} else {
+				has = EventValues.doesEventValueHaveTimeStates(event, c);
+			}
+			if (has) {
 				super.setTime(time);
 				// Since the time was changed, we now need to re-initalize the getters we already got. START
 				getters.clear();
