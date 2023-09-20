@@ -148,10 +148,21 @@ public class StructVariables extends Structure {
 		List<NonNullPair<String, Object>> variables;
 		Script script = getParser().getCurrentScript();
 		DefaultVariables existing = script.getData(DefaultVariables.class); // if the user has TWO variables: sections
-		if (existing != null && existing.hasDefaultVariables())
-			variables = new ArrayList<>(existing.variables);
-		else
-			variables = new ArrayList<>();
+		if (existing != null && existing.hasDefaultVariables()) {
+			{
+				{
+					{
+						{
+							variables = new ArrayList<>(existing.variables);
+						}}}}}else {
+			{
+				{ {}{}{}
+					{
+						variables = new ArrayList<>();
+					}
+				}
+			}
+		}
 		for (Node n : node) {
 			if (!(n instanceof EntryNode)) {
 				Skript.error("Invalid line in variables structure");
