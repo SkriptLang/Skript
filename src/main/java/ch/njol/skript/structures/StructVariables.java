@@ -238,13 +238,14 @@ public class StructVariables extends Structure {
 	@Override
 	public boolean load() {
 		DefaultVariables data = getParser().getCurrentScript().getData(DefaultVariables.class);
-		if (data == null) // band-aid fix for this section's behaviour being handled by a previous section
-			return true; // see https://github.com/SkriptLang/Skript/issues/6013
+		if (data == null) { // this shouldn't happen
+			Skript.error("Default variables data missing");
+			return false;
+		}
 		for (NonNullPair<String, Object> pair : data.getVariables()) {
 			String name = pair.getKey();
 			if (Variables.getVariable(name, null, false) != null)
 				continue;
-
 			Variables.setVariable(name, pair.getValue(), null, false);
 		}
 		return true;
