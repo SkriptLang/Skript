@@ -18,14 +18,7 @@
  */
 package ch.njol.skript.structures;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -141,7 +134,7 @@ public class StructVariables extends Structure {
 			return variables;
 		}
 		
-		public boolean isLoaded() {
+		private boolean isLoaded() {
 			return loaded;
 		}
 	}
@@ -266,8 +259,11 @@ public class StructVariables extends Structure {
 		DefaultVariables data = script.getData(DefaultVariables.class);
 		if (data == null) // band-aid fix for this section's behaviour being handled by a previous section
 			return; // see https://github.com/SkriptLang/Skript/issues/6013
-		for (NonNullPair<String, Object> pair : data.getVariables())
-			Variables.setVariable(pair.getKey(), null, null, false);
+		for (NonNullPair<String, Object> pair : data.getVariables()) {
+			String name = pair.getKey();
+			if (name.contains("<") && name.contains(">")) // probably a template made by us
+				Variables.setVariable(pair.getKey(), null, null, false);
+		}
 		script.removeData(DefaultVariables.class);
 	}
 
