@@ -92,9 +92,8 @@ public class StructVariables extends Structure {
 			this.variables = ImmutableList.copyOf(variables);
 		}
 
-		@SuppressWarnings("unchecked")
 		public void add(String variable, Class<?>... hints) {
-			if (hints == null || hints.length <= 0)
+			if (hints == null || hints.length == 0)
 				return;
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
 				return;
@@ -115,7 +114,7 @@ public class StructVariables extends Structure {
 		/**
 		 * Returns the type hints of a variable.
 		 * Can be null if no type hint was saved.
-		 * 
+		 *
 		 * @param variable The variable string of a variable.
 		 * @return type hints of a variable if found otherwise null.
 		 */
@@ -146,8 +145,13 @@ public class StructVariables extends Structure {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(0, "=");
-
-		List<NonNullPair<String, Object>> variables = new ArrayList<>();
+		List<NonNullPair<String, Object>> variables;
+		Script script = getParser().getCurrentScript();
+		DefaultVariables existing = script.getData(DefaultVariables.class); // if the user has TWO variables: sections
+		if (existing != null && existing.hasDefaultVariables())
+			variables = new ArrayList<>(existing.variables);
+		else
+			variables = new ArrayList<>();
 		for (Node n : node) {
 			if (!(n instanceof EntryNode)) {
 				Skript.error("Invalid line in variables structure");
@@ -227,13 +231,15 @@ public class StructVariables extends Structure {
 			}
 			variables.add(new NonNullPair<>(name, o));
 		}
-		getParser().getCurrentScript().addData(new DefaultVariables(variables));
+		script.addData(new DefaultVariables(variables)); // we replace the previous entry
 		return true;
 	}
 
 	@Override
 	public boolean load() {
 		DefaultVariables data = getParser().getCurrentScript().getData(DefaultVariables.class);
+		if (data == null) // band-aid fix for this section's behaviour being handled by a previous section
+			return true; // see https://github.com/SkriptLang/Skript/issues/6013
 		for (NonNullPair<String, Object> pair : data.getVariables()) {
 			String name = pair.getKey();
 			if (Variables.getVariable(name, null, false) != null)
@@ -248,6 +254,8 @@ public class StructVariables extends Structure {
 	public void postUnload() {
 		Script script = getParser().getCurrentScript();
 		DefaultVariables data = script.getData(DefaultVariables.class);
+		if (data == null) // band-aid fix for this section's behaviour being handled by a previous section
+			return; // see https://github.com/SkriptLang/Skript/issues/6013
 		for (NonNullPair<String, Object> pair : data.getVariables())
 			Variables.setVariable(pair.getKey(), null, null, false);
 		script.removeData(DefaultVariables.class);
