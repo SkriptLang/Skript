@@ -18,6 +18,17 @@
  */
 package ch.njol.yggdrasil;
 
+import ch.njol.yggdrasil.Fields.FieldContext;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.lang.reflect.Array;
+import java.util.IdentityHashMap;
+
 import static ch.njol.yggdrasil.Tag.T_ARRAY;
 import static ch.njol.yggdrasil.Tag.T_CLASS;
 import static ch.njol.yggdrasil.Tag.T_ENUM;
@@ -27,68 +38,46 @@ import static ch.njol.yggdrasil.Tag.T_REFERENCE;
 import static ch.njol.yggdrasil.Tag.T_STRING;
 import static ch.njol.yggdrasil.Tag.getType;
 
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.lang.reflect.Array;
-import java.util.IdentityHashMap;
-
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.yggdrasil.Fields.FieldContext;
-import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-
 public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 	
 	protected final Yggdrasil yggdrasil;
 	
-	protected YggdrasilOutputStream(final Yggdrasil yggdrasil) {
+	protected YggdrasilOutputStream(Yggdrasil yggdrasil) {
 		this.yggdrasil = yggdrasil;
 	}
 	
-	// Tag
+	protected abstract void writeTag(Tag tag) throws IOException;
 	
-	protected abstract void writeTag(Tag t) throws IOException;
-	
-	// Null
-	
-	private final void writeNull() throws IOException {
+	private void writeNull() throws IOException {
 		writeTag(T_NULL);
 	}
 	
-	// Primitives
+	protected abstract void writePrimitiveValue(Object object) throws IOException;
 	
-	protected abstract void writePrimitiveValue(Object o) throws IOException;
+	protected abstract void writePrimitive_(Object object) throws IOException;
 	
-	protected abstract void writePrimitive_(Object o) throws IOException;
-	
-	private final void writePrimitive(final Object o) throws IOException {
-		final Tag t = Tag.getType(o.getClass());
-		assert t.isWrapper();
-		final Tag p = t.getPrimitive();
-		assert p != null;
-		writeTag(p);
-		writePrimitiveValue(o);
+	private void writePrimitive(Object object) throws IOException {
+		Tag tag = Tag.getType(object.getClass());
+		assert tag.isWrapper();
+		Tag primitive = tag.getPrimitive();
+		assert primitive != null;
+		writeTag(primitive);
+		writePrimitiveValue(object);
 	}
 	
-	private final void writeWrappedPrimitive(final Object o) throws IOException {
-		final Tag t = Tag.getType(o.getClass());
-		assert t.isWrapper();
-		writeTag(t);
-		writePrimitiveValue(o);
+	private void writeWrappedPrimitive(Object object) throws IOException {
+		Tag tag = Tag.getType(object.getClass());
+		assert tag.isWrapper();
+		writeTag(tag);
+		writePrimitiveValue(object);
 	}
 	
-	// String
+	protected abstract void writeStringValue(String string) throws IOException;
 	
-	protected abstract void writeStringValue(String s) throws IOException;
-	
-	private final void writeString(final String s) throws IOException {
+	private void writeString(String string) throws IOException {
 		writeTag(T_STRING);
-		writeStringValue(s);
+		writeStringValue(string);
 	}
-	
-	// Array
 	
 	protected abstract void writeArrayComponentType(Class<?> componentType) throws IOException;
 	
@@ -96,67 +85,58 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 	
 	protected abstract void writeArrayEnd() throws IOException;
 	
-	private final void writeArray(final Object array) throws IOException {
-		final int length = Array.getLength(array);
-		final Class<?> ct = array.getClass().getComponentType();
-		assert ct != null;
+	private void writeArray(Object array) throws IOException {
+		int length = Array.getLength(array);
+		Class<?> type = array.getClass().getComponentType();
+		assert type != null;
 		writeTag(T_ARRAY);
-		writeArrayComponentType(ct);
+		writeArrayComponentType(type);
 		writeArrayLength(length);
-		if (ct.isPrimitive()) {
+		if (type.isPrimitive()) {
 			for (int i = 0; i < length; i++) {
-				final Object p = Array.get(array, i);
-				assert p != null;
-				writePrimitive_(p);
+				Object object = Array.get(array, i);
+				assert object != null;
+				writePrimitive_(object);
 			}
 			writeArrayEnd();
 		} else {
-			for (final Object o : (Object[]) array)
-				writeObject(o);
+			for (Object object : (Object[]) array)
+				writeObject(object);
 			writeArrayEnd();
 		}
 	}
-	
-	// Enum
 	
 	protected abstract void writeEnumType(String type) throws IOException;
 	
 	protected abstract void writeEnumID(String id) throws IOException;
 	
-	private final void writeEnum(final Enum<?> o) throws IOException {
+	private void writeEnum(Enum<?> object) throws IOException {
 		writeTag(T_ENUM);
-		final Class<?> c = o.getDeclaringClass();
-		assert c != null;
-		writeEnumType(yggdrasil.getID(c));
-		writeEnumID(Yggdrasil.getID(o));
+		Class<?> type = object.getDeclaringClass();
+		writeEnumType(yggdrasil.getID(type));
+		writeEnumID(Yggdrasil.getID(object));
 	}
 	
-	private final void writeEnum(final PseudoEnum<?> o) throws IOException {
+	private void writeEnum(PseudoEnum<?> object) throws IOException {
 		writeTag(T_ENUM);
-		writeEnumType(yggdrasil.getID(o.getDeclaringClass()));
-		writeEnumID(o.name());
+		writeEnumType(yggdrasil.getID(object.getDeclaringClass()));
+		writeEnumID(object.name());
 	}
 	
-	// Class
+	protected abstract void writeClassType(Class<?> type) throws IOException;
 	
-	protected abstract void writeClassType(Class<?> c) throws IOException;
-	
-	private final void writeClass(final Class<?> c) throws IOException {
+	private void writeClass(Class<?> type) throws IOException {
 		writeTag(T_CLASS);
-		writeClassType(c);
+		writeClassType(type);
 	}
-	
-	// Reference
 	
 	protected abstract void writeReferenceID(int ref) throws IOException;
 	
-	protected final void writeReference(final int ref) throws IOException {
+	protected final void writeReference(int ref) throws IOException {
 		assert ref >= 0;
 		writeTag(T_REFERENCE);
 		writeReferenceID(ref);
 	}
-	
-	// generic Objects
 	
 	protected abstract void writeObjectType(String type) throws IOException;
 	
@@ -167,88 +147,85 @@ public abstract class YggdrasilOutputStream implements Flushable, Closeable {
 	protected abstract void writeObjectEnd() throws IOException;
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private final void writeGenericObject(final Object o, int ref) throws IOException {
-		final Class<?> c = o.getClass();
-		assert c != null;
-		if (!yggdrasil.isSerializable(c))
-			throw new NotSerializableException(c.getName());
-		final Fields fields;
-		final YggdrasilSerializer s = yggdrasil.getSerializer(c);
-		if (s != null) {
-			fields = s.serialize(o);
-			if (!s.canBeInstantiated(c)) {
+	private void writeGenericObject(Object object, int ref) throws IOException {
+		Class<?> type = object.getClass();
+		assert type != null;
+		if (!yggdrasil.isSerializable(type))
+			throw new NotSerializableException(type.getName());
+		Fields fields;
+		YggdrasilSerializer serializer = yggdrasil.getSerializer(type);
+		if (serializer != null) {
+			fields = serializer.serialize(object);
+			if (!serializer.canBeInstantiated(type)) {
 				ref = ~ref; // ~ instead of - to also get a negative value if ref is 0
-				writtenObjects.put(o, ref);
+				writtenObjects.put(object, ref);
 			}
-		} else if (o instanceof YggdrasilExtendedSerializable) {
-			fields = ((YggdrasilExtendedSerializable) o).serialize();
+		} else if (object instanceof YggdrasilExtendedSerializable) {
+			fields = ((YggdrasilExtendedSerializable) object).serialize();
 		} else {
-			fields = new Fields(o, yggdrasil);
+			fields = new Fields(object, yggdrasil);
 		}
 		if (fields.size() > Short.MAX_VALUE)
-			throw new YggdrasilException("Class " + c.getCanonicalName() + " has too many fields (" + fields.size() + ")");
+			throw new YggdrasilException("Class " + type.getCanonicalName() + " has too many fields (" + fields.size() + ")");
 		
 		writeTag(T_OBJECT);
-		writeObjectType(yggdrasil.getID(c));
+		writeObjectType(yggdrasil.getID(type));
 		writeNumFields((short) fields.size());
-		for (final FieldContext f : fields) {
-			writeFieldID(f.id);
-			if (f.isPrimitive())
-				writePrimitive(f.getPrimitive());
+		for (FieldContext field : fields) {
+			writeFieldID(field.id);
+			if (field.isPrimitive())
+				writePrimitive(field.getPrimitive());
 			else
-				writeObject(f.getObject());
+				writeObject(field.getObject());
 		}
 		writeObjectEnd();
 		
 		if (ref < 0)
-			writtenObjects.put(o, ~ref);
+			writtenObjects.put(object, ~ref);
 	}
-	
-	// any Objects
 	
 	private int nextObjectID = 0;
 	private final IdentityHashMap<Object, Integer> writtenObjects = new IdentityHashMap<>();
 	
-	public final void writeObject(final @Nullable Object o) throws IOException {
-		if (o == null) {
+	public final void writeObject(@Nullable Object object) throws IOException {
+		if (object == null) {
 			writeNull();
 			return;
 		}
-		if (writtenObjects.containsKey(o)) {
-			final int ref = writtenObjects.get(o);
+		if (writtenObjects.containsKey(object)) {
+			int ref = writtenObjects.get(object);
 			if (ref < 0)
-				throw new YggdrasilException("Uninstantiable object " + o + " is referenced in its fields' graph");
+				throw new YggdrasilException("Uninstantiable object " + object + " is referenced in its fields' graph");
 			writeReference(ref);
 			return;
 		}
-		final int ref = nextObjectID;
+		int ref = nextObjectID;
 		nextObjectID++;
-		writtenObjects.put(o, ref);
-		final Tag type = getType(o.getClass());
+		writtenObjects.put(object, ref);
+		Tag type = getType(object.getClass());
 		if (type.isWrapper()) {
-			writeWrappedPrimitive(o);
+			writeWrappedPrimitive(object);
 			return;
 		}
 		switch (type) {
 			case T_ARRAY:
-				writeArray(o);
+				writeArray(object);
 				return;
 			case T_STRING:
-				writeString((String) o);
+				writeString((String) object);
 				return;
 			case T_ENUM:
-				if (o instanceof Enum)
-					writeEnum((Enum<?>) o);
+				if (object instanceof Enum)
+					writeEnum((Enum<?>) object);
 				else
-					writeEnum((PseudoEnum<?>) o);
+					writeEnum((PseudoEnum<?>) object);
 				return;
 			case T_CLASS:
-				writeClass((Class<?>) o);
+				writeClass((Class<?>) object);
 				return;
 			case T_OBJECT:
-				writeGenericObject(o, ref);
+				writeGenericObject(object, ref);
 				return;
-				//$CASES-OMITTED$
 			default:
 				throw new YggdrasilException("unhandled type " + type);
 		}

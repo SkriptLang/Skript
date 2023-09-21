@@ -61,6 +61,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
@@ -1507,8 +1508,17 @@ public class BukkitClasses {
 			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
-					.description("Represents a quit reason from a player quit server event.")
+					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
 					.requiredPlugins("Paper 1.16.5+")
 					.since("INSERT VERSION"));
+
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
+					.user("inventory ?close ?reasons?")
+					.name("Inventory Close Reasons")
+					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
+					.requiredPlugins("Paper")
+					.since("INSERT VERSION"));
 	}
+
 }

@@ -130,15 +130,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
 	 * The second phase of Structure loading.
-	 * During this phase, Structures are loaded script by script.
-	 * The order they are loaded in for each script is based on the Structure's priority.
+	 * During this phase, all Structures across all loading scripts are loaded with respect to their priorities.
 	 * @return Whether loading was successful. An error should be printed prior to returning false to specify the cause.
 	 */
 	public abstract boolean load();
 
 	/**
 	 * The third and final phase of Structure loading.
-	 * The loading order and method is the same as {@link #load()}.
+	 * During this phase, all Structures across all loading scripts are loaded with respect to their priorities.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 *  most other Structures have finished loading.
 	 * @return Whether postLoading was successful. An error should be printed prior to returning false to specify the cause.
