@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -33,80 +35,32 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Arithmetic")
-@Description("Arithmetic expressions for vectors.")
-@Examples({"set {_v} to vector 1, 2, 3 // 5",
-		"set {_v} to {_v} ++ {_v}",
-		"set {_v} to {_v} ++ 5",
-		"set {_v} to {_v} -- {_v}",
-		"set {_v} to {_v} -- 5",
-		"set {_v} to {_v} ** {_v}",
-		"set {_v} to {_v} ** 5",
-		"set {_v} to {_v} // {_v}",
-		"set {_v} to {_v} // 5"})
-@Since("2.2-dev28")
+@Description("Arithmetic expressions for vectors. This expression is deprecated in INSERT VERSION and above")
+@Examples({
+	"set {_v} to vector 1, 2, 3 // 5",
+	"set {_v} to {_v} ++ {_v}",
+	"set {_v} to {_v} -- {_v}",
+	"set {_v} to {_v} ** {_v}",
+	"set {_v} to {_v} // {_v}"
+})
+@Since("2.2-dev28, INSERT VERSION (deprecation)")
+@Deprecated
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
-	private enum Operator {
-		PLUS("++") {
-			@Override
-			public Vector calculate(final Vector v1, final Vector v2) {
-				return v1.clone().add(v2);
-			}
-		},
-		MINUS("--") {
-			@Override
-			public Vector calculate(final Vector v1, final Vector v2) {
-				return v1.clone().subtract(v2);
-			}
-		},
-		MULT("**") {
-			@Override
-			public Vector calculate(final Vector v1, final Vector v2) {
-				return v1.clone().multiply(v2);
-			}
-		},
-		DIV("//") {
-			@Override
-			public Vector calculate(final Vector v1, final Vector v2) {
-				return v1.clone().divide(v2);
-			}
-		};
-
-		public final String sign;
-
-		Operator(final String sign) {
-			this.sign = sign;
-		}
-
-		public abstract Vector calculate(Vector v1, Vector v2);
-
-		@Override
-		public String toString() {
-			return sign;
-		}
-	}
-
 	private final static Patterns<Operator> patterns = new Patterns<>(new Object[][] {
-			{"%vector%[ ]++[ ]%vector%", Operator.PLUS},
-			{"%vector%[ ]--[ ]%vector%", Operator.MINUS},
-			{"%vector%[ ]**[ ]%vector%", Operator.MULT},
-			{"%vector%[ ]//[ ]%vector%", Operator.DIV}
+			{"%vector%[ ]++[ ]%vector%", Operator.ADDITION},
+			{"%vector%[ ]--[ ]%vector%", Operator.SUBTRACTION},
+			{"%vector%[ ]**[ ]%vector%", Operator.MULTIPLICATION},
+			{"%vector%[ ]//[ ]%vector%", Operator.DIVISION}
 	});
 
 	static {
 		Skript.registerExpression(ExprVectorArithmetic.class, Vector.class, ExpressionType.SIMPLE, patterns.getPatterns());
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Vector> first, second;
-
-	@SuppressWarnings("null")
 	private Operator op;
 
 	@Override
@@ -115,19 +69,19 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 		first = (Expression<Vector>) exprs[0];
 		second = (Expression<Vector>) exprs[1];
 		op = patterns.getInfo(matchedPattern);
-		Skript.warning("This expression was deprecated in favor of ExprArithmetic and will be removed in the future." +
-			" Please use that instead, e.g. vector(2, 4, 1) + vector(5, 2, 3)");
+		Skript.warning("This expression was deprecated in favor of the arithmetic expression, and will be removed in the future." +
+			" Please use that instead. E.g. 'vector(2, 4, 1) + vector(5, 2, 3)'");
 		return true;
 	}
 
 	@Override
-	protected Vector[] get(Event e) {
-		Vector v1 = first.getSingle(e), v2 = second.getSingle(e);
+	protected Vector[] get(Event event) {
+		Vector v1 = first.getSingle(event), v2 = second.getSingle(event);
 		if (v1 == null)
 			v1 = new Vector();
 		if (v2 == null)
 			v2 = new Vector();
-		return CollectionUtils.array(op.calculate(v1, v2));
+		return new Vector[] {Arithmetics.calculate(op, v1, v2, Vector.class)};
 	}
 
 	@Override
@@ -141,8 +95,8 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " " + op +  " " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return first.toString(event, debug) + " " + op +  " " + second.toString(event, debug);
 	}
 
 }
