@@ -1414,28 +1414,27 @@ public final class Skript extends JavaPlugin implements Listener {
 			expressionTypesStartIndices[i]++;
 		}
 	}
-	
-	@SuppressWarnings("null")
+
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions() {
 		return expressions.iterator();
 	}
-	
-	public static Iterator<ExpressionInfo<?, ?>> getExpressions(final Class<?>... returnTypes) {
+
+	public static Iterator<ExpressionInfo<?, ?>> getExpressions(Class<?>... returnTypes) {
 		return new CheckedIterator<>(getExpressions(), new NullableChecker<ExpressionInfo<?, ?>>() {
 			@Override
-			public boolean check(final @Nullable ExpressionInfo<?, ?> i) {
-				if (i == null || i.returnType == Object.class)
+			public boolean check(@Nullable ExpressionInfo<?, ?> info) {
+				if (info == null || info.getReturnType() == Object.class)
 					return true;
-				for (final Class<?> returnType : returnTypes) {
+				for (Class<?> returnType : returnTypes) {
 					assert returnType != null;
-					if (Converters.converterExists(i.returnType, returnType))
+					if (Converters.converterExists(info.getReturnType(), returnType))
 						return true;
 				}
 				return false;
 			}
 		});
 	}
-	
+
 	// ================ EVENTS ================
 
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);

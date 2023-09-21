@@ -33,9 +33,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Former/Future State")
 @Description({"Represents the value of an expression before an event happened or the value it will have directly after the event, e.g. the old or new level respectively in a <a href='./events.html#level_change'>level change event</a>.",
 		"Note: The past, future and present states of an expression are sometimes called 'time states' of an expression.",
@@ -51,15 +48,16 @@ import ch.njol.util.Kleenean;
 		"	set {weather::%world%::current} to the new weather"})
 @Since("1.1")
 public class ExprTimeState extends WrapperExpression<Object> {
+
 	static {
-		Skript.registerExpression(ExprTimeState.class, Object.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprTimeState.class, Object.class, ExpressionType.WRAPPER,
 				"[the] (former|past|old) [state] [of] %~object%", "%~object% before [the event]",
 				"[the] (future|to-be|new) [state] [of] %~object%", "%~object%(-to-be| after[(wards| the event)])");
 	}
-	
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		final Expression<?> expr = exprs[0];
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		Expression<?> expr = exprs[0];
 		if (isDelayed == Kleenean.TRUE) {
 			Skript.error("Cannot use time states after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
 			return false;
@@ -71,15 +69,15 @@ public class ExprTimeState extends WrapperExpression<Object> {
 		setExpr(expr);
 		return true;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the " + (getTime() == -1 ? "past" : "future") + " state of " + getExpr().toString(e, debug);
-	}
-	
-	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		return time == getTime();
 	}
-	
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the " + (getTime() == -1 ? "past" : "future") + " state of " + getExpr().toString(event, debug);
+	}
+
 }

@@ -18,38 +18,33 @@
  */
 package ch.njol.skript.lang;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInfo<E> {
-	
-	public Class<T> returnType;
-	@Nullable
-	public ExpressionType expressionType;
-	
-	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
-		this(patterns, returnType, c, originClassPath, null);
-	}
-	
-	public ExpressionInfo(final String[] patterns, final Class<T> returnType, final Class<E> c, final String originClassPath, @Nullable ExpressionType expressionType) throws IllegalArgumentException {
+
+	private final ExpressionType expressionType;
+	private final Class<T> returnType;
+
+	public ExpressionInfo(String[] patterns, Class<T> returnType, Class<E> c, String originClassPath, ExpressionType expressionType) throws IllegalArgumentException {
 		super(patterns, c, originClassPath);
 		this.returnType = returnType;
 		this.expressionType = expressionType;
 	}
-	
+
+	/**
+	 * Get the type of this expression.
+	 * 
+	 * @return The type of this Expression
+	 */
+	public ExpressionType getExpressionType() {
+		return expressionType;
+	}
+
 	/**
 	 * Get the return type of this expression.
+	 * 
 	 * @return The return type of this Expression
 	 */
 	public Class<T> getReturnType() {
 		return returnType;
 	}
-	
-	/**
-	 * Get the type of this expression.
-	 * @return The type of this Expression
-	 */
-	@Nullable
-	public ExpressionType getExpressionType() {
-		return expressionType;
-	}
+
 }

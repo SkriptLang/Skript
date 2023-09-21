@@ -20,35 +20,35 @@ package ch.njol.skript.lang;
 
 /**
  * Used to define in which order to parse expressions.
- * 
- * @author Peter Güttinger
+ * Order matters! Order determines the expression index in all expression retrieval.
  */
 public enum ExpressionType {
+
 	/**
 	 * Expressions that only match simple text, e.g. "[the] player"
 	 */
 	SIMPLE,
-	
-	/**
-	 * I don't know what this was used for. It will be removed or renamed in the future.
-	 */
-	@Deprecated
-	NORMAL,
-	
+
 	/**
 	 * Expressions that contain other expressions, e.g. "[the] distance between %location% and %location%"
 	 * 
 	 * @see #PROPERTY
 	 */
 	COMBINED,
-	
+
 	/**
 	 * Property expressions, e.g. "[the] data value[s] of %items%"/"%items%'[s] data value[s]"
 	 */
 	PROPERTY,
-	
+
+	/**
+	 * Represents an expression which is a wrapper of another one. See {@link ch.njol.skript.expressions.base.WrapperExpression}
+	 */
+	WRAPPER,
+
 	/**
 	 * Expressions whose pattern matches (almost) everything, e.g. "[the] [event-]<.+>"
 	 */
 	PATTERN_MATCHES_EVERYTHING;
+
 }
