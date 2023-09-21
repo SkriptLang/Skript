@@ -87,7 +87,7 @@ public class EffChange extends Effect {
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
 			
 			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
-			{"reduce %~objects% by %objects%", ChangeMode.REMOVE},
+			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
 			
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
 			
