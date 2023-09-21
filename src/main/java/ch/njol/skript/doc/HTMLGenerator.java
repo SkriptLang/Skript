@@ -618,7 +618,7 @@ public class HTMLGenerator {
 			}
 		}
 		desc = handleIf(desc, "${if cancellable}", cancellable);
-		desc = desc.replace("${element.cancellable}", !cancellable ? "" : "Yes");
+		desc = desc.replace("${element.cancellable}", cancellable ? "Yes" : ""); // if not cancellable the section is hidden
 
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
