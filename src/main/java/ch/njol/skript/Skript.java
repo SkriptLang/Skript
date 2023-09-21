@@ -79,6 +79,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.util.date.Date;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -136,7 +137,6 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;

@@ -24,6 +24,7 @@ import org.bukkit.entity.Snowball;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.junit.Test;
+import org.skriptlang.skript.util.date.Date;
 
 import ch.njol.skript.entity.CreeperData;
 import ch.njol.skript.entity.EntityType;
@@ -32,7 +33,6 @@ import ch.njol.skript.entity.ThrownPotionData;
 import ch.njol.skript.entity.WolfData;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.SkriptColor;

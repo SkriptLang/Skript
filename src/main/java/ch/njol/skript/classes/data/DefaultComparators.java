@@ -31,7 +31,6 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.WeatherType;
@@ -62,6 +61,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.util.date.Date;
 
 import java.util.Objects;
 

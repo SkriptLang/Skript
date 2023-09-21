@@ -27,6 +27,8 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.util.date.Date;
+import org.skriptlang.skript.util.date.TimeParser;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -49,7 +51,6 @@ import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
@@ -350,7 +351,7 @@ public class SkriptClasses {
 
 		// TODO remove
 		Classes.registerClass(new ClassInfo<>(Timeperiod.class, "timeperiod")
-				.user("time ?periods?", "durations?")
+				.user("time ?periods?")
 				.name("Timeperiod")
 				.description("A period of time between two <a href='#time'>times</a>. Mostly useful since you can use this to test for whether it's day, night, dusk or dawn in a specific world.",
 						"This type might be removed in the future as you can use 'time of world is between x and y' as a replacement.")
@@ -408,6 +409,23 @@ public class SkriptClasses {
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
+				.parser(new Parser<Date>() {
+					@Override
+					@Nullable
+					public Date parse(String input, ParseContext context) {
+						return TimeParser.parseDate(input);
+					}
+
+					@Override
+					public String toString(Date date, int flags) {
+						return date.toString();
+					}
+
+					@Override
+					public String toVariableNameString(Date date) {
+						return date.toVariableNameString();
+					}
+				})
 				.serializer(new YggdrasilSerializer<>())
 				.math(Timespan.class, new Arithmetic<Date, Timespan>() {
 					@Override

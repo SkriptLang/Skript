@@ -19,10 +19,11 @@
 package ch.njol.skript.command;
 
 import ch.njol.skript.effects.Delay;
-import ch.njol.skript.util.Date;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.skriptlang.skript.util.date.Date;
 
 public class ScriptCommandEvent extends CommandEvent {
 	

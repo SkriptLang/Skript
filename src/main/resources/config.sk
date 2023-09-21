@@ -89,15 +89,13 @@ use player UUIDs in variable names: false
 # {home::e5240337-a4a2-39dd-8ed9-e5ce729a8522} instead of {home::njol}.
 # Please note that if this setting is changed old variables WILL NOT be renamed automatically.
 
-
 date format: default
 # The date format to be used when dates should be displayed.
-# This can be 'default' to use Java's default date format for the system's language.
+# This can be 'default' to use Java's FULL date example being 'Tuesday, April 12, 1952 AD' or '3:30:42pm PST'. 
 # The format is that of Java's SimpleDateFormat as defined here: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
 # some examples:
 #  d/M/yyyy h:mm a => 15/7/2012 8:53 PM
 #  dd.MM.yyyy, HH:mm => 16.03.2013, 09:33
-
 
 verbosity: normal
 # Determines how much info is logged.
@@ -105,7 +103,6 @@ verbosity: normal
 # The highest you should go is very high, which prints quite a lot of useful information,
 # including how much time each trigger takes to execute.
 # Only use debug if you're programming an add-on for Skript, but even then you might usually not need it.
-
 
 plugin priority: high
 # Allowed values: lowest, low, normal, high, highest
@@ -118,23 +115,19 @@ plugin priority: high
 # - effects 'remove ... from drops'/'clear drops': Drops added by other plugins are not removed => increase priority
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
 
-
 log player commands: false
 # Whether Skript should log the usage of custom commands.
 # They will be logged as [INFORMATION] in this format: '<player>: /<command> <arguments>'
-
 
 number accuracy: 2
 # How many digits should be displayed after the dot at maximum when displaying numbers.
 # Zeroes will never be displayed at all, so this setting only applies to numbers that actually have a decimal part with one or more non-zero digits.
 # Money bypasses this setting and is displayed as configured in your economy plugin if you have one.
 
-
 maximum target block distance: 100
 # How far to search for a player's targeted block in blocks/meters.
 # Lower values improve performance, but might reduce the usability of your scripts.
 # This value is limited by the server (e.g. by 'view-distance' in the server.properties), but is guaranteed to work up to 100 meters.
-
 
 case sensitive: false
 # Whether Skript's functions should be case sensitive or not.
@@ -321,8 +314,6 @@ databases:
 	# you can modify the last database's pattern to not match all variables, e.g. use '(?!x_).*' to match all variables that don't start with 'x_'.
 	# Be very cautious when doing this however as unsaved variables cannot be recovered after the server has been stopped.
 	# I recommend to use a single character to denote unsaved variables (similar to local variables' '_'), e.g. '-', in which case the last database's pattern should be '(?!-).*'.
-
-
 
 # ==== Settings that should not be changed ====
 
