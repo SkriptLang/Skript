@@ -34,7 +34,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("The egg thrown in a Player Egg Throw event.")
 @Examples("spawn an egg at the egg")
 @Events("Egg Throw")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprEgg extends EventValueExpression<Egg> {
 
 	static {
@@ -42,7 +42,7 @@ public class ExprEgg extends EventValueExpression<Egg> {
 	}
 
 	public ExprEgg() {
-		super(Egg.class);
+		super(Egg.class, true);
 	}
 
 	@Override

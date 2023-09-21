@@ -42,7 +42,7 @@ import java.util.List;
 @Name("All Operators")
 @Description("The list of operators on the server.")
 @Examples("set {_ops::*} to all operators")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprOps extends SimpleExpression<OfflinePlayer> {
 	
 	private boolean nonOps;
