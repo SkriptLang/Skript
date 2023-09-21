@@ -51,7 +51,7 @@ import ch.njol.util.Kleenean;
 @Name("Command Info")
 @Description("Get information about a command.")
 @Examples({
-	"main name of command \"skript\"",
+	"main command label of command \"skript\"",
 	"description of command \"help\"",
 	"label of command \"pl\"",
 	"usage of command \"help\"",
@@ -93,9 +93,9 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 			return "Unknown";
 		});
 
-		private final Function<Command, String> function;
+		private final @Nullable Function<Command, String> function;
 
-		InfoType(Function<Command, String> function) {
+		InfoType(@Nullable Function<Command, String> function) {
 			this.function = function;
 		}
 
@@ -103,7 +103,7 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCommandInfo.class, String.class, ExpressionType.PROPERTY,
-			"[the] main command [label] [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] main command [name]",
+			"[the] main command [label|name] [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] main command [label|name]",
 			"[the] description [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] description",
 			"[the] label [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] label",
 			"[the] usage [of [[the] command[s] %-strings%]]", "command[s] %strings%'[s] usage",
@@ -135,6 +135,8 @@ public class ExprCommandInfo extends SimpleExpression<String> {
 	@Override
 	protected String[] get(Event event) {
 		Command[] commands = getCommands(event);
+		if (commands == null)
+			return new String[0];
 		if (type == InfoType.ALIASES) {
 			ArrayList<String> result = new ArrayList<>();
 			for (Command command : commands)
