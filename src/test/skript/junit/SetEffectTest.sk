@@ -1,7 +1,0 @@
-test "SetEffectTest":
-	set {_item} to dirt
-	assert {_item} doesn't have all with "failure to init with all"
-	set all of {_item} to true
-	assert {_item} has all with "failure to not set to all"
-	force {_item} to not be all
-	assert {_item} doesn't have all with "failure to set back to not all"
