@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.test.runner;
+package org.skriptlang.skript.test.registration;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -36,6 +36,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 

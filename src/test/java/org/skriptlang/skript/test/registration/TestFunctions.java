@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.test.runner;
+package org.skriptlang.skript.test.registration;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.function.Functions;
