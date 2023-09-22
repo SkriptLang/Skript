@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.registration;
+package org.skriptlang.skript.test.junit.registration;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -40,7 +40,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprJUnitTest extends SimpleExpression<String>  {
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.JUNIT)
 			Skript.registerExpression(ExprJUnitTest.class, String.class, ExpressionType.SIMPLE, "[the] [current[[ly] running]] junit test [name]");
 	}
 
