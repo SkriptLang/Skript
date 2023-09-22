@@ -592,7 +592,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					info("Preparing Skript for testing...");
 					tainted = true;
 					try {
-						getAddonInstance().loadClasses("ch.njol.skript.test.runner", "org.skriptlang.skript.test.registration");
+						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
+						getAddonInstance().loadClasses("org.skriptlang.skript.test.registration");
 					} catch (IOException e) {
 						Skript.exception("Failed to load testing environment.");
 						Bukkit.getServer().shutdown();
