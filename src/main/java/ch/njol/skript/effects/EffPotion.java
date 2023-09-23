@@ -52,7 +52,7 @@ import ch.njol.util.Kleenean;
 @Since(
 	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
 	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +
-	"INSERT VERSION (icon and infinite)"
+	"2.7 (icon and infinite)"
 )
 public class EffPotion extends Effect {
 
