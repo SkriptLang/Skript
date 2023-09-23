@@ -49,9 +49,6 @@ import ch.njol.skript.classes.ClassInfo;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptWarning;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -629,33 +626,23 @@ public class Variable<T> implements Expression<T> {
 				} else {
 					Object object = get(e);
 					Class<?> clazz = object == null ? null : object.getClass();
-					List<? extends OperationInfo<?, ?, ?>> infos = null;
 					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] cs;
-					if (clazz == null || !(infos = Arithmetics.getOperations(operator, clazz)).isEmpty()) {
+					if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
 						boolean changed = false;
 						for (Object d : delta) {
-							Object defaultValue = null;
-							if (clazz == null) {
-                                if (!(infos = Arithmetics.getOperations(operator, d.getClass())).isEmpty()) {
-									defaultValue = Arithmetics.getDefaultValue(d.getClass());
-								} else {
-									continue;
-								}
-							}
+							OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : d.getClass(), d.getClass());
+							if (info == null)
+								continue;
 
-							for (OperationInfo info : infos) {
-								Class<?> r = info.getRight();
-								Object diff = Converters.convert(d, r);
+							Object value = object == null ? Arithmetics.getDefaultValue(info.getLeft()) : object;
+							if (value == null)
+								continue;
 
-								if (diff == null)
-									continue;
-
-								object = info.getOperation().calculate(defaultValue, diff);
-								changed = true;
-								break;
-							}
+							object = info.getOperation().calculate(value, d);
+							changed = true;
+							break;
 						}
 						if (changed)
 							set(e, object);

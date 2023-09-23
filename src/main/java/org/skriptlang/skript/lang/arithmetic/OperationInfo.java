@@ -18,6 +18,9 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+
 /**
  * @param <L> The class of left operand
  * @param <R> The class of the right operand
@@ -51,6 +54,23 @@ public class OperationInfo<L, R, T> {
 
 	public Operation<L, R, T> getOperation() {
 		return operation;
+	}
+
+	public <L2, R2, T2> @Nullable OperationInfo<L2, R2, T2> getConverted(Class<L2> fromLeft, Class<R2> fromRight, Class<T2> toReturnType) {
+		if (fromLeft == Object.class || fromRight == Object.class)
+			return null;
+		if (!Converters.converterExists(fromLeft, left) || !Converters.converterExists(fromRight, right) || !Converters.converterExists(returnType, toReturnType))
+			return null;
+		return new OperationInfo<>(fromLeft, fromRight, toReturnType, (left, right) ->
+			Converters.convert(operation.calculate(Converters.convert(left, this.left), Converters.convert(right, this.right)), toReturnType));
+	}
+
+	@Override
+	public String toString() {
+		return String.join(", ", "OperationInfo["
+			+ "left=" + left,
+			"right=" + right,
+			"returnType=" + returnType + "]");
 	}
 
 }

@@ -55,7 +55,7 @@ import java.util.List;
 		"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
-public class ExprArithmetic extends SimpleExpression<Object> {
+public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 	
@@ -101,19 +101,21 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 	});
 	
 	static {
+		//noinspection unchecked
 		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
 	
-	private Expression<?> first, second;
-	private Operator op;
+	private Expression<L> first;
+    private Expression<R> second;
+	private Operator operator;
 
-	private Class<?> returnType;
+	private Class<? extends T> returnType;
 	
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
 	
 	// A parsed chain, like a tree
-	private ArithmeticGettable<?> arithmeticGettable;
+	private ArithmeticGettable<? extends T> arithmeticGettable;
 
 	private boolean leftGrouped, rightGrouped;
 
@@ -126,41 +128,31 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 		if (!LiteralUtils.canInitSafely(first, second))
 			return false;
 
-		Class<?> firstClass = first.getReturnType(), secondClass = second.getReturnType();
+		Class<? extends L> firstClass = first.getReturnType();
+        Class<? extends R> secondClass = second.getReturnType();
 
-		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
+        PatternInfo patternInfo = patterns.getInfo(matchedPattern);
 		leftGrouped = patternInfo.leftGrouped;
 		rightGrouped = patternInfo.rightGrouped;
-		op = patternInfo.operator;
-		OperationInfo<?, ?, ?> operationInfo = null;
+		operator = patternInfo.operator;
+		OperationInfo<L, R, T> operationInfo = firstClass != Object.class && secondClass != Object.class
+			? (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass) : null;
 
-		Expression<?> convertedLeft, convertedRight;
-		boolean hasOperation = false;
-		for (OperationInfo<?, ?, ?> info : Arithmetics.getOperations(op)) {
-			if (!info.getLeft().isAssignableFrom(firstClass) && !info.getRight().isAssignableFrom(secondClass))
-				continue;
-
-			hasOperation = true;
-			convertedLeft = first.getConvertedExpression(info.getLeft());
-			convertedRight = second.getConvertedExpression(info.getRight());
-			if (convertedLeft != null && convertedRight != null) {
-				first = convertedLeft;
-				second = convertedRight;
-				operationInfo = info;
-				break;
-			}
-		}
-
-		if (!hasOperation && (firstClass != Object.class || secondClass != Object.class))
-			return error(firstClass, secondClass);
 		if (operationInfo == null && firstClass != Object.class && secondClass != Object.class)
 			return error(firstClass, secondClass);
 
-		returnType = operationInfo == null ? Object.class : operationInfo.getReturnType();
+		if (firstClass != Object.class && secondClass == Object.class && Arithmetics.getOperations(operator, firstClass).isEmpty()) {
+			return error(firstClass, secondClass);
+		} else if (firstClass == Object.class && secondClass != Object.class && Arithmetics.getOperations(operator).stream()
+				.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
+			return error(firstClass, secondClass);
+		}
+
+		returnType = operationInfo == null ? (Class<? extends T>) Object.class : operationInfo.getReturnType();
 
 		if (Number.class.isAssignableFrom(returnType)) {
-			if (op == Operator.DIVISION || op == Operator.EXPONENTIATION) {
-				returnType = Double.class;
+			if (operator == Operator.DIVISION || operator == Operator.EXPONENTIATION) {
+				returnType = (Class<? extends T>) Double.class;
 			} else {
 				boolean firstIsInt = false;
 				boolean secondIsInt = false;
@@ -169,46 +161,43 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 					secondIsInt |= i.isAssignableFrom(second.getReturnType());
 				}
 
-				returnType = firstIsInt && secondIsInt ? Long.class : Double.class;
+				returnType = (Class<? extends T>) (firstIsInt && secondIsInt ? Long.class : Double.class);
 			}
 		}
 
 		// Chaining
 		if (first instanceof ExprArithmetic && !leftGrouped) {
-			chain.addAll(((ExprArithmetic) first).chain);
+			chain.addAll(((ExprArithmetic<?, ?, L>) first).chain);
 		} else {
 			chain.add(first);
 		}
-		chain.add(op);
+		chain.add(operator);
 		if (second instanceof ExprArithmetic && !rightGrouped) {
-			chain.addAll(((ExprArithmetic) second).chain);
+			chain.addAll(((ExprArithmetic<?, ?, R>) second).chain);
 		} else {
 			chain.add(second);
 		}
 
-		arithmeticGettable = ArithmeticChain.parse(chain);
-		if (arithmeticGettable == null)
-			return error(firstClass, secondClass);
-
-		return true;
+		return (arithmeticGettable = ArithmeticChain.parse(chain)) != null || error(firstClass, secondClass);
 	}
 
 	@Override
-	protected Object[] get(Event event) {
-		Object result = arithmeticGettable.get(event);
-		Object[] one = (Object[]) Array.newInstance(result == null ? returnType : result.getClass(), 1);
+	@SuppressWarnings("unchecked")
+	protected T[] get(Event event) {
+		T result = arithmeticGettable.get(event);
+		T[] one = (T[]) Array.newInstance(result == null ? returnType : result.getClass(), 1);
 		one[0] = result;
 		return one;
 	}
 
 	private boolean error(Class<?> firstClass, Class<?> secondClass) {
 		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
-		Skript.error(op.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+		Skript.error(operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
 		return false;
 	}
 
 	@Override
-	public Class<?> getReturnType() {
+	public Class<? extends T> getReturnType() {
 		return returnType;
 	}
 	
@@ -225,13 +214,14 @@ public class ExprArithmetic extends SimpleExpression<Object> {
 			one = '(' + one + ')';
 		if (rightGrouped)
 			two = '(' + two + ')';
-		return one + ' ' + op + ' ' + two;
+		return one + ' ' + operator + ' ' + two;
 	}
 
 	@Override
-	public Expression<?> simplify() {
+	@SuppressWarnings("unchecked")
+	public Expression<? extends T> simplify() {
 		if (first instanceof Literal && second instanceof Literal)
-			return new SimpleLiteral<>(getArray(null), Object.class, false);
+			return new SimpleLiteral<>(getArray(null), (Class<T>) getReturnType(), false);
 		return this;
 	}
 

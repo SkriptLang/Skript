@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.hooks.economy.classes.Money;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
@@ -99,19 +97,6 @@ public class DefaultOperations {
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
 		Arithmetics.registerDifference(Date.class, Timespan.class, Date::difference);
-
-		// Money - Money
-		Arithmetics.registerOperation(Operator.ADDITION, Money.class, (left, right) -> new Money(left.getAmount() + right.getAmount()));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, Money.class, (left, right) -> new Money(left.getAmount() - right.getAmount()));
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, Money.class, (left, right) -> new Money(left.getAmount() * right.getAmount()));
-		Arithmetics.registerOperation(Operator.DIVISION, Money.class, (left, right) -> new Money(left.getAmount() / right.getAmount()));
-		Arithmetics.registerDifference(Money.class, (left, right) -> {
-			double result = Math.abs(left.getAmount() - right.getAmount());
-			if (result < Skript.EPSILON)
-				return new Money(0);
-			return new Money(result);
-		});
-		Arithmetics.registerDefaultValue(Money.class, () -> new Money(0));
 
 	}
 

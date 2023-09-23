@@ -18,6 +18,8 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * @param <L> The class of left operand
  * @param <R> The class of the right operand
@@ -26,6 +28,6 @@ package org.skriptlang.skript.lang.arithmetic;
 @FunctionalInterface
 public interface Operation<L, R, T> {
 
-	T calculate(L left, R right);
+	T calculate(@NotNull L left, @NotNull R right);
 
 }

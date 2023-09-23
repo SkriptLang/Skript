@@ -23,7 +23,6 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,24 +139,22 @@ public final class Arithmetics {
 	}
 
 	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <T> OperationInfo<?, ?, T> lookupOperationInfo(Operator operator, Class<?> leftClass, Class<?> rightClass, Class<T> returnType) {
-		OperationInfo<?, ?, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
-		if (info != null && Converters.converterExists(info.getReturnType(), returnType))
-			return (OperationInfo<?, ?, T>) info;
-		return null;
+	public static <L, R, T> OperationInfo<L, R, T> lookupOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
+		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
+		return info != null ? info.getConverted(leftClass, rightClass, returnType) : null;
 	}
 
 	@Nullable
-	public static OperationInfo<?, ?, ?> lookupOperationInfo(Operator operator, Class<?> leftClass, Class<?> rightClass) {
-		OperationInfo<?, ?, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
+	public static <L, R> OperationInfo<L, R, ?> lookupOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass) {
+		OperationInfo<L, R, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
 		if (operationInfo != null)
 			return operationInfo;
 		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
 			if (!info.getLeft().isAssignableFrom(leftClass) && !info.getRight().isAssignableFrom(rightClass))
 				continue;
-			if (Converters.converterExists(leftClass, info.getLeft()) && Converters.converterExists(rightClass, info.getRight()))
-				return info;
+			operationInfo = info.getConverted(leftClass, rightClass, info.getReturnType());
+			if (operationInfo != null)
+				return operationInfo;
 		}
 		return null;
 	}
@@ -246,14 +243,14 @@ public final class Arithmetics {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getDefaultValue(Class<T> type) {
+	public static <R, T extends R> R getDefaultValue(Class<T> type) {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Default values cannot be retrieved until Skript has finished registrations.");
-		Supplier<T> supplier = (Supplier<T>) cachedDefaultValues.computeIfAbsent(type, c -> {
+		Supplier<R> supplier = (Supplier<R>) cachedDefaultValues.computeIfAbsent(type, c -> {
 			if (defaultValues.containsKey(type))
 				return defaultValues.get(type);
 			for (Map.Entry<Class<?>, Supplier<?>> entry : defaultValues.entrySet()) {
-				if (type.isAssignableFrom(entry.getKey()))
+				if (entry.getKey().isAssignableFrom(type))
 					return entry.getValue();
 			}
 			return null;

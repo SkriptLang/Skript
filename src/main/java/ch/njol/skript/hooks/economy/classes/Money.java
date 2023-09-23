@@ -18,10 +18,13 @@
  */
 package ch.njol.skript.hooks.economy.classes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.Parser;
@@ -97,6 +100,18 @@ public class Money {
 				return Double.valueOf(m.getAmount());
 			}
 		});
+
+		Arithmetics.registerOperation(Operator.ADDITION, Money.class, (left, right) -> new Money(left.getAmount() + right.getAmount()));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Money.class, (left, right) -> new Money(left.getAmount() - right.getAmount()));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Money.class, (left, right) -> new Money(left.getAmount() * right.getAmount()));
+		Arithmetics.registerOperation(Operator.DIVISION, Money.class, (left, right) -> new Money(left.getAmount() / right.getAmount()));
+		Arithmetics.registerDifference(Money.class, (left, right) -> {
+			double result = Math.abs(left.getAmount() - right.getAmount());
+			if (result < Skript.EPSILON)
+				return new Money(0);
+			return new Money(result);
+		});
+		Arithmetics.registerDefaultValue(Money.class, () -> new Money(0));
 	}
 	
 	final double amount;
