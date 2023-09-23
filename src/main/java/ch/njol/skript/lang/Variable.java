@@ -629,19 +629,17 @@ public class Variable<T> implements Expression<T> {
 				} else {
 					Object object = get(e);
 					Class<?> clazz = object == null ? null : object.getClass();
-					List<OperationInfo<?, ?, ?>> infos = null;
+					List<? extends OperationInfo<?, ?, ?>> infos = null;
 					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] cs;
-					if (object == null || clazz == null || (infos = Arithmetics.getOperations(operator, clazz)).size() > 0) {
+					if (clazz == null || !(infos = Arithmetics.getOperations(operator, clazz)).isEmpty()) {
 						boolean changed = false;
 						for (Object d : delta) {
-							if (object == null || clazz == null) {
-								clazz = d.getClass();
-								assert clazz != null;
-
-								if ((infos = Arithmetics.getOperations(operator, clazz)).size() > 0) {
-									object = Arithmetics.getDefaultValue(clazz);
+							Object defaultValue = null;
+							if (clazz == null) {
+                                if (!(infos = Arithmetics.getOperations(operator, d.getClass())).isEmpty()) {
+									defaultValue = Arithmetics.getDefaultValue(d.getClass());
 								} else {
 									continue;
 								}
@@ -654,7 +652,7 @@ public class Variable<T> implements Expression<T> {
 								if (diff == null)
 									continue;
 
-								object = info.getOperation().calculate(object, diff);
+								object = info.getOperation().calculate(defaultValue, diff);
 								changed = true;
 								break;
 							}

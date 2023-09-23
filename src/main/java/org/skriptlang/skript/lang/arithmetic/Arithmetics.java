@@ -20,180 +20,250 @@ package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.util.Pair;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class Arithmetics {
 
-	private Arithmetics() {}
+	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> operations = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Operator, Map<Pair<Class<?>, Class<?>>, OperationInfo<?, ?, ?>>> cachedOperations = Collections.synchronizedMap(new HashMap<>());
 
-	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> registeredOperations = new ConcurrentHashMap<>();
-	private static final List<DifferenceInfo<?, ?>> registeredDifferences = Collections.synchronizedList(new ArrayList<>());
-	private static final Map<Class<?>, Object> defaultValues = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, DifferenceInfo<?, ?>> differences = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Class<?>, DifferenceInfo<?, ?>> cachedDifferences = Collections.synchronizedMap(new HashMap<>());
+
+	private static final Map<Class<?>, Supplier<?>> defaultValues = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Class<?>, Supplier<?>> cachedDefaultValues = Collections.synchronizedMap(new HashMap<>());
 
 	public static <T> void registerOperation(Operator operator, Class<T> type, Operation<T, T, T> operation) {
-		registerOperation(operator, type, type, operation);
+		registerOperation(operator, type, type, type, operation);
 	}
 
-	public static <L, R> void registerOperation(Operator operator, Class<L> left, Class<R> right, Operation<L, R, L> operation) {
-		registerOperation(operator, left, right, left, operation);
+	public static <L, R> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Operation<L, R, L> operation) {
+		registerOperation(operator, leftClass, rightClass, leftClass, operation);
 	}
 
-	public static <L, R> void registerOperation(Operator operator, Class<L> left, Class<R> right, Operation<L, R, L> operation, Operation<R, L, L> commutativeOperation) {
-		registerOperation(operator, left, right, left, operation, commutativeOperation);
+	public static <L, R> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Operation<L, R, L> operation, Operation<R, L, L> commutativeOperation) {
+		registerOperation(operator, leftClass, rightClass, leftClass, operation);
+		registerOperation(operator, rightClass, leftClass, leftClass, commutativeOperation);
 	}
 
-	public static <L, R, T> void registerOperation(Operator operator, Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation, Operation<R, L, T> commutativeOperation) {
-		registerOperation(operator, left, right, returnType, operation);
-		registerOperation(operator, right, left, returnType, commutativeOperation);
+	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType, Operation<L, R, T> operation, Operation<R, L, T> commutativeOperation) {
+		registerOperation(operator, leftClass, rightClass, returnType, operation);
+		registerOperation(operator, rightClass, leftClass, returnType, commutativeOperation);
 	}
 
-	public static <L, R, T> void registerOperation(Operator operator, Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
+	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType, Operation<L, R, T> operation) {
 		Skript.checkAcceptRegistrations();
-		if (findOperation(operator, left, right) != null)
-			throw new SkriptAPIException("An operator is already registered with the types '" + left + "' and '" + right + '\'');
-		registeredOperations.computeIfAbsent(operator, op -> Collections.synchronizedList(new ArrayList<>()))
-			.add(new OperationInfo<>(left, right, returnType, operation));
+		if (exactOperationExists(operator, leftClass, rightClass))
+			throw new IllegalArgumentException("There's already a " + operator.getName() + " operation registered for types '"
+				+ leftClass + "' and '" + rightClass + "'");
+		getOperations_i(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}
 
+	private static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
+		for (OperationInfo<?, ?, ?> info : getOperations_i(operator)) {
+			if (info.getLeft() == leftClass && info.getRight() == rightClass)
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean operationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
+		return getOperationInfo(operator, leftClass, rightClass) != null;
+	}
+
+	private static List<OperationInfo<?, ?, ?>> getOperations_i(Operator operator) {
+		return operations.computeIfAbsent(operator, o -> Collections.synchronizedList(new ArrayList<>()));
+	}
+
+	@UnmodifiableView
 	public static List<OperationInfo<?, ?, ?>> getOperations(Operator operator) {
-		return registeredOperations.getOrDefault(operator, Collections.emptyList());
+		assertIsOperationsDoneLoading();
+		return Collections.unmodifiableList(getOperations_i(operator));
 	}
 
-	public static List<OperationInfo<?, ?, ?>> getOperations(Operator operator, Class<?> type) {
-		return getOperations(operator).stream()
-			.filter(handler -> handler.getLeft().isAssignableFrom(type))
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <T> List<OperationInfo<T, ?, ?>> getOperations(Operator operator, Class<T> type) {
+		return (List) getOperations(operator).stream()
+			.filter(info -> info.getLeft().isAssignableFrom(type))
 			.collect(Collectors.toList());
 	}
 
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <L, R> OperationInfo<L, R, ?> findOperation(Operator operator, Class<L> left, Class<R> right) {
-		return (OperationInfo<L, R, ?>) getOperations(operator).stream()
-			.filter(handler -> handler.getLeft().isAssignableFrom(left) && handler.getRight().isAssignableFrom(right))
-			.findFirst().orElse(null);
+	public static <L, R, T> OperationInfo<L, R, T> getOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
+		OperationInfo<L, R, ?> info =  getOperationInfo(operator, leftClass, rightClass);
+		if (info != null && returnType.isAssignableFrom(info.getReturnType()))
+			return (OperationInfo<L, R, T>) info;
+		return null;
+	}
+
+	private static Map<Pair<Class<?>, Class<?>>, OperationInfo<?, ?, ?>> getCachedOperations(Operator operator) {
+		return cachedOperations.computeIfAbsent(operator, o -> Collections.synchronizedMap(new HashMap<>()));
 	}
 
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <L, R, T> OperationInfo<L, R, T> findOperation(Operator operator, Class<L> left, Class<R> right, Class<T> returnType) {
-		return (OperationInfo<L, R, T>) getOperations(operator).stream()
-			.filter(handler ->
-				handler.getLeft().isAssignableFrom(left)
-					&& handler.getRight().isAssignableFrom(right)
-					&& handler.getReturnType().isAssignableFrom(returnType))
-			.findFirst().orElse(null);
+	public static <L, R> OperationInfo<L, R, ?> getOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass) {
+		assertIsOperationsDoneLoading();
+		return (OperationInfo<L, R, ?>) getCachedOperations(operator).computeIfAbsent(new Pair<>(leftClass, rightClass), pair ->
+			getOperations(operator).stream()
+				.filter(info -> info.getLeft().isAssignableFrom(leftClass) && info.getRight().isAssignableFrom(rightClass))
+				.reduce((info, info2) -> {
+					if (info2.getLeft() == leftClass && info2.getRight() == rightClass)
+						return info2;
+					return info;
+				})
+				.orElse(null));
 	}
 
-	public static OperationInfo<?, ?, ?> lookupOperation(Operator operator, Class<?> left, Class<?> right) {
+	@Nullable
+	public static <L, R, T> Operation<L, R, T> getOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
+		OperationInfo<L, R, T> info = getOperationInfo(operator, leftClass, rightClass, returnType);
+		return info == null ? null : info.getOperation();
+	}
+
+	@Nullable
+	public static <L, R> Operation<L, R, ?> getOperation(Operator operator, Class<L> leftClass, Class<R> rightClass) {
+		OperationInfo<L, R, ?> info = getOperationInfo(operator, leftClass, rightClass);
+		return info == null ? null : info.getOperation();
+	}
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public static <T> OperationInfo<?, ?, T> lookupOperationInfo(Operator operator, Class<?> leftClass, Class<?> rightClass, Class<T> returnType) {
+		OperationInfo<?, ?, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
+		if (info != null && Converters.converterExists(info.getReturnType(), returnType))
+			return (OperationInfo<?, ?, T>) info;
+		return null;
+	}
+
+	@Nullable
+	public static OperationInfo<?, ?, ?> lookupOperationInfo(Operator operator, Class<?> leftClass, Class<?> rightClass) {
+		OperationInfo<?, ?, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
+		if (operationInfo != null)
+			return operationInfo;
 		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
-			if (!info.getLeft().isAssignableFrom(left) && !info.getRight().isAssignableFrom(right))
+			if (!info.getLeft().isAssignableFrom(leftClass) && !info.getRight().isAssignableFrom(rightClass))
 				continue;
-			if (Converters.converterExists(left, info.getLeft()) && Converters.converterExists(right, info.getLeft()))
+			if (Converters.converterExists(leftClass, info.getLeft()) && Converters.converterExists(rightClass, info.getRight()))
 				return info;
 		}
 		return null;
 	}
 
-	@Nullable
-	public static Class<?> lookupClass(Operator operator, Class<?> to) {
-		List<OperationInfo<?, ?, ?>> operationInfos = getOperations(operator, to);
-		if (operationInfos.size() == 0)
-			return null;
-		OperationInfo<?, ?, ?> operation = findOperation(operator, to, to);
-
-		if (operation == null) {
-			operation = operationInfos.get(0);
-			return operation.getRight();
-		} else {
-			return to;
-		}
+	@SuppressWarnings("unchecked")
+	public static <L, R, T> T calculate(Operator operator, L left, R right, Class<T> returnType) {
+		Operation<L, R, T> operation = (Operation<L, R, T>) getOperation(operator, left.getClass(), right.getClass(), returnType);
+		return operation == null ? null : operation.calculate(left, right);
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <L, R, T> T calculate(Operator operator, L left, R right, Class<T> expectedReturnType) {
-		OperationInfo<L, R, T> info = (OperationInfo<L, R, T>) findOperation(operator, left.getClass(), right.getClass(), expectedReturnType);
-		if (info == null)
+	public static <L, R, T> T calculateUnsafe(Operator operator, L left, R right) {
+		Operation<L, R, T> operation = (Operation<L, R, T>) getOperation(operator, left.getClass(), right.getClass());
+		return operation == null ? null : operation.calculate(left, right);
+	}
+
+	public static <T> void registerDifference(Class<T> type, Operation<T, T, T> operation) {
+		registerDifference(type, type, operation);
+	}
+
+	public static <T, R> void registerDifference(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
+		Skript.checkAcceptRegistrations();
+		if (exactDifferenceExists(type))
+			throw new IllegalArgumentException("There's already a difference registered for type '" + type + "'");
+		differences.put(type, new DifferenceInfo<>(type, returnType, operation));
+	}
+
+	private static boolean exactDifferenceExists(Class<?> type) {
+		return differences.containsKey(type);
+	}
+
+	public static boolean differenceExists(Class<?> type) {
+		return getDifferenceInfo(type) != null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, R> DifferenceInfo<T, R> getDifferenceInfo(Class<T> type, Class<R> returnType) {
+		DifferenceInfo<T, ?> info = getDifferenceInfo(type);
+		if (info != null && returnType.isAssignableFrom(info.getReturnType()))
+			return (DifferenceInfo<T, R>) info;
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> DifferenceInfo<T, ?> getDifferenceInfo(Class<T> type) {
+		if (Skript.isAcceptRegistrations())
+			throw new SkriptAPIException("Differences cannot be retrieved until Skript has finished registrations.");
+		return (DifferenceInfo<T, ?>) cachedDifferences.computeIfAbsent(type, c -> {
+			if (differences.containsKey(type))
+				return differences.get(type);
+			for (Map.Entry<Class<?>, DifferenceInfo<?, ?>> entry : differences.entrySet()) {
+				if (entry.getKey().isAssignableFrom(type))
+					return entry.getValue();
+			}
 			return null;
-		return info.getOperation().calculate(left, right);
+		});
+	}
+
+	public static <T, R> Operation<T, T, R> getDifference(Class<T> type, Class<R> returnType) {
+		DifferenceInfo<T, R> info = getDifferenceInfo(type, returnType);
+		return info == null ? null : info.getOperation();
+	}
+
+	public static <T> Operation<T, T, ?> getDifference(Class<T> type) {
+		DifferenceInfo<T, ?> info = getDifferenceInfo(type);
+		return info == null ? null : info.getOperation();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, R> R difference(T left, T right, Class<R> returnType) {
+		Operation<T, T, R> operation = (Operation<T, T, R>) getDifference(left.getClass(), returnType);
+		return operation == null ? null : operation.calculate(left, right);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, R> R differenceUnsafe(T left, T right) {
+		Operation<T, T, R> operation = (Operation<T, T, R>) getDifference(left.getClass());
+		return operation == null ? null : operation.calculate(left, right);
 	}
 
 	public static <T> void registerDefaultValue(Class<T> type, Supplier<T> supplier) {
 		Skript.checkAcceptRegistrations();
 		if (defaultValues.containsKey(type))
-			throw new SkriptAPIException("A default value is already registered for type '" + type + '\'');
+			throw new IllegalArgumentException("There's already a default value registered for type '" + type + "'");
 		defaultValues.put(type, supplier);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getDefaultValue(Class<? extends T> type) {
-		for (Class<?> c : defaultValues.keySet()) {
-			if (c.isAssignableFrom(type))
-				return ((Supplier<T>) defaultValues.get(c)).get();
-		}
-		return null;
-	}
-
-	public static <A> void registerDifference(Class<A> type, Operation<A, A, A> operation) {
-		registerDifference(type, type, operation);
-	}
-
-	public static <A, R> void registerDifference(Class<A> type, Class<R> returnType, Operation<A, A, R> operation) {
-		Skript.checkAcceptRegistrations();
-		if (getDifferenceInfoExact(type) != null)
-			throw new SkriptAPIException("A difference is already registered with types '" + type + "' and '" + returnType + '\'');
-		registeredDifferences.add(new DifferenceInfo<>(type, returnType, operation));
-	}
-
-	@Nullable
-	public static <A> Operation<? super A, ? super A, ?> getDifference(Class<A> type) {
-		DifferenceInfo<? super A, ?> differenceInfo = getDifferenceInfo(type);
-		if (differenceInfo == null)
+	public static <T> T getDefaultValue(Class<T> type) {
+		if (Skript.isAcceptRegistrations())
+			throw new SkriptAPIException("Default values cannot be retrieved until Skript has finished registrations.");
+		Supplier<T> supplier = (Supplier<T>) cachedDefaultValues.computeIfAbsent(type, c -> {
+			if (defaultValues.containsKey(type))
+				return defaultValues.get(type);
+			for (Map.Entry<Class<?>, Supplier<?>> entry : defaultValues.entrySet()) {
+				if (type.isAssignableFrom(entry.getKey()))
+					return entry.getValue();
+			}
 			return null;
-		return differenceInfo.getOperation();
+		});
+		return supplier == null ? null : supplier.get();
 	}
 
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <A, R> Operation<? super A, ? super A, ? super R> getDifference(Class<A> type, Class<R> returnType) {
-		DifferenceInfo<? super A, ?> differenceInfo = getDifferenceInfo(type);
-		if (differenceInfo == null || !differenceInfo.getReturnType().isAssignableFrom(returnType))
-			return null;
-		return (Operation<? super A, ? super A, ? super R>) differenceInfo.getOperation();
-	}
-
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <A> DifferenceInfo<? super A, ?> getDifferenceInfo(Class<A> type) {
-		return (DifferenceInfo<? super A, ?>) registeredDifferences.stream()
-			.filter(info -> info.getType().isAssignableFrom(type))
-			.findFirst().orElse(null);
-	}
-
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <A> DifferenceInfo<A, ?> getDifferenceInfoExact(Class<A> type) {
-		return (DifferenceInfo<A, ?>) registeredDifferences.stream()
-			.filter(info -> info.getType() == type)
-			.findFirst().orElse(null);
-	}
-
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <A, R> R difference(A first, A second, Class<R> expectedReturnType) {
-		Operation<A, A, R> difference = (Operation<A, A, R>) getDifference(first.getClass(), expectedReturnType);
-		if (difference == null)
-			return null;
-		return difference.calculate(first, second);
+	private static void assertIsOperationsDoneLoading() {
+		if (Skript.isAcceptRegistrations())
+			throw new SkriptAPIException("Operations cannot be retrieved until Skript has finished registrations.");
 	}
 
 }

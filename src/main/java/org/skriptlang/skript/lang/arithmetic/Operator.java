@@ -53,18 +53,4 @@ public enum Operator {
 		return m_name.toString();
 	}
 
-	public boolean acceptsClass(Class<?> type, Class<?>... classes) {
-		List<OperationInfo<?, ?, ?>> infoList = Arithmetics.getOperations(this, type);
-		if (infoList.size() == 0)
-			return false;
-
-		for (Class<?> aClass : classes) {
-			for (OperationInfo<?, ?, ?> info : infoList) {
-				if (info.getRight().isAssignableFrom(aClass))
-					return true;
-			}
-		}
-		return false;
-	}
-
 }

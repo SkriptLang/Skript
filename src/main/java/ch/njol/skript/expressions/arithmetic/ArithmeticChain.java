@@ -19,7 +19,11 @@
 package ch.njol.skript.expressions.arithmetic;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
+import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 
 import ch.njol.skript.lang.Expression;
@@ -31,7 +35,7 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.converter.Converters;
 
-public class ArithmeticChain implements ArithmeticGettable<Object> {
+public class ArithmeticChain<T> implements ArithmeticGettable<T> {
 
 	@SuppressWarnings("unchecked")
 	private static final Checker<Object>[] CHECKERS = new Checker[]{
@@ -43,21 +47,23 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 	private final ArithmeticGettable<?> left;
 	private final ArithmeticGettable<?> right;
 	private final Operator operator;
+	private final Class<? extends T> returnType;
 	@Nullable
 	@SuppressWarnings("rawtypes")
 	private OperationInfo operationInfo;
 
-	public ArithmeticChain(ArithmeticGettable<?> left, Operator operator, ArithmeticGettable<?> right, @Nullable OperationInfo<?, ?, ?> operationInfo) {
+	public ArithmeticChain(ArithmeticGettable<?> left, Operator operator, ArithmeticGettable<?> right, @Nullable OperationInfo<?, ?, T> operationInfo) {
 		this.left = left;
 		this.right = right;
 		this.operator = operator;
 		this.operationInfo = operationInfo;
+		this.returnType = operationInfo != null ? operationInfo.getReturnType() : (Class<? extends T>) Object.class;
 	}
 
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public Object get(Event event) {
+	public T get(Event event) {
 		Object left = this.left.get(event);
 		Object right = this.right.get(event);
 
@@ -69,7 +75,9 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 		if (right == null) {
 			if (rightClass == Object.class) {
-				rightClass = Arithmetics.lookupClass(operator, leftClass);
+				rightClass = lookupClass(leftClass, OperationInfo::getLeft)
+					.map(Pair::getSecond)
+					.orElse(null);
 				if (rightClass == null)
 					return null;
 			}
@@ -79,7 +87,9 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 		if (left == null) {
 			if (leftClass == Object.class) {
-				leftClass = Arithmetics.lookupClass(operator, rightClass);
+				leftClass = lookupClass(rightClass, OperationInfo::getRight)
+					.map(Pair::getFirst)
+					.orElse(null);
 				if (leftClass == null)
 					return null;
 			}
@@ -87,14 +97,14 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 			left = Arithmetics.getDefaultValue(leftClass);
 		}
 
-		if (left == null)
-			return right;
-		if (right == null)
-			return left;
+		if (left == null && right != null && Converters.converterExists(rightClass, returnType))
+			return Converters.convert(right, returnType);
+		if (right == null && left != null && Converters.converterExists(leftClass, returnType))
+			return Converters.convert(left, returnType);
 
 		if (operationInfo == null) {
-			operationInfo = Arithmetics.lookupOperation(operator, leftClass, rightClass);
-			if (operationInfo == null)
+			operationInfo = Arithmetics.lookupOperationInfo(operator, leftClass, rightClass);
+			if (operationInfo == null || !Converters.converterExists(operationInfo.getReturnType(), returnType))
 				return null;
 		}
 
@@ -103,12 +113,28 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 		if (!operationInfo.getRight().isAssignableFrom(rightClass))
 			right = Converters.convert(right, operationInfo.getRight());
 
-		return operationInfo.getOperation().calculate(left, right);
+		Object result = operationInfo.getOperation().calculate(left, right);
+		return Converters.convert(result, returnType);
+	}
+
+	private <C> Optional<NonNullPair<Class<?>, Class<?>>> lookupClass(Class<C> cls, Function<OperationInfo<?, ?, ?>, Class<?>> function) {
+		List<OperationInfo<?, ?, ?>> operationInfos = Arithmetics.getOperations(operator);
+		if (operationInfos.isEmpty())
+			return Optional.empty();
+
+		OperationInfo<?, ?, ?> operation = Arithmetics.getOperationInfo(operator, cls, cls);
+		if (operation != null)
+			return Optional.of(new NonNullPair<>(cls, cls));
+
+		return operationInfos.stream()
+			.filter(info -> function.apply(info).isAssignableFrom(cls))
+			.findFirst()
+			.map(info -> new NonNullPair<>(info.getLeft(), info.getRight()));
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		return operationInfo == null ? Object.class : operationInfo.getReturnType();
+	public Class<? extends T> getReturnType() {
+		return returnType;
 	}
 
 	@Nullable
@@ -130,12 +156,12 @@ public class ArithmeticChain implements ArithmeticGettable<Object> {
 
 				OperationInfo<?, ?, ?> operationInfo = null;
 				if (left.getReturnType() != Object.class && right.getReturnType() != Object.class) {
-					operationInfo = Arithmetics.findOperation(operator, left.getReturnType(), right.getReturnType());
+					operationInfo = Arithmetics.lookupOperationInfo(operator, left.getReturnType(), right.getReturnType());
 					if (operationInfo == null)
 						return null;
 				}
 
-				return new ArithmeticChain(left, operator, right, operationInfo);
+				return new ArithmeticChain<>(left, operator, right, operationInfo);
 			}
 		}
 

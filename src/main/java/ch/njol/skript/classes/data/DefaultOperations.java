@@ -66,6 +66,7 @@ public class DefaultOperations {
 		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, (left, right) -> left.clone().divide(right));
 
 		// Vector - Number
+		// Number - Vector
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, Number.class, (left, right) -> left.clone().multiply(right.doubleValue()), (left, right) -> {
 			double number = left.doubleValue();
 			Vector leftVector = new Vector(number, number, number);

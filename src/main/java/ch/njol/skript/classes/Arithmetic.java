@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.classes;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-
 /**
  * Represents arithmetic for certain two types. Multiplication, division and
  * power of methods are optional and may throw UnsupportedOperationExceptions.
@@ -27,7 +25,6 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
  * @param <R> the type of the relative value
  */
 @Deprecated
-@ScheduledForRemoval
 public interface Arithmetic<A, R> {
 	
 	public R difference(A first, A second);

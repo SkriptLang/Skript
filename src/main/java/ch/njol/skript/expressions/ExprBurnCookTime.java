@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.Event;
@@ -46,19 +47,23 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 @Name("Burn/Cook Time")
-@Description({"The time a furnace takes to burn an item in a <a href='events.html#fuel_burn'>fuel burn</a> event.",
-			"Can also be used to change the burn/cook time of a placed furnace."})
-@Examples({"on fuel burn:",
-		"	if fuel slot is coal:",
-		"		set burning time to 1 tick"})
+@Description({
+	"The time a furnace takes to burn an item in a <a href='events.html#fuel_burn'>fuel burn</a> event.",
+	"Can also be used to change the burn/cook time of a placed furnace."
+})
+@Examples({
+	"on fuel burn:",
+		"\tif fuel slot is coal:",
+			"\t\tset burning time to 1 tick"
+})
 @Since("2.3")
 public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 
 	static {
 		Skript.registerExpression(ExprBurnCookTime.class, Timespan.class, ExpressionType.PROPERTY,
 				"[the] burn[ing] time",
-				"[the] (burn|1¦cook)[ing] time of %blocks%",
-				"%blocks%'[s] (burn|1¦cook)[ing] time");
+				"[the] (burn|1:cook)[ing] time of %blocks%",
+				"%blocks%'[s] (burn|1:cook)[ing] time");
 	}
 	
 	static final ItemType anyFurnace = Aliases.javaItemType("any furnace");
@@ -80,47 +85,32 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	}
 
 	@Override
-	protected Timespan[] get(Event e, Block[] source) {
+	protected Timespan[] get(Event event, Block[] source) {
 		if (isEvent) {
-			if (!(e instanceof FurnaceBurnEvent))
-				return null;
+			if (!(event instanceof FurnaceBurnEvent))
+				return new Timespan[0];
 
-			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) e).getBurnTime()));
+			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) event).getBurnTime()));
 		} else {
-			Timespan[] result = Arrays.stream(source)
-					.filter(block -> anyFurnace.isOfType(block))
+			return Arrays.stream(source)
+					.filter(anyFurnace::isOfType)
 					.map(furnace -> {
 						Furnace state = (Furnace) furnace.getState();
 						return Timespan.fromTicks_i(cookTime ? state.getCookTime() : state.getBurnTime());
 					})
 					.toArray(Timespan[]::new);
-			assert result != null;
-			return result;
 		}
 	}
-
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return isEvent ? "the burning time" : "" + String.format("the %sing time of %s", cookTime ? "cook" : "burn", getExpr().toString(e, debug));
-	}
-
-	@Override
-	public Class<? extends Timespan> getReturnType() {
-		return Timespan.class;
-	}
-
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.ADD
-			|| mode == Changer.ChangeMode.REMOVE
-			|| mode == Changer.ChangeMode.SET)
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET)
 			return CollectionUtils.array(Timespan.class);
 		return null;
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 
@@ -146,15 +136,15 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 		assert value != null; // It isn't going to be null but the compiler complains so
 
 		if (isEvent) {
-			if (!(e instanceof FurnaceBurnEvent))
+			if (!(event instanceof FurnaceBurnEvent))
 				return;
 
-			FurnaceBurnEvent event = (FurnaceBurnEvent) e;
-			event.setBurnTime(value.apply(Timespan.fromTicks_i(event.getBurnTime())).getTicks());
+			FurnaceBurnEvent burnEvent = (FurnaceBurnEvent) event;
+			burnEvent.setBurnTime(value.apply(Timespan.fromTicks_i(burnEvent.getBurnTime())).getTicks());
 			return;
 		}
 
-		for (Block block : getExpr().getArray(e)) {
+		for (Block block : getExpr().getArray(event)) {
 			if (!anyFurnace.isOfType(block))
 				continue;
 			Furnace furnace = (Furnace) block.getState();
@@ -168,4 +158,15 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			furnace.update();
 		}
 	}
+
+	@Override
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return isEvent ? "the burning time" : String.format("the %sing time of %s", cookTime ? "cook" : "burn", getExpr().toString(event, debug));
+	}
+
 }

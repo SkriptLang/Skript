@@ -41,18 +41,17 @@ import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Difference")
 @Description("The difference between two values, e.g. <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> or <a href='./classes/#time'>times</a>.")
-@Examples({"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
-		"\tmessage \"You have to wait a minute before using this command again!\""})
+@Examples({
+	"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
+		"\tmessage \"You have to wait a minute before using this command again!\""
+})
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
 	
 	static {
-		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED, "difference (between|of) %object% and %object%");
+		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED, "[the] difference (between|of) %object% and %object%");
 	}
 	
 	private Expression<?> first, second;
@@ -61,7 +60,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@SuppressWarnings("rawtypes")
 	private DifferenceInfo differenceInfo;
 	@SuppressWarnings("null")
-	private Class<?> relativeType;
+	private Class<?> returnType;
 	
 	@Override
 	@SuppressWarnings({"unchecked", "unused", "ConstantConditions"})
@@ -103,9 +102,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 		}
 		if (c.equals(Object.class)) {
 			// Initialize less stuff, basically
-			relativeType = Object.class; // Relative math type would be null which the parser doesn't like
+			returnType = Object.class; // Return type would be null which the parser doesn't like
 		} else {
-			relativeType = differenceInfo.getReturnType();
+			returnType = differenceInfo.getReturnType();
 		}
 		return true;
 	}
@@ -113,15 +112,15 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
-		final Object f = first.getSingle(e), s = second.getSingle(e);
-		if (f == null || s == null)
+	protected Object[] get(Event event) {
+		final Object first = this.first.getSingle(event), second = this.second.getSingle(event);
+		if (first == null || second == null)
 			return null;
-		final Object[] one = (Object[]) Array.newInstance(relativeType, 1);
+		final Object[] one = (Object[]) Array.newInstance(returnType, 1);
 		
-		// If we're comparing object expressions, such as variables, math is null right now
-		if (relativeType.equals(Object.class)) {
-			Class<?> c = Utils.getSuperType(f.getClass(), s.getClass());
+		// If we're comparing object expressions, such as variables, difference info is null right now
+		if (returnType.equals(Object.class)) {
+			Class<?> c = Utils.getSuperType(first.getClass(), second.getClass());
 			differenceInfo = Arithmetics.getDifferenceInfo(c);
 			if (differenceInfo == null) { // User did something stupid, just return <none> for them
 				return one;
@@ -129,24 +128,24 @@ public class ExprDifference extends SimpleExpression<Object> {
 		}
 
 		assert differenceInfo != null; // NOW it cannot be null
-		one[0] = differenceInfo.getOperation().calculate(f, s);
+		one[0] = differenceInfo.getOperation().calculate(first, second);
 
 		return one;
 	}
-	
+
 	@Override
-	public Class<? extends Object> getReturnType() {
-		return relativeType;
+	public Class<?> getReturnType() {
+		return returnType;
 	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "difference between " + first.toString(e, debug) + " and " + second.toString(e, debug);
-	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "difference between " + first.toString(event, debug) + " and " + second.toString(event, debug);
+	}
+
 }
