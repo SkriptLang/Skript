@@ -73,7 +73,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 			operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, leftClass, rightClass);
 
 		if (operationInfo != null)
-			calculate(leftClass, left, rightClass, right);
+			return calculate(leftClass, left, rightClass, right);
 
 		if (right == null) {
 			 operationInfo = (OperationInfo<L, R, T>) lookupOperationInfo(leftClass, OperationInfo::getLeft, rightClass);
