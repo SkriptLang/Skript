@@ -37,7 +37,21 @@ import org.eclipse.jdt.annotation.Nullable;
 	"Location is saved over server restarts.",
 	"The last death location can only be set for online players."
 })
-@Examples("set {lastdeathlocation::%player's uuid%} to last death location of player")
+@Examples({
+	"on respawn:",
+		"\twhile last death location is set:",
+			"\t\twait a second",
+			"\t\tsend action bar \"&cLast Death Location %last death location%\" to player",
+			"\t\tdistance between player and last death location is less than 5",
+			"\t\tmessage \"You found your death location!\"",
+			"\t\tclear last death location of player",
+			"\t\tstop",
+	"",
+	"command /stopDeathNotification:",
+		"\ttrigger:",
+			"\t\tclear last death location of player",
+			"\t\tmessage \"Stopping last death actionbar notification\""
+})
 @Since("INSERT VERSION")
 public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlayer, Location> {
 	
