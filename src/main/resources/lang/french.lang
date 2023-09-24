@@ -45,7 +45,7 @@ skript command:
 			changes: Liste toutes les modifications apportées depuis la version actuelle
 			download: Télécharge la dernière version
 		info: Affiche un message contenant les liens vers les alias et la documentation de Skript
-		gen-docs: Génère la documentation en utilisant doc-templates dans le dossier du plugin
+		gen-docs: Génère la documentation en utilisant docs/templates dans le dossier du plugin
 		test: Utilisé pour exécuter les tests Skript
 
 	invalid script: Impossible de trouver le script <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
