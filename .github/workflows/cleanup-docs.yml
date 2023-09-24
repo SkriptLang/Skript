@@ -15,7 +15,7 @@ jobs:
           echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
       - name: Checkout Skript
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
             ref: ${{ github.event.repository.default_branch }}
             submodules: recursive
