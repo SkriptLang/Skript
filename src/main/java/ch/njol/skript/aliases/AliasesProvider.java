@@ -21,9 +21,11 @@ package ch.njol.skript.aliases;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -56,7 +58,7 @@ public class AliasesProvider {
 	/**
 	 * All materials that are currently loaded by this provider.
 	 */
-	private final List<Material> materials;
+	private final Set<Material> materials;
 	
 	/**
 	 * Tags are in JSON format. We may need GSON when merging tags
@@ -171,7 +173,7 @@ public class AliasesProvider {
 		this.aliases = new HashMap<>(expectedCount);
 		this.variations = new HashMap<>(expectedCount / 20);
 		this.aliasesMap = new AliasesMap();
-		this.materials = new ArrayList<>();
+		this.materials = new ObjectOpenHashSet<>();
 		
 		this.gson = new Gson();
 	}
@@ -265,8 +267,8 @@ public class AliasesProvider {
 			if (material == null) { // If server doesn't recognize id, do not proceed
 				throw new InvalidMinecraftIdException(id);
 			}
-			if (!materials.contains(material))
-				materials.add(material);
+
+			materials.add(material);
 			
 			// Hacky: get related entity from block states
 			String entityName = blockStates.remove("relatedEntity");

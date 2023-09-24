@@ -1,4 +1,4 @@
-test "block data" when running minecraft "1.15.2":
+test "block data" when running minecraft "1.14.4":
 	set {_b} to block at spawn of world "world"
 	set block at {_b} to campfire[lit=false;waterlogged=true]
 	assert block at {_b} is an unlit campfire with "block at spawn should be an unlit campfire"
@@ -10,3 +10,5 @@ test "block data" when running minecraft "1.15.2":
 
 	set {_data} to block data of block at {_b}
 	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "block data for campfire did not match"
+
+	set block at {_b} to air

@@ -37,9 +37,11 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseChannel;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
+import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -195,15 +197,22 @@ public class SkriptConfig {
 	
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
-				if (Skript.classExists("co.aikar.timings.Timings")) { // Check for Paper server
-					if (t)
-						Skript.info("Timings support enabled!");
-					SkriptTimings.setEnabled(t); // Config option will be used
-				} else { // Not running Paper
+				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings
 					if (t) // Warn the server admin that timings won't work
 						Skript.warning("Timings cannot be enabled! You are running Bukkit/Spigot, but Paper is required.");
 					SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
+					return;
 				}
+				if (Timings.class.isAnnotationPresent(Deprecated.class)) { // check for deprecated Timings
+					if (t) // Warn the server admin that timings won't work
+						Skript.warning("Timings cannot be enabled! Paper no longer supports Timings as of 1.19.4.");
+					SkriptTimings.setEnabled(false); // Just to be sure, deactivate timings support completely
+					return;
+				}
+				// If we get here, we can safely enable timings
+				if (t)
+					Skript.info("Timings support enabled!");
+				SkriptTimings.setEnabled(t); // Config option will be used
 			});
 	
 	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
@@ -363,8 +372,9 @@ public class SkriptConfig {
 				return false;
 			}
 			mainConfig = mc;
-			
-			if (!Skript.getVersion().toString().equals(mc.get(version.key))) {
+
+			String configVersion = mc.get(version.key);
+			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
 				try {
 					final InputStream in = Skript.getInstance().getResource("config.sk");
 					if (in == null) {

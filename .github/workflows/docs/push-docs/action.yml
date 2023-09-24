@@ -1,0 +1,41 @@
+name: Generate documentation
+
+inputs:
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  docs_repo_dir:
+    description: "The skript-docs repository directory"
+    required: true
+    type: string
+  git_email:
+    description: "The email to use for the Git commit"
+    required: true
+    type: string
+  git_name:
+    description: "The name to use for the Git commit"
+    required: true
+    type: string
+  git_commit_message:
+    description: "The message to use for the Git commit"
+    required: true
+    type: string
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      if: success()
+      env:
+        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        GIT_EMAIL: ${{ inputs.git_email }}
+        GIT_NAME: ${{ inputs.git_name }}
+        GIT_COMMIT_MESSAGE: ${{ inputs.git_commit_message }}
+      run: |
+        cd "${DOCS_REPO_DIR}"
+        git config user.name "${GIT_NAME}"
+        git config user.email "${GIT_EMAIL}"
+        git add -A
+        git commit -m "${GIT_COMMIT_MESSAGE}" || (echo "Nothing to push!" && exit 0)
+        git push origin main
