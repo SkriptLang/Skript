@@ -729,7 +729,7 @@ public class SimpleEvents {
 						"\t\tsend \"You can't drag your items here!\" to player",
 						"\t\tcancel event"
 				)
-				.since("INSERT VERSION");
+				.since("2.7");
 
 	}
 
