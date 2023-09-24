@@ -67,6 +67,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	/**
 	 * Registers an expression as {@link ExpressionType#EVENT} with the provided pattern.
+	 * This also adds '[the]' to the start of the pattern.
 	 * 
 	 * @param expression The class that represents this EventValueExpression.
 	 * @param type The return type of the expression.
