@@ -45,7 +45,7 @@ skript command:
 			changes: Listet alle Änderungen seit der aktuellen Version auf (auf englisch)
 			download: Lädt die neueste Version herunter
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
-		gen-docs: Generiert Dokumentation mithilfe von doc-templates im Plugin-Ordner
+		gen-docs: Generiert Dokumentation mithilfe von docs/templates im Plugin-Ordner
 		test: Wird zum Ausführen von Skript-Tests verwendet
 	
 	invalid script: Das Skript <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
