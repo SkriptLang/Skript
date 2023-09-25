@@ -835,7 +835,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Direction get(final PlayerInteractEvent e) {
-				return new Direction(new double[]{e.getBlockFace().getModX(), e.getBlockFace().getModY(), e.getBlockFace().getModZ()});
+				return new Direction(new double[] {e.getBlockFace().getModX(), e.getBlockFace().getModY(), e.getBlockFace().getModZ()});
 			}
 		}, 0);
 		// PlayerShearEntityEvent
