@@ -28,6 +28,7 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -42,6 +43,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
@@ -128,6 +130,17 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
+		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
+				.description(
+						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
+						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"If this event is cancelled, the items will be returned to the source inventory."
+				)
+				.examples(
+						"on inventory item move:",
+							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+				)
+				.since("INSERT VERSION");
 		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
 			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
 					.description("Called when a player selects a recipe in a stonecutter.")
@@ -200,6 +213,8 @@ public class EvtItem extends SkriptEvent {
 			itemStack = ((ItemDespawnEvent) event).getEntity().getItemStack();
 		} else if (event instanceof ItemMergeEvent) {
 			itemStack = ((ItemMergeEvent) event).getTarget().getItemStack();
+		} else if (event instanceof InventoryMoveItemEvent) {
+			itemStack = ((InventoryMoveItemEvent) event).getItem();
 		} else {
 			assert false;
 			return false;
@@ -210,8 +225,8 @@ public class EvtItem extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/stonecutting" + (types == null ? "" : " of " + types);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/move/stonecutting" + (types == null ? "" : " of " + types);
 	}
 	
 }

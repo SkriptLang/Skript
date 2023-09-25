@@ -57,6 +57,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
@@ -609,14 +610,37 @@ public final class BukkitEventValues {
 				return e.getEntity();
 			}
 		}, 0);
+
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
 			@Override
 			@Nullable
-			public Block get(final EntityChangeBlockEvent e) {
-				return e.getBlock();
+			public Block get(EntityChangeBlockEvent event) {
+				return event.getBlock();
 			}
-		}, 0);
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public Block get(EntityChangeBlockEvent event) {
+				return event.getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public BlockData get(EntityChangeBlockEvent event) {
+				return event.getBlockData();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityChangeBlockEvent.class, BlockData.class, new Getter<BlockData, EntityChangeBlockEvent>() {
+			@Override
+			@Nullable
+			public BlockData get(EntityChangeBlockEvent event) {
+				return event.getBlockData();
+			}
+		}, EventValues.TIME_FUTURE);
+
 		// AreaEffectCloudApplyEvent
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, LivingEntity[].class, new Getter<LivingEntity[], AreaEffectCloudApplyEvent>() {
 			@Override
@@ -1076,7 +1100,7 @@ public final class BukkitEventValues {
 				if (invi instanceof PlayerInventory && slotIndex >= 36) {
 					return new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) invi).getHolder(), slotIndex);
 				} else {
-					return new InventorySlot(invi, slotIndex);
+					return new InventorySlot(invi, slotIndex, e.getRawSlot());
 				}
 			}
 		}, 0);
@@ -1311,6 +1335,13 @@ public final class BukkitEventValues {
 				return e.getInventory();
 			}
 		}, 0);
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, new Getter<InventoryCloseEvent.Reason, InventoryCloseEvent>() {
+				@Override
+				public InventoryCloseEvent.Reason get(InventoryCloseEvent event) {
+					return event.getReason();
+				}
+			}, EventValues.TIME_NOW);
 		//InventoryPickupItemEvent
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Inventory.class, new Getter<Inventory, InventoryPickupItemEvent>() {
 			@Nullable
@@ -1375,7 +1406,7 @@ public final class BukkitEventValues {
 				book.setItemMeta(event.getNewBookMeta());
 				return book;
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerEditBookEvent.class, String[].class, new Getter<String[], PlayerEditBookEvent>() {
 			@Override
 			public String[] get(PlayerEditBookEvent event) {
@@ -1387,7 +1418,7 @@ public final class BukkitEventValues {
 			public String[] get(PlayerEditBookEvent event) {
 				return event.getNewBookMeta().getPages().toArray(new String[0]);
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 		//ItemDespawnEvent
 		EventValues.registerEventValue(ItemDespawnEvent.class, Item.class, new Getter<Item, ItemDespawnEvent>() {
 			@Override

@@ -19,7 +19,7 @@
 package ch.njol.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.util.MarkedForRemoval;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
@@ -157,32 +157,32 @@ public final class Math2 {
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int floorI(double value) {
 		return (int) Math.floor(value + Skript.EPSILON);
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int ceilI(double value) {
 		return (int) Math.ceil(value - Skript.EPSILON);
 	}
 	
 	// Change signature to return int instead of removing.
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static long floor(float value) {
 		return (long) Math.floor(value + Skript.EPSILON);
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int min(int a, int b, int c) {
 		return Math.min(a, Math.min(b, c));
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int min(int... numbers) {
 		if (numbers.length == 0)
 			return 0;
@@ -193,13 +193,13 @@ public final class Math2 {
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int max(int a, int b, int c) {
 		return Math.max(a, Math.max(b, c));
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static int max(int... numbers) {
 		if (numbers.length == 0)
 			return 0;
@@ -210,13 +210,13 @@ public final class Math2 {
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static double min(double a, double b, double c) {
 		return Math.min(a, Math.min(b, c));
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static double min(double... numbers) {
 		if (numbers.length == 0)
 			return Double.NaN;
@@ -227,13 +227,13 @@ public final class Math2 {
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static double max(double a, double b, double c) {
 		return Math.max(a, Math.max(b, c));
 	}
 	
 	@Deprecated
-	@MarkedForRemoval
+	@ScheduledForRemoval
 	public static double max(double... numbers) {
 		if (numbers.length == 0)
 			return Double.NaN;

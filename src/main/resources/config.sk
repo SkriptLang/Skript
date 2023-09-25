@@ -159,7 +159,8 @@ soft api exceptions: false
 
 enable timings: false
 # When enabled, triggers in scripts will be present in timings reports.
-# Note that this requires Paper (https://paper.readthedocs.io/en/paper-1.11/) to work; on Bukkit/Spigot this option has no effect.
+# Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.
+# Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
 # When false, timings are not enabled for scripts even if you're running Paper.
 
 parse links in chat messages: disabled
