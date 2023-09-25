@@ -38,7 +38,6 @@ runs:
         CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
       run: |
         eval `ssh-agent`
-        rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
         echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
         mkdir ~/.ssh
         ssh-keyscan www.github.com >> ~/.ssh/known_hosts

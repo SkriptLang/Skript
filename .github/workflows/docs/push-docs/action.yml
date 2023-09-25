@@ -1,10 +1,6 @@
-name: Generate documentation
+name: Push documentation
 
 inputs:
-  docs_output_dir:
-    description: "The directory to generate the documentation into"
-    required: true
-    type: string
   docs_repo_dir:
     description: "The skript-docs repository directory"
     required: true
@@ -38,4 +34,10 @@ runs:
         git config user.email "${GIT_EMAIL}"
         git add -A
         git commit -m "${GIT_COMMIT_MESSAGE}" || (echo "Nothing to push!" && exit 0)
-        git push origin main
+        # Attempt rebasing and pushing 5 times in case another job pushes before us
+        for i in 1 2 3 4 5
+        do
+          git pull --rebase -X theirs origin main
+          git push origin main && break
+          sleep 5
+        done
