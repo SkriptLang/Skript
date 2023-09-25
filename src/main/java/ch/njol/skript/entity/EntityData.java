@@ -337,7 +337,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	/**
 	 * Returns the super type of this entity data, e.g. 'wolf' for 'angry wolf'.
-	 * 
+	 *
 	 * @return The supertype of this entity data. Must not be null.
 	 */
 	public abstract EntityData getSuperType();
@@ -426,7 +426,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	/**
 	 * Prints errors.
-	 * 
+	 *
 	 * @param s String with optional indefinite article at the beginning
 	 * @return The parsed entity data
 	 */
@@ -441,7 +441,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	/**
 	 * Prints errors.
-	 * 
+	 *
 	 * @param s
 	 * @return The parsed entity data
 	 */
@@ -465,7 +465,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	/**
 	 * Spawn this entity data at a location.
-	 * 
+	 *
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @return The Entity object that is spawned.
 	 */
@@ -480,7 +480,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * <p>
 	 * Bukkit's own {@link org.bukkit.util.Consumer} is deprecated.
 	 * Use {@link #spawn(Location, Consumer)}
-	 * 
+	 *
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
@@ -495,13 +495,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * Spawn this entity data at a location.
 	 * The consumer allows for modiciation to the entity before it actually gets spawned.
-	 * 
+	 *
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
 	@Nullable
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
 		if (consumer != null) {
