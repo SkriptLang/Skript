@@ -125,7 +125,7 @@ public class EffPotion extends Effect {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
 					return;
-				duration = (int) Math.min(timespan.getTicks_i(), Integer.MAX_VALUE);
+				duration = (int) Math.min(timespan.getTicks(), Integer.MAX_VALUE);
 			}
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {
