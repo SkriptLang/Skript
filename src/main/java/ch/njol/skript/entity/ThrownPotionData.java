@@ -111,27 +111,9 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 			return null;
 
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
-		ThrownPotion potion = null;
+		ThrownPotion potion;
 		if (consumer != null) {
-			try {
-				if (WORLD_1_17_CONSUMER) {
-					return (ThrownPotion) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
-						@Override
-						public void accept(ThrownPotion potion) {
-							consumer.accept(potion);
-						}
-					});
-				} else if (WORLD_1_13_CONSUMER) {
-					return (ThrownPotion) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
-						@Override
-						public void accept(ThrownPotion potion) {
-							consumer.accept(potion);
-						}
-					});
-				} else {
-					potion = location.getWorld().spawn(location, thrownPotionClass, consumer);
-				}
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { /* We already check if the method exists */ }
+			potion = EntityData.spawn(location, (Class<ThrownPotion>) getType(), consumer);
 		} else {
 			potion = location.getWorld().spawn(location, thrownPotionClass);
 		}
