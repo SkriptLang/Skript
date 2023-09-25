@@ -19,13 +19,13 @@
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import org.bukkit.Location;
 import org.bukkit.entity.LingeringPotion;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -103,8 +103,8 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		return true;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public @Nullable ThrownPotion spawn(Location loc, @Nullable Consumer<ThrownPotion> consumer) {
 		ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;

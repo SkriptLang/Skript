@@ -18,6 +18,26 @@
  */
 package ch.njol.skript.entity;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
@@ -44,24 +64,6 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Consumer;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -420,7 +422,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param s
 	 * @return The parsed entity data
 	 */
-	@SuppressWarnings("null")
 	@Nullable
 	public static EntityData<?> parseWithoutIndefiniteArticle(String s) {
 		if (!REGEX_PATTERN.matcher(s).matches())
@@ -444,6 +445,32 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return entity;
 	}
 
+	/**
+	 * Spawn this entity data at a location.
+	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 * <p>
+	 * Bukkit's own {@link org.bukkit.util.Consumer} is deprecated.
+	 * Use {@link #spawn(Location, Consumer)}
+	 * 
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @param consumer A {@link Consumer} to apply the entity changes to.
+	 * @return The Entity object that is spawned.
+	 */
+	@Nullable
+	@Deprecated
+	@ScheduledForRemoval
+	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
+		return spawn(location, e -> consumer.accept(e));
+	}
+
+	/**
+	 * Spawn this entity data at a location.
+	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 * 
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @param consumer A {@link Consumer} to apply the entity changes to.
+	 * @return The Entity object that is spawned.
+	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
@@ -460,8 +487,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return null;
 		}
 	}
-	
-	@SuppressWarnings({"null", "unchecked"})
+
+	@SuppressWarnings("unchecked")
 	public E[] getAll(final World... worlds) {
 		assert worlds != null && worlds.length > 0 : Arrays.toString(worlds);
 		final List<E> list = new ArrayList<>();
