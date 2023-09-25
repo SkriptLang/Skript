@@ -59,7 +59,7 @@ import java.util.List;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, INSERT VERSION (Reset)")
+@Since("1.4.2, 2.7 (Reset)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
@@ -115,17 +115,18 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 					if (entity.equals(targetEvent.getEntity()))
 						targetEvent.setTarget(target);
 				}
-				return;
-			}
-			for (LivingEntity entity : getExpr().getArray(event)) {
-				if (entity instanceof Mob) {
-					((Mob) entity).setTarget(target);
-				} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-					Entity playerTarget = getTarget(entity, type);
-					if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
-						playerTarget.remove();
+			} else {
+				for (LivingEntity entity : getExpr().getArray(event)) {
+					if (entity instanceof Mob) {
+						((Mob) entity).setTarget(target);
+					} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
+						Entity playerTarget = getTarget(entity, type);
+						if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
+							playerTarget.remove();
+					}
 				}
 			}
+			return;
 		}
 		super.change(event, delta, mode);
 	}

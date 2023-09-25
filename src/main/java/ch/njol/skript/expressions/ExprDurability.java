@@ -18,13 +18,13 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -36,78 +36,85 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
-@Name("Data/Damage Value")
-@Description({"The data/damage value of an item/block. Data values of blocks are only supported on 1.12.2 and below.",
-		"You usually don't need this expression as you can check and set items with aliases easily, ",
-		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colors."})
-@Examples({"set damage value of player's tool to 10",
-		"set data value of target block of player to 3",
-		"add 1 to the data value of the clicked block",
-		"reset data value of block at player"})
-@Since("1.2")
+@Name("Damage Value/Durability")
+@Description("The damage value/durability of an item.")
+@Examples({
+	"set damage value of player's tool to 10",
+	"reset the durability of {_item}",
+	"set durability of player's held item to 0"
+})
+@Since("1.2, 2.7 (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
+	private boolean durability;
+
 	static {
-		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
+		register(ExprDurability.class, Long.class, "(damage[s] [value[s]]|durability:durabilit(y|ies))", "itemtypes/slots");
 	}
-	
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		durability = parseResult.hasTag("durability");
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+	}
+
 	@Override
 	@Nullable
-	public Long convert(final Object o) {
-		if (o instanceof Slot) {
-			final ItemStack i = ((Slot) o).getItem();
-			return i == null ? null : (long) ItemUtils.getDamage(i);
-		} else if (o instanceof ItemType) {
-			ItemStack item = ((ItemType) o).getRandom();
-			return (long) ItemUtils.getDamage(item);
+	public Long convert(Object object) {
+		ItemStack itemStack = null;
+		if (object instanceof Slot) {
+			itemStack = ((Slot) object).getItem();
+		} else if (object instanceof ItemType) {
+			itemStack = ((ItemType) object).getRandom();
 		}
-		return null;
+		if (itemStack == null)
+			return null;
+		long damage = ItemUtils.getDamage(itemStack);
+		return durability ? itemStack.getType().getMaxDurability() - damage : damage;
 	}
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case ADD:
 			case SET:
-			case RESET:
+			case ADD:
 			case REMOVE:
 			case DELETE:
+			case RESET:
 				return CollectionUtils.array(Number.class);
 		}
 		return null;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
-		final Object[] os = getExpr().getArray(e);
-		for (final Object o : os) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int i = delta == null ? 0 : ((Number) delta[0]).intValue();
+		Object[] objects = getExpr().getArray(event);
+		for (Object object : objects) {
 			ItemStack itemStack = null;
-			Block block = null;
-			
-			if (o instanceof ItemType)
-				itemStack = ((ItemType) o).getRandom();
-			else if (o instanceof Slot)
-				itemStack = ((Slot) o).getItem();
-			else
+
+			if (object instanceof ItemType) {
+				itemStack = ((ItemType) object).getRandom();
+			} else if (object instanceof Slot) {
+				itemStack = ((Slot) object).getItem();
+			}
+			if (itemStack == null)
 				return;
-			
-			int changeValue = itemStack != null ? ItemUtils.getDamage(itemStack) : block != null ? block.getData() : 0;
-			
+
+			int changeValue = ItemUtils.getDamage(itemStack);
+			if (durability)
+				changeValue = itemStack.getType().getMaxDurability() - changeValue;
+
 			switch (mode) {
 				case REMOVE:
-					a = -a;
+					i = -i;
 					//$FALL-THROUGH$
 				case ADD:
-					changeValue += a;
+					changeValue += i;
 					break;
 				case SET:
-					changeValue = a;
+					changeValue = i;
 					break;
 				case DELETE:
 				case RESET:
@@ -116,18 +123,16 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 				case REMOVE_ALL:
 					assert false;
 			}
-			if (o instanceof ItemType && itemStack != null) {
-				ItemUtils.setDamage(itemStack,changeValue);
-				((ItemType) o).setTo(new ItemType(itemStack));
-			} else if (o instanceof Slot) {
-				ItemUtils.setDamage(itemStack,changeValue);
-				((Slot) o).setItem(itemStack);
+
+			if (durability && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
+				changeValue = itemStack.getType().getMaxDurability() - changeValue;
+
+			if (object instanceof ItemType) {
+				ItemUtils.setDamage(itemStack, changeValue);
+				((ItemType) object).setTo(new ItemType(itemStack));
 			} else {
-				BlockState blockState = ((Block) o).getState();
-				try {
-					blockState.setRawData((byte) Math.max(0, changeValue));
-					blockState.update();
-				} catch (IllegalArgumentException | NullPointerException ignore) {} // Catch when a user sets the amount too high
+				ItemUtils.setDamage(itemStack, changeValue);
+				((Slot) object).setItem(itemStack);
 			}
 		}
 	}
@@ -139,7 +144,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	public String getPropertyName() {
-		return "data";
+		return durability ? "durability" : "damage";
 	}
 
 }
