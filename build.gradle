@@ -29,7 +29,7 @@ dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.0'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.20.1-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.20.2-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
@@ -40,7 +40,7 @@ dependencies {
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.1.0'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.2.0'
 }
 
 task checkAliases {
@@ -149,14 +149,6 @@ license {
 	exclude('**/*.json') // JSON files do not have headers
 }
 
-javadoc {
-	source = sourceSets.main.allJava
-	classpath = configurations.compileClasspath
-	options.encoding = 'UTF-8'
-	// currently our javadoc has a lot of errors, so we need to suppress the linter
-	options.addStringOption('Xdoclint:none', '-quiet')
-}
-
 task releaseJavadoc(type: Javadoc) {
 	title = project.property('version')
 	source = sourceSets.main.allJava
@@ -254,7 +246,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	}
 }
 
-def latestEnv = 'java17/paper-1.20.1.json'
+def latestEnv = 'java17/paper-1.20.2.json'
 def latestJava = 17
 def oldestJava = 8
 
@@ -394,3 +386,25 @@ task nightlyRelease(type: ShadowJar) {
 		)
 	}
 }
+
+javadoc {
+	dependsOn nightlyResources
+	source = sourceSets.main.allJava
+
+	exclude("ch/njol/skript/conditions/**")
+	exclude("ch/njol/skript/expressions/**")
+	exclude("ch/njol/skript/effects/**")
+	exclude("ch/njol/skript/events/**")
+	exclude("ch/njol/skript/sections/**")
+	exclude("ch/njol/skript/structures/**")
+	exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
+	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
+	exclude("ch/njol/skript/hooks/**")
+	exclude("ch/njol/skript/test/**")
+	
+	classpath = configurations.compileClasspath + sourceSets.main.output
+	options.encoding = 'UTF-8'
+	// currently our javadoc has a lot of errors, so we need to suppress the linter
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+

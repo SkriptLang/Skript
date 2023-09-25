@@ -845,6 +845,30 @@ public final class BukkitEventValues {
 				return event.getTo().clone().subtract(0, 0.5, 0).getBlock();
 			}
 		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getFrom();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getFrom().getChunk();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getTo().getChunk();
+			}
+		}, EventValues.TIME_NOW);
 		// PlayerItemDamageEvent
 		EventValues.registerEventValue(PlayerItemDamageEvent.class, ItemStack.class, new Getter<ItemStack, PlayerItemDamageEvent>() {
 			@Override
@@ -1425,21 +1449,6 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		//PlayerMoveEvent
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getFrom();
-			}
-		}, EventValues.TIME_PAST);
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getTo();
-			}
-		}, EventValues.TIME_NOW);
 		//EntityMoveEvent
 		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
