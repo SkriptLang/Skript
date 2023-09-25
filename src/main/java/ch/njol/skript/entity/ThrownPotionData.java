@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.entity;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
