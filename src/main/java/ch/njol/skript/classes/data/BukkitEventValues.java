@@ -308,7 +308,7 @@ public final class BukkitEventValues {
 			public Direction get(final BlockPlaceEvent e) {
 				BlockFace bf = e.getBlockPlaced().getFace(e.getBlockAgainst());
 				if (bf != null) {
-					return new Direction(new double[]{bf.getModX(), bf.getModY(), bf.getModZ()});
+					return new Direction(new double[] {bf.getModX(), bf.getModY(), bf.getModZ()});
 				}
 				return Direction.ZERO;
 			}
