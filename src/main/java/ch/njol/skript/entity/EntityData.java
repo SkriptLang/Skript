@@ -76,13 +76,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
 	 */
 	@Nullable
-	private static Method WORLD_1_13_CONSUMER_METHOD;
+	protected static Method WORLD_1_13_CONSUMER_METHOD;
 	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 
 	@Nullable
-	private static Method WORLD_1_17_CONSUMER_METHOD;
+	protected static Method WORLD_1_17_CONSUMER_METHOD;
 	protected static final boolean WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-	protected static final boolean RUNNING_1_20_2 = Skript.isRunningMinecraft(1, 20, 2);
 
 	static {
 		try {
@@ -484,14 +483,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
-	 * @throws IllegalStateException {@link org.bukkit.util.Consumer} cannot be used at runtime in 1.20.2+. It'll throw an exception.
 	 */
 	@Nullable
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) throws IllegalStateException {
-		if (RUNNING_1_20_2)
-			throw new IllegalStateException("org.bukkit.util.Consumer cannot be used at runtime in 1.20.2+. It'll throw an exception.");
+	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
 		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
 	}
 

@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.entity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -110,22 +111,33 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 			return null;
 
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
-		ThrownPotion potion;
+		ThrownPotion potion = null;
 		if (consumer != null) {
-			if (WORLD_1_13_CONSUMER || WORLD_1_17_CONSUMER) {
-				potion = location.getWorld().spawn(location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
-					@Override
-					public void accept(ThrownPotion potion) {
-						consumer.accept(potion);
-					}
-				});
-			} else {
-				potion = location.getWorld().spawn(location, thrownPotionClass, consumer);
-			}
+			try {
+				if (WORLD_1_17_CONSUMER) {
+					return (ThrownPotion) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
+						@Override
+						public void accept(ThrownPotion potion) {
+							consumer.accept(potion);
+						}
+					});
+				} else if (WORLD_1_13_CONSUMER) {
+					return (ThrownPotion) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
+						@Override
+						public void accept(ThrownPotion potion) {
+							consumer.accept(potion);
+						}
+					});
+				} else {
+					potion = location.getWorld().spawn(location, thrownPotionClass, consumer);
+				}
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { /* We already check if the method exists */ }
 		} else {
 			potion = location.getWorld().spawn(location, thrownPotionClass);
 		}
 
+		if (potion == null)
+			return null;
 		potion.setItem(i);
 		return potion;
 	}
