@@ -18,6 +18,7 @@
  */
 package ch.njol.skript;
 
+import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
@@ -116,7 +117,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("disable");
 			options.add("update");
 			options.add("info");
-			if (new File(Skript.getInstance().getDataFolder() + "/doc-templates").exists())
+			if (Documentation.getDocsTemplateDirectory().exists())
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
 				options.add("test");
