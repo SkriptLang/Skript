@@ -470,8 +470,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The Entity object that is spawned.
 	 */
 	@Nullable
-	public final E spawn(Location loc) {
-		return spawn(loc, (Consumer<E>) null);
+	public final E spawn(Location location) {
+		return spawn(location, (Consumer<E>) null);
 	}
 
 	/**
@@ -504,31 +504,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@SuppressWarnings({ "unchecked", "deprecation" })
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
-		try {
-			if (consumer != null) {
-				if (WORLD_1_17_CONSUMER) {
-					return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
-						@Override
-						public void accept(E e) {
-							consumer.accept(apply(e));
-						}
-					});
-				} else if (WORLD_1_13_CONSUMER) {
-					return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
-						@Override
-						public void accept(E e) {
-							consumer.accept(apply(e));
-						}
-					});
-				}
-				return location.getWorld().spawn(location, (Class<E>) getType(), e -> consumer.accept(apply(e)));
-			} else {
-				return apply(location.getWorld().spawn(location, getType()));
-			}
-		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-			if (Skript.testing())
-				Skript.exception(e, "Can't spawn " + getType().getName());
-			return null;
+		if (consumer != null) {
+			return EntityData.spawn(location, getType(), this::apply);
+		} else {
+			return apply(location.getWorld().spawn(location, getType()));
 		}
 	}
 
@@ -667,6 +646,24 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Deprecated
 	protected boolean deserialize(final String s) {
 		return false;
+	}
+	
+	@SuppressWarnings({"unchecked", "deprecation"})
+	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
+		try {
+			if (WORLD_1_17_CONSUMER) {
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+					(org.bukkit.util.Consumer<E>) consumer::accept);
+			} else if (WORLD_1_13_CONSUMER) {
+				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+					(org.bukkit.util.Consumer<E>) consumer::accept);
+			}
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			if (Skript.testing())
+				Skript.exception(e, "Can't spawn " + type.getName());
+			return null;
+        }
+        return location.getWorld().spawn(location, type, consumer);
 	}
 	
 }
