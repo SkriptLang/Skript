@@ -1910,6 +1910,7 @@ attribute types:
 	generic_follow_range: generic follow range, follow range
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
 	horse_jump_strength: horse jump strength
