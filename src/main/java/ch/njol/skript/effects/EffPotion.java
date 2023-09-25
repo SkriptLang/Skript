@@ -52,7 +52,7 @@ import ch.njol.util.Kleenean;
 @Since(
 	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
 	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +
-	"INSERT VERSION (icon and infinite)"
+	"2.7 (icon and infinite)"
 )
 public class EffPotion extends Effect {
 
@@ -101,7 +101,7 @@ public class EffPotion extends Effect {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			tier = (Expression<Number>) exprs[1];
 			entities = (Expression<LivingEntity>) exprs[2];
-			if (infinite)
+			if (!infinite)
 				duration = (Expression<Timespan>) exprs[3];
 		}
 		return true;
@@ -125,7 +125,7 @@ public class EffPotion extends Effect {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
 					return;
-				duration = (int) Math.max(timespan.getTicks_i(), Integer.MAX_VALUE);
+				duration = (int) Math.min(timespan.getTicks_i(), Integer.MAX_VALUE);
 			}
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {
