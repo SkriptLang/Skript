@@ -18,117 +18,98 @@
  */
 package ch.njol.yggdrasil.util;
 
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-
 import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilException;
 
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 /**
- * Handles common JRE-related incompatible field types. This handler is not added by default and is merely a utility.
- * 
- * @author Peter Güttinger
+ * Handles common JRE-related incompatible field types.
+ * This handler is not added by default and is merely a utility.
  */
+@Deprecated
 public class JREFieldHandler implements FieldHandler {
 	
-	/**
-	 * Not used
-	 */
 	@Override
-	public boolean excessiveField(final Object o, final FieldContext field) {
+	public boolean excessiveField(Object object, FieldContext field) {
 		return false;
 	}
 	
-	/**
-	 * Not used
-	 */
 	@Override
-	public boolean missingField(final Object o, final Field field) throws StreamCorruptedException {
+	public boolean missingField(Object object, Field field) {
 		return false;
 	}
 	
 	/**
 	 * Converts collection types and non-primitive arrays
-	 * 
-	 * @throws StreamCorruptedException
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public boolean incompatibleField(final Object o, final Field f, final FieldContext field) throws StreamCorruptedException {
-		Object value = field.getObject();
+	public boolean incompatibleField(Object object, Field field, FieldContext context) throws StreamCorruptedException {
+		Object value = context.getObject();
 		if (value instanceof Object[])
-			value = Arrays.asList(value);
+			value = Collections.singletonList(value);
 		if (value instanceof Collection) {
-			final Collection v = (Collection) value;
+			Collection collection = (Collection) value;
 			try {
-				if (Collection.class.isAssignableFrom(f.getType())) {
-					final Collection c = (Collection) f.get(o);
+				if (Collection.class.isAssignableFrom(field.getType())) {
+					Collection c = (Collection) field.get(object);
 					if (c != null) {
 						c.clear();
-						c.addAll(v);
+						c.addAll(collection);
 						return true;
 					}
-				} else if (Object[].class.isAssignableFrom(f.getType())) {
-					Object[] array = (Object[]) f.get(o);
+				} else if (Object[].class.isAssignableFrom(field.getType())) {
+					Object[] array = (Object[]) field.get(object);
 					if (array != null) {
-						if (array.length < v.size())
+						if (array.length < collection.size())
 							return false;
-						final Class<?> ct = array.getClass().getComponentType();
-						for (final Object x : v) {
-							if (!ct.isInstance(x))
+						Class<?> ct = array.getClass().getComponentType();
+						for (Object iterated : collection) {
+							if (!ct.isInstance(iterated))
 								return false;
 						}
 					} else {
-						array = (Object[]) Array.newInstance(f.getType().getComponentType(), v.size());
-						f.set(o, array);
+						array = (Object[]) Array.newInstance(field.getType().getComponentType(), collection.size());
+						field.set(object, array);
 					}
-					final int l = array.length;
+					int length = array.length;
 					int i = 0;
-					for (final Object x : v)
-						array[i++] = x;
-					while (i < l)
+					for (Object iterated : collection)
+						array[i++] = iterated;
+					while (i < length)
 						array[i++] = null;
 				}
-			} catch (final IllegalArgumentException e) {
-				throw new YggdrasilException(e);
-			} catch (final IllegalAccessException e) {
-				throw new YggdrasilException(e);
-			} catch (final UnsupportedOperationException e) {
-				throw new YggdrasilException(e);
-			} catch (final ClassCastException e) {
-				throw new YggdrasilException(e);
-			} catch (final NullPointerException e) {
-				throw new YggdrasilException(e);
-			} catch (final IllegalStateException e) {
+			} catch (
+				IllegalArgumentException | NullPointerException | IllegalStateException |
+				ClassCastException | UnsupportedOperationException | IllegalAccessException e
+			) {
 				throw new YggdrasilException(e);
 			}
 		} else if (value instanceof Map) {
-			if (!Map.class.isAssignableFrom(f.getType()))
+			if (!Map.class.isAssignableFrom(field.getType()))
 				return false;
 			try {
-				final Map m = (Map) f.get(o);
+				Map m = (Map) field.get(object);
 				if (m != null) {
 					m.clear();
 					m.putAll((Map) value);
 					return true;
 				}
-			} catch (final IllegalArgumentException e) {
-				throw new YggdrasilException(e);
-			} catch (final IllegalAccessException e) {
-				throw new YggdrasilException(e);
-			} catch (final UnsupportedOperationException e) {
-				throw new YggdrasilException(e);
-			} catch (final ClassCastException e) {
-				throw new YggdrasilException(e);
-			} catch (final NullPointerException e) {
+			} catch (
+				IllegalArgumentException | IllegalAccessException | UnsupportedOperationException |
+				ClassCastException | NullPointerException e
+			) {
 				throw new YggdrasilException(e);
 			}
 		}
+		
 		return false;
 	}
 	

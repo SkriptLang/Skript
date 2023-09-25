@@ -198,7 +198,33 @@ public class EventValues {
 			return null;
 		return getter.get(e);
 	}
-	
+
+	/**
+	 * Checks that a getter exists for the exact type. No converting or subclass checking.
+	 * 
+	 * @param event the event class the getter will be getting from
+	 * @param c type of getter
+	 * @param time the event-value's time
+	 * @return A getter to get values for a given type of events
+	 * @see #registerEventValue(Class, Class, Getter, int)
+	 * @see EventValueExpression#EventValueExpression(Class)
+	 */
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public static <T, E extends Event> Getter<? extends T, ? super E> getExactEventValueGetter(Class<E> event, Class<T> c, int time) {
+		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
+		// First check for exact classes matching the parameters.
+		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
+			if (!c.equals(eventValueInfo.c))
+				continue;
+			if (!checkExcludes(eventValueInfo, event))
+				return null;
+			if (eventValueInfo.event.isAssignableFrom(event))
+				return (Getter<? extends T, ? super E>) eventValueInfo.getter;
+		}
+		return null;
+	}
+
 	/**
 	 * Returns a getter to get a value from in an event.
 	 * <p>
@@ -215,20 +241,15 @@ public class EventValues {
 	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> c, int time) {
 		return getEventValueGetter(event, c, time, true);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Nullable
+	@SuppressWarnings("unchecked")
 	private static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> c, int time, boolean allowDefault) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
 		// First check for exact classes matching the parameters.
-		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
-			if (!c.equals(eventValueInfo.c))
-				continue;
-			if (!checkExcludes(eventValueInfo, event))
-				return null;
-			if (eventValueInfo.event.isAssignableFrom(event))
-				return (Getter<? extends T, ? super E>) eventValueInfo.getter;
-		}
+		Getter<? extends T, ? super E> exact = (Getter<? extends T, ? super E>) getExactEventValueGetter(event, c, time);
+		if (exact != null)
+			return exact;
 		// Second check for assignable subclasses.
 		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
 			if (!c.isAssignableFrom(eventValueInfo.c))
@@ -351,9 +372,13 @@ public class EventValues {
 			}
 		};
 	}
-	
-	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> e, Class<?> c) {
-		return getEventValueGetter(e, c, -1, false) != null || getEventValueGetter(e, c, 1, false) != null;
+
+	public static boolean doesExactEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
+		return getExactEventValueGetter(event, c, TIME_PAST) != null || getExactEventValueGetter(event, c, TIME_FUTURE) != null;
+	}
+
+	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
+		return getEventValueGetter(event, c, TIME_PAST, false) != null || getEventValueGetter(event, c, TIME_FUTURE, false) != null;
 	}
 	
 }

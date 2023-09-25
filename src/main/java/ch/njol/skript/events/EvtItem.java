@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.events;
 
-import ch.njol.skript.sections.EffSecSpawn;
+import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -28,6 +28,7 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -36,12 +37,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
@@ -50,7 +52,8 @@ public class EvtItem extends SkriptEvent {
 	private final static boolean hasConsumeEvent = Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent");
 	private final static boolean hasPrepareCraftEvent = Skript.classExists("org.bukkit.event.inventory.PrepareItemCraftEvent");
 	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
-	
+	private final static boolean HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
+
 	static {
 		Skript.registerEvent("Dispense", EvtItem.class, BlockDispenseEvent.class, "dispens(e|ing) [[of] %-itemtypes%]")
 				.description("Called when a dispenser dispenses an item.")
@@ -90,7 +93,7 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("<i>unknown</i> (before 2.1), 2.5 (entity)")
-				.requiredPlugins("1.12.2+ for entity");
+				.keywords("pickup");
 		} else {
 			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
@@ -127,22 +130,46 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
+		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
+				.description(
+						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
+						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",
+						"If this event is cancelled, the items will be returned to the source inventory."
+				)
+				.examples(
+						"on inventory item move:",
+							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
+				)
+				.since("INSERT VERSION");
+		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
+			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
+					.description("Called when a player selects a recipe in a stonecutter.")
+					.examples(
+							"on stonecutting stone slabs",
+								"\tcancel the event",
+							"",
+							"on stonecutting:",
+								"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Paper 1.16+");
+		}
 	}
 	
 	@Nullable
 	private Literal<ItemType> types;
 	private boolean entity;
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
 		types = (Literal<ItemType>) args[0];
 		entity = parser.mark == 1;
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
+	@SuppressWarnings("null")
 	public boolean check(final Event event) {
 		if (event instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
 			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) event).getEntity();
@@ -152,57 +179,54 @@ public class EvtItem extends SkriptEvent {
 			return false;
 		if (types == null)
 			return true;
-		final ItemStack is;
+		final ItemStack itemStack;
 		if (event instanceof BlockDispenseEvent) {
-			is = ((BlockDispenseEvent) event).getItem();
+			itemStack = ((BlockDispenseEvent) event).getItem();
 		} else if (event instanceof ItemSpawnEvent) {
-			is = ((ItemSpawnEvent) event).getEntity().getItemStack();
+			itemStack = ((ItemSpawnEvent) event).getEntity().getItemStack();
 		} else if (event instanceof PlayerDropItemEvent) {
-			is = ((PlayerDropItemEvent) event).getItemDrop().getItemStack();
+			itemStack = ((PlayerDropItemEvent) event).getItemDrop().getItemStack();
 		} else if (event instanceof EntityDropItemEvent) {
-			is = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
+			itemStack = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
 		} else if (event instanceof CraftItemEvent) {
-			is = ((CraftItemEvent) event).getRecipe().getResult();
+			itemStack = ((CraftItemEvent) event).getRecipe().getResult();
 		} else if (hasPrepareCraftEvent && event instanceof PrepareItemCraftEvent) {
 			Recipe recipe = ((PrepareItemCraftEvent) event).getRecipe();
 			if (recipe != null) {
-				is = recipe.getResult();
+				itemStack = recipe.getResult();
 			} else {
 				return false;
 			}
+		} else if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT && event instanceof PlayerStonecutterRecipeSelectEvent) {
+			itemStack = ((PlayerStonecutterRecipeSelectEvent) event).getStonecuttingRecipe().getResult();
 		} else if (event instanceof EntityPickupItemEvent) {
-			is = ((EntityPickupItemEvent) event).getItem().getItemStack();
+			itemStack = ((EntityPickupItemEvent) event).getItem().getItemStack();
 		} else if (event instanceof PlayerPickupItemEvent) {
-			is = ((PlayerPickupItemEvent) event).getItem().getItemStack();
+			itemStack = ((PlayerPickupItemEvent) event).getItem().getItemStack();
 		} else if (hasConsumeEvent && event instanceof PlayerItemConsumeEvent) {
-			is = ((PlayerItemConsumeEvent) event).getItem();
+			itemStack = ((PlayerItemConsumeEvent) event).getItem();
 //		} else if (e instanceof BrewEvent)
-//			is = ((BrewEvent) e).getContents().getContents()
+//			itemStack = ((BrewEvent) e).getContents().getContents()
 		} else if (event instanceof InventoryClickEvent) {
-			is = ((InventoryClickEvent) event).getCurrentItem();
+			itemStack = ((InventoryClickEvent) event).getCurrentItem();
 		} else if (event instanceof ItemDespawnEvent) {
-			is = ((ItemDespawnEvent) event).getEntity().getItemStack();
+			itemStack = ((ItemDespawnEvent) event).getEntity().getItemStack();
 		} else if (event instanceof ItemMergeEvent) {
-			is = ((ItemMergeEvent) event).getTarget().getItemStack();
+			itemStack = ((ItemMergeEvent) event).getTarget().getItemStack();
+		} else if (event instanceof InventoryMoveItemEvent) {
+			itemStack = ((InventoryMoveItemEvent) event).getItem();
 		} else {
 			assert false;
 			return false;
 		}
-
-		if (is == null)
+		if (itemStack == null)
 			return false;
-
-		return types.check(event, new Checker<ItemType>() {
-			@Override
-			public boolean check(final ItemType t) {
-				return t.isOfType(is);
-			}
-		});
+		return types.check(event, itemType -> itemType.isOfType(itemStack));
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge" + (types == null ? "" : " of " + types);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "dispense/spawn/drop/craft/pickup/consume/break/despawn/merge/move/stonecutting" + (types == null ? "" : " of " + types);
 	}
 	
 }
