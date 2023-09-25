@@ -68,7 +68,13 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 @SuppressWarnings("rawtypes")
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
 
+	/*
+	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer and if it was used, it would throw at runtime due to remapping to Java's Consumer.
+	 * But in 1.13 the only way to use a consumer was World#spawn(Location, org.bukkit.util.Consumer).
+	 * Both WORLD_1_13_CONSUMER and RUNNING_1_20_2 and used to achieve no runtime throwing.
+	 */
 	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, org.bukkit.util.Consumer.class);
+	protected static final boolean RUNNING_1_20_2 = Skript.isRunningMinecraft(1, 20, 2);
 
 	public final static String LANGUAGE_NODE = "entities";
 	
@@ -454,13 +460,16 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
+	 * @throws IllegalStateException {@link org.bukkit.util.Consumer} cannot be used at runtime in 1.20.2+. It'll throw an exception.
 	 */
-//	@Nullable
-//	@Deprecated
-//	@ScheduledForRemoval
-//	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
-//		return spawn(location, e -> consumer.accept(e));
-//	}
+	@Nullable
+	@Deprecated
+	@ScheduledForRemoval
+	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) throws IllegalStateException {
+		if (RUNNING_1_20_2)
+			throw new IllegalStateException("org.bukkit.util.Consumer cannot be used at runtime in 1.20.2+. It'll throw an exception.");
+		return spawn(location, e -> consumer.accept(e));
+	}
 
 	/**
 	 * Spawn this entity data at a location.
