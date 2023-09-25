@@ -17,7 +17,7 @@ jobs:
             echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
             echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
         - name: Checkout Skript
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
               submodules: recursive
               path: skript
@@ -56,7 +56,7 @@ jobs:
               echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
               echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
           - name: Checkout Skript
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
             with:
                 submodules: recursive
                 path: skript
