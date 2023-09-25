@@ -68,9 +68,10 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
 
 	/*
-	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer and if it was used, it would throw at runtime due to remapping to Java's Consumer.
-	 * But in 1.13 the only way to use a consumer was World#spawn(Location, org.bukkit.util.Consumer).
-	 * Both WORLD_1_13_CONSUMER and RUNNING_1_20_2 and used to achieve no runtime throwing.
+	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
+	 * From the class header: "API methods which use this consumer will be remapped to Java's consumer at runtime, resulting in an error."
+	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
+	 * Both fields WORLD_1_13_CONSUMER and RUNNING_1_20_2 in this class are used to achieve no runtime throwing.
 	 */
 	@SuppressWarnings("deprecation")
 	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
