@@ -86,13 +86,13 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			if (!(e instanceof FurnaceBurnEvent))
 				return null;
 
-			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) e).getBurnTime()));
+			return CollectionUtils.array(Timespan.fromTicks(((FurnaceBurnEvent) e).getBurnTime()));
 		} else {
 			Timespan[] result = Arrays.stream(source)
 					.filter(block -> anyFurnace.isOfType(block))
 					.map(furnace -> {
 						Furnace state = (Furnace) furnace.getState();
-						return Timespan.fromTicks_i(cookTime ? state.getCookTime() : state.getBurnTime());
+						return Timespan.fromTicks(cookTime ? state.getCookTime() : state.getBurnTime());
 					})
 					.toArray(Timespan[]::new);
 			assert result != null;
@@ -154,7 +154,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 				return;
 
 			FurnaceBurnEvent event = (FurnaceBurnEvent) e;
-			event.setBurnTime(value.apply(Timespan.fromTicks_i(event.getBurnTime())).getTicks());
+			event.setBurnTime((int) value.apply(Timespan.fromTicks(event.getBurnTime())).getTicks());
 			return;
 		}
 
@@ -162,7 +162,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			if (!anyFurnace.isOfType(block))
 				continue;
 			Furnace furnace = (Furnace) block.getState();
-			long time = value.apply(Timespan.fromTicks_i(cookTime ? furnace.getCookTime() : furnace.getBurnTime())).getTicks_i();
+			long time = value.apply(Timespan.fromTicks(cookTime ? furnace.getCookTime() : furnace.getBurnTime())).getTicks();
 
 			if (cookTime)
 				furnace.setCookTime((short) time);
