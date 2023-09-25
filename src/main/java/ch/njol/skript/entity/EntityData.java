@@ -36,7 +36,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -73,7 +72,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * But in 1.13 the only way to use a consumer was World#spawn(Location, org.bukkit.util.Consumer).
 	 * Both WORLD_1_13_CONSUMER and RUNNING_1_20_2 and used to achieve no runtime throwing.
 	 */
-	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, org.bukkit.util.Consumer.class);
+	@SuppressWarnings("deprecation")
+	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 	protected static final boolean RUNNING_1_20_2 = Skript.isRunningMinecraft(1, 20, 2);
 
 	public final static String LANGUAGE_NODE = "entities";
@@ -434,11 +434,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(s, it, null);
 	}
-	
-	@Nullable
-	public final E spawn(Location loc) {
-		return spawn(loc, null);
-	}
 
 	private E apply(E entity) {
 		if (baby.isTrue()) {
@@ -448,6 +443,17 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 		set(entity);
 		return entity;
+	}
+
+	/**
+	 * Spawn this entity data at a location.
+	 * 
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @return The Entity object that is spawned.
+	 */
+	@Nullable
+	public final E spawn(Location loc) {
+		return spawn(loc, (Consumer<E>) null);
 	}
 
 	/**
@@ -464,7 +470,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	@Nullable
 	@Deprecated
-	@ScheduledForRemoval
+	@SuppressWarnings("deprecation")
 	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) throws IllegalStateException {
 		if (RUNNING_1_20_2)
 			throw new IllegalStateException("org.bukkit.util.Consumer cannot be used at runtime in 1.20.2+. It'll throw an exception.");
@@ -480,7 +486,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The Entity object that is spawned.
 	 */
 	@Nullable
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
 		try {
