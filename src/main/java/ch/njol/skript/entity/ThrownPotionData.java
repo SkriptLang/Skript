@@ -112,7 +112,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
 		if (consumer != null) {
-			potion = EntityData.spawn(location, (Class<ThrownPotion>) getType(), consumer);
+			potion = EntityData.spawn(location, thrownPotionClass, consumer);
 		} else {
 			potion = location.getWorld().spawn(location, thrownPotionClass);
 		}
