@@ -81,14 +81,15 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@Nullable
 	protected static Method WORLD_1_17_CONSUMER_METHOD;
-	protected static final boolean WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+	protected static boolean WORLD_1_17_CONSUMER;
 
 	static {
 		try {
 			if (WORLD_1_13_CONSUMER) {
 				WORLD_1_13_CONSUMER_METHOD = World.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-			} else if (WORLD_1_17_CONSUMER) {
-				WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+			} else if (Skript.classExists("org.bukkit.RegionAccessor")) {
+				if (WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class))
+					WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 			}
 		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
 	}
