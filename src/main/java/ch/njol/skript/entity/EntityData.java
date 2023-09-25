@@ -513,8 +513,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 							consumer.accept(apply(e));
 						}
 					});
-				}
-				if (WORLD_1_13_CONSUMER) {
+				} else if (WORLD_1_13_CONSUMER) {
 					return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
 						@Override
 						public void accept(E e) {
