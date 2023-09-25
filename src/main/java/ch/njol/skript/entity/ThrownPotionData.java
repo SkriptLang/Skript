@@ -40,9 +40,6 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 public class ThrownPotionData extends EntityData<ThrownPotion> {
 	static {
 		EntityData.register(ThrownPotionData.class, "thrown potion", ThrownPotion.class, "thrown potion");
@@ -105,7 +102,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public @Nullable ThrownPotion spawn(Location loc, @Nullable Consumer<ThrownPotion> consumer) {
+	public @Nullable ThrownPotion spawn(Location location, @Nullable Consumer<ThrownPotion> consumer) {
 		ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
 		ItemStack i = t.getRandom();
@@ -114,10 +111,20 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
-		if (consumer != null)
-			potion = loc.getWorld().spawn(loc, thrownPotionClass, consumer);
-		else
-			potion = loc.getWorld().spawn(loc, thrownPotionClass);
+		if (consumer != null) {
+			if (WORLD_1_13_CONSUMER) {
+				potion = location.getWorld().spawn(location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
+					@Override
+					public void accept(ThrownPotion potion) {
+						consumer.accept(potion);
+					}
+				});
+			} else {
+				potion = location.getWorld().spawn(location, thrownPotionClass, consumer);
+			}
+		} else {
+			potion = location.getWorld().spawn(location, thrownPotionClass);
+		}
 
 		potion.setItem(i);
 		return potion;

@@ -35,8 +35,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -65,11 +65,10 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("rawtypes")
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
+
+	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, org.bukkit.util.Consumer.class);
 
 	public final static String LANGUAGE_NODE = "entities";
 	
@@ -456,12 +455,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
-	@Nullable
-	@Deprecated
-	@ScheduledForRemoval
-	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
-		return spawn(location, e -> consumer.accept(e));
-	}
+//	@Nullable
+//	@Deprecated
+//	@ScheduledForRemoval
+//	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
+//		return spawn(location, e -> consumer.accept(e));
+//	}
 
 	/**
 	 * Spawn this entity data at a location.
@@ -477,6 +476,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		assert location != null;
 		try {
 			if (consumer != null) {
+				if (WORLD_1_13_CONSUMER)
+					return location.getWorld().spawn(location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
+						@Override
+						public void accept(E e) {
+							consumer.accept(apply(e));
+						}
+					});
 				return location.getWorld().spawn(location, (Class<E>) getType(), e -> consumer.accept(apply(e)));
 			} else {
 				return apply(location.getWorld().spawn(location, getType()));
