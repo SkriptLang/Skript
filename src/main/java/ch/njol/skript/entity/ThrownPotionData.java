@@ -112,7 +112,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
 		if (consumer != null) {
-			if (WORLD_1_13_CONSUMER) {
+			if (WORLD_1_13_CONSUMER || WORLD_1_17_CONSUMER) {
 				potion = location.getWorld().spawn(location, thrownPotionClass, new org.bukkit.util.Consumer<ThrownPotion>() {
 					@Override
 					public void accept(ThrownPotion potion) {

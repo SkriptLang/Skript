@@ -21,6 +21,8 @@ package ch.njol.skript.entity;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -71,18 +74,32 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
 	 * From the class header: "API methods which use this consumer will be remapped to Java's consumer at runtime, resulting in an error."
 	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
-	 * Both fields WORLD_1_13_CONSUMER and RUNNING_1_20_2 in this class are used to achieve no runtime throwing.
 	 */
-	@SuppressWarnings("deprecation")
+	@Nullable
+	private static Method WORLD_1_13_CONSUMER_METHOD;
 	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+
+	@Nullable
+	private static Method WORLD_1_17_CONSUMER_METHOD;
+	protected static final boolean WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 	protected static final boolean RUNNING_1_20_2 = Skript.isRunningMinecraft(1, 20, 2);
 
+	static {
+		try {
+			if (WORLD_1_13_CONSUMER) {
+				WORLD_1_13_CONSUMER_METHOD = World.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+			} else if (WORLD_1_17_CONSUMER) {
+				WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+			}
+		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
+	}
+
 	public final static String LANGUAGE_NODE = "entities";
-	
+
 	public final static Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
 	public final static Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
-	
+
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
 
@@ -475,7 +492,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) throws IllegalStateException {
 		if (RUNNING_1_20_2)
 			throw new IllegalStateException("org.bukkit.util.Consumer cannot be used at runtime in 1.20.2+. It'll throw an exception.");
-		return spawn(location, e -> consumer.accept(e));
+		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
 	}
 
 	/**
@@ -492,20 +509,29 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		assert location != null;
 		try {
 			if (consumer != null) {
-				if (WORLD_1_13_CONSUMER)
-					return location.getWorld().spawn(location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
+				if (WORLD_1_17_CONSUMER) {
+					return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
 						@Override
 						public void accept(E e) {
 							consumer.accept(apply(e));
 						}
 					});
+				}
+				if (WORLD_1_13_CONSUMER) {
+					return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, (Class<E>) getType(), new org.bukkit.util.Consumer<E>() {
+						@Override
+						public void accept(E e) {
+							consumer.accept(apply(e));
+						}
+					});
+				}
 				return location.getWorld().spawn(location, (Class<E>) getType(), e -> consumer.accept(apply(e)));
 			} else {
 				return apply(location.getWorld().spawn(location, getType()));
 			}
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			if (Skript.testing())
-				Skript.error("Can't spawn " + getType().getName());
+				Skript.exception(e, "Can't spawn " + getType().getName());
 			return null;
 		}
 	}
