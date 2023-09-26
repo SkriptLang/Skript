@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ created by & © Peter Güttinger aka Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Invalid use of quotes ("). If you want to use quotes in "quoted text", double them: "".
 	brackets error: Invalid amount or placement of brackets. Please make sure that each opening bracket has a corresponding closing bracket.
 	invalid reload: Skript may only be reloaded by either Bukkit's '/reload' or Skript's '/skript reload' command.
@@ -45,7 +45,7 @@ skript command:
 			changes: Lists all changes since the current version
 			download: Download the newest version
 		info: Prints a message with links to Skript's aliases and documentation
-		gen-docs: Generates documentation using doc-templates in plugin folder
+		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!

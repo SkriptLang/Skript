@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.effects;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -92,6 +94,8 @@ public class EffCancelEvent extends Effect {
 			((BlockCanBuildEvent) e).setBuildable(!cancel);
 		} else if (e instanceof PlayerDropItemEvent) {
 			PlayerUtils.updateInventory(((PlayerDropItemEvent) e).getPlayer());
+		} else if (e instanceof InventoryInteractEvent) {
+			PlayerUtils.updateInventory(((Player) ((InventoryInteractEvent) e).getWhoClicked()));
 		}
 	}
 	

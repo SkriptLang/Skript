@@ -28,7 +28,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -124,7 +124,7 @@ public class FunctionReference<T> {
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
 		Signature<?> sign = Functions.getSignature(functionName, script);
-		
+
 		// Check if the requested function exists
 		if (sign == null) {
 			if (first) {
