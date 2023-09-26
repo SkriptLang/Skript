@@ -17,7 +17,7 @@ jobs:
             echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
             echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
         - name: Checkout Skript
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
               submodules: recursive
               path: skript
@@ -26,7 +26,6 @@ jobs:
           with:
               docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
               docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
-              cleanup_pattern: "!(nightly|archives)"
         - name: Generate documentation
           uses: ./skript/.github/workflows/docs/generate-docs
           with:
@@ -34,6 +33,7 @@ jobs:
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
               is_release: true
+              cleanup_pattern: "!(nightly|archives|templates)"
         - name: Push release documentation
           uses: ./skript/.github/workflows/docs/push-docs
           with:
@@ -56,7 +56,7 @@ jobs:
               echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
               echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
           - name: Checkout Skript
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
             with:
                 submodules: recursive
                 path: skript
@@ -68,14 +68,12 @@ jobs:
           - name: Generate documentation
             uses: ./skript/.github/workflows/docs/generate-docs
             with:
-                docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                 docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                 skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
                 is_release: true
           - name: Push archive documentation
             uses: ./skript/.github/workflows/docs/push-docs
             with:
-                docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                 docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
                 git_name: Archive Docs Bot
                 git_email: archivedocs@skriptlang.org

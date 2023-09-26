@@ -472,16 +472,16 @@ public class SimpleEvents {
 				.description("Called when a slime splits. Usually this happens when a big slime dies.")
 				.examples("on slime split:")
 				.since("2.2-dev26");
-		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
-			Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
-					.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
-					.examples("on resurrect attempt:",
-							"	entity is player",
-							"	entity has permission \"admin.undying\"",
-							"	uncancel the event")
-					.since("2.2-dev28");
-			SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
-		}
+		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
+				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
+				.examples(
+						"on resurrect attempt:",
+						"\tentity is player",
+						"\tentity has permission \"admin.undying\"",
+						"\tuncancel the event"
+				)
+				.since("2.2-dev28");
+		SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
@@ -684,18 +684,18 @@ public class SimpleEvents {
 			.since("1.4.1");
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-				.description(
-					"Called when a loot table of an inventory is generated in the world.",
-					"For example, when opening a shipwreck chest."
-				)
-				.examples(
-					"on loot generate:",
-					"\tchance of %10",
-					"\tadd 64 diamonds",
-					"\tsend \"You hit the jackpot!!\""
-				)
-				.since("2.7")
-				.requiredPlugins("MC 1.16+");
+					.description(
+						"Called when a loot table of an inventory is generated in the world.",
+						"For example, when opening a shipwreck chest."
+					)
+					.examples(
+						"on loot generate:",
+						"\tchance of 10%",
+						"\tadd 64 diamonds to the loot",
+						"\tsend \"You hit the jackpot at %event-location%!\""
+					)
+					.since("2.7")
+					.requiredPlugins("MC 1.16+");
 		}
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
@@ -729,7 +729,7 @@ public class SimpleEvents {
 						"\t\tsend \"You can't drag your items here!\" to player",
 						"\t\tcancel event"
 				)
-				.since("INSERT VERSION");
+				.since("2.7");
 
 	}
 

@@ -20,28 +20,21 @@ package ch.njol.skript.expressions.base;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Noun;
@@ -72,15 +65,29 @@ import ch.njol.util.Kleenean;
  * @see DefaultExpression
  */
 public class EventValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
-	
-	private final Class<? extends T> c;
+
+	/**
+	 * Registers an expression as {@link ExpressionType#EVENT} with the provided pattern.
+	 * This also adds '[the]' to the start of the pattern.
+	 * 
+	 * @param expression The class that represents this EventValueExpression.
+	 * @param type The return type of the expression.
+	 * @param pattern The pattern for this syntax.
+	 */
+	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String pattern) {
+		Skript.registerExpression(expression, type, ExpressionType.EVENT, "[the] " + pattern);
+	}
+
+	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
+
 	private final Class<?> componentType;
+	private final Class<? extends T> c;
+
 	@Nullable
 	private Changer<? super T> changer;
-	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
 	private final boolean single;
 	private final boolean exact;
-	
+
 	public EventValueExpression(Class<? extends T> c) {
 		this(c, null);
 	}
@@ -107,45 +114,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		single = !c.isArray();
 		componentType = single ? c : c.getComponentType();
 	}
-	
-	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	protected T[] get(Event event) {
-		T value = getValue(event);
-		if (value == null)
-			return (T[]) Array.newInstance(componentType, 0);
-		if (single) {
-			T[] one = (T[]) Array.newInstance(c, 1);
-			one[0] = value;
-			return one;
-		}
-		T[] dataArray = (T[]) value;
-		T[] array = (T[]) Array.newInstance(componentType, dataArray.length);
-		System.arraycopy(dataArray, 0, array, 0, array.length);
-		return array;
-	}
 
-	@Nullable
-	@SuppressWarnings("unchecked")
-	private <E extends Event> T getValue(E event) {
-		if (getters.containsKey(event.getClass())) {
-			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());
-			return g == null ? null : g.get(event);
-		}
-		
-		for (final Entry<Class<? extends Event>, Getter<? extends T, ?>> p : getters.entrySet()) {
-			if (p.getKey().isAssignableFrom(event.getClass())) {
-				getters.put(event.getClass(), p.getValue());
-				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(event);
-			}
-		}
-		
-		getters.put(event.getClass(), null);
-		
-		return null;
-	}
-	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (exprs.length != 0)
@@ -155,7 +124,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public boolean init() {
-		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			boolean hasValue = false;
 			Class<? extends Event>[] events = getParser().getCurrentEvents();
@@ -195,23 +164,43 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			log.stop();
 		}
 	}
-	
+
 	@Override
+	@Nullable
 	@SuppressWarnings("unchecked")
-	public Class<? extends T> getReturnType() {
-		return (Class<? extends T>) componentType;
+	protected T[] get(Event event) {
+		T value = getValue(event);
+		if (value == null)
+			return (T[]) Array.newInstance(componentType, 0);
+		if (single) {
+			T[] one = (T[]) Array.newInstance(c, 1);
+			one[0] = value;
+			return one;
+		}
+		T[] dataArray = (T[]) value;
+		T[] array = (T[]) Array.newInstance(componentType, dataArray.length);
+		System.arraycopy(dataArray, 0, array, 0, array.length);
+		return array;
 	}
-	
-	@Override
-	public boolean isSingle() {
-		return single;
-	}
-	
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		if (!debug || event == null)
-			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
-		return Classes.getDebugMessage(getValue(event));
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	private <E extends Event> T getValue(E event) {
+		if (getters.containsKey(event.getClass())) {
+			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());
+			return g == null ? null : g.get(event);
+		}
+		
+		for (final Entry<Class<? extends Event>, Getter<? extends T, ?>> p : getters.entrySet()) {
+			if (p.getKey().isAssignableFrom(event.getClass())) {
+				getters.put(event.getClass(), p.getValue());
+				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(event);
+			}
+		}
+		
+		getters.put(event.getClass(), null);
+		
+		return null;
 	}
 
 	@Override
@@ -222,14 +211,14 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
 	}
-	
+
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (changer == null)
 			throw new SkriptAPIException("The changer cannot be null");
 		ChangerUtils.change(changer, getArray(event), delta, mode);
 	}
-	
+
 	@Override
 	public boolean setTime(int time) {
 		Class<? extends Event>[] events = getParser().getCurrentEvents();
@@ -256,7 +245,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @return true
 	 */
@@ -264,5 +253,23 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public boolean isDefault() {
 		return true;
 	}
-	
+
+	@Override
+	public boolean isSingle() {
+		return single;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Class<? extends T> getReturnType() {
+		return (Class<? extends T>) componentType;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (!debug || event == null)
+			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
+		return Classes.getDebugMessage(getValue(event));
+	}
+
 }
