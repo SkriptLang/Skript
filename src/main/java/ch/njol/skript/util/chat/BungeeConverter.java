@@ -25,6 +25,7 @@ import ch.njol.skript.Skript;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
@@ -42,11 +43,10 @@ public class BungeeConverter {
 		if (origin.translation != null) {
 			String[] strings = origin.translation.split(":");
 			String key = strings[0];
-			if (strings.length > 1) {
-				base = new TranslatableComponent(key, Arrays.copyOfRange(strings, 1, strings.length, Object[].class));
-			} else {
-				base = new TranslatableComponent(key);
-			}
+			base = new TranslatableComponent(key, Arrays.copyOfRange(strings, 1, strings.length, Object[].class));
+			base.addExtra(new TextComponent(origin.text));
+		} else if (origin.keybind != null) {
+			base = new KeybindComponent(origin.keybind);
 			base.addExtra(new TextComponent(origin.text));
 		} else {
 			base = new TextComponent(origin.text);
