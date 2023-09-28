@@ -76,6 +76,10 @@ allow ops to use effect commands: false
 # Whether server operators which do not have the permission "skript.effectcommands" should have access to effect commands.
 # This setting is mainly useful for servers that do not run any permissions plugin.
 
+log effect commands: false
+# Whether Skript should log the usage of effect commands.
+# They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
+
 player variable fix: true
 # Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
 # Player objects inside a variable(list or normal) are not updated to the new player object
@@ -117,11 +121,6 @@ plugin priority: high
 # - effect 'drop': Another plugin doesn't process added drops => decrease priority
 # - effects 'remove ... from drops'/'clear drops': Drops added by other plugins are not removed => increase priority
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
-
-
-log player commands: false
-# Whether Skript should log the usage of custom commands.
-# They will be logged as [INFORMATION] in this format: '<player>: /<command> <arguments>'
 
 
 number accuracy: 2
