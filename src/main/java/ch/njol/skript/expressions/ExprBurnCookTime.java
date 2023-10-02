@@ -89,9 +89,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 		if (isEvent) {
 			if (!(event instanceof FurnaceBurnEvent))
 				return new Timespan[0];
-
-			return CollectionUtils.array(Timespan.fromTicks(((FurnaceBurnEvent) e).getBurnTime()));
-			return CollectionUtils.array(Timespan.fromTicks_i(((FurnaceBurnEvent) event).getBurnTime()));
+			return CollectionUtils.array(Timespan.fromTicks(((FurnaceBurnEvent) event).getBurnTime()));
 		} else {
 			return Arrays.stream(source)
 					.filter(anyFurnace::isOfType)
@@ -128,22 +126,17 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			case SET:
 				value = (original) -> changed;
 				break;
-			//$CASES-OMITTED$
 			default:
 				assert false;
 				break;
 		}
 
-		assert value != null; // It isn't going to be null but the compiler complains so
-
-		if (isEvent) {
+        if (isEvent) {
 			if (!(event instanceof FurnaceBurnEvent))
 				return;
 
-			FurnaceBurnEvent burnEvent = (FurnaceBurnEvent) e;
-			burnEvent.setBurnTime((int) value.apply(Timespan.fromTicks(event.getBurnTime())).getTicks());
 			FurnaceBurnEvent burnEvent = (FurnaceBurnEvent) event;
-			burnEvent.setBurnTime(value.apply(Timespan.fromTicks_i(burnEvent.getBurnTime())).getTicks());
+			burnEvent.setBurnTime((int) value.apply(Timespan.fromTicks(burnEvent.getBurnTime())).getTicks());
 			return;
 		}
 
@@ -153,10 +146,11 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			Furnace furnace = (Furnace) block.getState();
 			long time = value.apply(Timespan.fromTicks(cookTime ? furnace.getCookTime() : furnace.getBurnTime())).getTicks();
 
-			if (cookTime)
+			if (cookTime) {
 				furnace.setCookTime((short) time);
-			else
+			} else {
 				furnace.setBurnTime((short) time);
+			}
 
 			furnace.update();
 		}
