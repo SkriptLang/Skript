@@ -18,14 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.server.ServerListPingEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -37,23 +30,30 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.server.ServerListPingEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Online Player Count")
-@Description({"The amount of online players. This can be changed in a",
+@Description({
+		"The amount of online players. This can be changed in a " +
 		"<a href='events.html#server_list_ping'>server list ping</a> event only to show fake online player amount.",
-		"'real online player count' always returns the real count of online players and can't be changed.",
-		"",
-		"Fake online player count requires PaperSpigot 1.12.2+."})
-@Examples({"on server list ping:",
-		"	# This will make the max players count 5 if there are 4 players online.",
-		"	set the fake max players count to (online players count + 1)"})
+		"<code>real online player count</code> always return the real count of online players and can't be changed."
+})
+@Examples({
+		"on server list ping:",
+			"\t# This will make the max players count 5 if there are 4 players online.",
+			"\tset the fake max players count to (online players count + 1)"
+})
 @Since("2.3")
 public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprOnlinePlayersCount.class, Long.class, ExpressionType.PROPERTY,
-				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] [online] player (count|amount|number)",
-				"[the] [(1¦(real|default)|2¦(fake|shown|displayed))] (count|amount|number|size) of online players");
+				"[the] [(1:(real|default)|2:(fake|shown|displayed))] [online] player (count|amount|number)",
+				"[the] [(1:(real|default)|2:(fake|shown|displayed))] (count|amount|number|size) of online players");
 	}
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
@@ -64,7 +64,7 @@ public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean isPaperEvent = PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class);
 		if (parseResult.mark == 2) {
-			if (getParser().isCurrentEvent(ServerListPingEvent.class)) {
+			if (!PAPER_EVENT_EXISTS && getParser().isCurrentEvent(ServerListPingEvent.class)) {
 				Skript.error("The 'fake' online players count expression requires Paper 1.12.2 or newer");
 				return false;
 			} else if (!isPaperEvent) {
