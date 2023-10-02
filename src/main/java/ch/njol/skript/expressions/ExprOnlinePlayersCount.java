@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({
 		"on server list ping:",
 			"\t# This will make the max players count 5 if there are 4 players online.",
-			"\tset the fake max players count to (online players count + 1)"
+			"\tset the fake max players count to (online player count + 1)"
 })
 @RequiredPlugins("Paper (fake count)")
 @Since("2.3")
