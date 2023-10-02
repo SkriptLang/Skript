@@ -61,14 +61,19 @@ public class OperationInfo<L, R, T> {
 			return null;
 		if (!Converters.converterExists(fromLeft, left) || !Converters.converterExists(fromRight, right) || !Converters.converterExists(returnType, toReturnType))
 			return null;
-		return new OperationInfo<>(fromLeft, fromRight, toReturnType, (left, right) ->
-			Converters.convert(operation.calculate(Converters.convert(left, this.left), Converters.convert(right, this.right)), toReturnType));
+		return new OperationInfo<>(fromLeft, fromRight, toReturnType, (left, right) -> {
+			L convertedLeft = Converters.convert(left, this.left);
+			R convertedRight = Converters.convert(right, this.right);
+            if (convertedLeft == null || convertedRight == null)
+				return null;
+            T result = operation.calculate(convertedLeft, convertedRight);
+			return Converters.convert(result, toReturnType);
+		});
 	}
 
 	@Override
 	public String toString() {
-		return String.join(", ", "OperationInfo["
-			+ "left=" + left,
+		return String.join(", ", "OperationInfo[left=" + left,
 			"right=" + right,
 			"returnType=" + returnType + "]");
 	}
