@@ -1410,7 +1410,7 @@ public class BukkitClasses {
 					.user("(panda )?genes?")
 					.name("Gene")
 					.description("Represents a Panda's main or hidden gene. " +
-							"See <a href='https://minecraft.gamepedia.com/Panda#Genetics'>genetics</a> for more info.")
+							"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
@@ -1486,7 +1486,7 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")

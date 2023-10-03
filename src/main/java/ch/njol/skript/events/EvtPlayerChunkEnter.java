@@ -22,11 +22,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EvtPlayerChunkEnter extends SkriptEvent {
 
@@ -46,7 +44,8 @@ public class EvtPlayerChunkEnter extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		return ((PlayerMoveEvent) event).getFrom().getChunk() != ((PlayerMoveEvent) event).getTo().getChunk();
+		PlayerMoveEvent moveEvent = ((PlayerMoveEvent) event);
+		return !moveEvent.getFrom().getChunk().equals(moveEvent.getTo().getChunk());
 	}
 
 	@Override
