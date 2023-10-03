@@ -44,76 +44,73 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
 @Examples({"set the player's health to 10 - the player's health",
-		"loop (argument + 2) / 5 times:",
-		"\tmessage \"Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%\"",
-		"message \"You have %health of player * 2% half hearts of HP!\""})
+	"loop (argument + 2) / 5 times:",
+	"\tmessage \"Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%\"",
+	"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
-	
+
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
-	
+
 	private static class PatternInfo {
 		public final Operator operator;
 		public final boolean leftGrouped;
 		public final boolean rightGrouped;
-		
+
 		public PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 			this.operator = operator;
 			this.leftGrouped = leftGrouped;
 			this.rightGrouped = rightGrouped;
 		}
 	}
-	
+
 	private static final Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
 
 		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, true, true)},
 		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, true, false)},
 		{"%object%[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, false, true)},
 		{"%object%[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, false, false)},
-		
+
 		{"\\(%object%\\)[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, true, true)},
 		{"\\(%object%\\)[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, true, false)},
 		{"%object%[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, false, true)},
 		{"%object%[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, false, false)},
-		
+
 		{"\\(%object%\\)[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, true, true)},
 		{"\\(%object%\\)[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, true, false)},
 		{"%object%[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, false, true)},
 		{"%object%[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, false, false)},
-		
+
 		{"\\(%object%\\)[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, true, true)},
 		{"\\(%object%\\)[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, true, false)},
 		{"%object%[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, false, true)},
 		{"%object%[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, false, false)},
-		
+
 		{"\\(%object%\\)[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, true, true)},
 		{"\\(%object%\\)[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, true, false)},
 		{"%object%[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, false, true)},
 		{"%object%[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, false, false)},
-		
+
 	});
-	
+
 	static {
 		//noinspection unchecked
 		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
-	
+
 	private Expression<L> first;
-    private Expression<R> second;
+	private Expression<R> second;
 	private Operator operator;
 
 	private Class<? extends T> returnType;
-	
+
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
-	
+
 	// A parsed chain, like a tree
 	private ArithmeticGettable<? extends T> arithmeticGettable;
 
@@ -129,23 +126,29 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			return false;
 
 		Class<? extends L> firstClass = first.getReturnType();
-        Class<? extends R> secondClass = second.getReturnType();
+		Class<? extends R> secondClass = second.getReturnType();
 
-        PatternInfo patternInfo = patterns.getInfo(matchedPattern);
+		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
 		leftGrouped = patternInfo.leftGrouped;
 		rightGrouped = patternInfo.rightGrouped;
 		operator = patternInfo.operator;
-		OperationInfo<L, R, T> operationInfo = firstClass != Object.class && secondClass != Object.class
-			? (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass) : null;
-
-		if (operationInfo == null && firstClass != Object.class && secondClass != Object.class)
-			return error(firstClass, secondClass);
 
 		if (firstClass != Object.class && secondClass == Object.class && Arithmetics.getOperations(operator, firstClass).isEmpty()) {
+			// If the first class is known but doesn't have any operations then we fail
 			return error(firstClass, secondClass);
 		} else if (firstClass == Object.class && secondClass != Object.class && Arithmetics.getOperations(operator).stream()
-				.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
+			.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
+			// If the second class is known but doesn't have any operations then we fail
 			return error(firstClass, secondClass);
+		}
+
+		OperationInfo<L, R, T> operationInfo;
+		if (firstClass == Object.class || secondClass == Object.class) { // If either of the types is unknown then we resolve the operation at runtime
+			operationInfo = null;
+		} else {
+			operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
+			if (operationInfo == null) // We error if we couldn't find an operation between the two types
+				return error(firstClass, secondClass);
 		}
 
 		returnType = operationInfo == null ? (Class<? extends T>) Object.class : operationInfo.getReturnType();
@@ -178,7 +181,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			chain.add(second);
 		}
 
-		return (arithmeticGettable = ArithmeticChain.parse(chain)) != null || error(firstClass, secondClass);
+		arithmeticGettable = ArithmeticChain.parse(chain);
+		return arithmeticGettable != null || error(firstClass, secondClass);
 	}
 
 	@Override
@@ -200,12 +204,12 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	public Class<? extends T> getReturnType() {
 		return returnType;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String one = first.toString(event, debug);

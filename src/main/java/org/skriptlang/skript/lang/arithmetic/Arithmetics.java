@@ -145,18 +145,21 @@ public final class Arithmetics {
 	}
 
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public static <L, R> OperationInfo<L, R, ?> lookupOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass) {
 		OperationInfo<L, R, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
 		if (operationInfo != null)
 			return operationInfo;
-		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
-			if (!info.getLeft().isAssignableFrom(leftClass) && !info.getRight().isAssignableFrom(rightClass))
-				continue;
-			operationInfo = info.getConverted(leftClass, rightClass, info.getReturnType());
-			if (operationInfo != null)
-				return operationInfo;
-		}
-		return null;
+		return (OperationInfo<L, R, ?>) getCachedOperations(operator).computeIfAbsent(new Pair<>(leftClass, rightClass), pair -> {
+			for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
+				if (!info.getLeft().isAssignableFrom(leftClass) && !info.getRight().isAssignableFrom(rightClass))
+					continue;
+				OperationInfo<L, R, ?> convertedInfo = info.getConverted(leftClass, rightClass, info.getReturnType());
+				if (convertedInfo != null)
+					return convertedInfo;
+			}
+			return null;
+		});
 	}
 
 	@SuppressWarnings("unchecked")
