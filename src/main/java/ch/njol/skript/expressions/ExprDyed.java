@@ -98,9 +98,8 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 			} else {
 				Material material = item.getMaterial();
 				Matcher matcher = ExprColorOf.MATERIAL_COLORS_PATTERN.matcher(material.name());
-				if (!matcher.matches()) {
+				if (!matcher.matches())
 					continue;
-				}
 				try {
 					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName()));
 					item.setTo(new ItemType(newItem));
