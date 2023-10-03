@@ -62,7 +62,7 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	private Expression<Color> color;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		targets = (Expression<ItemType>) vars[0];
 		color = (Expression<Color>) vars[1];
