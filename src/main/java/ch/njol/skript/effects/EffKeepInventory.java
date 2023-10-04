@@ -18,45 +18,68 @@
  */
 package ch.njol.skript.effects;
 
+import java.util.List;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprDrops;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Keep Inventory / Experience")
-@Description("Keeps the inventory or/and experiences of the dead player in a death event.")
+@Description({
+	"Keeps the inventory or/and experiences of the dead player in a death event.",
+	"Note: keeping specific items only works in Paper 1.15+"
+})
 @Examples({
 	"on death of a player:",
 		"\tif the victim is an op:",
-			"\t\tkeep the inventory and experiences"
+			"\t\tkeep the inventory and experiences",
+		"\telse:",
+			"\t\tkeep the swords"
 })
-@Since("2.4")
+@Since("2.4, INSERT VERSION")
+@RequiredPlugins("Paper (keep specific items)")
 @Events("death")
 public class EffKeepInventory extends Effect {
 
 	static {
-		Skript.registerEffect(EffKeepInventory.class,
-			"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
-			"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
+		if (Skript.methodExists(PlayerDeathEvent.class, "getItemsToKeep"))
+			Skript.registerEffect(EffKeepInventory.class,
+				"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+				"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]",
+				"keep [the] %itemtypes% [from ([the] drops|dropping)]");
+		else
+			Skript.registerEffect(EffKeepInventory.class,
+				"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+				"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
 	}
 
 	private boolean keepItems, keepExp;
 
+	@Nullable
+	private Expression<ItemType> itemsToKeep;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		keepItems = matchedPattern == 0 || parseResult.mark == 1;
+		itemsToKeep = matchedPattern == 2 ? (Expression<ItemType>) exprs[0] : null;
+		keepItems = matchedPattern == 0 || parseResult.mark == 1 || itemsToKeep instanceof ExprDrops;
 		keepExp = matchedPattern == 1 || parseResult.mark == 1;
+
 		if (!getParser().isCurrentEvent(EntityDeathEvent.class)) {
 			Skript.error("The keep inventory/experience effect can't be used outside of a death event");
 			return false;
@@ -76,11 +99,23 @@ public class EffKeepInventory extends Effect {
 				deathEvent.setKeepInventory(true);
 			if (keepExp)
 				deathEvent.setKeepLevel(true);
+
+			if (itemsToKeep != null && !keepItems) {
+				List<ItemStack> drops = deathEvent.getDrops();
+				itemsToKeep.stream(deathEvent)
+					.filter(item -> item.isContainedIn(drops))
+					.forEach(item -> {
+						item.removeFrom(drops);
+						item.addTo(deathEvent.getItemsToKeep());
+					});
+			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (itemsToKeep != null)
+			return "keep " + itemsToKeep.toString(event, debug);
 		if (keepItems && !keepExp)
 			return "keep the inventory";
 		else
