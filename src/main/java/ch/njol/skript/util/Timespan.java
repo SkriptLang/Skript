@@ -264,7 +264,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	/**
 	 * Compare this Timespan with another
 	 * @param time the Timespan to be compared.
-	 * @return -1 if this Timespan is less than argument Timespan, 0 is equals and 1 if greater than
+	 * @return -1 if this Timespan is less than argument Timespan, 0 if equals and 1 if greater than
 	 */
 	@Override
 	public int compareTo(@Nullable Timespan time) {
