@@ -1987,7 +1987,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a
