@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.GeneralWords;
@@ -186,42 +187,46 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			throw new IllegalArgumentException("millis must be >= 0");
 		this.millis = millis;
 	}
-	
+
 	/**
-	 * @deprecated Use fromTicks_i(long ticks) instead. Since this method limits timespan to 50 * Integer.MAX_VALUE.
-	 * Keeping this for older addons to stay working.
+	 * Builds a Timespan from the given long parameter.
+	 * 
+	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
+	 * @return Timespan based on the provided long.
+	 */
+	public static Timespan fromTicks(long ticks) {
+		return new Timespan(ticks * 50L);
+	}
+
+	/**
+	 * @deprecated Use {@link Timespan#fromTicks(long)} instead. Old API naming changes.
 	 */
 	@Deprecated
-	public static Timespan fromTicks(int ticks) {
-		return new Timespan(ticks * TimePeriod.TICK.time);
-	}
-	
+	@ScheduledForRemoval
 	public static Timespan fromTicks_i(long ticks) {
-		return new Timespan(ticks * TimePeriod.TICK.time);
+		return new Timespan(ticks * 50L);
 	}
 
 	public long getMilliSeconds() {
 		return millis;
 	}
-	
-	public long getTicks_i() {
-		return millis / TimePeriod.TICK.time;
-	}
-	
+
 	/**
-	 * @deprecated Use getTicks_i() instead. This method limits timespan to Integer.MAX_VALUE.
-	 * Keeping this for older addons to stay working.
-	 * If you need the ticks for a method that takes an int input then it wouldn't matter.
+	 * @return the amount of Minecraft ticks this timespan represents.
 	 */
-	@Deprecated
-	public int getTicks() {
-		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / TimePeriod.TICK.time);
+	public long getTicks() {
+		return Math.round((millis / 50.0));
 	}
 
-	public long get(TimePeriod time) {
-		return millis / time.getTime();
+	/**
+	 * @deprecated Use getTicks() instead. Old API naming changes.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	public long getTicks_i() {
+		return Math.round((millis / 50.0));
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString(millis);

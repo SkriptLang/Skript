@@ -412,6 +412,7 @@ chat styles:
 	font: font, f
 	insertion: insertion, insert, ins
 	translate: translate, tr, lang
+	keybind: keybind, key
 
 # -- Directions --
 directions:
@@ -1314,6 +1315,19 @@ teleport causes:
 	spectate: spectate, spectator
 	unknown: unknown
 	dismount: dismount, dismounted
+	exit_bed: exit bed, exiting bed, bed exit
+
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: can't use, can not use, cannot use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
 
 # -- Game Modes --
 game modes:
@@ -1973,7 +1987,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a
@@ -2008,6 +2022,7 @@ types:
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
 	quitreason: quit reason¦s @a
+	inventoryclosereason: inventory close reason¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
