@@ -43,20 +43,20 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 	public enum TimePeriod {
 
-		TICK("time.tick", 50L),
-		SECOND("time.second", 1000L),
-		MINUTE("time.minute", SECOND.time * 60L),
-		HOUR("time.hour", MINUTE.time * 60L),
-		DAY("time.day", HOUR.time * 24L),
-		WEEK("time.week", DAY.time * 7L),
-		MONTH("time.month", DAY.time * 30L), // Who cares about 28, 29 or 31 days?
-		YEAR("time.year", DAY.time * 365L);
+		TICK(50L),
+		SECOND(1000L),
+		MINUTE(SECOND.time * 60L),
+		HOUR(MINUTE.time * 60L),
+		DAY(HOUR.time * 24L),
+		WEEK(DAY.time * 7L),
+		MONTH(DAY.time * 30L), // Who cares about 28, 29 or 31 days?
+		YEAR(DAY.time * 365L);
 
 		private final Noun name;
 		private final long time;
 
-		TimePeriod(String name, long time) {
-			this.name = new Noun(name);
+		TimePeriod(long time) {
+			this.name = new Noun("time." + this.name().toLowerCase(Locale.ENGLISH));
 			this.time = time;
 		}
 
@@ -90,9 +90,10 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		});
 	}
 
-	public static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
-	public static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
-	public static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
+	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
+	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+
 	private final long millis;
 	
 	@Nullable
@@ -259,11 +260,15 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
 		return pair.getFirst().withAmount(amount, flags);
 	}
-	
+
+	/**
+	 * Compare this Timespan with another
+	 * @param time the Timespan to be compared.
+	 * @return -1 if this Timespan is less than argument Timespan, 0 is equals and 1 if greater than
+	 */
 	@Override
-	public int compareTo(@Nullable Timespan o) {
-		long d = o == null ? millis : millis - o.millis;
-		return d > 0 ? 1 : d < 0 ? -1 : 0;
+	public int compareTo(@Nullable Timespan time) {
+		return Long.compare(millis, time == null ? millis : time.millis);
 	}
 	
 	@Override
