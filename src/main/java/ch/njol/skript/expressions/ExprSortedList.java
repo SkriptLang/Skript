@@ -69,8 +69,8 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	protected Object[] get(Event event) {
 		try {
 			return list.stream(event)
-				.sorted(ExprSortedList::compare)
-				.toArray();
+					.sorted(ExprSortedList::compare)
+					.toArray();
 		} catch (IllegalArgumentException | ClassCastException e) {
 			return (Object[]) Array.newInstance(getReturnType(), 0);
 		}
