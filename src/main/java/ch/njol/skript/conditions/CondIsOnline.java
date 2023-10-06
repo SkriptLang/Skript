@@ -33,32 +33,41 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Is Online")
-@Description("Checks whether a player is online.")
+@Description("Checks whether a player is online. The 'connected' version will return false once this player leaves the server, even if they rejoin.")
 @Examples({"player is online",
-		"player-argument is offline"})
+	"player-argument is offline",
+	"while player is connected:",
+	"\twait 60 seconds",
+	"\tsend \"hello!\" to player"
+})
 @Since("1.4")
 public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	static {
-		register(CondIsOnline.class, "(online|1¦offline)", "offlineplayers");
+		register(CondIsOnline.class, "(online|:offline|:connected)", "offlineplayers");
 	}
+	
+	private boolean connected; // https://github.com/SkriptLang/Skript/issues/6100
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		setExpr((Expression<OfflinePlayer>) exprs[0]);
-		setNegated(matchedPattern == 1 ^ parseResult.mark == 1);
+		this.setExpr((Expression<OfflinePlayer>) exprs[0]);
+		this.setNegated(matchedPattern == 1 ^ parseResult.hasTag("offline"));
+		this.connected = parseResult.hasTag("connected");
 		return true;
 	}
 	
 	@Override
 	public boolean check(OfflinePlayer op) {
+		if (connected)
+			return op.isConnected();
 		return op.isOnline();
 	}
 	
 	@Override
 	protected String getPropertyName() {
-		return "online";
+		return connected ? "connected" : "online";
 	}
 	
 }
