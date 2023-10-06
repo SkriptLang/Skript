@@ -139,7 +139,7 @@ public class EffScriptFile extends Effect {
 			if (scripts.isEmpty())
 				return;
 			ScriptLoader.unloadScripts(scripts);
-		} else  {
+		} else {
 			Script script = ScriptLoader.getScript(file);
 			if (script != null)
 				ScriptLoader.unloadScript(script);
