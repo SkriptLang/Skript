@@ -29,12 +29,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Online")
-@Description("Checks whether a player is online. The 'connected' version will return false once this player leaves the server, even if they rejoin.")
-@Examples({"player is online",
+@Description("Checks whether a player is online. The 'connected' pattern will return false once this player leaves the server, even if they rejoin.")
+@Examples({
+	"player is online",
 	"player-argument is offline",
 	"while player is connected:",
 	"\twait 60 seconds",
