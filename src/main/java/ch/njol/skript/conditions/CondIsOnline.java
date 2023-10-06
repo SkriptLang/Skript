@@ -49,7 +49,7 @@ public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.setExpr((Expression<OfflinePlayer>) exprs[0]);
 		this.setNegated(matchedPattern == 1 ^ parseResult.hasTag("offline"));
 		this.connected = parseResult.hasTag("connected");
