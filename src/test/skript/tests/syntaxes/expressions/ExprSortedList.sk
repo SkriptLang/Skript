@@ -10,9 +10,8 @@ test "sort":
 
 	# Test sorting
 	loop sorted {_list::*}:
-		if {_prev} is not set:
-			set {_prev} to loop-value
-			continue
-		assert loop-value >= {_prev} with "Couldn't sort correctly"
+		if {_prev} is set:
+			assert loop-value >= {_prev} with "Couldn't sort correctly"
+		set {_prev} to loop-value
 
 	assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"
