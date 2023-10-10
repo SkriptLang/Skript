@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 public class CondRunningJUnit extends Condition {
 
 	static {
-		Skript.registerCondition(CondRunningJUnit.class, "running JUnit");
+		Skript.registerCondition(CondRunningJUnit.class, "running junit");
 	}
 
 	@Override
