@@ -1,0 +1,14 @@
+test "armour slot":
+	spawn zombie at spawn of world "world":
+		set boots of event-entity to gold boots
+		assert boots of event-entity are gold boots with "Gold boots were not applied"
+		set leggings of event-entity to iron leggings
+		assert leggings of event-entity are iron leggings with "Iron leggings were not applied"
+		set chestplate of event-entity to diamond chestplate
+		assert chestplate of event-entity is diamond chestplate with "Diamond chestplate was not applied"
+		set helmet of event-entity to dirt block
+		assert helmet of event-entity is dirt block with "Dirt helmet was not applied"
+		assert armour of event-entity contains dirt block, diamond chestplate, iron leggings and gold boots with "Armour contents were not correct"
+		clear armour of event-entity
+		assert armour of event-entity does not contain dirt block, diamond chestplate, iron leggings and gold boots with "Failed to clear EquipmentSlots"
+		delete event-entity

@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -26,26 +29,22 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.inventory.Inventory;
 
 @Name("Initiator Inventory")
 @Description("Returns the initiator inventory in an on <a href=\"./events.html?search=#inventory_item_move\">inventory item move</a> event.")
 @Examples({
-		"on inventory item move:",
-			"\tif holder of event-initiator-inventory is a chest:",
-				"broadcast \"Item transport requested at %location at holder of event-initiator-inventory%...\""
+	"on inventory item move:",
+		"\tholder of event-initiator-inventory is a chest",
+		"\tbroadcast \"Item transport requested at %location at holder of event-initiator-inventory%...\""
 })
 @Events("Inventory Item Move")
 @Since("INSERT VERSION")
 public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
 	static {
-		Skript.registerExpression(ExprEvtInitiator.class, Inventory.class, ExpressionType.SIMPLE, "[the] [event-]initiator[( |-)inventory]");
+		register(ExprEvtInitiator.class, Inventory.class, "[event-]initiator[( |-)inventory]");
 	}
 
 	public ExprEvtInitiator() {

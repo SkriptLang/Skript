@@ -53,55 +53,51 @@ public class EffEnchant extends Effect {
 	}
 	
 	@SuppressWarnings("null")
-	private Expression<ItemType> item;
+	private Expression<ItemType> items;
 	@Nullable
-	private Expression<EnchantmentType> enchs;
+	private Expression<EnchantmentType> enchantments;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		item = (Expression<ItemType>) exprs[0];
-		if (!ChangerUtils.acceptsChange(item, ChangeMode.SET, ItemStack.class)) {
-			Skript.error(item + " cannot be changed, thus it cannot be (dis)enchanted");
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		items = (Expression<ItemType>) exprs[0];
+		if (!ChangerUtils.acceptsChange(items, ChangeMode.SET, ItemStack.class)) {
+			Skript.error(items + " cannot be changed, thus it cannot be (dis)enchanted");
 			return false;
 		}
 		if (matchedPattern == 0)
-			enchs = (Expression<EnchantmentType>) exprs[1];
+			enchantments = (Expression<EnchantmentType>) exprs[1];
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final ItemType i = item.getSingle(e);
-		if (i == null)
+	protected void execute(Event event) {
+		ItemType[] items = this.items.getArray(event);
+		if (items.length == 0) // short circuit
 			return;
-		if (enchs != null) {
-			final EnchantmentType[] types = enchs.getArray(e);
+
+		if (enchantments != null) {
+			EnchantmentType[] types = enchantments.getArray(event);
 			if (types.length == 0)
 				return;
-			
-			for (final EnchantmentType type : types) {
-				Enchantment ench = type.getType();
-				assert ench != null;
-				i.addEnchantments(new EnchantmentType(ench, type.getLevel()));
+			for (ItemType item : items) {
+				for (EnchantmentType type : types) {
+					Enchantment enchantment = type.getType();
+					assert enchantment != null;
+					item.addEnchantments(new EnchantmentType(enchantment, type.getLevel()));
+				}
 			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
 		} else {
-			final EnchantmentType[] types = i.getEnchantmentTypes();
-			if (types == null)
-				return;
-			
-			for (final EnchantmentType ench : types) {
-				assert ench != null;
-				i.removeEnchantments(ench);
+			for (ItemType item : items) {
+				item.clearEnchantments();
 			}
-			item.change(e, new ItemType[] {i}, ChangeMode.SET);
 		}
+		this.items.change(event, items.clone(), ChangeMode.SET);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return enchs == null ? "disenchant " + item.toString(e, debug) : "enchant " + item.toString(e, debug) + " with " + enchs;
+	public String toString(@Nullable Event event, boolean debug) {
+		return enchantments == null ? "disenchant " + items.toString(event, debug) : "enchant " + items.toString(event, debug) + " with " + enchantments;
 	}
 	
 }
