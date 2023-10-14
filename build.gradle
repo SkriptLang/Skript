@@ -150,7 +150,7 @@ license {
 }
 
 task releaseJavadoc(type: Javadoc) {
-	title = project.property('version')
+	title = project.name + ' ' + project.property('version')
 	source = sourceSets.main.allJava
 	classpath = configurations.compileClasspath
 	options.encoding = 'UTF-8'
