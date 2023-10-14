@@ -876,6 +876,8 @@ public class BukkitClasses {
 							return Classes.toString(holder.getInventory().getLocation().getBlock());
 						} else if (holder instanceof BlockInventoryHolder) {
 							return Classes.toString(((BlockInventoryHolder) holder).getBlock());
+						} else if (Classes.getSuperClassInfo(holder.getClass()).getC() == InventoryHolder.class) {
+							return holder.getClass().getSimpleName(); // an inventory holder and only that
 						} else {
 							return Classes.toString(holder);
 						}
