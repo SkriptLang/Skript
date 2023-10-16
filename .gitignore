@@ -223,3 +223,6 @@ gradle-app.setting
 # TODO remove this in the future after some time since https://github.com/SkriptLang/Skript/pull/4979
 # This ensures developers don't upload their old existing test_runners/ folder.
 test_runners/
+
+## Mac MetaData
+**/.DS_Store
