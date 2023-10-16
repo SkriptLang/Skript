@@ -437,7 +437,11 @@ public class Variables {
 	@Nullable
 	public static Object getVariable(String name, @Nullable Event event, boolean local) {
 		String n;
-		n = name;
+		if (caseInsensitiveVariables) {
+			n = name.toLowerCase(Locale.ENGLISH);
+		} else {
+			n = name;
+		}
 
 		if (local) {
 			VariablesMap map = localVariables.get(event);
@@ -450,7 +454,7 @@ public class Variables {
 			if (!changeQueue.isEmpty()) {
 				// Gets the last VariableChange made
 				VariableChange variableChange = changeQueue.stream()
-						.filter(change -> caseInsensitiveVariables ? change.name.equalsIgnoreCase(n) : change.name.equals(n))
+						.filter(change -> change.name.equals(n))
 						.reduce((first, second) -> second)
 								// Gets last value, as iteration is from head to tail,
 								//  and adding occurs at the tail (and we want the most recently added)
