@@ -60,7 +60,7 @@ public class Documentation {
 	private static final Pattern CP_EMPTY_PARSE_MARKS_PATTERN = Pattern.compile("\\(\\)");
 	private static final Pattern CP_PARSE_TAGS_PATTERN = Pattern.compile("(?<=[(|\\[ ])[-a-zA-Z0-9!$#%^&*_+~=\"'<>?,.]*?:");
 	private static final Pattern CP_EXTRA_OPTIONAL_PATTERN = Pattern.compile("\\[\\(((\\w+? ?)+)\\)]");
-	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "doc-templates");
+	private static final File DOCS_TEMPLATE_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs/templates");
 	private static final File DOCS_OUTPUT_DIRECTORY = new File(Skript.getInstance().getDataFolder(), "docs");
 
 	/**
@@ -476,16 +476,23 @@ public class Documentation {
 		return html;
 	}
 
-	private static String escapeSQL(final String s) {
-		return "" + s.replace("'", "\\'").replace("\"", "\\\"");
+	private static String escapeSQL(String value) {
+		return "" + value.replace("'", "\\'").replace("\"", "\\\"");
 	}
 
-	public static String escapeHTML(final @Nullable String s) {
-		if (s == null) {
+	public static String escapeHTML(@Nullable String value) {
+		if (value == null) {
 			assert false;
 			return "";
 		}
-		return "" + s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+		return "" + value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+	}
+
+	public static String[] escapeHTML(@Nullable String[] values) {
+		for (int i = 0; i < values.length; i++) {
+			values[i] = escapeHTML(values[i]);
+		}
+		return values;
 	}
 
 }

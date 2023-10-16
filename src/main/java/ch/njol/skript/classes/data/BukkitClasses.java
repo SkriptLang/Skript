@@ -28,18 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import ch.njol.util.coll.iterator.ArrayIterator;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -73,7 +61,9 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
@@ -92,14 +82,25 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import io.papermc.paper.world.MoonPhase;
 
 /**
  * @author Peter Güttinger
@@ -284,73 +285,72 @@ public class BukkitClasses {
 				}));
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-			.user("block ?datas?")
-			.name("Block Data")
-			.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-				"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-				"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-				"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-				"The 'minecraft:' namespace is optional, as well as are underscores.")
-			.examples("set block at player to campfire[lit=false]",
-				"set target block of player to oak stairs[facing=north;waterlogged=true]",
-				"set block at player to grass_block[snowy=true]",
-				"set loop-block to minecraft:chest[facing=north]",
-				"set block above player to oak_log[axis=y]",
-				"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-			.after("itemtype")
-			.requiredPlugins("Minecraft 1.13+")
-			.since("2.5")
-			.parser(new Parser<BlockData>() {
-				@Nullable
-				@Override
-				public BlockData parse(String s, ParseContext context) {
-					return BlockUtils.createBlockData(s);
-				}
-
-				@Override
-				public String toString(BlockData o, int flags) {
-					return o.getAsString().replace(",", ";");
-				}
-
-				@Override
-				public String toVariableNameString(BlockData o) {
-					return "blockdata:" + o.getAsString();
-				}
-			})
-			.serializer(new Serializer<BlockData>() {
-				@Override
-				public Fields serialize(BlockData o) {
-					Fields f = new Fields();
-					f.putObject("blockdata", o.getAsString());
-					return f;
-				}
-
-				@Override
-				public void deserialize(BlockData o, Fields f) {
-					assert false;
-				}
-
-				@Override
-				protected BlockData deserialize(Fields f) throws StreamCorruptedException {
-					String data = f.getObject("blockdata", String.class);
-					assert data != null;
-					try {
-						return Bukkit.createBlockData(data);
-					} catch (IllegalArgumentException ex) {
-						throw new StreamCorruptedException("Invalid block data: " + data);
+				.user("block ?datas?")
+				.name("Block Data")
+				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
+						"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
+						"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
+						"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
+						"The 'minecraft:' namespace is optional, as well as are underscores.")
+				.examples("set block at player to campfire[lit=false]",
+						"set target block of player to oak stairs[facing=north;waterlogged=true]",
+						"set block at player to grass_block[snowy=true]",
+						"set loop-block to minecraft:chest[facing=north]",
+						"set block above player to oak_log[axis=y]",
+						"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
+				.after("itemtype")
+				.since("2.5")
+				.parser(new Parser<BlockData>() {
+					@Nullable
+					@Override
+					public BlockData parse(String input, ParseContext context) {
+						return BlockUtils.createBlockData(input);
 					}
-				}
-
-				@Override
-				public boolean mustSyncDeserialization() {
-					return true;
-				}
-
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
+	
+					@Override
+					public String toString(BlockData o, int flags) {
+						return o.getAsString().replace(",", ";");
+					}
+	
+					@Override
+					public String toVariableNameString(BlockData o) {
+						return "blockdata:" + o.getAsString();
+					}
+				})
+				.serializer(new Serializer<BlockData>() {
+					@Override
+					public Fields serialize(BlockData o) {
+						Fields f = new Fields();
+						f.putObject("blockdata", o.getAsString());
+						return f;
+					}
+	
+					@Override
+					public void deserialize(BlockData o, Fields f) {
+						assert false;
+					}
+	
+					@Override
+					protected BlockData deserialize(Fields f) throws StreamCorruptedException {
+						String data = f.getObject("blockdata", String.class);
+						assert data != null;
+						try {
+							return Bukkit.createBlockData(data);
+						} catch (IllegalArgumentException ex) {
+							throw new StreamCorruptedException("Invalid block data: " + data);
+						}
+					}
+	
+					@Override
+					public boolean mustSyncDeserialization() {
+						return true;
+					}
+	
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
@@ -390,15 +390,21 @@ public class BukkitClasses {
 					}
 				}).serializer(new Serializer<Location>() {
 					@Override
-					public Fields serialize(final Location l) {
-						final Fields f = new Fields();
-						f.putObject("world", l.getWorld());
-						f.putPrimitive("x", l.getX());
-						f.putPrimitive("y", l.getY());
-						f.putPrimitive("z", l.getZ());
-						f.putPrimitive("yaw", l.getYaw());
-						f.putPrimitive("pitch", l.getPitch());
-						return f;
+					public Fields serialize(Location location) {
+						Fields fields = new Fields();
+						World world = null;
+						try {
+							world = location.getWorld();
+						} catch (IllegalArgumentException exception) {
+							Skript.warning("A location failed to serialize with its defined world, as the world was unloaded.");
+						}
+						fields.putObject("world", world);
+						fields.putPrimitive("x", location.getX());
+						fields.putPrimitive("y", location.getY());
+						fields.putPrimitive("z", location.getZ());
+						fields.putPrimitive("yaw", location.getYaw());
+						fields.putPrimitive("pitch", location.getPitch());
+						return fields;
 					}
 					
 					@Override
@@ -1347,14 +1353,17 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
 				.name("Firework Effect")
-				.description("A configuration of effects that defines the firework when exploded",
+				.usage("See <a href='/classes.html#FireworkType'>Firework Types</a>")
+				.description(
+					"A configuration of effects that defines the firework when exploded",
 					"which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.",
-					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns.")
-				.defaultExpression(new EventValueExpression<>(FireworkEffect.class))
-				.examples("launch flickering trailing burst firework colored blue and green at player",
+					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns."
+				).defaultExpression(new EventValueExpression<>(FireworkEffect.class))
+				.examples(
+					"launch flickering trailing burst firework colored blue and green at player",
 					"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
-					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
-				.since("2.4")
+					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"
+				).since("2.4")
 				.parser(new Parser<FireworkEffect>() {
 					@Override
 					@Nullable
@@ -1450,29 +1459,29 @@ public class BukkitClasses {
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-			.user("enchant[ment][ ]offers?")
-			.name("Enchantment Offer")
-			.description("The enchantmentoffer in an enchant prepare event.")
-			.examples("on enchant prepare:",
-				"\tset enchant offer 1 to sharpness 1",
-				"\tset the cost of enchant offer 1 to 10 levels")
-			.since("2.5")
-			.parser(new Parser<EnchantmentOffer>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(EnchantmentOffer eo, int flags) {
-					return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
-				}
-
-				@Override
-				public String toVariableNameString(EnchantmentOffer eo) {
-					return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
-				}
-			}));
+				.user("enchant[ment][ ]offers?")
+				.name("Enchantment Offer")
+				.description("The enchantmentoffer in an enchant prepare event.")
+				.examples("on enchant prepare:",
+					"\tset enchant offer 1 to sharpness 1",
+					"\tset the cost of enchant offer 1 to 10 levels")
+				.since("2.5")
+				.parser(new Parser<EnchantmentOffer>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+	
+					@Override
+					public String toString(EnchantmentOffer eo, int flags) {
+						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+					}
+	
+					@Override
+					public String toVariableNameString(EnchantmentOffer eo) {
+						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+					}
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
 				.user("attribute ?types?")
@@ -1487,13 +1496,29 @@ public class BukkitClasses {
 				.description("Represents the environment of a world.")
 				.since("2.7"));
 
-		if (Skript.classExists("io.papermc.paper.world.MoonPhase")) {
+		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
 			Classes.registerClass(new EnumClassInfo<>(MoonPhase.class, "moonphase", "moon phases")
-				.user("(lunar|moon) ?phases?")
-				.name("Moon Phase")
-				.description("Represents the phase of a moon.")
-				.since("2.7")
-				.requiredPlugins("Paper 1.16+"));
-		}
+					.user("(lunar|moon) ?phases?")
+					.name("Moon Phase")
+					.description("Represents the phase of a moon.")
+					.requiredPlugins("Paper 1.16+")
+					.since("2.7"));
+
+		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
+			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
+					.user("(quit|disconnect) ?(reason|cause)s?")
+					.name("Quit Reason")
+					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
+					.requiredPlugins("Paper 1.16.5+")
+					.since("INSERT VERSION"));
+
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
+					.user("inventory ?close ?reasons?")
+					.name("Inventory Close Reasons")
+					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
+					.requiredPlugins("Paper")
+					.since("INSERT VERSION"));
 	}
+
 }
