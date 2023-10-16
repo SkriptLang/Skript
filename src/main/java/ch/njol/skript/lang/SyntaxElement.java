@@ -21,6 +21,10 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.structure.Structure;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a general part of the syntax.
@@ -45,6 +49,26 @@ public interface SyntaxElement {
 	 */
 	default ParserInstance getParser() {
 		return ParserInstance.get();
+	}
+
+	/**
+	 * Gets the structures in which this element can be used in. If there are no limits to this element, you may
+	 * return an empty array, or simply not override this method.
+	 * 
+	 * @return the structures this element is usable in, or an empty list.
+	 */
+	default List<Class<? extends Structure>> getUsableStructures() {
+		return Collections.emptyList();
+	}
+
+	/**
+	 * Gets the sections in which this element can be used in. If there are no limits to this element, you may
+	 * return an empty array, or simply not override this method.
+	 * 
+	 * @return the sections this element is usable in, or an empty list.
+	 */
+	default List<Class<? extends Section>> getUsableSections() {
+		return Collections.emptyList();
 	}
 
 }

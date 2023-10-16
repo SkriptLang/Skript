@@ -28,6 +28,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -41,6 +42,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -165,6 +167,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 */
 	public Priority getPriority() {
 		return DEFAULT_PRIORITY;
+	}
+
+	@Override
+	public final List<Class<? extends Section>> getUsableSections() {
+		return SyntaxElement.super.getUsableSections();
+	}
+
+	@Override
+	public final List<Class<? extends Structure>> getUsableStructures() {
+		return SyntaxElement.super.getUsableStructures();
 	}
 
 	@Override

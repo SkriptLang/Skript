@@ -25,6 +25,9 @@ import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -40,7 +43,7 @@ import java.util.Locale;
 /**
  * A SkriptEvent is like a condition. It is called when any of the registered events occurs.
  * An instance of this class should then check whether the event applies
- * (e.g. the rightclick event is included in the PlayerInteractEvent which also includes lefclicks, thus the SkriptEvent {@link EvtClick} checks whether it was a rightclick or
+ * (e.g. the rightclick event is included in the PlayerInteractEvent which also includes leftclicks, thus the SkriptEvent {@link EvtClick} checks whether it was a rightclick or
  * not).<br/>
  * It is also needed if the event has parameters.
  *
@@ -51,6 +54,20 @@ import java.util.Locale;
 public abstract class SkriptEvent extends Structure {
 
 	public static final Priority PRIORITY = new Priority(600);
+
+	/**
+	 * Checks if the current event is of the given types. Will log an error if false.
+	 * @param events the events to check.
+	 * @return true if the current event is of the given types.
+	 */
+	@SafeVarargs
+	public static boolean isEvent(Class<? extends Event>... events) {
+		ParserInstance parser = ParserInstance.get();
+		if (parser.isCurrentEvent(events))
+			return true;
+		Skript.error("You cannot use this element in " + Utils.a(parser.getCurrentEventName()) + " event.");
+		return false;
+	}
 
 	private String expr;
 	@Nullable
