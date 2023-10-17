@@ -89,7 +89,7 @@ public class SkriptConfig {
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
-					updater.setCheckFrequency(t.getTicks_i());
+					updater.setCheckFrequency(t.getTicks());
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
@@ -126,7 +126,14 @@ public class SkriptConfig {
 	public static final Option<Boolean> enableEffectCommands = new Option<>("enable effect commands", false);
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
-	
+
+	/*
+	 * @deprecated Will be removed in 2.8.0. Use {@link #logEffectCommands} instead.
+	 */
+	@Deprecated
+	public static final Option<Boolean> logPlayerCommands = new Option<>("log player commands", false).optional(true);
+	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
+
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
 	
@@ -164,8 +171,7 @@ public class SkriptConfig {
 			return null;
 		}
 	});
-  
-	public static final Option<Boolean> logPlayerCommands = new Option<Boolean>("log player commands", false);
+
 	
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles
@@ -240,8 +246,7 @@ public class SkriptConfig {
 			});
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
-			.setter(t -> Variables.caseInsensitiveVariables = t)
-			.optional(true);
+			.setter(t -> Variables.caseInsensitiveVariables = t);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
