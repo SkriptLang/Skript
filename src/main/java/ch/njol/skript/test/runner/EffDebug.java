@@ -45,7 +45,7 @@ import ch.njol.util.Kleenean;
 	"Can also debug what class an input is parsed as for Conditions and Effects.",
 	"Useful for dealing with conflict debugging."
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 @NoDoc
 public class EffDebug extends Effect  {
 
