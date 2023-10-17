@@ -517,7 +517,7 @@ public class BukkitClasses {
 					}
 				})
 				.cloner(Vector::clone));
-		
+
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
 				.name("World")
@@ -529,71 +529,81 @@ public class BukkitClasses {
 				.after("string")
 				.defaultExpression(new EventValueExpression<>(World.class))
 				.parser(new Parser<World>() {
-					@SuppressWarnings("null")
+
 					private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
-					
+
 					@Override
 					@Nullable
-					public World parse(final String s, final ParseContext context) {
-						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.CONFIG)
-							return Bukkit.getWorld(s);
-						final Matcher m = parsePattern.matcher(s);
-						if (m.matches())
-							return Bukkit.getWorld(m.group(1));
-						return null;
+					public World parse(String input, ParseContext context) {
+						switch (context) {
+							case COMMAND:
+							case CONFIG:
+								return Bukkit.getWorld(input);
+							case EVENT:
+								Matcher matcher = parsePattern.matcher(input);
+								if (matcher.matches())
+									return Bukkit.getWorld(matcher.group(1));
+								return Bukkit.getWorld(input);
+							// These are captured by ExprWorldFromName
+							case DEFAULT:
+							case SCRIPT:
+							default:
+								return null;
+						}
 					}
-					
+
 					@Override
-					public String toString(final World w, final int flags) {
-						return "" + w.getName();
+					public String toString(World world, int flags) {
+						return world.getName();
 					}
-					
+
 					@Override
-					public String toVariableNameString(final World w) {
-						return "" + w.getName();
+					public String toVariableNameString(World world) {
+						return world.getName();
 					}
+
 				}).serializer(new Serializer<World>() {
+
 					@Override
-					public Fields serialize(final World w) {
-						final Fields f = new Fields();
-						f.putObject("name", w.getName());
-						return f;
+					public Fields serialize(World world) {
+						Fields fields = new Fields();
+						fields.putObject("name", world.getName());
+						return fields;
 					}
-					
+
 					@Override
-					public void deserialize(final World o, final Fields f) {
+					public void deserialize(World world, Fields fields) {
 						assert false;
 					}
-					
+
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-					
+
 					@Override
-					protected World deserialize(final Fields fields) throws StreamCorruptedException {
-						final String name = fields.getObject("name", String.class);
+					protected World deserialize(Fields fields) throws StreamCorruptedException {
+						String name = fields.getObject("name", String.class);
 						assert name != null;
-						final World w = Bukkit.getWorld(name);
-						if (w == null)
+						World world = Bukkit.getWorld(name);
+						if (world == null)
 							throw new StreamCorruptedException("Missing world " + name);
-						return w;
+						return world;
 					}
-					
-					// return w.getName();
+
 					@Override
 					@Nullable
-					public World deserialize(final String s) {
-						return Bukkit.getWorld(s);
+					public World deserialize(String input) {
+						return Bukkit.getWorld(input);
 					}
-					
+
 					@Override
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
+
 				}));
-		
+
 		Classes.registerClass(new ClassInfo<>(Inventory.class, "inventory")
 				.user("inventor(y|ies)")
 				.name("Inventory")
