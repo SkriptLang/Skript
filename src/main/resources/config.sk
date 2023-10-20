@@ -140,6 +140,10 @@ case sensitive: false
 # This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
 
+case-insensitive variables: true
+# Whether Skript's variables should be case sensitive or not.
+# When set to true, all variable names and indices case will be ignored.
+
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
 # By Mirre.
