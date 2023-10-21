@@ -105,11 +105,7 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 		assert delta != null;
 		Object object = delta[0];
 		Number number = null;
-		if (object instanceof Slot) {
-			Slot slot = (Slot) delta[0];
-			if (!(slot instanceof InventorySlot))
-				return; // Only inventory slots can be hotbar slots
-	
+		if (object instanceof InventorySlot) {
 			number = ((InventorySlot) slot).getIndex();
 		} else if (object instanceof Number) {
 			number = (Number) object;
