@@ -576,6 +576,7 @@ public class JavaClasses {
 									return Utils.replaceChatStyles("" + s.substring(1, s.length() - 1).replace("\"\"", "\""));
 								return null;
 							case COMMAND:
+							case PARSE:
 								return s;
 						}
 						assert false;
