@@ -51,35 +51,39 @@ public class EffVisualEffect extends Effect {
 
 	static {
 		Skript.registerEffect(EffVisualEffect.class,
-				"(play|show) %visualeffects% (on|%directions%) %entities/locations% [((to|for) %-players%|in (radius|range) of %-number%)]",
-				"(play|show) %number% %visualeffects% (on|%directions%) %locations% [((to|for) %-players%|in (radius|range) of %-number%)]");
+				"(play|show) %visualeffects% (on|%directions%) %entities/locations% [(to|for) %-players%|in (radius|range) of %-number%]",
+				"(play|show) %number% %visualeffects% (on|%directions%) %locations% [(to|for) %-players%|in (radius|range) of %-number%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<VisualEffect> effects;
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<Direction> direction;
+	private Expression<Direction> directions;
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> where;
 
 	@Nullable
 	private Expression<Player> players;
+
 	@Nullable
 	private Expression<Number> radius;
+
 	@Nullable
 	private Expression<Number> count;
-	
-	@SuppressWarnings({"unchecked", "null"})
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		int base = 0;
 		if (matchedPattern == 1) {
 			count = (Expression<Number>) exprs[0];
 			base = 1;
 		}
-		
+
 		effects = (Expression<VisualEffect>) exprs[base];
-		direction = (Expression<Direction>) exprs[base + 1];
+		directions = (Expression<Direction>) exprs[base + 1];
 		where = exprs[base + 2];
 		players = (Expression<Player>) exprs[base + 3];
 		radius = (Expression<Number>) exprs[base + 4];
@@ -91,15 +95,16 @@ public class EffVisualEffect extends Effect {
 			boolean hasLocationEffect = false;
 			boolean hasEntityEffect = false;
 			for (VisualEffect e : effs) {
-				if (e.getType().isEntityEffect())
+				if (e.getType().isEntityEffect()) {
 					hasEntityEffect = true;
-				else
+				} else {
 					hasLocationEffect = true;
+				}
 			}
 
 			if (!hasLocationEffect && players != null)
 				Skript.warning("Entity effects are visible to all players");
-			if (!hasLocationEffect && !direction.isDefault())
+			if (!hasLocationEffect && !directions.isDefault())
 				Skript.warning("Entity effects are always played on an entity");
 			if (hasEntityEffect && !Entity.class.isAssignableFrom(where.getReturnType())) {
 				Skript.error("Entity effects can only be played on entities");
@@ -109,31 +114,26 @@ public class EffVisualEffect extends Effect {
 
 		return true;
 	}
-	
+
 	@Override
-	protected void execute(Event e) {
-		VisualEffect[] effects = this.effects.getArray(e);
-		Direction[] directions = direction.getArray(e);
-		Object[] os = where.getArray(e);
-		Player[] ps = players != null ? players.getArray(e) : null;
-		Number rad = radius != null ? radius.getSingle(e) : 32; // 32=default particle radius
-		Number cnt = count != null ? count.getSingle(e) : 0;
+	protected void execute(Event event) {
+		int radius = this.radius == null ? 32 : this.radius.getOptionalSingle(event).orElse(32).intValue(); // 32 = default particle radius
+		int count = this.count == null ? 0 : this.count.getOptionalSingle(event).orElse(0).intValue();
+		Direction[] directions = this.directions.getArray(event);
+		VisualEffect[] effects = this.effects.getArray(event);
+		Player[] players = this.players.getArray(event);
+		Object[] objects = where.getArray(event);
 
-		// noinspection ConstantConditions
-		if (effects == null || directions == null || os == null || rad == null || cnt == null)
-			return;
-
-		for (Direction d : directions) {
-			for (Object o : os) {
-				if (o instanceof Entity) {
-					for (VisualEffect eff : effects) {
-						eff.play(ps, d.getRelative((Entity) o), (Entity) o, cnt.intValue(), rad.intValue());
-					}
-				} else if (o instanceof Location) {
-					for (VisualEffect eff : effects) {
-						if (eff.getType().isEntityEffect())
+		for (Direction direction : directions) {
+			for (Object object : objects) {
+				if (object instanceof Entity) {
+					for (VisualEffect effect : effects)
+						effect.play(players, direction.getRelative((Entity) object), (Entity) object, count, radius);
+				} else if (object instanceof Location) {
+					for (VisualEffect effect : effects) {
+						if (effect.getType().isEntityEffect())
 							continue;
-						eff.play(ps, d.getRelative((Location) o), null, cnt.intValue(), rad.intValue());
+						effect.play(players, direction.getRelative((Location) object), null, count, radius);
 					}
 				} else {
 					assert false;
@@ -141,11 +141,11 @@ public class EffVisualEffect extends Effect {
 			}
 		}
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "play " + effects.toString(e, debug) + " " + direction.toString(e, debug) + " "
-			+ where.toString(e, debug) + (players != null ? " to " + players.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "play " + effects.toString(event, debug) + " " + directions.toString(event, debug) + " " +
+				where.toString(event, debug) + (players != null ? " to " + players.toString(event, debug) : "");
 	}
-	
+
 }
