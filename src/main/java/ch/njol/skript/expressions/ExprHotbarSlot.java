@@ -106,7 +106,7 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 		Object object = delta[0];
 		Number number = null;
 		if (object instanceof InventorySlot) {
-			number = ((InventorySlot) slot).getIndex();
+			number = ((InventorySlot) object).getIndex();
 		} else if (object instanceof Number) {
 			number = (Number) object;
 		}
