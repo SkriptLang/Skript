@@ -37,6 +37,10 @@ public enum ParseContext {
 	 */
 	COMMAND,
 	/**
+	 * Used for parsing text in {@link ch.njol.skript.expressions.ExprParse}
+	 */
+	PARSE,
+	/**
 	 * Used for parsing values from a config
 	 */
 	CONFIG,
