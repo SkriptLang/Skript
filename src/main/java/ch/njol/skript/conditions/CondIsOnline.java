@@ -35,8 +35,8 @@ import ch.njol.util.Kleenean;
 	"player is online",
 	"player-argument is offline",
 	"while player is connected:",
-	"\twait 60 seconds",
-	"\tsend \"hello!\" to player"
+		"\twait 60 seconds",
+		"\tsend \"hello!\" to player"
 })
 @Since("1.4")
 public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
