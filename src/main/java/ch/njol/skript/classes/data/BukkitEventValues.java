@@ -57,6 +57,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Lectern;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
@@ -141,6 +142,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
@@ -1752,6 +1754,21 @@ public final class BukkitEventValues {
 					return event.getStonecuttingRecipe().getResult();
 				}
 			}, EventValues.TIME_NOW);
+
+		if (Skript.isRunningMinecraft(1, 14)) {
+			EventValues.registerEventValue(PlayerTakeLecternBookEvent.class, ItemStack.class, new Getter<ItemStack, PlayerTakeLecternBookEvent>() {
+				@Override
+				public ItemStack get(PlayerTakeLecternBookEvent event) {
+					return event.getBook();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerTakeLecternBookEvent.class, Lectern.class, new Getter<Lectern, PlayerTakeLecternBookEvent>() {
+				@Override
+				public Lectern get(PlayerTakeLecternBookEvent event) {
+					return event.getLectern();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 	}
 

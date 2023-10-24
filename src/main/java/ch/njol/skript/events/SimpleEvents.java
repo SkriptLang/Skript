@@ -86,6 +86,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -730,6 +731,16 @@ public class SimpleEvents {
 						"\t\tcancel event"
 				)
 				.since("2.7");
+
+		if (Skript.isRunningMinecraft(1, 14))
+			Skript.registerEvent("Player Take Lectern", SimpleEvent.class, PlayerTakeLecternBookEvent.class, "[player] tak(e|ing [a]) (lectern book|book from [a] lectern)")
+					.description("Called when a player clicks the button to take a book of a Lectern. If this event is cancelled the book remains on the lectern.")
+					.examples(
+							"on player taking a book from a lectern:",
+								"\tpage 1 of event-item contains \"example\"",
+								"\tcancel event"
+					)
+					.since("INSERT VERSION");
 
 	}
 
