@@ -734,7 +734,7 @@ public class SimpleEvents {
 
 		if (Skript.isRunningMinecraft(1, 14))
 			Skript.registerEvent("Player Take Lectern", SimpleEvent.class, PlayerTakeLecternBookEvent.class, "[player] tak(e|ing [a]) (lectern book|book from [a] lectern)")
-					.description("Called when a player clicks the button to take a book of a Lectern. If this event is cancelled the book remains on the lectern.")
+					.description("Called when a player clicks the button to take a book from a lectern. If this event is cancelled the book remains on the lectern.")
 					.examples(
 							"on player taking a book from a lectern:",
 								"\tpage 1 of event-item contains \"example\"",
