@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -59,20 +61,18 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@SuppressWarnings("null")
 	private Expression<String> name;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
 		name = (Expression<String>) exprs[1];
+		check_type_okay:
 		if (getExpr() instanceof Literal) {
 			Literal<?> literal = (Literal<?>) getExpr();
 			Object object = literal.getSingle();
-			if (object instanceof InventoryType && !((InventoryType) object).isCreatable()) {
-				// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
-				// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
-				// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
-				Skript.error("You can't create a '" + literal.toString() + "' inventory. It's not creatable!");
+			if (!(object instanceof InventoryType)) break check_type_okay;
+			if (!isCreatable((InventoryType) object)) {
+				Skript.error("You can't create a '" + literal + "' inventory. It's not creatable!");
 				return false;
 			}
 		}
@@ -80,56 +80,43 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	protected Object[] get(final Event e, final Object[] source) {
-		String name = this.name.getSingle(e);
+	protected Object[] get(final Event event, final Object[] source) {
+		String name = this.name.getSingle(event);
 		if (name == null)
 			return get(source, object -> {
-				if (object instanceof InventoryType) {
-					try {
-						return Bukkit.createInventory(null, (InventoryType) object);
-					} catch (NullPointerException | IllegalArgumentException e) {
-						// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
-						// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
-						// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
-						Skript.error("You can't create a '" + Classes.toString((InventoryType) object) + "' inventory. It's not creatable!");
-						return null;
-					}
-				}
+				if (object instanceof InventoryType && !isCreatable(((InventoryType) object)))
+					return null;
 				return object; // Return the same ItemType they passed without applying a name.
 			});
 		return get(source, new Getter<Object, Object>() {
-			@Override
-			@Nullable
-			public Object get(Object object) {
-				if (object instanceof InventoryType) {
-					try {
-						return Bukkit.createInventory(null, (InventoryType) object, name);
-					} catch (NullPointerException | IllegalArgumentException e) {
-						// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
-						// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
-						// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
-						Skript.error("You can't create a '" + Classes.toString((InventoryType) object) + "' inventory. It's not creatable!");
-						return null;
-					}
-				}
-				if (object instanceof ItemStack) {
-					ItemStack stack = (ItemStack) object;
-					stack = stack.clone();
-					ItemMeta meta = stack.getItemMeta();
-					if (meta != null) {
-						meta.setDisplayName(name);
-						stack.setItemMeta(meta);
-					}
-					return new ItemType(stack);
-				}
-				ItemType item = (ItemType) object;
-				item = item.clone();
-				ItemMeta meta = item.getItemMeta();
-				meta.setDisplayName(name);
-				item.setItemMeta(meta);
-				return item;
-			}
-		});
+            @Override
+            @Nullable
+            public Object get(Object object) {
+                if (object instanceof InventoryType) {
+                    InventoryType type = (InventoryType) object;
+                    if (!isCreatable(type))
+                        return null;
+                    else
+                        return Bukkit.createInventory(null, (InventoryType) object, name);
+                }
+                if (object instanceof ItemStack) {
+                    ItemStack stack = (ItemStack) object;
+                    stack = stack.clone();
+                    ItemMeta meta = stack.getItemMeta();
+                    if (meta != null) {
+                        meta.setDisplayName(name);
+                        stack.setItemMeta(meta);
+                    }
+                    return new ItemType(stack);
+                }
+                ItemType item = (ItemType) object;
+                item = item.clone();
+                ItemMeta meta = item.getItemMeta();
+                meta.setDisplayName(name);
+                item.setItemMeta(meta);
+                return item;
+            }
+        });
 	}
 	
 	@Override
@@ -140,6 +127,15 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return getExpr().toString(e, debug) + " named " + name;
+	}
+	
+	private boolean isCreatable(InventoryType type) {
+		// Spigot forgot to label some InventoryTypes as non-creatable in some versions < 1.19.4
+		// So this throws NullPointerException as well as an IllegalArgumentException.
+		// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
+		if (Skript.isRunningMinecraft(1, 14) && type == InventoryType.COMPOSTER) return false;
+		if (Skript.isRunningMinecraft(1, 20) && type == InventoryType.CHISELED_BOOKSHELF) return false;
+		return type.isCreatable();
 	}
 	
 }
