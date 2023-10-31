@@ -144,8 +144,10 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		// Spigot forgot to label some InventoryTypes as non-creatable in some versions < 1.19.4
 		// So this throws NullPointerException as well as an IllegalArgumentException.
 		// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
-		if (Skript.isRunningMinecraft(1, 14) && type == InventoryType.COMPOSTER) return false;
-		if (Skript.isRunningMinecraft(1, 20) && type == InventoryType.CHISELED_BOOKSHELF) return false;
+		if (Skript.isRunningMinecraft(1, 14) && type == InventoryType.COMPOSTER)
+			return false;
+		if (Skript.isRunningMinecraft(1, 20) && type == InventoryType.CHISELED_BOOKSHELF)
+			return false;
 		return type.isCreatable();
 	}
 	
