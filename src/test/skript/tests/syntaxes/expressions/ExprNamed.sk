@@ -1,0 +1,9 @@
+test "named":
+	set {_i} to an iron sword
+	assert name of {_i} is not set with "default item name failed: %name of {_i}%"
+	set {_i} to {_i} named "blob"
+	assert name of {_i} is "blob" with "item name failed: %name of {_i}%"
+	set {_inventory} to a barrel inventory
+	assert name of {_inventory} is not set with "default inventory name failed: %name of {_inventory}%"
+	set {_inventory} to a barrel inventory named "test"
+	assert {_inventory} is set with "inventory set failed" # we can't check inventory names any more
