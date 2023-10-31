@@ -69,12 +69,10 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			setExpr(exprs[0]);
 		}
 		name = (Expression<String>) exprs[1];
-		check_type_okay:
 		if (getExpr() instanceof Literal) {
 			Literal<?> literal = (Literal<?>) getExpr();
 			Object object = literal.getSingle();
-			if (!(object instanceof InventoryType)) break check_type_okay;
-			if (!isCreatable((InventoryType) object)) {
+			if (object instanceof InventoryType && !isCreatable((InventoryType) object)) {
 				Skript.error(Utils.A(literal) + " cannot be created.");
 				return false;
 			}
