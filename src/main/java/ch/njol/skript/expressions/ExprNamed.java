@@ -19,7 +19,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -64,7 +63,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(exprs[0]);
+		if (exprs[0].getReturnType().equals(ItemStack.class)) {
+			setExpr(exprs[0].getConvertedExpression(ItemType.class));
+		} else {
+			setExpr(exprs[0]);
+		}
 		name = (Expression<String>) exprs[1];
 		check_type_okay:
 		if (getExpr() instanceof Literal) {
@@ -121,7 +124,12 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	
 	@Override
 	public Class<? extends Object> getReturnType() {
-		return getExpr().getReturnType() == InventoryType.class ? Inventory.class : ItemType.class;
+		Class<?> returnType = getExpr().getReturnType();
+		if (returnType == InventoryType.class)
+			return Inventory.class;
+		else if (returnType == Object.class)
+			return Object.class;
+		return ItemType.class;
 	}
 	
 	@Override
