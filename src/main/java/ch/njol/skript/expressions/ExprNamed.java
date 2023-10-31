@@ -133,8 +133,8 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return getExpr().toString(e, debug) + " named " + name;
+	public String toString(@Nullable Event event, boolean debug) {
+		return getExpr().toString(event, debug) + " named " + name;
 	}
 	
 	private boolean isCreatable(InventoryType type) {
