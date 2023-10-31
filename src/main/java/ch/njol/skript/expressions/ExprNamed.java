@@ -61,9 +61,21 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
 		name = (Expression<String>) exprs[1];
+		if (getExpr() instanceof Literal) {
+			Literal<?> literal = (Literal<?>) getExpr();
+			Object object = literal.getSingle();
+			if (object instanceof InventoryType && !((InventoryType) object).isCreatable()) {
+				// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
+				// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
+				// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
+				Skript.error("You can't create a '" + literal.toString() + "' inventory. It's not creatable!");
+				return false;
+			}
+		}
 		return true;
 	}
 	
@@ -71,15 +83,37 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	protected Object[] get(final Event e, final Object[] source) {
 		String name = this.name.getSingle(e);
 		if (name == null)
-			return get(source, obj -> obj); // No name provided, do nothing
+			return get(source, object -> {
+				if (object instanceof InventoryType) {
+					try {
+						return Bukkit.createInventory(null, (InventoryType) object);
+					} catch (NullPointerException | IllegalArgumentException e) {
+						// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
+						// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
+						// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
+						Skript.error("You can't create a '" + Classes.toString((InventoryType) object) + "' inventory. It's not creatable!");
+						return null;
+					}
+				}
+				return object; // Return the same ItemType they passed without applying a name.
+			});
 		return get(source, new Getter<Object, Object>() {
 			@Override
 			@Nullable
-			public Object get(Object obj) {
-				if (obj instanceof InventoryType)
-					return Bukkit.createInventory(null, (InventoryType) obj, name);
-				if (obj instanceof ItemStack) {
-					ItemStack stack = (ItemStack) obj;
+			public Object get(Object object) {
+				if (object instanceof InventoryType) {
+					try {
+						return Bukkit.createInventory(null, (InventoryType) object, name);
+					} catch (NullPointerException | IllegalArgumentException e) {
+						// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
+						// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
+						// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
+						Skript.error("You can't create a '" + Classes.toString((InventoryType) object) + "' inventory. It's not creatable!");
+						return null;
+					}
+				}
+				if (object instanceof ItemStack) {
+					ItemStack stack = (ItemStack) object;
 					stack = stack.clone();
 					ItemMeta meta = stack.getItemMeta();
 					if (meta != null) {
@@ -88,7 +122,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 					}
 					return new ItemType(stack);
 				}
-				ItemType item = (ItemType) obj;
+				ItemType item = (ItemType) object;
 				item = item.clone();
 				ItemMeta meta = item.getItemMeta();
 				meta.setDisplayName(name);
