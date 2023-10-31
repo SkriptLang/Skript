@@ -67,7 +67,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 		if (itemType == null)
 			return null;
 		ItemMeta meta = itemType.getItemMeta();
-		return meta instanceof Damageable ? translate(itemType.getMaterial(), ((Damageable) meta).getDamage()) : 0;
+		return meta instanceof Damageable ? convertToDamage(itemType.getMaterial(), ((Damageable) meta).getDamage()) : 0;
 	}
 
 	@Override
@@ -103,11 +103,11 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 			switch (mode) {
 				case ADD:
 				case REMOVE:
-					int current = translate(material, damageable.getDamage());
-					damageable.setDamage(translate(material, current + change));
+					int current = convertToDamage(material, damageable.getDamage());
+					damageable.setDamage(convertToDamage(material, current + change));
 					break;
 				case SET:
-					damageable.setDamage(translate(material, change));
+					damageable.setDamage(convertToDamage(material, change));
 					break;
 				case DELETE:
 				case RESET:
@@ -120,7 +120,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 		}
 	}
 
-	private int translate(Material material, int value) {
+	private int convertToDamage(Material material, int value) {
 		if (!durability)
 			return value;
 		int maxDurability = material.getMaxDurability();
