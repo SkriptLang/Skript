@@ -18,14 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Arrays;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -38,45 +31,40 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unbreakable Items")
 @Description("Creates unbreakable copies of given items.")
-@Examples("unbreakable iron sword #Creates unbreakable iron sword")
-@Since("2.2-dev13b")
+@Examples({
+	"unbreakable iron sword",
+	"breakable {_weapon}"
+})
+@Since("2.2-dev13b, INSERT VERSION (breakable)")
 public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 
-	@Nullable
-	private static final MethodHandle setUnbreakableMethod;
-	
 	static {
-		Skript.registerExpression(ExprUnbreakable.class, ItemType.class, ExpressionType.PROPERTY, "unbreakable %itemtypes%");
-		
-		MethodHandle handle;
-		try {
-			handle = MethodHandles.lookup().findVirtual(Class.forName("package org.bukkit.inventory.meta.ItemMeta.Spigot"),
-					"setUnbreakable", MethodType.methodType(void.class, boolean.class));
-		} catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
-			handle = null;
-		}
-		setUnbreakableMethod = handle;
+		Skript.registerExpression(ExprUnbreakable.class, ItemType.class, ExpressionType.PROPERTY, "[:un]breakable %itemtypes%");
 	}
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	private boolean unbreakable;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends ItemType>) exprs[0]);
+		unbreakable = parseResult.hasTag("un");
 		return true;
 	}
 	
 	@Override
-	protected ItemType[] get(final Event e, final ItemType[] source) {
+	protected ItemType[] get(Event event, ItemType[] source) {
 		return get(source, itemType -> {
 			ItemType clone = itemType.clone();
-
 			ItemMeta meta = clone.getItemMeta();
-			meta.setUnbreakable(true);
+			meta.setUnbreakable(unbreakable);
 			clone.setItemMeta(meta);
-
 			return clone;
 		});
 	}
@@ -87,9 +75,11 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
-			return "unbreakable items";
-		return "unbreakable " + Arrays.toString(getExpr().getAll(e));
+	public String toString(@Nullable Event event, boolean debug) {
+		String s = unbreakable ? "unbreakable " : "breakable ";
+		if (event == null)
+			return s + "items";
+		return s + Arrays.toString(getExpr().getAll(event));
 	}
+
 }
