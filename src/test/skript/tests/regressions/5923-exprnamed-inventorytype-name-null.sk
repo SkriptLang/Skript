@@ -1,0 +1,7 @@
+test "inventory type ExprNamed name null" when running minecraft "1.14.4": # 1.13 makes the inventory name return "Shulker Box"
+	set {_inventory} to shulker box inventory named name of tool of random player out of all players
+	assert {_inventory} is set with "Failed to set new inventory to local variable"
+	assert name of {_inventory} is not set with "The name of the inventory was set"
+	clear {_inventory}
+	set {_inventory} to shulker box inventory named {_null}
+	assert name of {_inventory} is not set with "The name of the inventory was set (2)"
