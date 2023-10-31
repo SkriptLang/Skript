@@ -102,8 +102,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
                     InventoryType type = (InventoryType) object;
                     if (!isCreatable(type))
                         return null;
-                    else
-                        return Bukkit.createInventory(null, (InventoryType) object, name);
+                    return Bukkit.createInventory(null, type, name);
                 }
                 if (object instanceof ItemStack) {
                     ItemStack stack = (ItemStack) object;
