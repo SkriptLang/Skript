@@ -87,8 +87,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		String name = this.name.getSingle(event);
 		if (name == null)
 			return get(source, object -> {
-				if (object instanceof InventoryType && !isCreatable(((InventoryType) object)))
-					return null;
+				if (object instanceof InventoryType) {
+					if (!isCreatable(((InventoryType) object)))
+						return null;
+					return Bukkit.createInventory(null, (InventoryType) object);
+				}
 				return object; // Return the same ItemType they passed without applying a name.
 			});
 		return get(source, new Getter<Object, Object>() {
@@ -123,13 +126,13 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		Class<?> returnType = getExpr().getReturnType();
 		if (returnType == InventoryType.class)
 			return Inventory.class;
-		else if (returnType == Object.class)
-			return Object.class;
-		return ItemType.class;
+		else if (returnType == ItemStack.class || returnType == ItemType.class)
+			return ItemType.class;
+		return Object.class;
 	}
 	
 	@Override
