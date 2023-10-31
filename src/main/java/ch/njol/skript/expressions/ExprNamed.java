@@ -75,7 +75,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			Object object = literal.getSingle();
 			if (!(object instanceof InventoryType)) break check_type_okay;
 			if (!isCreatable((InventoryType) object)) {
-				Skript.error("You can't create a '" + literal + "' inventory. It's not creatable!");
+				Skript.error(Utils.A(literal) + " cannot be created.");
 				return false;
 			}
 		}
