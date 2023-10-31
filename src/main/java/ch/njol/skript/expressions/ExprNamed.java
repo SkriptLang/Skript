@@ -130,7 +130,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		Class<?> returnType = getExpr().getReturnType();
 		if (returnType == InventoryType.class)
 			return Inventory.class;
-		else if (returnType == ItemStack.class || returnType == ItemType.class)
+		if (returnType == ItemStack.class || returnType == ItemType.class)
 			return ItemType.class;
 		return Object.class;
 	}
