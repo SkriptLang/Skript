@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -73,7 +74,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			Literal<?> literal = (Literal<?>) getExpr();
 			Object object = literal.getSingle();
 			if (object instanceof InventoryType && !isCreatable((InventoryType) object)) {
-				Skript.error(Utils.A(literal) + " cannot be created.");
+				Skript.error(Utils.A(literal.toString()) + " cannot be created.");
 				return false;
 			}
 		}
@@ -86,40 +87,41 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		if (name == null)
 			return get(source, object -> {
 				if (object instanceof InventoryType) {
-					if (!isCreatable(((InventoryType) object)))
+					InventoryType type = (InventoryType) object;
+					if (!isCreatable(type))
 						return null;
-					return Bukkit.createInventory(null, (InventoryType) object);
+					return Bukkit.createInventory(null, type);
 				}
 				return object; // Return the same ItemType they passed without applying a name.
 			});
 		return get(source, new Getter<Object, Object>() {
-            @Override
-            @Nullable
-            public Object get(Object object) {
-                if (object instanceof InventoryType) {
-                    InventoryType type = (InventoryType) object;
-                    if (!isCreatable(type))
-                        return null;
-                    return Bukkit.createInventory(null, type, name);
-                }
-                if (object instanceof ItemStack) {
-                    ItemStack stack = (ItemStack) object;
-                    stack = stack.clone();
-                    ItemMeta meta = stack.getItemMeta();
-                    if (meta != null) {
-                        meta.setDisplayName(name);
-                        stack.setItemMeta(meta);
-                    }
-                    return new ItemType(stack);
-                }
-                ItemType item = (ItemType) object;
-                item = item.clone();
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName(name);
-                item.setItemMeta(meta);
-                return item;
-            }
-        });
+			@Override
+			@Nullable
+			public Object get(Object object) {
+				if (object instanceof InventoryType) {
+					InventoryType type = (InventoryType) object;
+					if (!isCreatable(type))
+						return null;
+					return Bukkit.createInventory(null, type, name);
+				}
+				if (object instanceof ItemStack) {
+					ItemStack stack = (ItemStack) object;
+					stack = stack.clone();
+					ItemMeta meta = stack.getItemMeta();
+					if (meta != null) {
+						meta.setDisplayName(name);
+						stack.setItemMeta(meta);
+					}
+					return new ItemType(stack);
+				}
+				ItemType item = (ItemType) object;
+				item = item.clone();
+				ItemMeta meta = item.getItemMeta();
+				meta.setDisplayName(name);
+				item.setItemMeta(meta);
+				return item;
+			}
+		});
 	}
 	
 	@Override
