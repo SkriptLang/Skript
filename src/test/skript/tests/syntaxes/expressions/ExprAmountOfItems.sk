@@ -1,5 +1,5 @@
 test "amount of items":
-	set {_inventory} to a barrel inventory named "test"
+	set {_inventory} to a hopper inventory named "test"
 	assert the amount of stone in {_inventory} is 0 with "default amount failed"
 	add stone to {_inventory}
 	assert the amount of stone in {_inventory} is 1 with "single amount failed"

@@ -1,5 +1,5 @@
 test "items in (inventory)":
-	set {_inventory} to a barrel inventory named "test"
+	set {_inventory} to a hopper inventory named "test"
 	add stone to {_inventory}
 	add stone named "bread" to {_inventory}
 	add 100 of iron ingot to {_inventory}

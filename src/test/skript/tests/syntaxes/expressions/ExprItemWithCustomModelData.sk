@@ -1,4 +1,4 @@
-test "item with custom model data":
+test "item with custom model data" when minecraft version is not "1.13.2":
 	set {_i} to stone
 	assert the custom model data of {_i} is 0 with "default model data failed"
 	set {_i} to stone with custom model data 5
