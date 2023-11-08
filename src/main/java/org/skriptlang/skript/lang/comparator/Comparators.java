@@ -95,15 +95,54 @@ public final class Comparators {
 		}
 
 		synchronized (COMPARATORS) {
-			for (ComparatorInfo<?, ?> info : COMPARATORS) {
-				if (info.firstType == firstType && info.secondType == secondType) {
-					throw new SkriptAPIException(
-							"A Comparator comparing '" + firstType + "' and '" + secondType + "' already exists!"
-					);
-				}
+			if (exactComparatorExists_i(firstType, secondType)) {
+				throw new SkriptAPIException(
+					"A Comparator comparing '" + firstType + "' and '" + secondType + "' already exists!"
+				);
 			}
 			COMPARATORS.add(new ComparatorInfo<>(firstType, secondType, comparator));
 		}
+	}
+
+	/**
+	 * Internal method. All calling locations are expected to manually synchronize this method if necessary.
+	 * @return Whether a Comparator exists that EXACTLY matches the provided types.
+	 */
+	private static boolean exactComparatorExists_i(Class<?> firstType, Class<?> secondType) {
+		for (ComparatorInfo<?, ?> info : COMPARATORS) {
+			if (info.getFirstType() == firstType && info.getSecondType() == secondType) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * A method for determining whether a direct Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 * Unlike other methods of this class, it is not the case that
+	 *  {@link Skript#isAcceptRegistrations()} must return <code>false</code> for this method to be used.
+	 * @param firstType The first type for comparison.
+	 * @param secondType The second type for comparison.
+	 * @return Whether a direct Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 */
+	public static boolean exactComparatorExists(Class<?> firstType, Class<?> secondType) {
+		synchronized (COMPARATORS) {
+			return exactComparatorExists_i(firstType, secondType);
+		}
+	}
+
+	/**
+	 * A method for determining whether a Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 * @param firstType The first type for comparison.
+	 * @param secondType The second type for comparison.
+	 * @return Whether a Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 */
+	public static boolean comparatorExists(Class<?> firstType, Class<?> secondType) {
+		assertIsDoneLoading();
+		if (firstType != Object.class && firstType == secondType) { // Would use the default comparator
+			return true;
+		}
+		return getComparator(firstType, secondType) != null;
 	}
 
 	/**
@@ -339,7 +378,7 @@ public final class Comparators {
 		}
 
 		// Same class but no comparator
-		if (firstType != Object.class && secondType == firstType) {
+		if (firstType != Object.class && firstType == secondType) {
 			return (ComparatorInfo<T1, T2>) EQUALS_COMPARATOR_INFO;
 		}
 

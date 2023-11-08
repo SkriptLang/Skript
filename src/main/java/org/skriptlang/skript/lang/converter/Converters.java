@@ -87,7 +87,7 @@ public final class Converters {
 		ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, flags);
 
 		synchronized (CONVERTERS) {
-			if (exactConverterExists(from, to)) {
+			if (exactConverterExists_i(from, to)) {
 				throw new SkriptAPIException(
 						"A Converter from '" + from + "' to '" + to + "' already exists!"
 				);
@@ -121,7 +121,7 @@ public final class Converters {
 							&& (unknownInfo1.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
 							&& (unknownInfo2.getFlags() & Converter.NO_LEFT_CHAINING) == 0
 							&& unknownInfo2.getFrom().isAssignableFrom(unknownInfo1.getTo())
-							&& !exactConverterExists(unknownInfo1.getFrom(), unknownInfo2.getTo())
+							&& !exactConverterExists_i(unknownInfo1.getFrom(), unknownInfo2.getTo())
 					) {
 						ConverterInfo<F, M> info1 = (ConverterInfo<F, M>) unknownInfo1;
 						ConverterInfo<M, T> info2 = (ConverterInfo<M, T>) unknownInfo2;
@@ -141,7 +141,7 @@ public final class Converters {
 							&& (unknownInfo1.getFlags() & Converter.NO_LEFT_CHAINING) == 0
 							&& (unknownInfo2.getFlags() & Converter.NO_RIGHT_CHAINING) == 0
 							&& unknownInfo1.getFrom().isAssignableFrom(unknownInfo2.getTo())
-							&& !exactConverterExists(unknownInfo2.getFrom(), unknownInfo1.getTo())
+							&& !exactConverterExists_i(unknownInfo2.getFrom(), unknownInfo1.getTo())
 					) {
 						ConverterInfo<M, T> info1 = (ConverterInfo<M, T>) unknownInfo1;
 						ConverterInfo<F, M> info2 = (ConverterInfo<F, M>) unknownInfo2;
@@ -164,9 +164,9 @@ public final class Converters {
 	 * Internal method. All calling locations are expected to manually synchronize this method if necessary.
 	 * @return Whether a Converter exists that EXACTLY matches the provided types.
 	 */
-	private static boolean exactConverterExists(Class<?> from, Class<?> to) {
+	private static boolean exactConverterExists_i(Class<?> fromType, Class<?> toType) {
 		for (ConverterInfo<?, ?> info : CONVERTERS) {
-			if (from == info.getFrom() && to == info.getTo()) {
+			if (fromType == info.getFrom() && toType == info.getTo()) {
 				return true;
 			}
 		}
@@ -174,18 +174,39 @@ public final class Converters {
 	}
 
 	/**
-	 * @return Whether a Converter capable of converting 'fromType' to 'toType' exists.
+	 * A method for determining whether a direct Converter of <code>fromType</code> to <code>toType</code> exists.
+	 * Unlike other methods of this class, it is not the case that
+	 *  {@link Skript#isAcceptRegistrations()} must return <code>false</code> for this method to be used.
+	 * @param fromType The type to convert from.
+	 * @param toType The type to convert to.
+	 * @return Whether a direct Converter of <code>fromType</code> to <code>toType</code> exists.
+	 */
+	public static boolean exactConverterExists(Class<?> fromType, Class<?> toType) {
+		synchronized (CONVERTERS) {
+			return exactConverterExists_i(fromType, toType);
+		}
+	}
+
+	/**
+	 * A method for determining whether a Converter of <code>fromType</code> to <code>toType</code> exists.
+	 * @param fromType The type to convert from.
+	 * @param toType The type to convert to.
+	 * @return Whether a Converter of <code>fromType</code> to <code>toType</code> exists.
 	 */
 	public static boolean converterExists(Class<?> fromType, Class<?> toType) {
 		assertIsDoneLoading();
-		if (toType.isAssignableFrom(fromType) || fromType.isAssignableFrom(toType)) {
+		if (toType.isAssignableFrom(fromType)) { // no converter needed
 			return true;
 		}
 		return getConverter(fromType, toType) != null;
 	}
 
 	/**
-	 * @return Whether a Converter capable of converting 'fromType' to one of the provided 'toTypes' exists.
+	 * A method for determining whether a direct Converter of <code>fromType</code> to
+	 *  one of the provided <code>toTypes</code> exists.
+	 * @param fromType The type to convert from.
+	 * @param toTypes The types to attempt converting to.
+	 * @return Whether a Converter of <code>fromType</code> to one of the provided <code>toTypes</code> exists.
 	 */
 	public static boolean converterExists(Class<?> fromType, Class<?>... toTypes) {
 		assertIsDoneLoading();
