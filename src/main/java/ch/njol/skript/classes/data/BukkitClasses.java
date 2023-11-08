@@ -61,6 +61,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
@@ -152,7 +153,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -284,73 +285,72 @@ public class BukkitClasses {
 				}));
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
-			.user("block ?datas?")
-			.name("Block Data")
-			.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
-				"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
-				"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
-				"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
-				"The 'minecraft:' namespace is optional, as well as are underscores.")
-			.examples("set block at player to campfire[lit=false]",
-				"set target block of player to oak stairs[facing=north;waterlogged=true]",
-				"set block at player to grass_block[snowy=true]",
-				"set loop-block to minecraft:chest[facing=north]",
-				"set block above player to oak_log[axis=y]",
-				"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
-			.after("itemtype")
-			.requiredPlugins("Minecraft 1.13+")
-			.since("2.5")
-			.parser(new Parser<BlockData>() {
-				@Nullable
-				@Override
-				public BlockData parse(String s, ParseContext context) {
-					return BlockUtils.createBlockData(s);
-				}
-
-				@Override
-				public String toString(BlockData o, int flags) {
-					return o.getAsString().replace(",", ";");
-				}
-
-				@Override
-				public String toVariableNameString(BlockData o) {
-					return "blockdata:" + o.getAsString();
-				}
-			})
-			.serializer(new Serializer<BlockData>() {
-				@Override
-				public Fields serialize(BlockData o) {
-					Fields f = new Fields();
-					f.putObject("blockdata", o.getAsString());
-					return f;
-				}
-
-				@Override
-				public void deserialize(BlockData o, Fields f) {
-					assert false;
-				}
-
-				@Override
-				protected BlockData deserialize(Fields f) throws StreamCorruptedException {
-					String data = f.getObject("blockdata", String.class);
-					assert data != null;
-					try {
-						return Bukkit.createBlockData(data);
-					} catch (IllegalArgumentException ex) {
-						throw new StreamCorruptedException("Invalid block data: " + data);
+				.user("block ?datas?")
+				.name("Block Data")
+				.description("Block data is the detailed information about a block, referred to in Minecraft as BlockStates, " +
+						"allowing for the manipulation of different aspects of the block, including shape, waterlogging, direction the block is facing, " +
+						"and so much more. Information regarding each block's optional data can be found on Minecraft's Wiki. Find the block you're " +
+						"looking for and scroll down to 'Block States'. Different states must be separated by a semicolon (see examples). " +
+						"The 'minecraft:' namespace is optional, as well as are underscores.")
+				.examples("set block at player to campfire[lit=false]",
+						"set target block of player to oak stairs[facing=north;waterlogged=true]",
+						"set block at player to grass_block[snowy=true]",
+						"set loop-block to minecraft:chest[facing=north]",
+						"set block above player to oak_log[axis=y]",
+						"set target block of player to minecraft:oak_leaves[distance=2;persistent=false]")
+				.after("itemtype")
+				.since("2.5")
+				.parser(new Parser<BlockData>() {
+					@Nullable
+					@Override
+					public BlockData parse(String input, ParseContext context) {
+						return BlockUtils.createBlockData(input);
 					}
-				}
-
-				@Override
-				public boolean mustSyncDeserialization() {
-					return true;
-				}
-
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
+	
+					@Override
+					public String toString(BlockData o, int flags) {
+						return o.getAsString().replace(",", ";");
+					}
+	
+					@Override
+					public String toVariableNameString(BlockData o) {
+						return "blockdata:" + o.getAsString();
+					}
+				})
+				.serializer(new Serializer<BlockData>() {
+					@Override
+					public Fields serialize(BlockData o) {
+						Fields f = new Fields();
+						f.putObject("blockdata", o.getAsString());
+						return f;
+					}
+	
+					@Override
+					public void deserialize(BlockData o, Fields f) {
+						assert false;
+					}
+	
+					@Override
+					protected BlockData deserialize(Fields f) throws StreamCorruptedException {
+						String data = f.getObject("blockdata", String.class);
+						assert data != null;
+						try {
+							return Bukkit.createBlockData(data);
+						} catch (IllegalArgumentException ex) {
+							throw new StreamCorruptedException("Invalid block data: " + data);
+						}
+					}
+	
+					@Override
+					public boolean mustSyncDeserialization() {
+						return true;
+					}
+	
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
@@ -536,7 +536,7 @@ public class BukkitClasses {
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
 						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.CONFIG)
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
 							return Bukkit.getWorld(s);
 						final Matcher m = parsePattern.matcher(s);
 						if (m.matches())
@@ -673,7 +673,7 @@ public class BukkitClasses {
 					@Override
 					@Nullable
 					public Player parse(String s, ParseContext context) {
-						if (context == ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (s.isEmpty())
 								return null;
 							if (UUID_PATTERN.matcher(s).matches())
@@ -693,7 +693,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -733,7 +733,7 @@ public class BukkitClasses {
 					@Nullable
 					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
 							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
@@ -746,7 +746,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -1508,8 +1508,17 @@ public class BukkitClasses {
 			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
-					.description("Represents a quit reason from a player quit server event.")
+					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
 					.requiredPlugins("Paper 1.16.5+")
 					.since("INSERT VERSION"));
+
+		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
+			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
+					.user("inventory ?close ?reasons?")
+					.name("Inventory Close Reasons")
+					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
+					.requiredPlugins("Paper")
+					.since("INSERT VERSION"));
 	}
+
 }

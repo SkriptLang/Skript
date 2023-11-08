@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.attribute.Attribute;
-
-import java.util.stream.Stream;
-
-import org.bukkit.attribute.Attributable;
-import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -40,21 +30,34 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.attribute.Attributable;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Name("Entity Attribute")
-@Description({"The numerical value of an entity's particular attribute.",
-			 "Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
-			 "Resetting an entity's attribute is only available in Minecraft 1.11 and above."})
-@Examples({"on damage of player:",
-		"	send \"You are wounded!\"",
-		"	set victim's attack speed attribute to 2"})
+@Description({
+	"The numerical value of an entity's particular attribute.",
+	"Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
+	"Resetting an entity's attribute is only available in Minecraft 1.11 and above."
+})
+@Examples({
+	"on damage of player:",
+		"\tsend \"You are wounded!\" to victim",
+		"\tset victim's attack speed attribute to 2"
+})
 @Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
 		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"[the] %attributetype% [(1¦(total|final|modified))] attribute [value] of %entities%",
-				"%entities%'[s] %attributetype% [(1¦(total|final|modified))] attribute [value]");
+				"[the] %attributetype% [(1:(total|final|modified))] attribute [value] of %entities%",
+				"%entities%'[s] %attributetype% [(1:(total|final|modified))] attribute [value]");
 	}
 
 	@Nullable
@@ -72,10 +75,11 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Number[] get(Event e, Entity[] entities) {
-		Attribute a = attributes.getSingle(e);
+	protected Number[] get(Event event, Entity[] entities) {
+		Attribute attribute = attributes.getSingle(event);
 		return Stream.of(entities)
-		    .map(ent -> getAttribute(ent, a))
+		    .map(ent -> getAttribute(ent, attribute))
+			.filter(Objects::nonNull)
 		    .map(att -> withModifiers ? att.getValue() : att.getBaseValue())
 		    .toArray(Number[]::new);
 	}
@@ -90,27 +94,27 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		Attribute a = attributes.getSingle(e);
-		double d = delta == null ? 0 : ((Number) delta[0]).doubleValue();
-		for (Entity entity : getExpr().getArray(e)) {
-			AttributeInstance ai = getAttribute(entity, a);
-			if(ai != null) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		Attribute attribute = attributes.getSingle(event);
+		double deltaValue = delta == null ? 0 : ((Number) delta[0]).doubleValue();
+		for (Entity entity : getExpr().getArray(event)) {
+			AttributeInstance instance = getAttribute(entity, attribute);
+			if (instance != null) {
 				switch(mode) {
 					case ADD:
-						ai.setBaseValue(ai.getBaseValue() + d);
+						instance.setBaseValue(instance.getBaseValue() + deltaValue);
 						break;
 					case SET:
-						ai.setBaseValue(d);
+						instance.setBaseValue(deltaValue);
 						break;
 					case DELETE:
-						ai.setBaseValue(0);
+						instance.setBaseValue(0);
 						break;
 					case RESET:
-						ai.setBaseValue(ai.getDefaultValue());
+						instance.setBaseValue(instance.getDefaultValue());
 						break;
 					case REMOVE:
-						ai.setBaseValue(ai.getBaseValue() - d);
+						instance.setBaseValue(instance.getBaseValue() - deltaValue);
 						break;
 					case REMOVE_ALL:
 						assert false;
@@ -126,14 +130,14 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		return "entity " + getExpr().toString(e, debug) + "'s " + (attributes == null ? "" : attributes.toString(e, debug)) + "attribute";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "entity " + getExpr().toString(event, debug) + "'s " + (attributes == null ? "" : attributes.toString(event, debug)) + "attribute";
 	}
 	
 	@Nullable
-	private static AttributeInstance getAttribute(Entity e, @Nullable Attribute a) {
-	    if (a != null && e instanceof Attributable) {
-	        return ((Attributable) e).getAttribute(a);
+	private static AttributeInstance getAttribute(Entity entity, @Nullable Attribute attribute) {
+	    if (attribute != null && entity instanceof Attributable) {
+	        return ((Attributable) entity).getAttribute(attribute);
 	    }
 	   return null;
 	}

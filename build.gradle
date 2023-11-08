@@ -40,7 +40,7 @@ dependencies {
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.1.0'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.2.0'
 }
 
 task checkAliases {
@@ -149,16 +149,8 @@ license {
 	exclude('**/*.json') // JSON files do not have headers
 }
 
-javadoc {
-	source = sourceSets.main.allJava
-	classpath = configurations.compileClasspath
-	options.encoding = 'UTF-8'
-	// currently our javadoc has a lot of errors, so we need to suppress the linter
-	options.addStringOption('Xdoclint:none', '-quiet')
-}
-
 task releaseJavadoc(type: Javadoc) {
-	title = project.property('version')
+	title = project.name + ' ' + project.property('version')
 	source = sourceSets.main.allJava
 	classpath = configurations.compileClasspath
 	options.encoding = 'UTF-8'
@@ -194,7 +186,10 @@ enum Modifiers {
 }
 
 // Create a test task with given name, environments dir/file, dev mode and java version.
-void createTestTask(String name, String desc, String environments, int javaVersion, Modifiers... modifiers) {
+// -1 on the timeout means it'll be disabled.
+void createTestTask(String name, String desc, String environments, int javaVersion, long timeout, Modifiers... modifiers) {
+	if (timeout == 0)
+		timeout = 300000 // 5 minutes
 	boolean junit = modifiers.contains(Modifiers.JUNIT)
 	boolean releaseDocs = modifiers.contains(Modifiers.GEN_RELEASE_DOCS)
 	boolean docs = modifiers.contains(Modifiers.GEN_NIGHTLY_DOCS) || releaseDocs
@@ -238,7 +233,8 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			docs,
 			junit,
 			modifiers.contains(Modifiers.DEBUG),
-			project.findProperty('verbosity') ?: "null"
+			project.findProperty('verbosity') ?: "null",
+			timeout
 		]
 
 		// Do first is used when throwing exceptions.
@@ -273,21 +269,21 @@ compileTestJava.options.encoding = 'UTF-8'
 String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
-createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava)
-createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', latestJava)
-createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', environments + 'java8', oldestJava)
-createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, Modifiers.DEV_MODE, Modifiers.DEBUG)
-createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, Modifiers.PROFILE)
-createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, Modifiers.GEN_NIGHTLY_DOCS)
-createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, Modifiers.GEN_RELEASE_DOCS)
+createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
+createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', latestJava, 0)
+createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', environments + 'java8', oldestJava, 0)
+createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
+createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, -1, Modifiers.PROFILE)
+createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
+createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
 	dependsOn skriptTestJava8, skriptTestJava17
 }
 
-createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, Modifiers.JUNIT)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', latestJava, Modifiers.JUNIT)
-createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', environments + 'java8', oldestJava, Modifiers.JUNIT)
+createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', latestJava, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', environments + 'java8', oldestJava, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava8, JUnitJava17
@@ -394,3 +390,26 @@ task nightlyRelease(type: ShadowJar) {
 		)
 	}
 }
+
+javadoc {
+	dependsOn nightlyResources
+	
+	source = sourceSets.main.allJava
+
+	exclude("ch/njol/skript/conditions/**")
+	exclude("ch/njol/skript/expressions/**")
+	exclude("ch/njol/skript/effects/**")
+	exclude("ch/njol/skript/events/**")
+	exclude("ch/njol/skript/sections/**")
+	exclude("ch/njol/skript/structures/**")
+	exclude("ch/njol/skript/lang/function/EffFunctionCall.java")
+	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
+	exclude("ch/njol/skript/hooks/**")
+	exclude("ch/njol/skript/test/**")
+	
+	classpath = configurations.compileClasspath + sourceSets.main.output
+	options.encoding = 'UTF-8'
+	// currently our javadoc has a lot of errors, so we need to suppress the linter
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+

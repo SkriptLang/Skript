@@ -32,6 +32,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -75,20 +76,16 @@ public class StructOptions extends Structure {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
-
-		OptionsData optionsData = new OptionsData();
-		loadOptions(node, "", optionsData.options);
-		getParser().getCurrentScript().addData(optionsData);
-
+		loadOptions(node, "", getParser().getCurrentScript().getData(OptionsData.class, OptionsData::new).options);
 		return true;
 	}
 
 	private void loadOptions(SectionNode sectionNode, String prefix, Map<String, String> options) {
-		for (Node n : sectionNode) {
-			if (n instanceof EntryNode) {
-				options.put(prefix + n.getKey(), ((EntryNode) n).getValue());
-			} else if (n instanceof SectionNode) {
-				loadOptions((SectionNode) n, prefix + n.getKey() + ".", options);
+		for (Node node : sectionNode) {
+			if (node instanceof EntryNode) {
+				options.put(prefix + node.getKey(), ((EntryNode) node).getValue());
+			} else if (node instanceof SectionNode) {
+				loadOptions((SectionNode) node, prefix + node.getKey() + ".", options);
 			} else {
 				Skript.error("Invalid line in options");
 			}
@@ -111,7 +108,7 @@ public class StructOptions extends Structure {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "options";
 	}
 

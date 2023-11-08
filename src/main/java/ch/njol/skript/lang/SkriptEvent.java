@@ -217,6 +217,13 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
+	 * Override this method to allow Skript to not force synchronization.
+	 */
+	public boolean canExecuteAsynchronously() {
+		return false;
+	}
+
+	/**
 	 * Fixes patterns in event by modifying every {@link ch.njol.skript.patterns.TypePatternElement}
 	 * to be nullable.
 	 */
