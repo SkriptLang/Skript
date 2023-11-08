@@ -215,7 +215,7 @@ public final class Comparators {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new InverseComparator<>((Comparator<T2, T1>) info.comparator)
+					new InverseComparator<>((ComparatorInfo<T2, T1>) info)
 				);
 			}
 		}
@@ -284,7 +284,7 @@ public final class Comparators {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(sc1, info, null))
+						new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(sc1, info, null)))
 					);
 				}
 			}
@@ -295,7 +295,7 @@ public final class Comparators {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(null, info, fc2))
+						new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(null, info, fc2)))
 					);
 				}
 			}
@@ -332,7 +332,7 @@ public final class Comparators {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new InverseComparator<>(new ConvertedComparator<>(c2, info, c1))
+					new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(c2, info, c1)))
 				);
 			}
 
