@@ -66,30 +66,30 @@ public final class Converters {
 
 	/**
 	 * Registers a new Converter with Skript's collection of Converters.
-	 * @param from The type to convert from.
-	 * @param to The type to convert to.
-	 * @param converter A Converter for converting objects of type 'from' to type 'to'.
+	 * @param fromType The type to convert from.
+	 * @param toType The type to convert to.
+	 * @param converter A Converter for converting objects of <code>fromType</code> to <code>toType</code>.
 	 */
-	public static <F, T> void registerConverter(Class<F> from, Class<T> to, Converter<F, T> converter) {
-		registerConverter(from, to, converter, Converter.ALL_CHAINING);
+	public static <F, T> void registerConverter(Class<F> fromType, Class<T> toType, Converter<F, T> converter) {
+		registerConverter(fromType, toType, converter, Converter.ALL_CHAINING);
 	}
 
 	/**
 	 * Registers a new Converter with Skript's collection of Converters.
-	 * @param from The type to convert from.
-	 * @param to The type to convert to.
-	 * @param converter A Converter for converting objects of type 'from' to type 'to'.
+	 * @param fromType The type to convert from.
+	 * @param toType The type to convert to.
+	 * @param converter A Converter for converting objects of <code>fromType</code> to <code>toType</code>.
 	 * @param flags Flags to set for the Converter. Flags can be found under {@link Converter}.
 	 */
-	public static <F, T> void registerConverter(Class<F> from, Class<T> to, Converter<F, T> converter, int flags) {
+	public static <F, T> void registerConverter(Class<F> fromType, Class<T> toType, Converter<F, T> converter, int flags) {
 		Skript.checkAcceptRegistrations();
 
-		ConverterInfo<F, T> info = new ConverterInfo<>(from, to, converter, flags);
+		ConverterInfo<F, T> info = new ConverterInfo<>(fromType, toType, converter, flags);
 
 		synchronized (CONVERTERS) {
-			if (exactConverterExists_i(from, to)) {
+			if (exactConverterExists_i(fromType, toType)) {
 				throw new SkriptAPIException(
-						"A Converter from '" + from + "' to '" + to + "' already exists!"
+						"A Converter from '" + fromType + "' to '" + toType + "' already exists!"
 				);
 			}
 			CONVERTERS.add(info);
@@ -219,10 +219,10 @@ public final class Converters {
 	}
 
 	/**
-	 * A method for obtaining a Converter that can convert an object of 'fromType' into an object of 'toType'.
+	 * A method for obtaining a Converter that can convert an object of <code>fromType</code> into an object of <code>toType</code>.
 	 * @param fromType The type to convert from.
 	 * @param toType The type to convert to.
-	 * @return A Converter capable of converting an object of 'fromType' into an object of 'toType'.
+	 * @return A Converter capable of converting an object of <code>fromType</code> into an object of <code>toType</code>.
 	 * Will return null if no such Converter exists.
 	 */
 	@Nullable
@@ -233,10 +233,10 @@ public final class Converters {
 
 	/**
 	 * A method for obtaining the ConverterInfo of a Converter that can convert
-	 *  an object of 'fromType' into an object of 'toType'.
+	 *  an object of <code>fromType</code> into an object of <code>toType</code>.
 	 * @param fromType The type to convert from.
 	 * @param toType The type to convert to.
-	 * @return The ConverterInfo of a Converter capable of converting an object of 'fromType' into an object of 'toType'.
+	 * @return The ConverterInfo of a Converter capable of converting an object of <code>fromType</code> into an object of <code>toType</code>.
 	 * Will return null if no such Converter exists.
 	 */
 	@Nullable
@@ -261,18 +261,18 @@ public final class Converters {
 
 	/**
 	 * The internal method for obtaining the ConverterInfo of a Converter that can convert
-	 *  an object of 'fromType' into an object of 'toType'.
+	 *  an object of <code>fromType</code> into an object of <code>toType</code>.
 	 *
 	 * @param fromType The type to convert from.
 	 * @param toType The type to convert to.
-	 * @return The ConverterInfo of a Converter capable of converting an object of 'fromType' into an object of 'toType'.
+	 * @return The ConverterInfo of a Converter capable of converting an object of <code>fromType</code> into an object of <code>toType</code>.
 	 * Will return null if no such Converter exists.
 	 *
 	 * @param <F> The type to convert from.
 	 * @param <T> The type to convert to.
-	 * @param <SubType> The 'fromType' for a Converter that may only convert certain objects of 'fromType'
-	 * @param <ParentType> The 'toType' for a Converter that may only sometimes convert objects of 'fromType'
-	 * into objects of 'toType' (e.g. the converted object may only share a parent with 'toType')
+	 * @param <SubType> The <code>fromType</code> for a Converter that may only convert certain objects of <code>fromType</code>
+	 * @param <ParentType> The <code>toType</code> for a Converter that may only sometimes convert objects of <code>fromType</code>
+	 * into objects of <code>toType</code> (e.g. the converted object may only share a parent with <code>toType</code>)
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -362,8 +362,8 @@ public final class Converters {
 	/**
 	 * Standard method for converting an object into a different type.
 	 * @param from The object to convert.
-	 * @param toType The type that 'from' should be converted into.
-	 * @return An object of 'toType', or null if 'from' couldn't be successfully converted.
+	 * @param toType The type that <code>from</code> should be converted into.
+	 * @return An object of <code>toType</code>, or null if <code>from</code> couldn't be successfully converted.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -388,8 +388,8 @@ public final class Converters {
 	/**
 	 * A method for converting an object into one of several provided types.
 	 * @param from The object to convert.
-	 * @param toTypes A list of types that should be tried for converting 'from'.
-	 * @return An object of one of the provided 'toTypes', or null if 'from' couldn't successfully be converted.
+	 * @param toTypes A list of types that should be tried for converting <code>from</code>.
+	 * @return An object of one of the provided <code>toTypes</code>, or null if <code>from</code> couldn't successfully be converted.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -419,10 +419,10 @@ public final class Converters {
 	/**
 	 * Standard method for bulk-conversion of objects into a different type.
 	 * @param from The objects to convert.
-	 * @param toType The type that 'from' should be converted into.
-	 * @return Objects of 'toType'. Will return null if 'from' is null.
-	 * Please note that the returned array may not be the same size as 'from'.
-	 * This can happen if an object contained within 'from' is not successfully converted.
+	 * @param toType The type that <code>from</code> should be converted into.
+	 * @return Objects of <code>toType</code>. Will return null if <code>from</code> is null.
+	 * Please note that the returned array may not be the same size as <code>from</code>.
+	 * This can happen if an object contained within <code>from</code> is not successfully converted.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <To> To[] convert(Object @Nullable [] from, Class<To> toType) {
@@ -450,10 +450,10 @@ public final class Converters {
 	 * A method for bulk-conversion of objects into one of several provided types.
 	 * @param from The objects to convert.
 	 * @param toTypes A list of types that should be tried for converting each object.
-	 * @param superType A parent type of all provided 'toTypes'.
-	 * @return Objects of 'superType'. Will return any empty array if 'from' is null.
-	 * Please note that the returned array may not be the same size as 'from'.
-	 * This can happen if an object contained within 'from' is not successfully converted.
+	 * @param superType A parent type of all provided <code>toTypes</code>.
+	 * @return Objects of <code>superType</code>. Will return any empty array if <code>from</code> is null.
+	 * Please note that the returned array may not be the same size as <code>from</code>.
+	 * This can happen if an object contained within <code>from</code> is not successfully converted.
 	 * And, of course, the returned array may contain objects of a different type.
 	 */
 	@SuppressWarnings("unchecked")
@@ -487,9 +487,9 @@ public final class Converters {
 	 * @param from The objects to convert.
 	 * @param toType The type to convert into.
 	 * @param converter The converter to use for conversion.
-	 * @return Objects of 'toType'.
-	 * Please note that the returned array may not be the same size as 'from'.
-	 * This can happen if an object contained within 'from' is not successfully converted.
+	 * @return Objects of <code>toType</code>.
+	 * Please note that the returned array may not be the same size as <code>from</code>.
+	 * This can happen if an object contained within <code>from</code> is not successfully converted.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <From, To> To[] convert(From[] from, Class<To> toType, Converter<? super From, ? extends To> converter) {
@@ -512,11 +512,11 @@ public final class Converters {
 	}
 
 	/**
-	 * A method that guarantees an object of 'toType' is returned.
+	 * A method that guarantees an object of <code>toType</code> is returned.
 	 * @param from The object to convert.
 	 * @param toType The type to convert into.
-	 * @return An object of 'toType'.
-	 * @throws ClassCastException If 'from' cannot be converted.
+	 * @return An object of <code>toType</code>.
+	 * @throws ClassCastException If <code>from</code> cannot be converted.
 	 */
 	public static <To> To convertStrictly(Object from, Class<To> toType) {
 		To converted = convert(from, toType);
@@ -527,10 +527,10 @@ public final class Converters {
 	}
 
 	/**
-	 * A method for bulk-conversion that guarantees objects of 'toType' are returned.
+	 * A method for bulk-conversion that guarantees objects of <code>toType</code> are returned.
 	 * @param from The object to convert.
 	 * @param toType The type to convert into.
-	 * @return Objects of 'toType'. The returned array will be the same size as 'from'.
+	 * @return Objects of <code>toType</code>. The returned array will be the same size as <code>from</code>.
 	 * @throws ClassCastException If any of the provided objects cannot be converted.
 	 */
 	@SuppressWarnings("unchecked")
@@ -554,11 +554,11 @@ public final class Converters {
 	 * @param from The objects to convert.
 	 * @param toType A superclass for all objects to be converted.
 	 * @param converter The converter to use for conversion.
-	 * @return Objects of 'toType'.
-	 * Please note that the returned array may not be the same size as 'from'.
-	 * This can happen if an object contained within 'from' is not successfully converted.
-	 * @throws ArrayStoreException If 'toType' is not a superclass of all objects returned by the converter.
-	 * @throws ClassCastException If 'toType' is not of 'T'.
+	 * @return Objects of <code>toType</code>.
+	 * Please note that the returned array may not be the same size as <code>from</code>.
+	 * This can happen if an object contained within <code>from</code> is not successfully converted.
+	 * @throws ArrayStoreException If <code>toType</code> is not a superclass of all objects returned by the converter.
+	 * @throws ClassCastException If <code>toType</code> is not of <code>To</code>.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <From, To> To[] convertUnsafe(From[] from, Class<?> toType, Converter<? super From, ? extends To> converter) {

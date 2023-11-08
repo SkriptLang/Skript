@@ -81,7 +81,7 @@ public final class Comparators {
 	 * Registers a new Comparator with Skript's collection of Comparators.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @param comparator A Comparator for comparing objects of 'firstType' and 'secondType'.
+	 * @param comparator A Comparator for comparing objects of <code>firstType</code> and <code>secondType</code>.
 	 */
 	public static <T1, T2> void registerComparator(
 		Class<T1> firstType,
@@ -173,12 +173,12 @@ public final class Comparators {
 	}
 
 	/**
-	 * A method for obtaining a Comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * A method for obtaining a Comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * Please note that comparators may convert objects if necessary for comparisons.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return A Comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no comparator capable of comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return A Comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no comparator capable of comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 */
 	@Nullable
 	public static <T1, T2> Comparator<T1, T2> getComparator(Class<T1> firstType, Class<T2> secondType) {
@@ -187,12 +187,12 @@ public final class Comparators {
 	}
 
 	/**
-	 * A method for obtaining the info of a Comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * A method for obtaining the info of a Comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * Please note that comparators may convert objects if necessary for comparisons.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return The info of a Comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no info for comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return The info of a Comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no info for comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -215,18 +215,18 @@ public final class Comparators {
 	}
 
 	/**
-	 * The internal method for obtaining a comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * The internal method for obtaining a comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * This method handles regular {@link Comparator}s, {@link ConvertedComparator}s, and {@link InverseComparator}s.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return The info of the comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no comparator capable of comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return The info of the comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no comparator capable of comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 * @param <T1> The first type for comparison.
 	 * @param <T2> The second type for comparison.
 	 * @param <C1> The first type for any {@link ComparatorInfo}.
-	 * This is also used in organizing the conversion process of arguments (ex: 'T1' to 'C1' converter).
+	 * This is also used in organizing the conversion process of arguments (ex: <code>T1</code> to <code>C1</code> converter).
 	 * @param <C2> The second type for any {@link ComparatorInfo}.
-	 * This is also used in organizing the conversion process of arguments (ex: 'T2' to 'C2' converter).
+	 * This is also used in organizing the conversion process of arguments (ex: <code>T2</code> to <code>C2</code> converter).
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
