@@ -24,6 +24,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Color;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
@@ -623,6 +624,19 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(World world, WeatherType weatherType) {
 				return Relation.get(WeatherType.fromWorld(world) == weatherType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// Color - Color
+		Comparators.registerComparator(Color.class, Color.class, new Comparator<Color, Color>() {
+			@Override
+			public Relation compare(Color color1, Color color2) {
+				return Relation.get(color1.getName().equals(color2.getName()));
 			}
 
 			@Override
