@@ -14,3 +14,11 @@ test "location from vector":
 	assert the x coordinate of {_location} is 0 with "vector to location x failed"
 	assert the y coordinate of {_location} is -5 with "vector to location y failed"
 	assert the z coordinate of {_location} is 43.5 with "vector to location z failed"
+
+	set {_location} to location vector(0, 0, 0) in {_world} with yaw 25 and pitch -90
+	assert the yaw of {_location} is 25 with "vector to location yaw failed"
+	assert the pitch of {_location} is -90 with "vector to location pitch failed"
+
+	set {_location} to location vector(0, 0, 0) in {_world} with yaw 25 and pitch {_null}
+	assert the yaw of {_location} is 25 with "vector to location absent yaw failed"
+	assert the pitch of {_location} is 0 with "vector to location absent pitch failed"
