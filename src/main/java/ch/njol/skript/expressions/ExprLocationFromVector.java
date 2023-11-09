@@ -62,16 +62,16 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 
 	@SuppressWarnings("null")
 	private @Nullable Expression<Number> yaw, pitch;
-	private boolean yawpitch;
+	private boolean hasDirection;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (exprs.length > 3)
-			yawpitch = true;
+			hasDirection = true;
 		vector = (Expression<Vector>) exprs[0];
 		world = (Expression<World>) exprs[1];
-		if (yawpitch) {
+		if (hasDirection) {
 			yaw = (Expression<Number>) exprs[2];
 			pitch = (Expression<Number>) exprs[3];
 		}
@@ -83,15 +83,18 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 	protected Location[] get(Event event) {
 		Vector vector = this.vector.getSingle(event);
 		World world = this.world.getSingle(event);
-		Number yaw = this.yaw != null ? this.yaw.getSingle(event) : null;
-		Number pitch = this.pitch != null ? this.pitch.getSingle(event) : null;
 		if (vector == null || world == null)
 			return null;
-		if (yaw == null || pitch == null) {
-			return CollectionUtils.array(vector.toLocation(world));
-		} else {
-			return CollectionUtils.array(vector.toLocation(world, yaw.floatValue(), pitch.floatValue()));
+		direction:
+		if (hasDirection) {
+			assert yaw != null && pitch != null;
+			Number yaw = this.yaw.getSingle(event);
+			Number pitch = this.pitch.getSingle(event);
+			if (yaw == null && pitch == null)
+				break direction;
+			return CollectionUtils.array(vector.toLocation(world, yaw == null ? 0 : yaw.floatValue(), pitch == null ? 0 : pitch.floatValue()));
 		}
+		return CollectionUtils.array(vector.toLocation(world));
 	}
 
 	@Override
@@ -106,7 +109,7 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (yawpitch)
+		if (hasDirection)
 			return "location of " + vector.toString(event, debug) + " in " + world.toString(event, debug) + " with yaw " + yaw.toString(event, debug) + " and pitch " + pitch.toString(event, debug);
 		return "location of " + vector.toString(event, debug) + " in " + world.toString(event, debug);
 	}
