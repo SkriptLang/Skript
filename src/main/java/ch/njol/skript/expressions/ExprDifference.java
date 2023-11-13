@@ -67,15 +67,15 @@ public class ExprDifference extends SimpleExpression<Object> {
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		first = exprs[0];
 		second = exprs[1];
-		final Class<?> c;
+		final Class<?> returnType;
 		if (first instanceof Variable && second instanceof Variable) {
-			c = Object.class;
+			returnType = Object.class;
 		} else if (first instanceof Literal<?> && second instanceof Literal<?>) {
 			first = first.getConvertedExpression(Object.class);
 			second = second.getConvertedExpression(Object.class);
 			if (first == null || second == null)
 				return false;
-			c = Utils.getSuperType(first.getReturnType(), second.getReturnType());
+			returnType = Utils.getSuperType(first.getReturnType(), second.getReturnType());
 		} else {
 			if (first instanceof Literal<?>) {
 				first = first.getConvertedExpression(second.getReturnType());
@@ -92,19 +92,19 @@ public class ExprDifference extends SimpleExpression<Object> {
 				second = second.getConvertedExpression(first.getReturnType());
 			}
 			assert first != null && second != null;
-			c = Utils.getSuperType(first.getReturnType(), second.getReturnType());
+			returnType = Utils.getSuperType(first.getReturnType(), second.getReturnType());
 		}
-		assert c != null;
+		assert returnType != null;
 
-		if (!c.equals(Object.class) && (differenceInfo = Arithmetics.getDifferenceInfo(c)) == null) {
+		if (!returnType.equals(Object.class) && (differenceInfo = Arithmetics.getDifferenceInfo(returnType)) == null) {
 			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second), ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
-		if (c.equals(Object.class)) {
+		if (returnType.equals(Object.class)) {
 			// Initialize less stuff, basically
-			returnType = Object.class; // Return type would be null which the parser doesn't like
+			this.returnType = Object.class; // Return type would be null, which the parser doesn't like
 		} else {
-			returnType = differenceInfo.getReturnType();
+			this.returnType = differenceInfo.getReturnType();
 		}
 		return true;
 	}
@@ -120,8 +120,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 		
 		// If we're comparing object expressions, such as variables, difference info is null right now
 		if (returnType.equals(Object.class)) {
-			Class<?> c = Utils.getSuperType(first.getClass(), second.getClass());
-			differenceInfo = Arithmetics.getDifferenceInfo(c);
+			Class<?> returnType = Utils.getSuperType(first.getClass(), second.getClass());
+			differenceInfo = Arithmetics.getDifferenceInfo(returnType);
 			if (differenceInfo == null) { // User did something stupid, just return <none> for them
 				return one;
 			}

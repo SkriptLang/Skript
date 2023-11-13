@@ -69,20 +69,8 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (leftClass == Object.class && rightClass == Object.class)
 			return null;
 
-		if (operationInfo == null && leftClass != Object.class && rightClass != Object.class) {
-			operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, leftClass, rightClass);
-			if (operationInfo == null)
-				return null;
-		}
-
-		if (operationInfo != null)
-			return calculate(getOrDefault(leftClass, left), getOrDefault(rightClass, right));
-
-		if (rightClass == Object.class) {
-			operationInfo = (OperationInfo<L, R, T>) lookupOperationInfo(leftClass, OperationInfo::getLeft);
-		} else {
-			operationInfo = (OperationInfo<L, R, T>) lookupOperationInfo(rightClass, OperationInfo::getRight);
-		}
+		if (operationInfo == null)
+			operationInfo = lookupOperationInfo(leftClass, rightClass);
 
 		if (operationInfo == null)
 			return null;
@@ -110,6 +98,21 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 	private <D> D getOrDefault(Class<? extends D> type, @Nullable D value) {
 		return value != null ? value : Arithmetics.getDefaultValue(type);
+	}
+
+	@SuppressWarnings("unchecked")
+	private @Nullable OperationInfo<L, R, T> lookupOperationInfo(Class<? extends L> leftClass, Class<? extends R> rightClass) {
+		OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, leftClass, rightClass);
+		if (operationInfo != null)
+			return operationInfo;
+
+		if (leftClass != Object.class)
+			return (OperationInfo<L, R, T>) lookupOperationInfo(leftClass, OperationInfo::getLeft);
+
+		if (rightClass != Object.class)
+			return (OperationInfo<L, R, T>) lookupOperationInfo(rightClass, OperationInfo::getRight);
+
+		return null;
 	}
 
 	@Nullable
