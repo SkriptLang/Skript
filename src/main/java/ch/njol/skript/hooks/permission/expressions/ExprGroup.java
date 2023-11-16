@@ -39,6 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Name("Group")
 @Description("The primary group or all groups of a player. This expression requires Vault and a compatible permissions plugin to be installed.")
@@ -50,7 +51,7 @@ import java.util.List;
 public class ExprGroup extends SimpleExpression<String> {
 
 	static {
-		PropertyExpression.register(ExprGroup.class, String.class, "group[(1¦s)]", "offlineplayers");
+		PropertyExpression.register(ExprGroup.class, String.class, "group[plural:s]", "offlineplayers");
 	}
 
 	private boolean primary;
@@ -65,21 +66,25 @@ public class ExprGroup extends SimpleExpression<String> {
 			return false;
 		}
 		players = (Expression<OfflinePlayer>) exprs[0];
-		primary = parseResult.mark == 0;
+		primary = parseResult.hasTag("plural");
 		return true;
 	}
 
 	@SuppressWarnings("null")
 	@Override
-	protected String[] get(Event e) {
-		List<String> groups = new ArrayList<>();
-		for (OfflinePlayer player : players.getArray(e)) {
-			if (primary)
-				groups.add(VaultHook.permission.getPrimaryGroup(null, player));
-			else
-				Collections.addAll(groups, VaultHook.permission.getPlayerGroups(null, player));
-		}
-		return groups.toArray(new String[0]);
+	protected String[] get(Event event) {
+		OfflinePlayer[] players = this.players.getArray(event);
+		return CompletableFuture.supplyAsync(() -> { // #5692: LuckPerms errors for vault requests on main thread
+			List<String> groups = new ArrayList<>();
+			for (OfflinePlayer player : players) {
+				if (primary) {
+					groups.add(VaultHook.permission.getPrimaryGroup(null, player));
+				} else {
+					Collections.addAll(groups, VaultHook.permission.getPlayerGroups(null, player));
+				}
+			}
+			return groups.toArray(new String[0]);
+		}).join();
 	}
 
 	@Override
@@ -137,8 +142,8 @@ public class ExprGroup extends SimpleExpression<String> {
 
 	@SuppressWarnings("null")
 	@Override
-	public String toString(Event e, boolean debug) {
-		return "group" + (primary ? "" : "s") + " of " + players.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return "group" + (primary ? "" : "s") + " of " + players.toString(event, debug);
 	}
 
 }
