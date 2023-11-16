@@ -66,7 +66,7 @@ public class ExprGroup extends SimpleExpression<String> {
 			return false;
 		}
 		players = (Expression<OfflinePlayer>) exprs[0];
-		primary = parseResult.hasTag("plural");
+		primary = !parseResult.hasTag("plural");
 		return true;
 	}
 
