@@ -1,0 +1,188 @@
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <tanımsız>
+
+# -- Skript --
+skript:
+	copyright: ~ © Peter Güttinger yani Njol tarafından yapıldı ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Tırnak işaretlerinin (") geçersiz kullanımı. "Tırnak işareti içindeki metinde" tırnak işaretleri kullanmak istiyorsanız 2 tane kullanın: "".
+	brackets error: Geçersiz miktar veya parantez yerleşimi. Lütfen her açılan paranteze karşılık gelen bir kapatma parantezine sahip olduğundan emin olun.
+	invalid reload: Skript sadece Bukkit'in '/reload' veya Skript'in '/skript reload' komuduyla tekrar yüklenebilir.
+	no scripts: Hiçbir script bulunamadı, belki birkaç tane yazmalısın ;)
+	no errors: Tüm scriptler hatasız yüklendi.
+	scripts loaded: %s tane script toplam %s tane structure ile %s'de yüklendi.
+	finished loading: Yükleme tamamlandı.
+
+# -- Skript command --
+skript command:
+	usage: Kullanım:
+	help:
+		description: Skript'in ana komutu
+		help: Bu yardım mesajını gösterir. Daha fazla bilgi almak için '/skript reload/enable/disable/update' kullan
+		reload:
+			description: Belirli bir scripti, tüm scriptleri veya her şeyi tekrar yükler
+			all: Configi, tüm alias configlerini ve tüm scriptleri tekrar yükler
+			config: Ana configi tekrar yükler.
+			aliases: Alias configlerini tekrar yükler. (aliases-english.zip veya plugin jar)
+			scripts: Tüm scriptleri tekrar yükler
+			<script>: Belirli bir scripti veya bir klasörün içindeki tüm scriptleri tekrar yükler
+		enable:
+			description: Tüm scriptleri veya belirli birini aktif eder
+			all: Tüm scriptleri aktif eder
+			<script>: Belirli bir scripti veya bir klasörün içindeki tüm scriptleri tekrar yükler
+		disable:
+			description: Tüm scriptleri veya belirli bir scripti devre dışı bırakır
+			all: Tüm scriptleri devre dışı bırakır
+			<script>: Belirli bir scripti veya bir klasörün içindeki tüm scriptleri devre dışı bırakır
+		update:
+			description: Güncellemeleri denetle, değişikleri oku veya Skript'in en son versiyonunu indir
+			check: Yeni bir sürüm olup olmadığını kontrol eder
+			changes: Son versiyondaki tüm değişikleri listeler
+			download: En yeni versiyonunu indir
+		info: Skript'in alias ve dökümantasyon linkleri olan bir mesaj gönderir
+		gen-docs: Eklenti klasöründeki dokümanları/şablonları kullanarak dokümantasyon oluşturur
+		test: Skript'in dahili testleri için kullanılır
+
+	invalid script: <grey>'<gold>%s<grey>'<red> adlı script scripts klasöründe bulunamadı!
+  invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
+	reload:
+		warning line info: <gold><bold>Satır %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Satır %s:<gray> (%s)<reset>\n
+		reloading: <gold>%s<reset> tekrar yükleniyor...
+		reloaded: <gold>%s<lime> başarıyla tekrar yüklendi. <gray>(<gold>%2$sms<gray>)
+		error: <gold>%1$s <light red>adlı script yüklenirken <gold>%2$s <light red>tane hatayla karşılaşıldı! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> şu anda devre dışı. Aktif etmek için <gray>/<gold>skript <cyan>enable <red>%s<reset> kullan.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Satır: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: config, aliaslar ve tüm scriptler
+		scripts: tüm scriptler
+		main config: ana config
+		aliases: aliaslar
+		script: <gold>%s<reset>
+		scripts in folder: <gold>%s<reset> klasöründeki tüm scriptler
+		x scripts in folder: <gold>%1$s<reset> klasöründeki <gold>%2$s <lime>script
+		empty folder: <gold>%s<reset> aktif script içermiyor.
+	enable:
+		all:
+			enabling: Tüm scriptler aktif ediliyor...
+			enabled: Önceden devre dışı olan tüm scriptler başarıyla aktif edildi ve yüklendi.
+			error: Devre dışı scriptler yüklenirken %s tane hatayla karşılaşıldı!
+			io error: Bir veya daha fazla script yüklenemedi - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca aktif edilecektir: %s
+		single:
+			already enabled: <gold>%s<reset> zaten aktif! Değiştiyse tekrar yüklemek için <gray>/<gold>skript <cyan>reload <red>%s<reset> kullan.
+			enabling: <gold>%s<reset> aktif ediliyor...
+			enabled: <gold>%s<reset> başarıyla aktif edildi ve yüklendi.
+			error: <gold>%1$s<red> yüklenirken %2$s tane hatayla karşılaşıldı!
+			io error: <gold>%s<red> aktif edilemedi: %s
+		folder:
+			empty: <gold>%s<reset> devre dışı script içermiyor.
+			enabling: <gold>%1$s<reset> klasöründeki <gold>%2$s <reset>script aktif ediliyor...
+			enabled: <gold>%1$s<reset> klasöründeki önceden devre dışı olan <gold>%2$s<reset> başarıyla yüklendi ve aktifleştirildi.
+			error: <gold>%1$s<red> klasöründeki scriptler yüklenirken %2$s tane hatayla karşılaşıldı!
+			io error: <gold>%s<red> klasöründeki bir veya daha fazla script aktif edilirken hatayla karşılaşıldı. (bazı scriptler sunucu tekrar başlatılınca aktifleşebilir): %s
+	disable:
+		all:
+			disabled: Tüm scriptler devre dışı bırakıldı.
+			io error: Bir veya daha fazla script yeniden adlandırılamadı - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca devre dışı bırakılacaktır: %s
+		single:
+			already disabled: <gold>%s<reset> zaten devre dışı!
+			disabled: <gold>%s<reset> başarıyla devre dışı bırakıldı.
+			io error: <gold>%s<red> yeniden adlandırılamadı, sunucuyu tekrar başlattığında tekrar aktifleşecek: %s
+		folder:
+			empty: <gold>%s<reset> aktif script içermiyor.
+			disabled: <gold>%1$s<reset> klasöründeki <gold>%2$s<reset> script başarıyla devre dışı bırakıldı.
+			io error: <gold>%s<red> klasöründeki bir veya daha fazla script devre dışı bırakılamadı. (bazı scriptler sunucu tekrar başladığında devre dışı olabilir): %s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
+			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
+			# invalid version: No changelog for the version <gold>%s<red> available
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>sayfa %s / %s. Bir sonraki sayfa için <gold>/skript update changes %s<gray> kullan. (ipucu: yukarı ok tuşunu kullan)
+	info:
+		aliases: Skript'in aliasları burda bulunabilir: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skript'in dökümantasyonu burda bulunabilir: <aqua>https://docs.skriptlang.org/
+		tutorials: Skript's tutorialları burda bulunabilir: <aqua>https://docs.skriptlang.org/tutorials
+		version: Skript Versiyonu: <aqua>%s
+		server: Sunucu Versiyonu: <aqua>%s
+		addons: Yüklü Skript Eklentileri: <aqua>%s
+		dependencies: Yüklü Bağımlılıklar: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript henüz en son sürümü kontrol etmedi. Etmek için <gold>/skript update check<reset> kullan.
+	checking: Skript'in en son sürümünü kontrol ediliyor...
+	check in progress: Yeni sürüm kontrolü şu anda devam ediyor.
+	updater disabled: Güncelleyici devre dışı olduğundan Skript'in en son sürümünün kontrolü gerçekleştirilmedi.
+	check error: <red>Skript'in en son sürümü kontrol edilirken bir hata oluştu:<light red> %s
+	running latest version: Şu anda Skript'in en son kararlı sürümünü kullanıyorsunuz.
+	running latest version (beta): Şu anda Skript'in <i>beta<r> sürümünü kullanıyorsunuz ve yeni bir <i>sabit<r> sürümü mevcut değil. Daha yeni beta sürümlerine manuel olarak güncelleme yapmanız gerektiğini lütfen unutmayın!
+	update available: Skript'in yeni bir sürümü mevcut: <gold>%s<reset> (şu anda <gold>%s<reset> kullanıyorsunuz)
+	downloading: Skript <gold>%s<reset> indiriliyor...
+	download in progress: Skript'in en son sürümü şu anda indiriliyor.
+	download error: <red>Skript'in en son sürümünü indirirken bir hata oluştu:<light red> %s
+	downloaded: Skript'in son sürümü indirildi! Değişiklikleri uygulamak için sunucuyu yeniden başlatın veya /reload komutunu kullanın.
+	internal error: Skript'in en son sürümünü kontrol ederken dahili bir hata oluştu. Ayrıntılar için lütfen sunucu konsoluna bakın.
+	custom version: Şu anda özel bir Skript sürümünü kullanıyorsunuz. Hiçbir güncelleme otomatik olarak yüklenmeyecektir.
+	nightly build: Şu anda Skript'in geliştirme sürümünü kullanıyorsunuz. Hiçbir güncelleme otomatik olarak yüklenmeyecektir.
+
+# -- Commands --
+commands:
+	no permission message: Bu komutu kullanmak için gerekli yetkiniz yok
+	cooldown message: Bu komutu çok sık kullanıyorsunuz, lütfen daha sonra tekrar deneyin.
+	executable by players: Bu komut yalnızca oyuncular tarafından kullanılabilir
+	executable by console: Bu komut yalnızca konsol tarafından kullanılabilir
+	correct usage: Doğru kullanım:
+	invalid argument: Yanlış argüman <gray>'%s<gray>'<reset>. İzin verilenler:
+	too many arguments: Bu komut yanlızca bir tane %2$s kabul eder.
+	internal error: Bu komut gerçekleştirilmeye çalışılırken dahili bir hata oluştu.
+	no player starts with: Adı '%s' ile başlayan oyuncu yok.
+	multiple players start with: Adı '%s' ile başlayan birden fazla oyuncu var.
+
+# -- Hooks --
+hooks:
+	hooked: %s'e başarıyla bağlanıldı
+	error: %1$s'a bağlanılamadı. Skript %1$s'in yüklü sürümünü desteklemiyorsa bu durum meydana gelebilir
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' bir eşya türü değil
+	invalid item type: '%s' bir eşya türü değil
+	empty name: Bir aliasın adı olması lazım
+	brackets error: Tırnak işaretinin yanlış kullanımı
+	not enough brackets: %s ('%s') karakteriyle başlayan sectionın kapatılması lazım
+	too many brackets: Karakter %s ('%s') olmayan bir sectionu kapatıyor
+	unknown variation: %s varyasyonu daha önce tanımlanmadı
+	missing aliases: Bu Minecraft ID'lerinin herhangi bir aliası yoktur:
+	empty alias: Aliasın tanımlı bir Minecraft ID'si veya tagi yok
+  invalid minecraft id: Minecraft ID %s geçerli değil
+	useless variation: Varyasyonun Minecraft ID'si veya tagi yok, bu yüzden gereksiz
+	invalid tags: Belirtilen tagler geçerli JSON'da tanımlı değil
+	unexpected section: Sectionlara burda izin verilmiyor
+	invalid variation section: Bir sectionun varyasyon sectionı olması gerek, ama %s geçerli bir varyasyon ismi değil
+	outside section: Aliaslar sectiona koyulmalı
+
+	# Other messages
+	loaded x aliases from: %2$s'ten %1$s tane ingilizce alias yüklendi
+	loaded x aliases: Toplamda %s ingilizce alias yüklendi.
+
+# -- Time --
+time:
+	errors:
+		24 hours: Bir günde sadece 24 saat var
+		12 hours: 12-saat formatı kullanmak 12 saatten daha fazlaya izin vermez
+		60 minutes: Bir saatte sadece 60 dakika var
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: %s'ya bağlanılamadı
+	accessdeniedexception: %s için izin reddedildi
