@@ -604,7 +604,7 @@ public class SimpleEvents {
 				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
 			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
-			.description("Called when a player swings his arm.")
+			.description("Called when a player swings their arm.")
 			.examples("on arm swing:",
 				"\tsend \"You swung your arm!\"")
 			.since("2.5.1");

@@ -153,7 +153,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -536,7 +536,7 @@ public class BukkitClasses {
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
 						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.CONFIG)
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
 							return Bukkit.getWorld(s);
 						final Matcher m = parsePattern.matcher(s);
 						if (m.matches())
@@ -673,7 +673,7 @@ public class BukkitClasses {
 					@Override
 					@Nullable
 					public Player parse(String s, ParseContext context) {
-						if (context == ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (s.isEmpty())
 								return null;
 							if (UUID_PATTERN.matcher(s).matches())
@@ -693,7 +693,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -733,7 +733,7 @@ public class BukkitClasses {
 					@Nullable
 					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
 							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
@@ -746,7 +746,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
