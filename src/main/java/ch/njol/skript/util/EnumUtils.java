@@ -59,7 +59,7 @@ public final class EnumUtils<E extends Enum<E>> {
 	 */
 	void refresh() {
 		E[] constants = enumClass.getEnumConstants();
-		names = new String[enumClass.getEnumConstants().length];
+		names = new String[constants.length];
 		parseMap.clear();
 		for (E constant : constants) {
 			String key = languageNode + "." + constant.name();
