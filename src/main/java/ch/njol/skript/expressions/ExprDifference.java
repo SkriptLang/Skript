@@ -40,20 +40,23 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.lang.reflect.Array;
 
 @Name("Difference")
-@Description("The difference between two values, e.g. <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> or <a href='./classes/#time'>times</a>.")
+@Description({
+	"The difference between two values",
+	"Supported types include <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
+})
 @Examples({
 	"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
-	"\tmessage \"You have to wait a minute before using this command again!\""
+		"\tmessage \"You have to wait a minute before using this command again!\""
 })
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
-	
+
 	static {
 		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED,
-			"difference (between|of) %object% and %object%"
+				"difference (between|of) %object% and %object%"
 		);
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> first, second;
 
@@ -79,10 +82,12 @@ public class ExprDifference extends SimpleExpression<Object> {
 		boolean fail = false;
 
 		if (classInfo.getC() == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
-			// These two types may not be compatible
+			// We may not have a way to obtain the difference between these two values. Further checks needed.
+
+			// These two types are unrelated, meaning conversion is needed
 			if (firstReturnType != Object.class && secondReturnType != Object.class) {
 
-				// We will need to escape failure
+				// We will work our way out of failure
 				fail = true;
 
 				// Attempt to use first type's math
@@ -106,14 +111,14 @@ public class ExprDifference extends SimpleExpression<Object> {
 					}
 				}
 
-			} else { // Avoid converting an actual type into Object.class
+			} else { // It may just be the case that the type of one of our values cannot be known at parse time
 				Expression<?> converted;
 				if (firstReturnType == Object.class) {
 					converted = first.getConvertedExpression(secondReturnType);
-					if (converted != null) {
+					if (converted != null) { // This may fail if both types are Object
 						first = converted;
 					}
-				} else {
+				} else { // This is an else statement to avoid X->Object conversions
 					converted = second.getConvertedExpression(firstReturnType);
 					if (converted != null) {
 						second = converted;
@@ -129,9 +134,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 		}
 
-		if (classInfo.getC() == Object.class) {
-			// Initialize less stuff, basically
-			relativeType = Object.class; // Relative math type would be null which the parser doesn't like
+		if (classInfo.getC() == Object.class) { // We will have to determine the type during runtime
+			relativeType = Object.class;
 		} else if (classInfo.getMath() == null || classInfo.getMathRelativeType() == null) {
 			fail = true;
 		} else {
@@ -139,20 +143,20 @@ public class ExprDifference extends SimpleExpression<Object> {
 			relativeType = classInfo.getMathRelativeType();
 		}
 
-		this.first = first;
-		this.second = second;
-
 		if (fail) {
 			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second));
 			return false;
 		}
+
+		this.first = first;
+		this.second = second;
 
 		return true;
 	}
 
 	@Override
 	@Nullable
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected Object[] get(Event event) {
 		Object first = this.first.getSingle(event);
 		Object second = this.second.getSingle(event);
@@ -160,18 +164,24 @@ public class ExprDifference extends SimpleExpression<Object> {
 			return new Object[0];
 		}
 
-		Object[] one = (Object[]) Array.newInstance(relativeType, 1);
-		
-		// If we're comparing object expressions, such as variables, math is null right now
-		if (relativeType.equals(Object.class)) {
+		Arithmetic math = this.math;
+		Class<?> relativeType = this.relativeType;
+
+		if (relativeType == Object.class) { // Try to determine now that actual types are known
 			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(first.getClass(), second.getClass()));
 			math = info.getMath();
 			if (math == null) { // User did something stupid, just return <none> for them
-				return one;
+				return new Object[0];
+			}
+			relativeType = info.getMathRelativeType();
+			if (relativeType == null) { // Unlikely to be the case, but math is not null meaning we can calculate the difference
+				relativeType = Object.class;
 			}
 		}
-		
-		assert math != null; // NOW it cannot be null
+
+		Object[] one = (Object[]) Array.newInstance(relativeType, 1);
+
+		assert math != null; // it cannot be null here
 		one[0] = math.difference(first, second);
 		
 		return one;
@@ -181,15 +191,15 @@ public class ExprDifference extends SimpleExpression<Object> {
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<?> getReturnType() {
 		return relativeType;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "difference between " + first.toString(event, debug) + " and " + second.toString(event, debug);
 	}
-	
+
 }
