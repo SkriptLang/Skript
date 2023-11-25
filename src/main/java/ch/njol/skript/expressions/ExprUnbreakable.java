@@ -18,22 +18,18 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unbreakable Items")
 @Description("Creates unbreakable copies of given items.")
@@ -42,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"breakable {_weapon}"
 })
 @Since("2.2-dev13b, INSERT VERSION (breakable)")
-public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
+public class ExprUnbreakable extends SimplePropertyExpression<ItemType, ItemType> {
 
 	static {
 		Skript.registerExpression(ExprUnbreakable.class, ItemType.class, ExpressionType.PROPERTY, "[:un]breakable %itemtypes%");
@@ -51,22 +47,18 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 	private boolean unbreakable;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends ItemType>) exprs[0]);
 		unbreakable = parseResult.hasTag("un");
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
-	
+
 	@Override
-	protected ItemType[] get(Event event, ItemType[] source) {
-		return get(source, itemType -> {
-			ItemType clone = itemType.clone();
-			ItemMeta meta = clone.getItemMeta();
-			meta.setUnbreakable(unbreakable);
-			clone.setItemMeta(meta);
-			return clone;
-		});
+	public ItemType convert(ItemType itemType) {
+		ItemType clone = itemType.clone();
+		ItemMeta meta = clone.getItemMeta();
+		meta.setUnbreakable(unbreakable);
+		clone.setItemMeta(meta);
+		return clone;
 	}
 
 	@Override
@@ -75,11 +67,8 @@ public class ExprUnbreakable extends PropertyExpression<ItemType, ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		String s = unbreakable ? "unbreakable " : "breakable ";
-		if (event == null)
-			return s + "items";
-		return s + Arrays.toString(getExpr().getAll(event));
+	protected String getPropertyName() {
+		return unbreakable ? "unbreakable" : "breakable";
 	}
 
 }
