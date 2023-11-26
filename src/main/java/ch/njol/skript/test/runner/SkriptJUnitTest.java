@@ -38,7 +38,7 @@ import ch.njol.skript.Skript;
 public abstract class SkriptJUnitTest {
 
 	static {
-		World world = Bukkit.getWorlds().get(0);
+		World world = getTestWorld();
 		world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 1000);
 		world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
 		// Natural entity spawning
