@@ -58,8 +58,8 @@ public class EffSendTitle extends Effect {
 	static {
 		if (TIME_SUPPORTED)
 			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [(and|with) fade[(-| )]out %-timespan%]",
-					"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [(and|with) fade[(-| )]out %-timespan%]");
+					"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
+					"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
 		else
 			Skript.registerEffect(EffSendTitle.class,
 					"send title %string% [with subtitle %-string%] [to %players%]",
@@ -101,17 +101,17 @@ public class EffSendTitle extends Effect {
 
 			if (this.fadeIn != null) {
 				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getTicks_i() : -1;
+				fadeIn = t != null ? (int) t.getTicks() : -1;
 			}
 
 			if (this.stay != null) {
 				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getTicks_i() : -1;
+				stay = t != null ? (int) t.getTicks() : -1;
 			}
 
 			if (this.fadeOut != null) {
 				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getTicks_i() : -1;
+				fadeOut = t != null ? (int) t.getTicks() : -1;
 			}
 			
 			for (Player p : recipients.getArray(e))
