@@ -24,6 +24,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.ContextlessEvent;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.LivingEntity;
 import org.easymock.EasyMock;
@@ -32,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class EffSwingHandTest {
+public class EffSwingHandTest extends SkriptJUnitTest {
 
 	private LivingEntity testEntity;
 	private Effect swingMainHandEffect;
