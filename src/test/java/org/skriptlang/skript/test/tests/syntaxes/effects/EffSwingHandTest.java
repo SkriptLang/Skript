@@ -48,10 +48,7 @@ public class EffSwingHandTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		boolean swingHandEffectRegistered = Skript.getEffects().stream()
-			.map(SyntaxElementInfo::getElementClass)
-			.anyMatch(EffSwingHand.class::equals);
-		if (!swingHandEffectRegistered)
+		if (!EffSwingHand.SWINGING_IS_SUPPORTED)
 			return;
 		if (swingMainHandEffect == null)
 			Assert.fail("Main hand is null");
