@@ -70,5 +70,4 @@ public class EffMakeFlyTest extends SkriptJUnitTest {
 		EasyMock.verify(testPlayer);
 	}
 
-
 }
