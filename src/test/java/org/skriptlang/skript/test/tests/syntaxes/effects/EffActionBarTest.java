@@ -30,10 +30,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
 
 @SuppressWarnings("deprecation")
 public class EffActionBarTest extends SkriptJUnitTest {
@@ -52,7 +52,7 @@ public class EffActionBarTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		if (actionBarEffect == null)
-			fail("Effect is null");
+			Assert.fail("Effect is null");
 
 		String expectedActionBarContent = "hello world";
 

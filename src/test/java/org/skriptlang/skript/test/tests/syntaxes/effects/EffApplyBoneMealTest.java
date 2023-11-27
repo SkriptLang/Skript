@@ -29,13 +29,12 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.block.Block;
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-
-import static org.junit.Assert.fail;
 
 public class EffApplyBoneMealTest {
 
@@ -58,9 +57,9 @@ public class EffApplyBoneMealTest {
 		if (!bonemealEffectRegistered)
 			return;
 		if (applyBonemealEffect == null)
-			fail("Effect is null");
+			Assert.fail("Effect is null");
 		if (applyMultipleBonemealEffect == null)
-			fail("Multiple effect is null");
+			Assert.fail("Multiple effect is null");
 
 		int countOfBonemealToApply = 5;
 		ContextlessEvent event = ContextlessEvent.get();
