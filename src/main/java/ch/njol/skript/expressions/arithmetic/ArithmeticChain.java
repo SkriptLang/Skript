@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions.arithmetic;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.bukkit.event.Event;
 
@@ -30,6 +31,7 @@ import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.converter.Converters;
 
 public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
@@ -73,26 +75,43 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
         if (leftClass == Object.class && rightClass == Object.class)
             return null;
 
-		if (leftClass == Object.class) {
-			leftClass = (Class<? extends L>) rightClass;
-		} else if (rightClass == Object.class) {
-			rightClass = (Class<? extends R>) leftClass;
+		if (left == null && leftClass == Object.class) {
+			operationInfo = lookupOperationInfo(rightClass, OperationInfo::getRight);
+		} else if (right == null && rightClass == Object.class) {
+			operationInfo = lookupOperationInfo(leftClass, OperationInfo::getLeft);
+		} else if (operationInfo == null) {
+			operationInfo = Arithmetics.lookupOperationInfo(operator, leftClass, rightClass, returnType);
 		}
 
 		if (operationInfo == null)
-			operationInfo = Arithmetics.lookupOperationInfo(operator, leftClass, rightClass, returnType);
-
-		if (operationInfo == null)
 			return null;
 
-		left = left != null ? left : Arithmetics.getDefaultValue(leftClass);
+		left = left != null ? left : Arithmetics.getDefaultValue(operationInfo.getLeft());
 		if (left == null)
 			return null;
-		right = right != null ? right : Arithmetics.getDefaultValue(rightClass);
+		right = right != null ? right : Arithmetics.getDefaultValue(operationInfo.getRight());
 		if (right == null)
 			return null;
 
 		return ((Operation<L, R, T>) operationInfo.getOperation()).calculate(left, right);
+	}
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	private OperationInfo<L, R, T> lookupOperationInfo(Class<?> anchor, Function<OperationInfo<?, ?, ?>, Class<?>> anchorFunction) {
+		OperationInfo<?, ?, ?> operationInfo = Arithmetics.lookupOperationInfo(operator, anchor, anchor);
+		if (operationInfo != null)
+			return (OperationInfo<L, R, T>) operationInfo;
+
+		return (OperationInfo<L, R, T>) Arithmetics.getOperations(operator).stream()
+			.filter(info -> anchorFunction.apply(info).isAssignableFrom(anchor))
+			.filter(info -> Converters.converterExists(info.getReturnType(), returnType))
+			.reduce((info, info2) -> {
+				if (anchorFunction.apply(info2) == anchor)
+					return info2;
+				return info;
+			})
+			.orElse(null);
 	}
 
 	@Override
