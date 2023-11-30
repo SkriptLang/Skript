@@ -134,16 +134,17 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		operator = patternInfo.operator;
 
 		if (firstClass != Object.class && secondClass == Object.class && Arithmetics.getOperations(operator, firstClass).isEmpty()) {
-			// If the first class is known but doesn't have any operations then we fail
+			// If the first class is known but doesn't have any operations, then we fail
 			return error(firstClass, secondClass);
 		} else if (firstClass == Object.class && secondClass != Object.class && Arithmetics.getOperations(operator).stream()
-			.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
-			// If the second class is known but doesn't have any operations then we fail
+				.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
+			// If the second class is known but doesn't have any operations, then we fail
 			return error(firstClass, secondClass);
 		}
 
 		OperationInfo<L, R, T> operationInfo;
-		if (firstClass == Object.class || secondClass == Object.class) { // If either of the types is unknown then we resolve the operation at runtime
+		if (firstClass == Object.class || secondClass == Object.class) {
+			// If either of the types is unknown, then we resolve the operation at runtime
 			operationInfo = null;
 		} else {
 			operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);

@@ -56,6 +56,10 @@ public class OperationInfo<L, R, T> {
 		return operation;
 	}
 
+	public <L2, R2> @Nullable OperationInfo<L2, R2, T> getConverted(Class<L2> fromLeft, Class<R2> fromRight) {
+		return getConverted(fromLeft, fromRight, returnType);
+	}
+
 	public <L2, R2, T2> @Nullable OperationInfo<L2, R2, T2> getConverted(Class<L2> fromLeft, Class<R2> fromRight, Class<T2> toReturnType) {
 		if (fromLeft == Object.class || fromRight == Object.class)
 			return null;

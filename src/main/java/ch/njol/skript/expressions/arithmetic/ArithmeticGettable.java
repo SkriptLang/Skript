@@ -27,5 +27,5 @@ public interface ArithmeticGettable<T> {
 	T get(Event event);
 
 	Class<? extends T> getReturnType();
-	
+
 }

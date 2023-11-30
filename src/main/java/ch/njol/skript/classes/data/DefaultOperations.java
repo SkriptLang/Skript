@@ -62,6 +62,9 @@ public class DefaultOperations {
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Vector.class, (left, right) -> left.clone().subtract(right));
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, (left, right) -> left.clone().multiply(right));
 		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, (left, right) -> left.clone().divide(right));
+		Arithmetics.registerDifference(Vector.class,
+			(left, right) -> new Vector(Math.abs(left.getX() - right.getX()), Math.abs(left.getY() - right.getY()), Math.abs(left.getZ() - right.getZ())));
+		Arithmetics.registerDefaultValue(Vector.class, Vector::new);
 
 		// Vector - Number
 		// Number - Vector
@@ -79,9 +82,6 @@ public class DefaultOperations {
 			Vector leftVector = new Vector(number, number, number);
 			return leftVector.divide(right);
 		});
-		Arithmetics.registerDifference(Vector.class,
-			(left, right) -> new Vector(Math.abs(left.getX() - right.getX()), Math.abs(left.getY() - right.getY()), Math.abs(left.getZ() - right.getZ())));
-		Arithmetics.registerDefaultValue(Vector.class, Vector::new);
 
 		// Timespan - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(left.getMilliSeconds() + right.getMilliSeconds()));
@@ -90,8 +90,29 @@ public class DefaultOperations {
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
 		// Timespan - Number
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, Timespan.class, Number.class, (left, right) -> new Timespan(left.getMilliSeconds() * right.longValue()));
-		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> new Timespan(left.getMilliSeconds() / right.longValue()));
+		// Number - Timespan
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Timespan.class, Number.class, (left, right) -> {
+			long scalar = right.longValue();
+			if (scalar < 0)
+				return null;
+			return new Timespan(left.getMilliSeconds() * scalar);
+		}, (left, right) -> {
+			long scalar = left.longValue();
+			if (scalar < 0)
+				return null;
+			return new Timespan(scalar * right.getMilliSeconds());
+		});
+		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> {
+			long scalar = right.longValue();
+			if (scalar <= 0)
+				return null;
+			return new Timespan(left.getMilliSeconds() / scalar);
+		}, (left, right) -> {
+			long scalar = left.longValue();
+			if (scalar < 0)
+				return null;
+			return new Timespan(scalar / right.getMilliSeconds());
+		});
 
 		// Date - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
