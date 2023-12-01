@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.doc.NoDoc;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -37,7 +36,6 @@ import ch.njol.util.Kleenean;
 @Description("Checks if current Minecraft version is given version or newer.")
 @Examples("running minecraft \"1.14\"")
 @Since("2.5")
-@NoDoc
 public class CondMinecraftVersion extends Condition {
 	
 	static {

@@ -44,7 +44,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"set {_v} to {_v} ** {_v}",
 	"set {_v} to {_v} // {_v}"
 })
-@Since("2.2-desecond8")
+@Since("2.2-dev28")
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
 	private enum Operator {
