@@ -16,56 +16,54 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.test.runner;
+package ch.njol.skript.conditions;
 
+import ch.njol.skript.doc.NoDoc;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.Version;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 
-@Name("JUnit Test Name")
-@Description("Returns the currently running JUnit test name otherwise nothing.")
+@Name("Running Minecraft")
+@Description("Checks if current Minecraft version is given version or newer.")
+@Examples("running minecraft \"1.14\"")
+@Since("2.5")
 @NoDoc
-public class ExprJUnitTest extends SimpleExpression<String>  {
-
+public class CondMinecraftVersion extends Condition {
+	
 	static {
-		if (TestMode.ENABLED)
-			Skript.registerExpression(ExprJUnitTest.class, String.class, ExpressionType.SIMPLE, "[the] [current[[ly] running]] junit test [name]");
+		Skript.registerCondition(CondMinecraftVersion.class, "running [(1¦below)] minecraft %string%");
 	}
 
+	@SuppressWarnings("null")
+	private Expression<String> version;
+	
+	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		version = (Expression<String>) exprs[0];
+		setNegated(parseResult.mark == 1);
 		return true;
 	}
-
+	
 	@Override
-	@Nullable
-	protected String[] get(Event event) {
-		return CollectionUtils.array(SkriptJUnitTest.getCurrentJUnitTest());
+	public boolean check(Event e) {
+		String ver = version.getSingle(e);
+		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
 	}
-
+	
 	@Override
-	public boolean isSingle() {
-		return true;
+	public String toString(@Nullable Event e, boolean debug) {
+		return "is running minecraft " + version.toString(e, debug);
 	}
-
-	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "current junit test";
-	}
-
+	
 }

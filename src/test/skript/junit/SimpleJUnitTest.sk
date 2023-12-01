@@ -1,4 +1,4 @@
-on script load:
+test "SimpleJUnitTest" when running JUnit:
 	# Setup our objective for this script test to complete with the JUnit test.
 	ensure junit test "org.skriptlang.skript.test.tests.regression.SimpleJUnitTest" completes "piggy died"
 

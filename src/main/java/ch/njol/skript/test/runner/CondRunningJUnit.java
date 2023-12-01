@@ -16,71 +16,45 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.test.runner;
 
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 
-@Name("Vectors - Normalized")
-@Description("Returns the same vector but with length 1.")
-@Examples("set {_v} to normalized {_v}")
-@Since("2.2-dev28")
-public class ExprVectorNormalize extends SimpleExpression<Vector> {
+@Name("Check JUnit")
+@Description({
+	"Returns true if the test runner is currently running a JUnit.",
+	"Useful for the EvtTestCase of JUnit exclusive syntaxes registered from within the test packages."
+})
+@NoDoc
+public class CondRunningJUnit extends Condition {
 
 	static {
-		Skript.registerExpression(ExprVectorNormalize.class, Vector.class, ExpressionType.SIMPLE,
-				"normalize[d] %vector%",
-				"%vector% normalized");
+		Skript.registerCondition(CondRunningJUnit.class, "running junit");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<Vector> vector;
-
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		vector = (Expression<Vector>) exprs[0];
 		return true;
 	}
 
 	@Override
-	@SuppressWarnings("null")
-	protected Vector[] get(Event event) {
-		Vector vector = this.vector.getSingle(event);
-		if (vector == null)
-			return null;
-		vector = vector.clone();
-		if (!vector.isNormalized())
-			vector.normalize();
-		return CollectionUtils.array(vector);
-	}
-
-	@Override
-	public boolean isSingle() {
-		return true;
-	}
-
-	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public boolean check(Event event) {
+		return TestMode.JUNIT;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "normalized " + vector.toString(event, debug);
+		return "running JUnit";
 	}
 
 }
