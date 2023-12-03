@@ -24,15 +24,22 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
+import ch.njol.skript.conditions.CondExpression;
+import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Checker;
+import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.SingleItemIterator;
 
 /**
  * A condition which must be fulfilled for the trigger to continue. If the condition is in a section the behaviour depends on the section.
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement {
+public abstract class Condition extends Statement implements Expression<Boolean> {
 	
 	private boolean negated = false;
 	
@@ -68,13 +75,123 @@ public abstract class Condition extends Statement {
 		return negated;
 	}
 	
-	@SuppressWarnings({"rawtypes", "unchecked", "null"})
+	@SuppressWarnings({"ConstantConditions", "unchecked"})
 	@Nullable
 	public static Condition parse(String s, @Nullable String defaultError) {
 		s = s.trim();
 		while (s.startsWith("(") && SkriptParser.next(s, 0, ParseContext.DEFAULT) == s.length())
 			s = s.substring(1, s.length() - 1);
-		return (Condition) SkriptParser.parse(s, (Iterator) Skript.getConditions().iterator(), defaultError);
+		
+		Expression<? extends Boolean> expression;
+		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
+		try {
+			expression = new SkriptParser(s).parseExpression(Boolean.class);
+			if (expression == null) {
+				logHandler.printError(defaultError);
+				return null;
+			}
+			
+			logHandler.printLog();
+		} finally {
+			logHandler.stop();
+		}
+		
+		return expression instanceof Condition ? (Condition) expression : new CondExpression(expression);
+	}
+	
+	@Override
+	public Boolean getSingle(Event e) {
+		return check(e);
+	}
+	
+	@Override
+	public Boolean[] getArray(Event e) {
+		return new Boolean[] {check(e)};
+	}
+	
+	@Override
+	public Boolean[] getAll(Event e) {
+		return new Boolean[] {check(e)};
+	}
+	
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+	
+	@Override
+	public boolean check(Event e, Checker<? super Boolean> c, boolean negated) {
+		return SimpleExpression.check(getAll(e), c, negated, getAnd());
+	}
+	
+	@Override
+	public boolean check(Event e, Checker<? super Boolean> c) {
+		return SimpleExpression.check(getAll(e), c, false, getAnd());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		if (CollectionUtils.containsSuperclass(to, Boolean.class))
+			return (Expression<? extends R>) this;
+		return ConvertedExpression.newInstance(this, to);
+	}
+	
+	@Override
+	public Class<? extends Boolean> getReturnType() {
+		return Boolean.class;
+	}
+	
+	@Override
+	public boolean getAnd() {
+		return true;
+	}
+	
+	@Override
+	public boolean setTime(int time) {
+		return false;
+	}
+	
+	@Override
+	public int getTime() {
+		return 0;
+	}
+	
+	@Override
+	public boolean isDefault() {
+		return false;
+	}
+	
+	@Nullable
+	@Override
+	public Iterator<? extends Boolean> iterator(Event e) {
+		return new SingleItemIterator<>(check(e));
+	}
+	
+	@Override
+	public boolean isLoopOf(String s) {
+		return false;
+	}
+	
+	@Override
+	public Expression<?> getSource() {
+		return this;
+	}
+	
+	@Override
+	public Expression<? extends Boolean> simplify() {
+		return this;
+	}
+	
+	@Nullable
+	@Override
+	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+		return null;
+	}
+	
+	@Override
+	public void change(Event e, @Nullable Object[] delta, Changer.ChangeMode mode) {
+		throw new UnsupportedOperationException();
 	}
 	
 }

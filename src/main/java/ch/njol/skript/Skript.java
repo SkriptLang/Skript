@@ -1341,6 +1341,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, condition, originClassPath);
 		conditions.add(info);
 		statements.add(info);
+		// PATTERN_MATCHES_EVERYTHING makes the expression be attempted last
+		registerExpression(condition, Boolean.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns);
 	}
 	
 	/**
