@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -31,6 +30,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -71,15 +72,19 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks]", // TODO add a where filter when extendable https://github.com/SkriptLang/Skript/issues/4856
-				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks]"
+				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]", // TODO add a where filter when extendable https://github.com/SkriptLang/Skript/issues/4856
+				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]"
 		);
 	}
 
-	@Nullable
-	private EntityData<?> type;
 	private static boolean ignoreBlocks;
 	private static int targetBlockDistance;
+
+	@Nullable
+	private Expression<Number> raysize;
+
+	@Nullable
+	private EntityData<?> type;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -90,11 +95,13 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		if (targetBlockDistance < 0)
 			targetBlockDistance = 100;
 		ignoreBlocks = parser.hasTag("blocks");
+		raysize = (Expression<Number>) exprs[2];
 		return true;
 	}
 
 	@Override
 	protected Entity[] get(Event event, LivingEntity[] source) {
+		double raysize = this.raysize != null ? this.raysize.getOptionalSingle(event).orElse(0.0).doubleValue() : 0.0D;
 		return get(source, entity -> {
 			if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
 				Entity target = ((EntityTargetEvent) event).getTarget();
@@ -102,7 +109,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 					return null;
 				return target;
 			}
-			return getTarget(entity, type);
+			return getTarget(entity, type, raysize);
 		});
 	}
 
@@ -130,11 +137,12 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 						targetEvent.setTarget(target);
 				}
 			} else {
+				double raysize = this.raysize != null ? this.raysize.getOptionalSingle(event).orElse(0.0).doubleValue() : 0.0D;
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Mob) {
 						((Mob) entity).setTarget(target);
 					} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-						Entity playerTarget = getTarget(entity, type);
+						Entity playerTarget = getTarget(entity, type, raysize);
 						if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
 							playerTarget.remove();
 					}
@@ -168,18 +176,32 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	 * @param origin The entity to get the target of.
 	 * @param type The exact EntityData to find. Can be null for any entity.
 	 * @return The entity's target.
+	 * @deprecated Use {@link #getTarget(LivingEntity, EntityData, double)} to include raysize.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type) {
+		return getTarget(origin, type, 0.0D);
+	}
+
+	/**
+	 * Gets an entity's target entity.
+	 *
+	 * @param origin The entity to get the target of.
+	 * @param type The exact EntityData to find. Can be null for any entity.
+	 * @param raysize The size of the ray for the raytrace.
+	 * @return The entity's target.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type) {
+	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type, double raysize) {
 		if (origin instanceof Mob)
 			return ((Mob) origin).getTarget() == null || type != null && !type.isInstance(((Mob) origin).getTarget()) ? null : (T) ((Mob) origin).getTarget();
 		Location location = origin.getLocation();
 		RayTraceResult result = null;
-		double raySize = 0.0D;
 		// TODO when DisplayData is added.
 //		if (type.getClass().equals(DisplayData.class))
-//			raySize = 1.0D;
+//			raysize = 1.0D;
 		Predicate<Entity> predicate = entity -> {
 			if (entity.equals(origin))
 				return false;
@@ -191,12 +213,12 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		};
 		if (!ignoreBlocks) {
 			RayTraceResult blockResult = origin.getWorld().rayTraceBlocks(origin.getEyeLocation(), location.getDirection(), targetBlockDistance);
-			Block hitBlock = blockResult.getHitBlock();
-			if (hitBlock != null) {
-				result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), location.distance(hitBlock.getLocation()), raySize, predicate);
-			}
+			Vector hit = blockResult.getHitPosition();
+			Location eyes = origin.getEyeLocation();
+			if (hit != null)
+				result = origin.getWorld().rayTraceEntities(eyes, location.getDirection(), eyes.toVector().distance(hit), raysize, predicate);
 		} else {
-			result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), targetBlockDistance, raySize, predicate);
+			result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), targetBlockDistance, raysize, predicate);
 		}
 		if (result == null)
 			return null;
