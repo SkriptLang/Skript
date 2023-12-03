@@ -1088,7 +1088,8 @@ entities:
 		pattern: ravager(|1¦s)
 	wandering trader:
 		name: wandering trader¦s
-		pattern: <age> wandering trader(|1¦s)|(4¦)wandering trader (kid(|1¦s)|child(|1¦ren)) //supposed to be ageable, but not working, spigot bug?
+		# supposed to be ageable, but not working, spigot bug?
+		pattern: <age> wandering trader(|1¦s)|(4¦)wandering trader (kid(|1¦s)|child(|1¦ren))
 	raider:
 		name: raider¦s
 		pattern: raider(|1¦s)

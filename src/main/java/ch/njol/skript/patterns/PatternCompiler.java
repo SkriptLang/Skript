@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.SkriptParser;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,10 +77,15 @@ public class PatternCompiler {
 				}
 
 				int end = SkriptParser.nextBracket(pattern, ']', c, i + 1, true);
-				PatternElement patternElement = compile(pattern.substring(i + 1, end), expressionOffset);
-
-				first = appendElement(first, new OptionalPatternElement(patternElement));
-
+				String substring = pattern.substring(i + 1, end);
+				boolean negated = substring.startsWith("!");
+				if (negated)
+					substring = substring.substring(1);
+				PatternElement patternElement = compile(substring, expressionOffset);
+				OptionalPatternElement optionalPatternElement = new OptionalPatternElement(patternElement);
+				if (negated)
+					optionalPatternElement.setNegated(true);
+				first = appendElement(first, optionalPatternElement);
 				i = end;
 			} else if (c == '(') {
 				if (literalBuilder.length() != 0) {

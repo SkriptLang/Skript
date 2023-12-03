@@ -18,20 +18,24 @@
  */
 package ch.njol.skript.expressions.base;
 
+import java.util.Arrays;
+
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.converter.Converters;
+import ch.njol.skript.patterns.MalformedPatternException;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.util.Kleenean;
-
-import java.util.Arrays;
 
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
@@ -44,6 +48,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
 	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
+	 * You can use [!PATTERN] to negate an optional pattern from the first property. For vice versa see {@link #registerDefault(Class, Class, String, String)}
 	 * 
 	 * @param c the PropertyExpression class being registered.
 	 * @param type the main expression type the property is based off of.
@@ -51,12 +56,20 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
 	 */
 	public static <T> void register(Class<? extends Expression<T>> c, Class<T> type, String property, String fromType) {
-		Skript.registerExpression(c, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+		// Must be delayed to ensure all classinfos are registered before.
+		Bukkit.getScheduler().runTask(Skript.getInstance(), () -> {
+			SkriptPattern pattern = PatternCompiler.compile(property);
+			String negated = pattern.toString().trim();
+			if (negated.isEmpty())
+				throw new MalformedPatternException(property, "A negated pattern cannot be empty when removed! " + c.getName());
+					Skript.registerExpression(c, type, ExpressionType.PROPERTY, "[the] " + negated + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+		});
 	}
 
 	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property [of %types%]" and "%types%'[s] property"
 	 * This method also makes the expression type optional to force a default expression on the property expression.
+	 * You can use [!PATTERN] to negate an optional pattern from the last property. For vice versa see {@link #register(Class, Class, String, String)}
 	 * 
 	 * @param c the PropertyExpression class being registered.
 	 * @param type the main expression type the property is based off of.
@@ -64,7 +77,14 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
 	 */
 	public static <T> void registerDefault(Class<? extends Expression<T>> c, Class<T> type, String property, String fromType) {
-		Skript.registerExpression(c, type, ExpressionType.PROPERTY, "[the] " + property + " [of %" + fromType + "%]", "%" + fromType + "%'[s] " + property);
+		// Must be delayed to ensure all classinfos are registered before.
+		Bukkit.getScheduler().runTask(Skript.getInstance(), () -> {
+			SkriptPattern pattern = PatternCompiler.compile(property);
+			String negated = pattern.toString().trim();
+			if (negated.isEmpty())
+				throw new MalformedPatternException(property, "A negated pattern cannot be empty when removed! " + c.getName());
+			Skript.registerExpression(c, type, ExpressionType.PROPERTY, "[the] " + property + " [of %" + fromType + "%]", "%" + fromType + "%'[s] " + negated);
+		});
 	}
 
 	@Nullable

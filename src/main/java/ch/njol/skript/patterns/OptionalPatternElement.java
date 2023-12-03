@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class OptionalPatternElement extends PatternElement {
 
 	private final PatternElement patternElement;
+	private boolean negated;
 
 	public OptionalPatternElement(PatternElement patternElement) {
 		this.patternElement = patternElement;
@@ -35,6 +36,14 @@ public class OptionalPatternElement extends PatternElement {
 	void setNext(@Nullable PatternElement next) {
 		super.setNext(next);
 		patternElement.setLastNext(next);
+	}
+
+	void setNegated(boolean negated) {
+		this.negated = negated;
+	}
+
+	public boolean isNegated() {
+		return negated;
 	}
 
 	@Override
@@ -52,6 +61,8 @@ public class OptionalPatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
+		if (negated)
+			return "";
 		return "[" + patternElement.toFullString() + "]";
 	}
 
