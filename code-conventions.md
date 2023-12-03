@@ -119,6 +119,17 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - Section: init -> walk -> toString
   - Structure: init -> (preLoad) -> load -> (postLoad) -> unload -> (postUnload) -> (getPriority) -> toString
 
+* To avoid sorting of imports every pull request between different IDE's we sort imports by the following format; java.* imports come before every other import sorted in alphabetical order followed by two optional line break between different package groups (Intellij is currently not capable of automatic line breaks). Most popular IDE's have a configuration option to allow for these rules. Example:
+```java
+package ...;
+
+import java.*;
+
+import ch.njol.*;
+import ch.njol.skript.another;
+
+import org.skriptlang.*;
+```
 
 ### Naming
 * Class names are written in `UpperCamelCase`
