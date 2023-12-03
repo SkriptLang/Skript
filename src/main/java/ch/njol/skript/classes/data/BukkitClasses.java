@@ -37,6 +37,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Rotation;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -52,6 +53,7 @@ import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda.Gene;
 import org.bukkit.entity.Player;
@@ -1508,5 +1510,14 @@ public class BukkitClasses {
 				.since("2.7")
 				.requiredPlugins("Paper 1.16+"));
 		}
+
+		Classes.registerClass(new ClassInfo<>(ItemFrame.class, "itemframe")
+				.user("item ?frames?")
+				.name("Item Frame")
+				.description("Represents the itemframe entity. This classinfo is used to manipulate settings of itemframes in syntaxes.")
+				.since("INSERT VERSION")
+				.defaultExpression(new EventValueExpression<>(ItemFrame.class)));
+
 	}
+
 }

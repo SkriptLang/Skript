@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
+import org.bukkit.Rotation;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,6 +38,7 @@ import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -753,6 +755,23 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		/**
+		 * TODO fix loading structure for allowing classinfos used in the default.lang file.
+		 * 
+		 * Due to the loading structure of Skript. Aliases load the default.lang file.
+		 * ClassInfos that are used within that file need to be registered in this class.
+		 * SkriptClasses.class loads before loading Aliases.
+		 * 
+		 * So the bukkit classes below must be present here.
+		 */
+		Classes.registerClass(new EnumClassInfo<>(Rotation.class, "rotation", "rotations")
+				.user("rotations?")
+				.name("Rotation")
+				.description(
+						"Specify a rotation based orientation, like that on a clock. Used in item frames.",
+						"It represents how something is viewed, as opposed to cardinal directions.")
+				.since("INSERT VERSION"));
 	}
-	
+
 }
