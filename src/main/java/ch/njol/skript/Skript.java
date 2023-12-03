@@ -1436,6 +1436,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	// ================ EVENTS ================
 
+	private static final List<SkriptEventInfo<?>> events = new ArrayList<>(50);
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
 
 	/**
@@ -1468,10 +1469,10 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
+			transformedPatterns[i] = SkriptEvent.fixPattern(patterns[i]);
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
-		structures.add(r);
+		Skript.events.add(r);
 		return r;
 	}
 
@@ -1489,14 +1490,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		structures.add(structureInfo);
 	}
 
-	/**
-	 * Modifications made to the returned Collection will not be reflected in the events available for parsing.
-	 */
 	public static Collection<SkriptEventInfo<?>> getEvents() {
-		// Only used in documentation generation, so generating a new list each time is fine
-		return (Collection<SkriptEventInfo<?>>) (Collection<?>) structures.stream()
-			.filter(info -> info instanceof SkriptEventInfo)
-			.collect(Collectors.toList());
+		return events;
 	}
 
 	public static List<StructureInfo<? extends Structure>> getStructures() {

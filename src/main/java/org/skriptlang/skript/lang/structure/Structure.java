@@ -174,11 +174,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Nullable
 	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
+		return parse(expr, sectionNode, defaultError, Skript.getStructures().iterator());
+	}
+
+	@Nullable
+	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
 		ParserInstance.get().getData(StructureData.class).sectionNode = sectionNode;
 
-		Iterator<StructureInfo<? extends Structure>> iterator =
-			new ConsumingIterator<>(Skript.getStructures().iterator(),
-				elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
+		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
 		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
 			Structure structure = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);
