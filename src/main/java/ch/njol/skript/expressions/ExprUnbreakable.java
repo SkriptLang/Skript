@@ -34,8 +34,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 @Name("Unbreakable Items")
 @Description("Creates unbreakable copies of given items.")
 @Examples({
-	"unbreakable iron sword",
-	"breakable {_weapon}"
+	"set {_item} to unbreakable iron sword",
+	"give breakable {_weapon} to all players"
 })
 @Since("2.2-dev13b, INSERT VERSION (breakable)")
 public class ExprUnbreakable extends SimplePropertyExpression<ItemType, ItemType> {

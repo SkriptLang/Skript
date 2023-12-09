@@ -32,8 +32,10 @@ import ch.njol.util.Kleenean;
 @Name("Is Unbreakable")
 @Description("Checks whether an item is unbreakable.")
 @Examples({
-	"if event-item is unbreakable",
-	"if player's tool is breakable"
+	"if event-item is unbreakable:",
+		"\tsend \"This item is unbreakable!\" to player",
+	"if tool of {_p} is breakable:",
+		"\tsend \"Your tool is breakable!\" to {_p}"
 })
 @Since("2.5.1, INSERT VERSION (breakable)")
 public class CondIsUnbreakable extends PropertyCondition<ItemType> {
