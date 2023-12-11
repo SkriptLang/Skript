@@ -728,12 +728,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	@SafeVarargs
 	public final boolean removeAll(List<ItemStack>... lists) {
+		return removeAll(true, lists);
+	}
+
+
+	@SafeVarargs
+	public final boolean removeAll(boolean replaceWithNull, List<ItemStack>...lists) {
 		final boolean wasAll = all;
 		final int oldAmount = amount;
 		all = true;
 		amount = -1;
 		try {
-			return removeFrom(lists);
+			return removeFrom(replaceWithNull, lists);
 		} finally {
 			all = wasAll;
 			amount = oldAmount;
@@ -749,18 +755,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	@SafeVarargs
 	public final boolean removeFrom(final List<ItemStack>... lists) {
+		return removeFrom(true, lists);
+	}
+
+	/**
+	 * Removes this ItemType from given lists of ItemStacks.
+	 * If replaceWithNull is true, then if an ItemStack is completely removed, that index in the list is set to null, instead of being removed.
+	 *
+	 * @param replaceWithNull Whether to replace removed ItemStacks with null, or to remove them completely
+	 * @param lists The lists to remove this type from. Each list should implement {@link RandomAccess}. Lists may contain null values after this method if replaceWithNull is true.
+	 * @return Whether this whole item type could be removed (i.e. returns false if the lists didn't contain this item type completely)
+	 */
+	@SafeVarargs
+	public final boolean removeFrom(boolean replaceWithNull, List<ItemStack>... lists) {
 		int removed = 0;
 		boolean ok = true;
 
-		for (final ItemData d : types) {
+		for (ItemData d : types) {
 			if (all)
 				removed = 0;
-			for (final List<ItemStack> list : lists) {
+			for (List<ItemStack> list : lists) {
 				if (list == null)
 					continue;
 				assert list instanceof RandomAccess;
-				for (int i = 0; i < list.size(); i++) {
-					final ItemStack is = list.get(i);
+
+				Iterator<ItemStack> listIterator = list.iterator();
+				int index = -1; // only reliable if replaceWithNull is true. Will be -1 if replaceWithNull is false.
+				while (listIterator.hasNext()) {
+					ItemStack is = listIterator.next();
+					// index is only reliable if replaceWithNull is true
+					if (replaceWithNull)
+						index++;
 					/*
 					 * Do NOT use equals()! It doesn't exactly match items
 					 * for historical reasons. This will change in future.
@@ -778,15 +803,22 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 					boolean plain = d.isPlain() != other.isPlain();
 					if (d.matchPlain(other) || other.matchAlias(d).isAtLeast(plain ? MatchQuality.EXACT : (d.isAlias() && !other.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM))) {
 						if (all && amount == -1) {
-							list.set(i, null);
+							if (replaceWithNull) {
+								list.set(index, null);
+							} else {
+								listIterator.remove();
+							}
 							removed = 1;
 							continue;
 						}
-						assert is != null;
-						final int toRemove = Math.min(is.getAmount(), getAmount() - removed);
+						int toRemove = Math.min(is.getAmount(), getAmount() - removed);
 						removed += toRemove;
 						if (toRemove == is.getAmount()) {
-							list.set(i, null);
+							if (replaceWithNull) {
+								list.set(index, null);
+							} else {
+								listIterator.remove();
+							}
 						} else {
 							is.setAmount(is.getAmount() - toRemove);
 						}

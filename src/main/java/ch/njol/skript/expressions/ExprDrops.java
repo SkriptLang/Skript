@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -43,6 +39,9 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -179,20 +178,18 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 					break;
 				case REMOVE:
 					for (ItemType item : deltaDrops) {
-						item.removeFrom(drops);
+						item.removeFrom(false, drops);
 					}
 					break;
 				case REMOVE_ALL:
 					for (ItemType item : deltaDrops) {
-						item.removeAll(drops);
+						item.removeAll(false, drops);
 					}
 					break;
 				case DELETE:
 				case RESET:
 					assert false;
 			}
-			// remove stray nulls caused by ItemType#removeFrom() and ItemType#removeAll()
-			drops.removeIf(Objects::isNull);
 		}
 	}
 
