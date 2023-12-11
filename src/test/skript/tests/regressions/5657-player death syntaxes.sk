@@ -1,0 +1,15 @@
+
+on death of player:
+	keep inventory
+	keep experience
+
+on death:
+	victim is a player
+	keep inventory
+	keep experience
+	victim is not a player
+	#keep inventory should error now that the condition has determined they're not a player
+	#keep experience should error. needs parse: section to finish test.
+	victim is a player
+	keep inventory
+	keep experience

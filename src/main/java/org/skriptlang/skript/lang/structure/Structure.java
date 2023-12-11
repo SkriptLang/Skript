@@ -33,6 +33,8 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ConsumingIterator;
+
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -198,12 +200,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		ParserInstance.registerData(StructureData.class, StructureData::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
-		private SectionNode sectionNode;
 		@Nullable
 		private StructureInfo<? extends Structure> structureInfo;
+		private SectionNode sectionNode;
+		private boolean originalEventChanged;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -212,6 +214,15 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		@Nullable
 		public StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
+		}
+
+		@Override
+		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) {
+			originalEventChanged = true;
+		}
+
+		public boolean hasOriginalEventChanged() {
+			return originalEventChanged;
 		}
 
 	}

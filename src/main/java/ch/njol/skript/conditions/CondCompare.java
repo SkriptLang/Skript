@@ -18,8 +18,17 @@
  */
 package ch.njol.skript.conditions;
 
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.structure.Structure.StructureData;
+
+import ch.njol.skript.Skript;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -34,6 +43,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.events.EvtEntity;
+import ch.njol.skript.expressions.ExprAttacked;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -239,6 +251,28 @@ public class CondCompare extends Condition {
 				}
 			}
 			
+		}
+
+		/*
+		 * https://github.com/SkriptLang/Skript/issues/5657
+		 * 
+		 * Asserts that if the victim is a player, the event must be a PlayerDeathEvent
+		 * thus we can assert that to PlayerDeathEvent related syntaxes.
+		 * 
+		 * This is required due to Skript registering EntityDeathEvent as it's base for death events.
+		 */
+		if (first instanceof ExprAttacked && second instanceof SimpleLiteral) {
+			Object[] objects = ((SimpleLiteral<?>) second).getAll();
+			if (objects.length == 1 && objects[0] instanceof EntityData && HumanEntity.class.isAssignableFrom(((EntityData<?>) objects[0]).getType())) {
+				StructureData structureData = getParser().getData(StructureData.class);
+				// Checking for 'is player' and hasn't applied change.
+				if (!isNegated() && getParser().isCurrentEvent(EntityDeathEvent.class)) {
+					getParser().setCurrentEvent(EvtEntity.PLAYER_DEATH_EVENT_NAME, PlayerDeathEvent.class);
+				// Checking for 'is not a player' and has already applied change.
+				} else if (isNegated() && structureData.hasOriginalEventChanged() && getParser().isCurrentEvent(PlayerDeathEvent.class)) {
+					getParser().setCurrentEvent("Death", EntityDeathEvent.class);
+				}
+			}
 		}
 
 		return comparator != null;
