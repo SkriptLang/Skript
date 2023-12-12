@@ -46,11 +46,6 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return true;
-	}
-
-	@Override
 	@Nullable
 	public String convert(Inventory inv) {
 		if (!(inv instanceof AnvilInventory))
