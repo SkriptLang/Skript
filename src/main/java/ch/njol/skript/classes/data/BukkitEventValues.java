@@ -1767,6 +1767,18 @@ public final class BukkitEventValues {
 				return event.getDestination();
 			}
 		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getSource().getLocation().getBlock();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getDestination().getLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
 
 	}
 
