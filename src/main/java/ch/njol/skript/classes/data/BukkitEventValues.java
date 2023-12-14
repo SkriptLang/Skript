@@ -114,6 +114,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -1752,6 +1753,20 @@ public final class BukkitEventValues {
 					return event.getStonecuttingRecipe().getResult();
 				}
 			}, EventValues.TIME_NOW);
+
+		// InventoryMoveItemEvent
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getSource();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getDestination();
+			}
+		}, EventValues.TIME_NOW);
 
 	}
 
