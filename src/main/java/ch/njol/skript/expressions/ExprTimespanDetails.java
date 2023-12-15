@@ -42,7 +42,7 @@ import java.util.Locale;
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 
 	static {
-		register(ExprTimespanDetails.class, Long.class, "(:(tick|second|minute|hour|day|week|month|year))[s]", "timespans");
+		register(ExprTimespanDetails.class, Long.class, "(:(tick|second|minute|hour|day|week|month|year))s", "timespans");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
