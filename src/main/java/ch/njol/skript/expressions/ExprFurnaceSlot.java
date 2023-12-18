@@ -29,12 +29,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
@@ -43,12 +45,15 @@ import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Name("Furnace Slot")
 @Description({
 	"A slot of a furnace, i.e. either the ore, fuel or result slot.",
 	"Remember to use '<a href='#ExprBlock'>block</a>' and not <code>furnace</code>, as <code>furnace</code> is not an existing expression.",
-	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event" +
-	" and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
+	"Note that <code>the result</code> and <code>the result slot</code> refer to separate things. <code>the result</code> is the product in a smelt event " +
+	"and <code>the result slot</code> is the output slot of a furnace (where <code>the result</code> will end up).",
 	"Note that if the result in a smelt event is changed to an item that differs in type from the items currently in " +
 	"the result slot, the smelting will fail to complete (the item will attempt to smelt itself again).",
 	"Note that if values other than <code>the result</code> are changed, event values may not accurately reflect the actual items in a furnace.",
@@ -121,19 +126,19 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 			blocks = this.blocks.getArray(event);
 		}
 
+		List<Slot> slots = new ArrayList<>();
 		for (Block block : blocks) {
-			if (!ExprBurnCookTime.anyFurnace.isOfType(block))
-				return new Slot[0];
-
-			FurnaceInventory furnaceInventory = ((Furnace) block.getState()).getInventory();
+			BlockState state = block.getState();
+			if (!(state instanceof Furnace))
+				continue;
+			FurnaceInventory furnaceInventory = ((Furnace) state).getInventory();
 			if (isEvent && !Delay.isDelayed(event)) {
-				return new Slot[]{new FurnaceEventSlot(event, furnaceInventory)};
+				slots.add(new FurnaceEventSlot(event, furnaceInventory));
 			} else { // Normal inventory slot is fine since the time will always be in the present
-				return new Slot[]{new InventorySlot(furnaceInventory, slot)};
+				slots.add(new InventorySlot(furnaceInventory, slot));
 			}
 		}
-
-		return new Slot[0];
+		return slots.toArray(new Slot[0]);
 	}
 
 	@Override
@@ -191,7 +196,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 				case ORE:
 					if (event instanceof FurnaceSmeltEvent) {
 						ItemStack source = ((FurnaceSmeltEvent) event).getSource().clone();
-						if (getTime() != -1)
+						if (getTime() == EventValues.TIME_FUTURE)
 							return source;
 						source.setAmount(source.getAmount() + 1);
 						return source;
@@ -200,7 +205,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 				case FUEL:
 					if (event instanceof FurnaceBurnEvent) {
 						ItemStack fuel = ((FurnaceBurnEvent) event).getFuel().clone();
-						if (getTime() != 1)
+						if (getTime() != EventValues.TIME_FUTURE)
 							return fuel;
 						fuel.setAmount(fuel.getAmount() - 1);
 						if (fuel.getAmount() == 0)
@@ -215,7 +220,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 							ItemStack currentResult = ((FurnaceInventory) getInventory()).getResult();
 							if (currentResult != null)
 								currentResult = currentResult.clone();
-							if (getTime() != 1) { // 'past result slot' and 'result slot'
+							if (getTime() != EventValues.TIME_FUTURE) { // 'past result slot' and 'result slot'
 								return currentResult;
 							} else if (currentResult != null && currentResult.isSimilar(result)) { // 'future result slot'
 								currentResult.setAmount(currentResult.getAmount() + result.getAmount());
@@ -237,7 +242,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 			if (slot == RESULT && !isResultSlot && event instanceof FurnaceSmeltEvent) {
 				((FurnaceSmeltEvent) event).setResult(item != null ? item : new ItemStack(Material.AIR));
 			} else {
-				if (getTime() == 1) { // Since this is a future expression, run it AFTER the event
+				if (getTime() == EventValues.TIME_FUTURE) { // Since this is a future expression, run it AFTER the event
 					Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> FurnaceEventSlot.super.setItem(item));
 				} else {
 					super.setItem(item);
