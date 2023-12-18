@@ -23,6 +23,7 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Ageable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +49,18 @@ public class EvtGrowTest extends SkriptJUnitTest {
 	@Test
 	public void testGrow() {
 		if (canRun) {
-			for (int i = 0; i < 10; i++) {
+			int maxIterations = 100;
+			int iterations = 0;
+			while (((Ageable) plant.getBlockData()).getAge() != ((Ageable) plant.getBlockData()).getMaximumAge()) {
 				plant.applyBoneMeal(BlockFace.UP);
+				if (iterations++ > maxIterations)
+					return;
+			}
+			iterations = 0;
+			while (birch.getType() == Material.BIRCH_SAPLING) {
 				birch.applyBoneMeal(BlockFace.UP);
+				if (iterations++ > maxIterations)
+					return;
 			}
 		}
 	}
