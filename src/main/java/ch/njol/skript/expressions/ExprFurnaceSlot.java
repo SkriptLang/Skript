@@ -196,9 +196,9 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 				case ORE:
 					if (event instanceof FurnaceSmeltEvent) {
 						ItemStack source = ((FurnaceSmeltEvent) event).getSource().clone();
-						if (getTime() == EventValues.TIME_FUTURE)
+						if (getTime() != EventValues.TIME_FUTURE)
 							return source;
-						source.setAmount(source.getAmount() + 1);
+						source.setAmount(source.getAmount() - 1);
 						return source;
 					}
 					return super.getItem();
@@ -207,9 +207,13 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 						ItemStack fuel = ((FurnaceBurnEvent) event).getFuel().clone();
 						if (getTime() != EventValues.TIME_FUTURE)
 							return fuel;
+						// a single lava bucket becomes an empty bucket
+						// see https://minecraft.wiki/w/Smelting#Fuel
+						// this is declared here because setting the amount to 0 may cause the ItemStack to become AIR
+						Material newMaterial = fuel.getType() == Material.LAVA_BUCKET ? Material.BUCKET : Material.AIR;
 						fuel.setAmount(fuel.getAmount() - 1);
 						if (fuel.getAmount() == 0)
-							fuel = new ItemStack(Material.AIR);
+							fuel = new ItemStack(newMaterial);
 						return fuel;
 					}
 					return super.getItem();
