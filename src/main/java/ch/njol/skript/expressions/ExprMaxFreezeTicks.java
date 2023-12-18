@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"difference between player's freeze time and player's max freeze time is less than 1 second:",
 	"\tsend \"you're about to freeze!\" to the player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
@@ -48,7 +48,7 @@ public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks_i(entity.getMaxFreezeTicks());
+		return Timespan.fromTicks(entity.getMaxFreezeTicks());
 	}
 
 	@Override

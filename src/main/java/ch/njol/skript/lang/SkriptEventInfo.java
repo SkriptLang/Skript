@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.SkriptAPIException;
 
 public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> {
-	
+
 	public Class<? extends Event>[] events;
 	public final String name;
 	
@@ -38,6 +38,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	private String[] description;
 	@Nullable
 	private String[] examples;
+	@Nullable
+	private String[] keywords;
 	@Nullable
 	private String since;
 	@Nullable
@@ -112,6 +114,18 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		this.examples = examples;
 		return this;
 	}
+
+	/**
+	 * Only used for Skript's documentation.
+	 *
+	 * @param keywords
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> keywords(final String... keywords) {
+		assert this.keywords == null;
+		this.keywords = keywords;
+		return this;
+	}
 	
 	/**
 	 * Only used for Skript's documentation.
@@ -170,6 +184,11 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	@Nullable
 	public String[] getExamples() {
 		return examples;
+	}
+
+	@Nullable
+	public String[] getKeywords() {
+		return keywords;
 	}
 	
 	@Nullable

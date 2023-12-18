@@ -1,0 +1,29 @@
+test "CondIsPreferredTool - BlockData" when running minecraft "1.19.2":
+	assert wooden pickaxe is preferred tool for minecraft:stone[] with "failed wooden pickaxe for stone blockdata"
+	assert wooden pickaxe is preferred tool for minecraft:grass[] with "failed wooden pickaxe for grass blockdata"
+	assert wooden pickaxe is not preferred tool for minecraft:obsidian[] with "failed wooden pickaxe for obsidian blockdata"
+
+	assert diamond pickaxe is preferred tool for minecraft:obsidian[] with "failed diamond pickaxe for obsidian blockdata"
+
+	assert wooden axe is not preferred tool for minecraft:stone[] with "failed wooden axe for stone blockdata"
+	assert wooden axe is preferred tool for minecraft:grass[] with "failed wooden axe for grass blockdata"
+
+test "CondIsPreferredTool - Block" when running minecraft "1.16.5":
+	set {_block} to block at location(0,0,0, "world")
+	set {_temp} to {_block}'s type
+	set block at {_block} to grass
+	assert wooden axe is preferred tool for {_block} with "failed wooden axe for grass"
+	assert wooden pickaxe is preferred tool for {_block} with "failed wooden pickaxe for grass"
+	assert diamond pickaxe is preferred tool for {_block} with "failed diamond pickaxe for grass"
+
+	set block at {_block} to obsidian
+	assert wooden axe is not preferred tool for {_block} with "failed wooden axe for obsidian"
+	assert wooden pickaxe is not preferred tool for {_block} with "failed wooden pickaxe for obsidian"
+	assert diamond pickaxe is preferred tool for {_block} with "failed diamond pickaxe for obsidian"
+
+	assert {_null} is not preferred tool for {_block} with "failed null is preferred tool for obsidian"
+	assert diamond pickaxe is not preferred tool for {_null} with "failed diamond pickaxe is preferred tool for null"
+	assert {_null} is preferred tool for {_null} to fail with "failed null is not preferred tool for null"
+	assert {_null} is not preferred tool for {_null} with "failed null is preferred tool for null"
+	# leave no trace
+	set block at {_block} to {_temp}

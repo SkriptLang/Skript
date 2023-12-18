@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
@@ -26,6 +28,7 @@ import ch.njol.skript.bukkitutil.block.BlockValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -102,17 +105,33 @@ public class BlockUtils {
 		data = data.replaceAll("\\s+\\[", "[");
 		// And replace white space between namespace with underscores
 		data = data.replace(" ", "_");
-		
+
+		String errorData = new String(data);
+
 		try {
 			return Bukkit.createBlockData(data.startsWith("minecraft:") ? data : "minecraft:" + data);
-		} catch (IllegalArgumentException ignore) {
-			return null;
+		} catch (IllegalArgumentException ignored) {
+			try {
+				// we use the original dataString param here as we want the alias before modifications
+				String alias = dataString.substring(0, dataString.lastIndexOf("["));
+				data = data.substring(data.lastIndexOf("["));
+				ItemType type = Aliases.parseItemType(alias);
+				if (type == null)
+					return null;
+				return Bukkit.createBlockData(type.getMaterial(), data);
+			} catch (StringIndexOutOfBoundsException alsoIgnored) {
+				return null;
+			} catch (IllegalArgumentException alsoIgnored) {
+				Skript.error("Block data '" + errorData + "' is not valid for this material");
+				return null;
+			}
 		}
 	}
 
 	/**
 	 * Get the string version of a block, including type and location.
 	 * ex: 'stone' at 1.5, 1.5, 1.5 in world 'world'
+	 * World can be null if the Block is Skript's BlockStateBlock.
 	 *
 	 * @param block Block to get string of
 	 * @param flags
@@ -122,16 +141,17 @@ public class BlockUtils {
 	public static String blockToString(Block block, int flags) {
 		String type = ItemType.toString(block, flags);
 		Location location = getLocation(block);
-		if (location == null) {
+		if (location == null)
 			return null;
-		}
 
 		double x = location.getX();
 		double y = location.getY();
 		double z = location.getZ();
-		String world = location.getWorld().getName();
 
-		return String.format("'%s' at %s, %s, %s in world '%s'", type, x, y, z, world);
+		World world = location.getWorld();
+		if (world == null)
+			return String.format("'%s' at %s, %s, %s", type, x, y, z);
+		return String.format("'%s' at %s, %s, %s in world '%s'", type, x, y, z, world.getName());
 	}
 
 	/**
@@ -141,7 +161,7 @@ public class BlockUtils {
 	 * @return the actual CB block from the given argument
 	 */
 	public static Block extractBlock(Block block) {
-		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).b : block;
+		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
 	}
 
 }

@@ -33,9 +33,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -43,7 +41,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Name("Group")
-@Description("The primary group or all groups of a player. This expression requires Vault and a compatible permissions plugin to be installed.")
+@Description({
+	"The primary group or all groups of a player. This expression requires Vault and a compatible permissions plugin to be installed.",
+	"If you have LuckPerms, ensure you have vault integration enabled in the luck perms configurations."
+})
 @Examples({"on join:",
 			"\tbroadcast \"%group of player%\" # this is the player's primary group",
 			"\tbroadcast \"%groups of player%\" # this is all of the player's groups"})

@@ -26,25 +26,28 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.ConvertedExpression;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Type of")
-@Description({"Type of a block, item, entity, inventory or potion effect.",
-	"Types of items and blocks are item types similar to them but have amounts",
+@Description({
+	"Type of a block, item, entity, inventory or potion effect.",
+	"Types of items, blocks and block datas are item types similar to them but have amounts",
 	"of one, no display names and, on Minecraft 1.13 and newer versions, are undamaged.",
 	"Types of entities and inventories are entity types and inventory types known to Skript.",
-	"Types of potion effects are potion effect types."})
+	"Types of potion effects are potion effect types."
+})
 @Examples({"on rightclick on an entity:",
 	"\tmessage \"This is a %type of clicked entity%!\""})
-@Since("1.4, 2.5.2 (potion effect)")
+@Since("1.4, 2.5.2 (potion effect), 2.7 (block datas)")
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	static {
-		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories/potioneffects");
+		register(ExprTypeOf.class, Object.class, "type", "entitydatas/itemtypes/inventories/potioneffects/blockdatas");
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	@Override
 	@Nullable
-	public Object convert(final Object o) {
+	public Object convert(Object o) {
 		if (o instanceof EntityData) {
 			return ((EntityData<?>) o).getSuperType();
 		} else if (o instanceof ItemType) {
@@ -63,6 +66,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return ((Inventory) o).getType();
 		} else if (o instanceof PotionEffect) {
 			return ((PotionEffect) o).getType();
+		} else if (o instanceof BlockData) {
+			return new ItemType(((BlockData) o).getMaterial());
 		}
 		assert false;
 		return null;
@@ -73,7 +78,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 		Class<?> returnType = getExpr().getReturnType();
 		return EntityData.class.isAssignableFrom(returnType) ? EntityData.class
 			: ItemType.class.isAssignableFrom(returnType) ? ItemType.class
-			: PotionEffectType.class.isAssignableFrom(returnType) ? PotionEffectType.class : Object.class;
+			: PotionEffectType.class.isAssignableFrom(returnType) ? PotionEffectType.class
+			: BlockData.class.isAssignableFrom(returnType) ? ItemType.class : Object.class;
 	}
 
 	@Override

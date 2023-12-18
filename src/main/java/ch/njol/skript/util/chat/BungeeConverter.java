@@ -18,13 +18,16 @@
  */
 package ch.njol.skript.util.chat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.njol.skript.Skript;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 
 /**
  * Converts Skript's chat components into Bungee's BaseComponents which Spigot
@@ -36,8 +39,19 @@ public class BungeeConverter {
 
 	@SuppressWarnings("null")
 	public static BaseComponent convert(MessageComponent origin) {
-		BaseComponent base = new TextComponent(origin.text);
-		
+		BaseComponent base;
+		if (origin.translation != null) {
+			String[] strings = origin.translation.split(":");
+			String key = strings[0];
+			base = new TranslatableComponent(key, Arrays.copyOfRange(strings, 1, strings.length, Object[].class));
+			base.addExtra(new TextComponent(origin.text));
+		} else if (origin.keybind != null) {
+			base = new KeybindComponent(origin.keybind);
+			base.addExtra(new TextComponent(origin.text));
+		} else {
+			base = new TextComponent(origin.text);
+		}
+
 		base.setBold(origin.bold);
 		base.setItalic(origin.italic);
 		base.setUnderlined(origin.underlined);
