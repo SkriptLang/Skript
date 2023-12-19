@@ -1,0 +1,11 @@
+test "compare":
+	assert 10 is between 5 and 15 with "Number isn't between smaller and larger"
+	assert 10 is between 9 and 11 with "Number isn't between smaller and larger"
+	assert 10 is between 11 and 9 with "Number isn't between larger and smaller"
+	assert 10 is between 9 and 10 with "Number isn't between smaller and equal"
+	assert 10 is between 10 and 11 with "Number isn't between equal and larger"
+	assert 10 is between 10 and 10 with "Number isn't between equal and equal"
+	assert 19:00 is between 18:00 and 20:00 with "Time 19:00 isn't between 18:00 and 20:00"
+	assert 23:00 is between 20:00 and 24:00 with "Time 23:00 isn't between 20:00 and 24:00"
+	assert 23:00 is between 20:00 and 01:00 with "Time 23:00 isn't between 20:00 and 01:00 (cyclical)"
+	assert 23:00 is not between 01:00 and 20:00 with "Time 23:00 is between 01:00 and 20:00 (non-cyclical)"
