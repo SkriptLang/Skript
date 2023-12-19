@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class EventRegister<E> {
 
-	private final Set<E> events = new HashSet<>(5);
+	private final Set<E> events = new HashSet<>();
 
 	/**
 	 * Registers the provided event with this register.

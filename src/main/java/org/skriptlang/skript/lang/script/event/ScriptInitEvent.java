@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * Called when a {@link Script} is created and preloaded in the {@link ScriptLoader}.
- * Note that the script will contain {@link Structure}s that are not fully loaded.
+ * The initializing script will contain {@link Structure}s that are not fully loaded.
  *
  * @see ScriptLoader#loadScripts(File, OpenCloseable)
  * @see ScriptLoader#loadScripts(Set, OpenCloseable)

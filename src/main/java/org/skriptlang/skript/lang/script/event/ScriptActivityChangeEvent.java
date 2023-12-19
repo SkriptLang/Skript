@@ -24,7 +24,7 @@ import org.skriptlang.skript.lang.script.Script;
 
 /**
  * Called when a {@link Script} is made active or inactive in a {@link ParserInstance}.
- * Note that this event triggers <b>after</b> the change in activity has occurred.
+ * This event will trigger <b>after</b> the change in activity has occurred.
  *
  * @see ParserInstance#isActive()
  */

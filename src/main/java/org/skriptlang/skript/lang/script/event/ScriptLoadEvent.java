@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * Called when a {@link Script} is loaded in the {@link ScriptLoader}.
- * Note that this event triggers <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
+ * This event will trigger <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
  *
  * @see ScriptLoader#loadScripts(File, OpenCloseable)
  * @see ScriptLoader#loadScripts(Set, OpenCloseable)
