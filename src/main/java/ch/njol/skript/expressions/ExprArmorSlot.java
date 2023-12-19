@@ -18,17 +18,21 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.slot.EquipmentSlot;
@@ -36,51 +40,67 @@ import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Armour Slot")
-@Description("A part of a player's armour, i.e. the boots, leggings, chestplate or helmet.")
-@Examples({"set chestplate of the player to a diamond chestplate",
-		"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"})
-@Since("1.0")
-public class ExprArmorSlot extends SimplePropertyExpression<LivingEntity, Slot> {
+@Description("Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.")
+@Examples({
+	"set chestplate of the player to a diamond chestplate",
+	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
+})
+@Keywords("armor")
+@Since("1.0, INSERT VERSION (Armour)")
+public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
+
 	static {
-		register(ExprArmorSlot.class, Slot.class, "(0¦boot[s]|0¦shoe[s]|1¦leg[ging][s]|2¦chestplate[s]|3¦helm[et][s]) [(0¦item|4¦slot)]", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "((:boots|:shoes|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
 	}
-	
-	@SuppressWarnings("null")
+
+	@Nullable
 	private EquipSlot slot;
 	private boolean explicitSlot;
-	
-	private final static EquipSlot[] slots = {EquipSlot.BOOTS, EquipSlot.LEGGINGS, EquipSlot.CHESTPLATE, EquipSlot.HELMET};
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		super.init(exprs, matchedPattern, isDelayed, parseResult);
-		slot = slots[parseResult.mark & 3]; // 3 least significant bits determine armor type
-		explicitSlot = (parseResult.mark >>> 2) == 1; // User explicitly asked for SLOT, not item
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		slot = parseResult.hasTag("armour") ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		explicitSlot = parseResult.hasTag("slot"); // User explicitly asked for SLOT, not item
+		setExpr((Expression<? extends LivingEntity>) exprs[0]);
 		return true;
 	}
-	
+
 	@Override
-	@Nullable
-	public Slot convert(final LivingEntity e) {
-		final EntityEquipment eq = e.getEquipment();
-		if (eq == null)
-			return null;
-		return new EquipmentSlot(eq, slot, explicitSlot);
+	protected Slot[] get(Event event, LivingEntity[] source) {
+		if (slot == null) { // All Armour
+			return Arrays.stream(source)
+					.map(LivingEntity::getEquipment)
+					.flatMap(equipment -> {
+						if (equipment == null)
+							return null;
+						return Stream.of(
+								new EquipmentSlot(equipment, EquipSlot.HELMET, explicitSlot),
+								new EquipmentSlot(equipment, EquipSlot.CHESTPLATE, explicitSlot),
+								new EquipmentSlot(equipment, EquipSlot.LEGGINGS, explicitSlot),
+								new EquipmentSlot(equipment, EquipSlot.BOOTS, explicitSlot)
+						);
+					})
+					.toArray(Slot[]::new);
+		}
+
+		return get(source, entity -> {
+			EntityEquipment equipment = entity.getEquipment();
+			if (equipment == null)
+				return null;
+			return new EquipmentSlot(equipment, slot, explicitSlot);
+		});
 	}
-	
-	@Override
-	protected String getPropertyName() {
-		return "" + slot.name().toLowerCase(Locale.ENGLISH);
-	}
-	
+
 	@Override
 	public Class<Slot> getReturnType() {
 		return Slot.class;
 	}
-	
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return slot == null ? "armour" : slot.name().toLowerCase(Locale.ENGLISH) + " of " + getExpr().toString(event, debug);
+	}
+
 }

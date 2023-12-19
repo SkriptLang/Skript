@@ -76,6 +76,10 @@ allow ops to use effect commands: false
 # Whether server operators which do not have the permission "skript.effectcommands" should have access to effect commands.
 # This setting is mainly useful for servers that do not run any permissions plugin.
 
+log effect commands: false
+# Whether Skript should log the usage of effect commands.
+# They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
+
 player variable fix: true
 # Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
 # Player objects inside a variable(list or normal) are not updated to the new player object
@@ -119,11 +123,6 @@ plugin priority: high
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
 
 
-log player commands: false
-# Whether Skript should log the usage of custom commands.
-# They will be logged as [INFORMATION] in this format: '<player>: /<command> <arguments>'
-
-
 number accuracy: 2
 # How many digits should be displayed after the dot at maximum when displaying numbers.
 # Zeroes will never be displayed at all, so this setting only applies to numbers that actually have a decimal part with one or more non-zero digits.
@@ -140,6 +139,10 @@ case sensitive: false
 # Whether Skript's functions should be case sensitive or not.
 # This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
+
+case-insensitive variables: true
+# Whether Skript's variables should be case sensitive or not.
+# When set to true, all variable names and indices case will be ignored.
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
@@ -159,7 +162,8 @@ soft api exceptions: false
 
 enable timings: false
 # When enabled, triggers in scripts will be present in timings reports.
-# Note that this requires Paper (https://paper.readthedocs.io/en/paper-1.11/) to work; on Bukkit/Spigot this option has no effect.
+# Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.
+# Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
 # When false, timings are not enabled for scripts even if you're running Paper.
 
 parse links in chat messages: disabled

@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.SkriptAPIException;
 
 public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> {
-	
+
 	public Class<? extends Event>[] events;
 	public final String name;
 	
