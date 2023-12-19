@@ -48,7 +48,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
 
 	private static final boolean HAS_MIN_HEIGHT =
-		Skript.classExists("org.bukkit.generator.WorldInfo") && Skript.methodExists(WorldInfo.class, "getMinHeight");
+			Skript.classExists("org.bukkit.generator.WorldInfo") &&
+			Skript.methodExists(WorldInfo.class, "getMinHeight");
 
 	private static final boolean HAS_BLOCK_IS_SOLID = Skript.methodExists(Block.class, "isSolid");
 
@@ -57,8 +58,8 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 
 	static {
 		Skript.registerExpression(ExprLowestHighestSolidBlock.class, Block.class, ExpressionType.PROPERTY,
-			"[the] (highest|:lowest) [solid] block (at|of) %locations%",
-			"%locations%'[s] (highest|:lowest) [solid] block"
+				"[the] (highest|:lowest) [solid] block (at|of) %locations%",
+				"%locations%'[s] (highest|:lowest) [solid] block"
 		);
 	}
 
@@ -82,7 +83,6 @@ public class ExprLowestHighestSolidBlock extends SimplePropertyExpression<Locati
 			return getHighestBlockAt(world, location);
 		}
 
-		// sigh...
 		location = location.clone();
 		location.setY(HAS_MIN_HEIGHT ? world.getMinHeight() : 0);
 		Block block = location.getBlock();
