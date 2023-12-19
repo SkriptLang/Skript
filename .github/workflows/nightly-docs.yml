@@ -3,7 +3,11 @@ name: Nightly documentation
 on:
   push:
     branches:
-      - '**'
+      - 'dev/feature'
+      - 'dev/patch'
+      - 'enhancement/**'
+      - 'feature/**'
+      - 'fix/**'
     tags-ignore:
       - '**'
 

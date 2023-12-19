@@ -1923,6 +1923,7 @@ attribute types:
 	generic_follow_range: generic follow range, follow range
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
 	horse_jump_strength: horse jump strength
@@ -1987,7 +1988,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a

@@ -18,9 +18,11 @@
  */
 package ch.njol.skript.config;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.validate.SectionValidator;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -28,14 +30,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.config.validate.SectionValidator;
 
 /**
  * Represents a config file.
@@ -44,7 +44,7 @@ import ch.njol.skript.config.validate.SectionValidator;
  */
 public class Config implements Comparable<Config> {
 	
-	boolean simple = false;
+	boolean simple;
 	
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
@@ -57,8 +57,6 @@ public class Config implements Comparable<Config> {
 	
 	final String defaultSeparator;
 	String separator;
-	
-	String line = "";
 	
 	int level = 0;
 	
@@ -91,11 +89,8 @@ public class Config implements Comparable<Config> {
 			if (Skript.logVeryHigh())
 				Skript.info("loading '" + fileName + "'");
 			
-			final ConfigReader r = new ConfigReader(source);
-			try {
-				main = SectionNode.load(this, r);
-			} finally {
-				r.close();
+			try (ConfigReader reader = new ConfigReader(source)) {
+				main = SectionNode.load(this, reader);
 			}
 		} finally {
 			source.close();
@@ -106,9 +101,8 @@ public class Config implements Comparable<Config> {
 		this(source, fileName, null, simple, allowEmptySections, defaultSeparator);
 	}
 	
-	@SuppressWarnings("resource")
 	public Config(final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
-		this(new FileInputStream(file), "" + file.getName(), simple, allowEmptySections, defaultSeparator);
+		this(Files.newInputStream(file.toPath()), file.getName(), simple, allowEmptySections, defaultSeparator);
 		this.file = file.toPath();
 	}
 	
@@ -120,7 +114,7 @@ public class Config implements Comparable<Config> {
 	
 	/**
 	 * For testing
-	 * 
+	 *
 	 * @param s
 	 * @param fileName
 	 * @param simple
@@ -133,7 +127,7 @@ public class Config implements Comparable<Config> {
 	}
 
 	void setIndentation(final String indent) {
-		assert indent != null && indent.length() > 0 : indent;
+		assert indent != null && !indent.isEmpty() : indent;
 		indentation = indent;
 		indentationName = (indent.charAt(0) == ' ' ? "space" : "tab");
 	}
@@ -156,7 +150,7 @@ public class Config implements Comparable<Config> {
 	
 	/**
 	 * Saves the config to a file.
-	 * 
+	 *
 	 * @param f The file to save to
 	 * @throws IOException If the file could not be written to.
 	 */
@@ -175,7 +169,7 @@ public class Config implements Comparable<Config> {
 	 * Sets this config's values to those in the given config.
 	 * <p>
 	 * Used by Skript to import old settings into the updated config. The return value is used to not modify the config if no new options were added.
-	 * 
+	 *
 	 * @param other
 	 * @return Whether the configs' keys differ, i.e. false == configs only differ in values, not keys.
 	 */
@@ -203,7 +197,7 @@ public class Config implements Comparable<Config> {
 		if (file != null) {
 			try {
 				return file.toFile();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				return null; // ZipPath, for example, throws undocumented exception
 			}
 		}
@@ -235,7 +229,7 @@ public class Config implements Comparable<Config> {
 	
 	/**
 	 * Splits the given path at the dot character and passes the result to {@link #get(String...)}.
-	 * 
+	 *
 	 * @param path
 	 * @return <tt>get(path.split("\\."))</tt>
 	 */
@@ -247,7 +241,7 @@ public class Config implements Comparable<Config> {
 	
 	/**
 	 * Gets an entry node's value at the designated path
-	 * 
+	 *
 	 * @param path
 	 * @return The entry node's value at the location defined by path or null if it either doesn't exist or is not an entry.
 	 */
@@ -284,22 +278,19 @@ public class Config implements Comparable<Config> {
 		return validator.validate(getMainNode());
 	}
 	
-	private void load(final Class<?> c, final @Nullable Object o, final String path) {
-		for (final Field f : c.getDeclaredFields()) {
-			f.setAccessible(true);
-			if (o != null || Modifier.isStatic(f.getModifiers())) {
+	private void load(final Class<?> cls, final @Nullable Object object, final String path) {
+		for (final Field field : cls.getDeclaredFields()) {
+			field.setAccessible(true);
+			if (object != null || Modifier.isStatic(field.getModifiers())) {
 				try {
-					if (OptionSection.class.isAssignableFrom(f.getType())) {
-						final Object p = f.get(o);
-						@NonNull
-						final Class<?> pc = p.getClass();
-						load(pc, p, path + ((OptionSection) p).key + ".");
-					} else if (Option.class.isAssignableFrom(f.getType())) {
-						((Option<?>) f.get(o)).set(this, path);
+					if (OptionSection.class.isAssignableFrom(field.getType())) {
+						final OptionSection section = (OptionSection) field.get(object);
+						@NonNull final Class<?> pc = section.getClass();
+						load(pc, section, path + section.key + ".");
+					} else if (Option.class.isAssignableFrom(field.getType())) {
+						((Option<?>) field.get(object)).set(this, path);
 					}
-				} catch (final IllegalArgumentException e) {
-					assert false;
-				} catch (final IllegalAccessException e) {
+				} catch (final IllegalArgumentException | IllegalAccessException e) {
 					assert false;
 				}
 			}

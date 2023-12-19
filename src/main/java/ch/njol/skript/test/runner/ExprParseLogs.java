@@ -18,9 +18,6 @@
  */
 package ch.njol.skript.test.runner;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
@@ -30,16 +27,17 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
 
-@Name("JUnit Test Name")
-@Description("Returns the currently running JUnit test name otherwise nothing.")
+import javax.annotation.Nullable;
+
+@Name("Parse Logs")
+@Description("Returns the last known parse logs from a parse section, if any.")
 @NoDoc
-public class ExprJUnitTest extends SimpleExpression<String>  {
+public class ExprParseLogs extends SimpleExpression<String> {
 
 	static {
-		if (TestMode.ENABLED)
-			Skript.registerExpression(ExprJUnitTest.class, String.class, ExpressionType.SIMPLE, "[the] [current[[ly] running]] junit test [name]");
+		Skript.registerExpression(ExprParseLogs.class, String.class, ExpressionType.SIMPLE, "[the] [last] parse logs");
 	}
 
 	@Override
@@ -48,14 +46,13 @@ public class ExprJUnitTest extends SimpleExpression<String>  {
 	}
 
 	@Override
-	@Nullable
 	protected String[] get(Event event) {
-		return CollectionUtils.array(SkriptJUnitTest.getCurrentJUnitTest());
+		return SecParse.lastLogs;
 	}
 
 	@Override
 	public boolean isSingle() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -65,7 +62,7 @@ public class ExprJUnitTest extends SimpleExpression<String>  {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "current junit test";
+		return "last parse logs";
 	}
 
 }

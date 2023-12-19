@@ -18,9 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -29,7 +27,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.registrations.EventValues;
 
 @Name("Quit Reason")
@@ -46,24 +43,16 @@ public class ExprQuitReason extends EventValueExpression<QuitReason> {
 
 	static {
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
-			Skript.registerExpression(ExprQuitReason.class, QuitReason.class, ExpressionType.SIMPLE, "[the] (quit|disconnect) (cause|reason)");
+			register(ExprQuitReason.class, QuitReason.class, "(quit|disconnect) (cause|reason)");
 	}
 
 	public ExprQuitReason() {
 		super(QuitReason.class);
 	}
 
-	// Allow for 'the quit reason was ...' as that's proper grammar support for this event value.
 	@Override
 	public boolean setTime(int time) {
-		if (time == EventValues.TIME_FUTURE)
-			return super.setTime(time);
-		return true;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "quit reason";
+		return time != EventValues.TIME_FUTURE; // allow past and present
 	}
 
 }
