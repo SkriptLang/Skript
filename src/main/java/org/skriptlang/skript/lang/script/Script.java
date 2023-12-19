@@ -104,33 +104,41 @@ public final class Script {
 	private final Map<Class<? extends ScriptData>, ScriptData> scriptData = new ConcurrentHashMap<>(5);
 
 	/**
-	 * Clears the data stored for this script.
-	 */
-	public void clearData() {
-		scriptData.clear();
-	}
-
-	/**
+	 * <b>This API is experimental and subject to change.</b>
 	 * Adds new ScriptData to this Script's data map.
 	 * @param data The data to add.
 	 */
+	@ApiStatus.Experimental
 	public void addData(ScriptData data) {
 		scriptData.put(data.getClass(), data);
 	}
 
 	/**
+	 * <b>This API is experimental and subject to change.</b>
 	 * Removes the ScriptData matching the specified data type.
 	 * @param dataType The type of the data to remove.
 	 */
+	@ApiStatus.Experimental
 	public void removeData(Class<? extends ScriptData> dataType) {
 		scriptData.remove(dataType);
 	}
 
 	/**
+	 * <b>This API is experimental and subject to change.</b>
+	 * Clears the data stored for this script.
+	 */
+	@ApiStatus.Experimental
+	public void clearData() {
+		scriptData.clear();
+	}
+
+	/**
+	 * <b>This API is experimental and subject to change.</b>
 	 * A method to obtain ScriptData matching the specified data type.
 	 * @param dataType The class representing the ScriptData to obtain.
 	 * @return ScriptData found matching the provided class, or null if no data is present.
 	 */
+	@ApiStatus.Experimental
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <Type extends ScriptData> Type getData(Class<Type> dataType) {
@@ -138,12 +146,14 @@ public final class Script {
 	}
 
 	/**
+	 * <b>This API is experimental and subject to change.</b>
 	 * A method that always obtains ScriptData matching the specified data type.
 	 * By using the mapping supplier, it will also add ScriptData of the provided type if it is not already present.
 	 * @param dataType The class representing the ScriptData to obtain.
 	 * @param mapper A supplier to create ScriptData of the provided type if such ScriptData is not already present.
 	 * @return Existing ScriptData found matching the provided class, or new data provided by the mapping function.
 	 */
+	@ApiStatus.Experimental
 	@SuppressWarnings("unchecked")
 	public <Value extends ScriptData> Value getData(Class<? extends Value> dataType, Supplier<Value> mapper) {
 		return (Value) scriptData.computeIfAbsent(dataType, clazz -> mapper.get());
