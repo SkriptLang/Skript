@@ -64,6 +64,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -873,6 +874,10 @@ public class BukkitClasses {
 							return Classes.toString(((BlockState) holder).getBlock());
 						} else if (holder instanceof DoubleChest) {
 							return Classes.toString(holder.getInventory().getLocation().getBlock());
+						} else if (holder instanceof BlockInventoryHolder) {
+							return Classes.toString(((BlockInventoryHolder) holder).getBlock());
+						} else if (Classes.getSuperClassInfo(holder.getClass()).getC() == InventoryHolder.class) {
+							return holder.getClass().getSimpleName(); // an inventory holder and only that
 						} else {
 							return Classes.toString(holder);
 						}
@@ -1352,14 +1357,17 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
 				.name("Firework Effect")
-				.description("A configuration of effects that defines the firework when exploded",
+				.usage("See <a href='/classes.html#FireworkType'>Firework Types</a>")
+				.description(
+					"A configuration of effects that defines the firework when exploded",
 					"which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.",
-					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns.")
-				.defaultExpression(new EventValueExpression<>(FireworkEffect.class))
-				.examples("launch flickering trailing burst firework colored blue and green at player",
+					"See the <a href='expressions.html#ExprFireworkEffect'>firework effect</a> expression for detailed patterns."
+				).defaultExpression(new EventValueExpression<>(FireworkEffect.class))
+				.examples(
+					"launch flickering trailing burst firework colored blue and green at player",
 					"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
-					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
-				.since("2.4")
+					"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"
+				).since("2.4")
 				.parser(new Parser<FireworkEffect>() {
 					@Override
 					@Nullable
@@ -1407,7 +1415,7 @@ public class BukkitClasses {
 					.user("(panda )?genes?")
 					.name("Gene")
 					.description("Represents a Panda's main or hidden gene. " +
-							"See <a href='https://minecraft.gamepedia.com/Panda#Genetics'>genetics</a> for more info.")
+							"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
@@ -1483,7 +1491,7 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
