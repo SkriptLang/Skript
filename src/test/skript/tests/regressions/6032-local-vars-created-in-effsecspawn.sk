@@ -1,0 +1,5 @@
+test "local vars created in EffSecSpawn":
+	set {_spawn} to spawn of world "world"
+	spawn 4 zombies at {_spawn}:
+		add 1 to {_test}
+	assert {_test} is 4 with "local var created in EffSecSpawn was not properly incremented"

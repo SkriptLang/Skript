@@ -48,6 +48,9 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Parse")
 @Description({"Parses text as a given type, or as a given pattern.",
@@ -88,8 +91,9 @@ public class ExprParse extends SimpleExpression<Object> {
 	@Nullable
 	private SkriptPattern pattern;
 	@Nullable
-	private boolean[] patternExpressionPlurals;
-	private boolean patternHasSingleExpression = false;
+	private NonNullPair<ClassInfo<?>, Boolean>[] patternExpressions;
+	private boolean single = true;
+	public boolean flatten = true;
 
 	@Nullable
 	private ClassInfo<?> classInfo;
@@ -106,7 +110,7 @@ public class ExprParse extends SimpleExpression<Object> {
 				return false;
 			}
 
-			NonNullPair<String, boolean[]> p = SkriptParser.validatePattern(pattern);
+			NonNullPair<String, NonNullPair<ClassInfo<?>, Boolean>[]> p = SkriptParser.validatePattern(pattern);
 			if (p == null) {
 				// Errored in validatePattern already
 				return false;
@@ -114,7 +118,15 @@ public class ExprParse extends SimpleExpression<Object> {
 
 			// Make all types in the pattern plural
 			pattern = p.getFirst();
-			patternExpressionPlurals = p.getSecond();
+			patternExpressions = p.getSecond();
+
+			// Check if all the types can actually parse
+			for (NonNullPair<ClassInfo<?>, Boolean> patternExpression : patternExpressions) {
+				if (!canParse(patternExpression.getFirst()))
+					return false;
+				if (patternExpression.getSecond())
+					single = false;
+			}
 
 			// Escape '¦' and ':' (used for parser tags/marks)
 			pattern = escapeParseTags(pattern);
@@ -128,8 +140,9 @@ public class ExprParse extends SimpleExpression<Object> {
 				return false;
 			}
 
-			// If the pattern contains at most 1 type, this expression is single
-			this.patternHasSingleExpression = this.pattern.countNonNullTypes() <= 1;
+			// If the pattern contains at most 1 type, and this type is single, this expression is single
+			if (single)
+				this.single = this.pattern.countNonNullTypes() <= 1;
 		} else {
 			classInfo = ((Literal<ClassInfo<?>>) exprs[1]).getSingle();
 
@@ -139,11 +152,7 @@ public class ExprParse extends SimpleExpression<Object> {
 			}
 
 			// Make sure the ClassInfo has a parser
-			Parser<?> parser = classInfo.getParser();
-			if (parser == null || !parser.canParse(ParseContext.COMMAND)) { // TODO special parse context?
-				Skript.error("Text cannot be parsed as " + classInfo.getName().withIndefiniteArticle());
-				return false;
-			}
+			return canParse(classInfo);
 		}
 		return true;
 	}
@@ -165,21 +174,36 @@ public class ExprParse extends SimpleExpression<Object> {
 				assert parser != null; // checked in init()
 
 				// Parse and return value
-				Object value = parser.parse(text, ParseContext.COMMAND);
+				Object value = parser.parse(text, ParseContext.PARSE);
 				if (value != null) {
 					Object[] valueArray = (Object[]) Array.newInstance(classInfo.getC(), 1);
 					valueArray[0] = value;
 					return valueArray;
 				}
 			} else {
-				assert pattern != null && patternExpressionPlurals != null;
+				assert pattern != null && patternExpressions != null;
 
-				MatchResult matchResult = pattern.match(text, SkriptParser.PARSE_LITERALS, ParseContext.COMMAND);
+				MatchResult matchResult = pattern.match(text, SkriptParser.PARSE_LITERALS, ParseContext.PARSE);
 
 				if (matchResult != null) {
 					Expression<?>[] exprs = matchResult.getExpressions();
 
-					assert patternExpressionPlurals.length == exprs.length;
+					assert patternExpressions.length == exprs.length;
+
+					if (flatten) {
+						List<Object> values = new ArrayList<>();
+						for (int i = 0; i < exprs.length; i++) {
+							if (exprs[i] != null) {
+								if (patternExpressions[i].getSecond()) {
+									values.addAll(Arrays.asList(exprs[i].getArray(null)));
+									continue;
+								}
+								values.add(exprs[i].getSingle(null));
+							}
+						}
+						return values.toArray();
+					}
+
 					int nonNullExprCount = 0;
 					for (Expression<?> expr : exprs) {
 						if (expr != null) // Ignore missing optional parts
@@ -192,8 +216,7 @@ public class ExprParse extends SimpleExpression<Object> {
 					for (int i = 0; i < exprs.length; i++) {
 						if (exprs[i] != null) {
 							//noinspection DataFlowIssue
-							values[valueIndex] = patternExpressionPlurals[i] ? exprs[i].getArray(null) : exprs[i].getSingle(null);
-
+							values[valueIndex] = patternExpressions[i].getSecond() ? exprs[i].getArray(null) : exprs[i].getSingle(null);
 							valueIndex++;
 						}
 					}
@@ -221,17 +244,28 @@ public class ExprParse extends SimpleExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return pattern == null || patternHasSingleExpression;
+		return single;
 	}
 
 	@Override
 	public Class<?> getReturnType() {
-		return classInfo != null ? classInfo.getC() : Object.class;
+		if (classInfo != null)
+			return classInfo.getC();
+		return patternExpressions.length == 1 ? patternExpressions[0].getFirst().getC() : Object.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return text.toString(e, debug) + " parsed as " + (classInfo != null ? classInfo.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
+	public String toString(@Nullable Event event, boolean debug) {
+		return text.toString(event, debug) + " parsed as " + (classInfo != null ? classInfo.toString(Language.F_INDEFINITE_ARTICLE) : pattern);
+	}
+
+	private static boolean canParse(ClassInfo<?> classInfo) {
+		Parser<?> parser = classInfo.getParser();
+		if (parser == null || !parser.canParse(ParseContext.PARSE)) {
+			Skript.error("Text cannot be parsed as " + classInfo.getName().withIndefiniteArticle());
+			return false;
+		}
+		return true;
 	}
 
 	/**

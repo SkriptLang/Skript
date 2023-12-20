@@ -466,8 +466,8 @@ public class HTMLGenerator {
 
 		// Examples
 		Examples examples = c.getAnnotation(Examples.class);
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples."))
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples.")));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Documentation ID
@@ -595,7 +595,7 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
@@ -662,8 +662,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(line);
-				line = line.replace(SkriptEventInfo.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
+				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
@@ -703,9 +702,12 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(Documentation.escapeHTML(examples))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		Keywords keywords = c.getAnnotation(Keywords.class);
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
 
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
@@ -808,10 +810,13 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		String[] keywords = info.getKeywords();
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
@@ -914,7 +919,7 @@ public class HTMLGenerator {
 		if (returnType == null)
 			return handleIf(desc, "${if return-type}", false);
 
-		boolean noDoc = returnType.hasDocs();
+		boolean noDoc = !returnType.hasDocs();
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 

@@ -38,7 +38,7 @@ public class TestResults {
 	private final Map<String, String> failed;
 
 	/**
-	 * If the docs failed to generate when running gradle genDocs command.
+	 * If the docs failed to generate when running gradle doc gen commands.
 	 */
 	private final boolean docsFailed;
 
