@@ -59,7 +59,7 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 
 	static {
 		Skript.registerExpression(ExprItemsIn.class, Slot.class, ExpressionType.PROPERTY,
-			"[all [[of] the]] (items|%-*itemtypes%) ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%",
+			"[all [[of] the]] items ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%",
 			"all [[of] the] %itemtypes% ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%"
 		);
 	}
