@@ -75,6 +75,9 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		// work around syntax conflict with ExprItemsIn and ExprAmountOfItems
+		if (exprs[0] instanceof ExprItemsIn)
+			return false;
 		this.exprs = exprs[0] instanceof ExpressionList ? (ExpressionList<?>) exprs[0] : new ExpressionList<>(new Expression<?>[]{exprs[0]}, Object.class, false);
 		this.recursive = matchedPattern == 1;
 		for (Expression<?> expr : this.exprs.getExpressions()) {
