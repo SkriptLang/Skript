@@ -77,8 +77,12 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	 * be a variable when used with that expression (it is always an anonymous SimpleExpression)
 	 */
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		types = (Expression<ItemType>) exprs[0];
-		inventories = (Expression<Inventory>) exprs[1];
+		if (matchedPattern == 0) {
+			inventories = (Expression<Inventory>) exprs[0];
+		} else {
+			types = (Expression<ItemType>) exprs[0];
+			inventories = (Expression<Inventory>) exprs[1];
+		}
 		if (inventories instanceof Variable && !inventories.isSingle() && parseResult.mark != 1)
 			Skript.warning("'items in {variable::*}' does not actually represent the items stored in the variable. Use either '{variable::*}' (e.g. 'loop {variable::*}') if the variable contains items, or 'items in inventories {variable::*}' if the variable contains inventories.");
 		return true;
