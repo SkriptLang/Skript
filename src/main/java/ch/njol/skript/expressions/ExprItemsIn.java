@@ -20,10 +20,10 @@ package ch.njol.skript.expressions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.lang.Literal;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -59,22 +59,22 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 
 	static {
 		Skript.registerExpression(ExprItemsIn.class, Slot.class, ExpressionType.PROPERTY,
-			"[all [[of] the]|the] (items|%-*itemtypes%) ([with]in|of|contained in|out of) (|1¦inventor(y|ies)) %inventories%",
-			"all [[of] the|the] %itemtypes% ([with]in|of|contained in|out of) (|1¦inventor(y|ies)) %inventories%"
+			"[all [[of] the]] (items|%-*itemtypes%) ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%",
+			"all [[of] the] %itemtypes% ([with]in|of|contained in|out of) [1:inventor(y|ies)] %inventories%"
 		);
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Inventory> inventories;
 
 	@Nullable
 	private Expression<ItemType> types;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	/*
 	 * the parse result will be null if it is used via the ExprInventory expression, however the expression will never
-	 * be a variable when used with that expression (it is always a anonymous SimpleExpression)
+	 * be a variable when used with that expression (it is always an anonymous SimpleExpression)
 	 */
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		types = (Expression<ItemType>) exprs[0];
@@ -85,14 +85,13 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	protected Slot[] get(Event event) {
-		ArrayList<Slot> itemSlots = new ArrayList<>();
+		List<Slot> itemSlots = new ArrayList<>();
 		ItemType[] types = this.types == null ? null : this.types.getArray(event);
-		for (Inventory invi : inventories.getArray(event)) {
-			for (int i = 0; i < invi.getSize(); i++) {
-				if (isAllowedItem(types, invi.getItem(i)))
-					itemSlots.add(new InventorySlot(invi, i));
+		for (Inventory inventory : inventories.getArray(event)) {
+			for (int i = 0; i < inventory.getSize(); i++) {
+				if (isAllowedItem(types, inventory.getItem(i)))
+					itemSlots.add(new InventorySlot(inventory, i));
 			}
 		}
 		return itemSlots.toArray(new Slot[itemSlots.size()]);
@@ -106,30 +105,28 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 		if (inventoryIterator == null || !inventoryIterator.hasNext())
 			return null;
 		return new Iterator<Slot>() {
-			@SuppressWarnings("null")
-			Inventory current = inventoryIterator.next();
+			Inventory currentInventory = inventoryIterator.next();
 
 			int next = 0;
 
 			@Override
-			@SuppressWarnings("null")
 			public boolean hasNext() {
-				while (next < current.getSize() && !isAllowedItem(types, current.getItem(next)))
+				while (next < currentInventory.getSize() && !isAllowedItem(types, currentInventory.getItem(next)))
 					next++;
-				while (next >= current.getSize() && inventoryIterator.hasNext()) {
-					current = inventoryIterator.next();
+				while (next >= currentInventory.getSize() && inventoryIterator.hasNext()) {
+					currentInventory = inventoryIterator.next();
 					next = 0;
-					while (next < current.getSize() && !isAllowedItem(types, current.getItem(next)))
+					while (next < currentInventory.getSize() && !isAllowedItem(types, currentInventory.getItem(next)))
 						next++;
 				}
-				return next < current.getSize();
+				return next < currentInventory.getSize();
 			}
 
 			@Override
 			public Slot next() {
 				if (!hasNext())
 					throw new NoSuchElementException();
-				return new InventorySlot(current, next++);
+				return new InventorySlot(currentInventory, next++);
 			}
 
 			@Override
