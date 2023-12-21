@@ -69,7 +69,7 @@ public class ExpressionEntryData<T> extends KeyValueEntryData<Expression<? exten
 	@SuppressWarnings("unchecked")
 	protected Expression<? extends T> getValue(String value) {
 		Expression<? extends T> expression;
-		try (ParseLogHandler log = new ParseLogHandler()) {
+		try (ParseLogHandler log = new ParseLogHandler().start()) {
 			expression = new SkriptParser(value, flags, ParseContext.DEFAULT)
 				.parseExpression(returnType);
 			if (expression == null) // print an error if it couldn't parse

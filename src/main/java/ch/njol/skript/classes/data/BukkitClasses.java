@@ -66,6 +66,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -874,6 +875,10 @@ public class BukkitClasses {
 							return Classes.toString(((BlockState) holder).getBlock());
 						} else if (holder instanceof DoubleChest) {
 							return Classes.toString(holder.getInventory().getLocation().getBlock());
+						} else if (holder instanceof BlockInventoryHolder) {
+							return Classes.toString(((BlockInventoryHolder) holder).getBlock());
+						} else if (Classes.getSuperClassInfo(holder.getClass()).getC() == InventoryHolder.class) {
+							return holder.getClass().getSimpleName(); // an inventory holder and only that
 						} else {
 							return Classes.toString(holder);
 						}
@@ -1411,7 +1416,7 @@ public class BukkitClasses {
 					.user("(panda )?genes?")
 					.name("Gene")
 					.description("Represents a Panda's main or hidden gene. " +
-							"See <a href='https://minecraft.gamepedia.com/Panda#Genetics'>genetics</a> for more info.")
+							"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
@@ -1487,7 +1492,7 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
