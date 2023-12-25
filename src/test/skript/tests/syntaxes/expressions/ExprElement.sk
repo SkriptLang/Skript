@@ -23,3 +23,4 @@ test "ExprElement":
 	assert elements from -1 to 4 of {_list::*} are "foo", "bar" or "foobar" with "Incorrect elements from -1 to 4"
 	assert elements from 5 to 5 of {_list::*} is not set with "Incorrect elements from 5 to 5"
 	assert elements from 1 to 1 of {_list::*} is "foo" with "Incorrect elements from 1 to 1"
+	assert (first element out of (5 and 6)) + 5 is 10 with "Incorrect return type"

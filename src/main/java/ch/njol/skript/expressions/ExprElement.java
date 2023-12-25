@@ -102,11 +102,13 @@ public class ExprElement<T> extends SimpleExpression<T> {
 
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	protected T[] get(Event event) {
 		Iterator<? extends T> iterator = expr.iterator(event);
 		if (iterator == null || !iterator.hasNext())
 			return null;
 		T element = null;
+		Class<T> returnType = (Class<T>) getReturnType();
 		int startIndex = 0, endIndex = 0;
 		if (this.startIndex != null) {
 			Integer integer = this.startIndex.getSingle(event);
@@ -131,7 +133,7 @@ public class ExprElement<T> extends SimpleExpression<T> {
 				element = Iterators.getLast(iterator);
 				break;
 			case RANDOM:
-				element = CollectionUtils.getRandom(Iterators.toArray(iterator, getReturnType_i()));
+				element = CollectionUtils.getRandom(Iterators.toArray(iterator, returnType));
 				break;
 			case ORDINAL:
 				Iterators.advance(iterator, startIndex - 1);
@@ -140,19 +142,19 @@ public class ExprElement<T> extends SimpleExpression<T> {
 				element = iterator.next();
 				break;
 			case TAIL_END_ORDINAL:
-				elementArray = Iterators.toArray(iterator, getReturnType_i());
+				elementArray = Iterators.toArray(iterator, returnType);
 				if (startIndex > elementArray.length)
 					return null;
 				element = elementArray[elementArray.length - startIndex];
 				break;
 			case FIRST_X_ELEMENTS:
-				return Iterators.toArray(Iterators.limit(iterator, startIndex), getReturnType_i());
+				return Iterators.toArray(Iterators.limit(iterator, startIndex), returnType);
 			case LAST_X_ELEMENTS:
-				elementArray = Iterators.toArray(iterator, getReturnType_i());
+				elementArray = Iterators.toArray(iterator, returnType);
 				startIndex = Math.min(startIndex, elementArray.length);
 				return CollectionUtils.subarray(elementArray, elementArray.length - startIndex, elementArray.length);
 			case RANGE:
-				elementArray = Iterators.toArray(iterator, getReturnType_i());
+				elementArray = Iterators.toArray(iterator, returnType);
 				boolean reverse = startIndex > endIndex;
 				int from = Math.min(startIndex, endIndex) - 1;
 				int to = Math.max(startIndex, endIndex);
@@ -186,11 +188,6 @@ public class ExprElement<T> extends SimpleExpression<T> {
 	@Override
 	public boolean isSingle() {
 		return type != ElementType.FIRST_X_ELEMENTS && type != ElementType.LAST_X_ELEMENTS && type != ElementType.RANGE;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Class<T> getReturnType_i() {
-		return (Class<T>) getReturnType();
 	}
 
 	@Override
