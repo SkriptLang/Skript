@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.script.Script;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -37,32 +38,33 @@ public class ScriptFunction<T> extends Function<T> {
 	
 	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		super(sign);
-		
+
+		ParserInstance parser = ParserInstance.get();
 		Functions.currentFunction = this;
 		try {
 			trigger = new Trigger(
 				script,
 				"function " + sign.getName(),
 				new SimpleEvent(),
-				ScriptLoader.loadItems(node)
+				trigger -> {
+					parser.pushReturnData(trigger, getReturnType(), isSingle());
+					return ScriptLoader.loadItems(node);
+				}
 			);
-			trigger.setLineNumber(node.getLine());
 		} finally {
 			Functions.currentFunction = null;
+			parser.popReturnData();
 		}
+		trigger.setLineNumber(node.getLine());
 	}
-	
-	private boolean returnValueSet = false;
-	@Nullable
-	private T[] returnValue = null;
 	
 	/**
 	 * Should only be called by {@link EffReturn}.
+	 * @deprecated Use {@link ch.njol.skript.lang.TriggerSection#setReturnValue(Object[])}
 	 */
+	@Deprecated
 	public final void setReturnValue(final @Nullable T[] value) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		returnValue = value;
+		trigger.setReturnValue(value);
 	}
 	
 	// REMIND track possible types of local variables (including undefined variables) (consider functions, commands, and EffChange) - maybe make a general interface for this purpose
@@ -84,13 +86,12 @@ public class ScriptFunction<T> extends Function<T> {
 		}
 		
 		trigger.execute(e);
-		return returnValue;
+		return getReturnType() == null ? null : trigger.getReturnValue(getReturnType().getC());
 	}
 
 	@Override
 	public boolean resetReturnValue() {
-		returnValue = null;
-		returnValueSet = false;
+		trigger.resetReturnValue();
 		return true;
 	}
 

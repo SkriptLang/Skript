@@ -24,6 +24,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class Trigger extends TriggerSection {
 	
@@ -36,11 +37,15 @@ public class Trigger extends TriggerSection {
 	private String debugLabel;
 	
 	public Trigger(@Nullable Script script, String name, SkriptEvent event, List<TriggerItem> items) {
-		super(items);
+		this(script, name, event, trigger -> items);
+	}
+
+	public Trigger(@Nullable Script script, String name, SkriptEvent event, Function<Trigger, List<TriggerItem>> function) {
 		this.script = script;
 		this.name = name;
 		this.event = event;
 		this.debugLabel = "unknown trigger";
+		setTriggerItems(function.apply(this));
 	}
 
 	/**

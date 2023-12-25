@@ -20,12 +20,14 @@ package ch.njol.skript.lang;
 
 import java.util.List;
 
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a section of a trigger, e.g. a conditional or a loop
@@ -36,7 +38,10 @@ public abstract class TriggerSection extends TriggerItem {
 	protected TriggerItem first = null;
 	@Nullable
 	protected TriggerItem last = null;
-	
+
+	private boolean returnValueSet = false;
+	private Object @Nullable [] returnValue;
+
 	/**
 	 * Reserved for new Trigger(...)
 	 */
@@ -93,7 +98,30 @@ public abstract class TriggerSection extends TriggerItem {
 		super.setParent(parent);
 		return this;
 	}
-	
+
+	public Object @Nullable [] getReturnValue() {
+		return returnValue;
+	}
+
+	public <T> T @Nullable [] getReturnValue(Class<T> expectedType) {
+		return CollectionUtils.arrayType(expectedType).cast(getReturnValue());
+	}
+
+	/**
+	 * Should only be called by {@link ch.njol.skript.effects.EffReturn}.
+	 */
+	@ApiStatus.Internal
+	public final void setReturnValue(Object @Nullable [] returnValue) {
+		assert !returnValueSet;
+		returnValueSet = true;
+		this.returnValue = returnValue;
+	}
+
+	public final void resetReturnValue() {
+		returnValueSet = false;
+		returnValue = null;
+	}
+
 	@Override
 	protected final boolean run(Event e) {
 		throw new UnsupportedOperationException();
