@@ -21,7 +21,12 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 import java.util.logging.Level;
 
-import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Variable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,11 +40,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
@@ -254,7 +255,18 @@ public class EffChange extends Effect {
 					Skript.error("only one " + Classes.getSuperClassInfo(x).getName() + " can be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + changed + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				return false;
 			}
-			
+
+			if (changed instanceof Variable && !changed.isSingle() && mode == ChangeMode.SET) {
+				if (ch instanceof ExprParse) {
+					((ExprParse) ch).flatten = false;
+				} else if (ch instanceof ExpressionList) {
+					for (Expression<?> expression : ((ExpressionList<?>) ch).getExpressions()) {
+						if (expression instanceof ExprParse)
+							((ExprParse) expression).flatten = false;
+					}
+				}
+			}
+
 			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
 				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
 				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
