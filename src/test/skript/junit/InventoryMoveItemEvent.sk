@@ -10,10 +10,10 @@ on inventory item move:
 	junit test is "{@junit}"
 
 	# Refers to getBlock() in SimpleJUnitTest.java
-	set {_location} to (spawn of first element of all worlds) ~~ vector(10, 1, 0)
+	set {_block} to block at ((spawn of first element of all worlds) ~~ vector(10, 1, 0))
 
-	block at {_location} is a chest
-	block below {_location} is a hopper
+	block at {_block} is a chest
+	block below {_block} is a hopper
 	assert type of past event-block is a chest with "Past event-block should be a chest"
 	assert type of event-block is a hopper with "event-block should be a hopper"
 	assert type of event-initiator-inventory is hopper inventory with "event-initiator-inventory should be a hopper"
