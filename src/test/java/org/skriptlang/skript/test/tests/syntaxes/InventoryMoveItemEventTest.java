@@ -34,7 +34,7 @@ public class InventoryMoveItemEventTest extends SkriptJUnitTest {
 	private Block hopper;
 
 	static {
-		setShutdownDelay(10);
+		setShutdownDelay(20);
 	}
 
 	@Before

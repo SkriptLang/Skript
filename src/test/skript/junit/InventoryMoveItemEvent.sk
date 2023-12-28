@@ -4,19 +4,24 @@ options:
 	objective: inventory move item event success
 
 on script load:
+	broadcast "InventoryItemMoveEvent.sk load"
 	ensure junit test "{@junit}" completes "{@objective}"
 
 on inventory item move:
+	broadcast "InventoryItemMoveEvent"
 	junit test is "{@junit}"
+	broadcast "InventoryItemMoveEvent JUnit Test"
 
 	# Refers to getBlock() in SimpleJUnitTest.java
 	set {_block} to block at ((spawn of first element of all worlds) ~~ vector(10, 1, 0))
+	broadcast "{_block} = %block at {_block}%"
 
-	block at {_block} is a chest
-	block below {_block} is a hopper
+	assert block at {_block} is a chest with "{_block} is not a chest, got %{_block}%"
+	assert block below {_block} is a hopper with "block below {_block} is not a hopper, got %block below {_block}%"
 	assert type of past event-block is a chest with "Past event-block should be a chest"
 	assert type of event-block is a hopper with "event-block should be a hopper"
 	assert type of event-initiator-inventory is hopper inventory with "event-initiator-inventory should be a hopper"
 	assert type of event-item is a stone with "event-item should be a stone"
 
+	broadcast "%nl%InventoryMoveItemEvent.sk test completed without issues%nl%"
 	complete objective "{@objective}" for junit test "{@junit}"
