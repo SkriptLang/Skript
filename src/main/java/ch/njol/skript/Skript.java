@@ -712,10 +712,8 @@ public final class Skript extends JavaPlugin implements Listener {
 										for (Method method : clazz.getDeclaredMethods()) {
 											if (!method.isAnnotationPresent(After.class))
 												continue;
-											SuppressWarnings suppressWarning = method.getAnnotation(SuppressWarnings.class);
-											if (suppressWarning != null && CollectionUtils.contains(suppressWarning.value(), "after"))
-												continue;
-											warning("Using @After in JUnit classes, happens instantaneously. Either add '@SuppressWarnings(\"after\")' to acknowledge this or do your test cleanup in the script junit file.");
+											if (SkriptJUnitTest.getShutdownDelay() > 1)
+												warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
 											if (method.getName().equals("cleanup"))
 												overrides = true;
 										}
