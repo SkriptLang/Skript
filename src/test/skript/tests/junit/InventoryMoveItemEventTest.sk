@@ -14,9 +14,9 @@ on inventory item move:
 
 	block at {_location} is a chest
 	block below {_location} is a hopper
-	assert past event-block is a chest with "Past event-block should be a chest"
-	assert event-block is a hopper with "event-block should be a hopper"
-	assert event-initiator-inventory is a hopper with "event-initiator-inventory should be a hopper"
-	assert event-item is a stone with "event-item should be a stone"
+	assert type of past event-block is a chest with "Past event-block should be a chest"
+	assert type of event-block is a hopper with "event-block should be a hopper"
+	assert type of event-initiator-inventory is hopper inventory with "event-initiator-inventory should be a hopper"
+	assert type of event-item is a stone with "event-item should be a stone"
 
 	complete objective "{@objective}" for junit test "{@junit}"
