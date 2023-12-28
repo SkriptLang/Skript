@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -317,6 +318,18 @@ public abstract class Classes {
 		}
 		assert false;
 		return null;
+	}
+
+	/**
+	 * Gets the class info of the super type of given classes or its closest registered superclass.
+	 * This method is useful for Skript to avoid passing around "unknown" super types.
+	 *
+	 * @param classes The classes to determine a super type from.
+	 * @return The closest info for the super type of <code>classes</code>.
+	 */
+	// This method is used to avoid issues like https://github.com/SkriptLang/Skript/issues/5848
+	public static ClassInfo<?> getSuperClassInfo(Class<?>... classes) {
+		return getSuperClassInfo(Utils.getSuperType(classes));
 	}
 
 	/**
