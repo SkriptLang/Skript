@@ -213,10 +213,12 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 		};
 		if (!ignoreBlocks) {
 			RayTraceResult blockResult = origin.getWorld().rayTraceBlocks(origin.getEyeLocation(), location.getDirection(), targetBlockDistance);
-			Vector hit = blockResult.getHitPosition();
-			Location eyes = origin.getEyeLocation();
-			if (hit != null)
-				result = origin.getWorld().rayTraceEntities(eyes, location.getDirection(), eyes.toVector().distance(hit), raysize, predicate);
+			if (blockResult != null) {
+				Vector hit = blockResult.getHitPosition();
+				Location eyes = origin.getEyeLocation();
+				if (hit != null)
+					result = origin.getWorld().rayTraceEntities(eyes, location.getDirection(), eyes.toVector().distance(hit), raysize, predicate);
+			}
 		} else {
 			result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), targetBlockDistance, raysize, predicate);
 		}
