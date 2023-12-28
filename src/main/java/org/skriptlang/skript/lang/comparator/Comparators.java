@@ -20,10 +20,12 @@ package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public final class Comparators {
 	 * Registers a new Comparator with Skript's collection of Comparators.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @param comparator A Comparator for comparing objects of 'firstType' and 'secondType'.
+	 * @param comparator A Comparator for comparing objects of <code>firstType</code> and <code>secondType</code>.
 	 */
 	public static <T1, T2> void registerComparator(
 		Class<T1> firstType,
@@ -93,15 +95,54 @@ public final class Comparators {
 		}
 
 		synchronized (COMPARATORS) {
-			for (ComparatorInfo<?, ?> info : COMPARATORS) {
-				if (info.firstType == firstType && info.secondType == secondType) {
-					throw new SkriptAPIException(
-							"A Comparator comparing '" + firstType + "' and '" + secondType + "' already exists!"
-					);
-				}
+			if (exactComparatorExists_i(firstType, secondType)) {
+				throw new SkriptAPIException(
+					"A Comparator comparing '" + firstType + "' and '" + secondType + "' already exists!"
+				);
 			}
 			COMPARATORS.add(new ComparatorInfo<>(firstType, secondType, comparator));
 		}
+	}
+
+	/**
+	 * Internal method. All calling locations are expected to manually synchronize this method if necessary.
+	 * @return Whether a Comparator exists that EXACTLY matches the provided types.
+	 */
+	private static boolean exactComparatorExists_i(Class<?> firstType, Class<?> secondType) {
+		for (ComparatorInfo<?, ?> info : COMPARATORS) {
+			if (info.getFirstType() == firstType && info.getSecondType() == secondType) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * A method for determining whether a direct Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 * Unlike other methods of this class, it is not the case that
+	 *  {@link Skript#isAcceptRegistrations()} must return <code>false</code> for this method to be used.
+	 * @param firstType The first type for comparison.
+	 * @param secondType The second type for comparison.
+	 * @return Whether a direct Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 */
+	public static boolean exactComparatorExists(Class<?> firstType, Class<?> secondType) {
+		synchronized (COMPARATORS) {
+			return exactComparatorExists_i(firstType, secondType);
+		}
+	}
+
+	/**
+	 * A method for determining whether a Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 * @param firstType The first type for comparison.
+	 * @param secondType The second type for comparison.
+	 * @return Whether a Comparator of <code>firstType</code> and <code>secondType</code> exists.
+	 */
+	public static boolean comparatorExists(Class<?> firstType, Class<?> secondType) {
+		assertIsDoneLoading();
+		if (firstType != Object.class && firstType == secondType) { // Would use the default comparator
+			return true;
+		}
+		return getComparator(firstType, secondType) != null;
 	}
 
 	/**
@@ -132,26 +173,26 @@ public final class Comparators {
 	}
 
 	/**
-	 * A method for obtaining a Comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * A method for obtaining a Comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * Please note that comparators may convert objects if necessary for comparisons.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return A Comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no comparator capable of comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return A Comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no comparator capable of comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 */
 	@Nullable
 	public static <T1, T2> Comparator<T1, T2> getComparator(Class<T1> firstType, Class<T2> secondType) {
 		ComparatorInfo<T1, T2> info = getComparatorInfo(firstType, secondType);
-		return info != null ? info.comparator : null;
+		return info != null ? info.getComparator() : null;
 	}
 
 	/**
-	 * A method for obtaining the info of a Comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * A method for obtaining the info of a Comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * Please note that comparators may convert objects if necessary for comparisons.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return The info of a Comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no info for comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return The info of a Comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no info for comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -174,18 +215,18 @@ public final class Comparators {
 	}
 
 	/**
-	 * The internal method for obtaining a comparator that can compare two objects of 'firstType' and 'secondType'.
+	 * The internal method for obtaining a comparator that can compare two objects of <code>firstType</code> and <code>secondType</code>.
 	 * This method handles regular {@link Comparator}s, {@link ConvertedComparator}s, and {@link InverseComparator}s.
 	 * @param firstType The first type for comparison.
 	 * @param secondType The second type for comparison.
-	 * @return The info of the comparator capable of determine the {@link Relation} between two objects of 'firstType' and 'secondType'.
-	 * Will be null if no comparator capable of comparing two objects of 'firstType' and 'secondType' was found.
+	 * @return The info of the comparator capable of determine the {@link Relation} between two objects of <code>firstType</code> and <code>secondType</code>.
+	 * Will be null if no comparator capable of comparing two objects of <code>firstType</code> and <code>secondType</code> was found.
 	 * @param <T1> The first type for comparison.
 	 * @param <T2> The second type for comparison.
 	 * @param <C1> The first type for any {@link ComparatorInfo}.
-	 * This is also used in organizing the conversion process of arguments (ex: 'T1' to 'C1' converter).
+	 * This is also used in organizing the conversion process of arguments (ex: <code>T1</code> to <code>C1</code> converter).
 	 * @param <C2> The second type for any {@link ComparatorInfo}.
-	 * This is also used in organizing the conversion process of arguments (ex: 'T2' to 'C2' converter).
+	 * This is also used in organizing the conversion process of arguments (ex: <code>T2</code> to <code>C2</code> converter).
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -195,25 +236,47 @@ public final class Comparators {
 	) {
 		// Look for an exact match
 		for (ComparatorInfo<?, ?> info : COMPARATORS) {
-			if (info.firstType == firstType && info.secondType == secondType) {
+			if (info.getFirstType() == firstType && info.getSecondType() == secondType) {
 				return (ComparatorInfo<T1, T2>) info;
 			}
 		}
 
 		// Look for a basically perfect match
 		for (ComparatorInfo<?, ?> info : COMPARATORS) {
-			if (info.firstType.isAssignableFrom(firstType) && info.secondType.isAssignableFrom(secondType)) {
+			if (info.getFirstType().isAssignableFrom(firstType) && info.getSecondType().isAssignableFrom(secondType)) {
 				return (ComparatorInfo<T1, T2>) info;
 			}
 		}
 
 		// Try to match and create an InverseComparator
 		for (ComparatorInfo<?, ?> info : COMPARATORS) {
-			if (info.comparator.supportsInversion() && info.firstType.isAssignableFrom(secondType) && info.secondType.isAssignableFrom(firstType)) {
+			if (info.getComparator().supportsInversion() && info.getFirstType().isAssignableFrom(secondType) && info.getSecondType().isAssignableFrom(firstType)) {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new InverseComparator<>((Comparator<T2, T1>) info.comparator)
+					new InverseComparator<>((ComparatorInfo<T2, T1>) info)
+				);
+			}
+		}
+
+		// Attempt the simplest conversion (first -> second, second -> first)
+		if (Utils.getSuperType(firstType, secondType) == Object.class) { // ensure unrelated classes
+			ConverterInfo<T1, T2> fs = Converters.getConverterInfo(firstType, secondType);
+			if (fs != null) {
+				//noinspection ConstantConditions - getComparator call will never return null
+				return new ComparatorInfo<>(
+					firstType,
+					secondType,
+					new ConvertedComparator<>(fs, Comparators.getComparatorInfo(secondType, secondType), null)
+				);
+			}
+			ConverterInfo<T2, T1> sf = Converters.getConverterInfo(secondType, firstType);
+			if (sf != null) {
+				//noinspection ConstantConditions - getComparator call will never return null
+				return new ComparatorInfo<>(
+					firstType,
+					secondType,
+					new ConvertedComparator<>(null, Comparators.getComparatorInfo(firstType, firstType), sf)
 				);
 			}
 		}
@@ -222,24 +285,24 @@ public final class Comparators {
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			if (info.firstType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the second comparator type
-				Converter<T2, C2> sc2 = Converters.getConverter(secondType, info.secondType);
+			if (info.getFirstType().isAssignableFrom(firstType)) { // Attempt to convert the second argument to the second comparator type
+				ConverterInfo<T2, C2> sc2 = Converters.getConverterInfo(secondType, info.getSecondType());
 				if (sc2 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new ConvertedComparator<>(null, info.comparator, sc2)
+						new ConvertedComparator<>(null, info, sc2)
 					);
 				}
 			}
 
-			if (info.secondType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the first comparator type
-				Converter<T1, C1> fc1 = Converters.getConverter(firstType, info.firstType);
+			if (info.getSecondType().isAssignableFrom(secondType)) { // Attempt to convert the first argument to the first comparator type
+				ConverterInfo<T1, C1> fc1 = Converters.getConverterInfo(firstType, info.getFirstType());
 				if (fc1 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new ConvertedComparator<>(fc1, info.comparator, null)
+						new ConvertedComparator<>(fc1, info, null)
 					);
 				}
 			}
@@ -248,30 +311,30 @@ public final class Comparators {
 
 		// Attempt converting one parameter but with reversed types
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
-			if (!unknownInfo.comparator.supportsInversion()) { // Unsupported for reversing types
+			if (!unknownInfo.getComparator().supportsInversion()) { // Unsupported for reversing types
 				continue;
 			}
 
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			if (info.secondType.isAssignableFrom(firstType)) { // Attempt to convert the second argument to the first comparator type
-				Converter<T2, C1> sc1 = Converters.getConverter(secondType, info.firstType);
+			if (info.getSecondType().isAssignableFrom(firstType)) { // Attempt to convert the second argument to the first comparator type
+				ConverterInfo<T2, C1> sc1 = Converters.getConverterInfo(secondType, info.getFirstType());
 				if (sc1 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(sc1, info.comparator, null))
+						new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(sc1, info, null)))
 					);
 				}
 			}
 
-			if (info.firstType.isAssignableFrom(secondType)) { // Attempt to convert the first argument to the second comparator type
-				Converter<T1, C2> fc2 = Converters.getConverter(firstType, info.secondType);
+			if (info.getFirstType().isAssignableFrom(secondType)) { // Attempt to convert the first argument to the second comparator type
+				ConverterInfo<T1, C2> fc2 = Converters.getConverterInfo(firstType, info.getSecondType());
 				if (fc2 != null) {
 					return new ComparatorInfo<>(
 						firstType,
 						secondType,
-						new InverseComparator<>(new ConvertedComparator<>(null, info.comparator, fc2))
+						new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(null, info, fc2)))
 					);
 				}
 			}
@@ -282,13 +345,13 @@ public final class Comparators {
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			Converter<T1, C1> c1 = Converters.getConverter(firstType, info.firstType);
-			Converter<T2, C2> c2 = Converters.getConverter(secondType, info.secondType);
+			ConverterInfo<T1, C1> c1 = Converters.getConverterInfo(firstType, info.getFirstType());
+			ConverterInfo<T2, C2> c2 = Converters.getConverterInfo(secondType, info.getSecondType());
 			if (c1 != null && c2 != null) {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new ConvertedComparator<>(c1, info.comparator, c2)
+					new ConvertedComparator<>(c1, info, c2)
 				);
 			}
 
@@ -296,26 +359,26 @@ public final class Comparators {
 
 		// Attempt converting both parameters but with reversed types
 		for (ComparatorInfo<?, ?> unknownInfo : COMPARATORS) {
-			if (!unknownInfo.comparator.supportsInversion()) { // Unsupported for reversing types
+			if (!unknownInfo.getComparator().supportsInversion()) { // Unsupported for reversing types
 				continue;
 			}
 
 			ComparatorInfo<C1, C2> info = (ComparatorInfo<C1, C2>) unknownInfo;
 
-			Converter<T1, C2> c1 = Converters.getConverter(firstType, info.secondType);
-			Converter<T2, C1> c2 = Converters.getConverter(secondType, info.firstType);
+			ConverterInfo<T1, C2> c1 = Converters.getConverterInfo(firstType, info.getSecondType());
+			ConverterInfo<T2, C1> c2 = Converters.getConverterInfo(secondType, info.getFirstType());
 			if (c1 != null && c2 != null) {
 				return new ComparatorInfo<>(
 					firstType,
 					secondType,
-					new InverseComparator<>(new ConvertedComparator<>(c2, info.comparator, c1))
+					new InverseComparator<>(new ComparatorInfo<>(secondType, firstType, new ConvertedComparator<>(c2, info, c1)))
 				);
 			}
 
 		}
 
 		// Same class but no comparator
-		if (firstType != Object.class && secondType == firstType) {
+		if (firstType != Object.class && firstType == secondType) {
 			return (ComparatorInfo<T1, T2>) EQUALS_COMPARATOR_INFO;
 		}
 
