@@ -1,0 +1,5 @@
+test "itemstack aliases comparisons":
+	assert stone sword is any sword with "stone sword is not any sword"
+	assert stone sword is every sword to fail with "stone sword is every sword"
+	assert any sword is any sword with "any sword is not any sword"
+	assert every sword is every sword to fail with "every sword is every sword"
