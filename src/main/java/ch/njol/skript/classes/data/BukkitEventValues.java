@@ -37,12 +37,14 @@ import ch.njol.skript.util.DelayedChangeBlock;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
@@ -877,6 +879,30 @@ public final class BukkitEventValues {
 				return event.getTo().clone().subtract(0, 0.5, 0).getBlock();
 			}
 		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getFrom();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getFrom().getChunk();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getTo().getChunk();
+			}
+		}, EventValues.TIME_NOW);
 		// PlayerItemDamageEvent
 		EventValues.registerEventValue(PlayerItemDamageEvent.class, ItemStack.class, new Getter<ItemStack, PlayerItemDamageEvent>() {
 			@Override
@@ -1464,21 +1490,6 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		//PlayerMoveEvent
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getFrom();
-			}
-		}, EventValues.TIME_PAST);
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getTo();
-			}
-		}, EventValues.TIME_NOW);
 		//EntityMoveEvent
 		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
@@ -1665,6 +1676,22 @@ public final class BukkitEventValues {
 				return event.getEgg();
 			}
 		}, EventValues.TIME_NOW);
+
+		// PlayerStopUsingItemEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
+			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, Timespan.class, new Getter<Timespan, PlayerStopUsingItemEvent>() {
+				@Override
+				public Timespan get(PlayerStopUsingItemEvent event) {
+					return Timespan.fromTicks(event.getTicksHeldFor());
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, ItemType.class, new Getter<ItemType, PlayerStopUsingItemEvent>() {
+				@Override
+				public ItemType get(PlayerStopUsingItemEvent event) {
+					return new ItemType(event.getItem());
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 		// LootGenerateEvent
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
