@@ -917,19 +917,16 @@ public class BukkitClasses {
 				.parser(new Parser<ItemStack>() {
 					@Override
 					@Nullable
-					public ItemStack parse(final String s, final ParseContext context) {
-						ItemType t = Aliases.parseItemType(s);
-						if (t == null)
+					public ItemStack parse(String string, ParseContext context) {
+						ItemType itemType = Aliases.parseItemType(string);
+						if (itemType == null)
 							return null;
-						t = t.getItem();
-						if (t.numTypes() != 1) {
-							Skript.error("'" + s + "' represents multiple materials");
+						itemType = itemType.getItem();
+						if (itemType.isAll() && itemType.numItems() > 1) {
+							Skript.error("'" + string + "' represents multiple materials");
 							return null;
 						}
-						
-						final ItemStack i = t.getRandom();
-						assert i != null;
-						return i;
+						return itemType.getRandom();
 					}
 					
 					@Override
