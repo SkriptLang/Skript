@@ -591,6 +591,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					tainted = true;
 					try {
 						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
+						if (TestMode.JUNIT)
+							getAddonInstance().loadClasses("org.skriptlang.skript.test.junit.registration");
 					} catch (IOException e) {
 						Skript.exception("Failed to load testing environment.");
 						Bukkit.getServer().shutdown();
@@ -684,7 +686,6 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
-								SkriptLogger.setVerbosity(Verbosity.DEBUG);
 								info("Running all JUnit tests...");
 								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
 								try {
@@ -712,7 +713,7 @@ public final class Skript extends JavaPlugin implements Listener {
 										// If JUnit failures are present, add them to the TestTracker.
 										junit.getFailures().forEach(failure -> {
 											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-											TestTracker.testFailed("'" + test + "': " + message);
+											TestTracker.JUnitTestFailed(test, message);
 											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
 										});
 										SkriptJUnitTest.clearJUnitTest();
@@ -734,7 +735,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-								TestTracker.testFailed(EffObjectives.getFailedObjectivesString());
+								EffObjectives.fail();
 
 							info("Collecting results to " + TestMode.RESULTS_FILE);
 							String results = new Gson().toJson(TestTracker.collectResults());
@@ -1261,7 +1262,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void checkAcceptRegistrations() {
-		if (!isAcceptRegistrations())
+		if (!isAcceptRegistrations() && !Skript.testing())
 			throw new SkriptAPIException("Registration can only be done during plugin initialization");
 	}
 	
@@ -1436,6 +1437,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	// ================ EVENTS ================
 
+	private static final List<SkriptEventInfo<?>> events = new ArrayList<>(50);
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
 
 	/**
@@ -1468,10 +1470,10 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
+			transformedPatterns[i] = SkriptEvent.fixPattern(patterns[i]);
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
-		structures.add(r);
+		Skript.events.add(r);
 		return r;
 	}
 
@@ -1489,14 +1491,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		structures.add(structureInfo);
 	}
 
-	/**
-	 * Modifications made to the returned Collection will not be reflected in the events available for parsing.
-	 */
 	public static Collection<SkriptEventInfo<?>> getEvents() {
-		// Only used in documentation generation, so generating a new list each time is fine
-		return (Collection<SkriptEventInfo<?>>) (Collection<?>) structures.stream()
-			.filter(info -> info instanceof SkriptEventInfo)
-			.collect(Collectors.toList());
+		return events;
 	}
 
 	public static List<StructureInfo<? extends Structure>> getStructures() {
