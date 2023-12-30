@@ -22,6 +22,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -169,10 +170,13 @@ public class ExpressionList<T> implements Expression<T> {
 	@Nullable
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		Expression<? extends R>[] exprs = new Expression[expressions.length];
-		for (int i = 0; i < exprs.length; i++)
+		Class<?>[] returnTypes = new Class[expressions.length];
+		for (int i = 0; i < exprs.length; i++) {
 			if ((exprs[i] = expressions[i].getConvertedExpression(to)) == null)
 				return null;
-		return new ExpressionList<>(exprs, (Class<R>) Utils.getSuperType(to), and, this);
+			returnTypes[i] = exprs[i].getReturnType();
+		}
+		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), and, this);
 	}
 
 	@Override
