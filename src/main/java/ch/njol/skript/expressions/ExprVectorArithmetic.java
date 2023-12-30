@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.coll.CollectionUtils;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.bukkit.event.Event;
@@ -80,7 +81,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	protected Vector[] get(Event event) {
 		Vector first = this.first.getOptionalSingle(event).orElse(new Vector());
 		Vector second = this.second.getOptionalSingle(event).orElse(new Vector());
-		return CollectionUtils.array(Arithmetics.calculate(operator, first, second));
+		return CollectionUtils.array(Arithmetics.calculate(operator, first, second, Vector.class));
 	}
 
 	@Override
