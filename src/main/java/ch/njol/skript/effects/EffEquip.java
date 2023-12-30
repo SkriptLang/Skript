@@ -46,9 +46,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Equip")
 @Description("Equips or unequips an entity with some given armor. This will replace any armor that the entity is wearing.")
 @Examples({
@@ -58,7 +55,7 @@ import ch.njol.util.Kleenean;
 		"unequip all armor from player",
 		"unequip player's armor"
 })
-@Since("1.0, INSERT VERSION (multiple entities, unequip)")
+@Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
 	static {

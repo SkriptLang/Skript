@@ -22,6 +22,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
@@ -148,20 +149,20 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event e, Checker<? super T> c, boolean negated) {
-		return negated ^ check(e, c);
-	}
-
-	@Override
-	public boolean check(Event e, Checker<? super T> c) {
+	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
 		for (Expression<? extends T> expr : expressions) {
-			boolean b = expr.check(e, c);
-			if (and && !b)
+			boolean result = expr.check(event, checker) ^ negated;
+			if (and && !result)
 				return false;
-			if (!and && b)
+			if (!and && result)
 				return true;
 		}
 		return and;
+	}
+
+	@Override
+	public boolean check(Event event, Checker<? super T> checker) {
+		return check(event, checker, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -169,10 +170,13 @@ public class ExpressionList<T> implements Expression<T> {
 	@Nullable
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		Expression<? extends R>[] exprs = new Expression[expressions.length];
-		for (int i = 0; i < exprs.length; i++)
+		Class<?>[] returnTypes = new Class[expressions.length];
+		for (int i = 0; i < exprs.length; i++) {
 			if ((exprs[i] = expressions[i].getConvertedExpression(to)) == null)
 				return null;
-		return new ExpressionList<>(exprs, (Class<R>) Utils.getSuperType(to), and, this);
+			returnTypes[i] = exprs[i].getReturnType();
+		}
+		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), and, this);
 	}
 
 	@Override
