@@ -58,15 +58,16 @@ import ch.njol.util.Kleenean;
 public class EffKeepInventory extends Effect {
 
 	static {
-		if (Skript.methodExists(PlayerDeathEvent.class, "getItemsToKeep"))
+		if (Skript.methodExists(PlayerDeathEvent.class, "getItemsToKeep")) {
 			Skript.registerEffect(EffKeepInventory.class,
-				"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
-				"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]",
-				"keep [the] %itemtypes% [from ([the] drops|dropping)]");
-		else
+					"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+					"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]",
+					"keep [the] %itemtypes% [from ([the] drops|dropping)]");
+		} else {
 			Skript.registerEffect(EffKeepInventory.class,
-				"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
-				"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
+					"keep [the] (inventory|items) [(1:and [e]xp[erience][s] [point[s]])]",
+					"keep [the] [e]xp[erience][s] [point[s]] [(1:and (inventory|items))]");
+		}
 	}
 
 	private boolean keepItems, keepExp;
@@ -103,11 +104,11 @@ public class EffKeepInventory extends Effect {
 			if (itemsToKeep != null && !keepItems) {
 				List<ItemStack> drops = deathEvent.getDrops();
 				itemsToKeep.stream(deathEvent)
-					.filter(item -> item.isContainedIn(drops))
-					.forEach(item -> {
-						item.removeFrom(drops);
-						item.addTo(deathEvent.getItemsToKeep());
-					});
+						.filter(item -> item.isContainedIn(drops))
+						.forEach(item -> {
+							item.removeFrom(drops);
+							item.addTo(deathEvent.getItemsToKeep());
+						});
 			}
 		}
 	}
