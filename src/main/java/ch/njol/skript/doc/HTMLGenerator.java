@@ -30,12 +30,10 @@ import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
-import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -59,21 +57,17 @@ import java.util.stream.Collectors;
  * pages by combining data from annotations and templates.
  * 
  */
-public class HTMLGenerator {
+public class HTMLGenerator extends DocumentationGenerator {
 
 	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
 	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
-	private final File template;
-	private final File output;
 	private final String skeleton;
 
-	public HTMLGenerator(File templateDir, File outputDir) {
-		this.template = templateDir;
-		this.output = outputDir;
-		
-		this.skeleton = readFile(new File(template + "/template.html")); // Skeleton which contains every other page
+	public HTMLGenerator(File templateDir, File outputDir, DocumentationIdProvider idGenerator) {
+		super(templateDir, outputDir, idGenerator);
+		this.skeleton = readFile(new File(this.templateDir + "/template.html")); // Skeleton which contains every other page
 	}
 
 	/**
@@ -208,15 +202,16 @@ public class HTMLGenerator {
 	 * Generates documentation using template and output directories
 	 * given in the constructor.
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public void generate() {
-		for (File f : template.listFiles()) {
+		for (File f : templateDir.listFiles()) {
 			if (f.getName().matches("css|js|assets")) { // Copy CSS/JS/Assets folders
 				String slashName = "/" + f.getName();
-				File fileTo = new File(output + slashName);
+				File fileTo = new File(outputDir + slashName);
 				fileTo.mkdirs();
-				for (File filesInside : new File(template + slashName).listFiles()) {
-					if (filesInside.isDirectory()) 
+				for (File filesInside : new File(templateDir + slashName).listFiles()) {
+					if (filesInside.isDirectory())
 						continue;
 						
 					if (!filesInside.getName().toLowerCase(Locale.ENGLISH).endsWith(".png")) { // Copy images
@@ -262,7 +257,7 @@ public class HTMLGenerator {
 			}
 
 			for (String name : replace) {
-				String temp = readFile(new File(template + "/templates/" + name));
+				String temp = readFile(new File(templateDir + "/templates/" + name));
 				temp = temp.replace("${skript.version}", Skript.getVersion().toString());
 				page = page.replace("${include " + name + "}", temp);
 			}
@@ -273,7 +268,7 @@ public class HTMLGenerator {
 				String[] genParams = page.substring(generate + 11, nextBracket).split(" ");
 				StringBuilder generated = new StringBuilder();
 
-				String descTemp = readFile(new File(template + "/templates/" + genParams[1]));
+				String descTemp = readFile(new File(templateDir + "/templates/" + genParams[1]));
 				String genType = genParams[0];
 				boolean isDocsPage = genType.equals("docs");
 
@@ -382,7 +377,7 @@ public class HTMLGenerator {
 				page = minifyHtml(page);
 			}
 			assert page != null;
-			writeFile(new File(output + File.separator + name), page);
+			writeFile(new File(outputDir + File.separator + name), page);
 		}
 	}
 	
@@ -471,15 +466,7 @@ public class HTMLGenerator {
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Documentation ID
-		DocumentationId docId = c.getAnnotation(DocumentationId.class);
-		String ID = docId != null ? (docId != null ? docId.value() : null) : info.c.getSimpleName();
-		// Fix duplicated IDs
-		if (page != null) {
-			if (page.contains("href=\"#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
-			}
-		}
-		desc = desc.replace("${element.id}", ID);
+		desc = desc.replace("${element.id}", idProvider.getId(c));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -550,7 +537,7 @@ public class HTMLGenerator {
 		// Assume element.pattern generate
 		for (String data : toGen) {
 			String[] split = data.split(" ");
-			String pattern = readFile(new File(template + "/templates/" + split[1]));
+			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
@@ -604,14 +591,7 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
-		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
-		// Fix duplicated IDs
-		if (page != null) {
-			if (page.contains("href=\"#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
-			}
-		}
-		desc = desc.replace("${element.id}", ID);
+		desc = desc.replace("${element.id}", idProvider.getId(c));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -658,7 +638,7 @@ public class HTMLGenerator {
 		// Assume element.pattern generate
 		for (String data : toGen) {
 			String[] split = data.split(" ");
-			String pattern = readFile(new File(template + "/templates/" + split[1]));
+			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
@@ -710,14 +690,7 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
 
 		// Documentation ID
-		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
-		// Fix duplicated IDs
-		if (page != null) {
-			if (page.contains("href=\"#" + ID + "\"")) {
-				ID = ID + "-" + (StringUtils.countMatches(page, "href=\"#" + ID + "\"") + 1);
-			}
-		}
-		desc = desc.replace("${element.id}", ID);
+		desc = desc.replace("${element.id}", idProvider.getId(info));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -764,7 +737,7 @@ public class HTMLGenerator {
 		// Assume element.pattern generate
 		for (String data : toGen) {
 			String[] split = data.split(" ");
-			String pattern = readFile(new File(template + "/templates/" + split[1]));
+			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
 			String[] lines = getDefaultIfNullOrEmpty(info.getUsage(), "Missing patterns.");
 			if (lines == null)
@@ -819,7 +792,7 @@ public class HTMLGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
-		desc = desc.replace("${element.id}", info.getName());
+		desc = desc.replace("${element.id}", idProvider.getId(info));
 
 		// Events
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
@@ -854,14 +827,9 @@ public class HTMLGenerator {
 		// Assume element.pattern generate
 		for (String data : toGen) {
 			String[] split = data.split(" ");
-			String pattern = readFile(new File(template + "/templates/" + split[1]));
+			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			String patterns = "";
-			Parameter<?>[] params = info.getParameters();
-			String[] types = new String[params.length];
-			for (int i = 0; i < types.length; i++) {
-				types[i] = params[i].toString();
-			}
-			String line = docName + "(" + Joiner.on(", ").join(types) + ")"; // Better not have nulls
+			String line = info.getSignature().toString(true, false); // Better not have nulls
 			patterns += pattern.replace("${element.pattern}", line);
 			
 			desc = desc.replace("${generate element.patterns " + split[1] + "}", patterns);

@@ -196,7 +196,11 @@ public final class Parameter<T> {
 	
 	@Override
 	public String toString() {
-		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, true) : "");
+		return toString(true);
+	}
+
+	public String toString(boolean debug) {
+		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
 	}
 	
 }
