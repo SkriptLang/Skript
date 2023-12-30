@@ -107,11 +107,6 @@ public class DefaultOperations {
 			if (scalar <= 0)
 				return null;
 			return new Timespan(left.getMilliSeconds() / scalar);
-		}, (left, right) -> {
-			long scalar = left.longValue();
-			if (scalar < 0)
-				return null;
-			return new Timespan(scalar / right.getMilliSeconds());
 		});
 
 		// Date - Timespan
