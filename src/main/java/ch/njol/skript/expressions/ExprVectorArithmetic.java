@@ -35,11 +35,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 @Name("Vectors - Arithmetic")
-@Description("Arithmetic expressions for vectors. This expression is deprecated in INSERT VERSION and above")
+@Description("Arithmetic expressions for vectors.")
 @Examples({
-	"set {_v} to vector 1, 2, 3 // 5",
+	"set {_v} to vector 1, 2, 3 // vector 5, 5, 5",
 	"set {_v} to {_v} ++ {_v}",
 	"set {_v} to {_v} -- {_v}",
 	"set {_v} to {_v} ** {_v}",
@@ -61,14 +62,15 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	}
 
 	private Expression<Vector> first, second;
-	private Operator op;
+
+	private Operator operator;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		first = (Expression<Vector>) exprs[0];
 		second = (Expression<Vector>) exprs[1];
-		op = patterns.getInfo(matchedPattern);
+		operator = patterns.getInfo(matchedPattern);
 		Skript.warning("This expression was deprecated in favor of the arithmetic expression, and will be removed in the future." +
 			" Please use that instead. E.g. 'vector(2, 4, 1) + vector(5, 2, 3)'");
 		return true;
@@ -76,12 +78,9 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
 	@Override
 	protected Vector[] get(Event event) {
-		Vector v1 = first.getSingle(event), v2 = second.getSingle(event);
-		if (v1 == null)
-			v1 = new Vector();
-		if (v2 == null)
-			v2 = new Vector();
-		return new Vector[] {Arithmetics.calculate(op, v1, v2, Vector.class)};
+		Vector first = this.first.getOptionalSingle(event).orElse(new Vector());
+		Vector second = this.second.getOptionalSingle(event).orElse(new Vector());
+		return CollectionUtils.array(Arithmetics.calculate(operator, first, second));
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return first.toString(event, debug) + " " + op +  " " + second.toString(event, debug);
+		return first.toString(event, debug) + " " + operator +  " " + second.toString(event, debug);
 	}
 
 }

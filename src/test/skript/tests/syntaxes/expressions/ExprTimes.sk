@@ -1,0 +1,8 @@
+test "times":
+	set {_seven} to 1.05 / 0.15 # = 7
+	set {_three} to 10 - {_seven} # = 3
+	set {_count} to 0
+	loop {_three} times:
+		add 1 to {_count}
+	assert {_count} is 3 with "count was %{_count}% instead of 3"
+	assert {_three} is 3 with "original number wasn't 3"

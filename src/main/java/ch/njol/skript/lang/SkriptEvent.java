@@ -25,15 +25,14 @@ import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.structures.StructEvent.EventData;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
-import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,30 +63,14 @@ public abstract class SkriptEvent extends Structure {
 
 	@Override
 	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-		String expr = parseResult.expr;
-		if (StringUtils.startsWithIgnoreCase(expr, "on "))
-			expr = expr.substring("on ".length());
+		this.expr = parseResult.expr;
 
-		String[] split = expr.split(" with priority ");
-		if (split.length != 1) {
-			if (!isEventPrioritySupported()) {
-				Skript.error("This event doesn't support event priority");
-				return false;
-			}
-
-			expr = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-
-			String priorityString = split[split.length - 1];
-			try {
-				eventPriority = EventPriority.valueOf(priorityString.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				throw new IllegalStateException(e);
-			}
-		} else {
-			eventPriority = null;
+		EventPriority priority = getParser().getData(EventData.class).getPriority();
+		if (priority != null && !isEventPrioritySupported()) {
+			Skript.error("This event doesn't support event priority");
+			return false;
 		}
-
-		this.expr = parseResult.expr = expr;
+		eventPriority = priority;
 
 		SyntaxElementInfo<? extends Structure> syntaxElementInfo = getParser().getData(StructureData.class).getStructureInfo();
 		if (!(syntaxElementInfo instanceof SkriptEventInfo))
@@ -251,6 +234,11 @@ public abstract class SkriptEvent extends Structure {
 			}
 		}
 		return stringBuilder.toString();
+	}
+
+	@Nullable
+	public static SkriptEvent parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
+		return (SkriptEvent) Structure.parse(expr, sectionNode, defaultError, Skript.getEvents().iterator());
 	}
 
 }
