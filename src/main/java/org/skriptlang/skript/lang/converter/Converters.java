@@ -18,12 +18,6 @@
  */
 package org.skriptlang.skript.lang.converter;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.Pair;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +25,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.Pair;
 
 /**
  * Converters are used to provide Skript with specific instructions for converting an object to a different type.
@@ -405,6 +409,7 @@ public final class Converters {
 			}
 		}
 
+		// Look through all converters
 		Class<From> fromType = (Class<From>) from.getClass();
 		for (Class<? extends To> toType : toTypes) {
 			Converter<From, ? extends To> converter = getConverter(fromType, toType);
@@ -412,7 +417,6 @@ public final class Converters {
 				return converter.convert(from);
 			}
 		}
-
 		return null;
 	}
 

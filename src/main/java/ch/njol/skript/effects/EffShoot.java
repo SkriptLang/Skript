@@ -23,8 +23,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
-import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.event.Event;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -40,99 +40,101 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Shoot")
 @Description("Shoots a projectile (or any other entity) from a given entity.")
-@Examples({"shoot an arrow",
-		"make the player shoot a creeper at speed 10",
-		"shoot a pig from the creeper"})
+@Examples({
+	"shoot an arrow",
+	"make the player shoot a creeper at speed 10",
+	"shoot a pig from the creeper"
+})
 @Since("1.4")
 public class EffShoot extends Effect {
+
 	static {
 		Skript.registerEffect(EffShoot.class,
 				"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
 				"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]");
 	}
-	
-	private final static Double DEFAULT_SPEED = 5.;
-	
-	@SuppressWarnings("null")
+
+	private final static double DEFAULT_SPEED = 5.;
+
 	private Expression<EntityData<?>> types;
-	@SuppressWarnings("null")
 	private Expression<?> shooters;
-	@Nullable
-	private Expression<Number> velocity;
+
 	@Nullable
 	private Expression<Direction> direction;
-	
+
 	@Nullable
-	public static Entity lastSpawned = null;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private Expression<Number> velocity;
+
+	@Nullable
+	public static Entity lastSpawned;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		types = (Expression<EntityData<?>>) exprs[matchedPattern];
 		shooters = exprs[1 - matchedPattern];
 		velocity = (Expression<Number>) exprs[2];
 		direction = (Expression<Direction>) exprs[3];
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event event) {
 		lastSpawned = null;
-		final Number v = velocity != null ? velocity.getSingle(e) : DEFAULT_SPEED;
-		if (v == null)
-			return;
-		final Direction dir = direction != null ? direction.getSingle(e) : Direction.IDENTITY;
-		if (dir == null)
-			return;
-		for (final Object shooter : shooters.getArray(e)) {
-			for (final EntityData<?> d : types.getArray(e)) {
+		double velocity = this.velocity == null ? DEFAULT_SPEED : this.velocity.getOptionalSingle(event)
+				.orElse(DEFAULT_SPEED)
+				.doubleValue();
+
+		Direction direction = this.direction == null ? Direction.IDENTITY : this.direction.getOptionalSingle(event)
+				.orElse(Direction.IDENTITY);
+
+		for (Object shooter : shooters.getArray(event)) {
+			for (EntityData<?> entity : types.getArray(event)) {
 				if (shooter instanceof LivingEntity) {
-					final Vector vel = dir.getDirection(((LivingEntity) shooter).getLocation()).multiply(v.doubleValue());
-					final Class<? extends Entity> type = d.getType();
-					if (Fireball.class.isAssignableFrom(type)) {// fireballs explode in the shooter's face by default
-						final Fireball projectile = (Fireball) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation().add(vel.clone().normalize().multiply(0.5)), type);
+					Vector vector = direction.getDirection(((LivingEntity) shooter).getLocation()).multiply(velocity);
+					Class<? extends Entity> type = entity.getType();
+					if (Fireball.class.isAssignableFrom(type)) { // fireballs explode in the shooter's face by default
+						Fireball projectile = (Fireball) ((LivingEntity) shooter).getWorld().spawn(((LivingEntity) shooter).getEyeLocation().add(vector.clone().normalize().multiply(0.5)), type);
 						projectile.setShooter((ProjectileSource) shooter);
-						projectile.setVelocity(vel);
+						projectile.setVelocity(vector);
 						lastSpawned = projectile;
 					} else if (Projectile.class.isAssignableFrom(type)) {
 						@SuppressWarnings("unchecked")
-						final Projectile projectile = ((LivingEntity) shooter).launchProjectile((Class<? extends Projectile>) type);
-						set(projectile, d);
-						projectile.setVelocity(vel);
+						Projectile projectile = ((LivingEntity) shooter).launchProjectile((Class<? extends Projectile>) type);
+						set(projectile, entity);
+						projectile.setVelocity(vector);
 						lastSpawned = projectile;
 					} else {
-						final Location loc = ((LivingEntity) shooter).getLocation();
-						loc.setY(loc.getY() + ((LivingEntity) shooter).getEyeHeight() / 2);
-						final Entity projectile = d.spawn(loc);
+						Location location = ((LivingEntity) shooter).getLocation();
+						location.setY(location.getY() + ((LivingEntity) shooter).getEyeHeight() / 2);
+						Entity projectile = entity.spawn(location);
 						if (projectile != null)
-							projectile.setVelocity(vel);
+							projectile.setVelocity(vector);
 						lastSpawned = projectile;
 					}
 				} else {
-					final Vector vel = dir.getDirection((Location) shooter).multiply(v.doubleValue());
-					final Entity projectile = d.spawn((Location) shooter);
+					Vector vector = direction.getDirection((Location) shooter).multiply(velocity);
+					Entity projectile = entity.spawn((Location) shooter);
 					if (projectile != null)
-						projectile.setVelocity(vel);
+						projectile.setVelocity(vector);
 					lastSpawned = projectile;
 				}
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private static <E extends Entity> void set(final Entity e, final EntityData<E> d) {
-		d.set((E) e);
+	private static <E extends Entity> void set(Entity entity, EntityData<E> data) {
+		data.set((E) entity);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "shoot " + types.toString(e, debug) + " from " + shooters.toString(e, debug) + (velocity != null ? " at speed " + velocity.toString(e, debug) : "") + (direction != null ? " " + direction.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "shoot " + types.toString(event, debug) + " from " + shooters.toString(event, debug) +
+				(velocity != null ? " at speed " + velocity.toString(event, debug) : "") +
+				(direction != null ? " " + direction.toString(event, debug) : "");
 	}
-	
+
 }

@@ -47,6 +47,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -483,14 +484,54 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Nullable
-	private T getConverted(Event e) {
+	private T getConverted(Event event) {
 		assert !list;
-		return Converters.convert(get(e), types);
+		Object object = get(event);
+		T convertered = Converters.convert(object, types);
+		if (convertered != null)
+			return convertered;
+		return attemptLiteralReconstruct(object, types);
 	}
 
-	private T[] getConvertedArray(Event e) {
+	@SuppressWarnings("unchecked")
+	private T[] getConvertedArray(Event event) {
 		assert list;
-		return Converters.convert((Object[]) get(e), types, superType);
+		Object[] objectArray = (Object[]) get(event);
+		T[] array = Converters.convert(objectArray, types, superType);
+		if (array.length > 0)
+			return array;
+		List<T> converted = new ArrayList<>(objectArray.length);
+		for (Object object : objectArray) {
+			T convertedSingle = attemptLiteralReconstruct(object, types);
+			if (convertedSingle != null)
+				converted.add(convertedSingle);
+		}
+		return converted.toArray((T[]) Array.newInstance(superType, converted.size()));
+	}
+
+	/**
+	 * Attempts to convert most likely a literal.
+	 * Example of this can be setting a variable to a snowball. Skript assumes it's an itemtype.
+	 * Now when using that variable in an entitydata expression, Skript attempts to convert but can't
+	 * as no converters exist for ItemType -> EntityData. That's where this chunk of code steps in.
+	 * 
+	 * This section of code has proven to convert that said issue to the EntityData and allow for proper usage.
+	 * This will only happen when the names of the literals are the same of two classinfos and mainly for Variables.
+	 * 
+	 * See https://github.com/SkriptLang/Skript/issues/5493
+	 */
+	@SuppressWarnings("unchecked")
+	private <F> T attemptLiteralReconstruct(F from, Class<? extends T>... types) {
+		for (Class<? extends T> toType : types) {
+			String attempt = Classes.toString(from);
+			Parser<T> parser = (Parser<T>) Classes.getSuperClassInfo(toType).getParser();
+			if (parser == null || !parser.canParse(ParseContext.DEFAULT))
+				continue;
+			T to = parser.parse(attempt, ParseContext.DEFAULT);
+			if (to != null)
+				return to;
+		}
+		return null;
 	}
 
 	private void set(Event e, @Nullable Object value) {
