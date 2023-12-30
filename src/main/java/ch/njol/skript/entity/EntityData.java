@@ -18,6 +18,28 @@
  */
 package ch.njol.skript.entity;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.bukkitutil.EntityUtils;
@@ -44,37 +66,40 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Consumer;
-import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("rawtypes")
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
 
+	/*
+	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
+	 * From the class header: "API methods which use this consumer will be remapped to Java's consumer at runtime, resulting in an error."
+	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
+	 */
+	@Nullable
+	protected static Method WORLD_1_13_CONSUMER_METHOD;
+	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+
+	@Nullable
+	protected static Method WORLD_1_17_CONSUMER_METHOD;
+	protected static boolean WORLD_1_17_CONSUMER;
+
+	static {
+		try {
+			if (WORLD_1_13_CONSUMER) {
+				WORLD_1_13_CONSUMER_METHOD = World.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+			} else if (Skript.classExists("org.bukkit.RegionAccessor")) {
+				if (WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class))
+					WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+			}
+		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
+	}
+
 	public final static String LANGUAGE_NODE = "entities";
-	
+
 	public final static Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
 	public final static Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
-	
+
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
 
@@ -312,7 +337,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	/**
 	 * Returns the super type of this entity data, e.g. 'wolf' for 'angry wolf'.
-	 * 
+	 *
 	 * @return The supertype of this entity data. Must not be null.
 	 */
 	public abstract EntityData getSuperType();
@@ -401,7 +426,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	/**
 	 * Prints errors.
-	 * 
+	 *
 	 * @param s String with optional indefinite article at the beginning
 	 * @return The parsed entity data
 	 */
@@ -416,22 +441,16 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	/**
 	 * Prints errors.
-	 * 
+	 *
 	 * @param s
 	 * @return The parsed entity data
 	 */
-	@SuppressWarnings("null")
 	@Nullable
 	public static EntityData<?> parseWithoutIndefiniteArticle(String s) {
 		if (!REGEX_PATTERN.matcher(s).matches())
 			return null;
 		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(s, it, null);
-	}
-	
-	@Nullable
-	public final E spawn(Location loc) {
-		return spawn(loc, null);
 	}
 
 	private E apply(E entity) {
@@ -444,24 +463,54 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return entity;
 	}
 
+	/**
+	 * Spawn this entity data at a location.
+	 *
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @return The Entity object that is spawned.
+	 */
 	@Nullable
-	@SuppressWarnings("unchecked")
+	public final E spawn(Location location) {
+		return spawn(location, (Consumer<E>) null);
+	}
+
+	/**
+	 * Spawn this entity data at a location.
+	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 * <p>
+	 * Bukkit's own {@link org.bukkit.util.Consumer} is deprecated.
+	 * Use {@link #spawn(Location, Consumer)}
+	 *
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @param consumer A {@link Consumer} to apply the entity changes to.
+	 * @return The Entity object that is spawned.
+	 */
+	@Nullable
+	@Deprecated
+	@SuppressWarnings("deprecation")
+	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
+		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
+	}
+
+	/**
+	 * Spawn this entity data at a location.
+	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 *
+	 * @param location The {@link Location} to spawn the entity at.
+	 * @param consumer A {@link Consumer} to apply the entity changes to.
+	 * @return The Entity object that is spawned.
+	 */
+	@Nullable
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
-		try {
-			if (consumer != null) {
-				return location.getWorld().spawn(location, (Class<E>) getType(), e -> consumer.accept(apply(e)));
-			} else {
-				return apply(location.getWorld().spawn(location, getType()));
-			}
-		} catch (IllegalArgumentException e) {
-			if (Skript.testing())
-				Skript.error("Can't spawn " + getType().getName());
-			return null;
+		if (consumer != null) {
+			return EntityData.spawn(location, getType(), e -> consumer.accept(this.apply(e)));
+		} else {
+			return apply(location.getWorld().spawn(location, getType()));
 		}
 	}
-	
-	@SuppressWarnings({"null", "unchecked"})
+
+	@SuppressWarnings("unchecked")
 	public E[] getAll(final World... worlds) {
 		assert worlds != null && worlds.length > 0 : Arrays.toString(worlds);
 		final List<E> list = new ArrayList<>();
@@ -596,6 +645,24 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Deprecated
 	protected boolean deserialize(final String s) {
 		return false;
+	}
+	
+	@SuppressWarnings({"unchecked", "deprecation"})
+	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
+		try {
+			if (WORLD_1_17_CONSUMER) {
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+					(org.bukkit.util.Consumer<E>) consumer::accept);
+			} else if (WORLD_1_13_CONSUMER) {
+				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+					(org.bukkit.util.Consumer<E>) consumer::accept);
+			}
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			if (Skript.testing())
+				Skript.exception(e, "Can't spawn " + type.getName());
+			return null;
+        }
+        return location.getWorld().spawn(location, type, consumer);
 	}
 	
 }

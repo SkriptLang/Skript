@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.GeneralWords;
@@ -32,23 +33,19 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
-/**
- * @author Peter Güttinger
- * @edited by Mirreducki. Increased maximum timespan.
- */
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
-	private final static Noun m_tick = new Noun("time.tick");
-	private final static Noun m_second = new Noun("time.second");
-	private final static Noun m_minute = new Noun("time.minute");
-	private final static Noun m_hour = new Noun("time.hour");
-	private final static Noun m_day = new Noun("time.day");
-	private final static Noun m_week = new Noun("time.week");
-	private final static Noun m_month = new Noun("time.month");
-	private final static Noun m_year = new Noun("time.year");
-	final static Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day, m_week, m_month, m_year};
-	final static long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L,  1000L * 60L * 60L * 24L * 7L,  1000L * 60L * 60L * 24L * 30L,  1000L * 60L * 60L * 24L * 365L};
-	final static HashMap<String, Long> parseValues = new HashMap<>();
+	private static final Noun m_tick = new Noun("time.tick");
+	private static final Noun m_second = new Noun("time.second");
+	private static final Noun m_minute = new Noun("time.minute");
+	private static final Noun m_hour = new Noun("time.hour");
+	private static final Noun m_day = new Noun("time.day");
+	private static final Noun m_week = new Noun("time.week");
+	private static final Noun m_month = new Noun("time.month");
+	private static final Noun m_year = new Noun("time.year");
+	static final Noun[] names = {m_tick, m_second, m_minute, m_hour, m_day, m_week, m_month, m_year};
+	static final long[] times = {50L, 1000L, 1000L * 60L, 1000L * 60L * 60L, 1000L * 60L * 60L * 24L,  1000L * 60L * 60L * 24L * 7L,  1000L * 60L * 60L * 24L * 30L,  1000L * 60L * 60L * 24L * 365L};
+	static final HashMap<String, Long> parseValues = new HashMap<>();
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -145,38 +142,46 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			throw new IllegalArgumentException("millis must be >= 0");
 		this.millis = millis;
 	}
-	
+
 	/**
-	 * @deprecated Use fromTicks_i(long ticks) instead. Since this method limits timespan to 50 * Integer.MAX_VALUE.
-	 * @addon I only keep this to allow for older addons to still work. / Mirre
+	 * Builds a Timespan from the given long parameter.
+	 * 
+	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
+	 * @return Timespan based on the provided long.
+	 */
+	public static Timespan fromTicks(long ticks) {
+		return new Timespan(ticks * 50L);
+	}
+
+	/**
+	 * @deprecated Use {@link Timespan#fromTicks(long)} instead. Old API naming changes.
 	 */
 	@Deprecated
-	public static Timespan fromTicks(final int ticks) {
+	@ScheduledForRemoval
+	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
-	
-	public static Timespan fromTicks_i(final long ticks) {
-		return new Timespan(ticks * 50L);
-	}
-	
+
 	public long getMilliSeconds() {
 		return millis;
 	}
-	
+
+	/**
+	 * @return the amount of Minecraft ticks this timespan represents.
+	 */
+	public long getTicks() {
+		return Math.round((millis / 50.0));
+	}
+
+	/**
+	 * @deprecated Use getTicks() instead. Old API naming changes.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public long getTicks_i() {
 		return Math.round((millis / 50.0));
 	}
-	
-	/**
-	 * @deprecated Use getTicks_i() instead. Since this method limits timespan to Integer.MAX_VALUE.
-	 * @addon I only keep this to allow for older addons to still work. / Mirre
-	 * @Well if need the ticks because of a method that takes a int input it doesn't really matter.
-	 */
-	@Deprecated
-	public int getTicks() {
-		return Math.round((millis >= Float.MAX_VALUE ? Float.MAX_VALUE : millis) / 50f);
-	}
-	
+
 	@Override
 	public String toString() {
 		return toString(millis);
@@ -187,7 +192,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 	
 	@SuppressWarnings("unchecked")
-	final static NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
+	static final NonNullPair<Noun, Long>[] simpleValues = new NonNullPair[] {
 			new NonNullPair<>(m_day,  1000L * 60 * 60 * 24),
 			new NonNullPair<>(m_hour, 1000L * 60 * 60),
 			new NonNullPair<>(m_minute, 1000L * 60),
@@ -198,7 +203,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		return toString(millis, 0);
 	}
 	
-	@SuppressWarnings("null")
 	public static String toString(final long millis, final int flags) {
 		for (int i = 0; i < simpleValues.length - 1; i++) {
 			if (millis >= simpleValues[i].getSecond()) {

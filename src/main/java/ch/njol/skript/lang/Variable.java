@@ -542,7 +542,7 @@ public class Variable<T> implements Expression<T> {
 					for (Object d : delta) {
 						if (d instanceof Object[]) {
 							for (int j = 0; j < ((Object[]) d).length; j++) {
-								setIndex(e, "" + i + SEPARATOR + j, ((Object[]) d)[j]);
+								setIndex(e, "" + i + SEPARATOR + (j + 1), ((Object[]) d)[j]);
 							}
 						} else {
 							setIndex(e, "" + i, d);

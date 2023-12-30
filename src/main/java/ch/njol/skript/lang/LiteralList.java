@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.registrations.Classes;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -63,13 +64,13 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 	@Nullable
 	public <R> Literal<? extends R> getConvertedExpression(final Class<R>... to) {
 		final Literal<? extends R>[] exprs = new Literal[expressions.length];
-		final Class<?>[] classes = new Class[expressions.length];
+		final Class<?>[] returnTypes = new Class[expressions.length];
 		for (int i = 0; i < exprs.length; i++) {
 			if ((exprs[i] = (Literal<? extends R>) expressions[i].getConvertedExpression(to)) == null)
 				return null;
-			classes[i] = exprs[i].getReturnType();
+			returnTypes[i] = exprs[i].getReturnType();
 		}
-		return new LiteralList<>(exprs, (Class<R>) Utils.getSuperType(classes), and, this);
+		return new LiteralList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), and, this);
 	}
 	
 	@Override
