@@ -96,19 +96,25 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
-			return new Class[] {Slot.class};
+			return new Class[] {Slot.class, Number.class};
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert delta != null;
-		Slot slot = (Slot) delta[0];
-		if (!(slot instanceof InventorySlot))
-			return; // Only inventory slots can be hotbar slots
+		Object object = delta[0];
+		Number number = null;
+		if (object instanceof InventorySlot) {
+			number = ((InventorySlot) object).getIndex();
+		} else if (object instanceof Number) {
+			number = (Number) object;
+		}
 
-		int index = ((InventorySlot) slot).getIndex();
-		if (index > 8) // Only slots in hotbar can be current hotbar slot
+		if (number == null)
+			return;
+		int index = number.intValue();
+		if (index > 8 || index < 0) // Only slots in hotbar can be current hotbar slot
 			return;
 
 		for (Player player : getExpr().getArray(event))
