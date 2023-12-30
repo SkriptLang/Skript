@@ -246,8 +246,7 @@ public class SkriptConfig {
 			});
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
-			.setter(t -> Variables.caseInsensitiveVariables = t)
-			.optional(true);
+			.setter(t -> Variables.caseInsensitiveVariables = t);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
