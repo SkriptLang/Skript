@@ -1806,6 +1806,12 @@ public final class BukkitEventValues {
 				return event.getDestination().getLocation().getBlock();
 			}
 		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, new Getter<ItemStack, InventoryMoveItemEvent>() {
+			@Override
+			public ItemStack get(InventoryMoveItemEvent event) {
+				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
 
 	}
 
