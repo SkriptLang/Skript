@@ -662,8 +662,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(line);
-				line = line.replace(SkriptEventInfo.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
+				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}

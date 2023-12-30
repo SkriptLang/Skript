@@ -117,7 +117,7 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Creates a new SkriptCommand.
-	 * 
+	 *
 	 * @param name /name
 	 * @param pattern
 	 * @param arguments the list of Arguments this command takes
@@ -237,16 +237,8 @@ public class ScriptCommand implements TabExecutor {
 
 		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender, commandLabel, rest);
 
-		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-			if (sender instanceof Player) {
-				List<MessageComponent> components =
-						permissionMessage.getMessageComponents(event);
-				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
-			} else {
-				sender.sendMessage(permissionMessage.getSingle(event));
-			}
+		if (!checkPermissions(sender, event))
 			return false;
-		}
 
 		cooldownCheck : {
 			if (sender instanceof Player && cooldown != null) {
@@ -316,16 +308,34 @@ public class ScriptCommand implements TabExecutor {
 		} finally {
 			log.stop();
 		}
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# /" + name + " " + rest);
 		final long startTrigger = System.nanoTime();
-		
+
 		if (!trigger.execute(event))
 			sender.sendMessage(Commands.m_internal_error.toString());
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# " + name + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
+		return true;
+	}
+
+	public boolean checkPermissions(CommandSender sender, String commandLabel, String arguments) {
+		return checkPermissions(sender, new ScriptCommandEvent(this, sender, commandLabel, arguments));
+	}
+
+	public boolean checkPermissions(CommandSender sender, Event event) {
+		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+			if (sender instanceof Player) {
+				List<MessageComponent> components =
+					permissionMessage.getMessageComponents(event);
+				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
+			} else {
+				sender.sendMessage(permissionMessage.getSingle(event));
+			}
+			return false;
+		}
 		return true;
 	}
 
@@ -337,7 +347,7 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Gets the arguments this command takes.
-	 * 
+	 *
 	 * @return The internal list of arguments. Do not modify it!
 	 */
 	public List<Argument<?>> getArguments() {
@@ -575,7 +585,7 @@ public class ScriptCommand implements TabExecutor {
 		Class<?> argType = arg.getType();
 		if (argType.equals(Player.class) || argType.equals(OfflinePlayer.class))
 			return null; // Default completion
-		
+
 		return Collections.emptyList(); // No tab completion here!
 	}
 

@@ -120,7 +120,10 @@ public final class SkriptEventHandler {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
 				SkriptEvent triggerEvent = trigger.getEvent();
-				if (triggerEvent.getEventPriority() == priority && Boolean.TRUE.equals(Task.callSync(() -> triggerEvent.check(event)))) {
+				if (
+					triggerEvent.getEventPriority() == priority
+					&& triggerEvent.canExecuteAsynchronously() ? triggerEvent.check(event) : Boolean.TRUE.equals(Task.callSync(() -> triggerEvent.check(event)))
+				) {
 					hasTrigger = true;
 					break;
 				}
@@ -130,7 +133,7 @@ public final class SkriptEventHandler {
 
 			logEventStart(event);
 		}
-		
+
 		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
 		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
 
@@ -155,15 +158,12 @@ public final class SkriptEventHandler {
 			};
 
 			if (trigger.getEvent().canExecuteAsynchronously()) {
-				// check should be performed on the main thread
-				if (Boolean.FALSE.equals(Task.callSync(() -> triggerEvent.check(event))))
-					continue;
-				execute.run();
+				if (triggerEvent.check(event))
+					execute.run();
 			} else { // Ensure main thread
 				Task.callSync(() -> {
-					if (!triggerEvent.check(event))
-						return null;
-					execute.run();
+					if (triggerEvent.check(event))
+						execute.run();
 					return null; // we don't care about a return value
 				});
 			}

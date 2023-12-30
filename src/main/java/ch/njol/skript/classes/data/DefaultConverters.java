@@ -158,14 +158,14 @@ public class DefaultConverters {
 			if (holder instanceof DoubleChest)
 				return holder.getInventory().getLocation().getBlock();
 			return null;
-		});
+		}, Converter.NO_CHAINING);
 
 		// InventoryHolder - Entity
 		Converters.registerConverter(InventoryHolder.class, Entity.class, holder -> {
 			if (holder instanceof Entity)
 				return (Entity) holder;
 			return null;
-		});
+		}, Converter.NO_CHAINING);
 		
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
