@@ -19,42 +19,27 @@
 package org.skriptlang.skript.test.tests.syntaxes;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+// TODO properly add test after merge of https://github.com/SkriptLang/Skript/pull/6261
 public class InventoryMoveItemEventTest extends SkriptJUnitTest {
 
-	private Block chest;
-	private Block hopper;
-
 	static {
-		setShutdownDelay(20);
-	}
-
-	@Before
-	public void setupContainers() {
-		Location testLocation = getBlock().getLocation();
-		testLocation.getBlock().setType(Material.CHEST);
-		chest = testLocation.getBlock();
-		testLocation.subtract(0, -1, 0).getBlock().setType(Material.HOPPER);
-		hopper = testLocation.subtract(0, -1, 0).getBlock();
-		testLocation.subtract(0, -2, 0).getBlock().setType(Material.AIR);
+		setShutdownDelay(1);
 	}
 
 	@Test
 	public void test() {
-		((Chest) chest.getState()).getBlockInventory().addItem(new ItemStack(Material.STONE));
-	}
-
-	@After
-	public void clearContainers() {
-		hopper.setType(Material.AIR);
+		Inventory chestInventory = Bukkit.createInventory(null, InventoryType.CHEST);
+		ItemStack itemStack = new ItemStack(Material.STONE);
+		Inventory hopperInventory = Bukkit.createInventory(null, InventoryType.HOPPER);
+		Bukkit.getPluginManager().callEvent(new InventoryMoveItemEvent(chestInventory, itemStack, hopperInventory, false));
 	}
 
 }
