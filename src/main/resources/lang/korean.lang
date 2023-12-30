@@ -47,7 +47,7 @@ skript command:
 		info: Skript의 별명 및 문서에 대한 링크가있는 메시지를 표시합니다
 		gen-docs: 플러그인 폴더의 문서 템플릿을 사용하여 문서를 생성합니다.
 		test: Skript 테스트를 실행할 때 사용됩니다.
-		
+
 	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 스크립트를 찾을 수 없습니다!
 	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 폴더를 찾을 수 없습니다!
 	reload:
@@ -68,7 +68,7 @@ skript command:
 		aliases: 별칭(aliases)
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>폴더 속 모든 스크립트
-		x scripts in folder: <gold>%1$s<reset> 폴더 속 <gold>%2$s<reset>개의 스크립트
+		x scripts in folder: <gold>%1$s<lime> 폴더 속 <gold>%2$s<reset>개의 스크립트
 		empty folder: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
 	enable:
 		all:
