@@ -744,11 +744,11 @@ public class SkriptParser {
 			if (isLiteralList) {
 				final Literal<T>[] ls = ts.toArray(new Literal[ts.size()]);
 				assert ls != null;
-				return new LiteralList<>(ls, (Class<T>) Utils.getSuperType(exprRetTypes), !and.isFalse());
+				return new LiteralList<>(ls, (Class<T>) Classes.getSuperClassInfo(exprRetTypes).getC(), !and.isFalse());
 			} else {
 				final Expression<T>[] es = ts.toArray(new Expression[ts.size()]);
 				assert es != null;
-				return new ExpressionList<>(es, (Class<T>) Utils.getSuperType(exprRetTypes), !and.isFalse());
+				return new ExpressionList<>(es, (Class<T>) Classes.getSuperClassInfo(exprRetTypes).getC(), !and.isFalse());
 			}
 		} finally {
 			log.stop();
@@ -885,11 +885,11 @@ public class SkriptParser {
 			if (isLiteralList) {
 				final Literal<?>[] ls = ts.toArray(new Literal[ts.size()]);
 				assert ls != null;
-				return new LiteralList(ls, Utils.getSuperType(exprRetTypes), !and.isFalse());
+				return new LiteralList(ls, Classes.getSuperClassInfo(exprRetTypes).getC(), !and.isFalse());
 			} else {
 				final Expression<?>[] es = ts.toArray(new Expression[ts.size()]);
 				assert es != null;
-				return new ExpressionList(es, Utils.getSuperType(exprRetTypes), !and.isFalse());
+				return new ExpressionList(es, Classes.getSuperClassInfo(exprRetTypes).getC(), !and.isFalse());
 			}
 		} finally {
 			log.stop();

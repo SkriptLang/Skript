@@ -76,9 +76,12 @@ public abstract class SkriptJUnitTest {
 		SkriptJUnitTest.delay = delay;
 	}
 
+	/**
+	 * Override this method if your JUnit test requires block modification with delay over 1 tick.
+	 */
 	@Before
 	@After
-	public final void cleanup() {
+	public void cleanup() {
 		getTestWorld().getEntities().forEach(Entity::remove);
 		setBlock(Material.AIR);
 	}
