@@ -64,7 +64,7 @@ public final class Arithmetics {
 	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType, Operation<L, R, T> operation) {
 		Skript.checkAcceptRegistrations();
 		if (exactOperationExists(operator, leftClass, rightClass))
-			throw new IllegalArgumentException("There's already a " + operator.getName() + " operation registered for types '"
+			throw new SkriptAPIException("There's already a " + operator.getName() + " operation registered for types '"
 				+ leftClass + "' and '" + rightClass + "'");
 		getOperations_i(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}

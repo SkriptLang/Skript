@@ -33,6 +33,13 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.converter.Converters;
 
+/**
+ * Represents a chain of arithmetic operations between two operands.
+ *
+ * @param <L> the type of the left operand
+ * @param <R> the type of the right operand
+ * @param <T> the return type of the operation
+ */
 public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 	@SuppressWarnings("unchecked")
@@ -126,13 +133,11 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 			int lastIndex = Utils.findLastIndex(chain, checker);
 
 			if (lastIndex != -1) {
-				List<Object> leftChain = chain.subList(0, lastIndex);
-				ArithmeticGettable<L> left = parse(leftChain);
+				ArithmeticGettable<L> left = parse(chain.subList(0, lastIndex));
 
 				Operator operator = (Operator) chain.get(lastIndex);
 
-				List<Object> rightChain = chain.subList(lastIndex + 1, chain.size());
-				ArithmeticGettable<R> right = parse(rightChain);
+				ArithmeticGettable<R> right = parse(chain.subList(lastIndex + 1, chain.size()));
 
 				if (left == null || right == null)
 					return null;

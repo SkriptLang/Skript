@@ -18,6 +18,7 @@
  */
 package org.skriptlang.skript.lang.arithmetic;
 
+import com.google.common.base.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -77,9 +78,11 @@ public class OperationInfo<L, R, T> {
 
 	@Override
 	public String toString() {
-		return String.join(", ", "OperationInfo[left=" + left,
-			"right=" + right,
-			"returnType=" + returnType + "]");
+		return MoreObjects.toStringHelper(this)
+			.add("left", left)
+			.add("right", right)
+			.add("returnType", returnType)
+			.toString();
 	}
 
 }
