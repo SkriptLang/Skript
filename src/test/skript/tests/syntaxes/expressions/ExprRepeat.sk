@@ -34,6 +34,7 @@ test "repeat expression":
 	assert {_null} repeated {_null} times is set to fail with "ExprRepeat Nulls - null repeated null times is set"
 
 	# Multi Test
+	set {_repeat} to 3
 
 	set {_strings::*} to "aa" and "b" repeated 3 times
 	if any:
@@ -43,7 +44,6 @@ test "repeat expression":
 		assert false is true with "ExprRepeat Multi - 1) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
 
 	set {_strings::*} to "aa", "b"
-	set {_repeat} to 3
 	set {_strings::*} to {_strings::*} repeated {_repeat} times
 	if any:
 		{_strings::1} is not "aaaaaa"
@@ -52,7 +52,6 @@ test "repeat expression":
 		assert false is true with "ExprRepeat Multi - 2) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
 
 	set {_strings::*} to "aa", "b"
-	set {_repeat} to 3
 	set {_strings::*} to {_strings::*} repeated 3 times
 	if any:
 		{_strings::1} is not "aaaaaa"
