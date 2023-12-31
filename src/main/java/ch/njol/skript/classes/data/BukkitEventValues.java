@@ -129,6 +129,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
@@ -1779,6 +1780,31 @@ public final class BukkitEventValues {
 					return event.getStonecuttingRecipe().getResult();
 				}
 			}, EventValues.TIME_NOW);
+
+		// PlayerHarvestBlockEvent
+		if (Skript.classExists("org.bukkit.event.player.PlayerHarvestBlockEvent")) {
+			EventValues.registerEventValue(PlayerHarvestBlockEvent.class, ItemStack[].class, new Getter<ItemStack[], PlayerHarvestBlockEvent>() {
+				@Override
+				@Nullable
+				public ItemStack[] get(PlayerHarvestBlockEvent event) {
+					return event.getItemsHarvested().toArray(new ItemStack[0]);
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Block.class, new Getter<Block, PlayerHarvestBlockEvent>() {
+				@Override
+				@Nullable
+				public Block get(PlayerHarvestBlockEvent event) {
+					return event.getHarvestedBlock();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Slot.class, new Getter<Slot, PlayerHarvestBlockEvent>() {
+				@Override
+				@Nullable
+				public Slot get(PlayerHarvestBlockEvent event) {
+					return new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getHand());
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 	}
 
