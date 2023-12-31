@@ -68,9 +68,9 @@ public class OperationInfo<L, R, T> {
 		return new OperationInfo<>(fromLeft, fromRight, toReturnType, (left, right) -> {
 			L convertedLeft = Converters.convert(left, this.left);
 			R convertedRight = Converters.convert(right, this.right);
-            if (convertedLeft == null || convertedRight == null)
-				return null;
-            T result = operation.calculate(convertedLeft, convertedRight);
+		if (convertedLeft == null || convertedRight == null)
+			return null;
+		T result = operation.calculate(convertedLeft, convertedRight);
 			return Converters.convert(result, toReturnType);
 		});
 	}

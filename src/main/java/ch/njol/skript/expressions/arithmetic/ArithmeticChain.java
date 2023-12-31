@@ -69,11 +69,11 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (right == null && this.right instanceof ArithmeticChain)
 			return null;
 
-        Class<? extends L> leftClass = left != null ? (Class<? extends L>) left.getClass() : this.left.getReturnType();
+		Class<? extends L> leftClass = left != null ? (Class<? extends L>) left.getClass() : this.left.getReturnType();
 		Class<? extends R> rightClass = right != null ? (Class<? extends R>) right.getClass() : this.right.getReturnType();
 
-        if (leftClass == Object.class && rightClass == Object.class)
-            return null;
+		if (leftClass == Object.class && rightClass == Object.class)
+			return null;
 
 		if (left == null && leftClass == Object.class) {
 			operationInfo = lookupOperationInfo(rightClass, OperationInfo::getRight);
