@@ -32,10 +32,6 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Name("Repeat String")
 @Description("Repeats inputted strings a given amount of times.")
 @Examples({
@@ -46,7 +42,7 @@ import java.util.stream.Collectors;
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %integer% times");
+		Skript.registerExpression(ExprRepeat.class, String.class, ExpressionType.COMBINED, "%strings% repeated %integer% time[s]");
 	}
 
 	private Expression<String> strings;
@@ -64,9 +60,7 @@ public class ExprRepeat extends SimpleExpression<String> {
 		int repeatCount = this.repeatCount.getOptionalSingle(event).orElse(0);
 		if (repeatCount < 1)
 			return new String[0];
-		List<String> stringList = Arrays.stream(strings.getArray(event))
-			.map(string -> StringUtils.multiply(string, repeatCount)).collect(Collectors.toList());
-		return stringList.toArray(new String[0]);
+		return strings.stream(event).map(string -> StringUtils.multiply(string, repeatCount)).toArray(String[]::new);
 	}
 
 	@Override
