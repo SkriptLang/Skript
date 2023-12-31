@@ -412,6 +412,7 @@ chat styles:
 	font: font, f
 	insertion: insertion, insert, ins
 	translate: translate, tr, lang
+	keybind: keybind, key
 
 # -- Directions --
 directions:
@@ -1316,6 +1317,18 @@ teleport causes:
 	dismount: dismount, dismounted
 	exit_bed: exit bed, exiting bed, bed exit
 
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: can't use, can not use, cannot use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
+
 # -- Game Modes --
 game modes:
 	survival: survival
@@ -1910,6 +1923,7 @@ attribute types:
 	generic_follow_range: generic follow range, follow range
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
 	horse_jump_strength: horse jump strength
@@ -1974,7 +1988,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a
@@ -2009,6 +2023,7 @@ types:
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
 	quitreason: quit reason¦s @a
+	inventoryclosereason: inventory close reason¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a

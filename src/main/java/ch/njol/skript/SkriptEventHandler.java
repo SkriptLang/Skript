@@ -18,11 +18,17 @@
  */
 package ch.njol.skript;
 
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -36,16 +42,13 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.util.Task;
 
 public final class SkriptEventHandler {
 
@@ -110,12 +113,17 @@ public final class SkriptEventHandler {
 	 */
 	private static void check(Event event, EventPriority priority) {
 		List<Trigger> triggers = getTriggers(event.getClass());
+		if (triggers.isEmpty())
+			return;
 
 		if (Skript.logVeryHigh()) {
 			boolean hasTrigger = false;
 			for (Trigger trigger : triggers) {
 				SkriptEvent triggerEvent = trigger.getEvent();
-				if (triggerEvent.getEventPriority() == priority && triggerEvent.check(event)) {
+				if (
+					triggerEvent.getEventPriority() == priority
+					&& triggerEvent.canExecuteAsynchronously() ? triggerEvent.check(event) : Boolean.TRUE.equals(Task.callSync(() -> triggerEvent.check(event)))
+				) {
 					hasTrigger = true;
 					break;
 				}
@@ -125,7 +133,7 @@ public final class SkriptEventHandler {
 
 			logEventStart(event);
 		}
-		
+
 		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
 		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
 
@@ -137,16 +145,28 @@ public final class SkriptEventHandler {
 
 		for (Trigger trigger : triggers) {
 			SkriptEvent triggerEvent = trigger.getEvent();
-			if (triggerEvent.getEventPriority() != priority || !triggerEvent.check(event))
+			if (triggerEvent.getEventPriority() != priority)
 				continue;
 
-			logTriggerStart(trigger);
-			Object timing = SkriptTimings.start(trigger.getDebugLabel());
+			// these methods need to be run on whatever thread the trigger is
+			Runnable execute = () -> {
+				logTriggerStart(trigger);
+				Object timing = SkriptTimings.start(trigger.getDebugLabel());
+				trigger.execute(event);
+				SkriptTimings.stop(timing);
+				logTriggerEnd(trigger);
+			};
 
-			trigger.execute(event);
-
-			SkriptTimings.stop(timing);
-			logTriggerEnd(trigger);
+			if (trigger.getEvent().canExecuteAsynchronously()) {
+				if (triggerEvent.check(event))
+					execute.run();
+			} else { // Ensure main thread
+				Task.callSync(() -> {
+					if (triggerEvent.check(event))
+						execute.run();
+					return null; // we don't care about a return value
+				});
+			}
 		}
 
 		logEventEnd();

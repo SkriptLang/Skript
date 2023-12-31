@@ -27,20 +27,20 @@ package org.skriptlang.skript.lang.comparator;
  */
 final class InverseComparator<T1, T2> implements Comparator<T1, T2> {
 
-	private final Comparator<T2, T1> comparator;
+	private final ComparatorInfo<T2, T1> comparator;
 
-	InverseComparator(Comparator<T2, T1> comparator) {
+	InverseComparator(ComparatorInfo<T2, T1> comparator) {
 		this.comparator = comparator;
 	}
 
 	@Override
 	public Relation compare(T1 o1, T2 o2) {
-		return comparator.compare(o2, o1).getSwitched();
+		return comparator.getComparator().compare(o2, o1).getSwitched();
 	}
 
 	@Override
 	public boolean supportsOrdering() {
-		return comparator.supportsOrdering();
+		return comparator.getComparator().supportsOrdering();
 	}
 
 	@Override
@@ -50,7 +50,7 @@ final class InverseComparator<T1, T2> implements Comparator<T1, T2> {
 
 	@Override
 	public String toString() {
-		return "InverseComparator{" + comparator + "}";
+		return "InverseComparator{comparator=" + comparator + "}";
 	}
 
 }

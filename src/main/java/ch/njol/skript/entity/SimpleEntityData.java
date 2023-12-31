@@ -307,7 +307,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("item display", ItemDisplay.class);
 			addSimpleEntity("block display", BlockDisplay.class);
 			addSimpleEntity("interaction", Interaction.class);
-			addSimpleEntity("display", Display.class);
+			addSuperEntity("display", Display.class);
 		}
 
 		// Register zombie after Husk and Drowned to make sure both work
