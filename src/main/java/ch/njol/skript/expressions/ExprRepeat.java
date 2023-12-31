@@ -36,7 +36,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Repeats inputted strings a given amount of times.")
 @Examples({
 	"broadcast nl and nl repeated 200 times",
-	"broadcast \"Hello World \" repeated 5 times"
+	"broadcast \"Hello World \" repeated 5 times",
+	"if \"aa\" repeated 2 times is \"aaaa\":",
+		"\tbroadcast \"Ahhhh\" repeated 100 times"
 })
 @Since("INSERT VERSION")
 public class ExprRepeat extends SimpleExpression<String> {
