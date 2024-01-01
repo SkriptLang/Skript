@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffWorldSave extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldSave.class, "save %worlds%");
+		Skript.registerEffect(EffWorldSave.class, "save [[the] world[s]] %worlds%");
 	}
 
 	private Expression<World> worlds;
@@ -64,7 +64,7 @@ public class EffWorldSave extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "save world(s) " + worlds.toString(event, debug);
+		return "save the world(s) " + worlds.toString(event, debug);
 	}
 
 }

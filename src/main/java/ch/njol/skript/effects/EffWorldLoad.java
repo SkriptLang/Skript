@@ -51,7 +51,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public class EffWorldLoad extends Effect {
 
 	static {
-		Skript.registerEffect(EffWorldLoad.class, "load [[the] world] %strings% [with environment %-environment%]", "unload [[the] world] %worlds% [:without saving]");
+		Skript.registerEffect(EffWorldLoad.class,
+				"load [[the] world[s]] %strings% [with environment %-environment%]",
+				"unload [[the] world[s]] %worlds% [:without saving]"
+		);
 	}
 
 	private boolean save, load;
@@ -90,8 +93,8 @@ public class EffWorldLoad extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (load)
-			return "load world(s) " + worlds.toString(event, debug) + (environment == null ? "" : " with environment " + environment.toString(event, debug));
-		return "unload world(s) " + worlds.toString(event, debug) + " " + (save ? "with saving" : "without saving");
+			return "load the world(s) " + worlds.toString(event, debug) + (environment == null ? "" : " with environment " + environment.toString(event, debug));
+		return "unload the world(s) " + worlds.toString(event, debug) + " " + (save ? "with saving" : "without saving");
 	}
 
 }
