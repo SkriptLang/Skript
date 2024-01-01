@@ -98,6 +98,8 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -1780,6 +1782,21 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 
+		// EntityTransformEvent
+		EventValues.registerEventValue(EntityTransformEvent.class, Entity[].class, new Getter<Entity[], EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public Entity[] get(EntityTransformEvent event) {
+				return event.getTransformedEntities().stream().toArray(Entity[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityTransformEvent.class, TransformReason.class, new Getter<TransformReason, EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public TransformReason get(EntityTransformEvent event) {
+				return event.getTransformReason();
+			}
+		}, EventValues.TIME_NOW);
 	}
 
 }
