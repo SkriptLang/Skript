@@ -18,6 +18,18 @@
  */
 package ch.njol.skript.classes;
 
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Debuggable;
+import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Noun;
+import ch.njol.util.coll.iterator.ArrayIterator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,19 +37,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.coll.iterator.ArrayIterator;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.Debuggable;
-import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Noun;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Peter Güttinger
@@ -515,7 +514,7 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Override
 	@NonNull
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();

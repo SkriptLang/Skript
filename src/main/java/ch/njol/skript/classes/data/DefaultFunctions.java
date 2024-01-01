@@ -541,6 +541,15 @@ public class DefaultFunctions {
 		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
 			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
 			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
+			@Override
+			public Boolean[] executeSimple(Object[][] params) {
+				return new Boolean[] {Double.isNaN(((Number) params[0][0]).doubleValue())};
+			}
+		}).description("Returns true if the input is NaN (not a number).")
+			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
+			.since("INSERT VERSION");
 	}
 	
 }

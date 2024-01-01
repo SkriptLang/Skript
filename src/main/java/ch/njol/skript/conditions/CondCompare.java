@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.util.Time;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -52,6 +54,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.util.Cyclical;
 
 @Name("Comparison")
 @Description({"A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
@@ -164,9 +167,8 @@ public class CondCompare extends Condition {
 	
 	@SuppressWarnings("unchecked")
 	private boolean init(String expr) {
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		Expression<?> third = this.third;
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			if (first.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (first instanceof UnparsedLiteral)
@@ -174,7 +176,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = first.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				first = expression;
@@ -186,7 +188,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = second.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				second = expression;
@@ -198,14 +200,13 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = third.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				this.third = third = expression;
 			}
-			log.printLog();
-		} finally {
-			log.stop();
+			// we do not want to print any errors as they are not applicable
+			log.printLog(false);
 		}
 		Class<?> firstReturnType = first.getReturnType();
 		Class<?> secondReturnType = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
@@ -351,15 +352,29 @@ public class CondCompare extends Condition {
 				return third.check(e, (Checker<Object>) o3 -> {
 					boolean isBetween;
 					if (comparator != null) {
-						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
-							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
+						if (o1 instanceof Cyclical<?> && o2 instanceof Cyclical<?> && o3 instanceof Cyclical<?>) {
+							if (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o2, o3)))
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) || Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3));
+							else
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3));
+						} else {
+							isBetween =
+								(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
+								// Check OPPOSITE (switching o2 / o3)
+								|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
+						}
 					} else {
-						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
-							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)));
+						if (o1 instanceof Cyclical<?> && o2 instanceof Cyclical<?> && o3 instanceof Cyclical<?>) {
+							if (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o2, o3)))
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) || Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3));
+							else
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3));
+						} else {
+							isBetween =
+									(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
+									// Check OPPOSITE (switching o2 / o3)
+									|| (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)));
+						}
 					}
 					return relation == Relation.NOT_EQUAL ^ isBetween;
 				});
