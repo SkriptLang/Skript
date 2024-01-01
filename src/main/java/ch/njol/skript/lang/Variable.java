@@ -619,31 +619,30 @@ public class Variable<T> implements Expression<T> {
 						}
 					}
 				} else {
-					Object object = get(event);
-					Class<?> clazz = object == null ? null : object.getClass();
+					Object originalValue = get(event);
+					Class<?> clazz = originalValue == null ? null : originalValue.getClass();
 					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] classes;
 					if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
 						boolean changed = false;
-						for (Object d : delta) {
-							OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : d.getClass(), d.getClass());
+						for (Object newValue : delta) {
+							OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());
 							if (info == null)
 								continue;
 
-							Object value = object == null ? Arithmetics.getDefaultValue(info.getLeft()) : object;
+							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.getLeft()) : originalValue;
 							if (value == null)
 								continue;
 
-							object = info.getOperation().calculate(value, d);
+							originalValue = info.getOperation().calculate(value, newValue);
 							changed = true;
-							break;
 						}
 						if (changed)
-							set(event, object);
+							set(event, originalValue);
 					} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (classes = changer.acceptChange(mode)) != null) {
-						Object[] one = (Object[]) Array.newInstance(object.getClass(), 1);
-						one[0] = object;
+						Object[] originalValueArray = (Object[]) Array.newInstance(originalValue.getClass(), 1);
+						originalValueArray[0] = originalValue;
 
 						Class<?>[] classes2 = new Class<?>[classes.length];
 						for (int i = 0; i < classes.length; i++)
@@ -656,7 +655,7 @@ public class Variable<T> implements Expression<T> {
 								convertedDelta.add(convertedValue);
 						}
 
-						ChangerUtils.change(changer, one, convertedDelta.toArray(), mode);
+						ChangerUtils.change(changer, originalValueArray, convertedDelta.toArray(), mode);
 
 					}
 				}
