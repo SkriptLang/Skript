@@ -16,19 +16,41 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions.arithmetic;
+package org.skriptlang.skript.lang.arithmetic;
 
-import org.bukkit.event.Event;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.localization.Noun;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @param <T> The return type of the gettable
- */
-public interface ArithmeticGettable<T> {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-	@Nullable
-	T get(Event event);
+public enum Operator {
 
-	Class<? extends T> getReturnType();
+	ADDITION('+', "add"),
+	SUBTRACTION('-', "subtract"),
+	MULTIPLICATION('*', "multiply"),
+	DIVISION('/', "divide"),
+	EXPONENTIATION('^', "exponentiate");
+
+	private final char sign;
+	private final Noun m_name;
+
+	Operator(char sign, String node) {
+		this.sign = sign;
+		this.m_name = new Noun("operators." + node);
+	}
+
+	@Override
+	public String toString() {
+		return sign + "";
+	}
+
+	public String getName() {
+		return m_name.toString();
+	}
 
 }

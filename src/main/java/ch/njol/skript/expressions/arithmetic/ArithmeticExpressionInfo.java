@@ -19,16 +19,29 @@
 package ch.njol.skript.expressions.arithmetic;
 
 import org.bukkit.event.Event;
+
+import ch.njol.skript.lang.Expression;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
-/**
- * @param <T> The return type of the gettable
- */
-public interface ArithmeticGettable<T> {
+public class ArithmeticExpressionInfo<T> implements ArithmeticGettable<T> {
+	
+	private final Expression<? extends T> expression;
+	
+	public ArithmeticExpressionInfo(Expression<? extends T> expression) {
+		this.expression = expression;
+	}
 
+	@Override
 	@Nullable
-	T get(Event event);
+	public T get(Event event) {
+		T object = expression.getSingle(event);
+		return object == null ? Arithmetics.getDefaultValue(expression.getReturnType()) : object;
+	}
 
-	Class<? extends T> getReturnType();
+	@Override
+	public Class<? extends T> getReturnType() {
+		return expression.getReturnType();
+	}
 
 }
