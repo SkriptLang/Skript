@@ -1805,25 +1805,25 @@ public final class BukkitEventValues {
 			public Inventory get(InventoryMoveItemEvent event) {
 				return event.getSource();
 			}
-		}, EventValues.TIME_PAST);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
 			public Inventory get(InventoryMoveItemEvent event) {
 				return event.getDestination();
 			}
-		}, EventValues.TIME_NOW);
+		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
 			@Override
 			public Block get(InventoryMoveItemEvent event) {
 				return event.getSource().getLocation().getBlock();
 			}
-		}, EventValues.TIME_PAST);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
 			@Override
 			public Block get(InventoryMoveItemEvent event) {
 				return event.getDestination().getLocation().getBlock();
 			}
-		}, EventValues.TIME_NOW);
+		}, EventValues.TIME_FUTURE);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, new Getter<ItemStack, InventoryMoveItemEvent>() {
 			@Override
 			public ItemStack get(InventoryMoveItemEvent event) {
