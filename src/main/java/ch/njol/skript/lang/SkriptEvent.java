@@ -162,7 +162,7 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
-	 * Checks whether the given Event applies, e.g. the leftclick event is only part of the PlayerInteractEvent, and this checks whether the player leftclicked or not. This method
+	 * Checks whether the given Event applies, e.g. the left-click event is only part of the PlayerInteractEvent, and this checks whether the player left-clicked or not. This method
 	 * will only be called for events this SkriptEvent is registered for.
 	 * @return true if this is SkriptEvent is represented by the Bukkit Event or false if not
 	 */
@@ -216,10 +216,10 @@ public abstract class SkriptEvent extends Structure {
 
 		boolean inType = false;
 		for (int i = 0; i < chars.length; i++) {
-			char c = chars[i];
-			stringBuilder.append(c);
+			char character = chars[i];
+			stringBuilder.append(character);
 
-			if (c == '%') {
+			if (character == '%') {
 				// toggle inType
 				inType = !inType;
 
@@ -227,7 +227,7 @@ public abstract class SkriptEvent extends Structure {
 				// a type specification can have two prefix characters for modification
 				if (inType && i + 2 < chars.length && chars[i + 1] != '-' && chars[i + 2] != '-')
 					stringBuilder.append('-');
-			} else if (c == '\\' && i + 1 < chars.length) {
+			} else if (character == '\\' && i + 1 < chars.length) {
 				// Make sure we don't toggle inType for escape percentage signs
 				stringBuilder.append(chars[i + 1]);
 				i++;

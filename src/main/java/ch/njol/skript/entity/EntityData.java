@@ -134,7 +134,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			if (info == null)
 				throw new StreamCorruptedException("Invalid EntityData code name " + codeName);
 			try {
-				final EntityData<?> d = info.c.newInstance();
+				final EntityData<?> d = info.getElementClass().newInstance();
 				d.deserialize(fields);
 				return d;
 			} catch (final InstantiationException e) {
@@ -159,9 +159,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				return null;
 			EntityData<?> d;
 			try {
-				d = i.c.newInstance();
+				d = i.getElementClass().newInstance();
 			} catch (final Exception e) {
-				Skript.exception(e, "Can't create an instance of " + i.c.getCanonicalName());
+				Skript.exception(e, "Can't create an instance of " + i.getElementClass().getCanonicalName());
 				return null;
 			}
 			if (!d.deserialize(split[1]))
@@ -298,7 +298,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	public EntityData() {
 		for (final EntityDataInfo<?> i : infos) {
-			if (getClass() == i.c) {
+			if (getClass() == i.getElementClass()) {
 				info = i;
 				matchedPattern = i.defaultName;
 				return;
@@ -409,7 +409,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	public static EntityDataInfo<?> getInfo(final Class<? extends EntityData<?>> c) {
 		for (final EntityDataInfo<?> i : infos) {
-			if (i.c == c)
+			if (i.getElementClass() == c)
 				return i;
 		}
 		throw new SkriptAPIException("Unregistered EntityData class " + c.getName());
@@ -581,7 +581,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			if (info.entityClass != Entity.class && (e == null ? info.entityClass.isAssignableFrom(c) : info.entityClass.isInstance(e))) {
 				try {
 					@SuppressWarnings("unchecked")
-					final EntityData<E> d = (EntityData<E>) info.c.newInstance();
+					final EntityData<E> d = (EntityData<E>) info.getElementClass().newInstance();
 					if (d.init(c, e))
 						return d;
 				} catch (final Exception ex) {

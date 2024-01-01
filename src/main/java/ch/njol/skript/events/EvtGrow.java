@@ -157,8 +157,9 @@ public class EvtGrow extends SkriptEvent {
 
 	private static boolean checkFrom(Event event, Literal<Object> types) {
 		// treat and lists as or lists
-		if (types instanceof LiteralList)
-			((LiteralList<Object>) types).setAnd(false);
+		if (types.getAnd() && types instanceof LiteralList)
+			((LiteralList<Object>) types).invertAnd();
+
 		if (event instanceof StructureGrowEvent) {
 			Material sapling = ItemUtils.getTreeSapling(((StructureGrowEvent) event).getSpecies());
 			return types.check(event, type -> {
@@ -185,8 +186,9 @@ public class EvtGrow extends SkriptEvent {
 
 	private static boolean checkTo(Event event, Literal<Object> types) {
 		// treat and lists as or lists
-		if (types instanceof LiteralList)
-			((LiteralList<Object>) types).setAnd(false);
+		if (types.getAnd() && types instanceof LiteralList)
+			((LiteralList<Object>) types).invertAnd();
+
 		if (event instanceof StructureGrowEvent) {
 			TreeType species = ((StructureGrowEvent) event).getSpecies();
 			return types.check(event, type -> {
