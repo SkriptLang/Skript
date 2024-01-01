@@ -201,7 +201,7 @@ test "vector - vector operations":
     assert (difference between {_v1} and {_v1}) is (vector(0, 0, 0)) with "difference between vector(1,2,3) and vector(1,2,3) is not vector(0, 0, 0)"
     assert (difference between {_v1} and vector(0,0,0)) is (vector(1, 2, 3)) with "difference between vector(1,2,3) and vector(0,0,0) is not vector(1, 2, 3)"
     assert (difference between vector(0,0,0) and {_v1}) is (vector(1, 2, 3)) with "difference between vector(0,0,0) and {_v1} is not vector(1, 2, 3)"
-    assert vector_equals(difference between {_v1} and vector(infinity value, -infinity value, NaN value), infinity value, infinity value, NaN value) with "difference between vector(1,2,3) and vector(infinity, -infinity, NaN) is not vector(infinity, infinity, NaN)"
+    assert vector_equals(difference between {_v1} and vector(infinity value, -infinity value, NaN value), infinity value, infinity value, NaN value) is true with "difference between vector(1,2,3) and vector(infinity, -infinity, NaN) is not vector(infinity, infinity, NaN)"
 
 test "number - vector operations":
     set {_v1} to vector(1, 2, 3)
