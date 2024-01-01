@@ -105,10 +105,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.event.world.WorldUnloadEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
@@ -423,26 +419,6 @@ public class SimpleEvents {
 							"\tkill event-entity")
 					.since("2.2-dev13b");
 		}
-		Skript.registerEvent("World Init", SimpleEvent.class, WorldInitEvent.class, "world init[ialization]")
-				.description("Called when a world is initialised. As all default worlds are initialised before any scripts are loaded, this event is only called for newly created worlds.",
-						"World management plugins might change the behaviour of this event though.")
-				.examples("on world init:")
-				.since("1.0");
-		Skript.registerEvent("World Load", SimpleEvent.class, WorldLoadEvent.class, "world load[ing]")
-				.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
-				.examples("on world load:",
-						"\tsend \"World is loading...\" to console")
-				.since("1.0");
-		Skript.registerEvent("World Save", SimpleEvent.class, WorldSaveEvent.class, "world sav(e|ing)")
-				.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
-				.examples("on world saving:",
-						"\tbroadcast \"World has been saved!\"")
-				.since("1.0");
-		Skript.registerEvent("World Unload", SimpleEvent.class, WorldUnloadEvent.class, "world unload[ing]")
-				.description("Called when a world is unloaded. This event might never be called if you don't have a world management plugin.")
-				.examples("on world unload:",
-						"\tcancel event")
-				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.entity.EntityToggleGlideEvent")) {
 			Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
 					.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
