@@ -159,6 +159,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 			return new Object[0];
 		}
 
+		DifferenceInfo differenceInfo = this.differenceInfo;
 		if (differenceInfo == null) { // Try to determine now that actual types are known
 			Class<?> superType = Utils.getSuperType(first.getClass(), second.getClass());
 			differenceInfo = Arithmetics.getDifferenceInfo(superType);
