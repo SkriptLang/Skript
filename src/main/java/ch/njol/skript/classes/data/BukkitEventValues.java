@@ -1783,6 +1783,22 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 
+		// EntityTransformEvent
+		EventValues.registerEventValue(EntityTransformEvent.class, Entity[].class, new Getter<Entity[], EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public Entity[] get(EntityTransformEvent event) {
+				return event.getTransformedEntities().stream().toArray(Entity[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityTransformEvent.class, TransformReason.class, new Getter<TransformReason, EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public TransformReason get(EntityTransformEvent event) {
+				return event.getTransformReason();
+			}
+		}, EventValues.TIME_NOW);
+
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1815,21 +1831,6 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
-		// EntityTransformEvent
-		EventValues.registerEventValue(EntityTransformEvent.class, Entity[].class, new Getter<Entity[], EntityTransformEvent>() {
-			@Override
-			@Nullable
-			public Entity[] get(EntityTransformEvent event) {
-				return event.getTransformedEntities().stream().toArray(Entity[]::new);
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(EntityTransformEvent.class, TransformReason.class, new Getter<TransformReason, EntityTransformEvent>() {
-			@Override
-			@Nullable
-			public TransformReason get(EntityTransformEvent event) {
-				return event.getTransformReason();
-			}
-		}, EventValues.TIME_NOW);
 	}
 
 }
