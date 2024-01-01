@@ -55,9 +55,9 @@ public class EffCommand extends Effect {
 
 	static {
 		Skript.registerEffect(EffCommand.class,
-				"[execute] [the] [bungee:bungee[cord]] command %strings% [by %-commandsenders%]",
-				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command %strings%",
-				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command] %strings%");
+				"[execute] [the] [bungee:bungee[cord]] command[s] %strings% [by %-commandsenders%]",
+				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command[s] %strings%",
+				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command[s]] %strings%");
 	}
 
 	@Nullable
