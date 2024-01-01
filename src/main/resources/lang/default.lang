@@ -1820,7 +1820,7 @@ inventory types:
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
 	decorated_pot: decorated pot @a
-	crafter: crafter @a
+	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
