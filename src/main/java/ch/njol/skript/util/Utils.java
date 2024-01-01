@@ -775,5 +775,13 @@ public abstract class Utils {
 		}
 		return lastIndex;
 	}
+
+	public static boolean isInteger(Number... numbers) {
+		for (Number number : numbers) {
+			if (Double.class.isAssignableFrom(number.getClass()) || Float.class.isAssignableFrom(number.getClass()))
+				return false;
+		}
+		return true;
+	}
 	
 }

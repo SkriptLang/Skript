@@ -16,19 +16,22 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions.arithmetic;
+package org.skriptlang.skript.lang.arithmetic;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * @param <T> The return type of the gettable
+ * Represents a <a href="https://en.wikipedia.org/wiki/Pure_function">pure</a> binary operation
+ * that takes two operands of types {@code L} and {@code R}, performs a calculation,
+ * and returns a result of type {@code T}.
+ *
+ * @param <L> The class of the left operand.
+ * @param <R> The class of the right operand.
+ * @param <T> The return type of the operation.
  */
-public interface ArithmeticGettable<T> {
+@FunctionalInterface
+public interface Operation<L, R, T> {
 
-	@Nullable
-	T get(Event event);
-
-	Class<? extends T> getReturnType();
+	T calculate(@NotNull L left, @NotNull R right);
 
 }
