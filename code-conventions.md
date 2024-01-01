@@ -127,9 +127,11 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - Static constant fields should be named in `UPPER_SNAKE_CASE`
 * Localised messages should be named in `lower_snake_case`
   - And that is the only place where snake_case is acceptable
-* Use prefixes only where their use has been already estabilished (such as `ExprSomeRandomThing`)
+* Use prefixes only where their use has been already established (such as `ExprSomeRandomThing`)
   - Otherwise, use postfixes where necessary
   - Common occurrences include: Struct (Structure), Sec (Section), EffSec (EffectSection), Eff (Effect), Cond (Condition), Expr (Expression)
+* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`.
+  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things.
   
 ### Comments
 * Prefer to comment *why* you're doing things instead of how you're doing them
