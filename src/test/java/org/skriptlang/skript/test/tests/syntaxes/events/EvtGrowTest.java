@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.tests.syntaxes;
+package org.skriptlang.skript.test.tests.syntaxes.events;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
