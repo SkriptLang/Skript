@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set {_v} to vector from facing of player",
 	"set {_v::*} to vectors from north, south, east, and west"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 
 	static {

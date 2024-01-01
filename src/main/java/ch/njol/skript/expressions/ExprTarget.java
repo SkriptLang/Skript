@@ -67,7 +67,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, 2.7 (Reset), INSERT VERSION (ignore blocks)")
+@Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {

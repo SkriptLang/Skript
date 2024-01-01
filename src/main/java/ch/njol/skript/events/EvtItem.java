@@ -140,7 +140,7 @@ public class EvtItem extends SkriptEvent {
 						"on inventory item move:",
 							"\tbroadcast \"%holder of past event-inventory% is transporting %event-item% to %holder of event-inventory%!\""
 				)
-				.since("INSERT VERSION");
+				.since("2.8.0");
 		if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT) {
 			Skript.registerEvent("Stonecutter Recipe Select", EvtItem.class, PlayerStonecutterRecipeSelectEvent.class, "stonecutting [[of] %-itemtypes%]")
 					.description("Called when a player selects a recipe in a stonecutter.")
@@ -151,7 +151,7 @@ public class EvtItem extends SkriptEvent {
 							"on stonecutting:",
 								"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
 					)
-					.since("INSERT VERSION")
+					.since("2.8.0")
 					.requiredPlugins("Paper 1.16+");
 		}
 	}

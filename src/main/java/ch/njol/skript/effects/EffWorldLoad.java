@@ -47,7 +47,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"unload \"world_the_end\" without saving",
 		"unload all worlds"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class EffWorldLoad extends Effect {
 
 	static {

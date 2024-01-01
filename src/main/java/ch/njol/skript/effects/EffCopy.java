@@ -51,7 +51,7 @@ import java.util.*;
 	"broadcast {_copy::bar} # 1",
 	"broadcast {_copy::sublist::foobar} # \"hey!\""
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @Keywords({"clone", "variable", "list"})
 public class EffCopy extends Effect {
 

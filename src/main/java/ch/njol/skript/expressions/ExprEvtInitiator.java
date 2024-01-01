@@ -40,7 +40,7 @@ import ch.njol.util.Kleenean;
 		"\tbroadcast \"Item transport requested at %location at holder of event-initiator-inventory%...\""
 })
 @Events("Inventory Item Move")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprEvtInitiator extends EventValueExpression<Inventory> {
 
 	static {

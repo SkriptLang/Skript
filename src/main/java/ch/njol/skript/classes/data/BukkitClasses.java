@@ -1533,7 +1533,7 @@ public class BukkitClasses {
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
 					.requiredPlugins("Paper 1.16.5+")
-					.since("INSERT VERSION"));
+					.since("2.8.0"));
 
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
 			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
@@ -1541,13 +1541,13 @@ public class BukkitClasses {
 					.name("Inventory Close Reasons")
 					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
 					.requiredPlugins("Paper")
-					.since("INSERT VERSION"));
+					.since("2.8.0"));
 
 		Classes.registerClass(new EnumClassInfo<>(TransformReason.class, "transformreason", "transform reasons")
 				.user("(entity)? ?transform ?(reason|cause)s?")
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
-				.since("INSERT VERSION"));
+				.since("2.8.0"));
 	}
 
 }

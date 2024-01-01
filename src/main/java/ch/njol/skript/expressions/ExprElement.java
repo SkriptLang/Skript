@@ -47,7 +47,7 @@ import java.util.Iterator;
 		"See also: <a href='#ExprRandom'>random expression</a>"
 })
 @Examples("broadcast the first 3 elements of {top players::*}")
-@Since("2.0, 2.7 (relative to last element), INSERT VERSION (range of elements)")
+@Since("2.0, 2.7 (relative to last element), 2.8.0 (range of elements)")
 public class ExprElement<T> extends SimpleExpression<T> {
 
 	private static final Patterns<ElementType[]> PATTERNS = new Patterns<>(new Object[][]{

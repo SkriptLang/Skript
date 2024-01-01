@@ -643,7 +643,7 @@ public class SimpleEvents {
 					.examples(
 						"on player stop using item:",
 							"\tbroadcast \"%player% used %event-item% for %event-timespan%.\"")
-					.since("INSERT VERSION");
+					.since("2.8.0");
 		}
 
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerReadyArrowEvent")) {
@@ -658,7 +658,7 @@ public class SimpleEvents {
 							"\tif selected arrow is not a spectral arrow:",
 								"\t\tcancel event"
 					)
-					.since("INSERT VERSION");
+					.since("2.8.0");
 		}
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
@@ -726,7 +726,7 @@ public class SimpleEvents {
 								"\tcancel the event",
 								"\tteleport event-projectile to block 5 above event-projectile"
 				)
-				.since("INSERT VERSION")
+				.since("2.8.0")
 				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")

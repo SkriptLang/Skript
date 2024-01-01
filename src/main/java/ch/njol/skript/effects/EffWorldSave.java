@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"save \"world_nether\"",
 	"save all worlds"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class EffWorldSave extends Effect {
 
 	static {

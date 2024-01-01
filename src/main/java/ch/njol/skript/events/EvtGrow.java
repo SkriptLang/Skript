@@ -70,7 +70,7 @@ public class EvtGrow extends SkriptEvent {
 					"on grow of wheat, carrots, or potatoes:",
 					"on grow into tree, giant mushroom, cactus:",
 					"on grow from wheat[age=0] to wheat[age=1] or wheat[age=2]:")
-				.since("1.0, 2.2-dev20 (plants), INSERT VERSION (from, into, blockdata)");
+				.since("1.0, 2.2-dev20 (plants), 2.8.0 (from, into, blockdata)");
 	}
 	
 	@Nullable

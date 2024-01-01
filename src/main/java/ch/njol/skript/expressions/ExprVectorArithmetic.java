@@ -47,7 +47,7 @@ import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 	"set {_v} to {_v} ** {_v}",
 	"set {_v} to {_v} // {_v}"
 })
-@Since("2.2-dev28, INSERT VERSION (deprecation)")
+@Since("2.2-dev28, 2.8.0 (deprecation)")
 @Deprecated
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
