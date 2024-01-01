@@ -233,13 +233,13 @@ test "timespan arithmetic":
 
 test "date arithmetic":
     set {_d1} to now
-    set {_d2} to 1 day ago
+    set {_d2} to 1 day before {_d1}
     assert ({_d1} + {_d2}) is not set with ""
 
-    assert ({_d1} + 1 day) is (1 day from {_d1}) with "now + 1 day is not 1 day from now"
-    assert ({_d1} - 1 day) is (1 day ago) with "now - 1 day is not 1 day ago"
-    assert ({_d1} + 1 week) is (1 week from {_d1}) with "now + 1 week is not 1 week from now"
-    assert ({_d1} - 1 week) is (1 week ago) with "now - 1 week is not 1 week ago"
+    assert ({_d1} + 1 day) is (1 day after {_d1}) with "now + 1 day is not 1 day from now"
+    assert ({_d1} - 1 day) is (1 day before {_d1}) with "now - 1 day is not 1 day ago"
+    assert ({_d1} + 1 week) is (1 week after {_d1}) with "now + 1 week is not 1 week from now"
+    assert ({_d1} - 1 week) is (1 week before {_d1}) with "now - 1 week is not 1 week ago"
     assert ({_d1} + 1) is not set with ""
 
 local function vector_equals(vec: vector, x: number, y: number, z: number) :: boolean:
