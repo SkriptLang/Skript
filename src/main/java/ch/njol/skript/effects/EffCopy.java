@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.*;
 
-@Name("Copy")
+@Name("Copy Into Variable")
 @Description({
 	"Copies objects into a variable. When copying a list over to another list, the source list and its sublists are also copied over.",
 	"<strong>Note: Copying a value into a variable/list will overwrite the existing data.</strong>"
