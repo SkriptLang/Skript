@@ -45,7 +45,7 @@ skript command:
 			changes: 列出自当前版本以来的所有变化
 			download: 下载最新的版本
 		info: 打印一个带有Skript的别名和文档链接的信息
-		gen-docs: 使用插件文件夹中的doc-templates生成文档
+		gen-docs: 使用插件文件夹中的docs/templates生成文档
 		test: 用于运行内部的Skript测试
 
 	invalid script: 无法在scripts文件夹中找到脚本<grey>“<gold>%s<grey>”<red>！

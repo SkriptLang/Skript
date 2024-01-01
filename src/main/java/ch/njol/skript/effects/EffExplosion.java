@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Explosion")
-@Description({"Creates an explosion of a given force. The Minecraft Wiki has an <a href='https://www.minecraftwiki.net/wiki/Explosion'>article on explosions</a> " +
+@Description({"Creates an explosion of a given force. The Minecraft Wiki has an <a href='https://www.minecraft.wiki/w/Explosion'>article on explosions</a> " +
 		"which lists the explosion forces of TNT, creepers, etc.",
 		"Hint: use a force of 0 to create a fake explosion that does no damage whatsoever, or use the explosion effect introduced in Skript 2.0.",
 		"Starting with Bukkit 1.4.5 and Skript 2.0 you can use safe explosions which will damage entities but won't destroy any blocks."})
