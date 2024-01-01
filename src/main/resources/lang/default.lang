@@ -1819,6 +1819,8 @@ inventory types:
 	smithing: smithing inventory @a
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+	decorated_pot: decorated pot @a
+	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
@@ -1888,6 +1890,10 @@ resource pack states:
 	declined: decline, refuse, reject, declined, refused, rejected
 	failed_download: download fail, fail, failed to download, failed
 	successfully_loaded: successfully load, successfully install, success, successfully loaded, successfully installed
+	downloaded: downloaded
+	invalid_url: invalid url
+	failed_reload: failed reload, failed to reload
+	discarded: discarded
 
 # -- Sound Categories --
 sound categories:
@@ -1953,6 +1959,19 @@ quit reasons:
 	erroneous_state: erroneous, erroneous state
 	kicked: kicked
 	timed_out: timed out
+
+# -- Transform Reasons --
+transform reasons:
+	cured: zombie cure, zombie curing, curing
+	drowned: entity drowning, drowning, zombie converting to drowned, zombie drowning
+	frozen: entity freezing, entity freeze, skeleton freezing, skeleton freeze, skeleton converting to stray
+	lightning: lightning, creeper super charge
+	metamorphosis: tadpole converting, tadpole converting to frog, tadpole metamorphosis, metamorphosis
+	piglin_zombified: piglin zombification
+	sheared: mooshroom shear, mooshroom shearing
+	split: slime split, slime splitting, split, magma slime split, magma slime splitting
+	unknown: unknown
+	infection: infection, villager infection
 
 # -- Boolean --
 boolean:
@@ -2024,6 +2043,7 @@ types:
 	gamerulevalue: gamerule value¦s @a
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
+	transformreason: transform reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
