@@ -1819,6 +1819,8 @@ inventory types:
 	smithing: smithing inventory @a
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+	decorated_pot: decorated pot @a
+	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
@@ -1888,6 +1890,10 @@ resource pack states:
 	declined: decline, refuse, reject, declined, refused, rejected
 	failed_download: download fail, fail, failed to download, failed
 	successfully_loaded: successfully load, successfully install, success, successfully loaded, successfully installed
+	downloaded: downloaded
+	invalid_url: invalid url
+	failed_reload: failed reload, failed to reload
+	discarded: discarded
 
 # -- Sound Categories --
 sound categories:
