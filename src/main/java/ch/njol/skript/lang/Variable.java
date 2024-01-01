@@ -31,11 +31,13 @@ import java.util.TreeMap;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -618,50 +620,27 @@ public class Variable<T> implements Expression<T> {
 					}
 				} else {
 					Object originalValue = get(event);
-					ClassInfo<?> classInfo;
-					if (originalValue == null) {
-						classInfo = null;
-					} else {
-						Class<?> oldClass = originalValue.getClass();
-						assert oldClass != null;
-						classInfo = Classes.getSuperClassInfo(oldClass);
-					}
-					Arithmetic arithmetic = null;
+					Class<?> clazz = originalValue == null ? null : originalValue.getClass();
+					Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 					Changer<?> changer;
 					Class<?>[] classes;
-					if (originalValue == null || (arithmetic = classInfo.getMath()) != null) {
+					if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
 						boolean changed = false;
 						for (Object newValue : delta) {
-							if (originalValue == null) {
-								Class<?> newClass = newValue.getClass();
-								assert newClass != null;
-								classInfo = Classes.getSuperClassInfo(newClass);
-
-								if ((arithmetic = classInfo.getMath()) != null)
-									originalValue = newValue;
-								if (newValue instanceof Number) { // Nonexistent variable: add/subtract
-									if (mode == ChangeMode.REMOVE) // Variable is delta negated
-										originalValue = -((Number) newValue).doubleValue(); // Hopefully enough precision
-									else // Variable is now what was added to it
-										originalValue = newValue;
-								}
-								changed = true;
+							OperationInfo info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());
+							if (info == null)
 								continue;
-							}
-							Class<?> relativeType = classInfo.getMathRelativeType();
-							assert arithmetic != null && relativeType != null : classInfo;
-							Object convertedValue = Converters.convert(newValue, relativeType);
-							if (convertedValue != null) {
-								if (mode == ChangeMode.ADD)
-									originalValue = arithmetic.add(originalValue, convertedValue);
-								else
-									originalValue = arithmetic.subtract(originalValue, convertedValue);
-								changed = true;
-							}
+
+							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.getLeft()) : originalValue;
+							if (value == null)
+								continue;
+
+							originalValue = info.getOperation().calculate(value, newValue);
+							changed = true;
 						}
 						if (changed)
 							set(event, originalValue);
-					} else if ((changer = classInfo.getChanger()) != null && (classes = changer.acceptChange(mode)) != null) {
+					} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (classes = changer.acceptChange(mode)) != null) {
 						Object[] originalValueArray = (Object[]) Array.newInstance(originalValue.getClass(), 1);
 						originalValueArray[0] = originalValue;
 

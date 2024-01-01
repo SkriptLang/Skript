@@ -37,6 +37,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 /**
  * @author Peter Güttinger
@@ -222,11 +224,19 @@ public class ClassInfo<T> implements Debuggable {
 		this.changer = changer;
 		return this;
 	}
-	
+
+	@Deprecated
+	@SuppressWarnings("unchecked")
 	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
 		assert this.math == null;
 		this.math = math;
 		mathRelativeType = relativeType;
+		Arithmetics.registerOperation(Operator.ADDITION, c, relativeType, (left, right) -> (T) math.add(left, right));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, c, relativeType, (left, right) -> (T) math.subtract(left, right));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, c, relativeType, (left, right) -> (T) math.multiply(left, right));
+		Arithmetics.registerOperation(Operator.DIVISION, c, relativeType, (left, right) -> (T) math.divide(left, right));
+		Arithmetics.registerOperation(Operator.EXPONENTIATION, c, relativeType, (left, right) -> (T) math.power(left, right));
+		Arithmetics.registerDifference(c, relativeType, math::difference);
 		return this;
 	}
 	
@@ -387,16 +397,19 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Nullable
+	@Deprecated
 	public Arithmetic<? super T, ?> getMath() {
 		return math;
 	}
 
 	@Nullable
+	@Deprecated
 	public <R> Arithmetic<T, R> getRelativeMath() {
 		return (Arithmetic<T, R>) math;
 	}
 	
 	@Nullable
+	@Deprecated
 	public Class<?> getMathRelativeType() {
 		return mathRelativeType;
 	}
