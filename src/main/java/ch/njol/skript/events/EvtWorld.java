@@ -35,7 +35,7 @@ public class EvtWorld extends SkriptEvent {
 
 	static {
 		// World Save Event
-		Skript.registerEvent("World Save", EvtWorld.class, WorldSaveEvent.class, "world sav(e|ing) [of %-worlds%]")
+		Skript.registerEvent("World Save", EvtWorld.class, WorldSaveEvent.class, "world sav(e|ing) [of %-world%]")
 				.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
 				.examples(
 					"on world save of \"world\":",
@@ -43,7 +43,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, INSERT VERSION (defining worlds)");
 
 		// World Init Event
-		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
+		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-world%]")
 				.description("Called when a world is initialized. As all default worlds are initialized before",
 					"any scripts are loaded, this event is only called for newly created worlds.",
 					"World management plugins might change the behaviour of this event though.")
@@ -51,7 +51,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, INSERT VERSION (defining worlds)");
 
 		// World Unload Event
-		Skript.registerEvent("World Unload", EvtWorld.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
+		Skript.registerEvent("World Unload", EvtWorld.class, WorldUnloadEvent.class, "world unload[ing] [of %-world%]")
 				.description("Called when a world is unloaded. This event will never be called if you don't have a world management plugin.")
 				.examples(
 					"on world unload:",
@@ -59,7 +59,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, INSERT VERSION (defining worlds)");
 
 		// World Load Event
-		Skript.registerEvent("World Load", EvtWorld.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
+		Skript.registerEvent("World Load", EvtWorld.class, WorldLoadEvent.class, "world load[ing] [of %-world%]")
 				.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
 				.examples(
 					"on world load of \"world_nether\":",
@@ -67,31 +67,26 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, INSERT VERSION (defining worlds)");
 	}
 
-	@Nullable
-	private Literal<World> worlds;
+	private Literal<World> world;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		worlds = (Literal<World>) args[0];
-		if (worlds != null && worlds.getAnd()) {
-			Skript.error("An \"and\" list cannot be used in this event as multiple worlds cannot be called at the same time");
-			return false;
-		}
+		world = (Literal<World>) args[0];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (worlds == null)
+		if (world == null)
 			return true;
 		World evtWorld = ((WorldEvent) event).getWorld();
-		return worlds.check(event, world -> world.equals(evtWorld));
+		return world.check(event, world -> world.equals(evtWorld));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "world save/init/unload/load" + (worlds == null ? "" : " of " + worlds.toString(event,debug));
+		return "world save/init/unload/load" + (world == null ? "" : " of " + world.toString(event,debug));
 	}
 
 }
