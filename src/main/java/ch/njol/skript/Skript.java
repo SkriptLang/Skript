@@ -82,6 +82,7 @@ import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
@@ -106,6 +107,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -147,7 +149,6 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -702,6 +703,23 @@ public final class Skript extends JavaPlugin implements Listener {
 										info("Running JUnit test '" + test + "'");
 										Result junit = JUnitCore.runClasses(clazz);
 										TestTracker.testStarted("JUnit: '" + test + "'");
+
+										/**
+										 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
+										 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
+										 */
+										boolean overrides = false;
+										for (Method method : clazz.getDeclaredMethods()) {
+											if (!method.isAnnotationPresent(After.class))
+												continue;
+											if (SkriptJUnitTest.getShutdownDelay() > 1)
+												warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
+											if (method.getName().equals("cleanup"))
+												overrides = true;
+										}
+										if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
+											error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
+													"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
 
 										// Collect all data from the current JUnit test.
 										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
