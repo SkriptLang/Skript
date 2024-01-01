@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -33,7 +36,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 @Name("Vectors - Arithmetic")
 @Description("Arithmetic expressions for vectors.")
@@ -44,64 +47,23 @@ import ch.njol.util.coll.CollectionUtils;
 	"set {_v} to {_v} ** {_v}",
 	"set {_v} to {_v} // {_v}"
 })
-@Since("2.2-dev28")
+@Since("2.2-dev28, INSERT VERSION (deprecation)")
+@Deprecated
 public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 
-	private enum Operator {
-		PLUS("++") {
-			@Override
-			public Vector calculate(final Vector first, final Vector second) {
-				return first.clone().add(second);
-			}
-		},
-		MINUS("--") {
-			@Override
-			public Vector calculate(final Vector first, final Vector second) {
-				return first.clone().subtract(second);
-			}
-		},
-		MULT("**") {
-			@Override
-			public Vector calculate(final Vector first, final Vector second) {
-				return first.clone().multiply(second);
-			}
-		},
-		DIV("//") {
-			@Override
-			public Vector calculate(final Vector first, final Vector second) {
-				return first.clone().divide(second);
-			}
-		};
-
-		public final String sign;
-
-		Operator(final String sign) {
-			this.sign = sign;
-		}
-
-		public abstract Vector calculate(Vector first, Vector second);
-
-		@Override
-		public String toString() {
-			return sign;
-		}
-	}
-
 	private final static Patterns<Operator> patterns = new Patterns<>(new Object[][] {
-			{"%vector%[ ]++[ ]%vector%", Operator.PLUS},
-			{"%vector%[ ]--[ ]%vector%", Operator.MINUS},
-			{"%vector%[ ]**[ ]%vector%", Operator.MULT},
-			{"%vector%[ ]//[ ]%vector%", Operator.DIV}
+			{"%vector%[ ]++[ ]%vector%", Operator.ADDITION},
+			{"%vector%[ ]--[ ]%vector%", Operator.SUBTRACTION},
+			{"%vector%[ ]**[ ]%vector%", Operator.MULTIPLICATION},
+			{"%vector%[ ]//[ ]%vector%", Operator.DIVISION}
 	});
 
 	static {
 		Skript.registerExpression(ExprVectorArithmetic.class, Vector.class, ExpressionType.SIMPLE, patterns.getPatterns());
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Vector> first, second;
 
-	@SuppressWarnings("null")
 	private Operator operator;
 
 	@Override
@@ -110,6 +72,8 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 		first = (Expression<Vector>) exprs[0];
 		second = (Expression<Vector>) exprs[1];
 		operator = patterns.getInfo(matchedPattern);
+		Skript.warning("This expression was deprecated in favor of the arithmetic expression, and will be removed in the future." +
+			" Please use that instead. E.g. 'vector(2, 4, 1) + vector(5, 2, 3)'");
 		return true;
 	}
 
@@ -117,7 +81,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 	protected Vector[] get(Event event) {
 		Vector first = this.first.getOptionalSingle(event).orElse(new Vector());
 		Vector second = this.second.getOptionalSingle(event).orElse(new Vector());
-		return CollectionUtils.array(operator.calculate(first, second));
+		return CollectionUtils.array(Arithmetics.calculate(operator, first, second, Vector.class));
 	}
 
 	@Override
