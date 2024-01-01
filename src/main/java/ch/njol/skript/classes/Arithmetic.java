@@ -24,6 +24,7 @@ package ch.njol.skript.classes;
  * @param <A> the type of the absolute value
  * @param <R> the type of the relative value
  */
+@Deprecated
 public interface Arithmetic<A, R> {
 	
 	public R difference(A first, A second);

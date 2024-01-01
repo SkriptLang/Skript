@@ -1982,6 +1982,14 @@ boolean:
 		name: false
 		pattern: (false|no|off)
 
+# -- Operators --
+operators:
+	add: addition
+	subtract: subtraction
+	multiply: multiplication
+	divide: division
+	exponentiate: exponentiation
+
 # -- Types --
 types:
 	# Java

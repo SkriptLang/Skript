@@ -36,7 +36,7 @@ import ch.njol.skript.lang.ExpressionType;
 	"on entity transform:",
 		"\ttransform reason is infection, drowned or frozen"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprTransformReason extends EventValueExpression<TransformReason> {
 
 	static {

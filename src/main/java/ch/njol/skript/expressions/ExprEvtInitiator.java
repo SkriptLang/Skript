@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tbroadcast \"Item transport happening at %location at holder of event-initiator-inventory%!\""
 })
 @Events("Inventory Item Move")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprEvtInitiator extends SimpleExpression<Inventory> {
 
 	static {

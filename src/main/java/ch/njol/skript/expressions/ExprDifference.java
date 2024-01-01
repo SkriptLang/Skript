@@ -36,6 +36,8 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
 
 import java.lang.reflect.Array;
 
@@ -62,9 +64,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 	@Nullable
 	@SuppressWarnings("rawtypes")
-	private Arithmetic math;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Class<?> relativeType;
+	private DifferenceInfo differenceInfo;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -77,11 +77,11 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 		Class<?> firstReturnType = first.getReturnType();
 		Class<?> secondReturnType = second.getReturnType();
-		ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getSuperType(firstReturnType, secondReturnType));
+		Class<?> superType = Utils.getSuperType(firstReturnType, secondReturnType);
 
 		boolean fail = false;
 
-		if (classInfo.getC() == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
+		if (superType == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
 			// We may not have a way to obtain the difference between these two values. Further checks needed.
 
 			// These two types are unrelated, meaning conversion is needed
@@ -91,8 +91,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 				fail = true;
 
 				// Attempt to use first type's math
-				classInfo = Classes.getSuperClassInfo(firstReturnType);
-				if (classInfo.getMath() != null) { // Try to convert second to first
+				differenceInfo = Arithmetics.getDifferenceInfo(firstReturnType);
+				if (differenceInfo != null) { // Try to convert second to first
 					Expression<?> secondConverted = second.getConvertedExpression(firstReturnType);
 					if (secondConverted != null) {
 						second = secondConverted;
@@ -101,8 +101,8 @@ public class ExprDifference extends SimpleExpression<Object> {
 				}
 
 				if (fail) { // First type won't work, try second type
-					classInfo = Classes.getSuperClassInfo(secondReturnType);
-					if (classInfo.getMath() != null) { // Try to convert first to second
+					differenceInfo = Arithmetics.getDifferenceInfo(secondReturnType);
+					if (differenceInfo != null) { // Try to convert first to second
 						Expression<?> firstConverted = first.getConvertedExpression(secondReturnType);
 						if (firstConverted != null) {
 							first = firstConverted;
@@ -128,19 +128,14 @@ public class ExprDifference extends SimpleExpression<Object> {
 				if (converted == null) { // It's unlikely that these two can be compared
 					fail = true;
 				} else { // Attempt to resolve a better class info
-					classInfo = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
+					superType = Utils.getSuperType(first.getReturnType(), second.getReturnType());
 				}
 			}
 
 		}
 
-		if (classInfo.getC() == Object.class) { // We will have to determine the type during runtime
-			relativeType = Object.class;
-		} else if (classInfo.getMath() == null || classInfo.getMathRelativeType() == null) {
+		if (superType != Object.class && (differenceInfo = Arithmetics.getDifferenceInfo(superType)) == null) {
 			fail = true;
-		} else {
-			math = classInfo.getMath();
-			relativeType = classInfo.getMathRelativeType();
 		}
 
 		if (fail) {
@@ -156,7 +151,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 	@Override
 	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings("unchecked")
 	protected Object[] get(Event event) {
 		Object first = this.first.getSingle(event);
 		Object second = this.second.getSingle(event);
@@ -164,26 +159,20 @@ public class ExprDifference extends SimpleExpression<Object> {
 			return new Object[0];
 		}
 
-		Arithmetic math = this.math;
-		Class<?> relativeType = this.relativeType;
-
-		if (relativeType == Object.class) { // Try to determine now that actual types are known
-			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(first.getClass(), second.getClass()));
-			math = info.getMath();
-			if (math == null) { // User did something stupid, just return <none> for them
+		DifferenceInfo differenceInfo = this.differenceInfo;
+		if (differenceInfo == null) { // Try to determine now that actual types are known
+			Class<?> superType = Utils.getSuperType(first.getClass(), second.getClass());
+			differenceInfo = Arithmetics.getDifferenceInfo(superType);
+			if (differenceInfo == null) { // User did something stupid, just return <none> for them
 				return new Object[0];
-			}
-			relativeType = info.getMathRelativeType();
-			if (relativeType == null) { // Unlikely to be the case, but math is not null meaning we can calculate the difference
-				relativeType = Object.class;
 			}
 		}
 
-		Object[] one = (Object[]) Array.newInstance(relativeType, 1);
+		assert differenceInfo != null; // it cannot be null here
+		Object[] one = (Object[]) Array.newInstance(differenceInfo.getReturnType(), 1);
 
-		assert math != null; // it cannot be null here
-		one[0] = math.difference(first, second);
-		
+		one[0] = differenceInfo.getOperation().calculate(first, second);
+
 		return one;
 	}
 
@@ -194,7 +183,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return relativeType;
+		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
 	}
 
 	@Override

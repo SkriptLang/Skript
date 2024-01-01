@@ -336,7 +336,7 @@ public class DefaultFunctions {
 					"clamp(5, 7, 10) = 7",
 					"clamp((5, 0, 10, 9, 13), 7, 10) = (7, 7, 10, 9, 10)",
 					"set {_clamped::*} to clamp({_values::*}, 0, 10)")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 
 		// misc
 		
@@ -522,7 +522,7 @@ public class DefaultFunctions {
 			}
 		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
 			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 
 		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
@@ -540,7 +540,7 @@ public class DefaultFunctions {
 			}
 		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
 			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override
@@ -549,7 +549,7 @@ public class DefaultFunctions {
 			}
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 	}
 	
 }

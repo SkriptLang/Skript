@@ -52,7 +52,7 @@ import java.util.List;
 		"\tset command list to command list where [input does not contain \":\"]",
 		"\tremove \"help\" from command list"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @Events("send command list")
 public class ExprSentCommands extends SimpleExpression<String> {
 
