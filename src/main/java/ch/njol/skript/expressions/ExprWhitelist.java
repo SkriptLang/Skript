@@ -45,7 +45,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"To enable and disable it (set whitelist to true/false), and to empty it (reset whitelist)"
 })
 @Examples({
-	"set whitelist to false",
+	"set the whitelist to false",
 	"add all players to whitelist",
 	"reset the whitelist"
 })
@@ -68,18 +68,20 @@ public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
-			return CollectionUtils.array(OfflinePlayer[].class);
-		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
-			return CollectionUtils.array(Boolean.class);
-		}
+		switch (mode) {
+            case ADD:
+			case REMOVE:
+				return CollectionUtils.array(OfflinePlayer.class);
+            case DELETE:
+            case RESET:
+			case SET:
+				return CollectionUtils.array(Boolean.class);
+        }
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null && mode != ChangeMode.DELETE && mode != ChangeMode.RESET)
-			return;
 		switch (mode) {
 			case SET:
 				boolean toggle = (Boolean) delta[0];

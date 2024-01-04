@@ -36,9 +36,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
 @Examples({
-	"if player is whitelisted:",
-	"if server is whitelisted:",
-	"if server is whitelist enforced:"
+	"if the player is whitelisted:",
+	"if the server is whitelisted:",
+	"if the server whitelist is enforced:"
 })
 @Since("2.5.2, INSERT VERSION (enforce, offline players)")
 @RequiredPlugins("MC 1.17+ (enforce)")
@@ -81,8 +81,14 @@ public class CondIsWhitelisted extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (players != null ? players.toString(event, debug) : "server") + " is " + (isNegated() ? "not " : " ")
-				+ (isEnforce ? "whitelist enforced" : "whitelisted");
+		String negation = isNegated() ? "not" : "";
+		if (isServer) {
+			if (isEnforce) {
+				return "the server whitelist is " + negation + " enforced";
+			}
+			return "the server is " + negation + " whitelisted";
+		}
+		return players.toString(event, debug) + " is " + negation + " whitelisted";
 	}
 
 }
