@@ -36,10 +36,10 @@ import org.jetbrains.annotations.Nullable;
 @Description("Forces fireworks to explode immediately, as if they have no remaining fuses.")
 @Examples("detonate all fireworks")
 @Since("INSERT VERSION")
-public class EffDetonate extends Effect {
+public class EffDetonateFirework extends Effect {
 
 	static {
-		Skript.registerEffect(EffDetonate.class, "detonate %projectiles%");
+		Skript.registerEffect(EffDetonateFirework.class, "detonate %projectiles%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

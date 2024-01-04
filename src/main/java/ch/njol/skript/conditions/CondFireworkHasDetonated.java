@@ -50,7 +50,7 @@ public class CondFireworkHasDetonated extends PropertyCondition<Projectile> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setNegated(parseResult.hasTag("not"));
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
