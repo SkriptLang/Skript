@@ -115,7 +115,7 @@ public class SkriptParser {
 		this(expr, other.flags, other.context);
 	}
 
-	public static final String WILDCARD = "[^\"]*?(?:\"[^\"]*?\"[^\"])*?";
+	public static final String WILDCARD = "[^\"]*?(?:\"[^\"]*?\"[^\"]*?)*?";
 
 	public static class ParseResult {
 		public Expression<?>[] exprs;
