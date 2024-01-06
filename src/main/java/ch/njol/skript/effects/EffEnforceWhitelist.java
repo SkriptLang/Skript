@@ -58,9 +58,9 @@ public class EffEnforceWhitelist extends Effect {
 		if (Skript.methodExists(Bukkit.class, "setWhitelistEnforced", boolean.class)) {
 			try {
 				YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
-				NOT_WHITELISTED_MESSAGE = (String) spigotYml.get("messages.whitelist", NOT_WHITELISTED_MESSAGE);
+				NOT_WHITELISTED_MESSAGE = spigotYml.getString("messages.whitelist", NOT_WHITELISTED_MESSAGE);
 			} catch (Exception ignored) {}
-			Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] white[ ]list");
+			Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
 		}
 	}
 
