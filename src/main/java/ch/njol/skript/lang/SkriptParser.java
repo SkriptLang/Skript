@@ -990,7 +990,6 @@ public class SkriptParser {
 		return new SkriptParser(text, parseFlags, context).parse_i(pattern);
 	}
 
-
 	/**
 	 * Finds the closing bracket of the group at <tt>start</tt> (i.e. <tt>start</tt> has to be <i>in</i> a group).
 	 * 
