@@ -27,6 +27,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
@@ -43,18 +44,18 @@ public class EffDetonateFirework extends Effect {
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<Projectile> projectiles;
+	private Expression<Projectile> fireworks;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		projectiles = ((Expression<Projectile>) exprs[0]);
+		fireworks = ((Expression<Projectile>) exprs[0]);
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (Projectile firework : projectiles.getArray(event)) {
+		for (Projectile firework : fireworks.getArray(event)) {
 			if (!(firework instanceof Firework))
 				continue;
 			((Firework) firework).detonate();
@@ -63,7 +64,7 @@ public class EffDetonateFirework extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "detonate " + projectiles.toString(event, debug);
+		return "detonate " + fireworks.toString(event, debug);
 	}
 
 }
