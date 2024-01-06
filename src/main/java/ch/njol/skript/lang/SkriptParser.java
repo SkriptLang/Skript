@@ -986,8 +986,18 @@ public class SkriptParser {
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
 	 */
 	@Nullable
-	public static ParseResult parse(String text, String pattern, int parseFlags, ParseContext context) {
-		return new SkriptParser(text, parseFlags, context).parse_i(pattern);
+	public static ParseResult parse(String text, String pattern, int parseFlags, ParseContext parseContext) {
+		return new SkriptParser(text, parseFlags, parseContext).parse_i(pattern);
+	}
+
+	/**
+	 * Parses the text as the given pattern with the given parse context and parse flags.
+	 * <p>
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 */
+	@Nullable
+	public static ParseResult parse(String text, SkriptPattern pattern, int parseFlags, ParseContext parseContext) {
+		return parse(text, pattern.toString(), parseFlags, parseContext);
 	}
 
 	/**
