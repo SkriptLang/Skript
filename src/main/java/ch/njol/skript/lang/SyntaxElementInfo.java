@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -34,6 +35,9 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 		this.patterns = patterns;
 		this.c = c;
 		this.originClassPath = originClassPath;
+		if (Modifier.isAbstract(c.getModifiers())) {
+			throw new IllegalArgumentException("Class " + c.getName() + " is abstract");
+		}
 		try {
 			c.getConstructor();
 //			if (!c.getDeclaredConstructor().isAccessible())
