@@ -32,12 +32,12 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 	public final String originClassPath;
 	
 	public SyntaxElementInfo(final String[] patterns, final Class<E> c, final String originClassPath) throws IllegalArgumentException {
-		this.patterns = patterns;
-		this.c = c;
-		this.originClassPath = originClassPath;
 		if (Modifier.isAbstract(c.getModifiers())) {
 			throw new IllegalArgumentException("Class " + c.getName() + " is abstract");
 		}
+		this.patterns = patterns;
+		this.c = c;
+		this.originClassPath = originClassPath;
 		try {
 			c.getConstructor();
 //			if (!c.getDeclaredConstructor().isAccessible())
