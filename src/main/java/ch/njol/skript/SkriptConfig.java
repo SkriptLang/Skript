@@ -89,7 +89,7 @@ public class SkriptConfig {
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
-					updater.setCheckFrequency(t.getTicks_i());
+					updater.setCheckFrequency(t.getTicks());
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
@@ -246,8 +246,7 @@ public class SkriptConfig {
 			});
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
-			.setter(t -> Variables.caseInsensitiveVariables = t)
-			.optional(true);
+			.setter(t -> Variables.caseInsensitiveVariables = t);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
