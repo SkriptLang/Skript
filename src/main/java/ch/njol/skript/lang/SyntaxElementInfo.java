@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.SkriptAPIException;
+
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
@@ -34,7 +36,7 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
   
 	public SyntaxElementInfo(String[] patterns, Class<E> elementClass, String originClassPath) throws IllegalArgumentException {
 		if (Modifier.isAbstract(elementClass.getModifiers()))
-			throw new IllegalArgumentException("Class " + elementClass.getName() + " is abstract");
+			throw new SkriptAPIException("Class " + elementClass.getName() + " is abstract");
     
 		this.patterns = patterns;
 		this.elementClass = elementClass;
