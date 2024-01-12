@@ -1,0 +1,18 @@
+test "no damage ticks":
+	spawn zombie at spawn of "world":
+		assert event-entity's invulnerability ticks is 0 seconds with "entity spawned with no damage ticks"
+		set event-entity's invulnerability ticks to 25 ticks
+		assert event-entity's invulnerability ticks is 25 ticks with "no damage ticks set failed"
+		add 5 ticks to event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 30 ticks with "no damage ticks add ##1 failed"
+		remove 12 ticks from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 18 ticks with "no damage ticks remove ##1 failed"
+		remove 999 ticks from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 0 ticks with "no damage ticks remove ##2 failed"
+		remove 2 ticks from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 0 ticks with "no damage ticks remove ##3 failed"
+		subtract an hour from event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 0 hours with "no damage ticks add ##2 failed"
+		reset event-entity's invulnerability ticks
+		assert event-entity's invulnerability ticks is 60 ticks with "no damage ticks reset to default failed"
+		clear event-entity
