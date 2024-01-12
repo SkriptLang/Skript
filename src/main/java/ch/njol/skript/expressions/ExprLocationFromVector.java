@@ -49,7 +49,7 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 
 	static {
 		Skript.registerExpression(ExprLocationFromVector.class, Location.class, ExpressionType.SIMPLE,
-				"%vector% [to location] in %world%",
+				"%vector% to location in %world%",
 				"location (from|of) %vector% in %world%",
 				"%vector% [to location] in %world% with yaw %number% and pitch %number%",
 				"location (from|of) %vector% in %world% with yaw %number% and pitch %number%"
