@@ -18,15 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.stream.Stream;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.EntityEquipment;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -39,6 +30,14 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 @Name("Armour Slot")
 @Description("Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.")
@@ -51,7 +50,7 @@ import ch.njol.util.Kleenean;
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
-		register(ExprArmorSlot.class, Slot.class, "((:boots|:shoes|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "((boots:(boots|shoes)|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
 	}
 
 	@Nullable
