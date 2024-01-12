@@ -27,7 +27,6 @@ import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.AreaEffectCloud;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
@@ -137,7 +136,6 @@ import org.bukkit.entity.WitherSkull;
 import org.bukkit.entity.Zoglin;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.ZombieHorse;
-
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -236,7 +234,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("wither skull", WitherSkull.class);
 		addSimpleEntity("firework", Firework.class);
 		addSimpleEntity("endermite", Endermite.class);
-		addSimpleEntity("armor stand", ArmorStand.class);
 		addSimpleEntity("shulker", Shulker.class);
 		addSimpleEntity("shulker bullet", ShulkerBullet.class);
 		addSimpleEntity("polar bear", PolarBear.class);

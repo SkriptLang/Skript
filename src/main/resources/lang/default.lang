@@ -911,7 +911,7 @@ entities:
 		pattern: fish[ ]hook(|1¦s)
 	armor stand:
 		name: armor stand¦s
-		pattern: armor stand(|1¦s)
+		pattern: [:small] [:marker] [:invisible] armo[u]r stand(|1¦s) [with[noArms:out [any]] arms] [with[noLegs:out [any]] legs] [[and] with[noPlate:out] [a] base plate]
 	endermite:
 		name: endermite¦s
 		pattern: endermite(|1¦s)

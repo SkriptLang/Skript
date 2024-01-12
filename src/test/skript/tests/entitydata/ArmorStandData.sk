@@ -1,0 +1,7 @@
+test "armor stand entity data":
+	spawn an armor stand at spawn of world "world"
+	assert last spawned armour stand is an armour stand with "Failed to compare against an armour stand"
+	clear all entities
+	spawn an small invisible armor stand without any arms and without a base plate at spawn of world "world"
+	assert last spawned armour stand is an small invisible armor stand without any arms and without a base plate with "Failed to compare against a fully loaded armor stand %last spawned armour stand%"
+	clear all entities
