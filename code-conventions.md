@@ -100,14 +100,39 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - When omitting brackets, still indent as if the code had brackets
   - Avoid omitting brackets if it produces hard-to-read code
 * Annotations for methods and classes are placed in lines before their declarations, one per line
+* All syntaxes should have proper Skript documentation annotations. (Located in package ...skript.doc.*)
+  - When declaring Skript documentation annotations with multiple lines, seperate them into a String list aswell as placing each on a new line.
+  - When it comes to **simple short examples**, it's a better format to include indentations in the actual class for simplier reading. (See the first example in the Examples annotation).
+  - We use the format character `\t` to represent the tab character in our documentation.
+  - Seperate multiple examples with an empty string. (See Examples annotation below).
+  - Use inline condition statements over multiple if statements when possible to avoid arrow code format. (See the second example in the Examples annotation compared to the first example).
+```java
+@Description({
+	"This is a multiple line documentation example",
+	"for the Skript documentation annotations."
+})
+```
+```java
+@Examples({
+	"on damage of a player:",
+		"\tif victim is wearing a diamond helmet:",
+			"\t\tmessage \"String example\" to victim",
+	"",
+	"on inventory click:",
+	"\tevent-inventory is metadata \"example\" of player",
+	"\t{minigame::%uuid of player%::kits::*} does not contain \"example\"",
+	"\tmessage \"&cYou don't have access to this kit!\"",
+	"\tcancel event"
+})
+```
 * When there are multiple annotations, place them in order:
   - @Override -> @Nullable -> @SuppressWarnings
   - For other annotations, doesn't matter; let your IDE decide
 * When splitting Strings into multiple lines the last part of the string must be (space character included) " " +
-  ```java
-  String string = "example string " +
-        "with more to add";
-  ```
+```java
+String string = "example string " +
+		"with more to add";
+```
   
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
