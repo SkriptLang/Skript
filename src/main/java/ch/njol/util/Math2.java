@@ -155,6 +155,20 @@ public final class Math2 {
 	public static float safe(float value) {
 		return Float.isFinite(value) ? value : 0;
 	}
+
+	/**
+	 * @param x the first value
+	 * @param y the second value
+	 * @return the sum of x and y, or {@link Long#MAX_VALUE} in case of an overflow
+	 */
+	public static long addClamped(long x, long y) {
+		long result = x + y;
+		// Logic extracted from Math#addExact to avoid having to catch an expensive exception
+		boolean causedOverflow = ((x ^ result) & (y ^ result)) < 0;
+		if (causedOverflow)
+			return Long.MAX_VALUE;
+		return result;
+	}
 	
 	@Deprecated
 	@ScheduledForRemoval
