@@ -295,10 +295,8 @@ task githubResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('alpha'))
-			channel = 'alpha'
-		else if (version.contains('beta'))
-			channel = 'beta'
+		if (version.contains('pre'))
+			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
 			'today'           : '' + LocalTime.now(),
@@ -330,10 +328,8 @@ task spigotResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('alpha'))
-			channel = 'alpha'
-		else if (version.contains('beta'))
-			channel = 'beta'
+		if (version.contains('pre'))
+			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
 			'today'           : '' + LocalTime.now(),
@@ -369,7 +365,7 @@ task nightlyResources(type: ProcessResources) {
 			'version'         : version,
 			'today'           : '' + LocalTime.now(),
 			'release-flavor'  : 'skriptlang-nightly', // SkriptLang build, automatically done by CI
-			'release-channel' : 'alpha', // No update checking, but these are VERY unstable
+			'release-channel' : 'prerelease', // No update checking, but these are VERY unstable
 			'release-updater' : 'ch.njol.skript.update.NoUpdateChecker', // No autoupdates for now
 			'release-source'  : '',
 			'release-download': 'null'
