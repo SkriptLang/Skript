@@ -18,40 +18,32 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.registrations.EventValues;
 
 @Name("Damage Cause")
 @Description("The <a href='./classes.html#damagecause'>damage cause</a> of a damage event. Please click on the link for more information.")
 @Examples("damage cause is lava, fire or burning")
 @Since("2.0")
 public class ExprDamageCause extends EventValueExpression<DamageCause> {
-	
+
 	static {
-		Skript.registerExpression(ExprDamageCause.class, DamageCause.class, ExpressionType.SIMPLE, "[the] damage (cause|type)");
+		register(ExprDamageCause.class, DamageCause.class, "damage (cause|type)");
 	}
-	
+
 	public ExprDamageCause() {
 		super(DamageCause.class);
 	}
 
 	@Override
 	public boolean setTime(int time) {
-		return time != 1; // allow past and present
+		return time != EventValues.TIME_FUTURE; // allow past and present
 	}
 
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the damage cause";
-	}
-	
 }

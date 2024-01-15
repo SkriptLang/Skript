@@ -19,6 +19,8 @@
 package ch.njol.skript.events;
 
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
@@ -80,6 +82,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -102,10 +105,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.event.world.WorldUnloadEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
@@ -420,26 +419,6 @@ public class SimpleEvents {
 							"\tkill event-entity")
 					.since("2.2-dev13b");
 		}
-		Skript.registerEvent("World Init", SimpleEvent.class, WorldInitEvent.class, "world init[ialization]")
-				.description("Called when a world is initialised. As all default worlds are initialised before any scripts are loaded, this event is only called for newly created worlds.",
-						"World management plugins might change the behaviour of this event though.")
-				.examples("on world init:")
-				.since("1.0");
-		Skript.registerEvent("World Load", SimpleEvent.class, WorldLoadEvent.class, "world load[ing]")
-				.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
-				.examples("on world load:",
-						"\tsend \"World is loading...\" to console")
-				.since("1.0");
-		Skript.registerEvent("World Save", SimpleEvent.class, WorldSaveEvent.class, "world sav(e|ing)")
-				.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
-				.examples("on world saving:",
-						"\tbroadcast \"World has been saved!\"")
-				.since("1.0");
-		Skript.registerEvent("World Unload", SimpleEvent.class, WorldUnloadEvent.class, "world unload[ing]")
-				.description("Called when a world is unloaded. This event might never be called if you don't have a world management plugin.")
-				.examples("on world unload:",
-						"\tcancel event")
-				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.entity.EntityToggleGlideEvent")) {
 			Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
 					.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
@@ -471,16 +450,16 @@ public class SimpleEvents {
 				.description("Called when a slime splits. Usually this happens when a big slime dies.")
 				.examples("on slime split:")
 				.since("2.2-dev26");
-		if (Skript.classExists("org.bukkit.event.entity.EntityResurrectEvent")) {
-			Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
-					.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
-					.examples("on resurrect attempt:",
-							"	entity is player",
-							"	entity has permission \"admin.undying\"",
-							"	uncancel the event")
-					.since("2.2-dev28");
-			SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
-		}
+		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
+				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
+				.examples(
+						"on resurrect attempt:",
+						"\tentity is player",
+						"\tentity has permission \"admin.undying\"",
+						"\tuncancel the event"
+				)
+				.since("2.2-dev28");
+		SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
@@ -603,7 +582,7 @@ public class SimpleEvents {
 				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
 			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
-			.description("Called when a player swings his arm.")
+			.description("Called when a player swings their arm.")
 			.examples("on arm swing:",
 				"\tsend \"You swung your arm!\"")
 			.since("2.5.1");
@@ -653,17 +632,47 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("2.7");
 		}
+
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
+			Skript.registerEvent("Stop Using Item", SimpleEvent.class, PlayerStopUsingItemEvent.class,
+							"[player] (stop|end) (using item|item use)")
+					.description("Called when a player stops using an item. For example, when the player releases the " +
+							"interact button when holding a bow, an edible item, or a spyglass.",
+							"Note that event-timespan will return the time the item was used for.")
+					.requiredPlugins("Paper 1.18.2+")
+					.examples(
+						"on player stop using item:",
+							"\tbroadcast \"%player% used %event-item% for %event-timespan%.\"")
+					.since("2.8.0");
+		}
+
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerReadyArrowEvent")) {
+			Skript.registerEvent("Ready Arrow", SimpleEvent.class, PlayerReadyArrowEvent.class, "[player] ((ready|choose|draw|load) arrow|arrow (choose|draw|load))")
+					.description("Called when a player is firing a bow and the server is choosing an arrow to use.",
+							"Cancelling this event will skip the current arrow item and fire a new event for the next arrow item.",
+							"The arrow and bow in the event can be accessed with the Readied Arrow/Bow expression.")
+					.requiredPlugins("Paper")
+					.examples(
+						"on player ready arrow:",
+							"\tselected bow's name is \"Spectral Bow\"",
+							"\tif selected arrow is not a spectral arrow:",
+								"\t\tcancel event"
+					)
+					.since("2.8.0");
+		}
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
 			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
-				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
-				.requiredPlugins("Paper 1.19.2+")
-				.examples(
-					"on inventory slot change:",
-						"\tif event-item is a diamond:",
-							"\t\tsend \"You obtained a diamond!\" to player"
-				)
-				.since("2.7");
+					.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
+					.requiredPlugins("Paper 1.19.2+")
+					.examples(
+						"on inventory slot change:",
+							"\tif event-item is a diamond:",
+								"\t\tsend \"You obtained a diamond!\" to player"
+					)
+					.since("2.7");
 		}
+    
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -683,18 +692,18 @@ public class SimpleEvents {
 			.since("1.4.1");
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-				.description(
-					"Called when a loot table of an inventory is generated in the world.",
-					"For example, when opening a shipwreck chest."
-				)
-				.examples(
-					"on loot generate:",
-					"\tchance of %10",
-					"\tadd 64 diamonds",
-					"\tsend \"You hit the jackpot!!\""
-				)
-				.since("2.7")
-				.requiredPlugins("MC 1.16+");
+					.description(
+						"Called when a loot table of an inventory is generated in the world.",
+						"For example, when opening a shipwreck chest."
+					)
+					.examples(
+						"on loot generate:",
+						"\tchance of 10%",
+						"\tadd 64 diamonds to the loot",
+						"\tsend \"You hit the jackpot at %event-location%!\""
+					)
+					.since("2.7")
+					.requiredPlugins("MC 1.16+");
 		}
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
@@ -709,6 +718,16 @@ public class SimpleEvents {
 					.since("2.7")
 					.requiredPlugins("Paper 1.16+");
 		}
+
+		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+				.description("Called when a player picks up an arrow from the ground.")
+				.examples(
+						"on arrow pickup:",
+								"\tcancel the event",
+								"\tteleport event-projectile to block 5 above event-projectile"
+				)
+				.since("2.8.0")
+				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
 				.description("Called when a player drags an item in their cursor across the inventory.")
