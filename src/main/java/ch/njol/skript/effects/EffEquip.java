@@ -175,10 +175,8 @@ public class EffEquip extends Effect {
 							// Apply all other items to head (if isHat), as all items will appear on a player's head
 							equipment.setHelmet(equip ? item : null);
 						} else {
-							if (entity instanceof Player) {
-								PlayerInventory inventory = ((Player) entity).getInventory();
-								inventory.addItem(item);
-							}
+							if (entity instanceof Player)
+								((Player) entity).getInventory().addItem(item);
 						}
 					}
 					if (unequipHelmet) { // Since players can wear any helmet, itemTypes won't have the item in the array every time
