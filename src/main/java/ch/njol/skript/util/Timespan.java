@@ -230,15 +230,33 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		return new Timespan(ticks * 50L);
 	}
 
+	/**
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 *
+	 * @return the amount of milliseconds this timespan represents.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public long getMilliSeconds() {
 		return millis;
 	}
 
 	/**
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 *
 	 * @return the amount of Minecraft ticks this timespan represents.
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public long getTicks() {
 		return Math.round((millis / 50.0));
+	}
+
+	/**
+	 * @return the amount of TimePeriod this timespan represents.
+	 */
+	public long getAs(TimePeriod timePeriod) {
+		return Math.round(millis * timePeriod.getTime());
 	}
 
 	/**
