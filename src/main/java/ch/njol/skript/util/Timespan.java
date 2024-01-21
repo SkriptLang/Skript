@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
@@ -182,7 +183,12 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public Timespan() {
 		millis = 0;
 	}
-	
+
+	/**
+	 * Builds a Timespan from the given milliseconds.
+	 *
+	 * @param millis The milliseconds of Timespan
+	 */
 	public Timespan(long millis) {
 		if (millis < 0)
 			throw new IllegalArgumentException("millis must be >= 0");
@@ -190,11 +196,27 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 	/**
+	 * Builds a Timespan from the given long parameter of a specific {@link TimePeriod}.
+	 *
+	 * @param timePeriod The requested TimePeriod
+	 * @param time The time of the requested TimePeriod
+	 */
+	public Timespan(TimePeriod timePeriod, long time) {
+		if (time < 0)
+			throw new IllegalArgumentException("time must be >= 0");
+		this.millis = time * timePeriod.getTime();
+	}
+
+	/**
 	 * Builds a Timespan from the given long parameter.
+	 *
+	 * @deprecated Use {@link Timespan#Timespan(TimePeriod, long)}
 	 * 
 	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
 	 * @return Timespan based on the provided long.
 	 */
+	@Deprecated
+	@ApiStatus.ScheduledForRemoval
 	public static Timespan fromTicks(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
