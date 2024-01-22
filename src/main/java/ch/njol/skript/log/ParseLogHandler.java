@@ -31,6 +31,19 @@ public class ParseLogHandler extends LogHandler {
 	private LogEntry error = null;
 	
 	private final List<LogEntry> log = new ArrayList<>();
+
+	public ParseLogHandler backup() {
+		ParseLogHandler copy = new ParseLogHandler();
+		copy.error = this.error;
+		copy.log.addAll(this.log);
+		return copy;
+	}
+
+	public void paste(ParseLogHandler parseLogHandler) {
+		this.error = parseLogHandler.error;
+		this.log.clear();
+		this.log.addAll(parseLogHandler.log);
+	}
 	
 	@Override
 	public LogResult log(LogEntry entry) {

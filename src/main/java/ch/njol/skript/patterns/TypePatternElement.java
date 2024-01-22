@@ -24,6 +24,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
@@ -138,6 +139,10 @@ public class TypePatternElement extends PatternElement {
 
 		ExprInfo exprInfo = getExprInfo();
 
+		MatchResult matchBackup = null;
+		ParseLogHandler loopLogHandlerBackup = null;
+		ParseLogHandler expressionLogHandlerBackup = null;
+
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
 			while (newExprOffset != -1) {
@@ -168,11 +173,27 @@ public class TypePatternElement extends PatternElement {
 								}
 							}
 
-							expressionLogHandler.printLog();
-							loopLogHandler.printLog();
-
 							newMatchResult.expressions[expressionIndex] = expression;
-							return newMatchResult;
+
+							boolean hasUnparsedLiteral = false;
+							for (int i = expressionIndex + 1; i < newMatchResult.expressions.length; i++) {
+								if (newMatchResult.expressions[i] instanceof UnparsedLiteral) {
+									hasUnparsedLiteral = Classes.parse(((UnparsedLiteral) newMatchResult.expressions[i]).getData(), Object.class, newMatchResult.parseContext) == null;
+									if (hasUnparsedLiteral) {
+										break;
+									}
+								}
+							}
+
+							if (!hasUnparsedLiteral) {
+								expressionLogHandler.printLog();
+								loopLogHandler.printLog();
+								return newMatchResult;
+							} else if (matchBackup == null) {
+								matchBackup = newMatchResult;
+								loopLogHandlerBackup = loopLogHandler.backup();
+								expressionLogHandlerBackup = expressionLogHandler.backup();
+							}
 						}
 					} finally {
 						expressionLogHandler.printError();
@@ -193,11 +214,17 @@ public class TypePatternElement extends PatternElement {
 				}
 			}
 		} finally {
-			if (!loopLogHandler.isStopped())
+			if (loopLogHandlerBackup != null) {
+				loopLogHandler.paste(loopLogHandlerBackup);
+				assert expressionLogHandlerBackup != null;
+				expressionLogHandlerBackup.printLog();
+			}
+			if (!loopLogHandler.isStopped()) {
 				loopLogHandler.printError();
+			}
 		}
 
-		return null;
+		return matchBackup;
 	}
 
 	@Override
