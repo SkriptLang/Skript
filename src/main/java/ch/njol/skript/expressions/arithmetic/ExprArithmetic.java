@@ -28,6 +28,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -117,10 +118,60 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	private boolean leftGrouped, rightGrouped;
 
 	@Override
-	@SuppressWarnings({"ConstantConditions", "unchecked"})
+	@SuppressWarnings({"ConstantConditions", "rawtypes", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		first = LiteralUtils.defendExpression(exprs[0]);
-		second = LiteralUtils.defendExpression(exprs[1]);
+		first = (Expression<L>) exprs[0];
+		second = (Expression<R>) exprs[1];
+
+		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
+		leftGrouped = patternInfo.leftGrouped;
+		rightGrouped = patternInfo.rightGrouped;
+		operator = patternInfo.operator;
+
+		// try to convert unparsed literals with known info
+		if (first instanceof UnparsedLiteral) { // first is not parsed
+			if (second instanceof UnparsedLiteral) { // first and second are not parsed
+				for (OperationInfo<?, ?, ?> operation : Arithmetics.getOperations(operator)) {
+					Expression<?> convertedFirst = first.getConvertedExpression(operation.getLeft());
+					if (convertedFirst == null)
+						continue;
+					Expression<?> convertedSecond = second.getConvertedExpression(operation.getRight());
+					if (convertedSecond == null)
+						continue;
+					first = (Expression<L>) convertedFirst;
+					second = (Expression<R>) convertedSecond;
+					returnType = (Class<? extends T>) operation.getReturnType();
+				}
+			} else { // second is parsed, first is not
+				// attempt to convert <first> to types that make valid operations with <second>
+				Class<?> secondClass = second.getReturnType();
+				Class[] leftTypes = Arithmetics.getOperations(operator).stream()
+					.filter(info -> info.getRight().isAssignableFrom(secondClass))
+					.map(OperationInfo::getLeft)
+					.toArray(Class[]::new);
+				if (leftTypes.length == 0) { // no known operations with second's type
+					if (secondClass != Object.class) // there won't be any operations
+						return error(first.getReturnType(), secondClass);
+					first = (Expression<L>) first.getConvertedExpression(Object.class);
+				} else {
+					first = (Expression<L>) first.getConvertedExpression(leftTypes);
+				}
+			}
+		} else if (second instanceof UnparsedLiteral) { // first is parsed, second is not
+			// attempt to convert <second> to types that make valid operations with <first>
+			Class<?> firstClass = first.getReturnType();
+			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.getOperations(operator, firstClass);
+			if (operations.isEmpty()) { // no known operations with first's type
+				if (firstClass != Object.class) // there won't be any operations
+					return error(firstClass, second.getReturnType());
+				second = (Expression<R>) second.getConvertedExpression(Object.class);
+			} else {
+				second = (Expression<R>) second.getConvertedExpression(operations.stream()
+						.map(OperationInfo::getRight)
+						.toArray(Class[]::new)
+				);
+			}
+		}
 
 		if (!LiteralUtils.canInitSafely(first, second))
 			return false;
@@ -128,31 +179,34 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		Class<? extends L> firstClass = first.getReturnType();
 		Class<? extends R> secondClass = second.getReturnType();
 
-		PatternInfo patternInfo = patterns.getInfo(matchedPattern);
-		leftGrouped = patternInfo.leftGrouped;
-		rightGrouped = patternInfo.rightGrouped;
-		operator = patternInfo.operator;
-
-		if (firstClass != Object.class && secondClass == Object.class && Arithmetics.getOperations(operator, firstClass).isEmpty()) {
-			// If the first class is known but doesn't have any operations, then we fail
-			return error(firstClass, secondClass);
-		} else if (firstClass == Object.class && secondClass != Object.class && Arithmetics.getOperations(operator).stream()
-				.noneMatch(info -> info.getRight().isAssignableFrom(secondClass))) {
-			// If the second class is known but doesn't have any operations, then we fail
-			return error(firstClass, secondClass);
-		}
-
-		OperationInfo<L, R, T> operationInfo;
 		if (firstClass == Object.class || secondClass == Object.class) {
 			// If either of the types is unknown, then we resolve the operation at runtime
-			operationInfo = null;
-		} else {
-			operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
+			Class<?>[] returnTypes = null;
+			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
+				if (firstClass == Object.class) {
+					returnTypes = Arithmetics.getOperations(operator).stream()
+							.filter(info -> info.getRight().isAssignableFrom(secondClass))
+							.map(OperationInfo::getReturnType)
+							.toArray(Class[]::new);
+				} else { // secondClass is Object
+					returnTypes = Arithmetics.getOperations(operator, firstClass).stream()
+						.map(OperationInfo::getReturnType)
+						.toArray(Class[]::new);
+				}
+			}
+			if (returnTypes == null) {
+				returnType = (Class<? extends T>) Object.class;
+			} else if (returnTypes.length == 0) { // One of the classes is known but doesn't have any operations
+				return error(firstClass, secondClass);
+			} else {
+				returnType = (Class<? extends T>) Classes.getSuperClassInfo(returnTypes).getC();
+			}
+		} else if (returnType == null) {
+			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
 			if (operationInfo == null) // We error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
+			returnType = operationInfo.getReturnType();
 		}
-
-		returnType = operationInfo == null ? (Class<? extends T>) Object.class : operationInfo.getReturnType();
 
 		if (Number.class.isAssignableFrom(returnType)) {
 			if (operator == Operator.DIVISION || operator == Operator.EXPONENTIATION) {
@@ -164,7 +218,6 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 					firstIsInt |= i.isAssignableFrom(first.getReturnType());
 					secondIsInt |= i.isAssignableFrom(second.getReturnType());
 				}
-
 				returnType = (Class<? extends T>) (firstIsInt && secondIsInt ? Long.class : Double.class);
 			}
 		}
