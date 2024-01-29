@@ -170,6 +170,17 @@ public final class Math2 {
 		return result;
 	}
 	
+	public static long multiplyClamped(long x, long y) {
+		long result = x * y;
+		long ax = Math.abs(x);
+		long ay = Math.abs(y);
+		// Logic extracted from Math#multiplyExact to avoid having to catch an expensive exception
+        if (((ax | ay) >>> 31 != 0) && (((y != 0) && (result / y != x)) || (x == Long.MIN_VALUE && y == -1)))
+			// If either x or y is negative return the min value, otherwise return the max value
+            return x < 0 == y < 0 ? Long.MAX_VALUE : Long.MIN_VALUE;
+		return result;
+	}
+	
 	@Deprecated
 	@ScheduledForRemoval
 	public static int floorI(double value) {

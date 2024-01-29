@@ -96,7 +96,7 @@ public class DefaultOperations {
 			long scalar = right.longValue();
 			if (scalar < 0)
 				return null;
-			return new Timespan(left.getMilliSeconds() * scalar);
+			return new Timespan(Math2.multiplyClamped(left.getMilliSeconds(), scalar));
 		}, (left, right) -> {
 			long scalar = left.longValue();
 			if (scalar < 0)
