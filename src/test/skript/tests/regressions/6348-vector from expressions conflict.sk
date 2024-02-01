@@ -1,0 +1,7 @@
+test "vector from expressions conflict":
+	set {_x} to 1
+	set {_y} to 2
+	set {_z} to -3
+	set {_v} to vector from {_x}, {_y}, {_z}
+	set {_v2} to vector({_x}, {_y}, {_z})
+	assert {_v} is {_v2} with "Vector from not generating correct vector. Expected %{_v2}%, got %{_v}%"
