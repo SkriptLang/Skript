@@ -250,7 +250,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	private boolean error(Class<?> firstClass, Class<?> secondClass) {
 		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
-		Skript.error(operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+		if (first.getC() != Object.class && second.getC() != Object.class) // errors with "object" are not very useful and often misleading
+			Skript.error(operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
 		return false;
 	}
 
