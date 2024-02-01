@@ -221,7 +221,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		 * If the types of both are object (e.g. variables), the return type will be object (have to wait until runtime and hope it works).
 		 * Of course, if no operations are found, init will fail.
 		 *
-		 * After these checks, it is same to assume returnType has a value, as init should have failed by now if not.
+		 * After these checks, it is safe to assume returnType has a value, as init should have failed by now if not.
 		 * One final check is performed specifically for numerical types.
 		 * Any numerical operation involving division or exponents have a return type of Double.
 		 * Other operations will also return Double, UNLESS 'first' and 'second' are of integer types, in which case the return type will be Long.
