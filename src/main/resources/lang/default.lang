@@ -1241,6 +1241,13 @@ entities:
 	text display:
 		name: text display¦s
 		pattern: text display(|1¦s)
+	# 1.20.3 Entities
+	breeze:
+		name: breeze¦s
+		pattern: breeze(|1¦s)
+	wind charge:
+		name: wind charge¦s
+		pattern: wind charge(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
