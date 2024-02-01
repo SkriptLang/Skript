@@ -128,21 +128,55 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		rightGrouped = patternInfo.rightGrouped;
 		operator = patternInfo.operator;
 
-		// try to convert unparsed literals with known info
-		if (first instanceof UnparsedLiteral) { // first is not parsed
-			if (second instanceof UnparsedLiteral) { // first and second are not parsed
+		/*
+		 * Step 1: UnparsedLiteral Resolving
+		 *
+		 * Since Arithmetic may be performed on a variety of types, it is possible that 'first' or 'second'
+		 *  will represent unparsed literals. That is, the parser could not determine what their literal contents represent.
+		 * Thus, it is now up to this expression to determine what they mean.
+		 *
+		 * If there are no unparsed literals, nothing happens at this step.
+		 * If there are unparsed literals, one of three possible execution flows will occur:
+		 *
+	 	 * Case 1. 'first' and 'second' are unparsed literals
+	 	 * In this case, there is not a lot of information to work with.
+	 	 * 'first' and 'second' are attempted to be converted to fit one of all operations using 'operator'.
+	 	 * If they cannot be matched with the types of a known operation, init will fail.
+	 	 *
+	 	 * Case 2. 'first' is an unparsed literal, 'second' is not
+	 	 * In this case, 'first' needs to be converted into the "left" type of
+	 	 *  any operation using 'operator' with the type of 'second' as the right type.
+	 	 * If 'first' cannot be converted, init will fail.
+	 	 * If no operations are found for converting 'first', init will fail, UNLESS the type of 'second' is object,
+	 	 *  where operations will be searched again later with the context of the type of first.
+	 	 * TODO When 'first' can represent multiple literals, it might be worth checking which of those can work with 'operator' and 'second'
+	 	 *
+	 	 * Case 3. 'second' is an unparsed literal, 'first' is not
+	 	 * In this case, 'second' needs to be converted into the "right" type of
+		 *  any operation using 'operator' with the type of 'first' as the "left" type.
+		 * If 'second' cannot be converted, init will fail.
+		 * If no operations are found for converting 'second', init will fail, UNLESS the type of 'first' is object,
+		 *  where operations will be searched again later with the context of the type of second.
+		 * TODO When 'second' can represent multiple literals, it might be worth checking which of those can work with 'first' and 'operator'
+		 */
+
+		if (first instanceof UnparsedLiteral) {
+			if (second instanceof UnparsedLiteral) { // first and second need converting
 				for (OperationInfo<?, ?, ?> operation : Arithmetics.getOperations(operator)) {
+					// match left type with 'first'
 					Expression<?> convertedFirst = first.getConvertedExpression(operation.getLeft());
 					if (convertedFirst == null)
 						continue;
+					// match right type with 'second'
 					Expression<?> convertedSecond = second.getConvertedExpression(operation.getRight());
 					if (convertedSecond == null)
 						continue;
+					// success, set the values
 					first = (Expression<L>) convertedFirst;
 					second = (Expression<R>) convertedSecond;
 					returnType = (Class<? extends T>) operation.getReturnType();
 				}
-			} else { // second is parsed, first is not
+			} else { // first needs converting
 				// attempt to convert <first> to types that make valid operations with <second>
 				Class<?> secondClass = second.getReturnType();
 				Class[] leftTypes = Arithmetics.getOperations(operator).stream()
@@ -157,7 +191,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 					first = (Expression<L>) first.getConvertedExpression(leftTypes);
 				}
 			}
-		} else if (second instanceof UnparsedLiteral) { // first is parsed, second is not
+		} else if (second instanceof UnparsedLiteral) { // second needs converting
 			// attempt to convert <second> to types that make valid operations with <first>
 			Class<?> firstClass = first.getReturnType();
 			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.getOperations(operator, firstClass);
@@ -173,14 +207,34 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 		}
 
-		if (!LiteralUtils.canInitSafely(first, second))
+		if (!LiteralUtils.canInitSafely(first, second)) // checks if there are still unparsed literals present
 			return false;
+
+		/*
+		 * Step 2: Return Type Calculation
+		 *
+		 * After the first step, everything that can be known about 'first' and 'second' during parsing is known.
+		 * As a result, it is time to determine the return type of the operation.
+		 *
+		 * If the types of 'first' or 'second' are object, it is possible that multiple operations with different return types
+		 *  will be found. If that is the case, the supertype of these operations will be the return type (can be object).
+		 * If the types of both are object (e.g. variables), the return type will be object (have to wait until runtime and hope it works).
+		 * Of course, if no operations are found, init will fail.
+		 *
+		 * After these checks, it is same to assume returnType has a value, as init should have failed by now if not.
+		 * One final check is performed specifically for numerical types.
+		 * Any numerical operation involving division or exponents have a return type of Double.
+		 * Other operations will also return Double, UNLESS 'first' and 'second' are of integer types, in which case the return type will be Long.
+		 *
+		 * If the types of both are something meaningful, the search for a registered operation commences.
+		 * If no operation can be found, init will fail.
+		 */
 
 		Class<? extends L> firstClass = first.getReturnType();
 		Class<? extends R> secondClass = second.getReturnType();
 
 		if (firstClass == Object.class || secondClass == Object.class) {
-			// If either of the types is unknown, then we resolve the operation at runtime
+			// if either of the types is unknown, then we resolve the operation at runtime
 			Class<?>[] returnTypes = null;
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
@@ -194,20 +248,21 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 						.toArray(Class[]::new);
 				}
 			}
-			if (returnTypes == null) {
+			if (returnTypes == null) { // both are object; can't determine anything
 				returnType = (Class<? extends T>) Object.class;
-			} else if (returnTypes.length == 0) { // One of the classes is known but doesn't have any operations
+			} else if (returnTypes.length == 0) { // one of the classes is known but doesn't have any operations
 				return error(firstClass, secondClass);
 			} else {
 				returnType = (Class<? extends T>) Classes.getSuperClassInfo(returnTypes).getC();
 			}
-		} else if (returnType == null) {
+		} else if (returnType == null) { // lookup
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
-			if (operationInfo == null) // We error if we couldn't find an operation between the two types
+			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
 			returnType = operationInfo.getReturnType();
 		}
 
+		// ensure proper return types for numerical operations
 		if (Number.class.isAssignableFrom(returnType)) {
 			if (operator == Operator.DIVISION || operator == Operator.EXPONENTIATION) {
 				returnType = (Class<? extends T>) Double.class;
@@ -222,14 +277,27 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 		}
 
-		// Chaining
-		if (first instanceof ExprArithmetic && !leftGrouped) {
+		/*
+		 * Step 3: Chaining and Parsing
+		 *
+		 * This step builds the arithmetic chain that will be parsed into an ordered operation to be executed at runtime.
+		 * With larger operations, it is possible that 'first' or 'second' will be instances of ExprArithmetic.
+		 * As a result, their chains need to be incorporated into this instance's chain.
+		 * This is to ensure that, during parsing, a "gettable" that follows the order of operations is built.
+		 * However, in the case of parentheses, the chains will not be combined as the
+		 *  order of operations dictates that the result of that chain be determined first.
+		 *
+		 * The chain (a list of values and operators) will then be parsed into a "gettable" that
+		 *  can be evaluated during runtime for a final result.
+		 */
+
+		if (first instanceof ExprArithmetic && !leftGrouped) { // combine chain of 'first' if we do not have parentheses
 			chain.addAll(((ExprArithmetic<?, ?, L>) first).chain);
 		} else {
 			chain.add(first);
 		}
 		chain.add(operator);
-		if (second instanceof ExprArithmetic && !rightGrouped) {
+		if (second instanceof ExprArithmetic && !rightGrouped) { // combine chain of 'second' if we do not have parentheses
 			chain.addAll(((ExprArithmetic<?, ?, R>) second).chain);
 		} else {
 			chain.add(second);
