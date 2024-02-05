@@ -63,13 +63,13 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		 * also possibly in the negated form
 		 */
 		BE,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something can something</code>,
 		 * also possibly in the negated form
 		 */
 		CAN,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something has/have something</code>,
 		 * also possibly in the negated form
@@ -80,7 +80,13 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		 * Indicates that the condition is in a form of <code>something will/be something</code>,
 		 * also possibly in the negated form
 		 */
-		WILL
+		WILL,
+
+		/**
+		 * Indicates that the condition is in a form of <code>something should something</code>,
+		 * also possibly in the negated form
+		 */
+		SHOULD
 	}
 
 	private Expression<? extends T> expr;
@@ -109,23 +115,28 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		switch (propertyType) {
 			case BE:
 				Skript.registerCondition(condition,
-						"%" + type + "% (is|are) " + property,
-						"%" + type + "% (isn't|is not|aren't|are not) " + property);
+					"%" + type + "% (is|are) " + property,
+					"%" + type + "% (isn't|is not|aren't|are not) " + property);
 				break;
 			case CAN:
 				Skript.registerCondition(condition,
-						"%" + type + "% can " + property,
-						"%" + type + "% (can't|cannot|can not) " + property);
+					"%" + type + "% can " + property,
+					"%" + type + "% (can't|cannot|can not) " + property);
 				break;
 			case HAVE:
 				Skript.registerCondition(condition,
-						"%" + type + "% (has|have) " + property,
-						"%" + type + "% (doesn't|does not|do not|don't) have " + property);
+					"%" + type + "% (has|have) " + property,
+					"%" + type + "% (doesn't|does not|do not|don't) have " + property);
 				break;
 			case WILL:
 				Skript.registerCondition(condition,
-						"%" + type + "% will " + property,
-						"%" + type + "% (will (not|neither)|won't) " + property);
+					"%" + type + "% will " + property,
+					"%" + type + "% (will (not|neither)|won't) " + property);
+				break;
+			case SHOULD:
+				Skript.registerCondition(condition,
+					"%" + type + "% should " + property,
+					"%" + type + "% (shouldn't|should not) " + property);
 				break;
 			default:
 				assert false;
@@ -147,7 +158,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 
 	@Override
 	public abstract boolean check(T value);
-	
+
 	protected abstract String getPropertyName();
 
 	protected PropertyType getPropertyType() {
@@ -182,6 +193,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 					return expr.toString(event, debug) + (condition.isNegated() ? " don't have " : " have ") + property;
 			case WILL:
 				return expr.toString(event, debug) + (condition.isNegated() ? " won't " : " will ") + "be " + property;
+			case SHOULD:
+				return expr.toString(event, debug) + (condition.isNegated() ? " shouldn't " : " should ") + property;
 			default:
 				assert false;
 				throw new AssertionError();
