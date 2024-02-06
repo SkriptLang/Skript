@@ -157,7 +157,10 @@ public class EffReplace extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (replaceFirst)
+		if (replaceLast)
+			return "replace last " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+				+ "(case sensitive: " + caseSensitive + ")";
+		else if (replaceFirst)
 			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 				+ "(case sensitive: " + caseSensitive + ")";
 		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
