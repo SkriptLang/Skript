@@ -55,12 +55,12 @@ public class EffReplace extends Effect {
 
 	static {
 		Skript.registerEffect(EffReplace.class,
-			"replace (all|every|) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-			"replace (all|every|) %strings% with %string% in %strings% [(1¦with case sensitivity)]",
-			"replace (:first|:last) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-			"replace (:first|:last) %strings% with %string% in %string% [(1¦with case sensitivity)]",
-			"replace (all|every|) %itemtypes% in %inventories% with %itemtype%",
-			"replace (all|every|) %itemtypes% with %itemtype% in %inventories%");
+			"replace [all|every] %strings% in %strings% with %string% [1:with case sensitivity]",
+			"replace [all|every] %strings% with %string% in %strings% [1:with case sensitivity]",
+			"replace (:first|:last) %strings% in %strings% with %string% [1:with case sensitivity]",
+			"replace (:first|:last) %strings% with %string% in %string% [1:with case sensitivity]",
+			"replace [all|every] %itemtypes% in %inventories% with %itemtype%",
+			"replace [all|every] %itemtypes% with %itemtype% in %inventories%");
 	}
 
 	@SuppressWarnings("null")
