@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
-import static ch.njol.skript.command.Commands.skriptCommandExists;
+import static ch.njol.skript.command.Commands.scriptCommandExists;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -44,7 +44,7 @@ public class CondIsSkriptCommand extends PropertyCondition<String> {
 	
 	@Override
 	public boolean check(String cmd) {
-		return skriptCommandExists(cmd);
+		return scriptCommandExists(cmd);
 	}
 	
 	@Override
