@@ -80,9 +80,13 @@ public class EffPoison extends Effect {
 				if (timespan != null)
 					duration = (int) timespan.getTicks();
 			}
-			PotionEffect poisonEffect = new PotionEffect(PotionEffectType.POISON, duration, 0);
 			for (LivingEntity livingEntity : entities.getArray(event)) {
-				livingEntity.addPotionEffect(poisonEffect);
+				int specificDuration = duration;
+				if (livingEntity.hasPotionEffect(PotionEffectType.POISON)) { // if the entity is already poisoned, increase the duration
+					//noinspection ConstantConditions - PotionEffect cannot be null (checked above)
+					specificDuration += livingEntity.getPotionEffect(PotionEffectType.POISON).getDuration();
+				}
+				livingEntity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, specificDuration, 0));
 			}
 		}
 	}
