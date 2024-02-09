@@ -69,20 +69,21 @@ public class EffPoison extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (cure) {
-			for (LivingEntity entity : entities.getArray(e))
+			for (LivingEntity entity : entities.getArray(event))
 				entity.removePotionEffect(PotionEffectType.POISON);
 		} else {
 			int duration = PotionUtils.DEFAULT_DURATION_TICKS;
 			if (this.duration != null) {
-				Timespan timespan = this.duration.getSingle(e);
+				Timespan timespan = this.duration.getSingle(event);
 				if (timespan != null)
-					duration = (int) timespan.getTicks_i();
+					duration = (int) timespan.getTicks();
 			}
 			PotionEffect poisonEffect = new PotionEffect(PotionEffectType.POISON, duration, 0);
-			for (LivingEntity livingEntity : entities.getArray(e))
+			for (LivingEntity livingEntity : entities.getArray(event)) {
 				livingEntity.addPotionEffect(poisonEffect);
+			}
 		}
 	}
 

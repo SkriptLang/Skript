@@ -51,16 +51,19 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
 	static {
-		// syntax sux but is backwards compatible
+		// TODO improve - syntax sucks but is backwards compatible
 		// e.g. you can do an ambient infinite potion effect of potion of speed of tier 2 without particles without an icon
 		String preProperties = "[a[n]] [:ambient] ";
 		String postProperties = " [:without particles] [without icon:without [an] icon]";
 		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.COMBINED,
 			preProperties + "potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties + " [for %-timespan%]",
-			preProperties + "%potioneffecttype% [of tier] %number% [potion [effect]]" + postProperties + " [for %-timespan%]",
 			preProperties + "infinite potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties,
 			// in the syntax below, the amplifier is optional because the word "infinite" is required, thus allowing "apply infinite speed to player"
 			preProperties + "infinite %potioneffecttype% [[of tier] %-number%] [potion [effect]]" + postProperties
+		);
+		// TODO this pattern is questionable
+		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+			preProperties + "%potioneffecttype% [of tier] %number% [potion [effect]]" + postProperties + " [for %-timespan%]"
 		);
 	}
 

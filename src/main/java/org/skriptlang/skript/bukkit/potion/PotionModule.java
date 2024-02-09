@@ -45,28 +45,8 @@ public class PotionModule {
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::new);
 
-		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, new Comparator<PotionEffectType, PotionEffectType>() {
-			@Override
-			public Relation compare(PotionEffectType p1, PotionEffectType p2) {
-				return Relation.get(p1.equals(p2));
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
-		});
-		Comparators.registerComparator(SkriptPotionEffect.class, SkriptPotionEffect.class, new Comparator<SkriptPotionEffect, SkriptPotionEffect>() {
-			@Override
-			public Relation compare(SkriptPotionEffect p1, SkriptPotionEffect p2) {
-				return Relation.get(p1.equals(p2));
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
-		});
+		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (p1, p2) -> Relation.get(p1.equals(p2)));
+		Comparators.registerComparator(SkriptPotionEffect.class, SkriptPotionEffect.class, (p1, p2) -> Relation.get(p1.equals(p2)));
 
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "potioneffect")

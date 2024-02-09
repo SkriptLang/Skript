@@ -136,7 +136,7 @@ public class SkriptPotionEffect {
 		if (!icon)
 			builder.append(" without an icon");
 		if (!infinite)
-			builder.append(" for ").append(Timespan.fromTicks_i(duration));
+			builder.append(" for ").append(Timespan.fromTicks(duration));
 		return builder.toString();
 	}
 

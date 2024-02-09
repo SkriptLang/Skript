@@ -52,9 +52,9 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 	static {
 		String properties = "(AMPLIFIER:(tier|amplifier|level)|DURATION:(duration|length)|EFFECT:(type|effect [type]))";
 		Skript.registerExpression(ExprPotionProperties.class, Object.class, ExpressionType.COMBINED,
-				"[the] [potion] " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
-				"[the] [potion] " + properties + " of %potioneffects%",
-				"%potioneffects%'[s] " + properties
+				"[the] potion " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
+				"[the] potion " + properties + " of %potioneffects%",
+				"%potioneffects%'[s] potion" + properties
 		);
 	}
 
@@ -95,7 +95,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 						values.add(potionEffect.amplifier() + 1);
 				case DURATION:
 					for (SkriptPotionEffect potionEffect : potionEffects)
-						values.add(Timespan.fromTicks_i(potionEffect.duration()));
+						values.add(Timespan.fromTicks(potionEffect.duration()));
 				case EFFECT:
 					for (SkriptPotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.potionEffectType());
@@ -122,7 +122,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 						values.add(potionEffect.getAmplifier() + 1);
 				case DURATION:
 					for (PotionEffect potionEffect : potionEffects)
-						values.add(Timespan.fromTicks_i(potionEffect.getDuration()));
+						values.add(Timespan.fromTicks(potionEffect.getDuration()));
 				case EFFECT:
 					for (PotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.getType());
@@ -183,7 +183,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					}
 					break;
 				case DURATION:
-					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : PotionUtils.DEFAULT_DURATION_TICKS;
+					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks() : PotionUtils.DEFAULT_DURATION_TICKS;
 					switch (mode) {
 						case SET:
 						case RESET:
@@ -230,7 +230,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					}
 					break;
 				case DURATION:
-					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : PotionUtils.DEFAULT_DURATION_TICKS;
+					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks() : PotionUtils.DEFAULT_DURATION_TICKS;
 					for (LivingEntity entity : entities) {
 						for (PotionEffectType type : types) {
 							PotionEffect potionEffect = entity.getPotionEffect(type);

@@ -79,7 +79,7 @@ public class EffApplyPotionEffect extends Effect {
 		if (duration != null) {
 			Timespan timespan = duration.getSingle(event);
 			if (timespan != null) {
-				int ticks = (int) timespan.getTicks_i();
+				int ticks = (int) timespan.getTicks();
 				for (SkriptPotionEffect potionEffect : potionEffects)
 					// TODO not sure if this should actually modify the potion effect
 					potionEffect.duration(ticks);
