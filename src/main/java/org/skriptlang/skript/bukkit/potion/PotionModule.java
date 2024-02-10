@@ -27,14 +27,13 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import org.bukkit.potion.PotionEffectType;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
-import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.StreamCorruptedException;

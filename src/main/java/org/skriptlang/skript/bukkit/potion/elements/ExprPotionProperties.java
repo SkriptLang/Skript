@@ -93,12 +93,15 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 				case AMPLIFIER:
 					for (SkriptPotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.amplifier() + 1);
+					break;
 				case DURATION:
 					for (SkriptPotionEffect potionEffect : potionEffects)
 						values.add(Timespan.fromTicks(potionEffect.duration()));
+					break;
 				case EFFECT:
 					for (SkriptPotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.potionEffectType());
+					break;
 			}
 
 		} else {
@@ -120,12 +123,15 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 				case AMPLIFIER:
 					for (PotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.getAmplifier() + 1);
+					break;
 				case DURATION:
 					for (PotionEffect potionEffect : potionEffects)
 						values.add(Timespan.fromTicks(potionEffect.getDuration()));
+					break;
 				case EFFECT:
 					for (PotionEffect potionEffect : potionEffects)
 						values.add(potionEffect.getType());
+					break;
 			}
 
 		}
@@ -174,12 +180,15 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 						case SET:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.amplifier(change);
+							break;
 						case ADD:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.amplifier(potionEffect.amplifier() + change);
+							break;
 						case REMOVE:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.amplifier(potionEffect.amplifier() - change);
+							break;
 					}
 					break;
 				case DURATION:
@@ -189,12 +198,15 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 						case RESET:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.duration(ticks);
+							break;
 						case ADD:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.duration(Math.max(0, potionEffect.duration() + ticks));
+							break;
 						case REMOVE:
 							for (SkriptPotionEffect potionEffect : potionEffects)
 								potionEffect.duration(Math.max(0, potionEffect.duration() - ticks));
+							break;
 					}
 					break;
 				case EFFECT:

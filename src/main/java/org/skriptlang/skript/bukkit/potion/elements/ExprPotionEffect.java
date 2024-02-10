@@ -45,25 +45,20 @@ import org.eclipse.jdt.annotation.Nullable;
 	"add {_p} to potion effects of player's tool",
 	"add {_p} to potion effects of target entity",
 	"add a potion effect of speed 1 to the potion effects of the player",
-	"apply ambient speed 2 to player for 30 seconds"
+	"apply speed 2 to player for 30 seconds"
 })
 @Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
 public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
 	static {
-		// TODO improve - syntax sucks but is backwards compatible
-		// e.g. you can do an ambient infinite potion effect of potion of speed of tier 2 without particles without an icon
-		String preProperties = "[a[n]] [:ambient] ";
-		String postProperties = " [:without particles] [without icon:without [an] icon]";
+		String postProperties = "[no particles:without [the|any] particles] [no icon:(whilst hiding the|without (the|a[n])) [potion] icon]";
 		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.COMBINED,
-			preProperties + "potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties + " [for %-timespan%]",
-			preProperties + "infinite potion effect of %potioneffecttype% [[of tier] %-number%]" + postProperties,
-			// in the syntax below, the amplifier is optional because the word "infinite" is required, thus allowing "apply infinite speed to player"
-			preProperties + "infinite %potioneffecttype% [[of tier] %-number%] [potion [effect]]" + postProperties
+			"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties + " [for %-timespan%]",
+			"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties,
+			"[an] infinite [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] " + postProperties
 		);
-		// TODO this pattern is questionable
 		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-			preProperties + "%potioneffecttype% [of tier] %number% [potion [effect]]" + postProperties + " [for %-timespan%]"
+			"%potioneffecttype% %number%"
 		);
 	}
 
@@ -83,13 +78,12 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		potionEffectType = (Expression<PotionEffectType>) exprs[0];
 		amplifier = (Expression<Number>) exprs[1];
-		infinite = matchedPattern >= 2;
+		infinite = exprs.length != 3;
 		if (!infinite)
 			duration = (Expression<Timespan>) exprs[2];
 		ambient = parseResult.hasTag("ambient");
-		particles = !parseResult.hasTag("without particles");
-		icon = !parseResult.hasTag("without icon");
-
+		particles = !parseResult.hasTag("no particles");
+		icon = !parseResult.hasTag("no icon");
 		return true;
 	}
 	
@@ -111,7 +105,7 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan != null)
-				duration = (int) timespan.getTicks_i();
+				duration = (int) timespan.getTicks();
 		}
 
 		return new SkriptPotionEffect[]{

@@ -56,22 +56,17 @@ public class SkriptPotionEffect {
 		return this;
 	}
 
+	// TODO should document to set duration to PotionUtils.INFINITE_DURATION
+	public boolean infinite() {
+		return duration == PotionUtils.INFINITE_DURATION;
+	}
+
 	public int duration() {
 		return duration;
 	}
 
 	public SkriptPotionEffect duration(int duration) {
 		this.duration = duration;
-		return this;
-	}
-
-	public boolean infinite() {
-		return duration == PotionUtils.INFINITE_DURATION;
-	}
-
-	// TODO document that marking an effect as infinite modifies the duration field.
-	public SkriptPotionEffect infinite(boolean infinite) {
-		duration = infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS;
 		return this;
 	}
 
