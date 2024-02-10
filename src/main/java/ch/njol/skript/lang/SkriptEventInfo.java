@@ -187,4 +187,5 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	public String getDocumentationID() {
 		return documentationID;
 	}
+	
 }
