@@ -36,6 +36,7 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +58,9 @@ import java.util.List;
 })
 @Since("2.5.2, INSERT VERSION (syntax changes, reset support)")
 public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEffect> {
-	
-	static {
-		register(ExprPotionEffects.class, SkriptPotionEffect.class, "[active] potion effects", "livingentities/itemtypes");
+
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprPotionEffects.class, SkriptPotionEffect.class, "[active] potion effects", "livingentities/itemtypes");
 	}
 
 	@Override

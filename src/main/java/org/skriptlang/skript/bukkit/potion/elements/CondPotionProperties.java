@@ -28,6 +28,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Properties")
 @Description("Checks whether a potion effect has a certain property such as an infinite duration or particles.")
@@ -38,9 +39,9 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
 @Since("INSERT VERSION")
 public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> {
 
-	static {
-		register(CondPotionProperties.class, PropertyType.BE, "(AMBIENT:ambient|INFINITE:infinite)", "potioneffects");
-		register(CondPotionProperties.class, PropertyType.HAVE, "(ICON:(an icon|icons)|PARTICLES:particles)", "potioneffects");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, CondPotionProperties.class, PropertyType.BE, "(AMBIENT:ambient|INFINITE:infinite)", "potioneffects");
+		register(registry, CondPotionProperties.class, PropertyType.HAVE, "(ICON:(an icon|icons)|PARTICLES:particles)", "potioneffects");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

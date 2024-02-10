@@ -33,6 +33,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Properties")
 @Description("Modify the properties of a potion such as whether it is infinite in duration or if the icon is shown.")
@@ -40,12 +42,15 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
 @Since("INSERT VERSION")
 public class EffPotionProperties extends Effect {
 
-	static {
-		Skript.registerEffect(EffPotionProperties.class,
-				"(show|not:hide) [the] [potion] (ICON:icon|PARTICLES:particles) of %potioneffecttypes% (of|for|on) %livingentities%",
-				"make %potioneffecttypes% (of|for|on) %livingentities% [:not] (AMBIENT:ambient|INFINITE:infinite)",
-				"(show|not:hide) [the] [potion] (ICON:icon|PARTICLES:particles) for %potioneffects%",
-				"make %potioneffects% [:not] (AMBIENT:ambient|INFINITE:infinite)"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionProperties.class)
+				.addPatterns(
+						"(show|not:hide) [the] [potion] (ICON:icon|PARTICLES:particles) of %potioneffecttypes% (of|for|on) %livingentities%",
+						"make %potioneffecttypes% (of|for|on) %livingentities% [:not] (AMBIENT:ambient|INFINITE:infinite)",
+						"(show|not:hide) [the] [potion] (ICON:icon|PARTICLES:particles) for %potioneffects%",
+						"make %potioneffects% [:not] (AMBIENT:ambient|INFINITE:infinite)"
+				)
+				.build()
 		);
 	}
 

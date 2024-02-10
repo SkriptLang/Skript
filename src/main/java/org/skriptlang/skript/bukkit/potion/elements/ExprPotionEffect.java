@@ -34,6 +34,8 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect")
 @Description({
@@ -50,15 +52,23 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
 public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		String postProperties = "[no particles:without [the|any] particles] [no icon:(whilst hiding the|without (the|a[n])) [potion] icon]";
-		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.COMBINED,
-			"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties + " [for %-timespan%]",
-			"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties,
-			"[an] infinite [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] " + postProperties
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
+				.expressionType(ExpressionType.COMBINED)
+				.addPatterns(
+						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties + " [for %-timespan%]",
+						"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties,
+						"[an] infinite [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] " + postProperties
+				)
+				.build()
 		);
-		Skript.registerExpression(ExprPotionEffect.class, SkriptPotionEffect.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-			"%potioneffecttype% %number%"
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
+				.expressionType(ExpressionType.PATTERN_MATCHES_EVERYTHING)
+				.addPatterns(
+						"%potioneffecttype% %number%"
+				)
+				.build()
 		);
 	}
 

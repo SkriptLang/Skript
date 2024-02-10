@@ -34,6 +34,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effects")
 @Description("Apply potion effects to/from entities.")
@@ -46,12 +48,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (syntax changes)")
 public class EffApplyPotionEffect extends Effect {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		// While allowing the user to specify the timespan here is repetitive as you can do it in ExprPotionEffect,
 		// it allows syntax like "apply haste 3 to the player for 5 seconds" to work
-		Skript.registerEffect(EffApplyPotionEffect.class,
-			"apply %potioneffects% to %livingentities% [for %-timespan%]",
-			"effect %livingentities% with %potioneffects% [for %-timespan%]"
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
+				.addPatterns(
+						"apply %potioneffects% to %livingentities% [for %-timespan%]",
+						"effect %livingentities% with %potioneffects% [for %-timespan%]"
+				)
+				.build()
 		);
 	}
 

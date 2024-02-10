@@ -18,8 +18,6 @@
  */
 package org.skriptlang.skript.bukkit.potion;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -29,18 +27,21 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.potion.elements.*;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
 import java.io.StreamCorruptedException;
 
-public class PotionModule {
+public class PotionModule implements AddonModule {
 
-	public void register(SkriptAddon addon) {
+	public void load(SkriptAddon addon, SyntaxRegistry registry) {
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::new);
 
@@ -182,12 +183,15 @@ public class PotionModule {
 		);
 
 		// Load Syntax
-		try {
-			addon.loadClasses("org.skriptlang.skript.bukkit.potion.elements");
-		} catch (IOException e) {
-			Skript.exception(e, "An error occurred while trying to load potion elements.");
-		}
-
+		CondHasPotion.register(registry);
+		CondIsPoisoned.register(registry);
+		CondPotionProperties.register(registry);
+		EffApplyPotionEffect.register(registry);
+		EffPoison.register(registry);
+		EffPotionProperties.register(registry);
+		ExprPotionEffect.register(registry);
+		ExprPotionEffects.register(registry);
+		ExprPotionProperties.register(registry);
 	}
 
 }

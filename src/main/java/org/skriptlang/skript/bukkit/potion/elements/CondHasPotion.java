@@ -33,6 +33,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
@@ -45,10 +47,13 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.6.1")
 public class CondHasPotion extends Condition {
 
-	static {
-		Skript.registerCondition(CondHasPotion.class,
-				"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
-				"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondHasPotion.class)
+				.addPatterns(
+						"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
+						"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%"
+				)
+				.build()
 		);
 	}
 

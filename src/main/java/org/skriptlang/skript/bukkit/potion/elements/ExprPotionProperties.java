@@ -39,6 +39,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +51,16 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class ExprPotionProperties extends SimpleExpression<Object> {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		String properties = "(AMPLIFIER:(tier|amplifier|level)|DURATION:(duration|length)|EFFECT:(type|effect [type]))";
-		Skript.registerExpression(ExprPotionProperties.class, Object.class, ExpressionType.COMBINED,
-				"[the] potion " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
-				"[the] potion " + properties + " of %potioneffects%",
-				"%potioneffects%'[s] potion" + properties
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionProperties.class, Object.class)
+				.expressionType(ExpressionType.COMBINED)
+				.addPatterns(
+						"[the] potion " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
+						"[the] potion " + properties + " of %potioneffects%",
+						"%potioneffects%'[s] potion" + properties
+				)
+				.build()
 		);
 	}
 

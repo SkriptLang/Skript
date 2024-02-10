@@ -571,7 +571,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures"
 			);
-			new PotionModule().register(getAddonInstance());
+			// we can't load modules the intended way due to everything that has to happen
+			// between the creation of the modern Skript instance and here
+			new PotionModule().load(skript, skriptRegistry);
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

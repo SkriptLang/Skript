@@ -34,6 +34,8 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Poison/Cure")
 @Description("Poison or cure an entity. If the entity is already poisoned, the duration may be overwritten.")
@@ -45,10 +47,14 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("1.3.2")
 public class EffPoison extends Effect {
 
-	static {
-		Skript.registerEffect(EffPoison.class,
-				"poison %livingentities% [for %-timespan%]",
-				"(cure|unpoison) %livingentities% [(from|of) poison]");
+	public static void register(SyntaxRegistry syntaxRegistry) {
+		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPoison.class)
+				.addPatterns(
+						"poison %livingentities% [for %-timespan%]",
+						"(cure|unpoison) %livingentities% [(from|of) poison]"
+				)
+				.build()
+		);
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
