@@ -20,9 +20,11 @@ package ch.njol.skript.expressions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -50,7 +52,8 @@ import org.jetbrains.annotations.Nullable;
 public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, String> {
 
 	static {
-		register(ExprPlayerChatCompletions.class, String.class, "[custom] chat completion[s] [suggestions]", "players");
+		if (Skript.methodExists(Player.class, "addCustomChatCompletions", Collection.class))
+			register(ExprPlayerChatCompletions.class, String.class, "[custom] chat completion[s] [suggestions]", "players");
 	}
 
 	@Override
