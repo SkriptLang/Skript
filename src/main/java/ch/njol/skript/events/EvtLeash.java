@@ -70,6 +70,7 @@ public class EvtLeash extends SkriptEvent {
 		public String toString() {
 			return name;
 		}
+
 	}
 
 	@Nullable
@@ -104,7 +105,7 @@ public class EvtLeash extends SkriptEvent {
 				leashedEntity = ((EntityUnleashEvent) event).getEntity();
                 break;
             case UNLEASH_BY_PLAYER:
-				if (!(event instanceof EntityUnleashEvent))
+				if (!(event instanceof PlayerUnleashEntityEvent))
 					return false;
 				leashedEntity = ((PlayerUnleashEntityEvent) event).getEntity();
                 break;
