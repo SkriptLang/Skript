@@ -55,8 +55,8 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 
 	static {
 		Skript.registerExpression(ExprTargetedBlock.class, Block.class, ExpressionType.COMBINED,
-			"[the] target[ed] block[s] [of %players%]", "%players%'[s] target[ed] block[s]",
-			"[the] actual[ly] target[ed] block[s] [of %players%]", "%players%'[s] actual[ly] target[ed] block[s]");
+				"[the] target[ed] block[s] [of %players%]", "%players%'[s] target[ed] block[s]",
+				"[the] actual[ly] target[ed] block[s] [of %players%]", "%players%'[s] actual[ly] target[ed] block[s]");
 	}
 
 	private boolean actual;
@@ -82,6 +82,11 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 				return null;
 			return block;
 		});
+	}
+
+	public boolean setTime(int time) {
+		super.setTime(time);
+		return true;
 	}
 
 	@Override
