@@ -24,7 +24,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -32,17 +32,24 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Targeted Block")
 @Description({"The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.",
 	"The actual target block will regard the actual hit box of the block."})
-@Examples({"# A command to set the block a player looks at to a specific type:",
-	"command /setblock &lt;material&gt;:",
-	"\ttrigger:",
-	"\t\tset targeted block to argument"})
+@Examples({
+	"set target block of player to stone",
+	"set target block of player to oak_stairs[waterlogged=true]",
+	"break target block of player using player's tool",
+	"give player 1 of type of target block",
+	"teleport player to location above target block",
+	"kill all entities in radius 3 around target block of player",
+	"set {_block} to actual target block of player",
+	"break actual target block of player"
+})
 @Since("1.0")
-public class ExprTargetedBlock extends SimplePropertyExpression<Player, Block> {
+public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 
 	static {
 		Skript.registerExpression(ExprTargetedBlock.class, Block.class, ExpressionType.COMBINED,
@@ -61,16 +68,18 @@ public class ExprTargetedBlock extends SimplePropertyExpression<Player, Block> {
 	}
 
 	@Override
-	public @Nullable Block convert(Player player) {
+	protected Block[] get(Event event, Player[] source) {
 		Integer distance = SkriptConfig.maxTargetBlockDistance.value();
-		Block block;
-		if (actual)
-			block = player.getTargetBlockExact(distance);
-		else
-			block = player.getTargetBlock(null, distance);
-		if (block != null && block.getType() == Material.AIR)
-			return null;
-		return block;
+		return get(source, player -> {
+			Block block;
+			if (actual)
+				block = player.getTargetBlockExact(distance);
+			else
+				block = player.getTargetBlock(null, distance);
+			if (block != null && block.getType() == Material.AIR)
+				return null;
+			return block;
+		});
 	}
 
 	@Override
@@ -79,8 +88,8 @@ public class ExprTargetedBlock extends SimplePropertyExpression<Player, Block> {
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return this.actual ? "actual target block" : "target block";
+	public String toString(@Nullable Event event, boolean debug) {
+		return (this.actual ? "actual " : "") + "target block of " + getExpr().toString(event, debug);
 	}
 
 }
