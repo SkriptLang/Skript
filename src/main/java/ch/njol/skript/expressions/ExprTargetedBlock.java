@@ -84,6 +84,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 		});
 	}
 
+	@Override
 	public boolean setTime(int time) {
 		super.setTime(time);
 		return true;
