@@ -36,8 +36,10 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Targeted Block")
-@Description({"The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.",
-	"The actual target block will regard the actual hit box of the block."})
+@Description({
+	"The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.",
+	"The actual target block will regard the actual hit box of the block."
+})
 @Examples({
 	"set target block of player to stone",
 	"set target block of player to oak_stairs[waterlogged=true]",
