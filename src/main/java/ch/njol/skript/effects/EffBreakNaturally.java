@@ -18,59 +18,92 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Break Block")
-@Description({"Breaks the block and spawns items as if a player had mined it",
-		"\nYou can add a tool, which will spawn items based on how that tool would break the block ",
-		"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)"})
-@Examples({"on right click:", "\tbreak clicked block naturally",
-		"loop blocks in radius 10 around player:", "\tbreak loop-block using player's tool",
-		"loop blocks in radius 10 around player:", "\tbreak loop-block naturally using diamond pickaxe"})
-@Since("2.4")
+@Description({
+	"Breaks the block and spawns items as if a player had mined it",
+	"You can add a tool, which will spawn items based on how that tool would break the block ",
+	"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)",
+	"When 'with effect' is used, the sound and particles while breaking the block is produced.",
+	"When 'and drop experience' is used, XP will drop at the block if it usually does so."
+})
+@Examples({
+	"on right click:",
+		"\tbreak clicked block naturally",
+	"loop blocks in radius 10 around player:",
+		"\tbreak loop-block using player's tool",
+	"loop blocks in radius 10 around player:",
+		"\tbreak loop-block with effects naturally using diamond pickaxe and drop xps"
+})
+@Since("2.4, INSERT VERSION (effects, drop xps)")
+@RequiredPlugins("Paper 1.15+ (effects), Paper 1.17+ (effects without tool), Paper 1.19+ (drop xps)")
 public class EffBreakNaturally extends Effect {
+
+	private static final boolean HAS_METHOD_1_15 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
+	private static final boolean HAS_METHOD_1_17 = Skript.methodExists(Block.class, "breakNaturally", boolean.class, boolean.class);
+	private static final boolean HAS_METHOD_1_19 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class, boolean.class), boolean.class);
 	
 	static {
-		Skript.registerEffect(EffBreakNaturally.class, "break %blocks% [naturally] [using %-itemtype%]");
+		String pattern = "break %blocks% [naturally] [using %-itemtype%]";
+		if (HAS_METHOD_1_19) {
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and [drop] (xp|experience)[s]]";
+		} else if (HAS_METHOD_1_17) {
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]]";
+		} else if (HAS_METHOD_1_15) {
+			pattern = "break %blocks% [naturally] [using %-itemtype% [effect:with effect[s]]]";
+		}
+		Skript.registerEffect(EffBreakNaturally.class, pattern);
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<Block> blocks;
 	@Nullable
 	private Expression<ItemType> tool;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean effect;
+	private boolean dropExp;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final SkriptParser.ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		blocks = (Expression<Block>) exprs[0];
 		tool = (Expression<ItemType>) exprs[1];
+		effect = parseResult.hasTag("effect");
+		dropExp = parseResult.hasTag("dropExp");
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		ItemType tool = this.tool != null ? this.tool.getSingle(e) : null;
-		for (Block block : this.blocks.getArray(e)) {
+	protected void execute(Event event) {
+		ItemType tool = this.tool != null ? this.tool.getSingle(event) : null;
+		for (Block block : this.blocks.getArray(event)) {
 			if (tool != null) {
-				ItemStack is = tool.getRandom();
-				if (is != null)
-					block.breakNaturally(is);
-				else
-					block.breakNaturally();
+				ItemStack item = tool.getRandom();
+				if (HAS_METHOD_1_19) {
+					block.breakNaturally(item, effect, dropExp);
+				} else if (HAS_METHOD_1_15) {
+					block.breakNaturally(item, effect);
+				} else {
+					block.breakNaturally(item);
+				}
+			} else if (HAS_METHOD_1_19) {
+				block.breakNaturally(effect, dropExp);
+			} else if (HAS_METHOD_1_17) {
+				block.breakNaturally(effect);
 			} else {
 				block.breakNaturally();
 			}
@@ -78,7 +111,7 @@ public class EffBreakNaturally extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "break " + blocks.toString(e, debug) + " naturally" + (tool != null ? " using " + tool.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "break " + blocks.toString(event, debug) + " naturally" + (tool != null ? " using " + tool.toString(event, debug) : "") + (effect ? " with effects" : "") + (dropExp ? " and drop experience" : "");
 	}
 }
