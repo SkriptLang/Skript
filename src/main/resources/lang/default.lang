@@ -2401,6 +2401,13 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Unleash Reasons --
+unleash reasons:
+	distance: distance
+	holder_gone: holder gone
+	player_unleash: player unleash, player unleashed, unleashed by player
+	unknown: unknown
+
 # -- Item Flags --
 item flags:
     hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
@@ -2617,6 +2624,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
 	display: display¦s @a
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
