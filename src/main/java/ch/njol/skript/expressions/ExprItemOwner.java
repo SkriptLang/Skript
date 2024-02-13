@@ -43,7 +43,6 @@ import org.jetbrains.annotations.Nullable;
 @Name("Item Owner")
 @Description({
 	"The owner of a dropped item, can be get, set, and delete.",
-	"The expression accepts a UUID in text or a player.",
 	"By setting the item owner, only the entity with this UUID can pick it up."
 })
 @Examples({
