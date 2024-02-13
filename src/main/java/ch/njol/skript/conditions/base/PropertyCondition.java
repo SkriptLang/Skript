@@ -75,7 +75,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		 * also possibly in the negated form
 		 */
 		HAVE,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something will/be something</code>,
 		 * also possibly in the negated form
