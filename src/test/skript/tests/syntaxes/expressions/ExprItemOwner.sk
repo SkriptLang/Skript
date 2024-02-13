@@ -1,0 +1,9 @@
+test "item owner":
+	drop diamond at spawn of world "world"
+	set {_item} to last dropped item
+	assert item owner of {_item} is not set with "Item owner expected to be null"
+	set {_player} to "Njol" parsed as offline player
+	set item owner of {_item} to {_player}
+	assert item owner of {_item} is {_player} with "Item owner returned different value than set"
+	delete item owner of {_item}
+	assert item owner is not set with "Item owner expected to be null"
