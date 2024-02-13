@@ -47,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on drop:",
-	"\tdelete the item thrower",
+		"\tdelete the item thrower",
 	"delete the item thrower of all dropped items"
 })
 @Since("INSERT VERSION")
