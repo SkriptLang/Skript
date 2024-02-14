@@ -1,0 +1,10 @@
+test "last damage cause":
+
+	spawn a pig at spawn of "world"
+	set {_pig} to last spawned pig
+
+	assert last damage cause of {_pig} is custom with "expected pig to have custom damage cause, but it didn't"
+	set last damage cause of {_pig} to drowning
+	assert last damage cause of {_pig} is drowning with "expected pig to have drowning damage cause, but it didn't"
+
+	delete the entity within {_pig}
