@@ -20,10 +20,6 @@
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -32,41 +28,29 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Objects;
 
-public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
+public class VisualEffect implements YggdrasilSerializable {
 
 	private static final boolean HAS_REDSTONE_DATA = Skript.classExists("org.bukkit.Particle$DustOptions");
 
 	private VisualEffectType type;
 
-	@Nullable
-	private Object data;
-	private float speed = 0f;
-	private float dX, dY, dZ = 0f;
+	private Object[] data;
+	private float speed;
+	private float dX, dY, dZ;
 
-	public VisualEffect() {}
-	
-	@SuppressWarnings({"null", "ConstantConditions"})
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		type = VisualEffects.get(matchedPattern);
+	@SuppressWarnings("unused")
+	private VisualEffect() { }
 
-		if (exprs.length > 4 && exprs[0] != null) {
-			data = exprs[0].getSingle(null);
-		}
-
-		if ((parseResult.mark & 1) != 0) {
-			dX = ((Number) exprs[exprs.length - 4].getSingle(null)).floatValue();
-			dY = ((Number) exprs[exprs.length - 3].getSingle(null)).floatValue();
-			dZ = ((Number) exprs[exprs.length - 2].getSingle(null)).floatValue();
-		}
-
-		if ((parseResult.mark & 2) != 0) {
-			speed = ((Number) exprs[exprs.length - 1].getSingle(null)).floatValue();
-		}
-
-		return true;
+	public VisualEffect(VisualEffectType type, Object[] data, float speed, float dX, float dY, float dZ) {
+		this.type = type;
+		this.data = data;
+		this.speed = speed;
+		this.dX = dX;
+		this.dY = dY;
+		this.dZ = dZ;
 	}
 
 	public void play(@Nullable Player[] ps, Location l, @Nullable Entity e, int count, int radius) {
@@ -93,7 +77,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 
 			// Check that data has correct type (otherwise bad things will happen)
 			if (data != null && !particle.getDataType().isAssignableFrom(data.getClass())
-				&& !(data instanceof ParticleOption)) {
+					&& !(data instanceof ParticleOption)) {
 				data = null;
 				if (Skript.debug())
 					Skript.warning("Incompatible particle data, resetting it!");
@@ -150,7 +134,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, data);
+		return Objects.hash(type, Arrays.hashCode(data));
 	}
 
 	@Override
@@ -160,7 +144,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		VisualEffect that = (VisualEffect) o;
-		return type == that.type && Objects.equals(data, that.data);
+		return type == that.type && Arrays.equals(data, that.data);
 	}
 	
 }

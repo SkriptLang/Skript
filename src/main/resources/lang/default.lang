@@ -1416,7 +1416,7 @@ visual effects:
 			pattern: guardian target [with laser]
 		shield_block:
 			name: block with shield @-
-			pattern: (block [with a shield]|shield block)
+			pattern: (block with a shield|shield block)
 		shield_break:
 			name: shield break @a
 			pattern: shield break
@@ -1507,7 +1507,7 @@ visual effects:
 			pattern: cloud
 		redstone:
 			name: coloured dust @-
-			pattern: [%-color%] [colo[u]red] dust
+			pattern: [%-color%] [colo[u]red] dust [with size %-number%]
 		snowball:
 			name: snowball break @a
 			pattern: snowball break
@@ -1681,12 +1681,12 @@ visual effects:
 		light:
 			name: light @-
 			pattern: light
-		#dust_color_transition:
-			#name: dust color transition @a
-			#pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-number%]
-		#vibration:
-			#name: vibration @a
-			#pattern: vibration
+		dust_color_transition:
+			name: dust color transition @-
+			pattern: %color% dust [with size %-number%] fading to %color%
+		vibration:
+			name: vibration @-
+			pattern: vibration from %location% to %entity/location% in %timespan%
 		falling_spore_blossom:
 			name: falling spore blossom @-
 			pattern: falling spore blossom
