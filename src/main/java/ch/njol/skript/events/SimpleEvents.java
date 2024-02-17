@@ -536,12 +536,14 @@ public class SimpleEvents {
 				.since("2.5");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
-			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armor change[d]")
+			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armo[u]r change[d]")
 				.description("Called when armor pieces of a player are changed.")
 				.requiredPlugins("Paper")
-				.examples("on armor change:",
-					"	send \"You equipped %event-item%!\"")
-				.since("2.5");
+				.keywords("armour")
+				.examples(
+						"on armor change:",
+							"\tsend \"You equipped %event-item%!\""
+				).since("2.5");
 		}
 		if (Skript.classExists("org.bukkit.event.block.SpongeAbsorbEvent")) {
 			Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")
