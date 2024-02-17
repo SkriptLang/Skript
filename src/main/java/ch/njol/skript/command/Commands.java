@@ -162,6 +162,7 @@ public abstract class Commands {
 				event.setCancelled(true);
 		}
 
+		@SuppressWarnings("null")
 		@EventHandler(priority = EventPriority.HIGHEST)
 		public void onServerCommand(ServerCommandEvent event) {
 			if (event.getCommand().isEmpty() || event.isCancelled())
