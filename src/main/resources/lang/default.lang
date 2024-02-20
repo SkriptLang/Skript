@@ -714,7 +714,7 @@ entities:
 		pattern: [thrown] bottle(|1¦s) o(f|') enchanting|[e]xp[erience] bottle(|1¦s)
 	tnt:
 		name: TNT
-		pattern: ([primed] TNT(2¦|1¦s)|TNT entit(y|1¦ies))
+		pattern: ([primed] TNT(2¦|1¦s)|TNT entit(y|1¦ies)) [(timed|with fuse time) %-timespan%]
 	villager:
 		name: villager¦s
 		pattern: <age> villager(|1¦s)|(4¦)[villager] (kid(|1¦s)|child(|1¦ren))

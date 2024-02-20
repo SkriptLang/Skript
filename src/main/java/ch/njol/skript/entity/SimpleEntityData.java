@@ -118,7 +118,6 @@ import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.Stray;
 import org.bukkit.entity.Strider;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tadpole;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.ThrownExpBottle;
@@ -229,7 +228,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("snow golem", Snowman.class);
 		addSimpleEntity("spider", Spider.class);
 		addSimpleEntity("bottle of enchanting", ThrownExpBottle.class);
-		addSimpleEntity("tnt", TNTPrimed.class);
 		addSimpleEntity("leash hitch", LeashHitch.class);
 		addSimpleEntity("item frame", ItemFrame.class);
 		addSimpleEntity("bat", Bat.class);
