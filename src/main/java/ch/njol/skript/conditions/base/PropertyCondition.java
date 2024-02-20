@@ -28,6 +28,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern,
@@ -83,14 +86,67 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		WILL
 	}
 
-	private Expression<? extends T> expr;
+	/**
+	 * @param registry the SyntaxRegistry to register this PropertyCondition with.
+	 * @param condition the class to register
+	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 */
+	@ApiStatus.Experimental
+	public static void register(SyntaxRegistry registry, Class<? extends Condition> condition, String property, String type) {
+		register(registry, condition, PropertyType.BE, property, type);
+	}
+
+	/**
+	 * @param registry the SyntaxRegistry to register this PropertyCondition with.
+	 * @param condition the class to register
+	 * @param propertyType the property type, see {@link PropertyType}
+	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 */
+	@ApiStatus.Experimental
+	public static void register(SyntaxRegistry registry, Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
+		if (type.contains("%"))
+			throw new SkriptAPIException("The type argument must not contain any '%'s");
+		SyntaxInfo.Builder<?, ? extends Condition> builder = SyntaxInfo.builder(condition);
+		switch (propertyType) {
+			case BE:
+				builder.addPatterns(
+					"%" + type + "% (is|are) " + property,
+					"%" + type + "% (isn't|is not|aren't|are not) " + property
+				);
+				break;
+			case CAN:
+				builder.addPatterns(
+					"%" + type + "% can " + property,
+					"%" + type + "% (can't|cannot|can not) " + property
+				);
+				break;
+			case HAVE:
+				builder.addPatterns(
+					"%" + type + "% (has|have) " + property,
+					"%" + type + "% (doesn't|does not|do not|don't) have " + property
+				);
+				break;
+			case WILL:
+				builder.addPatterns(
+					"%" + type + "% will " + property,
+					"%" + type + "% (will (not|neither)|won't) " + property
+				);
+				break;
+			default:
+				assert false;
+		}
+		registry.register(SyntaxRegistry.CONDITION, builder.build());
+	}
 
 	/**
 	 * @param condition the class to register
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @deprecated Use {@link #register(SyntaxRegistry, Class, String, String)}.
 	 */
-
+	@Deprecated
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
@@ -100,8 +156,9 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @deprecated Use {@link #register(SyntaxRegistry, Class, PropertyType, String, String)}.
 	 */
-
+	@Deprecated
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
@@ -131,6 +188,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 				assert false;
 		}
 	}
+
+	private Expression<? extends T> expr;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

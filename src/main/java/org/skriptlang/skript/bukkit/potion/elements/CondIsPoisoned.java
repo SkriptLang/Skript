@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.potion.elements;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
@@ -26,30 +26,30 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Poisoned")
 @Description("Checks whether an entity is poisoned.")
-@Examples({"player is poisoned:",
-		"	cure the player from poison",
-		"	message \"You have been cured!\""})
+@Examples({
+	"if the player is poisoned:",
+		"\tcure the player from poison",
+		"\tmessage \"You have been cured!\" to the player"
+})
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
-	
-	static {
-		register(CondIsPoisoned.class, "poisoned", "livingentities");
+
+	public static void register(SyntaxRegistry registry) {
+		register(registry, CondIsPoisoned.class, "poisoned", "livingentities");
 	}
-	
+
 	@Override
-	public boolean check(final LivingEntity e) {
-		return e.hasPotionEffect(PotionEffectType.POISON);
+	public boolean check(LivingEntity entity) {
+		return entity.hasPotionEffect(PotionEffectType.POISON);
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "poisoned";
 	}
-	
+
 }

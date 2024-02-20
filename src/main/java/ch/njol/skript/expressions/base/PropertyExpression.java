@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -30,6 +31,8 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 
@@ -44,14 +47,59 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
 	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
-	 * 
+	 *
+	 * @param registry the SyntaxRegistry to register this PropertyExpression with.
 	 * @param expressionClass the PropertyExpression class being registered.
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
 	 */
+	@ApiStatus.Experimental
+	public static <T> void register(SyntaxRegistry registry, Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, type)
+				.expressionType(ExpressionType.PROPERTY)
+				.addPatterns(
+						"[the] " + property + " of %" + fromType + "%",
+						"%" + fromType + "%'[s] " + property
+				)
+				.build()
+		);
+	}
+
+	/**
+	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
+	 * 
+	 * @param expressionClass the PropertyExpression class being registered.
+	 * @param type the main expression type the property is based off of.
+	 * @param property the name of the property.
+	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #register(SyntaxRegistry, Class, Class, String, String)}.
+	 */
+	@Deprecated
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+	}
+
+	/**
+	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property [of %types%]" and "%types%'[s] property"
+	 * This method also makes the expression type optional to force a default expression on the property expression.
+	 *
+	 * @param registry the SyntaxRegistry to register this PropertyExpression with.
+	 * @param expressionClass the PropertyExpression class being registered.
+	 * @param type the main expression type the property is based off of.
+	 * @param property the name of the property.
+	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 */
+	@ApiStatus.Experimental
+	public static <T> void registerDefault(SyntaxRegistry registry, Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, type)
+				.expressionType(ExpressionType.PROPERTY)
+				.addPatterns(
+						"[the] " + property + " [of %" + fromType + "%]",
+						"%" + fromType + "%'[s] " + property
+				)
+				.build()
+		);
 	}
 
 	/**
@@ -62,7 +110,9 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param type the main expression type the property is based off of.
 	 * @param property the name of the property.
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
+	 * @deprecated Use {@link #registerDefault(SyntaxRegistry, Class, Class, String, String)}.
 	 */
+	@Deprecated
 	public static <T> void registerDefault(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " [of %" + fromType + "%]", "%" + fromType + "%'[s] " + property);
 	}

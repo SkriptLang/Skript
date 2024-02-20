@@ -29,11 +29,17 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.localization.Localizer;
 
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
+ * @deprecated Use {@link org.skriptlang.skript.addon.SkriptAddon}.
  */
-public final class SkriptAddon {
+@Deprecated
+@ApiStatus.NonExtendable
+public class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddon {
 
 	public final JavaPlugin plugin;
 	public final Version version;
@@ -62,7 +68,7 @@ public final class SkriptAddon {
 
 	@Override
 	public final String toString() {
-		return name;
+		return getName();
 	}
 
 	public String getName() {
@@ -85,6 +91,8 @@ public final class SkriptAddon {
 
 	@Nullable
 	private String languageFileDirectory = null;
+	@Nullable
+	private Localizer localizer = null;
 
 	/**
 	 * Makes Skript load language files from the specified directory, e.g. "lang" or "skript lang" if you have a lang folder yourself. Localised files will be read from the
@@ -100,6 +108,7 @@ public final class SkriptAddon {
 		if (directory.endsWith("/"))
 			directory = "" + directory.substring(0, directory.length() - 1);
 		languageFileDirectory = directory;
+		localizer = Localizer.of(languageFileDirectory, plugin.getDataFolder().getAbsolutePath());
 		Language.loadDefault(this);
 		return this;
 	}
@@ -124,6 +133,35 @@ public final class SkriptAddon {
 		if (file == null)
 			file = Utils.getFile(plugin);
 		return file;
+	}
+
+	@Override
+	public String name() {
+		return getName();
+	}
+
+	@Override
+	@Nullable
+	public Localizer localizer() {
+		return localizer;
+	}
+
+	@ApiStatus.Internal
+	static SkriptAddon fromModern(org.skriptlang.skript.addon.SkriptAddon addon) {
+		return new SkriptAddon(JavaPlugin.getProvidingPlugin(addon.getClass())) {
+			@Override
+			public String getName() {
+				return addon.name();
+			}
+			@Override
+			public SkriptAddon setLanguageFileDirectory(String directory) {
+				throw new UnsupportedOperationException("The language file may not be set.");
+			}
+			@Override
+			public Localizer localizer() {
+				return addon.localizer();
+			}
+		};
 	}
 
 }
