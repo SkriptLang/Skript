@@ -50,6 +50,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.debug.Debuggers;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
@@ -262,6 +263,7 @@ public class SkriptParser {
 							}
 							T element = info.getElementClass().newInstance();
 							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
+								Debuggers.onParse(element);
 								log.printLog();
 								return element;
 							}

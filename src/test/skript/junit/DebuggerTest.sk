@@ -1,0 +1,8 @@
+test "DebuggerTest" when running JUnit:
+	ensure junit test "org.skriptlang.skript.test.tests.debug.DebuggerTest" completes "debugging ended"
+
+function DebuggerTest_main():
+	junit test is "org.skriptlang.skript.test.tests.debug.DebuggerTest"
+	set {_test} to 1
+	set {_test} to 2
+	complete objective "debugging ended" for junit test "org.skriptlang.skript.test.tests.debug.DebuggerTest"

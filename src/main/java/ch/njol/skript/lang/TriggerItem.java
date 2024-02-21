@@ -23,6 +23,7 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.debug.Debuggers;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -84,8 +85,10 @@ public abstract class TriggerItem implements Debuggable {
 	public static boolean walk(TriggerItem start, Event event) {
 		TriggerItem triggerItem = start;
 		try {
-			while (triggerItem != null)
+			while (triggerItem != null) {
+				Debuggers.onWalk(triggerItem, event);
 				triggerItem = triggerItem.walk(event);
+			}
 
 			return true;
 		} catch (StackOverflowError err) {
