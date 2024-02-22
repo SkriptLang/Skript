@@ -44,7 +44,7 @@ public class CondIsRinging extends PropertyCondition<Block> {
 
 	@Override
 	public boolean check(Block value) {
-		BlockState state = value.getState();
+		BlockState state = value.getState(false);
 		return state instanceof Bell && ((Bell) state).isShaking();
 	}
 
