@@ -48,7 +48,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"function divide(i: number) returns number:",
 		"\treturn {_i} / 2"
 })
-@Since("2.2, INSERT VERSION (returns aliases)")
+@Since("2.2, 2.8.0 (returns aliases)")
 public class EffReturn extends Effect {
 	
 	static {

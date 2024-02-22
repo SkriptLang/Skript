@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Events("Inventory Close")
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {
 	
 	static {
