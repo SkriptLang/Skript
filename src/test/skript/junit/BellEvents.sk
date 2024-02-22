@@ -1,0 +1,20 @@
+test "BellEventsTest" when running JUnit:
+    if running below minecraft "1.19.4":
+        complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    else:
+        set {_slashIndex} to last index of "/" in "%script%.sk"
+        set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+        load script "%{_parent}%-BellEventsResonate.sk"
+
+    ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell resonates"
+    ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell rings"
+
+on script unload:
+    set {_slashIndex} to last index of "/" in "%script%.sk"
+    set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+    disable script "%{_parent}%BellEventsResonate.sk"
+
+on bell ringing:
+    junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    assert ringing time of event-block is set
+    complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"

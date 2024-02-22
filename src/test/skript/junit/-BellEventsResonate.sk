@@ -1,0 +1,4 @@
+on bell resonating:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+	complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+	assert size of event-entities is greater than or equal to 1 with "bell did not reveal the pillager"
