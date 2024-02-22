@@ -1201,7 +1201,7 @@ public class SkriptParser {
 		if (startIndex >= haystackLength)
 			return -1;
 
-		int needleLength = caseSensitive ? -1 : needle.length();
+		int needleLength = needle.length();
 
 		char firstChar = needle.charAt(0);
 		boolean startsWithSpecialChar = firstChar == '"' || firstChar == '{' || firstChar == '(';
@@ -1212,8 +1212,7 @@ public class SkriptParser {
 
 			if ( // Early check before special character handling
 				startsWithSpecialChar &&
-				caseSensitive ? haystack.startsWith(needle, startIndex)
-				: haystack.regionMatches(true, startIndex, needle, 0, needleLength)
+				haystack.regionMatches(!caseSensitive, startIndex, needle, 0, needleLength)
 			) {
 				return startIndex;
 			}
@@ -1236,12 +1235,8 @@ public class SkriptParser {
 					break;
 			}
 
-			if (
-				caseSensitive ? haystack.startsWith(needle, startIndex)
-				: haystack.regionMatches(true, startIndex, needle, 0, needleLength)
-			) {
+			if (haystack.regionMatches(!caseSensitive, startIndex, needle, 0, needleLength))
 				return startIndex;
-			}
 
 			startIndex++;
 		}
