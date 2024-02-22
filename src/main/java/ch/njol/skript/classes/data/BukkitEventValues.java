@@ -730,10 +730,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketEmptyEvent e) {
-				if (e instanceof Waterlogged) {
-					return e.getBlockClicked();
-				}
-				return e.getBlockClicked().getRelative(e.getBlockFace());
+				return e.getBlock();
 			}
 		}, -1);
 		ItemType stationaryLava = Aliases.javaItemType("stationary lava");
