@@ -1,3 +1,7 @@
+on bell ringing:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    assert ringing time of event-block is set
+
 on bell resonating:
 	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
 	complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
