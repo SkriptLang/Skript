@@ -41,11 +41,14 @@ import java.util.Set;
 
 public class BellEventsTest extends SkriptJUnitTest {
 
+	private static final boolean canRun = Skript.classExists("org.bukkit.block.Bell");
+
 	private Block bell;
 	private LivingEntity pillager;
 
 	@Before
 	public void setUp() {
+		if (!canRun) return;
 		this.bell = setBlock(Material.BELL);
 		this.pillager = getTestWorld().spawn(bell.getLocation().add(0, 1, 0), Pillager.class);
 		setShutdownDelay(1);
@@ -53,6 +56,7 @@ public class BellEventsTest extends SkriptJUnitTest {
 	
 	@Test
 	public void testEvents() {
+		if (!canRun) return;
 		Set<Event> events = new HashSet<>();
 		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
 			events.add(new BellRingEvent(this.bell, BlockFace.EAST, null));

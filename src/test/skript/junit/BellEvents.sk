@@ -1,9 +1,14 @@
 test "BellEventsTest" when running JUnit:
+    set {_slashIndex} to last index of "/" in "%script%.sk"
+    set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+
     if running below minecraft "1.19.4":
         complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+        if running below minecraft "1.16.5":
+            complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+        else:
+            load script "%{_parent}%-BellEventsPaper.sk"
     else:
-        set {_slashIndex} to last index of "/" in "%script%.sk"
-        set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
         load script "%{_parent}%-BellEventsSpigot.sk"
 
     ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell resonates"
@@ -13,7 +18,4 @@ on script unload:
     set {_slashIndex} to last index of "/" in "%script%.sk"
     set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
     disable script "%{_parent}%BellEventsSpigot.sk"
-
-on bell ringing:
-    junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
-    complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    disable script "%{_parent}%BellEventsPaper.sk"
