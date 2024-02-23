@@ -37,7 +37,7 @@ import org.bukkit.block.BlockState;
 public class CondIsRinging extends PropertyCondition<Block> {
 
 	static {
-		if (Skript.methodExists(Bell.class, "isShaking")) {
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "isShaking")) {
 			register(CondIsRinging.class, PropertyType.BE, "ringing", "blocks");
 		}
 	}

@@ -49,10 +49,12 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class EffRing extends Effect {
 	static {
-		Skript.registerEffect(EffRing.class,
-			"ring %blocks% [from [the]] [%-direction%]",
-			"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
-		);
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class)) {
+			Skript.registerEffect(EffRing.class,
+				"ring %blocks% [from [the]] [%-direction%]",
+				"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
+			);
+		}
 	}
 
 	@Nullable

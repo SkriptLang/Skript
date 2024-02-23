@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
-		if (Skript.methodExists(Bell.class, "getResonatingTicks")) {
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getResonatingTicks")) {
 			register(ExprResonatingTime.class, Timespan.class, "resonat(e|ing) time", "block");
 		}
 	}
