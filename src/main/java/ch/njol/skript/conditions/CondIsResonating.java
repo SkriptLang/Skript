@@ -29,7 +29,7 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-@Name("Is Resonating")
+@Name("Bell Is Resonating")
 @Description({
 	"Checks to see if a bell is currently resonating.",
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."

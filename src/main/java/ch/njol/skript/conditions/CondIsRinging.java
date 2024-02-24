@@ -29,7 +29,7 @@ import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-@Name("Is Ringing")
+@Name("Bell Is Ringing")
 @Description("Checks to see if a bell is currently ringing. A bell typically rings for 50 game ticks.")
 @Examples("target block is ringing")
 @RequiredPlugins("Spigot 1.19.4+")
