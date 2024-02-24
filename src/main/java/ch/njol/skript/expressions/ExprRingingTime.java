@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"A bell typically rings for 50 game ticks."
 })
 @Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
-@RequiredPlugins("Minecraft 1.19.4+")
+@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 

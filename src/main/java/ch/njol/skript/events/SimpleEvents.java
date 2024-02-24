@@ -755,13 +755,13 @@ public class SimpleEvents {
 
 			if (eventClass != null) {
 				Skript.registerEvent("Bell Ring", SimpleEvent.class, eventClass, "bell ring[ing]")
-					.description("Called when a bell is rung.")
-					.examples(
-						"on bell ring:",
-						"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
-					)
-					.since("INSERT VERSION")
-					.requiredPlugins("Minecraft 1.19.4+ or Paper 1.16.5+");
+						.description("Called when a bell is rung.")
+						.examples(
+							"on bell ring:",
+								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
+						)
+						.since("INSERT VERSION")
+						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+");
 			}
 		}
 
@@ -773,13 +773,13 @@ public class SimpleEvents {
 		* */
 		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
 			Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
-				.description("Called when a bell resonates, highlighting nearby raiders.")
-				.examples(
-					"on bell resonate:",
-					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 of event-block"
-				)
-				.since("INSERT VERSION")
-				.requiredPlugins("Minecraft 1.19.4+");
+					.description("Called when a bell resonates, highlighting nearby raiders.")
+					.examples(
+						"on bell resonate:",
+							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Spigot 1.19.4+");
 		}
 	}
 

@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
 @Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
-@RequiredPlugins("Minecraft 1.19.4+")
+@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 

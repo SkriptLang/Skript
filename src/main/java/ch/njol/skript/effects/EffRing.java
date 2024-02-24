@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"By default, the bell will ring in the direction it is facing.",
 })
 @Examples({"make player ring target-block"})
-@RequiredPlugins("Minecraft 1.19.4+")
+@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class EffRing extends Effect {
 	static {

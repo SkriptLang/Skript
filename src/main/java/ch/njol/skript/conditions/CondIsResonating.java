@@ -35,7 +35,7 @@ import org.bukkit.block.BlockState;
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
 @Examples("target block is resonating")
-@RequiredPlugins("Minecraft 1.19.4+")
+@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class CondIsResonating extends PropertyCondition<Block> {
 
