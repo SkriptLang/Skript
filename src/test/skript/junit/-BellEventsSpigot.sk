@@ -1,0 +1,10 @@
+# This file contains tests we can run on Spigot 1.19.4+
+
+on bell ringing:
+    junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+
+on bell resonating:
+    junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+    assert size of event-entities is greater than or equal to 1 with "bell did not reveal the pillager"
