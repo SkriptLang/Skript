@@ -48,7 +48,8 @@ public class BellEventsTest extends SkriptJUnitTest {
 
 	@Before
 	public void setUp() {
-		if (!canRun) return;
+		if (!canRun)
+			return;
 		this.bell = setBlock(Material.BELL);
 		this.pillager = getTestWorld().spawn(bell.getLocation().add(0, 1, 0), Pillager.class);
 		setShutdownDelay(1);
@@ -56,7 +57,8 @@ public class BellEventsTest extends SkriptJUnitTest {
 	
 	@Test
 	public void testEvents() {
-		if (!canRun) return;
+		if (!canRun)
+			return;
 		Set<Event> events = new HashSet<>();
 		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
 			events.add(new BellRingEvent(this.bell, BlockFace.EAST, null));
@@ -83,13 +85,11 @@ public class BellEventsTest extends SkriptJUnitTest {
 
 		}
 
-		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent"))
 			events.add(new BellResonateEvent(this.bell, Collections.singletonList(this.pillager)));
-		}
 
-		for (Event event : events) {
+		for (Event event : events)
 			Bukkit.getPluginManager().callEvent(event);
-		}
 	}
 
 }

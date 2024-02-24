@@ -49,12 +49,11 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 public class EffRing extends Effect {
 	static {
-		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class)) {
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class))
 			Skript.registerEffect(EffRing.class,
-				"ring %blocks% [from [the]] [%-direction%]",
-				"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
+					"ring %blocks% [from [the]] [%-direction%]",
+					"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
 			);
-		}
 	}
 
 	@Nullable
@@ -66,8 +65,8 @@ public class EffRing extends Effect {
 	@Nullable
 	private Expression<Direction> direction;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		entity = matchedPattern == 0 ? null : (Expression<Entity>) exprs[0];
 		blocks = (Expression<Block>) exprs[matchedPattern];
@@ -77,12 +76,14 @@ public class EffRing extends Effect {
 
 	@Nullable
 	private BlockFace getBlockFace(Event event) {
-		if (direction == null) return null;
+		if (this.direction == null)
+			return null;
 
-		Direction dir = direction.getSingle(event);
-		if (dir == null) return null;
+		Direction direction = this.direction.getSingle(event);
+		if (direction == null)
+			return null;
 
-		return Direction.getFacing(dir.getDirection(), true);
+		return Direction.getFacing(direction.getDirection(), true);
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public class EffRing extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return (entity != null ? "make " + entity.toString(e, debug) + " " : "")
-			+ "ring " + blocks.toString(e, debug) + " from " + (direction != null ? direction.toString(e, debug) : "");
+		return (entity != null ? "make " + entity.toString(e, debug) + " " : "") +
+				"ring " + blocks.toString(e, debug) + " from " + (direction != null ? direction.toString(e, debug) : "");
 	}
 }

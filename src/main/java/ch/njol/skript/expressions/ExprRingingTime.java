@@ -41,9 +41,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
-		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getShakingTicks")) {
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getShakingTicks"))
 			register(ExprRingingTime.class, Timespan.class, "ring[ing] time", "block");
-		}
 	}
 
 	@Override

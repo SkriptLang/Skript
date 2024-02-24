@@ -40,9 +40,8 @@ import org.bukkit.block.BlockState;
 public class CondIsResonating extends PropertyCondition<Block> {
 
 	static {
-		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "isResonating")) {
-			register(CondIsResonating.class, PropertyType.BE, "resonating", "blocks");
-		}
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "isResonating"))
+			register(CondIsResonating.class, "resonating", "blocks");
 	}
 
 	@Override
