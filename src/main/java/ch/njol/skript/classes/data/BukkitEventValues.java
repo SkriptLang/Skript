@@ -737,7 +737,7 @@ public final class BukkitEventValues {
 			@Override
 			public Block get(final PlayerBucketEmptyEvent e) {
 				final BlockState s = e.getBlockClicked().getRelative(e.getBlockFace()).getState();
-				s.setType(e.getBucket() == Material.WATER_BUCKET ? stationaryWater.getMaterial() : stationaryLava.getMaterial());
+				s.setType(e.getBucket() == Material.LAVA_BUCKET ? stationaryLava.getMaterial() : stationaryWater.getMaterial());
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
 			}
