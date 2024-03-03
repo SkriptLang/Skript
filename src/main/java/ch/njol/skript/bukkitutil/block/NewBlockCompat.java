@@ -30,12 +30,10 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.NonNull;
@@ -325,16 +323,13 @@ public class NewBlockCompat implements BlockCompat {
 	}
 	
 	private NewBlockSetter setter = new NewBlockSetter();
-	
+
 	@Nullable
 	@Override
-	public BlockValues getBlockValues(BlockState block) {
-		// If block doesn't have useful data, data field of type is MaterialData
-		if (block.getType().isBlock())
-			return new NewBlockValues(block.getType(), block.getBlockData(), false);
-		return null;
+	public BlockValues getBlockValues(BlockData blockData) {
+		return new NewBlockValues(blockData.getMaterial(), blockData, false);
 	}
-	
+
 	@Override
 	@Nullable
 	public BlockValues getBlockValues(ItemStack stack) {
@@ -349,13 +344,6 @@ public class NewBlockCompat implements BlockCompat {
 	@Override
 	public BlockSetter getSetter() {
 		return setter;
-	}
-
-	@Override
-	public BlockState fallingBlockToState(FallingBlock entity) {
-		BlockState state = entity.getWorld().getBlockAt(0, 0, 0).getState();
-		state.setBlockData(entity.getBlockData());
-		return state;
 	}
 
 	@Override

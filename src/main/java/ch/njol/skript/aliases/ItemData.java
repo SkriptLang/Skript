@@ -30,7 +30,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemFlag;
@@ -188,15 +188,15 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		this(stack, BlockCompat.INSTANCE.getBlockValues(stack));
 		this.itemForm = true;
 	}
-	
-	public ItemData(BlockState block) {
-		this.type = ItemUtils.asItem(block.getType());
+
+	public ItemData(BlockData blockData) {
+		this.type = blockData.getMaterial();
 		this.stack = new ItemStack(type);
-		this.blockValues = BlockCompat.INSTANCE.getBlockValues(block);
+		this.blockValues = BlockCompat.INSTANCE.getBlockValues(blockData);
 	}
 	
 	public ItemData(Block block) {
-		this(block.getState());
+		this(block.getBlockData());
 	}
 	
 	/**

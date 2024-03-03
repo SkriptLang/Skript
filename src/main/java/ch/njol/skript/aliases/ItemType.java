@@ -41,8 +41,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -184,10 +184,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		add_(new ItemData(i));
 	}
 
-	public ItemType(BlockState b) {
-//		amount = 1;
-		add_(new ItemData(b));
-		// TODO metadata - spawners, skulls, etc.
+	public ItemType(BlockData blockData) {
+		add_(new ItemData(blockData));
 	}
 
 	/**
@@ -211,7 +209,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	public ItemType(Block block) {
-		this(block.getState());
+		this(block.getBlockData());
 	}
 
 	/**
@@ -272,17 +270,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return isOfType(new ItemData(item));
 	}
 
-	public boolean isOfType(@Nullable BlockState block) {
-		if (block == null)
+	public boolean isOfType(@Nullable BlockData blockData) {
+		if (blockData == null)
 			return isOfType(Material.AIR, null);
 
-		return isOfType(new ItemData(block));
+		return isOfType(new ItemData(blockData));
 	}
 
 	public boolean isOfType(@Nullable Block block) {
 		if (block == null)
 			return isOfType(Material.AIR, null);
-		return isOfType(block.getState());
+		return isOfType(block.getBlockData());
 	}
 
 	public boolean isOfType(ItemData type) {
