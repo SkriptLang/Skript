@@ -118,6 +118,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -1797,6 +1798,39 @@ public final class BukkitEventValues {
 				return event.getTransformReason();
 			}
 		}, EventValues.TIME_NOW);
+
+		// InventoryMoveItemEvent
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getSource();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getDestination();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getSource().getLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getDestination().getLocation().getBlock();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, new Getter<ItemStack, InventoryMoveItemEvent>() {
+			@Override
+			public ItemStack get(InventoryMoveItemEvent event) {
+				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
+
 	}
 
 }
