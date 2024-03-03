@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
@@ -41,6 +42,17 @@ public interface BlockCompat {
 	BlockCompat INSTANCE = new NewBlockCompat();
 	
 	static final BlockSetter SETTER = INSTANCE.getSetter();
+
+	/**
+	 * Gets block values from a block state. They can be compared to other
+	 * values if needed, but cannot be used to retrieve any other data.
+	 * @param block Block state to retrieve value from.
+	 * @return Block values.
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 */
+	@Deprecated
+	@Nullable
+	BlockValues getBlockValues(BlockState block);
 	
 	/**
 	 * Gets block values from a block. They can be compared to other values
@@ -64,6 +76,15 @@ public interface BlockCompat {
 	 */
 	@Nullable
 	BlockValues getBlockValues(ItemStack stack);
+
+	/**
+	 * Creates a block state from a falling block.
+	 * @param entity Falling block entity
+	 * @return Block state.
+	 * @deprecated This shouldn't be used
+	 */
+	@Deprecated
+	BlockState fallingBlockToState(FallingBlock entity);
 
 	@Nullable
 	default BlockValues getBlockValues(FallingBlock entity) {

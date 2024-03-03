@@ -74,6 +74,19 @@ public class ItemUtils {
 			return null;
 		}
 	}
+
+	/**
+	 * Gets an item material corresponding to given block material, which might
+	 * be the given material.
+	 * @param type Material.
+	 * @return Item version of material or null.
+	 * @deprecated This just returns itself and has no use
+	 */
+	@Deprecated
+	public static Material asItem(Material type) {
+		// Assume (naively) that all types are valid items
+		return type;
+	}
 	
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.

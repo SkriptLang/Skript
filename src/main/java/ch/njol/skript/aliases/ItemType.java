@@ -41,6 +41,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
@@ -184,6 +185,14 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		add_(new ItemData(i));
 	}
 
+	/**
+	 * @deprecated Use {@link #ItemType(BlockData)} instead
+	 */
+	@Deprecated
+	public ItemType(BlockState blockState) {
+		this(blockState.getBlockData());
+	}
+
 	public ItemType(BlockData blockData) {
 		add_(new ItemData(blockData));
 	}
@@ -268,6 +277,15 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		if (item == null)
 			return isOfType(Material.AIR, null);
 		return isOfType(new ItemData(item));
+	}
+
+	/**
+	 * @deprecated use {@link #isOfType(BlockData)} instead
+	 */
+	@Deprecated
+	public boolean isOfType(@Nullable BlockState blockState) {
+		if (blockState == null) return false;
+		return isOfType(blockState.getBlockData());
 	}
 
 	public boolean isOfType(@Nullable BlockData blockData) {
