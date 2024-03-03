@@ -361,7 +361,7 @@ public class NewBlockCompat implements BlockCompat {
 	@Deprecated
 	@Override
 	public BlockState fallingBlockToState(FallingBlock entity) {
-		BlockState state = entity.getWorld().getBlockAt(0, 0, 0).getState();
+		BlockState state = entity.getLocation().getBlock().getState();
 		state.setBlockData(entity.getBlockData());
 		return state;
 	}
