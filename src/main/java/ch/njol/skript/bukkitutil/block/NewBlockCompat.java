@@ -326,7 +326,6 @@ public class NewBlockCompat implements BlockCompat {
 	
 	private NewBlockSetter setter = new NewBlockSetter();
 
-
 	/**
 	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
 	 */
@@ -354,17 +353,17 @@ public class NewBlockCompat implements BlockCompat {
 		return null;
 	}
 
+	@Override
+	public BlockSetter getSetter() {
+		return setter;
+	}
+
 	@Deprecated
 	@Override
 	public BlockState fallingBlockToState(FallingBlock entity) {
 		BlockState state = entity.getWorld().getBlockAt(0, 0, 0).getState();
 		state.setBlockData(entity.getBlockData());
 		return state;
-	}
-	
-	@Override
-	public BlockSetter getSetter() {
-		return setter;
 	}
 
 	@Override

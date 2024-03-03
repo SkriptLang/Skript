@@ -191,7 +191,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * @deprecated use {@link ItemData#ItemData(BlockData)} instead
+	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead
 	 */
 	@Deprecated
 	public ItemData(BlockState blockState) {

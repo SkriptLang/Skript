@@ -280,7 +280,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated use {@link #isOfType(BlockData)} instead
+	 * @deprecated Use {@link #isOfType(BlockData)} instead
 	 */
 	@Deprecated
 	public boolean isOfType(@Nullable BlockState blockState) {
