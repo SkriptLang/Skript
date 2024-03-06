@@ -522,12 +522,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Nullable
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
-		if (!canSpawn(location.getWorld()))
+		World world = location.getWorld();
+		if (world == null || !canSpawn(world))
 			return null;
 		if (consumer != null) {
 			return EntityData.spawn(location, getType(), e -> consumer.accept(this.apply(e)));
 		} else {
-			return apply(location.getWorld().spawn(location, getType()));
+			return apply(world.spawn(location, getType()));
 		}
 	}
 
