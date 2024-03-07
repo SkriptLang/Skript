@@ -472,7 +472,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world World to check if entity can spawn in
 	 * @return True if entity can spawn else false
 	 */
-	public boolean canSpawn(World world) {
+	public boolean canSpawn(@Nullable World world) {
+		if (world == null)
+			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
 			// Check if the entity can actually be spawned
 			// Some entity types may be restricted by experimental datapacks
@@ -523,7 +525,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
 		World world = location.getWorld();
-		if (world == null || !canSpawn(world))
+		if (!canSpawn(world))
 			return null;
 		if (consumer != null) {
 			return EntityData.spawn(location, getType(), e -> consumer.accept(this.apply(e)));
