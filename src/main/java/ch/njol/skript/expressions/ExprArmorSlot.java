@@ -56,11 +56,13 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	@Nullable
 	private EquipSlot slot;
 	private boolean explicitSlot;
+	private boolean isArmor;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		slot = parseResult.hasTag("armour") ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		isArmor = parseResult.hasTag("armour");
+		slot = isArmor ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
 		explicitSlot = parseResult.hasTag("slot"); // User explicitly asked for SLOT, not item
 		setExpr((Expression<? extends LivingEntity>) exprs[0]);
 		return true;
@@ -90,6 +92,11 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 				return null;
 			return new EquipmentSlot(equipment, slot, explicitSlot);
 		});
+	}
+
+	@Override
+	public boolean isSingle() {
+		return !isArmor && super.isSingle();
 	}
 
 	@Override
