@@ -284,8 +284,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	@Deprecated
 	public boolean isOfType(@Nullable BlockState blockState) {
-		if (blockState == null) return false;
-		return isOfType(blockState.getBlockData());
+		return blockState != null && isOfType(blockState.getBlockData());
 	}
 
 	public boolean isOfType(@Nullable BlockData blockData) {
