@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -79,7 +80,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 			} else {
 				block = player.getTargetBlock(null, distance);
 			}
-			if (block != null && block.getType() == Material.AIR)
+			if (block != null && ItemUtils.isAir(block.getType()))
 				return null;
 			return block;
 		});
