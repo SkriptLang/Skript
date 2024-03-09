@@ -51,4 +51,5 @@ public class CondIsRinging extends PropertyCondition<Block> {
 	protected String getPropertyName() {
 		return "ringing";
 	}
+
 }

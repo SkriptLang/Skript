@@ -48,6 +48,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class EffRing extends Effect {
+
 	static {
 		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class))
 			Skript.registerEffect(EffRing.class,
@@ -88,8 +89,8 @@ public class EffRing extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		@Nullable BlockFace blockFace = getBlockFace(event);
-		@Nullable Entity actualEntity = entity == null ? null : entity.getSingle(event);
+		BlockFace blockFace = getBlockFace(event);
+		Entity actualEntity = entity == null ? null : entity.getSingle(event);
 
 		for (Block block : blocks.getArray(event)) {
 			BlockState state = block.getState(false);
@@ -101,8 +102,9 @@ public class EffRing extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (entity != null ? "make " + entity.toString(e, debug) + " " : "") +
-				"ring " + blocks.toString(e, debug) + " from " + (direction != null ? direction.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return (entity != null ? "make " + entity.toString(event, debug) + " " : "") +
+				"ring " + blocks.toString(event, debug) + " from " + (direction != null ? direction.toString(event, debug) : "");
 	}
+
 }

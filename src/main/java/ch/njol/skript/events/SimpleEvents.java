@@ -770,7 +770,7 @@ public class SimpleEvents {
 		* The Paper event, however, is called for each raider, while the Spigot event is called once for all raiders.
 		* Supporting both would cause confusing behaviour, with the event being triggered in different ways depending
 		* on the server software and version, so we're only supporting the Spigot event.
-		* */
+		*/
 		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
 			Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
 					.description("Called when a bell resonates, highlighting nearby raiders.")

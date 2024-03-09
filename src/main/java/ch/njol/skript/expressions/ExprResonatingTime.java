@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"Returns the resonating time of a bell.",
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
-@Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
+@Examples("broadcast \"The bell has been resonating for %resonating time of target block%\"")
 @RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
@@ -47,12 +47,12 @@ public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan
 	}
 
 	@Override
-	public @Nullable Timespan convert(Block from) {
+	@Nullable
+	public Timespan convert(Block from) {
 		if (from.getState() instanceof Bell) {
 			int resonatingTicks = ((Bell) from.getState(false)).getResonatingTicks();
 			return resonatingTicks == 0 ? null : Timespan.fromTicks(resonatingTicks);
 		}
-
 		return null;
 	}
 
@@ -65,4 +65,5 @@ public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
+
 }

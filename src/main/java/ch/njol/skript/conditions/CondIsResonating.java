@@ -54,4 +54,5 @@ public class CondIsResonating extends PropertyCondition<Block> {
 	protected String getPropertyName() {
 		return "resonating";
 	}
+
 }

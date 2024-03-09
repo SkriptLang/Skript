@@ -51,7 +51,6 @@ public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 			int shakingTicks = ((Bell) from.getState(false)).getShakingTicks();
 			return shakingTicks == 0 ? null : Timespan.fromTicks(shakingTicks);
 		}
-
 		return null;
 	}
 
@@ -64,4 +63,5 @@ public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
+
 }
