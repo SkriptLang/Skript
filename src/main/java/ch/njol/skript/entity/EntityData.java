@@ -95,7 +95,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
 	}
 
-	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(org.bukkit.entity.EntityType.class, "isEnabledByFeature", World.class);
+	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
 	public final static String LANGUAGE_NODE = "entities";
 
 	public final static Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
