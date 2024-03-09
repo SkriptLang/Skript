@@ -98,7 +98,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String block = getExpr().isSingle() ? "block" : "blocks";
-		return (this.actual ? "actual " : "") + "target " + block + " of " + getExpr().toString(event, debug);
+		return "the " + (this.actual ? "actual " : "") + "target " + block + " of " + getExpr().toString(event, debug);
 	}
 
 }
