@@ -761,7 +761,7 @@ public class SimpleEvents {
 								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
 						)
 						.since("INSERT VERSION")
-						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+");
+						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 			}
 		}
 
