@@ -80,7 +80,13 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		 * Indicates that the condition is in a form of <code>something will/be something</code>,
 		 * also possibly in the negated form
 		 */
-		WILL
+		WILL,
+		
+		/**
+		 * Indicates that the condition is in a form of <code>something should something</code>,
+		 * also possibly in the negated form
+		 */
+		SHOULD
 	}
 
 	private Expression<? extends T> expr;
@@ -126,6 +132,11 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 				Skript.registerCondition(condition,
 						"%" + type + "% will " + property,
 						"%" + type + "% (will (not|neither)|won't) " + property);
+				break;
+			case SHOULD:
+				Skript.registerCondition(condition,
+						"%" + type + "% should " + property,
+						"%" + type + "% (shouldn't|should not) " + property);
 				break;
 			default:
 				assert false;
@@ -182,6 +193,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 					return expr.toString(event, debug) + (condition.isNegated() ? " don't have " : " have ") + property;
 			case WILL:
 				return expr.toString(event, debug) + (condition.isNegated() ? " won't " : " will ") + "be " + property;
+			case SHOULD:
+				return expr.toString(event, debug) + (condition.isNegated() ? " shouldn't " : " should ") + property;
 			default:
 				assert false;
 				throw new AssertionError();
