@@ -63,24 +63,10 @@ public class BellEventsTest extends SkriptJUnitTest {
 		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
 			events.add(new BellRingEvent(this.bell, BlockFace.EAST, null));
 		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
-			final Map<Class<?>[], Object[]> constructorGuide = new HashMap<>();
-
-			constructorGuide.put(
-				new Class<?>[]{Block.class, BlockFace.class, Entity.class},
-				new Object[]{this.bell, BlockFace.EAST, null}
-			);
-
-			constructorGuide.put(
-				new Class<?>[]{Block.class, Entity.class},
-				new Object[]{this.bell, null}
-			);
-
-			for (Map.Entry<Class<?>[], Object[]> entry : constructorGuide.entrySet()) {
-				try {
-					events.add(io.papermc.paper.event.block.BellRingEvent.class.getConstructor(entry.getKey())
-							.newInstance(entry.getValue()));
-				} catch (ReflectiveOperationException ignored) {
-				}
+			try {
+				events.add(io.papermc.paper.event.block.BellRingEvent.class.getConstructor(Block.class, Entity.class)
+					.newInstance(this.bell, null));
+			} catch (ReflectiveOperationException ignored) {
 			}
 
 		}
