@@ -74,10 +74,11 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 		Integer distance = SkriptConfig.maxTargetBlockDistance.value();
 		return get(source, player -> {
 			Block block;
-			if (actual)
+			if (actual) {
 				block = player.getTargetBlockExact(distance);
-			else
+			} else {
 				block = player.getTargetBlock(null, distance);
+			}
 			if (block != null && block.getType() == Material.AIR)
 				return null;
 			return block;
