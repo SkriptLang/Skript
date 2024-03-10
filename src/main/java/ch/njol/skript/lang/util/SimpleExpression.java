@@ -62,6 +62,11 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return values[0];
 	}
 
+  /**
+	 * {@inheritDoc}
+	 * <p>
+	 * Unlike {@link #get(Event)} you have to make sure that the this method's returned array is neither null nor contains null elements.
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public T[] getAll(Event event) {
