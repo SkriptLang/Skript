@@ -460,10 +460,15 @@ public abstract class SQLStorage extends VariablesStorage {
 					assert value == null;
 					final PreparedStatement deleteQuery = this.deleteQuery;
 					assert deleteQuery != null;
+
+					String escapedName = name
+						.replaceAll("%", "\\\\%")
+						.replaceAll("_", "\\\\_");
+
 					if (name.endsWith("::*")) {
-						deleteQuery.setString(1,name.substring(0,name.length()-1) + "%");
-					}else {
-						deleteQuery.setString(1, name);
+						deleteQuery.setString(1, escapedName.substring(0, name.length() - 2) + "%");
+					} else {
+						deleteQuery.setString(1, escapedName);
 					}
 
 					deleteQuery.executeUpdate();
