@@ -387,7 +387,7 @@ public abstract class SQLStorage extends VariablesStorage {
 					if (deleteQuery != null)
 						deleteQuery.close();
 				} catch (final SQLException e) {}
-				deleteQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE name LIKE ?");
+				deleteQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE name LIKE ? ESCAPE '\\'");
 
 				try {
 					if (monitorQuery != null)
@@ -461,16 +461,17 @@ public abstract class SQLStorage extends VariablesStorage {
 					final PreparedStatement deleteQuery = this.deleteQuery;
 					assert deleteQuery != null;
 
+					String backSlash = "\\\\";
 					String escapedName = name
-						.replaceAll("%", "\\\\%")
-						.replaceAll("_", "\\\\_");
+						.replaceAll(backSlash, backSlash.repeat(2))
+						.replaceAll("%", backSlash + "%")
+						.replaceAll("_", backSlash + "_");
 
 					if (name.endsWith("::*")) {
-						deleteQuery.setString(1, escapedName.substring(0, name.length() - 2) + "%");
+						deleteQuery.setString(1, escapedName.substring(0, name.length() - 1) + "%");
 					} else {
 						deleteQuery.setString(1, escapedName);
 					}
-
 					deleteQuery.executeUpdate();
 				} else {
 					int i = 1;
