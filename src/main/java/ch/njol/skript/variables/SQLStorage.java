@@ -78,7 +78,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	/**
 	 * Creates a SQLStorage with a create table query.
-	 * 
+	 *
 	 * @param name The name to be sent through this constructor when newInstance creates this class.
 	 * @param createTableQuery The create table query to send to the SQL engine.
 	 */
@@ -98,7 +98,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	/**
 	 * Initializes an SQL database with the user provided configuration section for loading the database.
-	 * 
+	 *
 	 * @param config The configuration from the config.sk that defines this database.
 	 * @return A Database implementation from SQLibrary.
 	 */
@@ -175,7 +175,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				if (!prepareQueries()) {
 					return false;
 				}
-				
+
 				// old
 				// Table name support was added after the verison that used the legacy database format
 				if (hasOldTable && !tableName.equals("variables")) {
@@ -387,7 +387,7 @@ public abstract class SQLStorage extends VariablesStorage {
 					if (deleteQuery != null)
 						deleteQuery.close();
 				} catch (final SQLException e) {}
-				deleteQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE name = ?");
+				deleteQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE name LIKE ?");
 
 				try {
 					if (monitorQuery != null)
@@ -460,7 +460,12 @@ public abstract class SQLStorage extends VariablesStorage {
 					assert value == null;
 					final PreparedStatement deleteQuery = this.deleteQuery;
 					assert deleteQuery != null;
-					deleteQuery.setString(1, name);
+					if (name.endsWith("::*")) {
+						deleteQuery.setString(1,name.substring(0,name.length()-1) + "%");
+					}else {
+						deleteQuery.setString(1, name);
+					}
+
 					deleteQuery.executeUpdate();
 				} else {
 					int i = 1;
