@@ -171,7 +171,7 @@ public class EffEquip extends Effect {
 							equipment.setLeggings(equip ? item : null);
 						} else if (BOOTS.isOfType(item)) {
 							equipment.setBoots(equip ? item : null);
-						} else if (HELMET.isOfType(item) || isHat) {
+						} else if (isHat || HELMET.isOfType(item)) {
 							// Apply all other items to head (if isHat), as all items will appear on a player's head
 							equipment.setHelmet(equip ? item : null);
 						} else {
