@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
@@ -33,123 +28,167 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.DefaultClasses;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
 
-/**
- * @author Peter Güttinger
- */
+import java.lang.reflect.Array;
+
 @Name("Difference")
-@Description("The difference between two values, e.g. <a href='../classes.html#number'>numbers</a>, <a href='../classes/#date'>dates</a> or <a href='../classes/#time'>times</a>.")
-@Examples({"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
-		"\tmessage \"You have to wait a minute before using this command again!\""})
+@Description({
+	"The difference between two values",
+	"Supported types include <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
+})
+@Examples({
+	"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
+		"\tmessage \"You have to wait a minute before using this command again!\""
+})
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
-	
+
 	static {
-		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED, "difference (between|of) %object% and %object%");
+		Skript.registerExpression(ExprDifference.class, Object.class, ExpressionType.COMBINED,
+				"difference (between|of) %object% and %object%"
+		);
 	}
-	
-	@SuppressWarnings("null")
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> first, second;
-	
-	@SuppressWarnings("rawtypes")
+
 	@Nullable
-	private Arithmetic math;
-	@SuppressWarnings("null")
-	private Class<?> relativeType;
-	
-	@SuppressWarnings({"unchecked", "null", "unused"})
+	@SuppressWarnings("rawtypes")
+	private DifferenceInfo differenceInfo;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		first = exprs[0];
-		second = exprs[1];
-		final ClassInfo<?> ci;
-		if (first instanceof Variable && second instanceof Variable) {
-			ci = DefaultClasses.OBJECT;
-		} else if (first instanceof Literal<?> && second instanceof Literal<?>) {
-			first = first.getConvertedExpression(Object.class);
-			second = second.getConvertedExpression(Object.class);
-			if (first == null || second == null)
-				return false;
-			ci = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
-		} else {
-			if (first instanceof Literal<?>) {
-				first = first.getConvertedExpression(second.getReturnType());
-				if (first == null)
-					return false;
-			} else if (second instanceof Literal<?>) {
-				second = second.getConvertedExpression(first.getReturnType());
-				if (second == null)
-					return false;
-			}
-			if (first instanceof Variable) {
-				first = first.getConvertedExpression(second.getReturnType());
-			} else if (second instanceof Variable) {
-				second = second.getConvertedExpression(first.getReturnType());
-			}
-			assert first != null && second != null;
-			ci = Classes.getSuperClassInfo(Utils.getSuperType(first.getReturnType(), second.getReturnType()));
-		}
-		assert ci != null;
-		if (!ci.getC().equals(Object.class) && ci.getMath() == null) {
-			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second), ErrorQuality.SEMANTIC_ERROR);
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		Expression<?> first = LiteralUtils.defendExpression(exprs[0]);
+		Expression<?> second = LiteralUtils.defendExpression(exprs[1]);
+		if (!LiteralUtils.canInitSafely(first, second)) {
 			return false;
 		}
-		if (ci.getC().equals(Object.class)) {
-			// Initialize less stuff, basically
-			relativeType = Object.class; // Relative math type would be null which the parser doesn't like
-		} else {
-			math = ci.getMath();
-			relativeType = ci.getMathRelativeType();
+
+		Class<?> firstReturnType = first.getReturnType();
+		Class<?> secondReturnType = second.getReturnType();
+		Class<?> superType = Utils.getSuperType(firstReturnType, secondReturnType);
+
+		boolean fail = false;
+
+		if (superType == Object.class && (firstReturnType != Object.class || secondReturnType != Object.class)) {
+			// We may not have a way to obtain the difference between these two values. Further checks needed.
+
+			// These two types are unrelated, meaning conversion is needed
+			if (firstReturnType != Object.class && secondReturnType != Object.class) {
+
+				// We will work our way out of failure
+				fail = true;
+
+				// Attempt to use first type's math
+				differenceInfo = Arithmetics.getDifferenceInfo(firstReturnType);
+				if (differenceInfo != null) { // Try to convert second to first
+					Expression<?> secondConverted = second.getConvertedExpression(firstReturnType);
+					if (secondConverted != null) {
+						second = secondConverted;
+						fail = false;
+					}
+				}
+
+				if (fail) { // First type won't work, try second type
+					differenceInfo = Arithmetics.getDifferenceInfo(secondReturnType);
+					if (differenceInfo != null) { // Try to convert first to second
+						Expression<?> firstConverted = first.getConvertedExpression(secondReturnType);
+						if (firstConverted != null) {
+							first = firstConverted;
+							fail = false;
+						}
+					}
+				}
+
+			} else { // It may just be the case that the type of one of our values cannot be known at parse time
+				Expression<?> converted;
+				if (firstReturnType == Object.class) {
+					converted = first.getConvertedExpression(secondReturnType);
+					if (converted != null) { // This may fail if both types are Object
+						first = converted;
+					}
+				} else { // This is an else statement to avoid X->Object conversions
+					converted = second.getConvertedExpression(firstReturnType);
+					if (converted != null) {
+						second = converted;
+					}
+				}
+
+				if (converted == null) { // It's unlikely that these two can be compared
+					fail = true;
+				} else { // Attempt to resolve a better class info
+					superType = Utils.getSuperType(first.getReturnType(), second.getReturnType());
+				}
+			}
+
 		}
+
+		if (superType != Object.class && (differenceInfo = Arithmetics.getDifferenceInfo(superType)) == null) {
+			fail = true;
+		}
+
+		if (fail) {
+			Skript.error("Can't get the difference of " + CondCompare.f(first) + " and " + CondCompare.f(second));
+			return false;
+		}
+
+		this.first = first;
+		this.second = second;
+
 		return true;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
-		final Object f = first.getSingle(e), s = second.getSingle(e);
-		if (f == null || s == null)
-			return null;
-		final Object[] one = (Object[]) Array.newInstance(relativeType, 1);
-		
-		// If we're comparing object expressions, such as variables, math is null right now
-		if (relativeType.equals(Object.class)) {
-			ClassInfo<?> info = Classes.getSuperClassInfo(Utils.getSuperType(f.getClass(), s.getClass()));
-			math = info.getMath();
-			if (math == null) { // User did something stupid, just return <none> for them
-				return one;
+	@SuppressWarnings("unchecked")
+	protected Object[] get(Event event) {
+		Object first = this.first.getSingle(event);
+		Object second = this.second.getSingle(event);
+		if (first == null || second == null) {
+			return new Object[0];
+		}
+
+		DifferenceInfo differenceInfo = this.differenceInfo;
+		if (differenceInfo == null) { // Try to determine now that actual types are known
+			Class<?> superType = Utils.getSuperType(first.getClass(), second.getClass());
+			differenceInfo = Arithmetics.getDifferenceInfo(superType);
+			if (differenceInfo == null) { // User did something stupid, just return <none> for them
+				return new Object[0];
 			}
 		}
-		
-		assert math != null; // NOW it cannot be null
-		one[0] = math.difference(f, s);
-		
+
+		assert differenceInfo != null; // it cannot be null here
+		Object[] one = (Object[]) Array.newInstance(differenceInfo.getReturnType(), 1);
+
+		one[0] = differenceInfo.getOperation().calculate(first, second);
+
 		return one;
 	}
-	
-	@Override
-	public Class<? extends Object> getReturnType() {
-		return relativeType;
-	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "difference between " + first.toString(e, debug) + " and " + second.toString(e, debug);
-	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
+	@Override
+	public Class<?> getReturnType() {
+		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "difference between " + first.toString(event, debug) + " and " + second.toString(event, debug);
+	}
+
 }

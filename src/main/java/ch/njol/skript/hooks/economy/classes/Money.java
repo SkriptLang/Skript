@@ -18,21 +18,23 @@
  */
 package ch.njol.skript.hooks.economy.classes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Comparators;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.StringUtils;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 /**
  * @author Peter Güttinger
@@ -43,13 +45,14 @@ public class Money {
 				.user("money")
 				.name("Money")
 				.description("A certain amount of money. Please note that this differs from <a href='#number'>numbers</a> as it includes a currency symbol or name, but usually the two are interchangeable, e.g. you can both <code>add 100$ to the player's balance</code> and <code>add 100 to the player's balance</code>.")
-				.usage("<code>&lt;number&gt; $</code> or <code>$ &lt;number&gt;</code>, where '$' is your server's currency, e.g. '10 rupees' or '£5.00'")
+				.usage("&lt;number&gt; $ or $ &lt;number&gt;, where '$' is your server's currency, e.g. '10 rupees' or '£5.00'")
 				.examples("add 10£ to the player's account",
 						"remove Fr. 9.95 from the player's money",
 						"set the victim's money to 0",
 						"increase the attacker's balance by the level of the victim * 100")
 				.since("2.0")
 				.before("itemtype", "itemstack")
+				.requiredPlugins("Vault", "an economy plugin that supports Vault")
 				.parser(new Parser<Money>() {
 					@Override
 					@Nullable
@@ -66,41 +69,7 @@ public class Money {
 					public String toVariableNameString(final Money o) {
 						return "money:" + o.amount;
 					}
-                })
-				.math(Money.class, new Arithmetic<Money, Money>() {
-					@Override
-					public Money difference(final Money first, final Money second) {
-						final double d = Math.abs(first.getAmount() - second.getAmount());
-						if (d < Skript.EPSILON)
-							return new Money(0);
-						return new Money(d);
-					}
-					
-					@Override
-					public Money add(final Money value, final Money difference) {
-						return new Money(value.amount + difference.amount);
-					}
-					
-					@Override
-					public Money subtract(final Money value, final Money difference) {
-						return new Money(value.amount - difference.amount);
-					}
-
-					@Override
-					public Money multiply(Money value, Money multiplier) {
-						return new Money(value.getAmount() * multiplier.getAmount());
-					}
-
-					@Override
-					public Money divide(Money value, Money divider) {
-						return new Money(value.getAmount() / divider.getAmount());
-					}
-
-					@Override
-					public Money power(Money value, Money exponent) {
-						throw new UnsupportedOperationException();
-					}
-				}));
+                }));
 		
 		Comparators.registerComparator(Money.class, Money.class, new Comparator<Money, Money>() {
 			@Override
@@ -131,6 +100,18 @@ public class Money {
 				return Double.valueOf(m.getAmount());
 			}
 		});
+
+		Arithmetics.registerOperation(Operator.ADDITION, Money.class, (left, right) -> new Money(left.getAmount() + right.getAmount()));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Money.class, (left, right) -> new Money(left.getAmount() - right.getAmount()));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Money.class, (left, right) -> new Money(left.getAmount() * right.getAmount()));
+		Arithmetics.registerOperation(Operator.DIVISION, Money.class, (left, right) -> new Money(left.getAmount() / right.getAmount()));
+		Arithmetics.registerDifference(Money.class, (left, right) -> {
+			double result = Math.abs(left.getAmount() - right.getAmount());
+			if (result < Skript.EPSILON)
+				return new Money(0);
+			return new Money(result);
+		});
+		Arithmetics.registerDefaultValue(Money.class, () -> new Money(0));
 	}
 	
 	final double amount;

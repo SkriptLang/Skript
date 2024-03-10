@@ -22,6 +22,7 @@ import ch.njol.util.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -355,7 +356,39 @@ public abstract class CollectionUtils {
 	public static <T> T[] array(final T... array) {
 		return array;
 	}
-	
+
+	/**
+	 * Returns a {@code Class} for an array type whose component type
+	 * is described by this {@linkplain Class}.
+	 *
+	 * @return a {@code Class} describing the array type
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T[]> arrayType(Class<T> c) {
+		return (Class<T[]>) Array.newInstance(c, 0).getClass();
+	}
+
+	/**
+	 * Creates a new array whose elements are the elements between the start and end indices of the original array.
+	 * @param array the original array
+	 * @param startIndex starting index (inclusive)
+	 * @param endIndex ending index (exclusive)
+	 * @return a new array containing the elements between the start and end indices
+	 * @param <T> type of array
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] subarray(T[] array, int startIndex, int endIndex) {
+		Class<T> componentType = (Class<T>) array.getClass().getComponentType();
+		startIndex = Math.max(startIndex, 0);
+		endIndex = Math.min(Math.max(endIndex, 0), array.length);
+		if (startIndex >= endIndex)
+			return (T[]) Array.newInstance(componentType, 0);
+		int size = endIndex - startIndex;
+		T[] subarray = (T[]) Array.newInstance(componentType, size);
+		System.arraycopy(array, startIndex, subarray, 0, size);
+		return subarray;
+	}
+
 	/**
 	 * Creates a permutation of all integers in the interval [start, end]
 	 * 
@@ -446,5 +479,5 @@ public abstract class CollectionUtils {
 		}
 		return wrapped;
 	}
-	
+
 }

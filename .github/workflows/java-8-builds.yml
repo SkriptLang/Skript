@@ -12,23 +12,23 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   submodules: recursive
+            - name: validate gradle wrapper
+              uses: gradle/wrapper-validation-action@v2
             - name: Set up JDK 17
-              uses: actions/setup-java@v3
+              uses: actions/setup-java@v4
               with:
                   java-version: '17'
                   distribution: 'adopt'
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-            - name: Build Skript
-              run: ./gradlew nightlyRelease
-            - name: Run test scripts
+            - name: Build Skript and run test scripts
               run: ./gradlew clean skriptTestJava8
             - name: Upload Nightly Build
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: success()
               with:
                   name: skript-nightly

@@ -68,10 +68,10 @@ public class EntryContainer {
 	}
 
 	/**
-	 * @return Any nodes unhandled by the EntryValidator.
-	 * {@link EntryValidator#allowsUnknownEntries()} or {@link EntryValidator#allowsUnknownSections()} must be true
-	 *   for this list to contain any values. The 'unhandled node' would represent any entry provided by the user that the validator
-	 *   is not explicitly aware of.
+	 * @return Any nodes unhandled by the {@link EntryValidator}.
+	 * The validator must have a node testing predicate for this list to contain any values.
+	 * The 'unhandled node' would represent any entry provided by the user that the validator
+	 *  is not explicitly aware of.
 	 */
 	public List<Node> getUnhandledNodes() {
 		return unhandledNodes;
@@ -89,11 +89,11 @@ public class EntryContainer {
 	 * @return The entry's value.
 	 * @throws RuntimeException If the entry's value is null, or if it is not of the expected type.
 	 */
-	public <T> T get(String key, Class<T> expectedType, boolean useDefaultValue) {
-		T parsed = getOptional(key, expectedType, useDefaultValue);
-		if (parsed == null)
+	public <E, R extends E> R get(String key, Class<E> expectedType, boolean useDefaultValue) {
+		R value = getOptional(key, expectedType, useDefaultValue);
+		if (value == null)
 			throw new RuntimeException("Null value for asserted non-null value");
-		return parsed;
+		return value;
 	}
 
 	/**
@@ -124,13 +124,13 @@ public class EntryContainer {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T getOptional(String key, Class<T> expectedType, boolean useDefaultValue) {
+	public <E, R extends E> R getOptional(String key, Class<E> expectedType, boolean useDefaultValue) {
 		Object parsed = getOptional(key, useDefaultValue);
 		if (parsed == null)
 			return null;
 		if (!expectedType.isInstance(parsed))
 			throw new RuntimeException("Expected entry with key '" + key + "' to be '" + expectedType + "', but got '" + parsed.getClass() + "'");
-		return (T) parsed;
+		return (R) parsed;
 	}
 
 	/**

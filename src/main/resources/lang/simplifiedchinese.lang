@@ -1,0 +1,190 @@
+# Default Simplified Chinese language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ created by & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: 无效的引号使用（"）。如果你想在"引号文本"中使用引号，双写它们（""）。
+	brackets error: 括号的数量或位置无效。请确保每一个左括号都有一个相应的右括号。
+	invalid reload: Skript只能通过Bukkit的“/reload”或Skript的“/skript reload”命令来重新加载。
+	no scripts: 没有发现任何脚本，也许你应该写一些 ;)
+	no errors: 所有脚本都已加载，没有错误。
+	scripts loaded: 已加载%s个脚本，包括%s个结构和%s个命令（%s内）
+	finished loading: 已完成加载。
+
+# -- Skript command --
+skript command:
+	usage: 用法：
+	help:
+		description: Skript的主命令
+		help: 显示此帮助信息。使用“/skript reload/enable/disable/update”来获取更多信息。
+		reload:
+			description: 重新加载某个特定的脚本、所有的脚本、配置或所有的内容。
+			all: 重新加载配置、所有alias和所有脚本
+			config: 重新加载主配置
+			aliases: 重新加载alias配置（aliases-english.zip或插件jar）
+			scripts: 重新加载所有脚本
+			<script>: 重新加载某个特定的脚本或某个文件夹的脚本
+		enable:
+			description: 启用所有脚本或某个特定的脚本
+			all: 启用所有脚本
+			<script>: 启用某个特定的脚本或某个文件夹的脚本
+		disable:
+			description: 禁用所有脚本或某个特定的脚本
+			all: 禁用所有脚本
+			<script>: 禁用某个特定的脚本或某个文件夹的脚本
+		update:
+			description: 检查更新，阅读更新日志，或下载最新版本的Skript
+			check: 检查新版本
+			changes: 列出自当前版本以来的所有变化
+			download: 下载最新的版本
+		info: 打印一个带有Skript的别名和文档链接的信息
+		gen-docs: 使用插件文件夹中的docs/templates生成文档
+		test: 用于运行内部的Skript测试
+
+	invalid script: 无法在scripts文件夹中找到脚本<grey>“<gold>%s<grey>”<red>！
+	invalid folder: 无法在scripts文件夹中找到文件夹<grey>“<gold>%s<grey>”<red>！
+	reload:
+		warning line info: <gold><bold>第%s行：<gray>（%s）<reset>\n
+		error line info: <light red><bold>第%s行：<gray>（%s）<reset>\n
+		reloading: 正在重新加载<gold>%s<reset>…
+		reloaded: <lime>已成功重新加载<gold>%s<lime>。<gray>（<gold>%2$sms<gray>）
+		error: <light red>在重新加载<gold>%1$s<light red>时遇到了<gold>%2$s<light red>个错误！<gray>（<gold>%3$sms<gray>）
+		script disabled: <gold>%s<reset>已禁用。使用<gray>/<gold>skript <cyan>enable <red>%s<reset>来启用它。
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    行：<gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: 配置、其它配置和所有脚本
+		scripts: 所有脚本
+		main config: 主配置
+		aliases: 其它配置
+		script: <gold>%s<reset>
+		scripts in folder: <gold>%s<reset>中的所有脚本
+		x scripts in folder: <gold>%1$s<reset>中的<gold>%2$s<reset>个脚本
+		empty folder: <gold>%s<reset>不包含任何已启用的脚本。
+	enable:
+		all:
+			enabling: 正在启用所有已禁用的脚本…
+			enabled: 已成功启用并解析了所有先前禁用的脚本。
+			error: 在解析禁用的脚本时遇到了%s个错误！
+			io error: 无法加载一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时启用：%s
+		single:
+			already enabled: <gold>%s<reset>已经启用了！如果它已被更改，使用<gray>/<gold>skript <cyan>reload <red>%s<reset>来重新加载。
+			enabling: 正在启用<gold>%s<reset>…
+			enabled: 已成功启用并解析<gold>%s<reset>。
+			error: 在解析<gold>%1$s<red>时遇到了%2$s个错误！
+			io error: 无法启用<gold>%s<red>：%s
+		folder:
+			empty: <gold>%s<reset>不包含任何已禁用的脚本。
+			enabling: 正在启用<gold>%1$s<reset>中的<gold>%2$s<reset>个脚本…
+			enabled: 已成功启用并解析<gold>%1$s<reset>中的<gold>%2$s<reset>个先前禁用的脚本。
+			error: 在解析<gold>%1$s<red>时遇到了%2$s个错误！
+			io error: 在启用<gold>%s<red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时启用）：%s
+	disable:
+		all:
+			disabled: 已成功禁用所有脚本。
+			io error: 无法重命名一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时禁用：%s
+		single:
+			already disabled: <gold>%s<reset>已经被禁用了！
+			disabled: 已成功禁用<gold>%s<reset>。
+			io error: 无法重命名<gold>%s<red>当你重新启动服务器时，它会再次启用：%s
+		folder:
+			empty: <gold>%s<reset>不包含任何已启用的脚本。
+			disabled: 已成功禁用了<gold>%1$s<reset>中的<gold>%2$s<reset>的脚本。
+			io error: 在禁用<gold>%s<red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时禁用）：%s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
+			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
+			# invalid version: No changelog for the version <gold>%s<red> available
+			title: <bold><cyan>%s<reset>（%s）
+			next page: <grey>第%s/%s页。使用<gold>/skript update changes %s<gray>查看下一页（提示：使用上箭头键）
+	info:
+		aliases: Skript的alias可以在这里找到：<aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skript的文档可以在这里找到：<aqua>https://docs.skriptlang.org/
+		tutorials: Skript的教程可以在这里找到：<aqua>https://docs.skriptlang.org/tutorials
+		version: Skript版本：<aqua>%s
+		server: 服务器版本：<aqua>%s
+		addons: 已安装的Skript插件：<aqua>%s
+		dependencies: 已安装的依赖：<aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript还没有检查最新版本。使用<gold>/skript update check<reset>来检查。
+	checking: 正在检查最新版的Skript…
+	check in progress: 新版本的检查已经在进行中了。
+	updater disabled: 更新程序已禁用，未能检查Skript的最新版本。
+	check error: <red>检查最新版的Skript时出现了错误：<light red>%s
+	running latest version: 你目前正在运行最新的Skript稳定版本。
+	running latest version (beta): 你目前运行的是Skript的<i>测试<r>版本，没有新的<i>稳定<r>版可用。请注意，你必须手动更新到较新的测试版！
+	update available: 新版本的Skript可用：<gold>%s<reset>（你目前正在运行<gold>%s<reset>）。
+	downloading: 正在下载Skript<gold>%s<reset>…
+	download in progress: 最新版的下载已经在进行中了。
+	download error: <red>下载最新版的Skript时出现了错误：<light red>%s
+	downloaded: 最新版本的Skript已下载完成! 重新启动服务器或使用/reload来应用更改。
+	internal error: 在检查Skript的最新版本时发生了一个内部错误。请查看服务器日志以了解详情。
+	custom version: 你目前正在运行一个自定义的Skript版本。不会自动安装更新。
+	nightly build: 你目前正在运行Skript的测试版。不会自动安装更新。
+
+# -- Commands --
+commands:
+	no permission message: 你没有必要的权限来使用这个命令
+	cooldown message: 你使用此命令的频率过高，请稍后再试。
+	executable by players: 这个命令只能由玩家使用
+	executable by console: 这个命令只能在控制台使用
+	correct usage: 正确的用法：
+	invalid argument: 无效的参数<gray>“%s<gray>”<reset>。允许的是：
+	too many arguments: 这个命令只能接受单个的%2$s。
+	internal error: 在试图执行此命令时发生了一个内部错误。
+	no player starts with: 没有名字以“%s”开头的玩家在线
+	multiple players start with: 有多个名字以“%s”开头的玩家在线
+
+# -- Hooks --
+hooks:
+	hooked: 成功与%s连接
+	error: 无法连接到%1$s。这可能是因为Skript不支持已安装的%1$s版本。
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: ''不是一个物品类型
+	invalid item type: “%s”不是一个物品类型
+	empty name: 一个alias必须具有名称
+	brackets error: 括号使用无效
+	not enough brackets: 在字符%s（“%s”）处打开的括号必须被关闭
+	too many brackets: 字符%s（“%s”）关闭了一个不存在的部分
+	unknown variation: 变量%s没有被定义过
+	missing aliases: 以下Minecraft ID没有任何alias：
+	empty alias: alias没有定义任何Minecraft ID或标签
+	invalid minecraft id: Minecraft ID %s无效
+	useless variation: 变量没有指定任何Minecraft ID或标签，所以它是无用的
+	invalid tags: 指定的标签没有在有效的JSON中定义
+	unexpected section: 这里不允许有字符串
+	invalid variation section: 一个部分应该是变量，但%s不是有效的变量名
+	outside section: alias必须放在字符串内
+
+	# Other messages
+	loaded x aliases from: 加载了%s个英语alias（来自%s）
+	loaded x aliases: 总共加载了%s个英语alias
+
+# -- Time --
+time:
+	errors:
+		24 hours: 一天只有24小时
+		12 hours: 12小时制下不允许使用超过12小时
+		60 minutes: 一个小时只有60分钟
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: 无法连接到%s
+	accessdeniedexception: 拒绝访问%s
