@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.expressions.base.ChangeExpression;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
@@ -50,34 +51,34 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Change: Set/Add/Remove/Delete/Reset")
 @Description("A very general effect that can change many <a href='./expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
-@Examples({"# set:",
-		"Set the player's display name to \"&lt;red&gt;%name of player%\"",
-		"set the block above the victim to lava",
-		"# add:",
-		"add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this",
-		"add argument to {blacklist::*}",
-		"give a diamond pickaxe of efficiency 5 to the player",
-		"increase the data value of the clicked block by 1",
-		"# remove:",
-		"remove 2 pickaxes from the victim",
-		"subtract 2.5 from {points::%uuid of player%}",
-		"# remove all:",
-		"remove every iron tool from the player",
-		"remove all minecarts from {entitylist::*}",
-		"# delete:",
-		"delete the block below the player",
-		"clear drops",
-		"delete {variable}",
-		"# reset:",
-		"reset walk speed of player",
-		"reset chunk at the targeted block"})
+@Examples({
+	"# set:",
+	"Set the player's display name to \"&lt;red&gt;%name of player%\"",
+	"set the block above the victim to lava",
+	"# add:",
+	"add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this",
+	"add argument to {blacklist::*}",
+	"give a diamond pickaxe of efficiency 5 to the player",
+	"increase the data value of the clicked block by 1",
+	"# remove:",
+	"remove 2 pickaxes from the victim",
+	"subtract 2.5 from {points::%uuid of player%}",
+	"# remove all:",
+	"remove every iron tool from the player",
+	"remove all minecarts from {entitylist::*}",
+	"# delete:",
+	"delete the block below the player",
+	"clear drops",
+	"delete {variable}",
+	"# reset:",
+	"reset walk speed of player",
+	"reset chunk at the targeted block"
+})
 @Since("1.0 (set, add, remove, delete), 2.0 (remove all)")
 public class EffChange extends Effect {
+
 	private static Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
 			{"increase %~objects% by %objects%", ChangeMode.ADD},
@@ -278,20 +279,25 @@ public class EffChange extends Effect {
 		}
 		return true;
 	}
-	
+
 	@Override
-	protected void execute(Event e) {
-		Object[] delta = changer == null ? null : changer.getArray(e);
+	@SuppressWarnings("unchecked")
+	protected void execute(Event event) {
+		Object[] delta = changer == null ? null : changer.getArray(event);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
 			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
-				changed.change(e, null, ChangeMode.DELETE);
+				changed.change(event, null, ChangeMode.DELETE);
 			return;
 		}
-		changed.change(e, delta, mode);
+		if (changed instanceof ChangeExpression) {
+			((ChangeExpression<?, Object>) changed).changing(event, delta, mode);
+		} else {
+			changed.change(event, delta, mode);
+		}
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		final Expression<?> changer = this.changer;
