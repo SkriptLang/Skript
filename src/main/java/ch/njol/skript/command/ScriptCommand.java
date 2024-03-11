@@ -576,17 +576,18 @@ public class ScriptCommand implements TabExecutor {
 
 	@Nullable
 	@Override
-	public List<String> onTabComplete(@Nullable CommandSender sender, @Nullable Command command, @Nullable String alias, @Nullable String[] args) {
+	public List<String> onTabComplete(@Nullable CommandSender sender, @Nullable Command command, @Nullable String commandLabel, @Nullable String[] args) {
 		assert args != null;
 		int argIndex = args.length - 1;
 		if (argIndex >= arguments.size())
 			return Collections.emptyList(); // Too many arguments, nothing to complete
-		Argument<?> arg = arguments.get(argIndex);
-		Class<?> argType = arg.getType();
-		if (argType.equals(Player.class) || argType.equals(OfflinePlayer.class))
+		Argument<?> argument = arguments.get(argIndex);
+		Class<?> argumentType = argument.getType();
+		if (argumentType.equals(Player.class) || argumentType.equals(OfflinePlayer.class))
 			return null; // Default completion
 
-		return Collections.emptyList(); // No tab completion here!
+		ScriptCommandEvent event = new ScriptCommandEvent(this, sender, commandLabel, StringUtils.join(args, " "));
+		return argument.getTabCompletions(event); // No tab completion here!
 	}
 
 }

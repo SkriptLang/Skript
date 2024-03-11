@@ -18,13 +18,19 @@
  */
 package ch.njol.skript.command;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.WeakHashMap;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import com.google.common.collect.Lists;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.ExprTabCompletions;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
@@ -35,130 +41,134 @@ import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.Variables;
+import ch.njol.util.coll.CollectionUtils;
 
 /**
  * Represents an argument of a command
- * 
- * @author Peter Güttinger
  */
 public class Argument<T> {
-	
+
+	private transient WeakHashMap<Event, T[]> current = new WeakHashMap<>();
+
 	@Nullable
 	private final String name;
-	
+
 	@Nullable
-	private final Expression<? extends T> def;
-	
+	private final Expression<? extends T> defaultExpression;
 	private final ClassInfo<T> type;
-	private final boolean single;
-	
-	private final int index;
-	
 	private final boolean optional;
-	
-	private transient WeakHashMap<Event, T[]> current = new WeakHashMap<>();
-	
-	private Argument(@Nullable final String name, final @Nullable Expression<? extends T> def, final ClassInfo<T> type, final boolean single, final int index, final boolean optional) {
-		this.name = name;
-		this.def = def;
-		this.type = type;
+	private final boolean single;
+	private final int index;
+
+	private Argument(@Nullable String name, @Nullable Expression<? extends T> defaultExpression, ClassInfo<T> type, boolean single, int index, boolean optional) {
+		this.defaultExpression = defaultExpression;
+		this.optional = optional;
 		this.single = single;
 		this.index = index;
-		this.optional = optional;
+		this.type = type;
+		this.name = name;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Nullable
-	public static <T> Argument<T> newInstance(@Nullable final String name, final ClassInfo<T> type, final @Nullable String def, final int index, final boolean single, final boolean forceOptional) {
+	@SuppressWarnings("unchecked")
+	public static <T> Argument<T> newInstance(@Nullable String name, ClassInfo<T> type, @Nullable String defaultExpressionInput, int index, boolean single, boolean forceOptional) {
 		if (name != null && !Variable.isValidVariableName(name, false, false)) {
 			Skript.error("An argument's name must be a valid variable name, and cannot be a list variable.");
 			return null;
 		}
-		Expression<? extends T> d = null;
-		if (def != null) {
-			if (def.startsWith("%") && def.endsWith("%")) {
-				final RetainingLogHandler log = SkriptLogger.startRetainingLog();
-				try {
-					d = new SkriptParser("" + def.substring(1, def.length() - 1), SkriptParser.PARSE_EXPRESSIONS, ParseContext.COMMAND).parseExpression(type.getC());
-					if (d == null) {
-						log.printErrors("Can't understand this expression: " + def + "");
+		Expression<? extends T> defaultExpression = null;
+		if (defaultExpressionInput != null) {
+			RetainingLogHandler log = SkriptLogger.startRetainingLog();
+			try {
+				if (defaultExpressionInput.startsWith("%") && defaultExpressionInput.endsWith("%")) {
+					defaultExpression = new SkriptParser("" + defaultExpressionInput.substring(1, defaultExpressionInput.length() - 1), SkriptParser.PARSE_EXPRESSIONS, ParseContext.COMMAND).parseExpression(type.getC());
+					if (defaultExpression == null) {
+						log.printErrors("Can't understand this expression: " + defaultExpressionInput + "");
 						return null;
 					}
-					log.printLog();
-				} finally {
-					log.stop();
-				}
-			} else {
-				final RetainingLogHandler log = SkriptLogger.startRetainingLog();
-				try {
+				} else {
 					if (type.getC() == String.class) {
-						if (def.startsWith("\"") && def.endsWith("\""))
-							d = (Expression<? extends T>) VariableString.newInstance("" + def.substring(1, def.length() - 1));
+						if (defaultExpressionInput.startsWith("\"") && defaultExpressionInput.endsWith("\""))
+							defaultExpression = (Expression<? extends T>) VariableString.newInstance("" + defaultExpressionInput.substring(1, defaultExpressionInput.length() - 1));
 						else
-							d = (Expression<? extends T>) new SimpleLiteral<>(def, false);
+							defaultExpression = (Expression<? extends T>) new SimpleLiteral<>(defaultExpressionInput, false);
 					} else {
-						d = new SkriptParser(def, SkriptParser.PARSE_LITERALS, ParseContext.DEFAULT).parseExpression(type.getC());
+						defaultExpression = new SkriptParser(defaultExpressionInput, SkriptParser.PARSE_LITERALS, ParseContext.DEFAULT).parseExpression(type.getC());
 					}
-					if (d == null) {
-						log.printErrors("Can't understand this expression: '" + def + "'");
+					if (defaultExpression == null) {
+						log.printErrors("Can't understand this expression: '" + defaultExpressionInput + "'");
 						return null;
 					}
-					log.printLog();
-				} finally {
-					log.stop();
 				}
+				log.printLog();
+			} finally {
+				log.stop();
 			}
 		}
-		return new Argument<>(name, d, type, single, index, def != null || forceOptional);
+		return new Argument<>(name, defaultExpression, type, single, index, defaultExpressionInput != null || forceOptional);
 	}
-	
+
 	@Override
 	public String toString() {
-		final Expression<? extends T> def = this.def;
-		return "<" + (name != null ? name + ": " : "") + Utils.toEnglishPlural(type.getCodeName(), !single) + (def == null ? "" : " = " + def.toString()) + ">";
+		Expression<? extends T> defaultExpression = this.defaultExpression;
+		return "<" + (name != null ? name + ": " : "") + Utils.toEnglishPlural(type.getCodeName(), !single) + (defaultExpression == null ? "" : " = " + defaultExpression.toString()) + ">";
 	}
-	
+
 	public boolean isOptional() {
 		return optional;
 	}
-	
-	public void setToDefault(final ScriptCommandEvent event) {
-		if (def != null)
-			set(event, def.getArray(event));
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void set(final ScriptCommandEvent e, final Object[] o) {
-		if (!(type.getC().isAssignableFrom(o.getClass().getComponentType())))
-			throw new IllegalArgumentException();
-		current.put(e, (T[]) o);
-		final String name = this.name;
-		if (name != null) {
-			if (single) {
-				if (o.length > 0)
-					Variables.setVariable(name, o[0], e, true);
+
+	public void setToDefault(ScriptCommandEvent event) {
+		if (defaultExpression != null) {
+			if (defaultExpression instanceof ExprTabCompletions) {
+				set(event, CollectionUtils.array(defaultExpression.getArray(event)[0]));
 			} else {
-				for (int i = 0; i < o.length; i++)
-					Variables.setVariable(name + "::" + (i + 1), o[i], e, true);
+				set(event, defaultExpression.getArray(event));
 			}
 		}
 	}
-	
-	@Nullable
-	public T[] getCurrent(final Event e) {
-		return current.get(e);
+
+	@SuppressWarnings("unchecked")
+	public void set(ScriptCommandEvent event, Object[] objects) {
+		if (!(type.getC().isAssignableFrom(objects.getClass().getComponentType())))
+			throw new IllegalArgumentException();
+		current.put(event, (T[]) objects);
+		String name = this.name;
+		if (name != null) {
+			if (single) {
+				if (objects.length > 0)
+					Variables.setVariable(name, objects[0], event, true);
+			} else {
+				for (int i = 0; i < objects.length; i++)
+					Variables.setVariable(name + "::" + (i + 1), objects[i], event, true);
+			}
+		}
 	}
-	
+
+	/**
+	 * @return possible tab completions if the default expression is {@link ExprTabCompletions}
+	 */
+	public List<String> getTabCompletions(Event event) {
+		if (defaultExpression instanceof ExprTabCompletions && defaultExpression.getReturnType() == String.class)
+			return Lists.newArrayList((String[]) defaultExpression.getArray(event));
+		return Collections.emptyList();
+	}
+
+	@Nullable
+	public T[] getCurrent(Event event) {
+		return current.get(event);
+	}
+
 	public Class<T> getType() {
 		return type.getC();
 	}
-	
-	public int getIndex() {
-		return index;
-	}
-	
+
 	public boolean isSingle() {
 		return single;
 	}
-	
+
+	public int getIndex() {
+		return index;
+	}
+
 }
