@@ -46,8 +46,6 @@ public class SecParse extends Section {
 		Skript.registerSection(SecParse.class, "parse");
 	}
 
-	@Nullable
-	public static String[] lastLogs;
 	private String[] logs;
 
 	@Override
@@ -74,7 +72,7 @@ public class SecParse extends Section {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
-		lastLogs = logs;
+		ExprParseLogs.lastLogs = logs;
 		return walk(event, false);
 	}
 
