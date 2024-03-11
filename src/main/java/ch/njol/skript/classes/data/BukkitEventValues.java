@@ -60,6 +60,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Egg;
@@ -730,7 +731,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketEmptyEvent e) {
-				return e.getBlockClicked().getRelative(e.getBlockFace());
+				return e.getBlock();
 			}
 		}, -1);
 		ItemType stationaryLava = Aliases.javaItemType("stationary lava");
