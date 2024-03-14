@@ -33,6 +33,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -132,6 +133,12 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	// Extracted method for better readability
 	private int compare(Entry<String, Object> a, Entry<String, Object> b, int direction) {
-		return Comparators.compare(a.getValue(), b.getValue()).getRelation() * direction;
+		Object first = a.getValue();
+		Object second = b.getValue();
+		if (first instanceof String && second instanceof String) {
+			return Relation.get(((String) first).compareToIgnoreCase((String) second)).getRelation() * direction;
+		}
+		return Comparators.compare(first, second).getRelation() * direction;
 	}
+
 }
