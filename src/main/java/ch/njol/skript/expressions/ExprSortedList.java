@@ -34,6 +34,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.lang.reflect.Array;
 
@@ -77,7 +78,9 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <A, B> int compare(A a, B b) throws IllegalArgumentException, ClassCastException {
+	public static <A, B> int compare(A a, B b) throws IllegalArgumentException, ClassCastException {
+		if (a instanceof String && b instanceof String)
+			return Relation.get(((String) a).compareToIgnoreCase((String) b)).getRelation();
 		Comparator<A, B> comparator = Comparators.getComparator((Class<A>) a.getClass(), (Class<B>) b.getClass());
         if (comparator != null && comparator.supportsOrdering())
 			return comparator.compare(a, b).getRelation();
