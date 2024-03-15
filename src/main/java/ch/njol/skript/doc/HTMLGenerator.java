@@ -636,7 +636,7 @@ public class HTMLGenerator {
 				}
 			}
 		}
-		List<String> eventValues = new ArrayList<>(0);
+		List<String> eventValues = new ArrayList<>();
 		for (String value : eventValuesSet)
 			eventValues.add("<span class='event-value'>" + value + "</span>");
 		desc = handleIf(desc, "${if event-values}", eventValues.size() > 0);
