@@ -38,8 +38,8 @@ import java.text.DecimalFormat;
 
 @Name("Formatted Number")
 @Description(
-	"Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
-		+ "<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>."
+	"Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this " +
+		"<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>."
 )
 @Examples({
 	"command /formatnumber <number>:",
