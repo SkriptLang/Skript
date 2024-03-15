@@ -127,11 +127,10 @@ public class EventValues {
 		 * @return Either {@link #TIME_PAST}, {@link #TIME_NOW} or {@link #TIME_FUTURE}
 		 */
 		public boolean isEventExcluded(Class<? extends Event> c) {
-			if (excludes != null)
-				for (Class<? extends Event> exclude : excludes) {
-					if (exclude.isAssignableFrom(c))
-						return true;
-				}
+			for (Class<? extends Event> exclude : excludes) {
+				if (exclude.isAssignableFrom(c))
+					return true;
+			}
 			return false;
 		}
 
