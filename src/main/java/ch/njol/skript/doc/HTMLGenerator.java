@@ -36,6 +36,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -481,6 +484,9 @@ public class HTMLGenerator {
 		}
 		desc = desc.replace("${element.id}", ID);
 
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
+
 		// Events
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
@@ -603,6 +609,17 @@ public class HTMLGenerator {
 		String[] keywords = info.getKeywords();
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
+		// Cancellable
+		boolean cancellable = false;
+		for (Class<? extends Event> event : info.events) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+				cancellable = true; // let's assume all are cancellable otherwise EffCancelEvent would do the rest in action
+				break;
+			}
+		}
+		desc = handleIf(desc, "${if cancellable}", cancellable);
+		desc = desc.replace("${element.cancellable}", cancellable ? "Yes" : ""); // if not cancellable the section is hidden
+
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
 		// Fix duplicated IDs
@@ -719,6 +736,9 @@ public class HTMLGenerator {
 		}
 		desc = desc.replace("${element.id}", ID);
 
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
+
 		// Events
 		Events events = c.getAnnotation(Events.class);
 		desc = handleIf(desc, "${if events}", events != null);
@@ -820,6 +840,9 @@ public class HTMLGenerator {
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
+
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
 
 		// Events
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
