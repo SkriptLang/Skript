@@ -295,14 +295,12 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	default Map<ChangeMode, Class<?>[]> getAcceptedChangeModes() {
 		LogHandler logHandler = SkriptLogger.startLogHandler(new BlockingLogHandler());
 		Map<ChangeMode, Class<?>[]> map = new HashMap<>();
-		try {
+		try (LogHandler logHandler = new BlockingLogHandler()) {
 			for (ChangeMode cm : ChangeMode.values()) {
 				Class<?>[] ac = acceptChange(cm);
 				if (ac != null)
 					map.put(cm, ac);
 			}
-		} finally {
-			logHandler.stop();
 		}
 		return map;
 	}
