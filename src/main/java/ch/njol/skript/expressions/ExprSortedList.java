@@ -85,7 +85,7 @@ public class ExprSortedList extends SimpleExpression<Object> {
         if (comparator != null && comparator.supportsOrdering())
 			return comparator.compare(a, b).getRelation();
 		if (!(a instanceof Comparable))
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Cannot compare " + a.getClass());
 		return ((Comparable<B>) a).compareTo(b);
     }
 
