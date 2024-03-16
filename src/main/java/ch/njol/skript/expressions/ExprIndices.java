@@ -101,7 +101,7 @@ public class ExprIndices extends SimpleExpression<String> {
 		if (sort) {
 			int direction = descending ? -1 : 1;
 			return variable.entrySet().stream()
-				.sorted((a, b) -> ExprSortedList.compare(a, b) * direction)
+				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
 				.map(Entry::getKey)
 				.toArray(String[]::new);
 		}
