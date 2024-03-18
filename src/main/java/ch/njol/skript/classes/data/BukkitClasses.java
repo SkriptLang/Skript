@@ -973,9 +973,11 @@ public class BukkitClasses {
 				.serializer(new ConfigurationSerializer<>()));
 		
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
+				.user("item ?entit(y|ies)")
 				.name(ClassInfo.NO_DOC)
 				.since("2.0")
-				.changer(DefaultChangers.itemChanger));
+				.changer(DefaultChangers.itemChanger)
+				.defaultExpression(new EventValueExpression<>(Item.class)));
 		
 		Classes.registerClass(new EnumClassInfo<>(Biome.class, "biome", "biomes")
 				.user("biomes?")
