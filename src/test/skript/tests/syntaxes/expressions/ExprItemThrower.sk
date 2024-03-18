@@ -1,0 +1,9 @@
+test "item thrower":
+	drop diamond at spawn of world "world"
+	set {_item} to last dropped item
+	assert item thrower of {_item} is not set with "Item thrower expected to be null"
+	set {_player} to "Njol" parsed as offline player
+	set item thrower of {_item} to {_player}
+	assert item thrower of {_item} is {_player} with "Item thrower returned different value than set"
+	delete item thrower of {_item}
+	assert item thrower is not set with "Item thrower expected to be null"
