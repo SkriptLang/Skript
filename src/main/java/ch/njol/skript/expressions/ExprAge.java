@@ -52,7 +52,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"spawn a baby cow at player",
 	"set age of last spawned entity to -1200 # in ticks = 60 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 
 	static {
@@ -119,7 +119,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 					setAge(obj, newValue);
 					break;
 				case RESET:
-					// baby animals takes 20 minutes to grow up - ref: https://minecraft.fandom.com/wiki/Breeding
+					// baby animals takes 20 minutes to grow up - ref: https://minecraft.wiki/w/Breeding
 					if (obj instanceof org.bukkit.entity.Ageable)
 						// it might change later on so removing entity age reset would be better unless
 						// bukkit adds a method returning the default age

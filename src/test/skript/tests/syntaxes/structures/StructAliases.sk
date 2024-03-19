@@ -1,0 +1,9 @@
+aliases:
+	cool_dirt = dirt
+
+aliases:
+	cool_stone = stone
+
+test "script aliases":
+	assert cool_dirt is dirt with "custom dirt alias failed"
+	assert cool_stone is stone with "custom stone alias failed"

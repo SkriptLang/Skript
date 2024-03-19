@@ -22,6 +22,10 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.events.bukkit.SkriptParseEvent;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -42,6 +46,32 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@Name("Conditionals")
+@Description({
+	"Conditional sections",
+	"if: executed when its condition is true",
+	"else if: executed if all previous chained conditionals weren't executed, and its condition is true",
+	"else: executed if all previous chained conditionals weren't executed",
+	"",
+	"parse if: a special case of 'if' condition that its code will not be parsed if the condition is not true",
+	"else parse if: another special case of 'else if' condition that its code will not be parsed if all previous chained " +
+		"conditionals weren't executed, and its condition is true",
+})
+@Examples({
+	"if player's health is greater than or equal to 4:",
+	"\tsend \"Your health is okay so far but be careful!\"",
+	"",
+	"else if player's health is greater than 2:",
+	"\tsend \"You need to heal ASAP, your health is very low!\"",
+	"",
+	"else: # Less than 2 hearts",
+	"\tsend \"You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!\"",
+	"",
+	"parse if plugin \"SomePluginName\" is enabled: # parse if %condition%",
+	"\t# This code will only be executed if the condition used is met otherwise Skript will not parse this section therefore will not give any errors/info about this section",
+	""
+})
+@Since("1.0")
 @SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
@@ -88,21 +118,34 @@ public class SecConditional extends Section {
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
-		SecConditional lastIf;
 		if (type != ConditionalType.IF) {
-			lastIf = getClosestIf(triggerItems);
-			if (lastIf == null) {
-				if (type == ConditionalType.ELSE_IF) {
-					Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.ELSE) {
-					Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
-				} else if (type == ConditionalType.THEN) {
+			if (type == ConditionalType.THEN) {
+				/*
+				 * if this is a 'then' section, the preceding conditional has to be a multiline conditional section
+				 * otherwise, you could put a 'then' section after a non-multiline 'if'. for example:
+				 *  if 1 is 1:
+				 *    set {_example} to true
+				 *  then: # this shouldn't be possible
+				 *    set {_uh oh} to true
+				 */
+				SecConditional precedingConditional = getPrecedingConditional(triggerItems, null);
+				if (precedingConditional == null || !precedingConditional.multiline) {
 					Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
+					return false;
 				}
-				return false;
-			} else if (!lastIf.multiline && type == ConditionalType.THEN) {
-				Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
-				return false;
+			} else {
+				// find the latest 'if' section so that we can ensure this section is placed properly (e.g. ensure a 'if' occurs before an 'else')
+				SecConditional precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+				if (precedingIf == null) {
+					if (type == ConditionalType.ELSE_IF) {
+						Skript.error("'else if' has to be placed just after another 'if' or 'else if' section");
+					} else if (type == ConditionalType.ELSE) {
+						Skript.error("'else' has to be placed just after another 'if' or 'else if' section");
+					} else if (type == ConditionalType.THEN) {
+						Skript.error("'then' has to placed just after a multiline 'if' or 'else if' section");
+					}
+					return false;
+				}
 			}
 		} else {
 			// if this is a multiline if, we need to check if there is a "then" section after this
@@ -120,7 +163,6 @@ public class SecConditional extends Section {
 					return false;
 				}
 			}
-			lastIf = null;
 		}
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
@@ -201,9 +243,11 @@ public class SecConditional extends Section {
 			return true;
 
 		if (type == ConditionalType.ELSE) {
+			SecConditional precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
+			assert precedingIf != null; // at this point, we've validated the section so this can't be null
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
-					&& lastIf.hasDelayAfter.isTrue()
+					&& precedingIf.hasDelayAfter.isTrue()
 					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
@@ -284,21 +328,28 @@ public class SecConditional extends Section {
 		return hasDelayAfter;
 	}
 
+	/**
+	 * Gets the closest conditional section in the list of trigger items
+	 * @param triggerItems the list of items to search for the closest conditional section in
+	 * @param type the type of conditional section to find. if null is provided, any type is allowed.
+	 * @return the closest conditional section
+	 */
 	@Nullable
-	private static SecConditional getClosestIf(List<TriggerItem> triggerItems) {
+	private static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
 			if (triggerItem instanceof SecConditional) {
-				SecConditional secConditional = (SecConditional) triggerItem;
+				SecConditional conditionalSection = (SecConditional) triggerItem;
 
-				if (secConditional.type == ConditionalType.IF)
-					// if the condition is an if, we found our most recent preceding "if"
-					return secConditional;
-				else if (secConditional.type == ConditionalType.ELSE)
+				if (conditionalSection.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
 					return null;
+				} else if (type == null || conditionalSection.type == type) {
+					// if the conditional matches the type argument, we found our most recent preceding conditional section
+					return conditionalSection;
+				}
 			} else {
 				return null;
 			}

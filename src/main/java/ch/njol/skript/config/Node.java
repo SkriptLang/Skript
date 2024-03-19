@@ -128,6 +128,8 @@ public abstract class Node {
 	 * @return A pair (value, comment).
 	 */
 	public static NonNullPair<String, String> splitLine(final String line) {
+		if (line.trim().startsWith("#"))
+			return new NonNullPair<>("", line.substring(line.indexOf('#')));
 		final Matcher m = linePattern.matcher(line);
 		boolean matches = false;
 		try {
