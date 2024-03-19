@@ -51,7 +51,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"set {_yaw} to yaw of player",
 		"set {_p} to pitch of target entity",
 		"set pitch of player to 90 # Makes the player look upwards, Paper 1.19+ only",
-		"add 180 to yaw of target of player # Makes the target look behind him"
+		"add 180 to yaw of target of player # Makes the target look behind themselves"
 })
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
