@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -44,7 +45,8 @@ import ch.njol.util.Kleenean;
 @Examples({
 		"set the player's health to a random number between 5 and 10",
 		"send \"You rolled a %random integer from 1 to 6%!\" to the player",
-		"set {_chances::*} to 5 random integers between 5 and 96"
+		"set {_chances::*} to 5 random integers between 5 and 96",
+		"set {_decimals::*} to 3 random numbers between 2.7 and -1.5"
 })
 @Since("1.4, INSERT VERSION (Multiple random numbers)")
 public class ExprRandomNumber extends SimpleExpression<Number> {
@@ -54,7 +56,9 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 				"[a|%-number%] random (:integer|number)[s] (from|between) %number% (to|and) %number%");
 	}
 
-	private Expression<Number> amount, lower, upper;
+	@Nullable
+	private Expression<Number> amount;
+	private Expression<Number> lower, upper;
 	private boolean isInteger;
 
 	@Override
@@ -72,23 +76,50 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Number lowerNumber = lower.getSingle(event);
 		Number upperNumber = upper.getSingle(event);
-		if (upperNumber == null || lowerNumber == null)
+		if (upperNumber == null || lowerNumber == null || !Double.isFinite(lowerNumber.doubleValue()) || !Double.isFinite(upperNumber.doubleValue()))
 			return new Number[0];
-		int amount = this.amount == null ? 1 : this.amount.getOptionalSingle(event).orElse(1).intValue();
+
+		Number amountNumber = this.amount == null ? 1 : this.amount.getSingle(event);
+		if (amountNumber == null || amountNumber.intValue() <= 0 || !Double.isFinite(amountNumber.doubleValue()))
+			return new Number[0];
+
+		int amount = amountNumber.intValue();
 		double lower = Math.min(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		double upper = Math.max(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		Random random = ThreadLocalRandom.current();
 		if (isInteger) {
 			Long[] longs = new Long[amount];
+			long floored_upper = Math2.floor(upper);
+			long ceiled_lower = Math2.ceil(lower);
+
+			// catch issues like `integer between 0.5 and 0.6`
+			if (upper - lower < 1 && ceiled_lower - floored_upper <= 1) {
+				if (floored_upper == ceiled_lower || lower == ceiled_lower) {
+					Arrays.fill(longs, ceiled_lower);
+					return longs;
+				}
+				if (upper == floored_upper) {
+					Arrays.fill(longs, floored_upper);
+					return longs;
+				}
+				return new Long[0];
+			}
+
 			for (int i = 0; i < amount; i++)
-				longs[i] = Math2.ceil(lower) + Math2.mod(random.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1);
+				longs[i] = Math2.ceil(lower) + Math2.mod(random.nextLong(), floored_upper - ceiled_lower + 1);
 			return longs;
+		// non-integers
 		} else {
 			Double[] doubles = new Double[amount];
 			for (int i = 0; i < amount; i++)
-				doubles[i] = lower + random.nextDouble() * (upper - lower);
+				doubles[i] = Math.min(lower + random.nextDouble() * (upper - lower), upper);
 			return doubles;
 		}
+	}
+
+	@Override
+	public boolean isSingle() {
+		return amount == null;
 	}
 
 	@Override
@@ -98,13 +129,8 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (amount == null ? "a" : amount.toString(event, debug)) + " random " + (isInteger ? "integer" : "number") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
-
-	}
-
-	@Override
-	public boolean isSingle() {
-		return amount == null;
+		return (amount == null ? "a" : amount.toString(event, debug)) + " random " + (isInteger ? "integer" : "number") +
+				(amount == null ? "" : "s") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
 	}
 
 }
