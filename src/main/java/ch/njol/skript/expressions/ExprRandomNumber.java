@@ -54,18 +54,18 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprRandomNumber.class, Number.class, ExpressionType.COMBINED,
-				"[a|%-number%] random (:integer|number)[s] (from|between) %number% (to|and) %number%");
+				"[a|%-integer%] random (:integer|number)[s] (from|between) %number% (to|and) %number%");
 	}
 
 	@Nullable
-	private Expression<Number> amount;
+	private Expression<Integer> amount;
 	private Expression<Number> lower, upper;
 	private boolean isInteger;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		amount = (Expression<Number>) exprs[0];
+		amount = (Expression<Integer>) exprs[0];
 		lower = (Expression<Number>) exprs[1];
 		upper = (Expression<Number>) exprs[2];
 		isInteger = parseResult.hasTag("integer");
@@ -80,11 +80,10 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		if (upperNumber == null || lowerNumber == null || !Double.isFinite(lowerNumber.doubleValue()) || !Double.isFinite(upperNumber.doubleValue()))
 			return new Number[0];
 
-		Number amountNumber = this.amount == null ? 1 : this.amount.getSingle(event);
-		if (amountNumber == null || amountNumber.intValue() <= 0 || !Double.isFinite(amountNumber.doubleValue()))
+		Integer amount = this.amount == null ? Integer.valueOf(1) : this.amount.getSingle(event);
+		if (amount == null || amount <= 0)
 			return new Number[0];
 
-		int amount = amountNumber.intValue();
 		double lower = Math.min(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		double upper = Math.max(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		Random random = ThreadLocalRandom.current();
@@ -121,7 +120,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	@Override
 	public boolean isSingle() {
 		if (amount instanceof Literal)
-			return ((Literal<Number>) amount).getSingle().intValue() == 1;
+			return ((Literal<Integer>) amount).getSingle() == 1;
 		return amount == null;
 	}
 
