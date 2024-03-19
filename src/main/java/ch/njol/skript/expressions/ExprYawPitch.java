@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.util.VectorMath;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -42,18 +43,19 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Yaw / Pitch")
 @Description({
 		"The yaw or pitch of a location or vector.",
-		"A yaw of 0 or 360 represents the positive x direction. Adding a positive number to the yaw of a player will rotate it counter-clockwise.",
-		"A pitch of 90 represents the positive y direction, or upward facing. A pitch of -90 represents downward facing. Adding a positive number to the pitch will rotate the player upwards.",
-		"You can only change the yaw/pitch of entities, not players. Only Paper 1.19+ users may directly change the yaw/pitch of players."
+		"A yaw of 0 or 360 represents the positive z direction. Adding a positive number to the yaw of a player will rotate it clockwise.",
+		"A pitch of 90 represents the negative y direction, or downward facing. A pitch of -90 represents upward facing. Adding a positive number to the pitch will rotate the direction downwards.",
+		"Only Paper 1.19+ users may directly change the yaw/pitch of players."
 })
 @Examples({
 		"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
 		"set {_yaw} to yaw of player",
 		"set {_p} to pitch of target entity",
-		"set pitch of player to 90 # Makes the player look upwards, Paper 1.19+ only",
+		"set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only",
 		"add 180 to yaw of target of player # Makes the target look behind themselves"
 })
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers)")
+@RequiredPlugins("Paper 1.19+ (change player yaw/pitch)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
 	static {
@@ -76,18 +78,18 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		if (object instanceof Entity) {
 			Location location = ((Entity) object).getLocation();
 			return usesYaw
-					? toSkriptYaw(location.getYaw())
-					: toSkriptPitch(location.getPitch());
+					? normalizeYaw(location.getYaw())
+					: location.getPitch();
 		} else if (object instanceof Location) {
 			Location location = (Location) object;
 			return usesYaw
-					? toSkriptYaw(location.getYaw())
-					: toSkriptPitch(location.getPitch());
+					? normalizeYaw(location.getYaw())
+					: location.getPitch();
 		} else if (object instanceof Vector) {
 			Vector vector = (Vector) object;
 			return usesYaw
-					? toSkriptYaw(VectorMath.getYaw(vector))
-					: toSkriptPitch(VectorMath.getPitch(vector));
+					? normalizeYaw(VectorMath.getYaw(vector))
+					: VectorMath.getPitch(vector);
 		}
 		return null;
 	}
@@ -133,9 +135,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		switch (mode) {
 			case SET:
 				if (usesYaw) {
-					entity.setRotation(fromSkriptYaw(value), location.getPitch());
+					entity.setRotation(value, location.getPitch());
 				} else {
-					entity.setRotation(location.getYaw(), fromSkriptPitch(value));
+					entity.setRotation(location.getYaw(), value);
 				}
 				break;
 			case REMOVE:
@@ -150,9 +152,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 				break;
 			case RESET:
 				if (usesYaw) {
-					entity.setRotation(fromSkriptYaw(0), location.getPitch());
+					entity.setRotation(0, location.getPitch());
 				} else {
-					entity.setRotation(location.getYaw(), fromSkriptPitch(0));
+					entity.setRotation(location.getYaw(), 0);
 				}
 				break;
 			default:
@@ -164,9 +166,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		switch (mode) {
 			case SET:
 				if (usesYaw) {
-					location.setYaw(fromSkriptYaw(value));
+					location.setYaw(value);
 				} else {
-					location.setPitch(fromSkriptPitch(value));
+					location.setPitch(value);
 				}
 				break;
 			case REMOVE:
@@ -181,9 +183,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 				break;
 			case RESET:
 				if (usesYaw) {
-					location.setYaw(fromSkriptYaw(0));
+					location.setYaw(0);
 				} else {
-					location.setPitch(fromSkriptPitch(0));
+					location.setPitch(0);
 				}
 			default:
 				break;
@@ -196,9 +198,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		switch (mode) {
 			case SET:
 				if (usesYaw) {
-					yaw = fromSkriptYaw(value);
+					yaw = value;
 				} else {
-					pitch = fromSkriptPitch(value);
+					pitch = value;
 				}
 				break;
 			case REMOVE:
@@ -215,21 +217,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		VectorMath.copyVector(vector, VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length()));
 	}
 
-	private static float fromSkriptYaw(float yaw) {
-		return Location.normalizeYaw(yaw + 90);
-	}
-
-	private static float toSkriptYaw(float yaw) {
+	private static float normalizeYaw(float yaw) {
 		yaw = Location.normalizeYaw(yaw);
-		return yaw - 90 < 0 ? yaw + 270 : yaw - 90;
-	}
-
-	private static float fromSkriptPitch(float pitch) {
-		return Location.normalizePitch(-pitch);
-	}
-
-	private static float toSkriptPitch(float pitch) {
-		return -Location.normalizePitch(pitch);
+		return yaw < 0 ? yaw + 360 : yaw;
 	}
 
 	@Override
