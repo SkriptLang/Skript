@@ -53,7 +53,7 @@ update check interval: 12 hours
 release channel: @release-channel@
 # If 'check for new version' is enabled, this determines how stable the updates must be.
 # 'stable' means that only stable releases of Skript will be considered updates.
-# 'beta' and 'alpha' mean that also development releases will be checked for.
+# 'prerelease' means that development releases will also be checked for.
 # Initial value of this depends on the Skript version you first installed; it was '@release-channel@'.
 
 enable effect commands: false
