@@ -43,7 +43,7 @@ import org.bukkit.entity.LivingEntity;
 		"\twait 1 second",
 		"\tbroadcast player's item use time"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper")
 public class ExprEntityItemUseTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 

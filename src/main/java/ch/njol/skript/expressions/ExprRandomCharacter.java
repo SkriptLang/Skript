@@ -45,7 +45,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	"set {_captcha} to join (5 random characters between \"a\" and \"z\") with \"\"",
 	"send 3 random alphanumeric characters between \"0\" and \"z\""
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprRandomCharacter extends SimpleExpression<String> {
 
 	static {

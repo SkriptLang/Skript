@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.COMBINED,
 				"[the] angle between [[the] vectors] %vector% and %vector%");
 	}
 

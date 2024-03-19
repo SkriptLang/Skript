@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.util.Time;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -166,9 +167,8 @@ public class CondCompare extends Condition {
 	
 	@SuppressWarnings("unchecked")
 	private boolean init(String expr) {
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		Expression<?> third = this.third;
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			if (first.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (first instanceof UnparsedLiteral)
@@ -176,7 +176,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = first.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				first = expression;
@@ -188,7 +188,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = second.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				second = expression;
@@ -200,14 +200,13 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = third.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				this.third = third = expression;
 			}
-			log.printLog();
-		} finally {
-			log.stop();
+			// we do not want to print any errors as they are not applicable
+			log.printLog(false);
 		}
 		Class<?> firstReturnType = first.getReturnType();
 		Class<?> secondReturnType = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());

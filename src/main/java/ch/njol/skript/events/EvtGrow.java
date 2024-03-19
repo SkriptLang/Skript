@@ -70,7 +70,7 @@ public class EvtGrow extends SkriptEvent {
 					"on grow of wheat, carrots, or potatoes:",
 					"on grow into tree, giant mushroom, cactus:",
 					"on grow from wheat[age=0] to wheat[age=1] or wheat[age=2]:")
-				.since("1.0, 2.2-dev20 (plants), INSERT VERSION (from, into, blockdata)");
+				.since("1.0, 2.2-dev20 (plants), 2.8.0 (from, into, blockdata)");
 	}
 	
 	@Nullable
@@ -157,8 +157,9 @@ public class EvtGrow extends SkriptEvent {
 
 	private static boolean checkFrom(Event event, Literal<Object> types) {
 		// treat and lists as or lists
-		if (types instanceof LiteralList)
-			((LiteralList<Object>) types).setAnd(false);
+		if (types.getAnd() && types instanceof LiteralList)
+			((LiteralList<Object>) types).invertAnd();
+
 		if (event instanceof StructureGrowEvent) {
 			Material sapling = ItemUtils.getTreeSapling(((StructureGrowEvent) event).getSpecies());
 			return types.check(event, type -> {
@@ -185,8 +186,9 @@ public class EvtGrow extends SkriptEvent {
 
 	private static boolean checkTo(Event event, Literal<Object> types) {
 		// treat and lists as or lists
-		if (types instanceof LiteralList)
-			((LiteralList<Object>) types).setAnd(false);
+		if (types.getAnd() && types instanceof LiteralList)
+			((LiteralList<Object>) types).invertAnd();
+
 		if (event instanceof StructureGrowEvent) {
 			TreeType species = ((StructureGrowEvent) event).getSpecies();
 			return types.check(event, type -> {
