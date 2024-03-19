@@ -92,6 +92,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
@@ -118,9 +119,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.util.SimpleEvent;
 
-/**
- * @author Peter Güttinger
- */
 public class SimpleEvents {
 	static {
 		Skript.registerEvent("Can Build Check", SimpleEvent.class, BlockCanBuildEvent.class, "[block] can build check")
@@ -735,9 +733,18 @@ public class SimpleEvents {
 				.description("Called when a player drags an item in their cursor across the inventory.")
 				.examples(
 						"on inventory drag:",
-						"\tif player's current inventory is {_gui}:",
-						"\t\tsend \"You can't drag your items here!\" to player",
-						"\t\tcancel event"
+							"\tif player's current inventory is {inventories::custom-gui}:",
+							"\t\tsend \"You can't drag your items here!\" to player",
+							"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
+
+		Skript.registerEvent("Server Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "[server] broadcast")
+				.description("Called when the server broadcasts messages. Does not get called when using Skript's <a href='effects.html#EffBroadcast'>broadcast</a> effect.")
+				.examples(
+						"on server broadcast:",
+							"\tbroadcast-message contains \"example\"",
+							"\tcancel event"
 				)
 				.since("2.7");
 
