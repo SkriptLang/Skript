@@ -20,78 +20,75 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 
-@NoDoc
-@Deprecated
-@ApiStatus.ScheduledForRemoval(inVersion = "2.10")
-public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
+@Name("Creeper Max Fuse Duration")
+@Description("The maximum fuse duration that a creeper has.")
+@Examples("set target entity's max fuse time to 1 second")
+@Since("INSERT VERSION")
+public class ExprCreeperMaxFuseDuration extends SimplePropertyExpression<LivingEntity, Timespan> {
 	
 	static {
-		register(ExprNoDamageTicks.class, Long.class, "(invulnerability|invincibility|no damage) tick[s]", "livingentities");
+		if (Skript.methodExists(Creeper.class, "getMaxFuseTicks"))
+			register(ExprCreeperMaxFuseDuration.class, Timespan.class, "[creeper] max[imum] fuse (time|duration)", "livingentities");
 	}
 	
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!super.init(exprs, matchedPattern, isDelayed, parseResult))
-			return false;
-		
-		Skript.warning("Switch from deprecated 'no damage ticks' to 'no damage duration', as the deprecated expression will be removed in 2.8.");
-		return true;
-	}
-	
-	@Override
-	public Long convert(LivingEntity entity) {
-		return (long) Math.max(entity.getNoDamageTicks(), 0);
+	public Timespan convert(LivingEntity entity) {
+		return Timespan.fromTicks_i(entity instanceof Creeper ? ((Creeper) entity).getMaxFuseTicks() : 0);
 	}
 	
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Number.class) : null;
+		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) : null;
 	}
 	
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		LivingEntity[] entities = getExpr().getArray(event);
-		int amount = delta == null ? 0 : ((Number) delta[0]).intValue();
+		int amount = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
 		for (LivingEntity entity : entities) {
+			if (!(entity instanceof Creeper))
+				continue;
+			Creeper creeper = (Creeper) entity;
 			switch (mode) {
 				case REMOVE:
 					amount = -amount;
 				case ADD:
-					entity.setNoDamageTicks(Math.max(entity.getNoDamageTicks() + amount, 0));
+					creeper.setMaxFuseTicks(Math.max(creeper.getMaxFuseTicks() + amount, 0));
 					break;
 				case RESET:
-					entity.setNoDamageTicks(10); // Default value from https://minecraft.fandom.com/wiki/Damage
+					creeper.setMaxFuseTicks(30);
 					break;
 				case DELETE:
 				case SET:
-					entity.setNoDamageTicks(Math.max(amount, 0));
+					creeper.setMaxFuseTicks(Math.max(amount, 0));
 					break;
 				default:
 					assert false;
 			}
 		}
 	}
-	
+
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
-		return "no damage ticks";
+		return "creeper max fuse time";
 	}
 	
 }
