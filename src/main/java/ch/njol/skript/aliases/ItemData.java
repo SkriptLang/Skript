@@ -23,7 +23,11 @@ import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
 import ch.njol.skript.bukkitutil.block.BlockValues;
+import ch.njol.skript.localization.GeneralWords;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
@@ -45,7 +49,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -81,7 +87,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 	
 	private final static Message m_named = new Message("aliases.named");
-	
+	private final static Message m_with_lore = new Message("aliases.with lore");
+
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
 	 *
@@ -238,13 +245,55 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		return toString(false, false);
 	}
 	
-	public String toString(final boolean debug, final boolean plural) {
+	public String toString(boolean debug, boolean plural) {
 		StringBuilder builder = new StringBuilder(Aliases.getMaterialName(this, plural));
 		ItemMeta meta = stack.getItemMeta();
-		if (meta != null && meta.hasDisplayName()) {
-			builder.append(" ").append(m_named).append(" ");
-			builder.append(meta.getDisplayName());
+
+		Map<Enchantment, Integer> enchantments = stack.getEnchantments();
+		if (!enchantments.isEmpty()) {
+			builder.append(Language.getSpaced("enchantments.of").toLowerCase(Locale.ENGLISH));
+			int i = 0;
+			for (Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+				if (i != 0) {
+					if (i != enchantments.size() - 1) {
+						builder.append(", ");
+					} else  {
+						builder.append(" ").append(GeneralWords.and).append(" ");
+					}
+				}
+				Enchantment ench = entry.getKey();
+				if (ench == null)
+					continue;
+				builder.append(EnchantmentType.toString(ench));
+				builder.append(" ");
+				builder.append(entry.getValue());
+				i++;
+			}
 		}
+
+		if (meta != null) {
+			if (meta.hasDisplayName()) {
+				builder.append(" ").append(m_named).append(" ");
+				builder.append("\"").append(SkriptColor.replaceColorChar(meta.getDisplayName())).append("\"");
+			}
+			if (meta.hasLore()) {
+				builder.append(" ").append(m_with_lore).append(" ");
+				List<String> lore = meta.getLore();
+				int i = 0;
+				for (String l : lore) { // hasLore handles NPE
+					if (i != 0) {
+						if (i != lore.size() - 1)  {
+							builder.append(", ");
+						} else {
+							builder.append(" ").append(GeneralWords.and).append(" ");
+						}
+					}
+					builder.append("\"").append(SkriptColor.replaceColorChar(l)).append("\"");
+					i++;
+				}
+			}
+		}
+
 		return builder.toString();
 	}
 	
