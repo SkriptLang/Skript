@@ -54,8 +54,8 @@ import org.eclipse.jdt.annotation.Nullable;
 		"set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only",
 		"add 180 to yaw of target of player # Makes the target look behind themselves"
 })
-@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (changers)")
-@RequiredPlugins("Paper 1.19+ (change player yaw/pitch)")
+@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (entity changers)")
+@RequiredPlugins("Paper 1.19+ (player changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 
 	static {
@@ -88,15 +88,15 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		} else if (object instanceof Vector) {
 			Vector vector = (Vector) object;
 			return usesYaw
-					? normalizeYaw(VectorMath.getYaw(vector))
-					: VectorMath.getPitch(vector);
+					? VectorMath.skriptYaw((VectorMath.getYaw(vector)))
+					: VectorMath.skriptPitch(VectorMath.getPitch(vector));
 		}
 		return null;
 	}
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (getExpr().getReturnType().isAssignableFrom(Player.class) && !SUPPORTS_PLAYERS)
+		if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !SUPPORTS_PLAYERS)
 			return null;
 
 		switch (mode) {
@@ -196,15 +196,9 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		float yaw = VectorMath.getYaw(vector);
 		float pitch = VectorMath.getPitch(vector);
 		switch (mode) {
-			case SET:
-				if (usesYaw) {
-					yaw = value;
-				} else {
-					pitch = value;
-				}
-				break;
 			case REMOVE:
 				value = -value;
+				// $FALL-THROUGH$
 			case ADD:
 				if (usesYaw) {
 					yaw += value;
@@ -213,8 +207,14 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 					pitch -= value;
 				}
 				break;
+			case SET:
+				if (usesYaw)
+					yaw = VectorMath.fromSkriptYaw(value);
+				else
+					pitch = VectorMath.fromSkriptPitch(value);
 		}
-		VectorMath.copyVector(vector, VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length()));
+		Vector newVector = VectorMath.fromYawAndPitch(yaw, pitch).multiply(vector.length());
+		VectorMath.copyVector(vector, newVector);
 	}
 
 	private static float normalizeYaw(float yaw) {
