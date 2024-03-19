@@ -1,0 +1,6 @@
+test "invalid unparsed literals":
+
+	parse:
+		loop 9 times:
+			set {_i} to loop-value - 1
+	assert last parse logs is not set with "skript should be able to understand 'loop-value - 1' but did not"

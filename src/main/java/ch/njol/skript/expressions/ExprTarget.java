@@ -18,6 +18,22 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.function.Predicate;
+
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -34,23 +50,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.List;
 
 @Name("Target")
 @Description({
 	"For players this is the entity at the crosshair.",
-	"For mobs and experience orbs this is the entity they are attacking/following (if any)."
+	"For mobs and experience orbs this is the entity they are attacking/following (if any).",
+	"Display entities have a hit box of 0, so you should use 'target display' to collect Display entities",
+	"May grab entities in unloaded chunks."
 })
 @Examples({
 	"on entity target:",
@@ -61,14 +67,21 @@ import java.util.List;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, 2.7 (Reset)")
+@Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"[the] target[[ed] %-*entitydata%] [of %livingentities%]",
-				"%livingentities%'[s] target[[ed] %-*entitydata%]");
+				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]", // TODO add a where filter when extendable https://github.com/SkriptLang/Skript/issues/4856
+				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]"
+		);
 	}
+
+	private static boolean ignoreBlocks;
+	private static int targetBlockDistance;
+
+	@Nullable
+	private Expression<Number> raysize;
 
 	@Nullable
 	private EntityData<?> type;
@@ -78,11 +91,17 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		type = exprs[matchedPattern] == null ? null : (EntityData<?>) exprs[matchedPattern].getSingle(null);
 		setExpr((Expression<? extends LivingEntity>) exprs[1 - matchedPattern]);
+		targetBlockDistance = SkriptConfig.maxTargetBlockDistance.value();
+		if (targetBlockDistance < 0)
+			targetBlockDistance = 100;
+		ignoreBlocks = parser.hasTag("blocks");
+		raysize = (Expression<Number>) exprs[2];
 		return true;
 	}
 
 	@Override
 	protected Entity[] get(Event event, LivingEntity[] source) {
+		double raysize = this.raysize != null ? this.raysize.getOptionalSingle(event).orElse(0.0).doubleValue() : 0.0D;
 		return get(source, entity -> {
 			if (event instanceof EntityTargetEvent && entity.equals(((EntityTargetEvent) event).getEntity()) && !Delay.isDelayed(event)) {
 				Entity target = ((EntityTargetEvent) event).getTarget();
@@ -90,7 +109,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 					return null;
 				return target;
 			}
-			return getTarget(entity, type);
+			return getTarget(entity, type, raysize);
 		});
 	}
 
@@ -118,11 +137,12 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 						targetEvent.setTarget(target);
 				}
 			} else {
+				double raysize = this.raysize != null ? this.raysize.getOptionalSingle(event).orElse(0.0).doubleValue() : 0.0D;
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Mob) {
 						((Mob) entity).setTarget(target);
 					} else if (entity instanceof Player && mode == ChangeMode.DELETE) {
-						Entity playerTarget = getTarget(entity, type);
+						Entity playerTarget = getTarget(entity, type, raysize);
 						if (playerTarget != null && !(playerTarget instanceof OfflinePlayer))
 							playerTarget.remove();
 					}
@@ -153,21 +173,59 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	/**
 	 * Gets an entity's target.
 	 *
-	 * @param entity The entity to get the target of
+	 * @param origin The entity to get the target of.
 	 * @param type The exact EntityData to find. Can be null for any entity.
-	 * @return The entity's target
+	 * @return The entity's target.
+	 * @deprecated Use {@link #getTarget(LivingEntity, EntityData, double)} to include raysize.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type) {
+		return getTarget(origin, type, 0.0D);
+	}
+
+	/**
+	 * Gets an entity's target entity.
+	 *
+	 * @param origin The entity to get the target of.
+	 * @param type The exact EntityData to find. Can be null for any entity.
+	 * @param raysize The size of the ray for the raytrace.
+	 * @return The entity's target.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <T extends Entity> T getTarget(LivingEntity entity, @Nullable EntityData<T> type) {
-		if (entity instanceof Mob)
-			return ((Mob) entity).getTarget() == null || type != null && !type.isInstance(((Mob) entity).getTarget()) ? null : (T) ((Mob) entity).getTarget();
-
-		RayTraceResult result = entity.rayTraceEntities(SkriptConfig.maxTargetBlockDistance.value());
+	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type, double raysize) {
+		if (origin instanceof Mob)
+			return ((Mob) origin).getTarget() == null || type != null && !type.isInstance(((Mob) origin).getTarget()) ? null : (T) ((Mob) origin).getTarget();
+		Location location = origin.getLocation();
+		RayTraceResult result = null;
+		// TODO when DisplayData is added.
+//		if (type.getClass().equals(DisplayData.class))
+//			raysize = 1.0D;
+		Predicate<Entity> predicate = entity -> {
+			if (entity.equals(origin))
+				return false;
+			if (type != null && !type.isInstance(entity))
+				return false;
+			if (entity instanceof Player && ((Player) entity).getGameMode() == GameMode.SPECTATOR)
+				return false;
+			return true;
+		};
+		if (!ignoreBlocks) {
+			RayTraceResult blockResult = origin.getWorld().rayTraceBlocks(origin.getEyeLocation(), location.getDirection(), targetBlockDistance);
+			if (blockResult != null) {
+				Vector hit = blockResult.getHitPosition();
+				Location eyes = origin.getEyeLocation();
+				if (hit != null)
+					result = origin.getWorld().rayTraceEntities(eyes, location.getDirection(), eyes.toVector().distance(hit), raysize, predicate);
+			}
+		} else {
+			result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), targetBlockDistance, raysize, predicate);
+		}
 		if (result == null)
 			return null;
 		Entity hitEntity = result.getHitEntity();
-		if (type != null && !type.isInstance(hitEntity))
+		if (hitEntity == null)
 			return null;
 		return (T) result.getHitEntity();
 	}
