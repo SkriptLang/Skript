@@ -21,6 +21,8 @@ package ch.njol.skript.expressions;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -42,64 +44,91 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.slot.CursorSlot;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
-@Name("Tool")
+@Name("Tool/Offhand")
 @Description("The item an entity is holding in their main or off hand.")
-@Examples({"player's tool is a pickaxe",
+@Examples({
+	"player's tool is a pickaxe",
 	"player's off hand tool is a shield",
 	"set tool of all players to a diamond sword",
-	"set offhand tool of target entity to a bow"})
-@Since("1.0")
+	"set offhand tool of target entity to a bow"
+})
+@Since("1.0, 2.2-dev37 (offhand)")
 public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
+
 	static {
 		Skript.registerExpression(ExprTool.class, Slot.class, ExpressionType.PROPERTY,
-			"[the] ((tool|held item|weapon)|1¦(off[ ]hand (tool|item))) [of %livingentities%]",
-			"%livingentities%'[s] ((tool|held item|weapon)|1¦(off[ ]hand (tool|item)))");
+				"[the] ((tool|held item|weapon)|offhand:(off[ ]hand (tool|item))) [of %livingentities%]",
+				"%livingentities%'[s] ((tool|held item|weapon)|1¦(off[ ]hand (tool|item)))");
 	}
 
 	private boolean offHand;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<LivingEntity>) exprs[0]);
-		offHand = parser.mark == 1;
+		offHand = parseResult.hasTag("offhand");
 		return true;
 	}
 
 	@Override
-	protected Slot[] get(final Event e, final LivingEntity[] source) {
-		final boolean delayed = Delay.isDelayed(e);
+	protected Slot[] get(Event event, LivingEntity[] source) {
+		boolean delayed = Delay.isDelayed(event);
 		return get(source, new Getter<Slot, LivingEntity>() {
 			@Override
 			@Nullable
-			public Slot get(final LivingEntity ent) {
+			public Slot get(LivingEntity entity) {
 				if (!delayed) {
-					if (!offHand && e instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) e).getPlayer() == ent) {
-						final PlayerInventory i = ((PlayerItemHeldEvent) e).getPlayer().getInventory();
-						return new InventorySlot(i, getTime() >= 0 ? ((PlayerItemHeldEvent) e).getNewSlot() : ((PlayerItemHeldEvent) e).getPreviousSlot());
-					} else if (e instanceof PlayerBucketEvent && ((PlayerBucketEvent) e).getPlayer() == ent) {
-						final PlayerInventory i = ((PlayerBucketEvent) e).getPlayer().getInventory();
-						boolean isOffHand = ((PlayerBucketEvent) e).getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND || offHand;
-						return new InventorySlot(i, isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber
-							: ((PlayerBucketEvent) e).getPlayer().getInventory().getHeldItemSlot()) {
+					if (offHand && event instanceof InventoryClickEvent && ((InventoryClickEvent) event).getWhoClicked().equals(entity) && getTime() == 1) {
+						// When a player uses a number key to swap an item from hotbar to offhand. This simplifies the process with future states.
+						if ((((InventoryClickEvent) event).getClick() == ClickType.NUMBER_KEY && ((InventoryClickEvent) event).getSlot() == EquipmentSlot.EquipSlot.OFF_HAND.slotNumber)) {
+							PlayerInventory inventory = ((InventoryClickEvent) event).getWhoClicked().getInventory();
+							return new InventorySlot(inventory, ((InventoryClickEvent) event).getHotbarButton());
+						} else if (((InventoryClickEvent) event).getClick() == ClickType.SWAP_OFFHAND) {
+							PlayerInventory inventory = ((InventoryClickEvent) event).getWhoClicked().getInventory();
+							return new InventorySlot(inventory, ((InventoryClickEvent) event).getSlot());
+						} else if (((InventoryClickEvent) event).getSlot() == EquipmentSlot.EquipSlot.OFF_HAND.slotNumber) {
+							switch (((InventoryClickEvent) event).getAction()) {
+								case NOTHING: // When you double click to collect to cursor, it's not COLLECT_TO_CURSOR...
+								case PICKUP_ALL:
+								case PICKUP_HALF:
+								case PICKUP_ONE:
+								case PICKUP_SOME:
+									return new InventorySlot(((InventoryClickEvent) event).getClickedInventory(), ((InventoryClickEvent) event).getRawSlot());
+								case PLACE_ALL:
+								case PLACE_ONE:
+								case PLACE_SOME:
+								case SWAP_WITH_CURSOR:
+									return new CursorSlot((Player) ((InventoryClickEvent) event).getWhoClicked());
+								default:
+									break;
+							}
+						}
+						return null;
+					} else if (!offHand && event instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) event).getPlayer() == entity) {
+						PlayerInventory inventory = ((PlayerItemHeldEvent) event).getPlayer().getInventory();
+						return new InventorySlot(inventory, getTime() >= 0 ? ((PlayerItemHeldEvent) event).getNewSlot() : ((PlayerItemHeldEvent) event).getPreviousSlot());
+					} else if (event instanceof PlayerBucketEvent && ((PlayerBucketEvent) event).getPlayer() == entity) {
+						PlayerInventory inventory = ((PlayerBucketEvent) event).getPlayer().getInventory();
+						boolean isOffHand = ((PlayerBucketEvent) event).getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND || offHand;
+						return new InventorySlot(inventory, isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber
+							: ((PlayerBucketEvent) event).getPlayer().getInventory().getHeldItemSlot()) {
 							@Override
 							@Nullable
 							public ItemStack getItem() {
-								return getTime() <= 0 ? super.getItem() : ((PlayerBucketEvent) e).getItemStack();
+								return getTime() <= 0 ? super.getItem() : ((PlayerBucketEvent) event).getItemStack();
 							}
 
 							@Override
-							public void setItem(final @Nullable ItemStack item) {
+							public void setItem(@Nullable ItemStack item) {
 								if (getTime() >= 0) {
-									((PlayerBucketEvent) e).setItemStack(item);
+									((PlayerBucketEvent) event).setItemStack(item);
 								} else {
 									super.setItem(item);
 								}
@@ -107,10 +136,10 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 						};
 					}
 				}
-				final EntityEquipment eq = ent.getEquipment();
-				if (eq == null)
+				EntityEquipment equipment = entity.getEquipment();
+				if (equipment == null)
 					return null;
-				return new EquipmentSlot(eq, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
+				return new EquipmentSlot(equipment, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
 					@Override
 					public String toString(@Nullable Event event, boolean debug) {
 						String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";
@@ -129,15 +158,14 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		String hand = offHand ? "off hand" : "";
-		return String.format("%s tool of %s", hand, getExpr().toString(e, debug));
+		return String.format("%s tool of %s", hand, getExpr().toString(event, debug));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean setTime(final int time) {
-		return super.setTime(time, getExpr(), PlayerItemHeldEvent.class, PlayerBucketFillEvent.class, PlayerBucketEmptyEvent.class);
+	public boolean setTime(int time) {
+		return super.setTime(time, PlayerItemHeldEvent.class, PlayerBucketFillEvent.class, PlayerBucketEmptyEvent.class, InventoryClickEvent.class);
 	}
 
 }
