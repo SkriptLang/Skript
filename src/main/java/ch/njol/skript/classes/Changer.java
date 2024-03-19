@@ -18,9 +18,13 @@
  */
 package ch.njol.skript.classes;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.data.DefaultChangers;
 import ch.njol.skript.lang.Expression;
 
@@ -88,6 +92,29 @@ public interface Changer<T> {
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * Handles removing string. The 'all' boolean is for if the ChangeMode is REMOVE_ALL
+		 * 
+		 * @param input The String to modify.
+		 * @param toRemove The value to remove from the input string.
+		 * @param all If the ChangeMode is REMOVE_ALL or not
+		 * @return Input formatted with the replacement.
+		 */
+		public static String handleStringRemove(String input, String toRemove, boolean all) {
+			if (SkriptConfig.caseSensitive.value()) {
+				if (all) {
+					return input.replace(toRemove, "");
+				} else {
+					// .replaceFirst requires the regex to be quoted, .replace does it internally
+					return input.replaceFirst(Pattern.quote(toRemove), "");
+				}
+			} else {
+				final Matcher m = Pattern.compile(Pattern.quote(toRemove),
+						Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(input);
+				return all ? m.replaceAll("") : m.replaceFirst("");
+			}
 		}
 		
 	}

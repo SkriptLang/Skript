@@ -31,6 +31,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -45,6 +46,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Callback;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
@@ -182,7 +184,7 @@ public class ExprLore extends SimpleExpression<String> {
 				case REMOVE:
 				case REMOVE_ALL:
 					assert stringDelta != null;
-					lore = Arrays.asList(handleRemove(
+					lore = Arrays.asList(ChangerUtils.handleStringRemove(
 							StringUtils.join(lore, "\n"), stringDelta[0], mode == ChangeMode.REMOVE_ALL).split("\n"));
 					break;
 				case RESET:
@@ -211,7 +213,7 @@ public class ExprLore extends SimpleExpression<String> {
 				case REMOVE:
 				case REMOVE_ALL:
 					assert stringDelta != null;
-					lore.set(lineNum, handleRemove(lore.get(lineNum), stringDelta[0], mode == ChangeMode.REMOVE_ALL));
+					lore.set(lineNum, ChangerUtils.handleStringRemove(lore.get(lineNum), stringDelta[0], mode == ChangeMode.REMOVE_ALL));
 					break;
 				case RESET:
 					assert false;
@@ -233,21 +235,6 @@ public class ExprLore extends SimpleExpression<String> {
 			Object[] itemDelta = i instanceof ItemStack ? new ItemType[]{new ItemType((ItemStack) i)} :
 					new ItemStack[]{((ItemType) i).getRandom()};
 			item.change(e, itemDelta, ChangeMode.SET);
-		}
-	}
-
-	private String handleRemove(String input, String toRemove, boolean all) {
-		if (SkriptConfig.caseSensitive.value()) {
-			if (all) {
-				return input.replace(toRemove, "");
-			} else {
-				// .replaceFirst requires the regex to be quoted, .replace does it internally
-				return input.replaceFirst(Pattern.quote(toRemove), "");
-			}
-		} else {
-			final Matcher m = Pattern.compile(Pattern.quote(toRemove),
-					Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(input);
-			return all ? m.replaceAll("") : m.replaceFirst("");
 		}
 	}
 
