@@ -22,6 +22,8 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.lang.script.event.ScriptEvent;
+import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;
@@ -31,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Scripts are the primary container of all code.
@@ -160,63 +161,13 @@ public final class Script {
 
 	// Script Events
 
-	private final Set<ScriptEvent> eventHandlers = new HashSet<>(5);
+	private final EventRegister<ScriptEvent> eventRegister = new EventRegister<>();
 
 	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Adds the provided event to this Script.
-	 * @param event The event to add.
+	 * @return An EventRegister for this Script's events.
 	 */
-	@ApiStatus.Experimental
-	public void registerEvent(ScriptEvent event) {
-		eventHandlers.add(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Adds the provided event to this Script.
-	 * @param eventType The type of event being added. This is useful for registering the event through lambdas.
-	 * @param event The event to add.
-	 */
-	@ApiStatus.Experimental
-	public <T extends ScriptEvent> void registerEvent(Class<T> eventType, T event) {
-		eventHandlers.add(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Removes the provided event from this Script.
-	 * @param event The event to remove.
-	 */
-	@ApiStatus.Experimental
-	public void unregisterEvent(ScriptEvent event) {
-		eventHandlers.remove(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * @return An unmodifiable set of all events.
-	 */
-	@ApiStatus.Experimental
-	@Unmodifiable
-	public Set<ScriptEvent> getEvents() {
-		return Collections.unmodifiableSet(eventHandlers);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * @param type The type of events to get.
-	 * @return An unmodifiable set of all events of the specified type.
-	 */
-	@ApiStatus.Experimental
-	@Unmodifiable
-	@SuppressWarnings("unchecked")
-	public <T extends ScriptEvent> Set<T> getEvents(Class<T> type) {
-		return Collections.unmodifiableSet(
-			(Set<T>) eventHandlers.stream()
-				.filter(event -> type.isAssignableFrom(event.getClass()))
-				.collect(Collectors.toSet())
-		);
+	public EventRegister<ScriptEvent> getEventRegister() {
+		return eventRegister;
 	}
 
 }
