@@ -23,6 +23,7 @@ import static org.bukkit.ChatColor.RESET;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.command.CommandSender;
@@ -33,118 +34,126 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.SkriptColor;
 
-/**
- * @author Peter Güttinger
- */
 public class CommandHelp {
-	
+
 	private final static String DEFAULTENTRY = "description";
-	
+
 	private final static ArgsMessage m_invalid_argument = new ArgsMessage("commands.invalid argument");
 	private final static Message m_usage = new Message("skript command.usage");
-	
+
+	private final String actualCommand, actualNode, argsColor;
 	private String command;
+	private String langNode;
+
+	private boolean revalidate = true;
 	@Nullable
 	private Message description = null;
-	private final String argsColor;
-	
+
+	private final Map<String, Object> arguments = new LinkedHashMap<>();
+
 	@Nullable
-	private String langNode = null;
-	
-	private final LinkedHashMap<String, Object> arguments = new LinkedHashMap<>();
-	
-	@Nullable
-	private Message wildcardArg = null;
-	
-	public CommandHelp(final String command, final SkriptColor argsColor, final String langNode) {
-		this.command = command;
-		this.argsColor = "" + argsColor.getFormattedChat();
-		this.langNode = langNode;
-		description = new Message(langNode + "." + DEFAULTENTRY);
+	private ArgumentHolder wildcardArg = null;
+
+	public CommandHelp(String command, SkriptColor argsColor, String langNode) {
+		this(command, argsColor.getFormattedChat(), langNode);
 	}
-	
-	public CommandHelp(final String command, final SkriptColor argsColor) {
-		this.command = command;
-		this.argsColor = "" + argsColor.getFormattedChat();
+
+	public CommandHelp(String command, SkriptColor argsColor) {
+		this(command, argsColor.getFormattedChat(), command);
 	}
-	
-	public CommandHelp add(final String argument) {
-		if (langNode == null) {
-			if (argument.startsWith("<") && argument.endsWith(">")) {
-				final String carg = GRAY + "<" + argsColor + argument.substring(1, argument.length() - 1) + GRAY + ">";
-				arguments.put(carg, argument);
-			} else {
-				arguments.put(argument, null);
-			}
-		} else {
-			if (argument.startsWith("<") && argument.endsWith(">")) {
-				final String carg = GRAY + "<" + argsColor + argument.substring(1, argument.length() - 1) + GRAY + ">";
-				wildcardArg = new Message(langNode + "." + argument);
-				arguments.put(carg, wildcardArg);
-			} else {
-				arguments.put(argument, new Message(langNode + "." + argument));
-			}
+
+	private CommandHelp(String command, String argsColor, String node) {
+		this.actualCommand = this.command = command;
+		this.actualNode = this.langNode = node;
+		this.argsColor = argsColor;
+	}
+
+	public CommandHelp add(String argument) {
+		ArgumentHolder holder = new ArgumentHolder(argument);
+		if (argument.startsWith("<") && argument.endsWith(">")) {
+			argument = GRAY + "<" + argsColor + argument.substring(1, argument.length() - 1) + GRAY + ">";
+			wildcardArg = holder;
 		}
+		arguments.put(argument, holder);
 		return this;
 	}
-	
-	public CommandHelp add(final CommandHelp help) {
+
+	public CommandHelp add(CommandHelp help) {
 		arguments.put(help.command, help);
 		help.onAdd(this);
 		return this;
 	}
-	
-	protected void onAdd(final CommandHelp parent) {
-		langNode = parent.langNode + "." + command;
-		description = new Message(langNode + "." + DEFAULTENTRY);
-		command = parent.command + " " + parent.argsColor + command;
-		for (final Entry<String, Object> e : arguments.entrySet()) {
-			if (e.getValue() instanceof CommandHelp) {
-				((CommandHelp) e.getValue()).onAdd(this);
-			} else {
-				if (e.getValue() != null) { // wildcard arg
-					wildcardArg = new Message(langNode + "." + e.getValue());
-					e.setValue(wildcardArg);
-				} else {
-					e.setValue(new Message(langNode + "." + e.getKey()));
-				}
+
+	protected void onAdd(CommandHelp parent) {
+		langNode = parent.langNode + "." + actualNode;
+		command = parent.command + " " + parent.argsColor + actualCommand;
+		revalidate = true;
+		for (Entry<String, Object> entry : arguments.entrySet()) {
+			if (entry.getValue() instanceof CommandHelp) {
+				((CommandHelp) entry.getValue()).onAdd(this);
+				continue;
 			}
+			((ArgumentHolder) entry.getValue()).revalidate = true;
 		}
 	}
-	
-	public boolean test(final CommandSender sender, final String[] args) {
+
+	public boolean test(CommandSender sender, String[] args) {
 		return test(sender, args, 0);
 	}
-	
-	private boolean test(final CommandSender sender, final String[] args, final int index) {
+
+	private boolean test(CommandSender sender, String[] args, int index) {
 		if (index >= args.length) {
 			showHelp(sender);
 			return false;
 		}
-		final Object help = arguments.get(args[index].toLowerCase(Locale.ENGLISH));
+		Object help = arguments.get(args[index].toLowerCase(Locale.ENGLISH));
 		if (help == null && wildcardArg == null) {
 			showHelp(sender, m_invalid_argument.toString(argsColor + args[index]));
 			return false;
 		}
-		if (help instanceof CommandHelp)
-			return ((CommandHelp) help).test(sender, args, index + 1);
-		return true;
+		return !(help instanceof CommandHelp) || ((CommandHelp) help).test(sender, args, index + 1);
 	}
-	
-	public void showHelp(final CommandSender sender) {
+
+	public void showHelp(CommandSender sender) {
 		showHelp(sender, m_usage.toString());
 	}
-	
-	private void showHelp(final CommandSender sender, final String pre) {
+
+	private void showHelp(CommandSender sender, String pre) {
 		Skript.message(sender, pre + " " + command + " " + argsColor + "...");
-		for (final Entry<String, Object> e : arguments.entrySet()) {
-			Skript.message(sender, "  " + argsColor + e.getKey() + " " + GRAY + "-" + RESET + " " + e.getValue());
-		}
+		for (Entry<String, Object> entry : arguments.entrySet())
+			Skript.message(sender, "  " + argsColor + entry.getKey() + " " + GRAY + "-" + RESET + " " + entry.getValue());
 	}
-	
+
 	@Override
 	public String toString() {
+		if (revalidate) {
+			// We don't want to create a new Message object each time toString is called
+			description = new Message(langNode + "." + DEFAULTENTRY);
+			revalidate = false;
+		}
 		return "" + description;
 	}
-	
+
+	private class ArgumentHolder {
+
+		private final String argument;
+		private boolean revalidate = true;
+		@Nullable
+		private Message description = null; 
+
+		private ArgumentHolder(String argument) {
+			this.argument = argument;
+		}
+
+		@Override
+		public String toString() {
+			if (revalidate) {
+				description = new Message(langNode + "." + argument);
+				revalidate = false;
+			}
+			return "" + description;
+		}
+
+	}
+
 }

@@ -412,6 +412,7 @@ chat styles:
 	font: font, f
 	insertion: insertion, insert, ins
 	translate: translate, tr, lang
+	keybind: keybind, key
 
 # -- Directions --
 directions:
@@ -1240,6 +1241,13 @@ entities:
 	text display:
 		name: text display¦s
 		pattern: text display(|1¦s)
+	# 1.20.3 Entities
+	breeze:
+		name: breeze¦s
+		pattern: breeze(|1¦s)
+	wind charge:
+		name: wind charge¦s
+		pattern: wind charge(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
@@ -1299,6 +1307,8 @@ damage causes:
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
 	sonic_boom: sonic boom
+	kill: kill, killed
+	world_border: world border
 
 # -- Teleport Causes --
 teleport causes:
@@ -1312,6 +1322,19 @@ teleport causes:
 	spectate: spectate, spectator
 	unknown: unknown
 	dismount: dismount, dismounted
+	exit_bed: exit bed, exiting bed, bed exit
+
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: can't use, can not use, cannot use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
 
 # -- Game Modes --
 game modes:
@@ -1803,6 +1826,8 @@ inventory types:
 	smithing: smithing inventory @a
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+	decorated_pot: decorated pot @a
+	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
@@ -1872,6 +1897,10 @@ resource pack states:
 	declined: decline, refuse, reject, declined, refused, rejected
 	failed_download: download fail, fail, failed to download, failed
 	successfully_loaded: successfully load, successfully install, success, successfully loaded, successfully installed
+	downloaded: downloaded
+	invalid_url: invalid url
+	failed_reload: failed reload, failed to reload
+	discarded: discarded
 
 # -- Sound Categories --
 sound categories:
@@ -1907,6 +1936,7 @@ attribute types:
 	generic_follow_range: generic follow range, follow range
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
 	horse_jump_strength: horse jump strength
@@ -1930,6 +1960,26 @@ moon phases:
 	waxing_crescent: waxing crescent
 	waxing_gibbous: waxing gibbous
 
+# -- Quit Reasons --
+quit reasons:
+	disconnected: disconnected, quit
+	erroneous_state: erroneous, erroneous state
+	kicked: kicked
+	timed_out: timed out
+
+# -- Transform Reasons --
+transform reasons:
+	cured: zombie cure, zombie curing, curing
+	drowned: entity drowning, drowning, zombie converting to drowned, zombie drowning
+	frozen: entity freezing, entity freeze, skeleton freezing, skeleton freeze, skeleton converting to stray
+	lightning: lightning, creeper super charge
+	metamorphosis: tadpole converting, tadpole converting to frog, tadpole metamorphosis, metamorphosis
+	piglin_zombified: piglin zombification
+	sheared: mooshroom shear, mooshroom shearing
+	split: slime split, slime splitting, split, magma slime split, magma slime splitting
+	unknown: unknown
+	infection: infection, villager infection
+
 # -- Boolean --
 boolean:
 	true:
@@ -1938,6 +1988,14 @@ boolean:
 	false:
 		name: false
 		pattern: (false|no|off)
+
+# -- Operators --
+operators:
+	add: addition
+	subtract: subtraction
+	multiply: multiplication
+	divide: division
+	exponentiate: exponentiation
 
 # -- Types --
 types:
@@ -1964,7 +2022,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a
@@ -1998,6 +2056,9 @@ types:
 	resourcepackstate: resource pack state¦s @a
 	gene: panda gene¦s @a
 	gamerulevalue: gamerule value¦s @a
+	quitreason: quit reason¦s @a
+	inventoryclosereason: inventory close reason¦s @an
+	transformreason: transform reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
