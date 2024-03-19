@@ -46,9 +46,18 @@ public class StructEvent extends Structure {
 	@SuppressWarnings("ConstantConditions")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
 		String expr = parseResult.regexes.get(0).group();
+
+		EventData data = getParser().getData(EventData.class);
+		// ensure there's no leftover data from previous parses
+		data.clear();
+
 		if (!parseResult.tags.isEmpty())
-			getParser().getData(EventData.class).priority = EventPriority.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+			data.priority = EventPriority.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+
 		event = SkriptEvent.parse(expr, entryContainer.getSource(), null);
+
+		// cleanup after ourselves
+		data.clear();
 		return event != null;
 	}
 
@@ -110,6 +119,13 @@ public class StructEvent extends Structure {
 		@Nullable
 		public EventPriority getPriority() {
 			return priority;
+		}
+
+		/**
+		 * Clears all event-specific data from this instance.
+		 */
+		public void clear() {
+			priority = null;
 		}
 
 	}

@@ -41,7 +41,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorCrossProduct.class, Vector.class, ExpressionType.SIMPLE, "%vector% cross %vector%");
+		Skript.registerExpression(ExprVectorCrossProduct.class, Vector.class, ExpressionType.COMBINED, "%vector% cross %vector%");
 	}
 
 	@SuppressWarnings("null")
