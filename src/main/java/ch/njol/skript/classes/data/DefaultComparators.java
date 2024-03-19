@@ -24,27 +24,26 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
-import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.skript.util.StructureType;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -52,7 +51,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.ChestBoat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
@@ -62,6 +60,9 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Objects;
 
@@ -146,7 +147,7 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
@@ -162,11 +163,11 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
-		
+
 		// ItemStack - ItemType
 		Comparators.registerComparator(ItemStack.class, ItemType.class, new Comparator<ItemStack, ItemType>() {
 			@Override
@@ -175,7 +176,7 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
@@ -188,7 +189,7 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
@@ -201,7 +202,7 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
@@ -211,6 +212,19 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(Block block, BlockData data) {
 				return Relation.get(block.getBlockData().matches(data));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// BlockData - BlockData
+		Comparators.registerComparator(BlockData.class, BlockData.class, new Comparator<BlockData, BlockData>() {
+			@Override
+			public Relation compare(BlockData data1, BlockData data2) {
+				return Relation.get(data1.matches(data2));
 			}
 
 			@Override
@@ -237,7 +251,7 @@ public class DefaultComparators {
 			}
 
 			@Override
-			public boolean supportsOrdering() {
+			public boolean supportsInversion() {
 				return false;
 			}
 		});
@@ -610,6 +624,28 @@ public class DefaultComparators {
 			@Override
 			public Relation compare(World world, WeatherType weatherType) {
 				return Relation.get(WeatherType.fromWorld(world) == weatherType);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// Location - Location
+		Comparators.registerComparator(Location.class, Location.class, new Comparator<Location, Location>() {
+			@Override
+			public Relation compare(Location first, Location second) {
+				return Relation.get(
+						// compare worlds
+						Objects.equals(first.getWorld(), second.getWorld()) &&
+						// compare xyz coords
+						first.toVector().equals(second.toVector()) &&
+						// normalize yaw and pitch to [-180, 180) and [-90, 90] respectively
+						// before comparing them
+						Location.normalizeYaw(first.getYaw()) == Location.normalizeYaw(second.getYaw()) &&
+						Location.normalizePitch(first.getPitch()) == Location.normalizePitch(second.getPitch())
+				);
 			}
 
 			@Override

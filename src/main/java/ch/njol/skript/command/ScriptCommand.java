@@ -18,44 +18,11 @@
  */
 package ch.njol.skript.command;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-
 import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.config.SectionNode;
-import org.skriptlang.skript.lang.script.Script;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.command.TabExecutor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.help.GenericCommandHelpTopic;
-import org.bukkit.help.HelpMap;
-import org.bukkit.help.HelpTopic;
-import org.bukkit.help.HelpTopicComparator;
-import org.bukkit.help.IndexHelpTopic;
-import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.command.Commands.CommandAliasHelpTopic;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
@@ -77,6 +44,39 @@ import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import ch.njol.util.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.help.GenericCommandHelpTopic;
+import org.bukkit.help.HelpMap;
+import org.bukkit.help.HelpTopic;
+import org.bukkit.help.HelpTopicComparator;
+import org.bukkit.help.IndexHelpTopic;
+import org.bukkit.plugin.Plugin;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This class is used for user-defined commands.
@@ -85,6 +85,7 @@ public class ScriptCommand implements TabExecutor {
 
 	public final static Message m_executable_by_players = new Message("commands.executable by players");
 	public final static Message m_executable_by_console = new Message("commands.executable by console");
+	private static final String DEFAULT_PREFIX = "skript";
 
 	final String name;
 	private final String label;
@@ -93,6 +94,7 @@ public class ScriptCommand implements TabExecutor {
 	private String permission;
 	private final VariableString permissionMessage;
 	private final String description;
+	private final String prefix;
 	@Nullable
 	private final Timespan cooldown;
 	private final Expression<String> cooldownMessage;
@@ -115,11 +117,12 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Creates a new SkriptCommand.
-	 * 
+	 *
 	 * @param name /name
 	 * @param pattern
 	 * @param arguments the list of Arguments this command takes
 	 * @param description description to display in /help
+	 * @param prefix the prefix of the command
 	 * @param usage message to display if the command was used incorrectly
 	 * @param aliases /alias1, /alias2, ...
 	 * @param permission permission or null if none
@@ -128,7 +131,7 @@ public class ScriptCommand implements TabExecutor {
 	 */
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, String usage, List<String> aliases,
+		String description, @Nullable String prefix, String usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -144,6 +147,25 @@ public class ScriptCommand implements TabExecutor {
 		} else {
 			this.permissionMessage = permissionMessage;
 		}
+
+		if (prefix != null) {
+			for (char c : prefix.toCharArray()) {
+				if (Character.isWhitespace(c)) {
+					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					prefix = ScriptCommand.DEFAULT_PREFIX;
+					break;
+				}
+				// char 167 is §
+				if (c == 167) {
+					Skript.warning("command /" + name + " has a section character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
+					prefix = ScriptCommand.DEFAULT_PREFIX;
+					break;
+				}
+			}
+		} else {
+			prefix = DEFAULT_PREFIX;
+		}
+		this.prefix = prefix;
 
 		this.cooldown = cooldown;
 		this.cooldownMessage = cooldownMessage == null
@@ -215,16 +237,8 @@ public class ScriptCommand implements TabExecutor {
 
 		final ScriptCommandEvent event = new ScriptCommandEvent(ScriptCommand.this, sender, commandLabel, rest);
 
-		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-			if (sender instanceof Player) {
-				List<MessageComponent> components =
-						permissionMessage.getMessageComponents(event);
-				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
-			} else {
-				sender.sendMessage(permissionMessage.getSingle(event));
-			}
+		if (!checkPermissions(sender, event))
 			return false;
-		}
 
 		cooldownCheck : {
 			if (sender instanceof Player && cooldown != null) {
@@ -252,9 +266,21 @@ public class ScriptCommand implements TabExecutor {
 		}
 
 		Runnable runnable = () -> {
+			// save previous last usage date to check if the execution has set the last usage date
+			Date previousLastUsage = null;
+			if (sender instanceof Player)
+				previousLastUsage = getLastUsage(((Player) sender).getUniqueId(), event);
+
+			// execute the command - may modify the last usage date
 			execute2(event, sender, commandLabel, rest);
-			if (sender instanceof Player && !event.isCooldownCancelled())
-				setLastUsage(((Player) sender).getUniqueId(), event, new Date());
+
+			if (sender instanceof Player && !event.isCooldownCancelled()) {
+				Date lastUsage = getLastUsage(((Player) sender).getUniqueId(), event);
+				// check if the execution has set the last usage date
+				// if not, set it to the current date. if it has, we leave it alone so as not to affect the remaining/elapsed time (#5862)
+				if (Objects.equals(lastUsage, previousLastUsage))
+					setLastUsage(((Player) sender).getUniqueId(), event, new Date());
+			}
 		};
 		if (Bukkit.isPrimaryThread()) {
 			runnable.run();
@@ -282,16 +308,34 @@ public class ScriptCommand implements TabExecutor {
 		} finally {
 			log.stop();
 		}
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# /" + name + " " + rest);
 		final long startTrigger = System.nanoTime();
-		
+
 		if (!trigger.execute(event))
 			sender.sendMessage(Commands.m_internal_error.toString());
-		
+
 		if (Skript.log(Verbosity.VERY_HIGH))
 			Skript.info("# " + name + " took " + 1. * (System.nanoTime() - startTrigger) / 1000000. + " milliseconds");
+		return true;
+	}
+
+	public boolean checkPermissions(CommandSender sender, String commandLabel, String arguments) {
+		return checkPermissions(sender, new ScriptCommandEvent(this, sender, commandLabel, arguments));
+	}
+
+	public boolean checkPermissions(CommandSender sender, Event event) {
+		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+			if (sender instanceof Player) {
+				List<MessageComponent> components =
+					permissionMessage.getMessageComponents(event);
+				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
+			} else {
+				sender.sendMessage(permissionMessage.getSingle(event));
+			}
+			return false;
+		}
 		return true;
 	}
 
@@ -303,7 +347,7 @@ public class ScriptCommand implements TabExecutor {
 
 	/**
 	 * Gets the arguments this command takes.
-	 * 
+	 *
 	 * @return The internal list of arguments. Do not modify it!
 	 */
 	public List<Argument<?>> getArguments() {
@@ -318,7 +362,7 @@ public class ScriptCommand implements TabExecutor {
 	private transient Command overridden = null;
 	private transient Map<String, Command> overriddenAliases = new HashMap<>();
 
-	public void register(final SimpleCommandMap commandMap, final Map<String, Command> knownCommands, final @Nullable Set<String> aliases) {
+	public void register(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
 		synchronized (commandMap) {
 			overriddenAliases.clear();
 			overridden = knownCommands.put(label, bukkitCommand);
@@ -336,19 +380,19 @@ public class ScriptCommand implements TabExecutor {
 					aliases.add(lowerAlias);
 			}
 			bukkitCommand.setAliases(activeAliases);
-			commandMap.register("skript", bukkitCommand);
+			commandMap.register(prefix, bukkitCommand);
 		}
 	}
 
-	public void unregister(final SimpleCommandMap commandMap, final Map<String, Command> knownCommands, final @Nullable Set<String> aliases) {
+	public void unregister(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
 		synchronized (commandMap) {
 			knownCommands.remove(label);
-			knownCommands.remove("skript:" + label);
+			knownCommands.remove(prefix + ":" + label);
 			if (aliases != null)
 				aliases.removeAll(activeAliases);
 			for (final String alias : activeAliases) {
 				knownCommands.remove(alias);
-				knownCommands.remove("skript:" + alias);
+				knownCommands.remove(prefix + ":" + alias);
 			}
 			activeAliases = new ArrayList<>(this.aliases);
 			bukkitCommand.unregister(commandMap);
@@ -419,6 +463,10 @@ public class ScriptCommand implements TabExecutor {
 		return name;
 	}
 
+	public String getPrefix() {
+		return prefix;
+	}
+
 	public String getLabel() {
 		return label;
 	}
@@ -448,7 +496,13 @@ public class ScriptCommand implements TabExecutor {
 		} else {
 			String name = getStorageVariableName(event);
 			assert name != null;
-			return (Date) Variables.getVariable(name, null, false);
+			Object variable = Variables.getVariable(name, null, false);
+			if (!(variable instanceof Date)) {
+				Skript.warning("Variable {" + name + "} was not a date! You may be using this variable elsewhere. " +
+						"This warning is letting you know that this variable is now overridden for the command storage.");
+				return null;
+			}
+			return (Date) variable;
 		}
 	}
 
@@ -484,7 +538,7 @@ public class ScriptCommand implements TabExecutor {
 		assert cooldown != null;
 		long cooldownMs = cooldown.getMilliSeconds();
 		if (milliseconds > cooldownMs)
-			throw new IllegalArgumentException("Remaining time may not be longer than the cooldown");
+			milliseconds = cooldownMs;
 		setElapsedMilliSeconds(uuid, event, cooldownMs - milliseconds);
 	}
 
@@ -531,7 +585,7 @@ public class ScriptCommand implements TabExecutor {
 		Class<?> argType = arg.getType();
 		if (argType.equals(Player.class) || argType.equals(OfflinePlayer.class))
 			return null; // Default completion
-		
+
 		return Collections.emptyList(); // No tab completion here!
 	}
 

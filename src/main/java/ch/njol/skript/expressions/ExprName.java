@@ -37,8 +37,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.World;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -52,71 +54,83 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Name / Display Name / Tab List Name")
-@Description({"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, or gamerule.",
-		"",
-		"<ul>",
-		"\t<li><strong>Players</strong>",
-		"\t\t<ul>",
-		"\t\t\t<li><strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.</li>",
-		"\t\t\t<li><strong>Display Name:</strong> The name of the player that is displayed in messages. " +
-			"This name can be changed freely and can include colour codes, and is shared among all plugins (e.g. chat plugins will use the display name).</li>",
-		"\t\t</ul>",
-		"\t</li>",
-		"\t<li><strong>Entities</strong>",
-		"\t\t<ul>",
-		"\t\t\t<li><strong>Name:</strong> The custom name of the entity. Can be changed. But for living entities, " +
-			"the players will have to target the entity to see its name tag. For non-living entities, the name will not be visible at all. To prevent this, use 'display name'.</li>",
-		"\t\t\t<li><strong>Display Name:</strong> The custom name of the entity. Can be changed, " +
-			"which will also enable <em>custom name visibility</em> of the entity so name tag of the entity will be visible always.</li>",
-		"\t\t</ul>",
-		"\t</li>",
-		"\t<li><strong>Items</strong>",
-		"\t\t<ul>",
-		"\t\t\t<li><strong>Name and Display Name:</strong> The <em>custom</em> name of the item (not the Minecraft locale name). Can be changed.</li>",
-		"\t\t</ul>",
-		"\t</li>",
-		"\t<li><strong>Inventories</strong>",
-		"\t\t<ul>",
-		"\t\t\t<li><strong>Name and Display Name:</strong> The name/title of the inventory. " +
-			"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.</li>",
-		"\t\t</ul>",
-		"\t</li>",
-		"\t<li><strong>Gamerules (1.13+)</strong>",
-		"\t\t<ul>",
-		"\t\t\t<li><strong>Name:</strong> The name of the gamerule. Cannot be changed.</li>",
-		"\t\t</ul>",
-		"\t</li>",
-		"</ul>"})
-@Examples({"on join:",
-		"	player has permission \"name.red\"",
-		"	set the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
-		"	set the player's tab list name to \"&lt;green&gt;%player's name%\"",
-		"set the name of the player's tool to \"Legendary Sword of Awesomeness\""})
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name)")
+@Description({
+	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, gamerule or world.",
+	"",
+	"<ul>",
+	"\t<li><strong>Players</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.</li>",
+	"\t\t\t<li><strong>Display Name:</strong> The name of the player that is displayed in messages. " +
+		"This name can be changed freely and can include color codes, and is shared among all plugins (e.g. chat plugins will use the display name).</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"\t<li><strong>Entities</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The custom name of the entity. Can be changed. But for living entities, " +
+		"the players will have to target the entity to see its name tag. For non-living entities, the name will not be visible at all. To prevent this, use 'display name'.</li>",
+	"\t\t\t<li><strong>Display Name:</strong> The custom name of the entity. Can be changed, " +
+		"which will also enable <em>custom name visibility</em> of the entity so name tag of the entity will be visible always.</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"\t<li><strong>Items</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name and Display Name:</strong> The <em>custom</em> name of the item (not the Minecraft locale name). Can be changed.</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"\t<li><strong>Inventories</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name and Display Name:</strong> The name/title of the inventory. " +
+		"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"\t<li><strong>Gamerules (1.13+)</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of the gamerule. Cannot be changed.</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"\t<li><strong>Worlds</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
+	"\t\t</ul>",
+	"\t</li>",
+	"</ul>"
+})
+@Examples({
+	"on join:",
+	"\tplayer has permission \"name.red\"",
+	"\tset the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
+	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
+	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
+})
+@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
-	static final MethodHandle TITLE_METHOD;
+	private static BungeeComponentSerializer serializer;
 	static final boolean HAS_GAMERULES;
 
 	static {
+		// Check for Adventure API
+		if (Skript.classExists("net.kyori.adventure.text.Component") &&
+				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots"
-                + (HAS_GAMERULES ? "/gamerules" : ""));
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
+			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
-
-		// Get the old method for getting the name of an inventory.
-		MethodHandle _METHOD = null;
-		try {
-			_METHOD = MethodHandles.lookup().findVirtual(Inventory.class, "getTitle", MethodType.methodType(String.class));
-		} catch (IllegalAccessException | NoSuchMethodException ignored) {}
-		TITLE_METHOD = _METHOD;
 	}
 
 	/*
@@ -127,62 +141,59 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	private int mark;
 	private static final ItemType AIR = Aliases.javaItemType("air");
 
-	@SuppressWarnings("null")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		mark = parseResult.mark;
 		setExpr(exprs[0]);
+		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
+			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	@Nullable
-	public String convert(Object o) {
-		if (o instanceof OfflinePlayer && ((OfflinePlayer) o).isOnline())
-			o = ((OfflinePlayer) o).getPlayer();
+	public String convert(Object object) {
+		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
+			object = ((OfflinePlayer) object).getPlayer();
 
-		if (o instanceof Player) {
+		if (object instanceof Player) {
 			switch (mark) {
 				case 1:
-					return ((Player) o).getName();
+					return ((Player) object).getName();
 				case 2:
-					return ((Player) o).getDisplayName();
+					return ((Player) object).getDisplayName();
 				case 3:
-					return ((Player) o).getPlayerListName();
+					return ((Player) object).getPlayerListName();
 			}
-		} else if (o instanceof OfflinePlayer) {
-			return mark == 1 ? ((OfflinePlayer) o).getName() : null;
-		} else if (o instanceof Entity) {
-			return ((Entity) o).getCustomName();
-		} else if (o instanceof Block) {
-			BlockState state = ((Block) o).getState();
+		} else if (object instanceof OfflinePlayer) {
+			return mark == 1 ? ((OfflinePlayer) object).getName() : null;
+		} else if (object instanceof Entity) {
+			return ((Entity) object).getCustomName();
+		} else if (object instanceof Block) {
+			BlockState state = ((Block) object).getState();
 			if (state instanceof Nameable)
 				return ((Nameable) state).getCustomName();
-		} else if (o instanceof ItemType) {
-			ItemMeta m = ((ItemType) o).getItemMeta();
+		} else if (object instanceof ItemType) {
+			ItemMeta m = ((ItemType) object).getItemMeta();
 			return m.hasDisplayName() ? m.getDisplayName() : null;
-		} else if (o instanceof Inventory) {
-			if (TITLE_METHOD != null) {
-				try {
-					return (String) TITLE_METHOD.invoke(o);
-				} catch (Throwable e) {
-					Skript.exception(e);
-					return null;
-				}
-			} else {
-				if (!((Inventory) o).getViewers().isEmpty())
-					return ((Inventory) o).getViewers().get(0).getOpenInventory().getTitle();
+		} else if (object instanceof Inventory) {
+			Inventory inventory = (Inventory) object;
+			if (inventory.getViewers().isEmpty())
 				return null;
-			}
-		} else if (o instanceof Slot) {
-			ItemStack is = ((Slot) o).getItem();
+			return inventory.getViewers().get(0).getOpenInventory().getTitle();
+		} else if (object instanceof Slot) {
+			ItemStack is = ((Slot) object).getItem();
 			if (is != null && is.hasItemMeta()) {
 				ItemMeta m = is.getItemMeta();
 				return m.hasDisplayName() ? m.getDisplayName() : null;
 			}
-		} else if (HAS_GAMERULES && o instanceof GameRule) {
-            return ((GameRule) o).getName();
-        }
+		} else if (object instanceof World) {
+			return ((World) object).getName();
+		} else if (HAS_GAMERULES && object instanceof GameRule) {
+			return ((GameRule) object).getName();
+		}
 		return null;
 	}
 
@@ -190,47 +201,51 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
-			if (mark == 1 && Player.class.isAssignableFrom(getExpr().getReturnType())) {
-				Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
-				return null;
+			if (mark == 1) {
+				if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
+					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
+					return null;
+				} else if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				}
 			}
 			return CollectionUtils.array(String.class);
 		}
-		return null;	
+		return null;
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
-		for (Object o : getExpr().getArray(e)) {
-			if (o instanceof Player) {
+		for (Object object : getExpr().getArray(event)) {
+			if (object instanceof Player) {
 				switch (mark) {
-					case 2: 
-						((Player) o).setDisplayName(name != null ? name + ChatColor.RESET : ((Player) o).getName());
+					case 2:
+						((Player) object).setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
 						break;
 					case 3: // Null check not necessary. This method will use the player's name if 'name' is null.
-						((Player) o).setPlayerListName(name);
+						((Player) object).setPlayerListName(name);
 						break;
 				}
-			} else if (o instanceof Entity) {
-				((Entity) o).setCustomName(name);
+			} else if (object instanceof Entity) {
+				((Entity) object).setCustomName(name);
 				if (mark == 2 || mode == ChangeMode.RESET) // Using "display name"
-					((Entity) o).setCustomNameVisible(name != null);
-				if (o instanceof LivingEntity)
-					((LivingEntity) o).setRemoveWhenFarAway(name == null);
-			} else if (o instanceof Block) {
-				BlockState state = ((Block) o).getState();
+					((Entity) object).setCustomNameVisible(name != null);
+				if (object instanceof LivingEntity)
+					((LivingEntity) object).setRemoveWhenFarAway(name == null);
+			} else if (object instanceof Block) {
+				BlockState state = ((Block) object).getState();
 				if (state instanceof Nameable) {
 					((Nameable) state).setCustomName(name);
 					state.update();
 				}
-			} else if (o instanceof ItemType) {
-				ItemType i = (ItemType) o;
+			} else if (object instanceof ItemType) {
+				ItemType i = (ItemType) object;
 				ItemMeta m = i.getItemMeta();
 				m.setDisplayName(name);
 				i.setItemMeta(m);
-			} else if (o instanceof Inventory) {
-				Inventory inv = (Inventory) o;
+			} else if (object instanceof Inventory) {
+				Inventory inv = (Inventory) object;
 
 				if (inv.getViewers().isEmpty())
 					return;
@@ -240,19 +255,32 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				InventoryType type = inv.getType();
 				if (!type.isCreatable())
 					return;
-				if (name == null)
-					name = type.getDefaultTitle();
 
 				Inventory copy;
-				if (type == InventoryType.CHEST) {
-					copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
+				if (serializer == null) {
+					if (name == null)
+						name = type.getDefaultTitle();
+					if (type == InventoryType.CHEST) {
+						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
+					} else {
+						copy = Bukkit.createInventory(inv.getHolder(), type, name);
+					}
 				} else {
-					copy = Bukkit.createInventory(inv.getHolder(), type, name);
+					Component component = type.defaultTitle();
+					if (name != null) {
+						BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(name));
+						component = serializer.deserialize(components);
+					}
+					if (type == InventoryType.CHEST) {
+						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), component);
+					} else {
+						copy = Bukkit.createInventory(inv.getHolder(), type, component);
+					}
 				}
 				copy.setContents(inv.getContents());
 				viewers.forEach(viewer -> viewer.openInventory(copy));
-			} else if (o instanceof Slot) {
-				Slot s = (Slot) o;
+			} else if (object instanceof Slot) {
+				Slot s = (Slot) object;
 				ItemStack is = s.getItem();
 				if (is != null && !AIR.isOfType(is)) {
 					ItemMeta m = is.hasItemMeta() ? is.getItemMeta() : Bukkit.getItemFactory().getItemMeta(is.getType());

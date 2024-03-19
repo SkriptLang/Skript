@@ -1,0 +1,19 @@
+function {@function}) :: boolean:
+	return true
+
+options:
+	function: foo(
+
+function local() :: number:
+	return 1
+
+local function local() :: number:
+	return 2
+
+local function bar() :: boolean:
+	return true
+
+test "functions":
+	assert foo() is true with "function return type failed"
+	assert local() is not 1 with "global function parsed before local function"
+	assert bar() is true with "local function didn't execute correctly"

@@ -18,20 +18,19 @@
  */
 package ch.njol.skript.expressions.base;
 
-import java.util.Iterator;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Converter.ConverterInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.Iterator;
 
 /**
  * Represents an expression which is a wrapper of another one. Remember to set the wrapped expression in the constructor ({@link #WrapperExpression(SimpleExpression)})
@@ -47,7 +46,7 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	@SuppressWarnings("null")
 	protected WrapperExpression() {}
 	
-	public WrapperExpression(final SimpleExpression<? extends T> expr) {
+	public WrapperExpression(SimpleExpression<? extends T> expr) {
 		this.expr = expr;
 	}
 	
@@ -56,7 +55,7 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	 * this expression.
 	 * @param expr Wrapped expression.
 	 */
-	protected void setExpr(final Expression<? extends T> expr) {
+	protected void setExpr(Expression<? extends T> expr) {
 		this.expr = expr;
 	}
 	
@@ -66,19 +65,19 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	
 	@Override
 	@Nullable
-	protected <R> ConvertedExpression<T, ? extends R> getConvertedExpr(final Class<R>... to) {
-		for (final Class<R> c : to) {
-			assert c != null;
-			@SuppressWarnings("unchecked")
-			final ConverterInfo<? super T, ? extends R> conv = (ConverterInfo<? super T, ? extends R>) Converters.getConverterInfo(getReturnType(), c);
+	@SuppressWarnings("unchecked")
+	protected <R> ConvertedExpression<T, ? extends R> getConvertedExpr(Class<R>... to) {
+		for (Class<R> type : to) {
+			assert type != null;
+			ConverterInfo<? super T, ? extends R> conv = (ConverterInfo<? super T, ? extends R>) Converters.getConverterInfo(getReturnType(), type);
 			if (conv == null)
 				continue;
-			return new ConvertedExpression<T, R>(expr, c, conv) {
+			return new ConvertedExpression<T, R>(expr, type, conv) {
 				@Override
-				public String toString(final @Nullable Event e, final boolean debug) {
-					if (debug && e == null)
-						return "(" + WrapperExpression.this.toString(e, debug) + ")->" + to.getName();
-					return WrapperExpression.this.toString(e, debug);
+				public String toString(@Nullable Event event, boolean debug) {
+					if (debug && event == null)
+						return "(" + WrapperExpression.this.toString(event, debug) + ")->" + to.getName();
+					return WrapperExpression.this.toString(event, debug);
 				}
 			};
 		}
@@ -86,14 +85,14 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	protected T[] get(final Event e) {
-		return expr.getArray(e);
+	protected T[] get(Event event) {
+		return expr.getArray(event);
 	}
 	
 	@Override
 	@Nullable
-	public Iterator<? extends T> iterator(final Event e) {
-		return expr.iterator(e);
+	public Iterator<? extends T> iterator(Event event) {
+		return expr.iterator(event);
 	}
 	
 	@Override
@@ -113,17 +112,17 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		return expr.acceptChange(mode);
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		expr.change(e, delta, mode);
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		expr.change(event, delta, mode);
 	}
 	
 	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		return expr.setTime(time);
 	}
 	

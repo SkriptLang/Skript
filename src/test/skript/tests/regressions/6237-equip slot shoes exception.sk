@@ -1,0 +1,10 @@
+test "equip slot shoes exception":
+	# this one threw an exception since EquipSlot.SHOES doesn't exist
+	set {_} to shoes of {_entity}
+	# just in case, test the rest
+	set {_} to boots of {_entity}
+	set {_} to leggings of {_entity}
+	set {_} to chestplate of {_entity}
+	set {_} to helmet of {_entity}
+	set {_armor::*} to armour of {_entity}
+

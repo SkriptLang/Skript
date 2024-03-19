@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.structures;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -35,61 +36,93 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Function")
 @Description({
 	"Functions are structures that can be executed with arguments/parameters to run code.",
-	"They can also return a value to the trigger that is executing the function."
+	"They can also return a value to the trigger that is executing the function.",
+	"Note that local functions come before global functions execution"
 })
 @Examples({
 	"function sayMessage(message: text):",
 	"\tbroadcast {_message} # our message argument is available in '{_message}'",
-	"function giveApple(amount: number) :: item:",
-	"\treturn {_amount} of apple"
+	"",
+	"local function giveApple(amount: number) :: item:",
+	"\treturn {_amount} of apple",
+	"",
+	"function getPoints(p: player) returns number:",
+	"\treturn {points::%{_p}%}"
 })
-@Since("2.2")
+@Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);
 
-	private static final AtomicBoolean validateFunctions = new AtomicBoolean();
+	private static final Pattern SIGNATURE_PATTERN =
+			Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
+	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {
-		Skript.registerStructure(StructFunction.class, "function <.+>");
+		Skript.registerStructure(StructFunction.class,
+			"[:local] function <.+>"
+		);
 	}
 
 	@Nullable
 	private Signature<?> signature;
+	private boolean local;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		local = parseResult.hasTag("local");
 		return true;
 	}
 
 	@Override
 	public boolean preLoad() {
-		signature = Functions.loadSignature(getParser().getCurrentScript().getConfig().getFileName(), getEntryContainer().getSource());
-		return true;
+		// match signature against pattern
+		String rawSignature = getEntryContainer().getSource().getKey();
+		assert rawSignature != null;
+		rawSignature = ScriptLoader.replaceOptions(rawSignature);
+		Matcher matcher = SIGNATURE_PATTERN.matcher(rawSignature);
+		if (!matcher.matches()) {
+			Skript.error("Invalid function signature: " + rawSignature);
+			return false;
+		}
+
+		// parse signature
+		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
+		signature = Functions.parseSignature(
+			getParser().getCurrentScript().getConfig().getFileName(),
+			matcher.group(1), matcher.group(2), matcher.group(3), local
+		);
+		getParser().deleteCurrentEvent();
+
+		// attempt registration
+		return signature != null && Functions.registerSignature(signature) != null;
 	}
 
 	@Override
 	public boolean load() {
 		ParserInstance parser = getParser();
-		parser.setCurrentEvent("function", FunctionEvent.class);
+		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
-		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource());
+		assert signature != null;
+		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
 
 		parser.deleteCurrentEvent();
 
-		validateFunctions.set(true);
+		VALIDATE_FUNCTIONS.set(true);
 
 		return true;
 	}
 
 	@Override
 	public boolean postLoad() {
-		if (validateFunctions.get()) {
-			validateFunctions.set(false);
+		if (VALIDATE_FUNCTIONS.get()) {
+			VALIDATE_FUNCTIONS.set(false);
 			Functions.validateFunctions();
 		}
 		return true;
@@ -97,9 +130,9 @@ public class StructFunction extends Structure {
 
 	@Override
 	public void unload() {
-		if (signature != null)
-			Functions.unregisterFunction(signature);
-		validateFunctions.set(true);
+		assert signature != null;
+		Functions.unregisterFunction(signature);
+		VALIDATE_FUNCTIONS.set(true);
 	}
 
 	@Override
@@ -108,8 +141,8 @@ public class StructFunction extends Structure {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "function";
+	public String toString(@Nullable Event event, boolean debug) {
+		return (local ? "local " : "") + "function";
 	}
 
 }

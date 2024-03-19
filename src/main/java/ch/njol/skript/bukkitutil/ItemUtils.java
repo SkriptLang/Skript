@@ -19,12 +19,15 @@
 package ch.njol.skript.bukkitutil;
 
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+
+import java.util.HashMap;
 
 /**
  * Miscellaneous static utility methods related to items.
@@ -99,17 +102,68 @@ public class ItemUtils {
 
 	// Only 1.15 and versions after have Material#isAir method
 	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
-	// Version 1.14 have multiple air types but no Material#isAir method
-	private static final boolean OTHER_AIR_EXISTS = Skript.isRunningMinecraft(1, 14);
 
 	public static boolean isAir(Material type) {
-		if (IS_AIR_EXISTS) {
+		if (IS_AIR_EXISTS)
 			return type.isAir();
-		} else if (OTHER_AIR_EXISTS) {
-			return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+		return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+	}
+
+	// TreeType -> Sapling (Material) conversion for EvtGrow
+	private static final HashMap<TreeType, Material> TREE_TO_SAPLING_MAP = new HashMap<>();
+	static {
+		// Populate TREE_TO_SAPLING_MAP
+		// oak
+		TREE_TO_SAPLING_MAP.put(TreeType.TREE, Material.OAK_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.BIG_TREE, Material.OAK_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.SWAMP, Material.OAK_SAPLING);
+		// spruce
+		TREE_TO_SAPLING_MAP.put(TreeType.REDWOOD, Material.SPRUCE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.TALL_REDWOOD, Material.SPRUCE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.MEGA_REDWOOD, Material.SPRUCE_SAPLING);
+		// birch
+		TREE_TO_SAPLING_MAP.put(TreeType.BIRCH, Material.BIRCH_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.TALL_BIRCH, Material.BIRCH_SAPLING);
+		// jungle
+		TREE_TO_SAPLING_MAP.put(TreeType.JUNGLE, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.SMALL_JUNGLE, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.JUNGLE_BUSH, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.COCOA_TREE, Material.JUNGLE_SAPLING);
+		// acacia
+		TREE_TO_SAPLING_MAP.put(TreeType.ACACIA, Material.ACACIA_SAPLING);
+		// dark oak
+		TREE_TO_SAPLING_MAP.put(TreeType.DARK_OAK, Material.DARK_OAK_SAPLING);
+
+		// mushrooms
+		TREE_TO_SAPLING_MAP.put(TreeType.BROWN_MUSHROOM, Material.BROWN_MUSHROOM);
+		TREE_TO_SAPLING_MAP.put(TreeType.RED_MUSHROOM, Material.RED_MUSHROOM);
+
+		// chorus
+		TREE_TO_SAPLING_MAP.put(TreeType.CHORUS_PLANT, Material.CHORUS_FLOWER);
+
+		// nether
+		if (Skript.isRunningMinecraft(1, 16)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.WARPED_FUNGUS, Material.WARPED_FUNGUS);
+			TREE_TO_SAPLING_MAP.put(TreeType.CRIMSON_FUNGUS, Material.CRIMSON_FUNGUS);
 		}
-		// All versions prior to 1.14 only have 1 air type
-		return type == Material.AIR;
+
+		// azalea
+		if (Skript.isRunningMinecraft(1, 17))
+			TREE_TO_SAPLING_MAP.put(TreeType.AZALEA, Material.AZALEA);
+
+		// mangrove
+		if (Skript.isRunningMinecraft(1, 19)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.MANGROVE, Material.MANGROVE_PROPAGULE);
+			TREE_TO_SAPLING_MAP.put(TreeType.TALL_MANGROVE, Material.MANGROVE_PROPAGULE);
+		}
+
+		// cherry
+		if (Skript.isRunningMinecraft(1, 19, 4))
+			TREE_TO_SAPLING_MAP.put(TreeType.CHERRY, Material.CHERRY_SAPLING);
+	}
+
+	public static Material getTreeSapling(TreeType treeType) {
+		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
 	
 }

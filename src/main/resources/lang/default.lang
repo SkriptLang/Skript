@@ -261,6 +261,8 @@ biomes:
 	# 1.19 biomes
 	mangrove_swamp: mangrove swamp
 	deep_dark: deep dark
+	# 1.19.4
+	cherry_grove: cherry grove
 
 # -- Tree Types --
 tree types:
@@ -405,9 +407,12 @@ chat styles:
 	run_command: run command, command, cmd
 	suggest_command: suggest command, sgt
 	change_page: change page
+	copy_to_clipboard: copy to clipboard, copy, clipboard
 	show_text: tooltip, show text, ttp
 	font: font, f
 	insertion: insertion, insert, ins
+	translate: translate, tr, lang
+	keybind: keybind, key
 
 # -- Directions --
 directions:
@@ -489,6 +494,15 @@ entities:
 	dark oak boat:
 		name: dark oak boat¦s
 		pattern: dark oak boat(|1¦s)
+	mangrove boat:
+		name: mangrove boat¦s
+		pattern: mangrove boat(|1¦s)
+	bamboo raft:
+		name: bamboo raft¦s
+		pattern: bamboo (boat|raft)(|1¦s)
+	cherry boat:
+		name: cherry boat¦s
+		pattern: cherry [blossom] boat(|1¦s)
 	blaze:
 		name: blaze¦s
 		pattern: blaze(|1¦s)
@@ -526,6 +540,9 @@ entities:
 	ender pearl:
 		name: ender pearl¦s @an
 		pattern: ender[ ]pearl(|1¦s)
+	ender eye:
+		name: ender eye¦s @an
+		pattern: ender eye(|1¦s)|eye(|1¦s) of ender
 	fireball:
 		name: fireball¦s
 		pattern: [(ghast|big)] fire[ ]ball(|1¦s)
@@ -592,6 +609,9 @@ entities:
 	iron golem:
 		name: iron golem¦s @an
 		pattern: iron golem(|1¦s)
+	lightning bolt:
+		name: lightning bolt¦s
+		pattern: lightning bolt(|1¦s)
 	item frame:
 		name: item frame¦s @an
 		pattern: item[ ]frame(|1¦s)
@@ -655,12 +675,6 @@ entities:
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
-	op:
-		name: op¦s @an
-		pattern: op(|1¦s)
-	non-op:
-		name: non-op¦s
-		pattern: non(-| |)op(|1¦s)
 	zombie pigman:
 		name: zombie pig¦man¦men|zombified piglin
 		pattern: <age> (zombie pigm(an|1¦en)|zombified piglin(|1¦s))|(4¦)(zombie pigletboy(|1¦s)|zombified piglin (kid(|1¦s)|child(|1¦ren)))
@@ -1201,6 +1215,39 @@ entities:
 	warden:
 		name: warden¦s
 		pattern: warden(|1¦s)
+	# 1.19.3 Entities
+	enemy:
+		name: enem¦y¦ies @an
+		pattern: enem(y|1¦ies)
+	camel:
+		name: camel¦s
+		pattern: camel(|1¦s)
+	# 1.19.4 Entities
+	sniffer:
+		name: sniffer¦s
+		pattern: sniffer(|1¦s)
+	interaction:
+		name: interaction¦s
+		pattern: interaction(|1¦s)
+	display:
+		name: display¦s
+		pattern: display(|1¦s)
+	block display:
+		name: block display¦s
+		pattern: block display(|1¦s)
+	item display:
+		name: item display¦s
+		pattern: item display(|1¦s)
+	text display:
+		name: text display¦s
+		pattern: text display(|1¦s)
+	# 1.20.3 Entities
+	breeze:
+		name: breeze¦s
+		pattern: breeze(|1¦s)
+	wind charge:
+		name: wind charge¦s
+		pattern: wind charge(|1¦s)
 
 # -- Heal Reasons --
 heal reasons:
@@ -1260,6 +1307,8 @@ damage causes:
 	dryout: dryout
 	custom: unknown, custom, plugin, a plugin
 	sonic_boom: sonic boom
+	kill: kill, killed
+	world_border: world border
 
 # -- Teleport Causes --
 teleport causes:
@@ -1272,6 +1321,20 @@ teleport causes:
 	plugin: plugin
 	spectate: spectate, spectator
 	unknown: unknown
+	dismount: dismount, dismounted
+	exit_bed: exit bed, exiting bed, bed exit
+
+# -- Inventory Close Reasons --
+inventory close reasons:
+	unknown: unknown
+	teleport: teleport
+	cant_use: can't use, can not use, cannot use
+	unloaded: unloaded
+	open_new: open new, new opened
+	player: player
+	disconnect: disconnected, disconnect
+	death: death
+	plugin: plugin
 
 # -- Game Modes --
 game modes:
@@ -1683,7 +1746,17 @@ visual effects:
 		shriek:
 			name: shriek @-
 			pattern: shriek
-
+		
+		# 1.19.4 particles
+		dripping_cherry_leaves:
+			name: dripping cherry leaves @-
+			pattern: dripping cherry leaves
+		falling_cherry_leaves:
+			name: falling cherry leaves @-
+			pattern: falling cherry leaves
+		landing_cherry_leaves:
+			name: landing cherry leaves @-
+			pattern: landing cherry leaves
 
 # -- Inventory Actions --
 inventory actions:
@@ -1726,32 +1799,39 @@ click types:
 
 # -- Inventory Types --
 inventory types:
-	chest: chest inventory
-	dispenser: dispenser inventory
-	dropper: dropper inventory
-	furnace: furnace inventory
-	workbench: workbench inventory
-	crafting: crafting table inventory
-	enchanting: enchanting table inventory
-	brewing: brewing stand inventory
-	player: player inventory
-	creative: creative inventory
-	merchant: merchant inventory, villager inventory
-	ender_chest: ender chest inventory
-	anvil: anvil inventory
-	beacon: beacon inventory
-	hopper: hopper inventory
-	shulker_box: shulker box inventory
-	barrel: barrel inventory
-	blast_furnace: blast furnace inventory
-	lectern: lectern inventory
-	smoker: smoker inventory
-	loom: loom inventory
-	cartography: cartography table inventory
-	grindstone: grindstone inventory
-	stonecutter: stonecutter inventory
-	smithing: smithing inventory
-	composter: composter inventory
+	chest: chest inventory @a
+	dispenser: dispenser inventory @a
+	dropper: dropper inventory @a
+	furnace: furnace inventory @a
+	workbench: workbench inventory @a
+	crafting: crafting table inventory @a
+	enchanting: enchanting table inventory @an
+	brewing: brewing stand inventory @a
+	player: player inventory @a
+	creative: creative inventory @a
+	merchant: merchant inventory @a, villager inventory @a
+	ender_chest: ender chest inventory @an
+	anvil: anvil inventory @an
+	beacon: beacon inventory @a
+	hopper: hopper inventory @a
+	shulker_box: shulker box inventory @a
+	barrel: barrel inventory @a
+	blast_furnace: blast furnace inventory @a
+	lectern: lectern inventory @a
+	smoker: smoker inventory @a
+	loom: loom inventory @a
+	cartography: cartography table inventory @a
+	grindstone: grindstone inventory @a
+	stonecutter: stonecutter inventory @a
+	smithing: smithing inventory @a
+	composter: composter inventory @a
+	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+	decorated_pot: decorated pot @a
+	crafter: crafter inventory @a
+
+	jukebox: jukebox @a
+	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
+	smithing_new: new smithing table @a, upgrade gear @a, upgrade gear table @a
 
 # -- Spawn Reasons --
 spawn reasons:
@@ -1768,6 +1848,7 @@ spawn reasons:
 	default: default
 	dispense_egg: dispense egg, dispensing egg
 	drowned: drowned
+	duplication: duplication
 	egg: egg
 	ender_pearl: ender pearl
 	explosion: explosion
@@ -1816,6 +1897,10 @@ resource pack states:
 	declined: decline, refuse, reject, declined, refused, rejected
 	failed_download: download fail, fail, failed to download, failed
 	successfully_loaded: successfully load, successfully install, success, successfully loaded, successfully installed
+	downloaded: downloaded
+	invalid_url: invalid url
+	failed_reload: failed reload, failed to reload
+	discarded: discarded
 
 # -- Sound Categories --
 sound categories:
@@ -1851,10 +1936,49 @@ attribute types:
 	generic_follow_range: generic follow range, follow range
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
 	horse_jump_strength: horse jump strength
 	zombie_spawn_reinforcements: zombie spawn reinforcements
+
+# -- Environments --
+environments:
+	normal: normal, overworld, the overworld
+	nether: nether, the nether
+	the_end: end, the end
+	custom: custom
+
+# -- Moon Phases --
+moon phases:
+	first_quarter: first quarter
+	full_moon: full moon
+	last_quarter: last quarter
+	new_moon: new moon
+	waning_crescent: waning crescent
+	waning_gibbous: waning gibbous
+	waxing_crescent: waxing crescent
+	waxing_gibbous: waxing gibbous
+
+# -- Quit Reasons --
+quit reasons:
+	disconnected: disconnected, quit
+	erroneous_state: erroneous, erroneous state
+	kicked: kicked
+	timed_out: timed out
+
+# -- Transform Reasons --
+transform reasons:
+	cured: zombie cure, zombie curing, curing
+	drowned: entity drowning, drowning, zombie converting to drowned, zombie drowning
+	frozen: entity freezing, entity freeze, skeleton freezing, skeleton freeze, skeleton converting to stray
+	lightning: lightning, creeper super charge
+	metamorphosis: tadpole converting, tadpole converting to frog, tadpole metamorphosis, metamorphosis
+	piglin_zombified: piglin zombification
+	sheared: mooshroom shear, mooshroom shearing
+	split: slime split, slime splitting, split, magma slime split, magma slime splitting
+	unknown: unknown
+	infection: infection, villager infection
 
 # -- Boolean --
 boolean:
@@ -1864,6 +1988,14 @@ boolean:
 	false:
 		name: false
 		pattern: (false|no|off)
+
+# -- Operators --
+operators:
+	add: addition
+	subtract: subtraction
+	multiply: multiplication
+	divide: division
+	exponentiate: exponentiation
 
 # -- Types --
 types:
@@ -1890,7 +2022,7 @@ types:
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
-	commandsender: player¦¦s¦/console @a
+	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
 	material: material¦s @a
@@ -1907,7 +2039,6 @@ types:
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
-	persistentdataholder: persistent data holder¦s @
 	spawnreason: spawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
@@ -1919,7 +2050,15 @@ types:
 	cattype: cat type¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
-	enchantmentoffer: enchantment offer¦s @a
+	enchantmentoffer: enchantment offer¦s @an
+	environment: environment¦s @an
+	moonphase: moonphase¦s @a
+	resourcepackstate: resource pack state¦s @a
+	gene: panda gene¦s @a
+	gamerulevalue: gamerule value¦s @a
+	quitreason: quit reason¦s @a
+	inventoryclosereason: inventory close reason¦s @an
+	transformreason: transform reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -1939,9 +2078,6 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
-	resourcepackstate: resource pack state¦s @a
-	gene: panda gene¦s @a
-	gamerulevalue: gamerule value¦s @a
 
 	# Hooks
 	money: money

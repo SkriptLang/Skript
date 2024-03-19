@@ -1,0 +1,24 @@
+test "location from vector":
+	set {_world} to world "world"
+
+	set {_vector} to vector(x coordinate of spawn of {_world}, y coordinate of spawn of {_world}, z coordinate of spawn of {_world})
+	set {_location} to location of {_vector} in {_world}
+	assert {_location} is spawn of {_world} with "location from vector failed, expected %spawn of {_world}%, got %{_vector}%"
+
+	set {_vector} to vector of {_location}
+	assert the x component of {_vector} is x coordinate of spawn of {_world} with "re-creating vector x failed"
+	assert the y component of {_vector} is y coordinate of spawn of {_world} with "re-creating vector y failed"
+	assert the z component of {_vector} is z coordinate of spawn of {_world} with "re-creating vector z failed"
+
+	set {_location} to location of vector(0, -5, 43.5) in {_world}
+	assert the x coordinate of {_location} is 0 with "vector to location x failed"
+	assert the y coordinate of {_location} is -5 with "vector to location y failed"
+	assert the z coordinate of {_location} is 43.5 with "vector to location z failed"
+
+	set {_location} to location of vector(0, 0, 0) in {_world} with yaw 25 and pitch -90
+	assert the yaw of {_location} is 25 with "vector to location yaw failed"
+	assert the pitch of {_location} is -90 with "vector to location pitch failed"
+
+	set {_location} to location of vector(0, 0, 0) in {_world} with yaw 25 and pitch {_null}
+	assert the yaw of {_location} is 25 with "vector to location absent yaw failed"
+	assert the pitch of {_location} is 0 with "vector to location absent pitch failed"

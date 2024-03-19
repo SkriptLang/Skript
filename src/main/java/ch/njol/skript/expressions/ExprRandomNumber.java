@@ -19,7 +19,9 @@
 package ch.njol.skript.expressions;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
+import ch.njol.util.Math2;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -33,16 +35,17 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Math2;
 
 @Name("Random Numbers")
 @Description({
 		"A given amount of random numbers or integers between two given numbers. Use 'number' if you want any number with decimal parts, or use use 'integer' if you only want whole numbers.",
 		"Please note that the order of the numbers doesn't matter, i.e. <code>random number between 2 and 1</code> will work as well as <code>random number between 1 and 2</code>."
 })
-@Examples({"set the player's health to a random number between 5 and 10",
+@Examples({
+		"set the player's health to a random number between 5 and 10",
 		"send \"You rolled a %random integer from 1 to 6%!\" to the player",
-		"set {_chances::*} to 5 random integers between 5 and 96"})
+		"set {_chances::*} to 5 random integers between 5 and 96"
+})
 @Since("1.4, INSERT VERSION (Multiple random numbers)")
 public class ExprRandomNumber extends SimpleExpression<Number> {
 
@@ -52,8 +55,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	}
 
 	private Expression<Number> amount, lower, upper;
-	private final Random rand = new Random();
-	private boolean integer;
+	private boolean isInteger;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -61,7 +63,7 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		amount = (Expression<Number>) exprs[0];
 		lower = (Expression<Number>) exprs[1];
 		upper = (Expression<Number>) exprs[2];
-		integer = parseResult.hasTag("integer");
+		isInteger = parseResult.hasTag("integer");
 		return true;
 	}
 
@@ -75,27 +77,29 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		int amount = this.amount == null ? 1 : this.amount.getOptionalSingle(event).orElse(1).intValue();
 		double lower = Math.min(lowerNumber.doubleValue(), upperNumber.doubleValue());
 		double upper = Math.max(lowerNumber.doubleValue(), upperNumber.doubleValue());
-		if (integer) {
+		Random random = ThreadLocalRandom.current();
+		if (isInteger) {
 			Long[] longs = new Long[amount];
 			for (int i = 0; i < amount; i++)
-				longs[i] = Math2.ceil(lower) + Math2.mod(rand.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1);
+				longs[i] = Math2.ceil(lower) + Math2.mod(random.nextLong(), Math2.floor(upper) - Math2.ceil(lower) + 1);
 			return longs;
 		} else {
 			Double[] doubles = new Double[amount];
 			for (int i = 0; i < amount; i++)
-				doubles[i] = lower + rand.nextDouble() * (upper - lower);
+				doubles[i] = lower + random.nextDouble() * (upper - lower);
 			return doubles;
 		}
 	}
 
 	@Override
 	public Class<? extends Number> getReturnType() {
-		return integer ? Long.class : Double.class;
+		return isInteger ? Long.class : Double.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (amount == null ? "a" : amount.toString(event, debug)) + " random " + (integer ? "integer" : "number") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
+		return (amount == null ? "a" : amount.toString(event, debug)) + " random " + (isInteger ? "integer" : "number") + " between " + lower.toString(event, debug) + " and " + upper.toString(event, debug);
+
 	}
 
 	@Override
