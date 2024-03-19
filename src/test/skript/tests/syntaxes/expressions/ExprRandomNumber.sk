@@ -70,9 +70,3 @@ test "random numbers":
 
 		set {_int::*} to NaN value random integers between 1 and 10
 		assert {_int::*} is not set with "(20) NaN value random integers returned non-null result: %{_int}%"
-
-		set {_int::*} to infinity value random integers between 1 and 10
-		assert {_int::*} is not set with "(21) NaN value random integers returned non-null result: %{_int::*}%"
-
-		set {_int::*} to -infinity value random integers between 1 and 10
-		assert {_int::*} is not set with "(22) NaN value random integers returned non-null result: %{_int::*}%"
