@@ -145,12 +145,14 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		if (tags != null) {
 			applyTags(tags);
 		}
+		this.plain = true;
 	}
 	
 	public ItemData(Material type, int amount) {
 		this.type = type;
 		this.stack = new ItemStack(type, Math.abs(amount));
 		this.blockValues = BlockCompat.INSTANCE.getBlockValues(stack);
+		this.plain = true;
 	}
 	
 	public ItemData(Material type) {

@@ -1,0 +1,4 @@
+test "itemtype is plain":
+	assert plain emerald is plain with "emerald failed to be plain"
+	assert plain dirt is plain with "dirt failed to be plain"
+	assert plain lime stained glass named "lime" is plain with "lime stained glass failed to be plain"
