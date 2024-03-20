@@ -18,11 +18,21 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.eclipse.jdt.annotation.Nullable;
+
+import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -30,74 +40,75 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author bensku
- *
- */
-@Name("Last Damage Cause")
-@Description("Cause of last damage done to an entity")
-@Examples({"set last damage cause of event-entity to fire tick"})
+@Name("Last Damage Cause/Type")
+@Description({
+	"Cause of last damage done to an entity.",
+	"Using 'damage type' is more accurate as it includes data pack types, but it is only available on versions 1.20.4 and newer."
+})
+@Examples({
+	"set last damage cause of event-entity to fire tick"
+})
+@RequiredPlugins("Spigot 1.20.4+ for damage type")
 @Since("2.2-Fixes-V10")
-public class ExprLastDamageCause extends PropertyExpression<LivingEntity, DamageCause>{
-	
+public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Object> {
+
 	static {
-		register(ExprLastDamageCause.class, DamageCause.class, "last damage (cause|reason|type)", "livingentities");
+		register(ExprLastDamageCause.class, Object.class, "last damage (cause|reason|:type)", "livingentities");
 	}
 
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean type;
+
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<LivingEntity>) exprs[0]);
+		type = parseResult.hasTag("type");
 		return true;
 	}
-	
+
 	@Override
-	protected DamageCause[] get(Event e, LivingEntity[] source) {
-		return get(source, new Getter<DamageCause, LivingEntity>() {
+	protected Object[] get(Event event, LivingEntity[] source) {
+		return get(source, new Getter<Object, LivingEntity>() {
 			@Override
-			public DamageCause get(LivingEntity entity) {
-				EntityDamageEvent dmgEvt = entity.getLastDamageCause();
-				if (dmgEvt == null) return DamageCause.CUSTOM;
-				return dmgEvt.getCause();
+			public Object get(LivingEntity entity) {
+				EntityDamageEvent damageEvent = entity.getLastDamageCause();
+				if (damageEvent == null) {
+					if (type)
+						return DamageType.GENERIC;
+					return DamageCause.CUSTOM;
+				}
+				if (type)
+					return damageEvent.getDamageSource().getDamageType();
+				return damageEvent.getCause();
 			}
 		});
 	}
-	
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the damage cause " + getExpr().toString(e, debug);
-	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
+		if (mode == ChangeMode.REMOVE_ALL || type || HealthUtils.DAMAGE_SOURCE)
 			return null;
 		return CollectionUtils.array(DamageCause.class);
 	}
-	
+
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		DamageCause d = delta == null ? DamageCause.CUSTOM : (DamageCause) delta[0];
-		assert d != null;
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		DamageCause cause = delta == null ? DamageCause.CUSTOM : (DamageCause) delta[0];
+		assert cause != null;
 		switch (mode) {
 			case DELETE:
 			case RESET: // Reset damage cause? Umm, maybe it is custom.
-				for (LivingEntity entity : getExpr().getArray(e)) {
+				for (LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
 					HealthUtils.setDamageCause(entity, DamageCause.CUSTOM);
 				}
 				break;
 			case SET:
-				for (LivingEntity entity : getExpr().getArray(e)) {
+				for (LivingEntity entity : getExpr().getArray(event)) {
 					assert entity != null : getExpr();
-					HealthUtils.setDamageCause(entity, d);
+					HealthUtils.setDamageCause(entity, cause);
 				}
 				break;
 			case REMOVE_ALL:
@@ -107,10 +118,17 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 				break;
 		}
 	}
-	
+
 	@Override
-	public Class<DamageCause> getReturnType() {
-		return DamageCause.class;
+	public Class<?> getReturnType() {
+		return type ? DamageType.class : DamageCause.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (type)			
+			return "damage type " + getExpr().toString(event, debug);
+		return "damage cause " + getExpr().toString(event, debug);
 	}
 
 }

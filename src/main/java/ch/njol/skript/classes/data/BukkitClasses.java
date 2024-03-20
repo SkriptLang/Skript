@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -37,7 +38,9 @@ import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -48,6 +51,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
@@ -1548,6 +1553,48 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		if (Skript.classExists("org.bukkit.damage.DamageType")) {
+			Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
+					.user("damage ?sources?")
+					.name("Damage Source")
+					.description("The damage source in an entity damage event.")
+					.since("INSERT VERSION"));
+
+			Classes.registerClass(new ClassInfo<>(DamageType.class, "damagetype")
+					.user("damage ?types?")
+					.name("Damage Type")
+					.description("The damage type of a damage source.")
+					.since("INSERT VERSION")
+					.parser(new Parser<DamageType>() {
+						@Override
+						@Nullable
+						public DamageType parse(String input, ParseContext context) {
+							if (input.contains(":")) {
+								String[] split = input.split(Pattern.quote(":"));
+								try {
+									return Registry.DAMAGE_TYPE.get(new NamespacedKey(split[0], split[1]));
+								} catch (IllegalArgumentException e) {}
+							}
+							try {
+								return Registry.DAMAGE_TYPE.get(NamespacedKey.minecraft(input));
+							} catch (IllegalArgumentException e) {}
+
+							return null;
+						}
+
+						@Override
+						public String toString(DamageType type, int flags) {
+							return type.getKey().toString();
+						}
+
+						@Override
+						public String toVariableNameString(DamageType type) {
+							return "damage type: " + type.getKey().toString();
+						}
+					}));
+		}
+
 	}
 
 }
