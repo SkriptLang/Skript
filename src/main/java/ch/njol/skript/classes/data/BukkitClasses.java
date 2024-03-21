@@ -52,6 +52,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda.Gene;
@@ -1365,14 +1366,14 @@ public class BukkitClasses {
 						}
 					}));
 		}
-		
+
 		Classes.registerClass(new EnumClassInfo<>(FireworkEffect.Type.class, "fireworktype", "firework types")
 				.user("firework ?types?")
 				.name("Firework Type")
 				.description("The type of a <a href='#fireworkeffect'>fireworkeffect</a>.")
 				.since("2.4")
 				.documentationId("FireworkType"));
-		
+
 		Classes.registerClass(new ClassInfo<>(FireworkEffect.class, "fireworkeffect")
 				.user("firework ?effects?")
 				.name("Firework Effect")
@@ -1409,7 +1410,15 @@ public class BukkitClasses {
 						return "firework effect " + effect.toString();
 					}
 				}));
-		
+
+		Classes.registerClass(new ClassInfo<>(Firework.class, "firework")
+				.user("fireworks?")
+				.name("Firework")
+				.description("Firework entity")
+				.defaultExpression(new EventValueExpression<>(Firework.class))
+				.since("INSERT VERSION")
+				.changer(DefaultChangers.nonLivingEntityChanger));
+
 		Classes.registerClass(new EnumClassInfo<>(Difficulty.class, "difficulty", "difficulties")
 				.user("difficult(y|ies)")
 				.name("Difficulty")
