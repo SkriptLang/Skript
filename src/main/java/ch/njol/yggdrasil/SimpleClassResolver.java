@@ -18,34 +18,33 @@
  */
 package ch.njol.yggdrasil;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.util.coll.BidiHashMap;
-import ch.njol.util.coll.BidiMap;
+import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 public class SimpleClassResolver implements ClassResolver {
 	
-	private final BidiMap<Class<?>, String> classes = new BidiHashMap<>();
+	private final BiMap<Class<?>, String> classes = HashBiMap.create();
 	
-	public void registerClass(final Class<?> c, final String id) {
-		final String oldId = classes.put(c, id);
+	public void registerClass(Class<?> type, String id) {
+		String oldId = classes.put(type, id);
 		if (oldId != null && !oldId.equals(id))
-			throw new YggdrasilException("Changed id of " + c + " from " + oldId + " to " + id);
+			throw new YggdrasilException("Changed id of " + type + " from " + oldId + " to " + id);
 	}
 	
 	@Override
 	@Nullable
-	public Class<?> getClass(final String id) {
-		return classes.getKey(id);
+	public Class<?> getClass(String id) {
+		return classes.inverse().get(id);
 	}
 	
 	@Override
 	@Nullable
-	public String getID(final Class<?> c) {
-		return classes.getValue(c);
+	public String getID(Class<?> type) {
+		return classes.get(type);
 	}
 	
 }

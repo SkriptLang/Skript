@@ -20,6 +20,7 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ScriptAliases;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,6 +31,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @Name("Aliases")
@@ -54,7 +56,11 @@ public class StructAliases extends Structure {
 		node.convertToEntries(0, "=");
 
 		// Initialize and load script aliases
-		Aliases.createScriptAliases(getParser().getCurrentScript()).parser.load(node);
+		Script script = getParser().getCurrentScript();
+		ScriptAliases scriptAliases = Aliases.getScriptAliases(script);
+		if (scriptAliases == null)
+			scriptAliases = Aliases.createScriptAliases(script);
+		scriptAliases.parser.load(node);
 
 		return true;
 	}
