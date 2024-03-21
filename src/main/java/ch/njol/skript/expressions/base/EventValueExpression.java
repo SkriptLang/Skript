@@ -44,6 +44,10 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 /**
  * A useful class for creating default expressions. It simply returns the event value of the given type.
@@ -65,6 +69,31 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public class EventValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 
+	/**
+	 * A priority for {@link EventValueExpression}s.
+	 * They will be registered before {@link SyntaxInfo#COMBINED} expressions
+	 *  but after {@link SyntaxInfo#SIMPLE} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.COMBINED);
+
+	/**
+	 * Registers an event value expression with the provided pattern.
+	 * This also adds '[the]' to the start of the pattern.
+	 *
+	 * @param registry the SyntaxRegistry to register this PropertyExpression with.
+	 * @param expressionClass The class that represents this EventValueExpression.
+	 * @param type The return type of the expression.
+	 * @param pattern The pattern for this syntax.
+	 */
+	@ApiStatus.Experimental
+	public static <T> void register(SyntaxRegistry registry, Class<? extends EventValueExpression<T>> expressionClass, Class<T> type, String pattern) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, type)
+			.priority(DEFAULT_PRIORITY)
+			.addPattern("[the] " + pattern)
+			.build()
+		);
+	}
 
 	/**
 	 * Registers an expression as {@link ExpressionType#EVENT} with the provided pattern.

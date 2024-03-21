@@ -35,8 +35,8 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 		entryValidator = null;
 	}
 
-	public StructureInfo(String[] patterns, Class<E> c, String originClassPath, EntryValidator entryValidator) throws IllegalArgumentException {
-		super(patterns, c, originClassPath);
+	public StructureInfo(String[] patterns, Class<E> elementClass, String originClassPath, @Nullable EntryValidator entryValidator) throws IllegalArgumentException {
+		super(patterns, elementClass, originClassPath);
 		this.entryValidator = entryValidator;
 	}
 

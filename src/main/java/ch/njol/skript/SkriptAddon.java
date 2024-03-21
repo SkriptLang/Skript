@@ -23,46 +23,60 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.localization.Localizer;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
+ * @deprecated Use {@link org.skriptlang.skript.addon.SkriptAddon}.
  */
-public final class SkriptAddon {
+@Deprecated
+@ApiStatus.NonExtendable
+public class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddon {
 
 	public final JavaPlugin plugin;
 	public final Version version;
 	private final String name;
 
+	private final org.skriptlang.skript.addon.SkriptAddon addon;
+
 	/**
 	 * Package-private constructor. Use {@link Skript#registerAddon(JavaPlugin)} to get a SkriptAddon for your plugin.
-	 * 
-	 * @param p
 	 */
-	SkriptAddon(final JavaPlugin p) {
-		plugin = p;
-		name = "" + p.getName();
-		Version v;
+	SkriptAddon(JavaPlugin plugin) {
+		this(plugin, Skript.instance().registerAddon(plugin.getName()));
+	}
+
+	SkriptAddon(JavaPlugin plugin, org.skriptlang.skript.addon.SkriptAddon addon) {
+		this.addon = addon;
+		this.plugin = plugin;
+		this.name = plugin.getName();
+		Version version;
 		try {
-			v = new Version("" + p.getDescription().getVersion());
-		} catch (final IllegalArgumentException e) {
-			final Matcher m = Pattern.compile("(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?").matcher(p.getDescription().getVersion());
+			version = new Version(plugin.getDescription().getVersion());
+		} catch (IllegalArgumentException e) {
+			final Matcher m = Pattern.compile("(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?").matcher(plugin.getDescription().getVersion());
 			if (!m.find())
-				throw new IllegalArgumentException("The version of the plugin " + p.getName() + " does not contain any numbers: " + p.getDescription().getVersion());
-			v = new Version(Utils.parseInt("" + m.group(1)), m.group(2) == null ? 0 : Utils.parseInt("" + m.group(2)), m.group(3) == null ? 0 : Utils.parseInt("" + m.group(3)));
-			Skript.warning("The plugin " + p.getName() + " uses a non-standard version syntax: '" + p.getDescription().getVersion() + "'. Skript will use " + v + " instead.");
+				throw new IllegalArgumentException("The version of the plugin " + name + " does not contain any numbers: " + plugin.getDescription().getVersion());
+			version = new Version(Utils.parseInt(m.group(1)), m.group(2) == null ? 0 : Utils.parseInt(m.group(2)), m.group(3) == null ? 0 : Utils.parseInt(m.group(3)));
+			Skript.warning("The plugin " + name + " uses a non-standard version syntax: '" + plugin.getDescription().getVersion() + "'. Skript will use " + version + " instead.");
 		}
-		version = v;
+		this.version = version;
 	}
 
 	@Override
 	public final String toString() {
-		return name;
+		return getName();
 	}
 
 	public String getName() {
@@ -83,9 +97,6 @@ public final class SkriptAddon {
 		return this;
 	}
 
-	@Nullable
-	private String languageFileDirectory = null;
-
 	/**
 	 * Makes Skript load language files from the specified directory, e.g. "lang" or "skript lang" if you have a lang folder yourself. Localised files will be read from the
 	 * plugin's jar and the plugin's data folder, but the default English file is only taken from the jar and <b>must</b> exist!
@@ -94,19 +105,13 @@ public final class SkriptAddon {
 	 * @return This SkriptAddon
 	 */
 	public SkriptAddon setLanguageFileDirectory(String directory) {
-		if (languageFileDirectory != null)
-			throw new IllegalStateException();
-		directory = "" + directory.replace('\\', '/');
-		if (directory.endsWith("/"))
-			directory = "" + directory.substring(0, directory.length() - 1);
-		languageFileDirectory = directory;
-		Language.loadDefault(this);
+		localizer().setSourceDirectories(plugin.getClass(), directory, plugin.getDataFolder().getAbsolutePath() + directory);
 		return this;
 	}
 
 	@Nullable
 	public String getLanguageFileDirectory() {
-		return languageFileDirectory;
+		return localizer().languageFileDirectory();
 	}
 
 	@Nullable
@@ -124,6 +129,37 @@ public final class SkriptAddon {
 		if (file == null)
 			file = Utils.getFile(plugin);
 		return file;
+	}
+
+	//
+	// Modern SkriptAddon Compatibility
+	//
+
+	@ApiStatus.Internal
+	@Nullable
+	static SkriptAddon fromModern(org.skriptlang.skript.addon.SkriptAddon addon) {
+		Class<?> source = addon.localizer().source();
+		if (source != null) // using source would be most accurate
+			return new SkriptAddon(JavaPlugin.getProvidingPlugin(source), addon);
+		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(addon.name());
+		if (!(plugin instanceof JavaPlugin))
+			return null;
+		return new SkriptAddon((JavaPlugin) plugin, addon);
+	}
+
+	@Override
+	public String name() {
+		return addon.name();
+	}
+
+	@Override
+	public SyntaxRegistry registry() {
+		return addon.registry();
+	}
+
+	@Override
+	public Localizer localizer() {
+		return addon.localizer();
 	}
 
 }
