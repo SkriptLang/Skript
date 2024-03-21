@@ -27,16 +27,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Reference to a Skript function.
@@ -263,8 +258,7 @@ public class FunctionReference<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
-	protected T[] execute(Event e) {
+	protected T @Nullable [] execute(Event e) {
 		// If needed, acquire the function reference
 		if (function == null)
 			function = (Function<? extends T>) Functions.getFunction(functionName, script);
@@ -273,32 +267,9 @@ public class FunctionReference<T> {
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
 			return null; // Return nothing and hope it works
 		}
-		
-		// Prepare parameter values for calling
-		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
-		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			List<Object> l = new ArrayList<>();
-			for (Expression<?> parameter : parameters)
-				l.addAll(Arrays.asList(parameter.getArray(e)));
-			params[0] = l.toArray();
-			
-			// Don't allow mutating across function boundary; same hack is applied to variables
-			for (int i = 0; i < params[0].length; i++) {
-				params[0][i] = Classes.clone(params[0][i]);
-			}
-		} else { // Use parameters in normal way
-			for (int i = 0; i < parameters.length; i++) {
-				Object[] array = parameters[i].getArray(e);
-				params[i] = Arrays.copyOf(array, array.length);
-				// Don't allow mutating across function boundary; same hack is applied to variables
-				for (int j = 0; j < params[i].length; j++) {
-					params[i][j] = Classes.clone(params[i][j]);
-				}
-			}
-		}
-		
+
 		// Execute the function
-		return function.execute(params);
+		return function.execute(e, parameters);
 	}
 	
 	public boolean isSingle() {

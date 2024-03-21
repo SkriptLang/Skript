@@ -18,9 +18,15 @@
  */
 package ch.njol.skript.lang.function;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.SkriptConfig;
@@ -73,7 +79,91 @@ public abstract class Function<T> {
 	public ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
 	}
-	
+
+	/**
+	 * Executes the function with the given event and parameters.
+	 * @param event The event for the function execution.
+	 * @param rawParameters The parameters for the function execution.
+	 * @return The result(s) of the function execution.
+	 * Returns null if the parameters are invalid or cannot be processed.
+	 */
+	public final T @Nullable [] execute(Event event, @Nullable Expression<?> rawParameters) {
+		Expression<?>[] parameters;
+		if (rawParameters instanceof ExpressionList<?>) {
+			ExpressionList<?> list = (ExpressionList<?>) rawParameters;
+			Expression<?>[] expressions = list.getExpressions();
+			parameters = list.getAnd() ? expressions : new Expression[] {CollectionUtils.getRandom(expressions)};
+		} else {
+			parameters = rawParameters != null ? new Expression[] {rawParameters} : new Expression[0];
+		}
+		return execute(event, parameters);
+	}
+
+	/**
+	 * Executes the function with the given event and parameters.
+	 * @param event The event for the function execution.
+	 * @param parameters The parameters for the function execution.
+	 * @return The result(s) of the function execution.
+	 * Returns null if the parameters are invalid or cannot be processed.
+	 */
+	public final T @Nullable [] execute(Event event, Expression<?>[] parameters) {
+		if (!validateParameters(parameters))
+			return null;
+		Object[][] params = processParameters(event, parameters);
+		if (params == null)
+			return null;
+		return execute(params);
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean validateParameters(Expression<?>[] parameters) {
+		if (parameters.length < sign.getMinParameters())
+			return false;
+
+		boolean singleListParam = sign.getMaxParameters() == 1 && !getParameter(0).single;
+		if (!singleListParam && parameters.length > sign.getMaxParameters())
+			return false;
+
+		for (int i = 0; i < parameters.length; i++) {
+			Parameter<?> parameter = sign.parameters[singleListParam ? 0 : i];
+			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type.getC());
+			if (expression == null || (parameter.single && !expression.isSingle()))
+				return false;
+			parameters[i] = expression;
+		}
+		return true;
+	}
+
+	private Object @Nullable [][] processParameters(Event event, Expression<?>[] parameters) {
+		boolean singleListParam = sign.getMaxParameters() == 1 && !getParameter(0).single;
+
+		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
+		if (singleListParam && parameters.length > 1) { // All parameters to one list
+			List<Object> l = new ArrayList<>();
+			for (Expression<?> parameter : parameters)
+				l.addAll(Arrays.asList(parameter.getArray(event)));
+			params[0] = l.toArray();
+		} else { // Use parameters in normal way
+
+			if (params.length > sign.getMaxParameters())
+				return null;
+
+			for (int i = 0; i < parameters.length; i++) {
+				Object[] array = parameters[i].getArray(event);
+				params[i] = Arrays.copyOf(array, array.length);
+			}
+		}
+
+		// Don't allow mutating across function boundary; same hack is applied to variables
+		for (Object[] param : params) {
+			for (int i = 0; i < param.length; i++) {
+				param[i] = Classes.clone(param[i]);
+			}
+		}
+
+		return params;
+	}
+
 	// FIXME what happens with a delay in a function?
 	
 	/**
@@ -163,5 +253,5 @@ public abstract class Function<T> {
 	public String toString() {
 		return (sign.local ? "local " : "") + "function " + sign.getName();
 	}
-	
+
 }
