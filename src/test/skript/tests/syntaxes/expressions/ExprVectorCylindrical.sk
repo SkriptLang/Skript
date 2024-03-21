@@ -1,0 +1,6 @@
+test "cylindrical vector":
+	set {_v} to cylindrical vector with radius 1, yaw 0, and height 1
+	assert {_v} is vector(0, 1, 1) with "failed to create cylindrical vector (expected %vector(0, 1, 1)%, got %{_v}%)"
+
+	set {_v} to cylindrical vector with radius 1, yaw 45, and height 1
+	assert {_v} is vector(sqrt(2)/-2, 1, sqrt(2)/2) with "failed to create cylindrical vector (expected %vector(sqrt(2)/-2, 1, sqrt(2)/2)%, got %{_v}%)"
