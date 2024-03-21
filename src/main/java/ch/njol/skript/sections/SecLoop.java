@@ -34,6 +34,7 @@ import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -65,32 +66,53 @@ import java.util.WeakHashMap;
 })
 @Examples({
 	"loop all players:",
-	"\tsend \"Hello %loop-player%!\" to loop-player",
+		"\tsend \"Hello %loop-player%!\" to loop-player",
 	"",
 	"loop items in player's inventory:",
-	"\tif loop-item is dirt:",
-	"\t\tset loop-item to air",
+		"\tif loop-item is dirt:",
+			"\t\tset loop-item to air",
 	"",
 	"loop 10 times:",
-	"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-	"\twait 1 second",
+		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+		"\twait 1 second",
 	"",
 	"loop {Coins::*}:",
-	"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-		"the player and loop-value is the actually coins value such as 200"
+		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
+			"the player and loop-value is the actually coins value such as 200",
+	"",
+	"loop {data::*} as {_data}: # {_data} = loop-value",
+		"\tif {_data} > 500:",
+			"\t\tset {_pass} to true",
+	"",
+	"loop {balances::*} as {_uuid} and {_balance}:",
+		"\tif {_balance} < 200:",
+			"\t\tsend \"No enough money!\" to {_uuid} parsed as a player"
 })
-@Since("1.0")
+@Since("1.0, INSERT VERSION (index/value reference)")
 public class SecLoop extends LoopSection {
 
 	static {
-		Skript.registerSection(SecLoop.class, "loop %objects%");
+		Skript.registerSection(SecLoop.class,
+			"loop %objects% with index as %-~object%", // index
+			"loop %objects% [with index] as %-~object%( and|,) [with value] %-~object%", // index, value
+			"loop %objects% [[with value] as %-~object%]" // value/no reference -- must be last pattern otherwise exprs[0] will include 'with index as ..'
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> expr;
 
+	@Nullable
+	private Variable<?> asIndex, asValue;
+
+	private boolean isVariableLoop;
+
+	private enum ReferenceType {
+		INDEX, BOTH, VALUE; // order matters with matchedPattern
+	}
+
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
-	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	private final transient Map<Event, Iterator<?>> currentIterator = new WeakHashMap<>();
 
 	@Nullable
 	private TriggerItem actualNext;
@@ -109,6 +131,8 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
+		isVariableLoop = expr instanceof Variable;
+
 		if (Container.class.isAssignableFrom(expr.getReturnType())) {
 			ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
@@ -121,39 +145,105 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
+		ReferenceType referenceType = ReferenceType.values()[matchedPattern];
+
+		if (exprs.length > 1 && exprs[1] != null && !(exprs[1] instanceof Variable)) {
+			if (referenceType == ReferenceType.INDEX)
+				Skript.error("Loop index reference must be a variable (e.g. 'loop {data::*} with index as {_i}')");
+			else // VALUE/BOTH
+				Skript.error("Loop value reference must be a variable (e.g. 'loop 5 times as {_value}')");
+			return false;
+		}
+
+		if (exprs.length > 2 && exprs[2] != null && !(exprs[2] instanceof Variable)) { // BOTH
+			Skript.error("Loop value reference must be a variable (e.g. 'loop {data::*} as {_index} and {_value}')");
+			return false;
+		}
+
+		boolean indexNotAllowed = false;
+		if (referenceType == ReferenceType.BOTH) {
+			if (!isVariableLoop)
+				indexNotAllowed = true;
+			asIndex = (Variable<?>) exprs[1];
+			asValue = (Variable<?>) exprs[2];
+		} else if (referenceType == ReferenceType.VALUE) {
+			asValue = (Variable<?>) exprs[1];
+		} else if (isVariableLoop) {
+			asIndex = (Variable<?>) exprs[1];
+		} else {
+			indexNotAllowed = true;
+		}
+
+		if (indexNotAllowed) {
+			Skript.error("Can't use loop index reference when there is no indices in the looped expression");
+			return false;
+		}
+		// only allow local vars, no reason for global vars to be used here, also other languages does this
+		if (asIndex != null && !asIndex.isLocal() || asValue != null && !asValue.isLocal()) {
+			Skript.error("Loop references must be local variables, e.g. {_index} and {_value}");
+			return false;
+		}
+		// disallow using same var as index and value reference
+		if (asIndex != null && asValue != null && asIndex.getName().toString().equals(asValue.getName().toString())) {
+			Skript.error("Loop index and value references must not use the same variable");
+			return false;
+		}
+
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
-
 		return true;
 	}
 
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
-		Iterator<?> iter = currentIter.get(event);
-		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
-			if (iter != null) {
-				if (iter.hasNext())
-					currentIter.put(event, iter);
+		Iterator<?> iterator = currentIterator.get(event);
+		if (iterator == null) { // first time
+			iterator = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
+			if (iterator != null) {
+				if (iterator.hasNext())
+					currentIterator.put(event, iterator);
 				else
-					iter = null;
+					iterator = null;
 			}
 		}
-		if (iter == null || !iter.hasNext()) {
+		if (iterator == null || !iterator.hasNext()) { // no next, exit
 			exit(event);
 			debug(event, false);
 			return actualNext;
-		} else {
-			current.put(event, iter.next());
-			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+		} else { // has next, keep looping
+			Object nextIterator = iterator.next();
+			current.put(event, nextIterator); // loop-value
+			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1); // loop-counter
+
+			Object value;
+			Object index;
+			if (isVariableLoop) {
+				@SuppressWarnings("unchecked") Map.Entry<String, Object> nextIteratorEntry = (Map.Entry<String, Object>) nextIterator;
+				value = nextIteratorEntry.getValue();
+				index = nextIteratorEntry.getKey();
+			} else {
+				value = nextIterator;
+				index = null;
+			}
+
+			if (asValue != null)
+				Variables.setVariable(asValue.getName().toString(event), value, event, asValue.isLocal()); // value var
+			if (asIndex != null) {
+				assert isVariableLoop; // It shouldn't reach this when !isVariableLoop, init should error.
+				Variables.setVariable(asIndex.getName().toString(event), index, event, asIndex.isLocal()); // index var
+			}
+
 			return walk(event, true);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "loop " + expr.toString(event, debug);
+		return
+			"loop " + expr.toString(event, debug) +
+			(asIndex != null ? " with index as " + asIndex.toString(event, debug) : "") +
+			(asValue != null ? " with value as " + asValue.toString(event, debug) : "");
 	}
 
 	@Nullable
@@ -180,7 +270,7 @@ public class SecLoop extends LoopSection {
 	@Override
 	public void exit(Event event) {
 		current.remove(event);
-		currentIter.remove(event);
+		currentIterator.remove(event);
 		super.exit(event);
 	}
 
