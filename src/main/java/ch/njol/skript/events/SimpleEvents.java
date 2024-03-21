@@ -73,6 +73,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -740,6 +741,17 @@ public class SimpleEvents {
 						"\t\tcancel event"
 				)
 				.since("2.7");
+
+		if (Skript.classExists("org.bukkit.event.player.PlayerExpCooldownChangeEvent")) {
+			Skript.registerEvent("Player Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "[player] (exp[erience] cooldown change)")
+					.description("Called when a player's experience pickup cooldown changes")
+					.examples(
+						"on player exp cooldown change:",
+							"\tsend \"Your experience cooldown has changed!\" to player"
+					)
+					.since("INSERT VERSION");
+
+		}
 
 	}
 
