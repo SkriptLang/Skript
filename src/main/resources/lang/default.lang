@@ -1980,6 +1980,18 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Teleport Flags --
+teleport flags:
+	retain_open_inventory: retain open inventory, opened inventory, open inventory, inventory
+	retain_passengers: retain passengers, passengers, passenger
+	retain_vehicle: retain vehicle, vehicle
+	retain_direction: retain direction, direction
+	retain_pitch: retain pitch, pitch
+	retain_yaw: retain yaw, yaw
+	retain_x: retain x-coordinate, x-coordinate
+	retain_y: retain y-coordinate, y-coordinate
+	retain_z: retain z-coordinate, z-coordinate
+
 # -- Boolean --
 boolean:
 	true:
@@ -2059,6 +2071,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	teleportflag: teleport flag¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
