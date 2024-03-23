@@ -531,6 +531,9 @@ public class SkriptParser {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
 					Class<?> returnType = parsedExpression.getReturnType(); // Sometimes getReturnType does non-trivial costly operations
+					if (returnType == null)
+						throw new SkriptAPIException("Expression '" + expr + "' returned null for method Expression#getReturnType. Null is not a valid return.");
+
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
