@@ -86,6 +86,16 @@ public class EffObjectives extends Effect  {
 	}
 
 	/**
+	 * Complete a JUnit objective on the Java side.
+	 * 
+	 * @param test The test name used in the complete objectives string effect.
+	 * @param objectives The objectives setup in the complete objectives string effect
+	 */
+	public static void complete(String test, String... objectives) {
+		completeness.putAll(test, Lists.newArrayList(objectives));
+	}
+
+	/**
 	 * Check if the currently running JUnit test has passed all
 	 * it's required objectives that the script test setup.
 	 * 
