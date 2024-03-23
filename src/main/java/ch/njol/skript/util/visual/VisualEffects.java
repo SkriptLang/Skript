@@ -160,7 +160,7 @@ public class VisualEffects {
 			});
 			registerDataSupplier("Particle.NOTE", (raw, location) -> {
 				int colorValue = (int) (((Number) raw).floatValue() * 255);
-				ColorRGB color = new ColorRGB(colorValue, 0, 0);
+				ColorRGB color = ColorRGB.fromRGB(colorValue, 0, 0);
 				return new ParticleOption(color, 1);
 			});
 			registerDataSupplier("Particle.ITEM_CRACK", (raw, location) -> {

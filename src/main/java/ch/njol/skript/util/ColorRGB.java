@@ -35,28 +35,67 @@ public class ColorRGB implements Color {
 	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
 
 	private org.bukkit.Color bukkit;
+
 	@Nullable
 	private DyeColor dye;
-	
+
+	/**
+	 * Subject to being private in the future. Use {@link #fromRGB(int, int, int)}
+	 * This is to keep inline with other color classes.
+	 */
+	@Deprecated
 	public ColorRGB(int red, int green, int blue) {
-		this.bukkit = org.bukkit.Color.fromRGB(
+		this(org.bukkit.Color.fromRGB(
 			Math2.fit(0, red, 255),
 			Math2.fit(0, green, 255),
-			Math2.fit(0, blue, 255));
-		this.dye = DyeColor.getByColor(bukkit);
+			Math2.fit(0, blue, 255)));
 	}
-	
+
+	/**
+	 * Subject to being private in the future. Use {@link #fromBukkitColor(org.bukkit.Color)}
+	 * This is to keep inline with other color classes.
+	 */
+	@Deprecated
+	public ColorRGB(org.bukkit.Color bukkit) {
+		this.dye = DyeColor.getByColor(bukkit);
+		this.bukkit = bukkit;
+	}
+
+	/**
+	 * Returns a ColorRGB object from the provided arguments.
+	 * 
+	 * @param red
+	 * @param green
+	 * @param blue
+	 * @return ColorRGB
+	 */
+	public static ColorRGB fromRGB(int red, int green, int blue) {
+		return new ColorRGB(red, green, blue);
+	}
+
+	/**
+	 * Returns a ColorRGB object from a bukkit color.
+	 * 
+	 * @param red
+	 * @param green
+	 * @param blue
+	 * @return ColorRGB
+	 */
+	public static ColorRGB fromBukkitColor(org.bukkit.Color bukkit) {
+		return new ColorRGB(bukkit);
+	}
+
 	@Override
 	public org.bukkit.Color asBukkitColor() {
 		return bukkit;
 	}
-	
+
 	@Override
 	@Nullable
 	public DyeColor asDyeColor() {
 		return dye;
 	}
-	
+
 	@Override
 	public String getName() {
 		return "rgb " + bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
@@ -78,7 +117,7 @@ public class ColorRGB implements Color {
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);
 	}
-	
+
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
 		org.bukkit.Color b = fields.getObject("bukkit", org.bukkit.Color.class);
@@ -91,4 +130,5 @@ public class ColorRGB implements Color {
 			dye = d;
 		bukkit = b;
 	}
+
 }

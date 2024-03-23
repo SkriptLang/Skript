@@ -51,12 +51,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Panda.Gene;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -105,9 +109,6 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 
-/**
- * @author Peter Güttinger
- */
 public class BukkitClasses {
 
 	public BukkitClasses() {}
@@ -1548,6 +1549,35 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+	    if (Skript.classExists("org.bukkit.entity.Display")) {
+				Classes.registerClass(new ClassInfo<>(Display.class, "display")
+						.user("displays?")
+						.name("Display")
+						.description("A text display, block display or item display.")
+						.since("INSERT VERSION")
+						.defaultExpression(new EventValueExpression<>(Display.class))
+						.changer(DefaultChangers.nonLivingEntityChanger));
+	
+				Classes.registerClass(new EnumClassInfo<>(Billboard.class, "billboard", "billboards")
+						.user("billboards?")
+						.name("Billboard")
+						.description("Represents the billboard setting of a display.")
+						.since("INSERT VERSION"));
+	
+				Classes.registerClass(new EnumClassInfo<>(TextAlignment.class, "textalignment", "text alignments")
+						.user("text ?alignments?")
+						.name("Text Alignment")
+						.description("Represents the text alignment setting of a text display.")
+						.since("INSERT VERSION"));
+	
+				Classes.registerClass(new EnumClassInfo<>(ItemDisplayTransform.class, "itemdisplaytransform", "item display transforms")
+						.user("item ?display ?transforms?")
+						.name("Item Display Transforms")
+						.description("Represents the transform setting of an item display.")
+						.since("INSERT VERSION"));
+		}
+
 	}
 
 }
