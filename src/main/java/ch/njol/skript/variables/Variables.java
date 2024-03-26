@@ -18,33 +18,6 @@
  */
 package ch.njol.skript.variables;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.config.Config;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Variable;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.variables.SerializedVariable.Value;
-import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.SynchronizedReference;
-import ch.njol.yggdrasil.Yggdrasil;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -65,6 +38,35 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
+
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.variables.storage.H2Storage;
+import org.skriptlang.skript.variables.storage.MySQLStorage;
+import org.skriptlang.skript.variables.storage.SQLiteStorage;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.Variable;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.variables.SerializedVariable.Value;
+import ch.njol.util.Kleenean;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.SynchronizedReference;
+import ch.njol.yggdrasil.Yggdrasil;
 
 /**
  * Handles all things related to variables.
@@ -95,13 +97,19 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
+	private final static List<UnloadedStorage> UNLOADED_STORAGES = new ArrayList<>();
 
 	// Register some things with Yggdrasil
 	static {
-		registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
-		registerStorage(SQLiteStorage.class, "sqlite");
-		registerStorage(MySQLStorage.class, "mysql");
+		SkriptAddon source = Skript.getAddonInstance();
+		registerStorage(source, FlatFileStorage.class, "csv", "file", "flatfile");
+		if (Skript.classExists("com.zaxxer.hikari.HikariConfig")) {
+			registerStorage(source, SQLiteStorage.class, "sqlite");
+			registerStorage(source, MySQLStorage.class, "mysql");
+			registerStorage(source, H2Storage.class, "h2");
+		} else {
+			Skript.warning("SpigotLibraryLoader failed to load HikariCP. No JDBC databases were enabled.");
+		}
 		yggdrasil.registerSingleClass(Kleenean.class, "Kleenean");
 		// Register ConfigurationSerializable, Bukkit's serialization system
 		yggdrasil.registerClassResolver(new ConfigurationSerializer<ConfigurationSerializable>() {
@@ -146,17 +154,19 @@ public class Variables {
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
-	 * @return if the operation was successful, or if it's already registered.
+	 * @return if the operation was successful, or false if the class is already registered.
+	 * @throws SkriptAPIException if the operation was not successful because the storage class is already registered.
 	 */
-	public static <T extends VariablesStorage> boolean registerStorage(Class<T> storage, String... names) {
-		if (TYPES.containsKey(storage))
-			return false;
-		for (String name : names) {
-			if (TYPES.containsValue(name.toLowerCase(Locale.ENGLISH)))
-				return false;
+	public static <T extends VariablesStorage> boolean registerStorage(SkriptAddon source, Class<T> storage, String... names) {
+		for (UnloadedStorage registered : UNLOADED_STORAGES) {
+			if (registered.getStorageClass().isAssignableFrom(storage))
+				throw new SkriptAPIException("Storage class '" + storage.getName() + "' cannot be registered because '" + registered.getStorageClass().getName() + "' is a superclass or equal class");
+			for (String name : names) {
+				if (registered.matches(name))
+					return false;
+			}
 		}
-		for (String name : names)
-			TYPES.put(storage, name.toLowerCase(Locale.ENGLISH));
+		UNLOADED_STORAGES.add(new UnloadedStorage(source, storage, names));
 		return true;
 	}
 
@@ -221,9 +231,8 @@ public class Variables {
 
 					// Initiate the right VariablesStorage class
 					VariablesStorage variablesStorage;
-					Optional<?> optional = TYPES.entries().stream()
-							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
-							.map(Entry::getKey)
+					Optional<UnloadedStorage> optional = UNLOADED_STORAGES.stream()
+							.filter(registered -> registered.matches(type))
 							.findFirst();
 					if (!optional.isPresent()) {
 						if (!type.equalsIgnoreCase("disabled") && !type.equalsIgnoreCase("none")) {
@@ -233,16 +242,23 @@ public class Variables {
 						continue;
 					}
 
+					UnloadedStorage unloadedStorage = optional.get();
 					try {
-						@SuppressWarnings("unchecked")
-						Class<? extends VariablesStorage> storageClass = (Class<? extends VariablesStorage>) optional.get();
-						Constructor<?> constructor = storageClass.getDeclaredConstructor(String.class);
+						Class<? extends VariablesStorage> storageClass = unloadedStorage.getStorageClass();
+						Constructor<?> constructor = storageClass.getDeclaredConstructor(SkriptAddon.class, String.class);
 						constructor.setAccessible(true);
-						variablesStorage = (VariablesStorage) constructor.newInstance(type);
+						variablesStorage = (VariablesStorage) constructor.newInstance(unloadedStorage.getSource(), type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-						Skript.error("Failed to initalize database type '" + type + "'");
+						Skript.exception(e, "Failed to initalize database type '" + type + "' ensure constructors are properly created.");
 						successful = false;
 						continue;
+					}
+
+					if (variablesStorage instanceof SQLiteStorage) {
+						Skript.warning(
+								"Please be advised that SQL is single threaded and synchronous.\n" +
+								"Meaning you will be losing out on drastic performance.\n" +
+								"Due to this, Skript is deprecating SQLite. Please consider using H2.");
 					}
 
 					// Get the amount of variables currently loaded
@@ -741,7 +757,6 @@ public class Variables {
 	 * @return the amount of variables
 	 * that don't have a storage that accepts them.
 	 */
-	@SuppressWarnings("null")
 	private static int onStoragesLoaded() {
 		if (loadConflicts > MAX_CONFLICT_WARNINGS)
 			Skript.warning("A total of " + loadConflicts + " variables were loaded more than once from different databases");
@@ -843,7 +858,7 @@ public class Variables {
 				SerializedVariable variable = saveQueue.take();
 
 				for (VariablesStorage variablesStorage : STORAGES) {
-					if (variablesStorage.accept(variable.name)) {
+					if (variablesStorage.accept(variable.getName())) {
 						variablesStorage.save(variable);
 
 						break;

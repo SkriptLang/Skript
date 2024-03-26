@@ -27,6 +27,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.log.ParseLogHandler;
@@ -90,6 +91,7 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	// created in the constructor, started in load()
 	private final Thread writeThread;
+	private final SkriptAddon source;
 
 	/**
 	 * Creates a new variable storage with the given name.
@@ -99,27 +101,35 @@ public abstract class VariablesStorage implements Closeable {
 	 *
 	 * @param name the name.
 	 */
-	protected VariablesStorage(String name) {
+	protected VariablesStorage(SkriptAddon source, String name) {
 		assert name != null;
 		databaseName = name;
+		this.source = source;
 
 		writeThread = Skript.newThread(() -> {
 			while (!closed) {
 				try {
 					// Take a variable from the queue and process it
 					SerializedVariable variable = changesQueue.take();
-					Value value = variable.value;
+					Value value = variable.getValue();
 
 					// Actually save the variable
 					if (value != null)
-						save(variable.name, value.type, value.data);
+						save(variable.getName(), value.type, value.data);
 					else
-						save(variable.name, null, null);
+						save(variable.getName(), null, null);
 				} catch (InterruptedException ignored) {
 					// Ignored as the `closed` field will indicate whether the thread actually needs to stop
 				}
 			}
 		}, "Skript variable save thread for database '" + name + "'");
+	}
+
+	/**
+	 * @return The SkriptAddon instance that registered this VariableStorage.
+	 */
+	public SkriptAddon getRegisterSource() {
+		return source;
 	}
 
 	/**
@@ -148,17 +158,51 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	@Nullable
 	protected <T> T getValue(SectionNode sectionNode, String key, Class<T> type) {
+		return getValue(sectionNode, key, type, true);
+	}
+
+	/**
+	 * Gets the value at the given key of the given section node,
+	 * parsed with the given type. Prints no errors, but can return null.
+	 *
+	 * @param sectionNode the section node.
+	 * @param key the key.
+	 * @param type the type.
+	 * @return the parsed value, or {@code null} if the value was invalid,
+	 * or not found.
+	 * @param <T> the type.
+	 */
+	@Nullable
+	protected <T> T getOptional(SectionNode sectionNode, String key, Class<T> type) {
+		return getValue(sectionNode, key, type, false);
+	}
+
+	/**
+	 * Gets the value at the given key of the given section node,
+	 * parsed with the given type.
+	 *
+	 * @param sectionNode the section node.
+	 * @param key the key.
+	 * @param type the type.
+	 * @param error if Skript should print errors and stop loading.
+	 * @return the parsed value, or {@code null} if the value was invalid,
+	 * or not found.
+	 * @param <T> the type.
+	 */
+	@Nullable
+	private <T> T getValue(SectionNode sectionNode, String key, Class<T> type, boolean error) {
 		String rawValue = sectionNode.getValue(key);
 		// Section node doesn't have this key
 		if (rawValue == null) {
-			Skript.error("The config is missing the entry for '" + key + "' in the database '" + databaseName + "'");
+			if (error)
+				Skript.error("The config is missing the entry for '" + key + "' in the database '" + databaseName + "'");
 			return null;
 		}
 
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			T parsedValue = Classes.parse(rawValue, type, ParseContext.CONFIG);
 
-			if (parsedValue == null)
+			if (parsedValue == null && error)
 				// Parsing failed
 				log.printError("The entry for '" + key + "' in the database '" + databaseName + "' must be " +
 					Classes.getSuperClassInfo(type).getName().withIndefiniteArticle());
