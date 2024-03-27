@@ -1,0 +1,2 @@
+test "minosoft":
+	assert size of all players is 2 with "minosoft worked :)"
