@@ -40,14 +40,18 @@ import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
+
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
+
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -172,9 +176,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("deprecation")
 public final class BukkitEventValues {
 
@@ -1530,8 +1531,8 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, new Getter<Firework, FireworkExplodeEvent>() {
 			@Override
 			@Nullable
-			public Firework get(FireworkExplodeEvent e) {
-				return e.getEntity();
+			public Firework get(FireworkExplodeEvent event) {
+				return event.getEntity();
 			}
 		}, 0);
 		EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, new Getter<FireworkEffect, FireworkExplodeEvent>() {
@@ -1830,6 +1831,23 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
+
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Firework.class, new Getter<Firework, PlayerElytraBoostEvent>() {
+				@Override
+				@Nullable
+				public Firework get(PlayerElytraBoostEvent event) {
+					return event.getFirework();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, ItemStack.class, new Getter<ItemStack, PlayerElytraBoostEvent>() {
+				@Override
+				@Nullable
+				public ItemStack get(PlayerElytraBoostEvent event) {
+					return event.getItemStack();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 	}
 
