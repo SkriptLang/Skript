@@ -56,8 +56,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 
 	static {
 		Skript.registerExpression(ExprTargetedBlock.class, Block.class, ExpressionType.COMBINED,
-				"[the] target[ed] block[s] [of %players%]", "%players%'[s] target[ed] block[s]",
-				"[the] (actual[ly]|exact) target[ed] block[s] [of %players%]", "%players%'[s] (actual[ly]|exact) target[ed] block[s]");
+				"[the] [actual:(actual[ly]|exact)] target[ed] block[s] [of %players%]", "%players%'[s] [actual:(actual[ly]|exact)] target[ed] block[s]");
 	}
 
 	private boolean actual;
@@ -66,7 +65,7 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		setExpr((Expression<Player>) exprs[0]);
-		actual = matchedPattern > 1;
+		actual = parser.hasTag("actual");
 		return true;
 	}
 
