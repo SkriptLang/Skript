@@ -30,9 +30,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -52,11 +51,11 @@ import org.eclipse.jdt.annotation.Nullable;
 	"break actual target block of player"
 })
 @Since("1.0, INSERT VERSION (implement 'actual/exact' correctly)")
-public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
+public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 
 	static {
 		Skript.registerExpression(ExprTargetedBlock.class, Block.class, ExpressionType.COMBINED,
-				"[the] [actual:(actual[ly]|exact)] target[ed] block[s] [of %players%]", "%players%'[s] [actual:(actual[ly]|exact)] target[ed] block[s]");
+				"[the] [actual:(actual[ly]|exact)] target[ed] block[s] [of %livingentities%]", "%livingentities%'[s] [actual:(actual[ly]|exact)] target[ed] block[s]");
 	}
 
 	private boolean actual;
@@ -64,20 +63,20 @@ public class ExprTargetedBlock extends PropertyExpression<Player, Block> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		setExpr((Expression<Player>) exprs[0]);
+		setExpr((Expression<LivingEntity>) exprs[0]);
 		actual = parser.hasTag("actual");
 		return true;
 	}
 
 	@Override
-	protected Block[] get(Event event, Player[] source) {
+	protected Block[] get(Event event, LivingEntity[] source) {
 		Integer distance = SkriptConfig.maxTargetBlockDistance.value();
-		return get(source, player -> {
+		return get(source, livingEntity -> {
 			Block block;
 			if (actual) {
-				block = player.getTargetBlockExact(distance);
+				block = livingEntity.getTargetBlockExact(distance);
 			} else {
-				block = player.getTargetBlock(null, distance);
+				block = livingEntity.getTargetBlock(null, distance);
 			}
 			if (block != null && ItemUtils.isAir(block.getType()))
 				return null;
