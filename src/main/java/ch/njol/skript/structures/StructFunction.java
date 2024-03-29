@@ -61,7 +61,7 @@ public class StructFunction extends Structure {
 	public static final Priority PRIORITY = new Priority(400);
 
 	private static final Pattern SIGNATURE_PATTERN =
-			Pattern.compile("(?:local )?function (" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*(?:::| returns )\\s*(.+))?");
+			Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
 	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {

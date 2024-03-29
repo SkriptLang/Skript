@@ -155,6 +155,31 @@ public final class Math2 {
 	public static float safe(float value) {
 		return Float.isFinite(value) ? value : 0;
 	}
+
+	/**
+	 * @param x the first value
+	 * @param y the second value
+	 * @return the sum of x and y, or {@link Long#MAX_VALUE} in case of an overflow
+	 */
+	public static long addClamped(long x, long y) {
+		long result = x + y;
+		// Logic extracted from Math#addExact to avoid having to catch an expensive exception
+		boolean causedOverflow = ((x ^ result) & (y ^ result)) < 0;
+		if (causedOverflow)
+			return Long.MAX_VALUE;
+		return result;
+	}
+	
+	public static long multiplyClamped(long x, long y) {
+		long result = x * y;
+		long ax = Math.abs(x);
+		long ay = Math.abs(y);
+		// Logic extracted from Math#multiplyExact to avoid having to catch an expensive exception
+        if (((ax | ay) >>> 31 != 0) && (((y != 0) && (result / y != x)) || (x == Long.MIN_VALUE && y == -1)))
+			// If either x or y is negative return the min value, otherwise return the max value
+            return x < 0 == y < 0 ? Long.MAX_VALUE : Long.MIN_VALUE;
+		return result;
+	}
 	
 	@Deprecated
 	@ScheduledForRemoval
