@@ -32,7 +32,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.inventory.meta.ItemMeta;
 
 @Name("Unbreakable Items")
-@Description("Creates unbreakable copies of given items.")
+@Description("Creates breakable or unbreakable copies of given items.")
 @Examples({
 	"set {_item} to unbreakable iron sword",
 	"give breakable {_weapon} to all players"
