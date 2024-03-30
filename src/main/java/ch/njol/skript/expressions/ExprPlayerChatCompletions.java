@@ -53,7 +53,7 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 
 	static {
 		if (Skript.methodExists(Player.class, "addCustomChatCompletions", Collection.class))
-			register(ExprPlayerChatCompletions.class, String.class, "[custom] chat completion[s] [suggestions]", "players");
+			register(ExprPlayerChatCompletions.class, String.class, "[custom] chat completion[s]", "players");
 	}
 
 	@Override
@@ -63,7 +63,6 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 	}
 
 	@Override
-	@SuppressWarnings("DataFlowIssue")
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL)
 			return null;
