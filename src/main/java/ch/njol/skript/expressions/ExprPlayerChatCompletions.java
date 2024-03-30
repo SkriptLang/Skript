@@ -39,13 +39,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Player Chat Completions")
 @Description({
-	"The custom chat completion suggestions. You can add, set, remove, and delete them. Removing online players name with this expression is ineffective.",
+	"The custom chat completion suggestions. You can add, set, remove, and clear them. Removing online players name with this expression is ineffective.",
 	"This expression will not return anything due to Bukkit limitations."
 })
 @Examples({
 	"add \"Skript\" and \"Njol\" to chat completions of all players",
 	"remove \"text\" from {_p}'s chat completions",
-	"delete player's chat completions"
+	"clear player's chat completions"
 })
 @RequiredPlugins("Spigot 1.19+")
 @Since("INSERT VERSION")
