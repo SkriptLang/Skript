@@ -670,15 +670,18 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	protected boolean deserialize(final String s) {
 		return false;
 	}
-	
+
 	@SuppressWarnings({"unchecked", "deprecation"})
 	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
+		World world = location.getWorld();
+		if (world == null)
+			return null;
 		try {
 			if (WORLD_1_17_CONSUMER) {
-				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type,
 					(org.bukkit.util.Consumer<E>) consumer::accept);
 			} else if (WORLD_1_13_CONSUMER) {
-				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(world, location, type,
 					(org.bukkit.util.Consumer<E>) consumer::accept);
 			}
 		} catch (InvocationTargetException | IllegalAccessException e) {
@@ -686,7 +689,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				Skript.exception(e, "Can't spawn " + type.getName());
 			return null;
         }
-        return location.getWorld().spawn(location, type, consumer);
+        return world.spawn(location, type, consumer);
 	}
-	
+
 }
