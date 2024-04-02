@@ -482,7 +482,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (HAS_ENABLED_BY_FEATURE) {
 			// Check if the entity can actually be spawned
 			// Some entity types may be restricted by experimental datapacks
-            return bukkitEntityType.isEnabledByFeature(world);
+            return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
 		}
 		return bukkitEntityType.isSpawnable();
 	}
