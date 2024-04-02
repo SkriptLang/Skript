@@ -520,10 +520,10 @@ entities:
 		pattern: creeper(|1¦s)
 	unpowered creeper:
 		name: unpowered creeper¦s @an
-		pattern: unpowered creeper(|1¦s)
+		pattern: un(powered|charged) creeper(|1¦s)
 	powered creeper:
 		name: powered creeper¦s
-		pattern: powered creeper(|1¦s)
+		pattern: (powered|charged) creeper(|1¦s)
 	egg:
 		name: egg¦s @an
 		pattern: egg(|1¦s)
