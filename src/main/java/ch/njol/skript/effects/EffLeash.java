@@ -38,7 +38,7 @@ import ch.njol.util.Kleenean;
 @Examples({
 			"on right click:",
 				"\tleash event-entity to player",
-				"\tsend \"&aYou leashed %2%event-entity%!\" to player"})
+				"\tsend \"&aYou leashed &2%event-entity%!\" to player"})
 @Since("2.3")
 public class EffLeash extends Effect {
 
