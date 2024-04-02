@@ -34,8 +34,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Leash entities")
-@Description("Leash living entities to other entities.")
-@Examples("leash the player to the target entity")
+@Description("Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work. See: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity) ")
+@Examples({
+			"on right click:",
+			"\tleash event-entity to player",
+			"\tsend \"&aYou leashed %2%event-entity%!\" to player"})
 @Since("2.3")
 public class EffLeash extends Effect {
 
