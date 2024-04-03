@@ -66,7 +66,7 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return getPropertyName() + " of " + getExpr().toString(event, debug);
+		return getPropertyName() + " "+getPropertyType().name().toLowerCase()+" " + getExpr().toString(event, debug);
 	}
 
 }
