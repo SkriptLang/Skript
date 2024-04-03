@@ -629,7 +629,7 @@ public final class BukkitEventValues {
 			public @Nullable Location get(EntityTeleportEvent event) {
 				return event.getTo();
 			}
-		}, EventValues.TIME_FUTURE);
+		}, EventValues.TIME_NOW);
 
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {

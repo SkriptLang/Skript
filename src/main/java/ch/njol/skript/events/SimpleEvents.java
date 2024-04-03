@@ -325,10 +325,6 @@ public class SimpleEvents {
 				.description("Called when a player respawns. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
-		Skript.registerEvent("Teleport", SimpleEvent.class, PlayerTeleportEvent.class, "[player] teleport[ing]")
-				.description("Called whenever a player is teleported, either by a nether/end portal or other means (e.g. by plugins).")
-				.examples("on teleport:")
-				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
 				.description("Called when a player starts or stops sneaking. Use <a href='conditions.html#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
 				.examples("# make players that stop sneaking jump",
