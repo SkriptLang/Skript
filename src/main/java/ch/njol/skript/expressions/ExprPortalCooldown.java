@@ -43,7 +43,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\twait 1 tick",
 		"\tset portal cooldown of event-entity to 5 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprPortalCooldown extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {

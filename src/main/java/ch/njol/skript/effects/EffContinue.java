@@ -55,7 +55,7 @@ import java.util.List;
 			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
 		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
 })
-@Since("2.2-dev37, 2.7 (while loops), INSERT VERSION (outer loops)")
+@Since("2.2-dev37, 2.7 (while loops), 2.8.0 (outer loops)")
 public class EffContinue extends Effect {
 
 	static {
