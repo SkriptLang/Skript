@@ -36,12 +36,12 @@ import javax.annotation.Nullable;
 public class EvtTeleport extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Teleport", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "entity teleport[ing] [of %entitytypes%]", "[player] teleport[ing]")
-			.description("This event can be used to teleport non-player or player entities respectively", "When teleporting entities, the event may also be called due to a result of natural causes, such as an Enderman or Shulker teleporting, or Wolfs teleporting to players.", "When teleporting players, the event can be called by teleporting through a nether/end portal, or by other means (e.g. plugins).")
+		Skript.registerEvent("Teleport", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "[%entitytypes%] teleport[ing]", "[player] teleport[ing]")
+			.description("This event can be used to teleport non-player or player entities respectively", "When teleporting entities, the event may also be called due to a result of natural causes, such as an enderman or shulker teleporting, or wolves teleporting to players.", "When teleporting players, the event can be called by teleporting through a nether/end portal, or by other means (e.g. plugins).")
 			.examples(
+				"on teleport:",
 				"on player teleport:",
-				"on entity teleport:",
-				"on entity teleport of creeper:"
+				"on creeper teleport:"
 			)
 			.since("1.0, INSERT VERSION (entity teleport)");
 	}
@@ -66,15 +66,9 @@ public class EvtTeleport extends SkriptEvent {
 		if (event instanceof EntityTeleportEvent) {
 			EntityTeleportEvent entityEvent = (EntityTeleportEvent) event;
 			entity = entityEvent.getEntity();
-			if (entity instanceof Player) {
-				return false;
-			}
 		} else if (event instanceof PlayerTeleportEvent) {
 			PlayerTeleportEvent playerEvent = (PlayerTeleportEvent) event;
 			entity = playerEvent.getPlayer();
-			if (matchedPattern == 0) {
-				return false; // Exclude players from "entity teleport event"
-			}
 		} else {
 			return false;
 		}
@@ -94,11 +88,11 @@ public class EvtTeleport extends SkriptEvent {
 
 	public String toString(@Nullable Event e, boolean debug) {
 		if (entities != null) {
-			return "on entity teleport of " + entities.toString(e, debug);
+			return "on " + entities.toString(e, debug) + " teleport" ;
 		} else if (e instanceof PlayerTeleportEvent) {
 			return "on player teleport";
 		} else {
-			return "on entity teleport";
+			return "on teleport";
 		}
 	}
 }
