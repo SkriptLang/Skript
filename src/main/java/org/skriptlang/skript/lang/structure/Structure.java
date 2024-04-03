@@ -96,10 +96,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	@Override
-	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		StructureData structureData = getParser().getData(StructureData.class);
 
-		Literal<?>[] literals = Arrays.copyOf(exprs, exprs.length, Literal[].class);
+		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;

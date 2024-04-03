@@ -54,7 +54,7 @@ import ch.njol.util.Kleenean;
 	"\tremove loop-item from the player",
 	"set {inventory::%uuid of player%::*} to items in the player's inventory"
 })
-@Since("2.0, INSERT VERSION (specific types of items)")
+@Since("2.0, 2.8.0 (specific types of items)")
 public class ExprItemsIn extends SimpleExpression<Slot> {
 
 	static {

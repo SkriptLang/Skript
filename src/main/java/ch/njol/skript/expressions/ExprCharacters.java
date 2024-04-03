@@ -50,7 +50,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"# 0123456789ABC... ...uvwxyz",
 	"send alphanumeric characters between \"0\" and \"z\""
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprCharacters extends SimpleExpression<String> {
 
 	static {

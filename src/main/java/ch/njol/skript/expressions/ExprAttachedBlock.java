@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Arrow Attached Block")
 @Description("Returns the attached block of an arrow.")
 @Examples("set hit block of last shot arrow to diamond block")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Block> {
 
 	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");

@@ -59,7 +59,7 @@ public class EvtMove extends SkriptEvent {
 						"on player turning around:",
 							"send action bar \"You are currently turning your head around!\" to player")
 				.requiredPlugins("Paper 1.16.5+ (entity move)")
-				.since("2.6, INSERT VERSION (turn around)");
+				.since("2.6, 2.8.0 (turn around)");
 	}
 
 	private EntityData<?> entityData;

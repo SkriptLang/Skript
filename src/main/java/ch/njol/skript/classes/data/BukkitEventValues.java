@@ -98,6 +98,8 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -116,6 +118,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -710,14 +713,14 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketFillEvent e) {
-				return e.getBlockClicked().getRelative(e.getBlockFace());
+				return e.getBlockClicked();
 			}
 		}, 0);
 		EventValues.registerEventValue(PlayerBucketFillEvent.class, Block.class, new Getter<Block, PlayerBucketFillEvent>() {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketFillEvent e) {
-				final BlockState s = e.getBlockClicked().getRelative(e.getBlockFace()).getState();
+				final BlockState s = e.getBlockClicked().getState();
 				s.setType(Material.AIR);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
@@ -1779,6 +1782,54 @@ public final class BukkitEventValues {
 					return event.getStonecuttingRecipe().getResult();
 				}
 			}, EventValues.TIME_NOW);
+
+		// EntityTransformEvent
+		EventValues.registerEventValue(EntityTransformEvent.class, Entity[].class, new Getter<Entity[], EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public Entity[] get(EntityTransformEvent event) {
+				return event.getTransformedEntities().stream().toArray(Entity[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityTransformEvent.class, TransformReason.class, new Getter<TransformReason, EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public TransformReason get(EntityTransformEvent event) {
+				return event.getTransformReason();
+			}
+		}, EventValues.TIME_NOW);
+
+		// InventoryMoveItemEvent
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getSource();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getDestination();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getSource().getLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getDestination().getLocation().getBlock();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, new Getter<ItemStack, InventoryMoveItemEvent>() {
+			@Override
+			public ItemStack get(InventoryMoveItemEvent event) {
+				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
 
 	}
 

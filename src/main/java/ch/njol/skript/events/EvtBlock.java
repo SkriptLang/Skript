@@ -90,9 +90,9 @@ public class EvtBlock extends SkriptEvent {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean check(final Event e) {
-		if (mine && e instanceof BlockBreakEvent) {
-			if (((BlockBreakEvent) e).getBlock().getDrops(((BlockBreakEvent) e).getPlayer().getItemInHand()).isEmpty())
+	public boolean check(final Event event) {
+		if (mine && event instanceof BlockBreakEvent) {
+			if (((BlockBreakEvent) event).getBlock().getDrops(((BlockBreakEvent) event).getPlayer().getItemInHand()).isEmpty())
 				return false;
 		}
 		if (types == null)
@@ -101,27 +101,27 @@ public class EvtBlock extends SkriptEvent {
 		ItemType item;
 		BlockData blockData = null;
 
-		if (e instanceof BlockFormEvent) {
-			BlockFormEvent blockFormEvent = (BlockFormEvent) e;
+		if (event instanceof BlockFormEvent) {
+			BlockFormEvent blockFormEvent = (BlockFormEvent) event;
 			BlockState newState = blockFormEvent.getNewState();
-			item = new ItemType(newState);
+			item = new ItemType(newState.getBlockData());
 			blockData = newState.getBlockData();
-		} else if (e instanceof BlockEvent) {
-			BlockEvent blockEvent = (BlockEvent) e;
+		} else if (event instanceof BlockEvent) {
+			BlockEvent blockEvent = (BlockEvent) event;
 			Block block = blockEvent.getBlock();
 			item = new ItemType(block);
 			blockData = block.getBlockData();
-		} else if (e instanceof PlayerBucketFillEvent) {
-			PlayerBucketFillEvent playerBucketFillEvent = ((PlayerBucketFillEvent) e);
-			Block relative = playerBucketFillEvent.getBlockClicked().getRelative(playerBucketFillEvent.getBlockFace());
-			item = new ItemType(relative);
-			blockData = relative.getBlockData();
-		} else if (e instanceof PlayerBucketEmptyEvent) {
-			PlayerBucketEmptyEvent playerBucketEmptyEvent = ((PlayerBucketEmptyEvent) e);
+		} else if (event instanceof PlayerBucketFillEvent) {
+			PlayerBucketFillEvent playerBucketFillEvent = ((PlayerBucketFillEvent) event);
+			Block block = playerBucketFillEvent.getBlockClicked();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof PlayerBucketEmptyEvent) {
+			PlayerBucketEmptyEvent playerBucketEmptyEvent = ((PlayerBucketEmptyEvent) event);
 			item = new ItemType(playerBucketEmptyEvent.getItemStack());
-		} else if (e instanceof HangingEvent) {
-			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) e).getEntity());
-			return types.check(e, o -> {
+		} else if (event instanceof HangingEvent) {
+			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) event).getEntity());
+			return types.check(event, o -> {
 				if (o instanceof ItemType)
 					return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
 				return false;
@@ -134,7 +134,7 @@ public class EvtBlock extends SkriptEvent {
 		final ItemType itemF = item;
 		BlockData finalBlockData = blockData;
 
-		return types.check(e, o -> {
+		return types.check(event, o -> {
 			if (o instanceof ItemType)
 				return ((ItemType) o).isSupertypeOf(itemF);
 			else if (o instanceof BlockData && finalBlockData != null)
