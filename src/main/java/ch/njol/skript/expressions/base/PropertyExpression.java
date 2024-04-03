@@ -42,6 +42,14 @@ import java.util.Arrays;
  */
 public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
+	public enum PropertyType {
+		IN,
+
+		ON,
+
+		OF
+	}
+
 	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
 	 * 
@@ -51,7 +59,29 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
 	 */
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
-		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+		register(expressionClass, type, PropertyType.OF, property, fromType);
+	}
+
+	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, PropertyType propertyType, String property, String fromType) {
+		switch (propertyType){
+			case IN:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " in %" + fromType + "%",
+					"%" + fromType + "%'[s] " + property
+				);
+			case ON:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " on %" + fromType + "%",
+					"%" + fromType + "%'[s] " + property
+				);
+			case OF:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " of %" + fromType + "%",
+					"%" + fromType + "%'[s] " + property
+				);
+			default:
+				assert false;
+		}
 	}
 
 	/**
@@ -64,7 +94,29 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param fromType should be plural to support multiple objects but doesn't have to be.
 	 */
 	public static <T> void registerDefault(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
-		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " [of %" + fromType + "%]", "%" + fromType + "%'[s] " + property);
+		registerDefault(expressionClass, type, PropertyType.OF, property, fromType);
+	}
+
+	public static <T> void registerDefault(Class<? extends Expression<T>> expressionClass, Class<T> type, PropertyType propertyType, String property, String fromType) {
+		switch (propertyType){
+			case IN:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " [in %" + fromType + "%]",
+					"%" + fromType + "%'[s] " + property
+				);
+			case ON:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " [on %" + fromType + "%]",
+					"%" + fromType + "%'[s] " + property
+				);
+			case OF:
+				Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY,
+					"[the] " + property + " [of %" + fromType + "%]",
+					"%" + fromType + "%'[s] " + property
+				);
+			default:
+				assert false;
+		}
 	}
 
 	@Nullable
@@ -117,6 +169,10 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		assert source != null;
 		assert converter != null;
 		return ch.njol.skript.registrations.Converters.convertUnsafe(source, getReturnType(), converter);
+	}
+
+	protected PropertyType getPropertyType() {
+		return PropertyType.OF;
 	}
 
 	@Override
