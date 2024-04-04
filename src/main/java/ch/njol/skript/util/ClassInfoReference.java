@@ -36,7 +36,7 @@ import java.util.Arrays;
 /**
  * A ClassInfoReference represents a specific reference to a classinfo including any derivable context
  */
-public class ClassInfoReference {
+public final class ClassInfoReference {
 
 	@Nullable
 	private static UnparsedLiteral getSourceUnparsedLiteral(Expression<?> expression) {
@@ -84,7 +84,8 @@ public class ClassInfoReference {
 		return new SimpleExpression<ClassInfoReference>() {
 
 			@Override
-			protected @Nullable ClassInfoReference[] get(Event event) {
+			@Nullable
+			protected ClassInfoReference[] get(Event event) {
 				if (classInfoExpression.isSingle()) {
 					ClassInfo<?> classInfo = classInfoExpression.getSingle(event);
 					if (classInfo == null) {
