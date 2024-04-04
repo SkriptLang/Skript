@@ -749,7 +749,6 @@ public class SimpleEvents {
 				"\tset event-unknown command message to \"Hey, this command does not exist.\""
 			)
 			.since("INSERT VERSION");
-
 	}
 
 }

@@ -112,7 +112,7 @@ public class ExprMessage extends SimpleExpression<String> {
 					((PlayerQuitEvent) e).setQuitMessage(message);
 			}
 		},
-		UNKNOWN("unknown", "[the] [event-]unknown command [message]", UnknownCommandEvent.class) {
+		UNKNOWN("unknown", "unknown command( |-)message", UnknownCommandEvent.class) {
 			@Override
 			@Nullable
 			String get(final Event e) {
