@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -109,6 +110,18 @@ public class ExprMessage extends SimpleExpression<String> {
 					((PlayerKickEvent) e).setLeaveMessage(message);
 				else
 					((PlayerQuitEvent) e).setQuitMessage(message);
+			}
+		},
+		UNKNOWN("unknown", "[the] [event-]unknown command [message]", UnknownCommandEvent.class) {
+			@Override
+			@Nullable
+			String get(final Event e) {
+				return ((UnknownCommandEvent) e).getMessage();
+			}
+
+			@Override
+			void set(final Event e, final String message) {
+				((UnknownCommandEvent) e).setMessage(message);
 			}
 		},
 		DEATH("death", "death( |-)message", EntityDeathEvent.class) {
