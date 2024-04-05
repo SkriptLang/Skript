@@ -12,6 +12,9 @@ to keep in mind:
 * Write descriptive assert messages and write comments
 * Ensure your tests pass with all supported Skript versions
   * Use standard condition for checking MC version
+* When writing tests for your pull requests, please ensure that manipulations are cleaned up afterwards. This includes actions such as removing mobs that were manually spawned and resetting manipulated blocks to their original state. Also, try to avoid spawning hostile mobs, as this can cause issues (e.g. a spawned zombie catching fire from the sun).
+
+Note: The test world generate as a default super flat. Bedrock, dirt, grass, air, air...+ A good practice is to be using `spawn of world "world"` as a homing location, or anywhere near 0, 0, 0 is reasonable.
 
 ## Test Categories
 Scripts under <code>tests</code> are run on environments. Most of them are
@@ -75,12 +78,17 @@ some syntaxes for test development are available.
 Use Gradle to launch a test development server:
 
 ```
-TERM=dumb ./gradlew skriptTestDev
+gradlew clean skriptTestDev --console=plain
 ```
+
+Note: adding the tag `clean` will clear the build directory, making Skript generate a new server each time.
+Don't include the `clean` tag if you want to keep the same server folder around each test.
 
 The server launched will be running at localhost:25565. You can use console
 as normal, though there is some lag due to Gradle. If you're having trouble,
-try without <code>TERM=dumb</code>.
+try without <code>--console=plain</code>.
+
+Server files are located at <code>build/test_runners</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.

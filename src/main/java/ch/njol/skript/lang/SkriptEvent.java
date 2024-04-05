@@ -18,15 +18,23 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.SkriptEventHandler;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.structures.StructEvent.EventData;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
+import java.util.Locale;
 
 /**
  * A SkriptEvent is like a condition. It is called when any of the registered events occurs.
@@ -38,31 +46,127 @@ import org.eclipse.jdt.annotation.Nullable;
  * @see Skript#registerEvent(String, Class, Class, String...)
  * @see Skript#registerEvent(String, Class, Class[], String...)
  */
-public abstract class SkriptEvent implements SyntaxElement, Debuggable {
+@SuppressWarnings("NotNullFieldNotInitialized")
+public abstract class SkriptEvent extends Structure {
 
+	public static final Priority PRIORITY = new Priority(600);
+
+	private String expr;
 	@Nullable
-	EventPriority eventPriority;
+	protected EventPriority eventPriority;
+	private SkriptEventInfo<?> skriptEventInfo;
+
+	/**
+	 * The Trigger containing this SkriptEvent's code.
+	 */
+	protected Trigger trigger;
 
 	@Override
-	public final boolean init(ch.njol.skript.lang.Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		throw new UnsupportedOperationException();
+	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+		this.expr = parseResult.expr;
+
+		EventPriority priority = getParser().getData(EventData.class).getPriority();
+		if (priority != null && !isEventPrioritySupported()) {
+			Skript.error("This event doesn't support event priority");
+			return false;
+		}
+		eventPriority = priority;
+
+		SyntaxElementInfo<? extends Structure> syntaxElementInfo = getParser().getData(StructureData.class).getStructureInfo();
+		if (!(syntaxElementInfo instanceof SkriptEventInfo))
+			throw new IllegalStateException();
+		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
+
+		return init(args, matchedPattern, parseResult);
 	}
 
 	/**
-	 * called just after the constructor
-	 *
-	 * @param args
+	 * Called just after the constructor
 	 */
 	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
 
 	/**
-	 * Checks whether the given Event applies, e.g. the leftclick event is only part of the PlayerInteractEvent, and this checks whether the player leftclicked or not. This method
+	 * This method handles the loading of the Structure's syntax elements.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public boolean preLoad() {
+		// Implemented just for javadoc
+		return super.preLoad();
+	}
+
+	/**
+	 * This method handles the loading of the Structure's syntax elements.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public boolean load() {
+		if (!shouldLoadEvent())
+			return false;
+
+		SectionNode source = getEntryContainer().getSource();
+		if (Skript.debug() || source.debug())
+			Skript.debug(expr + " (" + this + "):");
+
+		Class<? extends Event>[] eventClasses = getEventClasses();
+
+		try {
+			getParser().setCurrentEvent(skriptEventInfo.getName().toLowerCase(Locale.ENGLISH), eventClasses);
+
+			@Nullable List<TriggerItem> items = ScriptLoader.loadItems(source);
+			Script script = getParser().getCurrentScript();
+
+			trigger = new Trigger(script, expr, this, items);
+			int lineNumber = getEntryContainer().getSource().getLine();
+			trigger.setLineNumber(lineNumber); // Set line number for debugging
+			trigger.setDebugLabel(script + ": line " + lineNumber);
+		} finally {
+			getParser().deleteCurrentEvent();
+		}
+
+		return true;
+	}
+
+	/**
+	 * This method handles the registration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public boolean postLoad() {
+		SkriptEventHandler.registerBukkitEvents(trigger, getEventClasses());
+		return true;
+	}
+
+	/**
+	 * This method handles the unregistration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public void unload() {
+		SkriptEventHandler.unregisterBukkitEvents(trigger);
+	}
+
+	/**
+	 * This method handles the unregistration of this event with Skript and Bukkit.
+	 * Only override this method if you know what you are doing!
+	 */
+	@Override
+	public void postUnload() {
+		// Implemented just for javadoc
+		super.postUnload();
+	}
+
+	@Override
+	public Priority getPriority() {
+		return PRIORITY;
+	}
+
+	/**
+	 * Checks whether the given Event applies, e.g. the left-click event is only part of the PlayerInteractEvent, and this checks whether the player left-clicked or not. This method
 	 * will only be called for events this SkriptEvent is registered for.
-	 *
-	 * @param e
 	 * @return true if this is SkriptEvent is represented by the Bukkit Event or false if not
 	 */
-	public abstract boolean check(Event e);
+	public abstract boolean check(Event event);
 
 	/**
 	 * Script loader checks this before loading items in event. If false is
@@ -74,16 +178,10 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	}
 
 	/**
-	 * @return the Event classes to use in {@link ch.njol.skript.lang.parser.ParserInstance},
-	 * or {@code null} if the Event classes this SkriptEvent was registered with should be used.
+	 * @return the Event classes to use in {@link ch.njol.skript.lang.parser.ParserInstance}.
 	 */
-	public Class<? extends Event> @Nullable[] getEventClasses() {
-		return null;
-	}
-
-	@Override
-	public String toString() {
-		return toString(null, false);
+	public Class<? extends Event>[] getEventClasses() {
+		return skriptEventInfo.events;
 	}
 
 	/**
@@ -99,6 +197,48 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	 */
 	public boolean isEventPrioritySupported() {
 		return true;
+	}
+
+	/**
+	 * Override this method to allow Skript to not force synchronization.
+	 */
+	public boolean canExecuteAsynchronously() {
+		return false;
+	}
+
+	/**
+	 * Fixes patterns in event by modifying every {@link ch.njol.skript.patterns.TypePatternElement}
+	 * to be nullable.
+	 */
+	public static String fixPattern(String pattern) {
+		char[] chars = pattern.toCharArray();
+		StringBuilder stringBuilder = new StringBuilder();
+
+		boolean inType = false;
+		for (int i = 0; i < chars.length; i++) {
+			char character = chars[i];
+			stringBuilder.append(character);
+
+			if (character == '%') {
+				// toggle inType
+				inType = !inType;
+
+				// add the dash character if it's not already present
+				// a type specification can have two prefix characters for modification
+				if (inType && i + 2 < chars.length && chars[i + 1] != '-' && chars[i + 2] != '-')
+					stringBuilder.append('-');
+			} else if (character == '\\' && i + 1 < chars.length) {
+				// Make sure we don't toggle inType for escape percentage signs
+				stringBuilder.append(chars[i + 1]);
+				i++;
+			}
+		}
+		return stringBuilder.toString();
+	}
+
+	@Nullable
+	public static SkriptEvent parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
+		return (SkriptEvent) Structure.parse(expr, sectionNode, defaultError, Skript.getEvents().iterator());
 	}
 
 }

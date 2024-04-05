@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Comparator.Relation;
+import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
@@ -52,35 +52,28 @@ import ch.njol.skript.registrations.Classes;
 public class EvtBlock extends SkriptEvent {
 	
 	static {
-		if (Skript.isRunningMinecraft(1, 13)) {
-			// TODO 'block destroy' event for any kind of block destruction (player, water, trampling, fall (sand, toches, ...), etc) -> BlockPhysicsEvent?
-			// REMIND attacking an item frame first removes its item; include this in on block damage?
-			Skript.registerEvent("Break / Mine", EvtBlock.class, new Class[]{BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class}, "[block] (break[ing]|1¦min(e|ing)) [[of] %itemtypes/blockdatas%]")
-				.description("Called when a block is broken by a player. If you use 'on mine', only events where the broken block dropped something will call the trigger.")
-				.examples("on mine:", "on break of stone:", "on mine of any ore:", "on break of chest[facing=north]:", "on break of potatoes[age=7]:")
-				.requiredPlugins("Minecraft 1.13+ (BlockData)")
-				.since("1.0 (break), <i>unknown</i> (mine), 2.6 (BlockData support)");
-			Skript.registerEvent("Burn", EvtBlock.class, BlockBurnEvent.class, "[block] burn[ing] [[of] %itemtypes/blockdatas%]")
-				.description("Called when a block is destroyed by fire.")
-				.examples("on burn:", "on burn of wood, fences, or chests:", "on burn of oak_log[axis=y]:")
-				.requiredPlugins("Minecraft 1.13+ (BlockData)")
-				.since("1.0, 2.6 (BlockData support)");
-			Skript.registerEvent("Place", EvtBlock.class, new Class[]{BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class}, "[block] (plac(e|ing)|build[ing]) [[of] %itemtypes/blockdatas%]")
-				.description("Called when a player places a block.")
-				.examples("on place:", "on place of a furnace, workbench or chest:", "on break of chest[type=right] or chest[type=left]")
-				.requiredPlugins("Minecraft 1.13+ (BlockData)")
-				.since("1.0, 2.6 (BlockData support)");
-			Skript.registerEvent("Fade", EvtBlock.class, BlockFadeEvent.class, "[block] fad(e|ing) [[of] %itemtypes/blockdatas%]")
-				.description("Called when a block 'fades away', e.g. ice or snow melts.")
-				.examples("on fade of snow or ice:", "on fade of snow[layers=2]")
-				.requiredPlugins("Minecraft 1.13+ (BlockData)")
-				.since("1.0, 2.6 (BlockData support)");
-			Skript.registerEvent("Form", EvtBlock.class, BlockFormEvent.class, "[block] form[ing] [[of] %itemtypes/blockdatas%]")
-				.description("Called when a block is created, but not by a player, e.g. snow forms due to snowfall, water freezes in cold biomes. This isn't called when block spreads (mushroom growth, water physics etc.), as it has its own event (see <a href='#spread'>spread event</a>).")
-				.examples("on form of snow:", "on form of a mushroom:")
-				.requiredPlugins("Minecraft 1.13+ (BlockData)")
-				.since("1.0, 2.6 (BlockData support)");
-		}
+		// TODO 'block destroy' event for any kind of block destruction (player, water, trampling, fall (sand, toches, ...), etc) -> BlockPhysicsEvent?
+		// REMIND attacking an item frame first removes its item; include this in on block damage?
+		Skript.registerEvent("Break / Mine", EvtBlock.class, new Class[]{BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class}, "[block] (break[ing]|1¦min(e|ing)) [[of] %-itemtypes/blockdatas%]")
+			.description("Called when a block is broken by a player. If you use 'on mine', only events where the broken block dropped something will call the trigger.")
+			.examples("on mine:", "on break of stone:", "on mine of any ore:", "on break of chest[facing=north]:", "on break of potatoes[age=7]:")
+			.since("1.0 (break), <i>unknown</i> (mine), 2.6 (BlockData support)");
+		Skript.registerEvent("Burn", EvtBlock.class, BlockBurnEvent.class, "[block] burn[ing] [[of] %-itemtypes/blockdatas%]")
+			.description("Called when a block is destroyed by fire.")
+			.examples("on burn:", "on burn of wood, fences, or chests:", "on burn of oak_log[axis=y]:")
+			.since("1.0, 2.6 (BlockData support)");
+		Skript.registerEvent("Place", EvtBlock.class, new Class[]{BlockPlaceEvent.class, PlayerBucketEmptyEvent.class, HangingPlaceEvent.class}, "[block] (plac(e|ing)|build[ing]) [[of] %-itemtypes/blockdatas%]")
+			.description("Called when a player places a block.")
+			.examples("on place:", "on place of a furnace, workbench or chest:", "on break of chest[type=right] or chest[type=left]")
+			.since("1.0, 2.6 (BlockData support)");
+		Skript.registerEvent("Fade", EvtBlock.class, BlockFadeEvent.class, "[block] fad(e|ing) [[of] %-itemtypes/blockdatas%]")
+			.description("Called when a block 'fades away', e.g. ice or snow melts.")
+			.examples("on fade of snow or ice:", "on fade of snow[layers=2]")
+			.since("1.0, 2.6 (BlockData support)");
+		Skript.registerEvent("Form", EvtBlock.class, BlockFormEvent.class, "[block] form[ing] [[of] %-itemtypes/blockdatas%]")
+			.description("Called when a block is created, but not by a player, e.g. snow forms due to snowfall, water freezes in cold biomes. This isn't called when block spreads (mushroom growth, water physics etc.), as it has its own event (see <a href='#spread'>spread event</a>).")
+			.examples("on form of snow:", "on form of a mushroom:")
+			.since("1.0, 2.6 (BlockData support)");
 	}
 	
 	@Nullable
@@ -97,9 +90,9 @@ public class EvtBlock extends SkriptEvent {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean check(final Event e) {
-		if (mine && e instanceof BlockBreakEvent) {
-			if (((BlockBreakEvent) e).getBlock().getDrops(((BlockBreakEvent) e).getPlayer().getItemInHand()).isEmpty())
+	public boolean check(final Event event) {
+		if (mine && event instanceof BlockBreakEvent) {
+			if (((BlockBreakEvent) event).getBlock().getDrops(((BlockBreakEvent) event).getPlayer().getItemInHand()).isEmpty())
 				return false;
 		}
 		if (types == null)
@@ -108,29 +101,29 @@ public class EvtBlock extends SkriptEvent {
 		ItemType item;
 		BlockData blockData = null;
 
-		if (e instanceof BlockFormEvent) {
-			BlockFormEvent blockFormEvent = (BlockFormEvent) e;
+		if (event instanceof BlockFormEvent) {
+			BlockFormEvent blockFormEvent = (BlockFormEvent) event;
 			BlockState newState = blockFormEvent.getNewState();
-			item = new ItemType(newState);
+			item = new ItemType(newState.getBlockData());
 			blockData = newState.getBlockData();
-		} else if (e instanceof BlockEvent) {
-			BlockEvent blockEvent = (BlockEvent) e;
+		} else if (event instanceof BlockEvent) {
+			BlockEvent blockEvent = (BlockEvent) event;
 			Block block = blockEvent.getBlock();
 			item = new ItemType(block);
 			blockData = block.getBlockData();
-		} else if (e instanceof PlayerBucketFillEvent) {
-			PlayerBucketFillEvent playerBucketFillEvent = ((PlayerBucketFillEvent) e);
-			Block relative = playerBucketFillEvent.getBlockClicked().getRelative(playerBucketFillEvent.getBlockFace());
-			item = new ItemType(relative);
-			blockData = relative.getBlockData();
-		} else if (e instanceof PlayerBucketEmptyEvent) {
-			PlayerBucketEmptyEvent playerBucketEmptyEvent = ((PlayerBucketEmptyEvent) e);
+		} else if (event instanceof PlayerBucketFillEvent) {
+			PlayerBucketFillEvent playerBucketFillEvent = ((PlayerBucketFillEvent) event);
+			Block block = playerBucketFillEvent.getBlockClicked();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof PlayerBucketEmptyEvent) {
+			PlayerBucketEmptyEvent playerBucketEmptyEvent = ((PlayerBucketEmptyEvent) event);
 			item = new ItemType(playerBucketEmptyEvent.getItemStack());
-		} else if (e instanceof HangingEvent) {
-			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) e).getEntity());
-			return types.check(e, o -> {
+		} else if (event instanceof HangingEvent) {
+			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) event).getEntity());
+			return types.check(event, o -> {
 				if (o instanceof ItemType)
-					return Relation.EQUAL.is(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
+					return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
 				return false;
 			});
 		} else {
@@ -141,7 +134,7 @@ public class EvtBlock extends SkriptEvent {
 		final ItemType itemF = item;
 		BlockData finalBlockData = blockData;
 
-		return types.check(e, o -> {
+		return types.check(event, o -> {
 			if (o instanceof ItemType)
 				return ((ItemType) o).isSupertypeOf(itemF);
 			else if (o instanceof BlockData && finalBlockData != null)

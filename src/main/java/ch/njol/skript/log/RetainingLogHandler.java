@@ -112,16 +112,11 @@ public class RetainingLogHandler extends LogHandler {
 		assert !printedErrorOrLog;
 		printedErrorOrLog = true;
 		stop();
-		
-		boolean console = recipient == Bukkit.getConsoleSender(); // log as SEVERE instead of INFO
-		
+
 		boolean hasError = false;
 		for (LogEntry e : log) {
 			if (e.getLevel().intValue() >= Level.SEVERE.intValue()) {
-				if (console)
-					SkriptLogger.LOGGER.severe(e.toFormattedString());
-				else
-					recipient.sendMessage(e.toFormattedString());
+				SkriptLogger.sendFormatted(recipient, e.toFormattedString());
 				e.logged();
 				hasError = true;
 			} else {
@@ -130,10 +125,7 @@ public class RetainingLogHandler extends LogHandler {
 		}
 		
 		if (!hasError && def != null) {
-			if (console)
-				SkriptLogger.LOGGER.severe(def);
-			else
-				recipient.sendMessage(def);
+			SkriptLogger.sendFormatted(recipient, def);
 		}
 		return hasError;
 	}
@@ -187,6 +179,8 @@ public class RetainingLogHandler extends LogHandler {
 	
 	@SuppressWarnings("null")
 	public Collection<LogEntry> getLog() {
+		// if something is grabbing the log entries, they're probably handling them manually
+		printedErrorOrLog = true;
 		return Collections.unmodifiableCollection(log);
 	}
 	

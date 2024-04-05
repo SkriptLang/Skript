@@ -19,19 +19,20 @@
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
+
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.classes.Converter;
+import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Adjective;
@@ -39,12 +40,9 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 public class FallingBlockData extends EntityData<FallingBlock> {
 	static {
 		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
@@ -52,7 +50,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
-	
+
 	@Nullable
 	private ItemType[] types = null;
 	
@@ -95,7 +93,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	@Override
 	protected boolean init(final @Nullable Class<? extends FallingBlock> c, final @Nullable FallingBlock e) {
 		if (e != null) // TODO material data support
-			types = new ItemType[] {new ItemType(BlockCompat.INSTANCE.fallingBlockToState(e))};
+			types = new ItemType[] {new ItemType(e.getBlockData())};
 		return true;
 	}
 	
@@ -103,28 +101,32 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	protected boolean match(final FallingBlock entity) {
 		if (types != null) {
 			for (final ItemType t : types) {
-				if (t.isOfType(BlockCompat.INSTANCE.fallingBlockToState(entity)))
+				if (t.isOfType(entity.getBlockData()))
 					return true;
 			}
 			return false;
 		}
 		return true;
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	@Override
 	@Nullable
-	public FallingBlock spawn(final Location loc) {
-		final ItemType t = CollectionUtils.getRandom(types);
+	public FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
+		ItemType t = types == null ? new ItemType(Material.STONE) : CollectionUtils.getRandom(types);
 		assert t != null;
-		final ItemStack i = t.getRandom();
-		if (i == null || i.getType() == Material.AIR || !i.getType().isBlock()) {
-			assert false : i;
+		Material material = t.getMaterial();
+		if (!material.isBlock()) {
+			assert false : t;
 			return null;
 		}
-		return loc.getWorld().spawnFallingBlock(loc, i.getType(), (byte) i.getDurability());
+
+		FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(loc, material.createBlockData());
+		if (consumer != null)
+			consumer.accept(fallingBlock);
+
+		return fallingBlock;
 	}
-	
+
 	@Override
 	public void set(final FallingBlock entity) {
 		assert false;

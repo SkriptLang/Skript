@@ -34,17 +34,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Cross Product")
 @Description("Gets the cross product between two vectors.")
-@Examples({"send \"%vector 1, 0, 0 cross vector 0, 1, 0%\""})
+@Examples("send \"%vector 1, 0, 0 cross vector 0, 1, 0%\"")
 @Since("2.2-dev28")
 public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorCrossProduct.class, Vector.class, ExpressionType.SIMPLE, "%vector% cross %vector%");
+		Skript.registerExpression(ExprVectorCrossProduct.class, Vector.class, ExpressionType.COMBINED, "%vector% cross %vector%");
 	}
 
 	@SuppressWarnings("null")
@@ -60,12 +57,12 @@ public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Vector v1 = first.getSingle(e);
-		Vector v2 = second.getSingle(e);
-		if (v1 == null || v2 == null)
+	protected Vector[] get(Event event) {
+		Vector first = this.first.getSingle(event);
+		Vector second = this.second.getSingle(event);
+		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(v1.clone().crossProduct(v2));
+		return CollectionUtils.array(first.clone().crossProduct(second));
 	}
 
 	@Override
@@ -79,8 +76,8 @@ public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return first.toString(e, debug) + " cross " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return first.toString(event, debug) + " cross " + second.toString(event, debug);
 	}
 
 }

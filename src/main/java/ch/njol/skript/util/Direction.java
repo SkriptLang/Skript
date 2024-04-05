@@ -18,24 +18,6 @@
  */
 package ch.njol.skript.util;
 
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Locale;
-
-import ch.njol.skript.Skript;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.material.Directional;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -47,6 +29,20 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilRobustSerializable;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * @author Peter Güttinger
@@ -63,8 +59,6 @@ public class Direction implements YggdrasilRobustSerializable {
 	public final static Direction IDENTITY = new Direction(0, 0, 1);
 	
 	public final static BlockFace BF_X = findFace(1, 0, 0), BF_Y = findFace(0, 1, 0), BF_Z = findFace(0, 0, 1);
-
-	private static final boolean IS_LEGACY_EXISTS = Skript.methodExists(Material.class, "isLegacy");
 
 	private static BlockFace findFace(final int x, final int y, final int z) {
 		for (final BlockFace f : BlockFace.values()) {
@@ -130,7 +124,17 @@ public class Direction implements YggdrasilRobustSerializable {
 	public Location getRelative(final Block b) {
 		return b.getLocation().add(getDirection(b));
 	}
-	
+
+	/*
+	 * Used to get a vector from a direction without anything to be relative to.
+	 * Any relative directions will be relative to 0 degrees pitch and yaw.
+	 */
+	public Vector getDirection() {
+		if (!relative)
+			return new Vector(pitchOrX, yawOrY, lengthOrZ);
+		return getDirection(0, 0);
+	}
+
 	public Vector getDirection(final Location l) {
 		if (!relative)
 			return new Vector(pitchOrX, yawOrY, lengthOrZ);
@@ -217,17 +221,10 @@ public class Direction implements YggdrasilRobustSerializable {
 	 */
 	@SuppressWarnings("deprecation")
 	public static BlockFace getFacing(Block b) {
-		if (IS_LEGACY_EXISTS) {
-			BlockData blockData = b.getBlockData();
-			if (!(blockData instanceof org.bukkit.block.data.Directional))
-				return BlockFace.SELF;
-			return ((org.bukkit.block.data.Directional) blockData).getFacing();
-		} else {
-			Material m = b.getType();
-			if (!Directional.class.isAssignableFrom(m.getData()))
-				return BlockFace.SELF;
-			return ((Directional) m.getNewData(b.getData())).getFacing();
-		}
+		BlockData blockData = b.getBlockData();
+		if (!(blockData instanceof org.bukkit.block.data.Directional))
+			return BlockFace.SELF;
+		return ((org.bukkit.block.data.Directional) blockData).getFacing();
 	}
 	
 	public static BlockFace getFacing(final double yaw, final double pitch) {

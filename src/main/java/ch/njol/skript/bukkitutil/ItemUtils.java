@@ -19,6 +19,7 @@
 package ch.njol.skript.bukkitutil;
 
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,30 +27,23 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 
+import java.util.HashMap;
+
 /**
  * Miscellaneous static utility methods related to items.
  */
 public class ItemUtils {
-	
-	private ItemUtils() {} // Not to be instanced
-	
-	private static final boolean damageMeta = Skript.classExists("org.bukkit.inventory.meta.Damageable");
-	
+
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
 	 * @param stack Item.
 	 * @return Damage.
 	 */
-	@SuppressWarnings("deprecation")
 	public static int getDamage(ItemStack stack) {
-		if (damageMeta) {
-			ItemMeta meta = stack.getItemMeta();
-			if (meta instanceof Damageable)
-				return ((Damageable) meta).getDamage();
-			return 0; // Not damageable item
-		} else {
-			return stack.getDurability();
-		}
+		ItemMeta meta = stack.getItemMeta();
+		if (meta instanceof Damageable)
+			return ((Damageable) meta).getDamage();
+		return 0; // Not damageable item
 	}
 	
 	/**
@@ -58,34 +52,14 @@ public class ItemUtils {
 	 * @param damage New damage. Note that on some Minecraft versions,
 	 * this might be truncated to short.
 	 */
-	@SuppressWarnings("deprecation")
 	public static void setDamage(ItemStack stack, int damage) {
-		if (damageMeta) {
-			ItemMeta meta = stack.getItemMeta();
-			if (meta instanceof Damageable) {
-				((Damageable) meta).setDamage(damage);
-				stack.setItemMeta(meta);
-			}
-		} else {
-			stack.setDurability((short) damage);
+		ItemMeta meta = stack.getItemMeta();
+		if (meta instanceof Damageable) {
+			((Damageable) meta).setDamage(damage);
+			stack.setItemMeta(meta);
 		}
 	}
-	
-	@Nullable
-	private static final Material bedItem;
-	@Nullable
-	private static final Material bedBlock;
-	
-	static {
-		if (!damageMeta) {
-			bedItem = Material.valueOf("BED");
-			bedBlock = Material.valueOf("BED_BLOCK");
-		} else {
-			bedItem = null;
-			bedBlock = null;
-		}
-	}
-	
+
 	/**
 	 * Gets a block material corresponding to given item material, which might
 	 * be the given material. If no block material is found, null is returned.
@@ -94,33 +68,22 @@ public class ItemUtils {
 	 */
 	@Nullable
 	public static Material asBlock(Material type) {
-		if (!damageMeta) { // Apply some hacks on 1.12 and older
-			if (type == bedItem) { // BED and BED_BLOCK mess, issue #1856
-				return bedBlock;
-			}
-		}
-		
 		if (type.isBlock()) {
 			return type;
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets an item material corresponding to given block material, which might
 	 * be the given material.
 	 * @param type Material.
 	 * @return Item version of material or null.
+	 * @deprecated This just returns itself and has no use
 	 */
+	@Deprecated
 	public static Material asItem(Material type) {
-		if (!damageMeta) {
-			if (type == bedBlock) {
-				assert bedItem != null;
-				return bedItem;
-			}
-		}
-		
 		// Assume (naively) that all types are valid items
 		return type;
 	}
@@ -137,6 +100,72 @@ public class ItemUtils {
 			return is1 == is2;
 		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
 			&& is1.getItemMeta().equals(is2.getItemMeta());
+	}
+
+	// Only 1.15 and versions after have Material#isAir method
+	private static final boolean IS_AIR_EXISTS = Skript.methodExists(Material.class, "isAir");
+
+	public static boolean isAir(Material type) {
+		if (IS_AIR_EXISTS)
+			return type.isAir();
+		return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+	}
+
+	// TreeType -> Sapling (Material) conversion for EvtGrow
+	private static final HashMap<TreeType, Material> TREE_TO_SAPLING_MAP = new HashMap<>();
+	static {
+		// Populate TREE_TO_SAPLING_MAP
+		// oak
+		TREE_TO_SAPLING_MAP.put(TreeType.TREE, Material.OAK_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.BIG_TREE, Material.OAK_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.SWAMP, Material.OAK_SAPLING);
+		// spruce
+		TREE_TO_SAPLING_MAP.put(TreeType.REDWOOD, Material.SPRUCE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.TALL_REDWOOD, Material.SPRUCE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.MEGA_REDWOOD, Material.SPRUCE_SAPLING);
+		// birch
+		TREE_TO_SAPLING_MAP.put(TreeType.BIRCH, Material.BIRCH_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.TALL_BIRCH, Material.BIRCH_SAPLING);
+		// jungle
+		TREE_TO_SAPLING_MAP.put(TreeType.JUNGLE, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.SMALL_JUNGLE, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.JUNGLE_BUSH, Material.JUNGLE_SAPLING);
+		TREE_TO_SAPLING_MAP.put(TreeType.COCOA_TREE, Material.JUNGLE_SAPLING);
+		// acacia
+		TREE_TO_SAPLING_MAP.put(TreeType.ACACIA, Material.ACACIA_SAPLING);
+		// dark oak
+		TREE_TO_SAPLING_MAP.put(TreeType.DARK_OAK, Material.DARK_OAK_SAPLING);
+
+		// mushrooms
+		TREE_TO_SAPLING_MAP.put(TreeType.BROWN_MUSHROOM, Material.BROWN_MUSHROOM);
+		TREE_TO_SAPLING_MAP.put(TreeType.RED_MUSHROOM, Material.RED_MUSHROOM);
+
+		// chorus
+		TREE_TO_SAPLING_MAP.put(TreeType.CHORUS_PLANT, Material.CHORUS_FLOWER);
+
+		// nether
+		if (Skript.isRunningMinecraft(1, 16)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.WARPED_FUNGUS, Material.WARPED_FUNGUS);
+			TREE_TO_SAPLING_MAP.put(TreeType.CRIMSON_FUNGUS, Material.CRIMSON_FUNGUS);
+		}
+
+		// azalea
+		if (Skript.isRunningMinecraft(1, 17))
+			TREE_TO_SAPLING_MAP.put(TreeType.AZALEA, Material.AZALEA);
+
+		// mangrove
+		if (Skript.isRunningMinecraft(1, 19)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.MANGROVE, Material.MANGROVE_PROPAGULE);
+			TREE_TO_SAPLING_MAP.put(TreeType.TALL_MANGROVE, Material.MANGROVE_PROPAGULE);
+		}
+
+		// cherry
+		if (Skript.isRunningMinecraft(1, 19, 4))
+			TREE_TO_SAPLING_MAP.put(TreeType.CHERRY, Material.CHERRY_SAPLING);
+	}
+
+	public static Material getTreeSapling(TreeType treeType) {
+		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
 	
 }

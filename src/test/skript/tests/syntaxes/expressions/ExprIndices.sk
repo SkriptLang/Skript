@@ -23,3 +23,17 @@ test "sorted indices":
 		set {_a} to {_leader-board::%loop-value%}
 		set {_b} to {_descending-values::%loop-index%}
 		assert {_a} is equal to {_b} with "Sorting indices in descending order is incorrect"
+
+test "alphabetically sorted indices":
+	set {_test::a} to "Bob"
+	set {_test::b} to "Donald"
+	set {_test::c} to "Zeffer"
+	set {_test::d} to "Angus"
+	set {_test::e} to "Kevin"
+	set {_test::f} to "anderson"
+	set {_test::g} to "robertson"
+
+	set {_indexes::*} to sorted indices of {_test::*} in ascending order
+
+	assert {_test::%{_indexes::1}%} = "anderson" with "First element of sorted strings should be 'anderson'"
+	assert {_test::%{_indexes::7}%} = "Zeffer" with "Last element of sorted strings should be 'Zeffer'"

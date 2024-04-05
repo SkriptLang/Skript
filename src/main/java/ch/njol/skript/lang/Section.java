@@ -20,13 +20,13 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,14 +39,13 @@ import java.util.function.Supplier;
  * In most cases though, a section should load its code through one of the following loading methods:
  * {@link #loadCode(SectionNode)}, {@link #loadCode(SectionNode, String, Class[])}, {@link #loadOptionalCode(SectionNode)}
  * <br><br>
- * Every section must override the {@link TriggerSection#walk(Event)} method. In this method, you can determine whether
- * or not the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
+ * Every section must override the {@link TriggerSection#walk(Event)} method. In this method, you can determine whether *  the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
  * should not run it with this event passed in this walk method.
  * <br><br>
  * In the walk method, it is recommended that you return {@link TriggerSection#walk(Event, boolean)}.
  * This method is very useful, as it will handle most of the things you need to do.
- * The boolean parameter for the method determines whether or not the section should run.
- * If it is true, Skript will attempt to run the section's code if it has been loaded. If the section's code hasn't be loaded, Skript will behave as if false was passed.
+ * The boolean parameter for the method determines whether the section should run.
+ * If it is true, Skript will attempt to run the section's code if it has been loaded. If the section's code hasn't been loaded, Skript will behave as if false was passed.
  * If it is false, Skript will just move onto the next syntax element after this section.
  * So, if you are using a normal section and your code should run immediately, you should just return the result of this method with true for the parameter.
  * However, in cases where you have loaded your code into a trigger using {@link #loadCode(SectionNode, String, Class[])}, it does not matter
@@ -64,12 +63,12 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * This method should not be overridden unless you know what you are doing!
 	 */
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(exprs, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
 	}
 
-	public abstract boolean init(Expression<?>[] exprs,
+	public abstract boolean init(Expression<?>[] expressions,
 								 int matchedPattern,
 								 Kleenean isDelayed,
 								 ParseResult parseResult,
@@ -96,7 +95,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
-	 *
+	 * <br>
 	 * This method differs from {@link #loadCode(SectionNode)} in that it
 	 * is meant for code that will be executed in a different event.
 	 *
@@ -108,29 +107,51 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 */
 	@SafeVarargs
 	protected final Trigger loadCode(SectionNode sectionNode, String name, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, events);
+	}
+
+	/**
+	 * Loads the code in the given {@link SectionNode},
+	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
+	 * <br>
+	 * This method differs from {@link #loadCode(SectionNode)} in that it
+	 * is meant for code that will be executed in a different event.
+	 *
+	 * @param sectionNode The section node to load.
+	 * @param name The name of the event(s) being used.
+	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
+	 * This occurs before {@link ParserInstance} states are reset.
+	 * @param events The event(s) during the section's execution.
+	 * @return A trigger containing the loaded section. This should be stored and used
+	 * to run the section one or more times.
+	 */
+	@SafeVarargs
+	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		String previousName = parser.getCurrentEventName();
 		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
-		SkriptEvent previousSkriptEvent = parser.getCurrentSkriptEvent();
+		Structure previousStructure = parser.getCurrentStructure();
 		List<TriggerSection> previousSections = parser.getCurrentSections();
 		Kleenean previousDelay = parser.getHasDelayBefore();
 
 		parser.setCurrentEvent(name, events);
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
-		parser.setCurrentSkriptEvent(skriptEvent);
+		parser.setCurrentStructure(skriptEvent);
 		parser.setCurrentSections(new ArrayList<>());
 		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
 
+		if (afterLoading != null)
+			afterLoading.run();
+
 		//noinspection ConstantConditions - We are resetting it to what it was
 		parser.setCurrentEvent(previousName, previousEvents);
-		parser.setCurrentSkriptEvent(previousSkriptEvent);
+		parser.setCurrentStructure(previousStructure);
 		parser.setCurrentSections(previousSections);
 		parser.setHasDelayBefore(previousDelay);
 
-		Config script = parser.getCurrentScript();
-		return new Trigger(script != null ? script.getFile() : null, name, skriptEvent, triggerItems);
+		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
 
 	/**
@@ -149,8 +170,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Nullable
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 		return sectionContext.modify(sectionNode, triggerItems,
@@ -174,11 +195,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		/**
 		 * Modifies this SectionContext temporarily, for the duration of the {@link Supplier#get()} call,
 		 * reverting the changes afterwards.
-		 *
+		 * <br>
 		 * This must be used instead of manually modifying the fields of this instance,
 		 * unless you also revert the changes afterwards.
-		 *
-		 * See https://github.com/SkriptLang/Skript/pull/4353 and https://github.com/SkriptLang/Skript/issues/4473.
+		 * <br>
+		 * See <a href="https://github.com/SkriptLang/Skript/pull/4353">Pull Request #4353</a> and <a href="https://github.com/SkriptLang/Skript/issues/4473">Issue #4473</a>.
 		 */
 		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
 			SectionNode prevSectionNode = this.sectionNode;

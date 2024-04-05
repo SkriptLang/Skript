@@ -18,8 +18,9 @@
  */
 package ch.njol.skript.log;
 
-import ch.njol.skript.Skript;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,29 @@ public class ParseLogHandler extends LogHandler {
 	private LogEntry error = null;
 	
 	private final List<LogEntry> log = new ArrayList<>();
+
+	/**
+	 * Internal method for creating a backup of this log.
+	 * @return A new ParseLogHandler containing the contents of this ParseLogHandler.
+	 */
+	@ApiStatus.Internal
+	@Contract("-> new")
+	public ParseLogHandler backup() {
+		ParseLogHandler copy = new ParseLogHandler();
+		copy.error = this.error;
+		copy.log.addAll(this.log);
+		return copy;
+	}
+
+	/**
+	 * Internal method for restoring a backup of this log.
+	 */
+	@ApiStatus.Internal
+	public void restore(ParseLogHandler parseLogHandler) {
+		this.error = parseLogHandler.error;
+		this.log.clear();
+		this.log.addAll(parseLogHandler.log);
+	}
 	
 	@Override
 	public LogResult log(LogEntry entry) {
@@ -74,13 +98,19 @@ public class ParseLogHandler extends LogHandler {
 	 * Prints the retained log
 	 */
 	public void printLog() {
+		printLog(true);
+	}
+
+	public void printLog(boolean includeErrors) {
 		printedErrorOrLog = true;
 		stop();
-		SkriptLogger.logAll(log);
+		for (LogEntry logEntry : log)
+			if (includeErrors || logEntry.getLevel().intValue() < Level.SEVERE.intValue())
+				SkriptLogger.log(logEntry);
 		if (error != null)
 			error.discarded("not printed");
 	}
-	
+
 	public void printError() {
 		printError(null);
 	}

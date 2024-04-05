@@ -28,7 +28,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Comparators;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -59,8 +58,8 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprIndices.class, String.class, ExpressionType.COMBINED,
-				"[the] (indexes|indices) of %~objects%",
-				"[the] %~objects%'[s] (indexes|indices)",
+				"[(the|all [[of] the])] (indexes|indices) of %~objects%",
+				"%~objects%'[s] (indexes|indices)",
 				"[sorted] (indices|indexes) of %~objects% in (ascending|1¦descending) order",
 				"[sorted] %~objects%'[s] (indices|indexes) in (ascending|1¦descending) order"
 		);
@@ -102,7 +101,7 @@ public class ExprIndices extends SimpleExpression<String> {
 		if (sort) {
 			int direction = descending ? -1 : 1;
 			return variable.entrySet().stream()
-				.sorted((a, b) -> compare(a, b, direction))
+				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
 				.map(Entry::getKey)
 				.toArray(String[]::new);
 		}
@@ -130,8 +129,4 @@ public class ExprIndices extends SimpleExpression<String> {
 		return text;
 	}
 
-	// Extracted method for better readability
-	private int compare(Entry<String, Object> a, Entry<String, Object> b, int direction) {
-		return Comparators.compare(a.getValue(), b.getValue()).getRelation() * direction;
-	}
 }

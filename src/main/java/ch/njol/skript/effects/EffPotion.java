@@ -36,143 +36,128 @@ import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
-@Examples({"apply swiftness 2 to the player",
-		"remove haste from the victim",
-		"on join:",
-		"\tapply potion of strength of tier {strength.%player%} to the player for 999 days",
-		"apply potion effects of player's tool to player"})
-@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects)")
+@Examples({
+	"apply ambient swiftness 2 to the player",
+	"remove haste from the victim",
+	"",
+	"on join:",
+		"\tapply infinite potion of strength of tier {strength::%uuid of player%} to the player",
+		"\tapply potion of strength of tier {strength::%uuid of player%} to the player for 999 days # Before 1.19.4",
+	"",
+	"apply potion effects of player's tool to player",
+	"apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions"
+})
+@Since(
+	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
+	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +
+	"2.7 (icon and infinite)"
+)
 public class EffPotion extends Effect {
+
 	static {
 		Skript.registerEffect(EffPotion.class,
-				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply ambient [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] without [any] particles to %livingentities% [for %-timespan%] [(1¦replacing [the] existing effect)]",
-				"apply %potioneffects% to %livingentities%"
-				//, "apply %itemtypes% to %livingentities%"
-				/*,"remove %potioneffecttypes% from %livingentities%"*/);
+				"apply %potioneffects% to %livingentities%",
+				"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [replacing:replacing [the] existing effect]",
+				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect]"
+		);
 	}
-	
+
+	private final static boolean COMPATIBLE = Skript.isRunningMinecraft(1, 19, 4);
+
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
-	private boolean replaceExisting;
-	
-	@SuppressWarnings("null")
+
 	private Expression<PotionEffectType> potions;
-	@Nullable
-	private Expression<Number> tier;
-	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
+	private Expression<PotionEffect> effects;
+
 	@Nullable
 	private Expression<Timespan> duration;
-	@SuppressWarnings("null")
-	private Expression<PotionEffect> potionEffects;
-	private boolean apply;
+
+	@Nullable
+	private Expression<Number> tier;
+
+	private boolean replaceExisting; // Replace the existing potion if present.
+	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes.
+	private boolean noParticles;
+	private boolean infinite; // 1.19.4+ has an infinite option.
 	private boolean ambient; // Ambient means less particles
-	private boolean particles; // Particles or no particles?
-	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean icon;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		apply = matchedPattern < 3;
-		potionEffect = matchedPattern == 3;
-		replaceExisting = parseResult.mark == 1;
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		potionEffect = matchedPattern == 0;
+		replaceExisting = parseResult.hasTag("replacing");
+		noParticles = parseResult.hasTag("noparticles");
+		ambient = parseResult.hasTag("ambient");
+		icon = !parseResult.hasTag("icon");
+		infinite = matchedPattern == 1;
 		if (potionEffect) {
-			potionEffects = (Expression<PotionEffect>) exprs[0];
+			effects = (Expression<PotionEffect>) exprs[0];
 			entities = (Expression<LivingEntity>) exprs[1];
-		} else if (apply) {
+		} else {
 			potions = (Expression<PotionEffectType>) exprs[0];
 			tier = (Expression<Number>) exprs[1];
 			entities = (Expression<LivingEntity>) exprs[2];
-			duration = (Expression<Timespan>) exprs[3];
-		} else {
-			potions = (Expression<PotionEffectType>) exprs[0];
-			entities = (Expression<LivingEntity>) exprs[1];
+			if (!infinite)
+				duration = (Expression<Timespan>) exprs[3];
 		}
-		
-		// Ambience and particles
-		switch (matchedPattern) {
-			case 0:
-				ambient = false;
-				particles = true;
-				break;
-			case 1:
-				ambient = true;
-				particles = true;
-				break;
-			case 2:
-				ambient = false;
-				particles = false;
-				break;
-		}
-		
 		return true;
 	}
-	
+
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event event) {
 		if (potionEffect) {
-			for (LivingEntity livingEntity : entities.getArray(e)) {
-				PotionEffect[] potionEffects = this.potionEffects.getArray(e);
-				PotionEffectUtils.addEffects(livingEntity, potionEffects);
-			}
+			for (LivingEntity livingEntity : entities.getArray(event))
+				PotionEffectUtils.addEffects(livingEntity, effects.getArray(event));
 		} else {
-			final PotionEffectType[] ts = potions.getArray(e);
-			if (ts.length == 0)
+			PotionEffectType[] potionEffectTypes = potions.getArray(event);
+			if (potionEffectTypes.length == 0)
 				return;
-			if (!apply) {
-				for (LivingEntity en : entities.getArray(e)) {
-					for (final PotionEffectType t : ts)
-						en.removePotionEffect(t);
-				}
-				return;
-			}
-			int a = 0;
-			if (tier != null) {
-				final Number amp = tier.getSingle(e);
-				if (amp == null)
+			int tier = 0;
+			if (this.tier != null)
+				tier = this.tier.getOptionalSingle(event).orElse(1).intValue() - 1;
+
+			int duration = infinite ? (COMPATIBLE ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
+			if (this.duration != null && !infinite) {
+				Timespan timespan = this.duration.getSingle(event);
+				if (timespan == null)
 					return;
-				a = amp.intValue() - 1;
+				duration = (int) Math.min(timespan.getTicks(), Integer.MAX_VALUE);
 			}
-			int d = DEFAULT_DURATION;
-			if (duration != null) {
-				final Timespan dur = duration.getSingle(e);
-				if (dur == null)
-					return;
-				d = (int) (dur.getTicks_i() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks_i());
-			}
-			for (final LivingEntity en : entities.getArray(e)) {
-				for (final PotionEffectType t : ts) {
-					int duration = d;
-					if (!replaceExisting) {
-						if (en.hasPotionEffect(t)) {
-							for (final PotionEffect eff : en.getActivePotionEffects()) {
-								if (eff.getType() == t) {
-									duration += eff.getDuration();
+			for (LivingEntity entity : entities.getArray(event)) {
+				for (PotionEffectType potionEffectType : potionEffectTypes) {
+					int finalDuration = duration;
+					if (!replaceExisting && !infinite) {
+						if (entity.hasPotionEffect(potionEffectType)) {
+							for (PotionEffect effect : entity.getActivePotionEffects()) {
+								if (effect.getType() == potionEffectType) {
+									finalDuration += effect.getDuration();
 									break;
 								}
 							}
 						}
 					}
-					en.addPotionEffect(new PotionEffect(t, duration, a, ambient, particles), true);
+					entity.addPotionEffect(new PotionEffect(potionEffectType, finalDuration, tier, ambient, !noParticles, icon));
 				}
 			}
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		if (potionEffect)
-			return "apply " + potionEffects.toString(e, debug) + " to " + entities.toString(e, debug);
-		else if (apply)
-			return "apply " + potions.toString(e, debug) + (tier != null ? " of tier " + tier.toString(e, debug) : "") + " to " + entities.toString(e, debug) + (duration != null ? " for " + duration.toString(e, debug) : "");
-		else
-			return "remove " + potions.toString(e, debug) + " from " + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (potionEffect) {
+			// Uses PotionEffectUtils#toString
+			return "apply " + effects.toString(event, debug) + " to " + entities.toString(event, debug);
+		} else {
+			return "apply " + (infinite ? " infinite " : "") +
+					potions.toString(event, debug) +
+					(tier != null ? " of tier " + tier.toString(event, debug) : "") +
+					" to " + entities.toString(event, debug) +
+					(duration != null ? " for " + duration.toString(event, debug) : "");
+		}
 	}
-	
+
 }

@@ -19,15 +19,19 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
@@ -37,35 +41,40 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a string that may contain expressions, and is thus "variable".
- * 
- * @author Peter Güttinger
  */
 public class VariableString implements Expression<String> {
-	
+
+	@Nullable
+	private final Script script;
 	private final String orig;
-	
+
 	@Nullable
-	private final Object[] string;
+	private final Object[] strings;
+
 	@Nullable
-	private Object[] stringUnformatted;
+	private Object[] stringsUnformatted;
 	private final boolean isSimple;
+
 	@Nullable
-	private final String simple;
-	@Nullable
-	private final String simpleUnformatted;
+	private final String simple, simpleUnformatted;
 	private final StringMode mode;
-	
+
 	/**
 	 * Message components that this string consists of. Only simple parts have
 	 * been evaluated here.
@@ -74,263 +83,285 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * @param s Content for string.
+	 * 
+	 * @param input Content for string.
 	 */
-	private VariableString(String s) {
-		isSimple = true;
-		simpleUnformatted = s.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
-		simple = Utils.replaceChatStyles(simpleUnformatted);
-				
-		orig = simple;
-		string = null;
-		mode = StringMode.MESSAGE;
-		
-		components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
+	private VariableString(String input) {
+		this.isSimple = true;
+		this.simpleUnformatted = input.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
+		this.simple = Utils.replaceChatStyles(simpleUnformatted);
+
+		this.orig = simple;
+		this.strings = null;
+		this.mode = StringMode.MESSAGE;
+
+		ParserInstance parser = getParser();
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
+
+		this.components = new MessageComponent[] {ChatMessages.plainText(simpleUnformatted)};
 	}
-	
+
 	/**
 	 * Creates a new VariableString which contains variables.
-	 * @param orig Original string (unparsed).
-	 * @param string Objects, some of them are variables.
+	 * 
+	 * @param original Original string (unparsed).
+	 * @param strings Objects, some of them are variables.
 	 * @param mode String mode.
 	 */
-	private VariableString(String orig, Object[] string, StringMode mode) {
-		this.orig = orig;
-		this.string = new Object[string.length];
-		this.stringUnformatted = new Object[string.length];
-		
+	private VariableString(String original, Object[] strings, StringMode mode) {
+		this.orig = original;
+		this.strings = new Object[strings.length];
+		this.stringsUnformatted = new Object[strings.length];
+
+		ParserInstance parser = getParser();
+		this.script = parser.isActive() ? parser.getCurrentScript() : null;
+
 		// Construct unformatted string and components
-		List<MessageComponent> components = new ArrayList<>(string.length);
-		for (int i = 0; i < string.length; i++) {
-			Object o = string[i];
-			if (o instanceof String) {
-				this.string[i] = Utils.replaceChatStyles((String) o);
-				components.addAll(ChatMessages.parse((String) o));
+		List<MessageComponent> components = new ArrayList<>(strings.length);
+		for (int i = 0; i < strings.length; i++) {
+			Object object = strings[i];
+			if (object instanceof String) {
+				this.strings[i] = Utils.replaceChatStyles((String) object);
+				components.addAll(ChatMessages.parse((String) object));
 			} else {
-				this.string[i] = o;
+				this.strings[i] = object;
 				components.add(null); // Not known parse-time
 			}
-			
+
 			// For unformatted string, don't format stuff
-			this.stringUnformatted[i] = o;
+			this.stringsUnformatted[i] = object;
 		}
 		this.components = components.toArray(new MessageComponent[0]);
-		
+
 		this.mode = mode;
-		
-		isSimple = false;
-		simple = null;
-		simpleUnformatted = null;
+
+		this.isSimple = false;
+		this.simple = null;
+		this.simpleUnformatted = null;
 	}
-	
+
 	/**
 	 * Prints errors
 	 */
 	@Nullable
-	public static VariableString newInstance(String s) {
-		return newInstance(s, StringMode.MESSAGE);
+	public static VariableString newInstance(String input) {
+		return newInstance(input, StringMode.MESSAGE);
 	}
 
-	/**
-	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
-	 * Singular double quotes are only allowed between percentage signs.
-	 * 
-	 * @param s The string
-	 * @param withQuotes Whether s must be surrounded by double quotes or not
-	 * @return Whether the string is quoted correctly
-	 */
-	public static boolean isQuotedCorrectly(String s, boolean withQuotes) {
-		if (withQuotes && (!s.startsWith("\"") || !s.endsWith("\"")))
-			return false;
-		boolean quote = false;
-		boolean percentage = false;
-		for (int i = withQuotes ? 1 : 0; i < (withQuotes ? s.length() - 1 : s.length()); i++) {
-			if (percentage) {
-				if (s.charAt(i) == '%')
-					percentage = false;
-				
-				continue;
-			}
-			
-			if (quote && s.charAt(i) != '"')
-				return false;
-			
-			if (s.charAt(i) == '"') {
-				quote = !quote;
-			} else if (s.charAt(i) == '%') {
-				percentage = true;
-			}
-		}
-		return !quote;
-	}
-	
-	/**
-	 * Removes quoted quotes from a string.
-	 * 
-	 * @param s The string
-	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
-	 * @return The string with double quotes replaced with signle ones and optionally with removed surrounding quotes.
-	 */
-	public static String unquote(String s, boolean surroundingQuotes) {
-		assert isQuotedCorrectly(s, surroundingQuotes);
-		if (surroundingQuotes)
-			return s.substring(1, s.length() - 1).replace("\"\"", "\"");
-		return s.replace("\"\"", "\"");
-	}
-	
 	/**
 	 * Creates an instance of VariableString by parsing given string.
 	 * Prints errors and returns null if it is somehow invalid.
 	 * 
-	 * @param orig Unquoted string to parse.
+	 * @param original Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
 	@Nullable
-	public static VariableString newInstance(String orig, StringMode mode) {
-		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(orig, false))
+	public static VariableString newInstance(String original, StringMode mode) {
+		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(original, false))
 			return null;
-		int n = StringUtils.count(orig, '%');
-		if (n % 2 != 0) {
+
+		int percentCount = StringUtils.count(original, '%');
+		if (percentCount % 2 != 0) {
 			Skript.error("The percent sign is used for expressions (e.g. %player%). To insert a '%' type it twice: %%.");
 			return null;
 		}
-		
+
 		// We must not parse color codes yet, as JSON support would be broken :(
-		String s;
 		if (mode != StringMode.VARIABLE_NAME) {
 			// Replace every double " character with a single ", except for those in expressions (between %)
 			StringBuilder stringBuilder = new StringBuilder();
-			
+
 			boolean expression = false;
-			for (int i = 0; i < orig.length(); i++) {
-				char c = orig.charAt(i);
+			for (int i = 0; i < original.length(); i++) {
+				char c = original.charAt(i);
 				stringBuilder.append(c);
-				
+
 				if (c == '%')
 					expression = !expression;
-				
+
 				if (!expression && c == '"')
 					i++;
 			}
-			s = stringBuilder.toString();
-		} else {
-			s = orig;
+			original = stringBuilder.toString();
 		}
-		
-		List<Object> string = new ArrayList<>(n / 2 + 2); // List of strings and expressions
-		
-		int c = s.indexOf('%');
-		if (c != -1) {
-			if (c != 0)
-				string.add(s.substring(0, c));
-			while (c != s.length()) {
-				int c2 = s.indexOf('%', c + 1);
-				
-				int a = c;
-				int b;
-				while (c2 != -1 && (b = s.indexOf('{', a + 1)) != -1 && b < c2) {
-					a = nextVariableBracket(s, b + 1);
-					if (a == -1) {
+
+		List<Object> strings = new ArrayList<>(percentCount / 2 + 2); // List of strings and expressions
+		int exprStart = original.indexOf('%');
+		if (exprStart != -1) {
+			if (exprStart != 0)
+				strings.add(original.substring(0, exprStart));
+			while (exprStart != original.length()) {
+				int exprEnd = original.indexOf('%', exprStart + 1);
+
+				int variableEnd = exprStart;
+				int variableStart;
+				while (exprEnd != -1 && (variableStart = original.indexOf('{', variableEnd + 1)) != -1 && variableStart < exprEnd) {
+					variableEnd = nextVariableBracket(original, variableStart + 1);
+					if (variableEnd == -1) {
 						Skript.error("Missing closing bracket '}' to end variable");
 						return null;
 					}
-					c2 = s.indexOf('%', a + 1);
+					exprEnd = original.indexOf('%', variableEnd + 1);
 				}
-				if (c2 == -1) {
+				if (exprEnd == -1) {
 					assert false;
 					return null;
 				}
-				if (c + 1 == c2) {
+				if (exprStart + 1 == exprEnd) {
 					// %% escaped -> one % in result string
-					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
-						string.set(string.size() - 1, (String) string.get(string.size() - 1) + "%");
+					if (strings.size() > 0 && strings.get(strings.size() - 1) instanceof String) {
+						strings.set(strings.size() - 1, strings.get(strings.size() - 1) + "%");
 					} else {
-						string.add("%");
+						strings.add("%");
 					}
 				} else {
 					RetainingLogHandler log = SkriptLogger.startRetainingLog();
 					try {
 						Expression<?> expr =
-							new SkriptParser(s.substring(c + 1, c2), SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT)
+							new SkriptParser(original.substring(exprStart + 1, exprEnd), SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT)
 								.parseExpression(Object.class);
 						if (expr == null) {
-							log.printErrors("Can't understand this expression: " + s.substring(c + 1, c2));
+							log.printErrors("Can't understand this expression: " + original.substring(exprStart + 1, exprEnd));
 							return null;
 						} else {
-							string.add(expr);
+							strings.add(expr);
 						}
 						log.printLog();
 					} finally {
 						log.stop();
 					}
 				}
-				c = s.indexOf('%', c2 + 1);
-				if (c == -1)
-					c = s.length();
-				String l = s.substring(c2 + 1, c); // Try to get string (non-variable) part
-				if (!l.isEmpty()) { // This is string part (no variables)
-					if (string.size() > 0 && string.get(string.size() - 1) instanceof String) {
+				exprStart = original.indexOf('%', exprEnd + 1);
+				if (exprStart == -1)
+					exprStart = original.length();
+				String literalString = original.substring(exprEnd + 1, exprStart); // Try to get string (non-variable) part
+				if (!literalString.isEmpty()) { // This is string part (no variables)
+					if (strings.size() > 0 && strings.get(strings.size() - 1) instanceof String) {
 						// We can append last string part in the list, so let's do so
-						string.set(string.size() - 1, (String) string.get(string.size() - 1) + l);
+						strings.set(strings.size() - 1, strings.get(strings.size() - 1) + literalString);
 					} else { // Can't append, just add new part
-						string.add(l);
+						strings.add(literalString);
 					}
 				}
 			}
 		} else {
 			// Only one string, no variable parts
-			string.add(s);
+			strings.add(original);
 		}
-		
+
 		// Check if this isn't actually variable string, and return
-		if (string.size() == 1 && string.get(0) instanceof String)
-			return new VariableString(s);
-		
-		Object[] sa = string.toArray();
-		if (string.size() == 1 && string.get(0) instanceof Expression &&
-				((Expression<?>) string.get(0)).getReturnType() == String.class &&
-				((Expression<?>) string.get(0)).isSingle() &&
+		if (strings.size() == 1 && strings.get(0) instanceof String)
+			return new VariableString(original);
+
+		if (strings.size() == 1 && strings.get(0) instanceof Expression &&
+				((Expression<?>) strings.get(0)).getReturnType() == String.class &&
+				((Expression<?>) strings.get(0)).isSingle() &&
 				mode == StringMode.MESSAGE) {
-			String expr = ((Expression<?>) string.get(0)).toString(null, false);
+			String expr = ((Expression<?>) strings.get(0)).toString(null, false);
 			Skript.warning(expr + " is already a text, so you should not put it in one (e.g. " + expr + " instead of " + "\"%" + expr.replace("\"", "\"\"") + "%\")");
 		}
-		return new VariableString(orig, sa, mode);
+		return new VariableString(original, strings.toArray(), mode);
+	}
+
+	/**
+	 * Attempts to properly quote a string (e.g. double the double quotations).
+	 * Please note that the string itself will not be surrounded with double quotations.
+	 * @param string The string to properly quote.
+	 * @return The input where all double quotations outside of expressions have been doubled.
+	 */
+	public static String quote(String string) {
+		StringBuilder fixed = new StringBuilder();
+		boolean inExpression = false;
+		for (char character : string.toCharArray()) {
+			if (character == '%') // If we are entering an expression, quotes should NOT be doubled
+				inExpression = !inExpression;
+			if (!inExpression && character == '"')
+				fixed.append('"');
+			fixed.append(character);
+		}
+		return fixed.toString();
+	}
+
+	/**
+	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
+	 * Singular double quotes are only allowed between percentage signs.
+	 * 
+	 * @param string The string to test
+	 * @param withQuotes Whether the string must be surrounded by double quotes or not
+	 * @return Whether the string is quoted correctly
+	 */
+	public static boolean isQuotedCorrectly(String string, boolean withQuotes) {
+		if (withQuotes && (!string.startsWith("\"") || !string.endsWith("\"") || string.length() < 2))
+			return false;
+		boolean quote = false;
+		boolean percentage = false;
+		if (withQuotes)
+			string = string.substring(1, string.length() - 1);
+		for (char character : string.toCharArray()) {
+			if (percentage) {
+				if (character == '%')
+					percentage = false;
+				continue;
+			}
+			if (quote && character != '"')
+				return false;
+			if (character == '"') {
+				quote = !quote;
+			} else if (character == '%') {
+				percentage = true;
+			}
+		}
+		return !quote;
+	}
+
+	/**
+	 * Removes quoted quotes from a string.
+	 * 
+	 * @param string The string to remove quotes from
+	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
+	 * @return The string with double quotes replaced with single ones and optionally with removed surrounding quotes.
+	 */
+	public static String unquote(String string, boolean surroundingQuotes) {
+		assert isQuotedCorrectly(string, surroundingQuotes);
+		if (surroundingQuotes)
+			return string.substring(1, string.length() - 1).replace("\"\"", "\"");
+		return string.replace("\"\"", "\"");
 	}
 
 	/**
 	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
 	 * 
-	 * @param s
+	 * @param string The string to search in
 	 * @param start Index after the opening bracket
 	 * @return The next closing curly bracket
 	 */
-	public static int nextVariableBracket(String s, int start) {
-		int n = 0;
-		for (int i = start; i < s.length(); i++) {
-			if (s.charAt(i) == '}') {
-				if (n == 0)
-					return i;
-				n--;
-			} else if (s.charAt(i) == '{') {
-				n++;
+	public static int nextVariableBracket(String string, int start) {
+		int variableDepth = 0;
+		for (int index = start; index < string.length(); index++) {
+			if (string.charAt(index) == '}') {
+				if (variableDepth == 0)
+					return index;
+				variableDepth--;
+			} else if (string.charAt(index) == '{') {
+				variableDepth++;
 			}
 		}
 		return -1;
 	}
-	
+
 	public static VariableString[] makeStrings(String[] args) {
 		VariableString[] strings = new VariableString[args.length];
 		int j = 0;
 		for (String arg : args) {
-			VariableString vs = newInstance(arg);
-			if (vs != null)
-				strings[j++] = vs;
+			VariableString variableString = newInstance(arg);
+			if (variableString != null)
+				strings[j++] = variableString;
 		}
 		if (j != args.length)
 			strings = Arrays.copyOf(strings, j);
 		return strings;
 	}
-	
+
 	/**
 	 * @param args Quoted strings - This is not checked!
 	 * @return a new array containing all newly created VariableStrings, or null if one is invalid
@@ -340,83 +371,53 @@ public class VariableString implements Expression<String> {
 		VariableString[] strings = new VariableString[args.size()];
 		for (int i = 0; i < args.size(); i++) {
 			assert args.get(i).startsWith("\"") && args.get(i).endsWith("\"");
-			VariableString vs = newInstance(args.get(i).substring(1, args.get(i).length() - 1));
-			if (vs == null)
+			VariableString variableString = newInstance(args.get(i).substring(1, args.get(i).length() - 1));
+			if (variableString == null)
 				return null;
-			strings[i] = vs;
+			strings[i] = variableString;
 		}
 		return strings;
 	}
-	
-	/**
-	 * Parses all expressions in the string and returns it.
-	 * If this is a simple string, the event may be null.
-	 * 
-	 * @param e Event to pass to the expressions.
-	 * @return The input string with all expressions replaced.
-	 */
-	public String toString(@Nullable Event e) {
-		if (isSimple) {
-			assert simple != null;
-			return simple;
-		}
 
-		if (e == null) {
-			throw new IllegalArgumentException("Event may not be null in non-simple VariableStrings!");
-		}
-
-		Object[] string = this.string;
-		assert string != null;
-		StringBuilder b = new StringBuilder();
-		for (Object o : string) {
-			if (o instanceof Expression<?>) {
-				b.append(Classes.toString(((Expression<?>) o).getArray(e), true, mode));
-			} else {
-				b.append(o);
-			}
-		}
-		return b.toString();
-	}
-	
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * Does not parse formatting codes!
-	 * @param e Event to pass to the expressions.
+	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
-	public String toUnformattedString(Event e) {
+	public String toUnformattedString(Event event) {
 		if (isSimple) {
 			assert simpleUnformatted != null;
 			return simpleUnformatted;
 		}
-		Object[] string = this.stringUnformatted;
-		assert string != null;
-		StringBuilder b = new StringBuilder();
-		for (Object o : string) {
-			if (o instanceof Expression<?>) {
-				b.append(Classes.toString(((Expression<?>) o).getArray(e), true, mode));
+		Object[] strings = this.stringsUnformatted;
+		assert strings != null;
+		StringBuilder builder = new StringBuilder();
+		for (Object string : strings) {
+			if (string instanceof Expression<?>) {
+				builder.append(Classes.toString(((Expression<?>) string).getArray(event), true, mode));
 			} else {
-				b.append(o);
+				builder.append(string);
 			}
 		}
-		return b.toString();
+		return builder.toString();
 	}
-	
+
 	/**
 	 * Gets message components from this string. Formatting is parsed only
 	 * in simple parts for security reasons.
-	 * @param e Currently running event.
+	 * @param event Currently running event.
 	 * @return Message components.
 	 */
-	public List<MessageComponent> getMessageComponents(Event e) {
+	public List<MessageComponent> getMessageComponents(Event event) {
 		if (isSimple) { // Trusted, constant string in a script
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
 		}
-		
-		// Parse formating
-		Object[] string = this.stringUnformatted;
-		assert string != null;
+
+		// Parse formatting
+		Object[] strings = this.stringsUnformatted;
+		assert strings != null;
 		List<MessageComponent> message = new ArrayList<>(components.length); // At least this much space
 		int stringPart = -1;
 		MessageComponent previous = null;
@@ -427,21 +428,21 @@ public class VariableString implements Expression<String> {
 				if (previous != null) { // Also jump over literal part
 					stringPart++;
 				}
-				Object o = string[stringPart];
+				Object string = strings[stringPart];
 				previous = null;
-				
+
 				// Convert it to plain text
 				String text = null;
-				if (o instanceof ExprColoured && ((ExprColoured) o).isUnsafeFormat()) { // Special case: user wants to process formatting
-					String unformatted = Classes.toString(((ExprColoured) o).getArray(e), true, mode);
+				if (string instanceof ExprColoured && ((ExprColoured) string).isUnsafeFormat()) { // Special case: user wants to process formatting
+					String unformatted = Classes.toString(((ExprColoured) string).getArray(event), true, mode);
 					if (unformatted != null) {
 						message.addAll(ChatMessages.parse(unformatted));
 					}
 					continue;
-				} else if (o instanceof Expression<?>) {
-					text = Classes.toString(((Expression<?>) o).getArray(e), true, mode);
+				} else if (string instanceof Expression<?>) {
+					text = Classes.toString(((Expression<?>) string).getArray(event), true, mode);
 				}
-				
+
 				assert text != null;
 				List<MessageComponent> components = ChatMessages.fromParsedString(text);
 				if (!message.isEmpty()) { // Copy styles from previous component
@@ -463,229 +464,290 @@ public class VariableString implements Expression<String> {
 				previous = componentCopy;
 			}
 		}
-		
+
 		return message;
 	}
-	
+
 	/**
 	 * Gets message components from this string. Formatting is parsed
 	 * everywhere, which is a potential security risk.
-	 * @param e Currently running event.
+	 * @param event Currently running event.
 	 * @return Message components.
 	 */
-	public List<MessageComponent> getMessageComponentsUnsafe(Event e) {
+	public List<MessageComponent> getMessageComponentsUnsafe(Event event) {
 		if (isSimple) { // Trusted, constant string in a script
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
 		}
-		
-		return ChatMessages.parse(toUnformattedString(e));
+
+		return ChatMessages.parse(toUnformattedString(event));
 	}
-	
+
 	/**
 	 * Parses all expressions in the string and returns it in chat JSON format.
 	 * 
-	 * @param e Event to pass to the expressions.
+	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
-	public String toChatString(Event e) {
-		return ChatMessages.toJson(getMessageComponents(e));
+	public String toChatString(Event event) {
+		return ChatMessages.toJson(getMessageComponents(event));
 	}
-	
+
 	@Nullable
-	private static ChatColor getLastColor(CharSequence s) {
-		for (int i = s.length() - 2; i >= 0; i--) {
-			if (s.charAt(i) == ChatColor.COLOR_CHAR) {
-				ChatColor c = ChatColor.getByChar(s.charAt(i + 1));
-				if (c != null && (c.isColor() || c == ChatColor.RESET))
-					return c;
+	private static ChatColor getLastColor(CharSequence sequence) {
+		for (int i = sequence.length() - 2; i >= 0; i--) {
+			if (sequence.charAt(i) == ChatColor.COLOR_CHAR) {
+				ChatColor color = ChatColor.getByChar(sequence.charAt(i + 1));
+				if (color != null && (color.isColor() || color == ChatColor.RESET))
+					return color;
 			}
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString(null, false);
 	}
-	
+
 	/**
-	 * Use {@link #toString(Event)} to get the actual string
+	 * Parses all expressions in the string and returns it.
+	 * If this is a simple string, the event may be null.
+	 * 
+	 * @param event Event to pass to the expressions.
+	 * @return The input string with all expressions replaced.
 	 */
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (isSimple) {
-			assert simple != null;
-			return '"' + simple + '"';
-		}
-		Object[] string = this.string;
-		assert string != null;
-		StringBuilder b = new StringBuilder("\"");
-		for (Object o : string) {
-			if (o instanceof Expression) {
-				b.append("%").append(((Expression<?>) o).toString(e, debug)).append("%");
-			} else {
-				b.append(o);
-			}
-		}
-		b.append('"');
-		return b.toString();
-	}
-	
-	public String getDefaultVariableName() {
+	public String toString(@Nullable Event event) {
 		if (isSimple) {
 			assert simple != null;
 			return simple;
 		}
-		Object[] string = this.string;
+		if (event == null)
+			throw new IllegalArgumentException("Event may not be null in non-simple VariableStrings!");
+
+		Object[] string = this.strings;
 		assert string != null;
-		StringBuilder b = new StringBuilder();
-		for (Object o : string) {
-			if (o instanceof Expression) {
-				b.append("<")
-					.append(Classes.getSuperClassInfo(((Expression<?>) o).getReturnType()).getCodeName())
-					.append(">");
+		StringBuilder builder = new StringBuilder();
+		List<Class<?>> types = new ArrayList<>();
+		for (Object object : string) {
+			if (object instanceof Expression<?>) {
+				Object[] objects = ((Expression<?>) object).getArray(event);
+				if (objects != null && objects.length > 0)
+					types.add(objects[0].getClass());
+				builder.append(Classes.toString(objects, true, mode));
 			} else {
-				b.append(o);
+				builder.append(object);
 			}
 		}
-		return b.toString();
+		String complete = builder.toString();
+		if (script != null && mode == StringMode.VARIABLE_NAME && !types.isEmpty()) {
+			DefaultVariables data = script.getData(DefaultVariables.class);
+			if (data != null)
+				data.add(complete, types.toArray(new Class<?>[0]));
+		}
+		return complete;
 	}
-	
+
+	/**
+	 * Use {@link #toString(Event)} to get the actual string. This method is for debugging.
+	 */
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (isSimple) {
+			assert simple != null;
+			return '"' + simple + '"';
+		}
+		Object[] string = this.strings;
+		assert string != null;
+		StringBuilder builder = new StringBuilder("\"");
+		for (Object object : string) {
+			if (object instanceof Expression) {
+				builder.append("%").append(((Expression<?>) object).toString(event, debug)).append("%");
+			} else {
+				builder.append(object);
+			}
+		}
+		builder.append('"');
+		return builder.toString();
+	}
+
+	/**
+	 * Builds all possible default variable type hints based on the super type of the expression.
+	 * 
+	 * @return List<String> of all possible super class code names.
+	 */
+	@NotNull
+	public List<String> getDefaultVariableNames(String variableName, Event event) {
+		if (script == null || mode != StringMode.VARIABLE_NAME)
+			return Lists.newArrayList();
+
+		if (isSimple) {
+			assert simple != null;
+			return Lists.newArrayList(simple, "object");
+		}
+
+		DefaultVariables data = script.getData(DefaultVariables.class);
+		// Checked in Variable#getRaw already
+		assert data != null : "default variables not present in current script";
+
+		Class<?>[] savedHints = data.get(variableName);
+		if (savedHints == null || savedHints.length == 0)
+			return Lists.newArrayList();
+
+		List<StringBuilder> typeHints = Lists.newArrayList(new StringBuilder());
+		// Represents the index of which expression in a variable string, example name::%entity%::%object% the index of 0 will be entity.
+		int hintIndex = 0;
+		assert strings != null;
+		for (Object object : strings) {
+			if (!(object instanceof Expression)) {
+				typeHints.forEach(builder -> builder.append(object));
+				continue;
+			}
+			StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
+			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
+				for (StringBuilder builder : current) {
+					String hint = builder.toString() + "<" + classInfo.getCodeName() + ">";
+					// Has to duplicate the builder as it builds multiple off the last builder.
+					typeHints.add(new StringBuilder(hint));
+					typeHints.remove(builder);
+				}
+			}
+			hintIndex++;
+		}
+		return typeHints.stream().map(StringBuilder::toString).collect(Collectors.toList());
+	}
+
 	public boolean isSimple() {
 		return isSimple;
 	}
-	
+
 	public StringMode getMode() {
 		return mode;
 	}
-	
+
 	public VariableString setMode(StringMode mode) {
 		if (this.mode == mode || isSimple)
 			return this;
-		BlockingLogHandler h = new BlockingLogHandler().start();
-		try {
-			VariableString vs = newInstance(orig, mode);
-			if (vs == null) {
+		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
+			VariableString variableString = newInstance(orig, mode);
+			if (variableString == null) {
 				assert false : this + "; " + mode;
 				return this;
 			}
-			return vs;
-		} finally {
-			h.stop();
+			return variableString;
 		}
 	}
-	
+
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
-	public String getSingle(Event e) {
-		return toString(e);
+	public String getSingle(Event event) {
+		return toString(event);
 	}
-	
+
 	@Override
-	public String[] getArray(Event e) {
-		return new String[] {toString(e)};
+	public String[] getArray(Event event) {
+		return new String[] {toString(event)};
 	}
-	
+
 	@Override
-	public String[] getAll(Event e) {
-		return new String[] {toString(e)};
+	public String[] getAll(Event event) {
+		return new String[] {toString(event)};
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
-	public boolean check(Event e, Checker<? super String> c, boolean negated) {
-		return SimpleExpression.check(getAll(e), c, negated, false);
+	public boolean check(Event event, Checker<? super String> checker, boolean negated) {
+		return SimpleExpression.check(getAll(event), checker, negated, false);
 	}
-	
+
 	@Override
-	public boolean check(Event e, Checker<? super String> c) {
-		return SimpleExpression.check(getAll(e), c, false, false);
+	public boolean check(Event event, Checker<? super String> checker) {
+		return SimpleExpression.check(getAll(event), checker, false, false);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Expression<? extends R>) this;
-		return null;
+		return ConvertedExpression.newInstance(this, to);
 	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return null;
 	}
-	
+
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean getAnd() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean setTime(int time) {
 		return false;
 	}
-	
+
 	@Override
 	public int getTime() {
 		return 0;
 	}
-	
+
 	@Override
 	public boolean isDefault() {
 		return false;
 	}
-	
+
 	@Override
-	public Iterator<? extends String> iterator(Event e) {
-		return new SingleItemIterator<>(toString(e));
+	public Iterator<? extends String> iterator(Event event) {
+		return new SingleItemIterator<>(toString(event));
 	}
-	
+
 	@Override
-	public boolean isLoopOf(String s) {
+	public boolean isLoopOf(String input) {
 		return false;
 	}
-	
+
 	@Override
 	public Expression<?> getSource() {
 		return this;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T> Expression<T> setStringMode(Expression<T> e, StringMode mode) {
-		if (e instanceof ExpressionList) {
-			Expression<?>[] ls = ((ExpressionList<?>) e).getExpressions();
-			for (int i = 0; i < ls.length; i++) {
-				Expression<?> l = ls[i];
-				assert l != null;
-				ls[i] = setStringMode(l, mode);
+	public static <T> Expression<T> setStringMode(Expression<T> expression, StringMode mode) {
+		if (expression instanceof ExpressionList) {
+			Expression<?>[] expressions = ((ExpressionList<?>) expression).getExpressions();
+			for (int i = 0; i < expressions.length; i++) {
+				Expression<?> expr = expressions[i];
+				assert expr != null;
+				expressions[i] = setStringMode(expr, mode);
 			}
-		} else if (e instanceof VariableString) {
-			return (Expression<T>) ((VariableString) e).setMode(mode);
+		} else if (expression instanceof VariableString) {
+			return (Expression<T>) ((VariableString) expression).setMode(mode);
 		}
-		return e;
+		return expression;
 	}
-	
+
 	@Override
 	public Expression<String> simplify() {
 		return this;

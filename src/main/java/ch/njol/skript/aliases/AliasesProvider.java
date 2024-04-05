@@ -21,9 +21,13 @@ package ch.njol.skript.aliases;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 
+import ch.njol.skript.Skript;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -40,6 +44,9 @@ import ch.njol.skript.entity.EntityData;
  * Provides aliases on Bukkit/Spigot platform.
  */
 public class AliasesProvider {
+
+	// not supported on Spigot versions older than 1.18
+	private static final boolean FASTER_SET_SUPPORTED = Skript.classExists("it.unimi.dsi.fastutil.objects.ObjectOpenHashSet");
 	
 	/**
 	 * When an alias is not found, it will requested from this provider.
@@ -56,7 +63,7 @@ public class AliasesProvider {
 	/**
 	 * All materials that are currently loaded by this provider.
 	 */
-	private final List<Material> materials;
+	private final Set<Material> materials;
 	
 	/**
 	 * Tags are in JSON format. We may need GSON when merging tags
@@ -171,7 +178,12 @@ public class AliasesProvider {
 		this.aliases = new HashMap<>(expectedCount);
 		this.variations = new HashMap<>(expectedCount / 20);
 		this.aliasesMap = new AliasesMap();
-		this.materials = new ArrayList<>();
+
+		if (FASTER_SET_SUPPORTED) {
+			this.materials = new ObjectOpenHashSet<>();
+		} else {
+			this.materials = new HashSet<>();
+		}
 		
 		this.gson = new Gson();
 	}
@@ -265,8 +277,8 @@ public class AliasesProvider {
 			if (material == null) { // If server doesn't recognize id, do not proceed
 				throw new InvalidMinecraftIdException(id);
 			}
-			if (!materials.contains(material))
-				materials.add(material);
+
+			materials.add(material);
 			
 			// Hacky: get related entity from block states
 			String entityName = blockStates.remove("relatedEntity");
@@ -306,7 +318,7 @@ public class AliasesProvider {
 			MaterialName materialName = new MaterialName(data.type, name.singular, name.plural, name.gender);
 			aliasesMap.addAlias(new AliasesMap.AliasData(data, materialName, id, related));
 		}
-		 
+
 		// Check if there is item type with this name already, create otherwise
 		ItemType type = aliases.get(name.singular);
 		if (type == null)
@@ -315,11 +327,16 @@ public class AliasesProvider {
 			type = new ItemType();
 			aliases.put(name.singular, type); // Singular form
 			aliases.put(name.plural, type); // Plural form
+			type.addAll(datas);
+		} else { // There is already an item type with this name, we need to *only* add new data
+			newDataLoop: for (ItemData newData : datas) {
+				for (ItemData existingData : type.getTypes()) {
+					if (newData == existingData || newData.matchAlias(existingData).isAtLeast(MatchQuality.EXACT)) // Don't add this data, the item type already contains it!
+						continue newDataLoop;
+				}
+				type.add(newData);
+			}
 		}
-		
-		// Add item datas we got earlier to the type
-		assert datas != null;
-		type.addAll(datas);
 	}
 	
 	public void addVariationGroup(String name, VariationGroup group) {

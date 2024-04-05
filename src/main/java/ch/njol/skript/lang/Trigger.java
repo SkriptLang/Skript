@@ -18,85 +18,84 @@
  */
 package ch.njol.skript.lang;
 
-import java.io.File;
-import java.util.List;
-
+import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.variables.Variables;
+import java.util.List;
 
-/**
- * @author Peter Güttinger
- */
 public class Trigger extends TriggerSection {
-	
+
 	private final String name;
 	private final SkriptEvent event;
-	
+
 	@Nullable
-	private final File script;
+	private final Script script;
 	private int line = -1; // -1 is default: it means there is no line number available
 	private String debugLabel;
-	
-	public Trigger(final @Nullable File script, final String name, final SkriptEvent event, final List<TriggerItem> items) {
+
+	public Trigger(@Nullable Script script, String name, SkriptEvent event, List<TriggerItem> items) {
 		super(items);
 		this.script = script;
 		this.name = name;
 		this.event = event;
 		this.debugLabel = "unknown trigger";
 	}
-	
+
 	/**
-	 * Executes this trigger for certain event.
-	 * @param e Event.
-	 * @return false if an exception occurred
+	 * Executes this trigger for a certain event.
+	 * @param event The event to execute this Trigger with.
+	 * @return false if an exception occurred.
 	 */
-	public boolean execute(final Event e) {
-		boolean success = TriggerItem.walk(this, e);
+	public boolean execute(Event event) {
+		boolean success = TriggerItem.walk(this, event);
+
 		// Clear local variables
-		Variables.removeLocals(e);
+		Variables.removeLocals(event);
 		/*
 		 * Local variables can be used in delayed effects by backing reference
 		 * of VariablesMap up. Basically:
-		 * 
-		 * Object localVars = Variables.removeLocals(e);
-		 * 
+		 *
+		 * Object localVars = Variables.removeLocals(event);
+		 *
 		 * ... and when you want to continue execution:
-		 * 
-		 * Variables.setLocalVariables(e, localVars);
-		 * 
+		 *
+		 * Variables.setLocalVariables(event, localVars);
+		 *
 		 * See Delay effect for reference.
 		 */
-		
+
 		return success;
 	}
-	
+
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		return walk(e, true);
+	protected TriggerItem walk(Event event) {
+		return walk(event, true);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return name + " (" + event.toString(e, debug) + ")";
+	public String toString(@Nullable Event event, boolean debug) {
+		return name + " (" + this.event.toString(event, debug) + ")";
 	}
-	
+
 	/**
-	 * Gets name of this trigger.
-	 * @return Name of trigger.
+	 * @return The name of this trigger.
 	 */
 	public String getName() {
 		return name;
 	}
-	
+
 	public SkriptEvent getEvent() {
 		return event;
 	}
-	
+
+	/**
+	 * @return The script this trigger was created from.
+	 */
 	@Nullable
-	public File getScript() {
+	public Script getScript() {
 		return script;
 	}
 
@@ -108,22 +107,20 @@ public class Trigger extends TriggerSection {
 	public void setLineNumber(int line) {
 		this.line  = line;
 	}
-	
+
 	/**
-	 * Gets line number for this trigger's start.
-	 * Only use it for debugging!
-	 * @return Line number.
+	 * @return The line number where this trigger starts. This should ONLY be used for debugging!
 	 */
 	public int getLineNumber() {
 		return line;
 	}
-	
+
 	public void setDebugLabel(String label) {
 		this.debugLabel = label;
 	}
-	
+
 	public String getDebugLabel() {
 		return debugLabel;
 	}
-	
+
 }
