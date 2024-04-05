@@ -84,6 +84,7 @@ import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -1830,6 +1831,14 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
+		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
+			EventValues.registerEventValue(UnknownCommandEvent.class, CommandSender.class, new Getter<CommandSender, UnknownCommandEvent>() {
+				@Override
+				public CommandSender get(UnknownCommandEvent event) {
+					return event.getSender();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 	}
 
