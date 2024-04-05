@@ -51,6 +51,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Since("2.0, INSERT VERSION (store, specific disenchant)")
 public class EffEnchant extends Effect {
+
 	static {
 		Skript.registerEffect(EffEnchant.class,
 				"enchant %~itemtypes% with %enchantmenttypes%",
@@ -84,7 +85,7 @@ public class EffEnchant extends Effect {
 	@Override
 	protected void execute(Event event) {
 		ItemType[] items = this.items.getArray(event);
-		if (items.length < 1)
+		if (items.length == 0) // shortcut
 			return;
 
 		EnchantmentType[] types = null;
@@ -94,7 +95,7 @@ public class EffEnchant extends Effect {
 				return;
 
 			types = enchantments.getArray(event);
-			if (types.length < 1)
+			if (types.length == 0) // shortcut
 				return;
 		}
 
@@ -130,11 +131,13 @@ public class EffEnchant extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (enchantments == null) {
-			return "disenchant " + (isStored ? "stored " + (isSpecificDisenchant ? enchantments.toString(event, debug) :
-				"enchantments") + " of " : "") + items.toString(event, debug) + (!isStored && isSpecificDisenchant ? " of " +
-				enchantments.toString(event, debug) : "");
-		return "enchant " + items.toString(event, debug) + " with " + (isStored ? "stored " : "") + enchantments;
+		if (isDisenchant) {
+			if (isStored)
+				return "unstore " + (isSpecificDisenchant ? enchantments.toString(event, debug) : "enchantments") + " of " + items.toString(event, debug);
+			else
+				return "disenchant " + items.toString(event, debug) + " from " + (isSpecificDisenchant ? enchantments.toString(event, debug) : "enchantments");
+		}
+		return (isStored ? "store " : "enchant ") + items.toString(event, debug) + (isStored ? " on " : " with ") + enchantments;
 	}
 
 }
