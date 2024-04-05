@@ -584,7 +584,7 @@ public class DefaultFunctions {
 				try {
 					return CollectionUtils.array(new DecimalFormat(pattern).format(number));
 				} catch (IllegalArgumentException e) {
-					Skript.error("Invalid number format: " + pattern);
+					Skript.warning("Invalid number format: " + pattern);
 					return null;
 				}
 			}
