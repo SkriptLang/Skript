@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -223,6 +224,8 @@ public class ExprArgument extends SimpleExpression<Object> {
 			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
 		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
 			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
+		} else if (e instanceof UnknownCommandEvent) {
+			fullCommand = ((UnknownCommandEvent) e).getCommandLine().trim();
 		} else {
 			return new Object[0];
 		}

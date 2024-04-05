@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.command.ScriptCommandEvent;
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -79,6 +80,8 @@ public class ExprCommand extends SimpleExpression<String> {
 			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
 		} else if (e instanceof ServerCommandEvent) {
 			s = ((ServerCommandEvent) e).getCommand().trim();
+		} else if (e instanceof UnknownCommandEvent) {
+			s = ((UnknownCommandEvent) e).getCommandLine().trim();
 		} else { // It's a script command event
 			ScriptCommandEvent event = (ScriptCommandEvent) e;
 			s = event.getCommandLabel() + " " + event.getArgsString();

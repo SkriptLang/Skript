@@ -742,12 +742,12 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
-		if(Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
-			Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "[player] (wrong|unknown) (cmd|command) [send|use]")
+		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
+			Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "[player] unknown command")
 				.description("Called when the player uses a command that does not exist.")
 				.examples(
 					"on unknown command:",
-					"\tset event-unknown command message to \"Hey, this command does not exist.\""
+					"\tset unknown command message to \"Hey, this command does not exist.\""
 				)
 				.since("INSERT VERSION");
 		}
