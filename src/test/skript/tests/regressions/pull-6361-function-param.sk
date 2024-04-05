@@ -1,0 +1,46 @@
+# TODO add these to tests once structure test parsing is implemented (https://github.com/SkriptLang/Skript/pull/6291)
+# function testA(loc): location, previoustype(): text):
+# 	broadcast "a"
+
+# function testB(loc(: location, previoustype): text):
+#     broadcast "b"
+
+# function testE(loc: location, previoustyp): returns text: object = (")")):
+#     broadcast "%{_loc}% %{_previoustyp): returns text}%"
+
+# function this((function should(not: exist) returns text:) ? object : text) :: text:
+#     return {_(function should(not: exist) returns text:) ? object }
+
+
+# function never(gonna: give = (you - up)): and function never(gonna: let, you: down) :: text):
+#     broadcast {@magic}
+
+# function testA3(previoustyp): returns text: object = (")")):
+# 	broadcast 2
+
+
+function test_English(test: text) :: text:
+    return {_test}
+
+function test_Arabic(تجربة: text) :: text:
+	return {_تجربة}
+
+function test_Japanese(テスト: text) :: text:
+	return {_テスト}
+
+function test_Greek(δοκιμή: text) :: text:
+	return {_δοκιμή}
+
+function test_Thai(ทดสอบ: text) :: text:
+	return {_ทดสอบ}
+
+function test_German(prüfen: text) :: text:
+	return {_prüfen}
+
+test "function parameter names":
+    assert test_English("text") = "text" with "Function 'test_English' failed function parameter name test"
+    assert test_Arabic("text") = "text" with "Function 'test_Arabic' failed function parameter name test"
+    assert test_Japanese("text") = "text" with "Function 'test_Japanese' failed function parameter name test"
+    assert test_Greek("text") = "text" with "Function 'test_Greek' failed function parameter name test"
+    assert test_Thai("text") = "text" with "Function 'test_Thai' failed function parameter name test"
+    assert test_German("text") = "text" with "Function 'test_German' failed function parameter name test"
