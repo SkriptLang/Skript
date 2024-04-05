@@ -30,9 +30,9 @@ public abstract class JavaFunction<T> extends Function<T> {
 	public JavaFunction(Signature<T> sign) {
 		super(sign);
 	}
-	
+
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
-		this(new Signature<>("none", name, parameters, returnType, single));
+		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName()));
 	}
 	
 	@Override
@@ -43,6 +43,8 @@ public abstract class JavaFunction<T> extends Function<T> {
 	private String[] description = null;
 	@Nullable
 	private String[] examples = null;
+	@Nullable
+	private String[] keywords;
 	@Nullable
 	private String since = null;
 	
@@ -67,6 +69,18 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.examples = examples;
 		return this;
 	}
+
+	/**
+	 * Only used for Skript's documentation.
+	 *
+	 * @param keywords
+	 * @return This JavaFunction object
+	 */
+	public JavaFunction<T> keywords(final String... keywords) {
+		assert this.keywords == null;
+		this.keywords = keywords;
+		return this;
+	}
 	
 	/**
 	 * Only used for Skript's documentation.
@@ -87,6 +101,11 @@ public abstract class JavaFunction<T> extends Function<T> {
 	@Nullable
 	public String[] getExamples() {
 		return examples;
+	}
+
+	@Nullable
+	public String[] getKeywords() {
+		return keywords;
 	}
 	
 	@Nullable

@@ -1,11 +1,17 @@
 version: 2
 updates:
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "daily"
-- package-ecosystem: gradle
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+  - package-ecosystem: "github-actions"
+    target-branch: "dev/patch"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+    labels:
+      - "dependencies"
+  - package-ecosystem: "gradle"
+    target-branch: "dev/patch"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+    labels:
+      - "dependencies"
+    open-pull-requests-limit: 10

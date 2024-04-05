@@ -86,4 +86,65 @@ public class SkriptPattern {
 		return keywords.toArray(new String[0]);
 	}
 
+	/**
+	 * @return the size of the {@link MatchResult#expressions} array
+	 * from a match.
+	 */
+	public int countTypes() {
+		return expressionAmount;
+	}
+
+	/**
+	 * Count the maximum amount of non-null types in this pattern,
+	 * i.e. the maximum amount of non-null values in the {@link MatchResult#expressions}
+	 * array from a match.
+	 *
+	 * @see #countTypes() for the amount of nullable values
+	 * in the expressions array from a match.
+	 */
+	public int countNonNullTypes() {
+		return countNonNullTypes(first);
+	}
+
+	/**
+	 * Count the maximum amount of non-null types in the given pattern,
+	 * i.e. the maximum amount of non-null values in the {@link MatchResult#expressions}
+	 * array from a match.
+	 */
+	private static int countNonNullTypes(PatternElement patternElement) {
+		int count = 0;
+
+		// Iterate over all consequent pattern elements
+		while (patternElement != null) {
+			if (patternElement instanceof ChoicePatternElement) {
+				// Keep track of the max type count of each component
+				int max = 0;
+
+				for (PatternElement component : ((ChoicePatternElement) patternElement).getPatternElements()) {
+					int componentCount = countNonNullTypes(component);
+					if (componentCount > max) {
+						max = componentCount;
+					}
+				}
+
+				// Only one of the components will be used, the rest will be non-null
+				//  So we only need to add the max
+				count += max;
+			} else if (patternElement instanceof GroupPatternElement) {
+				// For groups and optionals, simply recurse
+				count += countNonNullTypes(((GroupPatternElement) patternElement).getPatternElement());
+			} else if (patternElement instanceof OptionalPatternElement) {
+				count += countNonNullTypes(((OptionalPatternElement) patternElement).getPatternElement());
+			} else if (patternElement instanceof TypePatternElement) {
+				// Increment when seeing a type
+				count++;
+			}
+
+			// Move on to the next pattern element
+			patternElement = patternElement.originalNext;
+		}
+
+		return count;
+	}
+
 }

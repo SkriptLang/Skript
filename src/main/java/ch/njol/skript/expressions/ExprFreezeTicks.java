@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"player's freeze time is less than 3 seconds:",
 	"\tsend \"you're about to freeze!\" to the player"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
@@ -48,7 +48,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks_i(entity.getFreezeTicks());
+		return Timespan.fromTicks(entity.getFreezeTicks());
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
 		int newTime;
 		switch (mode) {
 			case ADD:
@@ -104,8 +104,6 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 		//Limit time to between 0 and max
 		if (ticks < 0)
 			ticks = 0;
-		if (entity.getMaxFreezeTicks() < ticks)
-			ticks = entity.getMaxFreezeTicks();
 		// Set new time
 		entity.setFreezeTicks(ticks);
 	}

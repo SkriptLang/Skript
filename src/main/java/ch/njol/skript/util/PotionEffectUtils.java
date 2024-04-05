@@ -19,7 +19,6 @@
 package ch.njol.skript.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,20 +40,17 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("deprecation")
 public abstract class PotionEffectUtils {
-	
+
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
-	
+
 	private PotionEffectUtils() {}
-	
+
 	final static Map<String, PotionEffectType> types = new HashMap<>();
-	
+
 	final static String[] names = new String[getMaxPotionId() + 1];
-	
+
 	// MCPC+ workaround
 	private static int getMaxPotionId() {
 		int i = 0;
@@ -99,32 +95,30 @@ public abstract class PotionEffectUtils {
 		return null;
 	}
 	
-	@SuppressWarnings("null")
-	public static String toString(final PotionEffectType t) {
+	public static String toString(PotionEffectType t) {
 		return names[t.getId()];
 	}
 	
 	// REMIND flags?
-	@SuppressWarnings("null")
-	public static String toString(final PotionEffectType t, final int flags) {
+	public static String toString(PotionEffectType t, int flags) {
 		return names[t.getId()];
 	}
-	
+
 	public static String toString(PotionEffect potionEffect) {
 		StringBuilder builder = new StringBuilder();
 		if (potionEffect.isAmbient())
 			builder.append("ambient ");
 		builder.append("potion effect of ");
 		builder.append(toString(potionEffect.getType()));
-		
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
-		
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(Timespan.fromTicks_i(potionEffect.getDuration()));
+		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : Timespan.fromTicks(Math.abs(potionEffect.getDuration())));
+		if (!potionEffect.hasIcon())
+			builder.append(" without icon");
 		return builder.toString();
 	}
-	
+
 	public static String[] getNames() {
 		return names;
 	}

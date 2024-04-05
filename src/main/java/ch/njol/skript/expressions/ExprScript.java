@@ -18,11 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
@@ -30,49 +26,53 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.parser.ParserInstance;
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Script Name")
 @Description("Holds the current script's name (the file name without '.sk').")
-@Examples({"on script load:",
-		"	set {running::%script%} to true",
-		"on script unload:",
-		"	set {running::%script%} to false"})
+@Examples({
+	"on script load:",
+	"\tset {running::%script%} to true",
+	"on script unload:",
+	"\tset {running::%script%} to false"
+})
 @Since("2.0")
 @Events("Script Load/Unload")
 public class ExprScript extends SimpleExpression<String> {
 	
 	static {
 		Skript.registerExpression(ExprScript.class, String.class, ExpressionType.SIMPLE,
-				"[the] script[['s] name]", "name of [the] script");
+			"[the] script[['s] name]",
+			"name of [the] script"
+		);
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private String name;
 	
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		final Config script = getParser().getCurrentScript();
-		if (script == null) {
-			assert false;
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		ParserInstance parser = getParser();
+		if (!parser.isActive()) {
+			Skript.error("You can't use the script expression outside of scripts!");
 			return false;
 		}
-		String name = script.getFileName();
+		String name = parser.getCurrentScript().getConfig().getFileName();
 		if (name.contains("."))
-			name = "" + name.substring(0, name.lastIndexOf('.'));
+			name = name.substring(0, name.lastIndexOf('.'));
 		this.name = name;
 		return true;
 	}
 	
 	@Override
-	protected String[] get(final Event e) {
-		return CollectionUtils.array(name);
+	protected String[] get(Event event) {
+		return new String[]{name};
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class ExprScript extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the script's name";
 	}
 	
