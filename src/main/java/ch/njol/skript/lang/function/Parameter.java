@@ -19,6 +19,7 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
@@ -45,8 +46,9 @@ public final class Parameter<T> {
 
 	/**
 	 * Name of this parameter. Will be used as name for the local variable
-	 * that contains value of it inside function. This is always in lower case;
-	 * variable names are case-insensitive.
+	 * that contains value of it inside function.
+	 * If {@link SkriptConfig#caseInsensitiveVariables} is {@code true},
+	 * then the valid variable names may not necessarily match this string in casing.
 	 */
 	final String name;
 	
@@ -69,7 +71,7 @@ public final class Parameter<T> {
 	
 	@SuppressWarnings("null")
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
-		this.name = name != null ? name.toLowerCase(Locale.ENGLISH) : null;
+		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
@@ -119,6 +121,7 @@ public final class Parameter<T> {
 	@Nullable
 	public static List<Parameter<?>> parse(String args) {
 		List<Parameter<?>> params = new ArrayList<>();
+		boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
 		int j = 0;
 		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
 			if (i == -1) {
@@ -138,8 +141,12 @@ public final class Parameter<T> {
 					return null;
 				}
 				String paramName = "" + n.group(1);
+				// for comparing without affecting the original name, in case the config option for case insensitivity changes.
+				String lowerParamName = paramName.toLowerCase(Locale.ENGLISH);
 				for (Parameter<?> p : params) {
-					if (p.name.toLowerCase(Locale.ENGLISH).equals(paramName.toLowerCase(Locale.ENGLISH))) {
+					// only force lowercase if we don't care about case in variables
+					String otherName = caseInsensitive ? p.name.toLowerCase(Locale.ENGLISH) : p.name;
+					if (otherName.equals(caseInsensitive ? lowerParamName : paramName)) {
 						Skript.error("Each argument's name must be unique, but the name '" + paramName + "' occurs at least twice.");
 						return null;
 					}

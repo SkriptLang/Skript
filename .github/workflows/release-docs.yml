@@ -37,7 +37,6 @@ jobs:
         - name: Push release documentation
           uses: ./skript/.github/workflows/docs/push-docs
           with:
-              docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
               docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
               git_name: Release Docs Bot
               git_email: releasedocs@skriptlang.org
@@ -69,6 +68,7 @@ jobs:
             uses: ./skript/.github/workflows/docs/generate-docs
             with:
                 docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+                docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
                 skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
                 is_release: true
           - name: Push archive documentation
