@@ -60,7 +60,7 @@ public class ExprCommand extends SimpleExpression<String> {
 	}
 
 	private boolean fullCommand;
-	private boolean SUPPORTS_UNKNOWN_EVENT;
+	private boolean SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -74,9 +74,9 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event event) {
+	protected String[] get(Event event) {
 		final String s;
-		SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
+
 
 		if (event instanceof PlayerCommandPreprocessEvent) {
 			s = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
