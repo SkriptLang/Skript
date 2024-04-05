@@ -61,12 +61,12 @@ task testJar(type: ShadowJar) {
 
 task jar(overwrite: true, type: ShadowJar) {
 	dependsOn checkAliases
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-${project.version}.jar' : jarName
 	from sourceSets.main.output
 }
 
 task build(overwrite: true, type: ShadowJar) {
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-${project.version}.jar' : jarName
 	from sourceSets.main.output
 }
 
