@@ -32,19 +32,19 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 @Name("Sorted List")
-@Description({"Sorts given list in natural order. All objects in list must be comparable;",
-	"if they're not, this expression will return nothing."
-})
-@Examples({"set {_sorted::*} to sorted {_players::*}"})
+@Description("Sorts given list in natural order. All objects in list must be comparable; if they're not, this expression will return nothing.")
+@Examples("set {_sorted::*} to sorted {_players::*}")
 @Since("2.2-dev19")
 public class ExprSortedList extends SimpleExpression<Object> {
 
-	static{
+	static {
 		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.COMBINED, "sorted %objects%");
 	}
 
@@ -67,28 +67,27 @@ public class ExprSortedList extends SimpleExpression<Object> {
 
 	@Override
 	@Nullable
-	protected Object[] get(Event e) {
-		Object[] unsorted = list.getArray(e);
-		Object[] sorted = (Object[]) Array.newInstance(getReturnType(), unsorted.length); // Not yet sorted...
-		
-		for (int i = 0; i < sorted.length; i++) {
-			Object value = unsorted[i];
-			if (value instanceof Long) {
-				// Hope it fits to the double...
-				sorted[i] = (double) (Long) value;
-			} else {
-				// No conversion needed
-				sorted[i] = value;
-			}
-		}
-		
+	protected Object[] get(Event event) {
 		try {
-			Arrays.sort(sorted); // Now sorted
-		} catch (IllegalArgumentException | ClassCastException ex) { // In case elements are not comparable
-			return new Object[]{}; // We don't have a sorted array available
+			return list.stream(event)
+					.sorted(ExprSortedList::compare)
+					.toArray();
+		} catch (IllegalArgumentException | ClassCastException e) {
+			return (Object[]) Array.newInstance(getReturnType(), 0);
 		}
-		return sorted;
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <A, B> int compare(A a, B b) throws IllegalArgumentException, ClassCastException {
+		if (a instanceof String && b instanceof String)
+			return Relation.get(((String) a).compareToIgnoreCase((String) b)).getRelation();
+		Comparator<A, B> comparator = Comparators.getComparator((Class<A>) a.getClass(), (Class<B>) b.getClass());
+        if (comparator != null && comparator.supportsOrdering())
+			return comparator.compare(a, b).getRelation();
+		if (!(a instanceof Comparable))
+			throw new IllegalArgumentException("Cannot compare " + a.getClass());
+		return ((Comparable<B>) a).compareTo(b);
+    }
 
 	@Override
 	@Nullable

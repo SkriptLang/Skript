@@ -1,0 +1,109 @@
+name: Generate documentation
+
+inputs:
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  docs_repo_dir:
+    description: "The skript-docs repository directory"
+    required: true
+    type: string
+  skript_repo_dir:
+    description: "The skript repository directory"
+    required: true
+    type: string
+  is_release:
+    description: "Designates whether to generate nightly or release documentation"
+    required: false
+    default: false
+    type: boolean
+  cleanup_pattern:
+    description: "A pattern designating which files to delete when cleaning the documentation output directory"
+    required: false
+    default: "*"
+    type: string
+  generate_javadocs:
+    description: "Designates whether to generate javadocs for this nightly documentation"
+    required: false
+    default: false
+    type: boolean
+
+outputs:
+  DOCS_CHANGED:
+    description: "Whether or not the documentation has changed since the last push"
+    value: ${{ steps.generate.outputs.DOCS_CHANGED }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: generate-docs
+      id: generate
+      shell: bash
+      env:
+        DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
+        DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        SKRIPT_REPO_DIR: ${{ inputs.skript_repo_dir }}
+        IS_RELEASE: ${{ inputs.is_release }}
+        CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
+        GENERATE_JAVADOCS: ${{ inputs.generate_javadocs }}
+      run: |
+        replace_in_directory() {
+          find $1 -type f -exec sed -i -e "s/$2/$3/g" {} \;
+        }
+
+        # this should be replaced with a more reliable jq command,
+        # but it can't be right now because docs.json is actually not valid json.
+        get_skript_version_of_directory() {
+          grep skriptVersion "$1/docs.json" | cut -d\" -f 4
+        }
+
+        if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
+        then
+          export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/docs/templates
+        else # compatibility for older versions
+          export SKRIPT_DOCS_TEMPLATE_DIR=${DOCS_REPO_DIR}/doc-templates
+        fi
+
+        export SKRIPT_DOCS_OUTPUT_DIR=/tmp/generated-docs
+                  
+        cd $SKRIPT_REPO_DIR
+        if [[ "${IS_RELEASE}" == "true" ]]; then
+          ./gradlew genReleaseDocs releaseJavadoc
+        elif [[ "${GENERATE_JAVADOCS}" == "true" ]]; then
+          ./gradlew genNightlyDocs javadoc
+        else
+          ./gradlew genNightlyDocs
+        fi
+
+        if [ -d "${DOCS_OUTPUT_DIR}" ]; then
+          if [[ "${GENERATE_JAVADOCS}" == "true" ]]; then
+              mkdir -p "${SKRIPT_DOCS_OUTPUT_DIR}/javadocs" && cp -a "./build/docs/javadoc/." "$_"
+          fi
+  
+          mkdir -p "/tmp/normalized-output-docs" && cp -a "${DOCS_OUTPUT_DIR}/." "$_"
+          mkdir -p "/tmp/normalized-generated-docs" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
+  
+          output_skript_version=$(get_skript_version_of_directory "/tmp/normalized-output-docs")
+          generated_skript_version=$(get_skript_version_of_directory "/tmp/normalized-generated-docs")
+
+          replace_in_directory "/tmp/normalized-output-docs" "${output_skript_version}" "Skript"
+          replace_in_directory "/tmp/normalized-generated-docs" "${generated_skript_version}" "Skript"
+  
+          diff -qbr /tmp/normalized-output-docs /tmp/normalized-generated-docs || diff_exit_code=$?
+          # If diff exits with exit code 1, that means there were some differences
+          if [[ ${diff_exit_code} -eq 1 ]]; then
+            echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT
+            echo "Documentation has changed since last push"
+          else
+            echo "Documentation hasn't changed since last push"
+          fi
+        else
+            echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT
+            echo "No existing documentation found"
+        fi
+        
+        rm -rf ${DOCS_OUTPUT_DIR}/${CLEANUP_PATTERN} || true
+        mkdir -p "${DOCS_OUTPUT_DIR}/" && cp -a "${SKRIPT_DOCS_OUTPUT_DIR}/." "$_"
+
+

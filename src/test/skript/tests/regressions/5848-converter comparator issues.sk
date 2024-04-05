@@ -1,0 +1,16 @@
+test "5848-converter comparator issues":
+
+	# a little oopsie (oops)
+	loop 2 and "dog":
+		if loop-value is not 2 or "dog":
+			assert true is false with "loop-value was not '2' or 'dog' (got '%loop-value%')!"
+
+	# the byte bites back!
+	loop 256 and "dog":
+		if loop-value is 0:
+			assert true is false with "loop-value was somehow '0'!?"
+
+	# curse you time type
+	loop 9 hours and 2pm:
+		if loop-value is not 9 hours or 2pm:
+			assert true is false with "loop-value was not '9 hours' or '2pm' (got '%loop-value%')!"

@@ -199,7 +199,7 @@ public abstract class Utils {
 			for (String c : classNames) {
 				try {
 					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException ex) {
+				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
 					Skript.exception(ex, "Cannot load class " + c);
 				} catch (ExceptionInInitializerError err) {
 					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
@@ -774,6 +774,14 @@ public abstract class Utils {
 				lastIndex = i;
 		}
 		return lastIndex;
+	}
+
+	public static boolean isInteger(Number... numbers) {
+		for (Number number : numbers) {
+			if (Double.class.isAssignableFrom(number.getClass()) || Float.class.isAssignableFrom(number.getClass()))
+				return false;
+		}
+		return true;
 	}
 	
 }

@@ -45,9 +45,9 @@ skript command:
 			changes: Listet alle Änderungen seit der aktuellen Version auf (auf englisch)
 			download: Lädt die neueste Version herunter
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
-		gen-docs: Generiert Dokumentation mithilfe von doc-templates im Plugin-Ordner
+		gen-docs: Generiert Dokumentation mithilfe von docs/templates im Plugin-Ordner
 		test: Wird zum Ausführen von Skript-Tests verwendet
-	
+
 	invalid script: Das Skript <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	invalid folder: Der Ordner <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	reload:
@@ -61,14 +61,14 @@ skript command:
 		error details: <light red>    %s<reset>\n
 		other details: <white>    %s<reset>\n
 		line details: <gold>    Linie: <gray>%s<reset>\n <reset>
-		
+
 		config, aliases and scripts: die Konfiguration, alle Itemnamen und alle Skripte
 		scripts: alle Skripte
 		main config: Konfiguration
 		aliases: die Itemnamen
 		script: <gold>%s<reset>
 		scripts in folder: alle Skripte in <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <reset>Skript¦¦e¦ in <gold>%1$s<reset>
+		x scripts in folder: <gold>%2$s <lime>Skript¦¦e¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> enthält keine aktivierten Skripte.
 	enable:
 		all:

@@ -116,7 +116,8 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-					.map(location -> direction.getRelative(location))
+					.map(direction::getRelative)
+					.map(Location::getBlock)
 					.toArray(Block[]::new);
 		}
 		Iterator<Block> iterator = iterator(event);
@@ -150,9 +151,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				int distance = SkriptConfig.maxTargetBlockDistance.value();
 				if (this.direction instanceof ExprDirection) {
 					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
-					Number number = numberExpression.getSingle(event);
-					if (numberExpression != null && number != null)
-						distance = number.intValue();
+					if (numberExpression != null) {
+						Number number = numberExpression.getSingle(event);
+						if (number != null)
+							distance = number.intValue();
+					}
 				}
 				return new BlockLineIterator(location, vector, distance);
 			} else {
