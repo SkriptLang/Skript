@@ -585,7 +585,7 @@ public class DefaultFunctions {
 					return CollectionUtils.array(new DecimalFormat(pattern).format(number));
 				} catch (IllegalArgumentException e) {
 					Skript.error("Invalid number format: " + pattern);
-					return new String[0];
+					return null;
 				}
 			}
 		}).description("Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
