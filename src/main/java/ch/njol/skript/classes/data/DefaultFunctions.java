@@ -22,12 +22,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Calendar;
-import java.util.regex.Pattern;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.JavaFunction;
 import org.bukkit.Bukkit;
