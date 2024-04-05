@@ -49,7 +49,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromDirection.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorFromDirection.class, Vector.class, ExpressionType.PROPERTY,
 				"vector[s] [from] %directions%",
 				"%directions% vector[s]");
 	}

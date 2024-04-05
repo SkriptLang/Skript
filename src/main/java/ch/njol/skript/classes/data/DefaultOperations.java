@@ -21,6 +21,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
+import ch.njol.util.Math2;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -84,7 +85,7 @@ public class DefaultOperations {
 		});
 
 		// Timespan - Timespan
-		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(left.getMilliSeconds() + right.getMilliSeconds()));
+		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(Math2.addClamped(left.getMilliSeconds(), right.getMilliSeconds())));
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getMilliSeconds() - right.getMilliSeconds())));
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
@@ -95,7 +96,7 @@ public class DefaultOperations {
 			long scalar = right.longValue();
 			if (scalar < 0)
 				return null;
-			return new Timespan(left.getMilliSeconds() * scalar);
+			return new Timespan(Math2.multiplyClamped(left.getMilliSeconds(), scalar));
 		}, (left, right) -> {
 			long scalar = left.longValue();
 			if (scalar < 0)

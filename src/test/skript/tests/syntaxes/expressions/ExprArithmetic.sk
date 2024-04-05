@@ -255,3 +255,10 @@ local function component_equals(a: number, b: number) :: boolean:
 	then:
 		return true
 	return true if {_a} is {_b}, else false
+
+test "arithmetic return types":
+	# the issue below is that <none> is now returned for the function
+	# skript interprets this as "y-coordinate of ({_location} - 4)" which is valid due to Object.class return types
+	# however, we can get more specific return types by returning the superclass of the return types of all Object-Number operations
+	set {_location} to location(0,10,0,"world")
+	assert (y-coordinate of {_location} - 4) is 6 with "y-coordinate of {_location} - 4 is not 6 (got '%y-coordinate of {_location} - 4%')"
