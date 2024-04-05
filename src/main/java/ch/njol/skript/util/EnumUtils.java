@@ -107,7 +107,8 @@ public final class EnumUtils<E extends Enum<E>> {
 	 * @return A string representation of the enumerator.
 	 */
 	public String toString(E enumerator, int flags) {
-		return names[enumerator.ordinal()];
+		String s = names[enumerator.ordinal()];
+		return s != null ? s : enumerator.name();
 	}
 
 	/**
