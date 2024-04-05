@@ -82,6 +82,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
+	private boolean SUPPORTS_UNKNOWN_EVENT;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -214,18 +215,19 @@ public class ExprArgument extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
+	protected Object[] get(final Event event) {
 		if (argument != null) {
-			return argument.getCurrent(e);
+			return argument.getCurrent(event);
 		}
+		SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 
 		String fullCommand;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
-			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
-		} else if (e instanceof UnknownCommandEvent) {
-			fullCommand = ((UnknownCommandEvent) e).getCommandLine().trim();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			fullCommand = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
+			fullCommand = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
+			fullCommand = ((UnknownCommandEvent) event).getCommandLine().trim();
 		} else {
 			return new Object[0];
 		}

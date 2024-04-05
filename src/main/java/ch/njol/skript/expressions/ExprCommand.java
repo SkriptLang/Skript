@@ -60,6 +60,7 @@ public class ExprCommand extends SimpleExpression<String> {
 	}
 
 	private boolean fullCommand;
+	private boolean SUPPORTS_UNKNOWN_EVENT;
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -73,18 +74,19 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
+	protected String[] get(final Event event) {
 		final String s;
+		SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) {
-			s = ((ServerCommandEvent) e).getCommand().trim();
-		} else if (e instanceof UnknownCommandEvent) {
-			s = ((UnknownCommandEvent) e).getCommandLine().trim();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			s = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) {
+			s = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
+			s = ((UnknownCommandEvent) event).getCommandLine().trim();
 		} else { // It's a script command event
-			ScriptCommandEvent event = (ScriptCommandEvent) e;
-			s = event.getCommandLabel() + " " + event.getArgsString();
+			ScriptCommandEvent sEvent = (ScriptCommandEvent) event;
+			s = sEvent.getCommandLabel() + " " + sEvent.getArgsString();
 		}
 
 		if (fullCommand) {
