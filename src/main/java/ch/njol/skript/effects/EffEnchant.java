@@ -90,6 +90,7 @@ public class EffEnchant extends Effect {
 
 		EnchantmentType[] types = null;
 
+		// enchantments must be set if isSpecificDisenchant or is enchanting
 		if ((isSpecificDisenchant || !isDisenchant)) {
 			if (enchantments == null)
 				return;
@@ -99,6 +100,7 @@ public class EffEnchant extends Effect {
 				return;
 		}
 
+		// enchanting
 		if (!isDisenchant) {
 			for (ItemType item : items) {
 				for (EnchantmentType type : types) {
@@ -111,6 +113,7 @@ public class EffEnchant extends Effect {
 					}
 				}
 			}
+		// disenchanting
 		} else {
 			for (ItemType item : items) {
 				if (!isSpecificDisenchant)
