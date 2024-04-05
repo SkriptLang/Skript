@@ -52,8 +52,8 @@ import java.util.regex.Pattern;
 	"",
 	"# Very simple chat censor",
 	"on chat:",
-	"\treplace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
-	"\treplace using regex \"\\b(kys|idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
+		"\treplace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
+		"\treplace using regex \"\\b(kys|idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
@@ -74,7 +74,6 @@ public class EffReplace extends Effect {
 	private Expression<?> haystack, needles, replacement;
 	private boolean replaceString;
 	private boolean replaceRegex;
-	private boolean replaceItems;
 	private boolean replaceFirst;
 	private boolean caseSensitive = false;
 
@@ -85,7 +84,6 @@ public class EffReplace extends Effect {
 		replaceString = matchedPattern < 4;
 		replaceFirst = parseResult.hasTag("first");
 		replaceRegex = parseResult.hasTag("regex");
-		replaceItems = matchedPattern == 4 || matchedPattern == 5;
 		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
 			Skript.error(haystack + " cannot be changed and can thus not have parts replaced");
 			return false;
@@ -107,37 +105,42 @@ public class EffReplace extends Effect {
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
 		if (replaceString) {
-			if (replaceFirst) {
-				for (int i = 0; i < haystack.length; i++) {
-					for (Object needle : needles) {
-						assert needle != null;
-						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement((String) replacement), caseSensitive);
-					}
-				}
-			} else if (replaceRegex) {
+			String stringReplacement = (String) replacement;
+			if (replaceRegex) { // replace all/first - regex
 				List<Pattern> patterns = new ArrayList<>(needles.length);
 				for (Object needle : needles) {
 					assert needle != null;
 					try {
 						patterns.add(Pattern.compile((String) needle));
-					} catch (Exception ignored) {}
+					} catch (Exception ignored) { }
 				}
 				for (int i = 0; i < haystack.length; i++) {
 					for (Pattern pattern : patterns) {
 						assert pattern != null;
-						haystack[i] = pattern.matcher((String) haystack[i]).replaceAll((String) replacement);
+						Matcher matcher = pattern.matcher((String) haystack[i]);
+						if (replaceFirst) // first
+							haystack[i] = matcher.replaceFirst(stringReplacement);
+						else // all
+							haystack[i] = matcher.replaceAll(stringReplacement);
 					}
 				}
-			} else {
+			} else if (replaceFirst) { // replace first - string
 				for (int i = 0; i < haystack.length; i++) {
 					for (Object needle : needles) {
 						assert needle != null;
-						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, (String) replacement, caseSensitive);
+						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement(stringReplacement), caseSensitive);
+					}
+				}
+			} else { // replace all - string
+				for (int i = 0; i < haystack.length; i++) {
+					for (Object needle : needles) {
+						assert needle != null;
+						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, stringReplacement, caseSensitive);
 					}
 				}
 			}
 			this.haystack.change(event, haystack, ChangeMode.SET);
-		} else if (replaceItems) {
+		} else { // replace items
 			for (Inventory inventory : (Inventory[]) haystack) {
 				for (ItemType needle : (ItemType[]) needles) {
 					for (Map.Entry<Integer, ? extends ItemStack> entry : inventory.all(needle.getMaterial()).entrySet()) {
