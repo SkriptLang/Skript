@@ -594,7 +594,7 @@ public class DefaultFunctions {
 					"command /formatnumber <number>:",
 						"\taliases: fn",
 						"\ttrigger:",
-							"\t\tsend \"Formatted: %formatted arg-1%\" to sender"
+							"\t\tsend \"Formatted: %numberFormat(arg-1)%\" to sender"
 			).since("INSERT VERSION");
 	}
 	
