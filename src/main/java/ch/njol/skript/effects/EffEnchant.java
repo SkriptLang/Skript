@@ -44,16 +44,18 @@ import org.eclipse.jdt.annotation.Nullable;
 	"disenchant the player's tool from unbreaking and sharpness",
 	"",
 	"# For enchanted books",
-	"enchant player's tool with stored unbreaking 3",
-	"disenchant stored enchantments from player's tool"
+	"set {_book} to enchanted book",
+	"store unbreaking 3 on {_book}",
+	"unstore enchantments from {_book}",
+	"unstore sharpness from {_book}"
 })
-@Since("2.0, INSERT VERSION (stored, specific disenchant)")
+@Since("2.0, INSERT VERSION (store, specific disenchant)")
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
 				"enchant %~itemtypes% with %enchantmenttypes%",
 				"disenchant %~itemtypes% [specific:(of|from) %-enchantmenttypes%]",
-				"store %~itemtypes% on %enchantmenttypes%",
+				"store %enchantmenttypes% (on|within) %~itemtypes%",
 				"unstore (specific:%enchantmenttypes%|enchant[ment]s) (of|from) %~itemtypes%");
 	}
 
@@ -73,9 +75,9 @@ public class EffEnchant extends Effect {
 			return false;
 		}
 		isStored = matchedPattern >= 2;
-		isDisenchant = matchedPattern > 0;
+		isDisenchant = matchedPattern == 1 || matchedPattern == 3;
 		isSpecificDisenchant = parseResult.tags.contains("specific");
-		enchantments = exprs.length == 2 ? (Expression<EnchantmentType>) exprs[(matchedPattern == 2 ? 0 : 1)] : null;
+		enchantments = exprs.length == 2 ? (Expression<EnchantmentType>) exprs[(matchedPattern >= 2 ? 0 : 1)] : null;
 		return true;
 	}
 
