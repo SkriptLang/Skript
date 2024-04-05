@@ -18,13 +18,8 @@
  */
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.expressions.base.EventValueExpression;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.Calendar;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
@@ -46,6 +41,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class DefaultFunctions {
@@ -53,7 +52,7 @@ public class DefaultFunctions {
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
-	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("###,###");
+	private static final DecimalFormat DEFAULT_NUMBER_FORMAT = new DecimalFormat("###,###");
 	
 	static {
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
@@ -575,7 +574,7 @@ public class DefaultFunctions {
 
 		Functions.registerFunction(new SimpleJavaFunction<String>("formatNumber", new Parameter[] {
 			new Parameter<>("number", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_FORMAT.toPattern(), true))
+			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_NUMBER_FORMAT.toPattern(), true))
 		}, DefaultClasses.STRING, true) {
 			@Override
 			public String[] executeSimple(Object[][] params) {
