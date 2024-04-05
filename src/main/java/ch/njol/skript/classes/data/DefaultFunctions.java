@@ -20,8 +20,14 @@ package ch.njol.skript.classes.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.JavaFunction;
 import org.bukkit.Bukkit;
@@ -48,6 +54,7 @@ public class DefaultFunctions {
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
+	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("###,###");
 	
 	static {
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
@@ -471,6 +478,31 @@ public class DefaultFunctions {
 		}).description("Returns a RGB color from the given red, green and blue parameters.")
 			.examples("dye player's leggings rgb(120, 30, 45)")
 			.since("2.5");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("formatNumber", new Parameter[] {
+			new Parameter<>("number", DefaultClasses.NUMBER, true, null),
+			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_FORMAT.toPattern(), true))
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				Number number = (Number) params[0][0];
+				String pattern = (String) params[1][0];
+
+				try {
+					return CollectionUtils.array(new DecimalFormat(pattern).format(number));
+				} catch (IllegalArgumentException e) {
+					Skript.error("Invalid number format: " + pattern);
+					return new String[0];
+				}
+			}
+		}).description("Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
+		+ "<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
+			.examples(
+					"command /formatnumber <number>:",
+						"\taliases: fn",
+						"\ttrigger:",
+							"\t\tsend \"Formatted: %formatted arg-1%\" to sender"
+			).since("INSERT VERSION");
 	}
 	
 }
