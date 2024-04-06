@@ -581,17 +581,17 @@ public class DefaultFunctions {
 			@Override
 			public String[] executeSimple(Object[][] params) {
 				Number number = (Number) params[0][0];
-				String pattern = (String) params[1][0];
+				String format = (String) params[1][0];
 
-				if (DEFAULT_NUMBER_FORMAT_STRING.equals(pattern)) // shortcut
+				if (DEFAULT_NUMBER_FORMAT_STRING.equals(format)) // shortcut
 					return CollectionUtils.array(DEFAULT_NUMBER_FORMAT.format(number));
 
 				try {
 					DecimalFormat numberFormat = NUMBER_FORMAT.get();
-					numberFormat.applyPattern(pattern);
+					numberFormat.applyPattern(format);
 					return CollectionUtils.array(numberFormat.format(number));
 				} catch (IllegalArgumentException e) {
-//					Skript.warning("Invalid number format: " + pattern); // TODO find a better solution for such warnings/errors that doesn't spam the console
+//					Skript.warning("Invalid number format: " + format); // TODO find a better solution for such warnings/errors that doesn't spam the console
 					return null;
 				}
 			}
