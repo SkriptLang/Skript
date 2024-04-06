@@ -85,58 +85,58 @@ public class ExprMessage extends SimpleExpression<String> {
 		JOIN("join", "(join|log[ ]in)( |-)message", PlayerJoinEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				return ((PlayerJoinEvent) e).getJoinMessage();
+			String get(Event event) {
+				return ((PlayerJoinEvent) event).getJoinMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				((PlayerJoinEvent) e).setJoinMessage(message);
+			void set(Event event, final String message) {
+				((PlayerJoinEvent) event).setJoinMessage(message);
 			}
 		},
 		QUIT("quit", "(quit|leave|log[ ]out|kick)( |-)message", PlayerQuitEvent.class, PlayerKickEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				if (e instanceof PlayerKickEvent)
-					return ((PlayerKickEvent) e).getLeaveMessage();
+			String get(Event event) {
+				if (event instanceof PlayerKickEvent)
+					return ((PlayerKickEvent) event).getLeaveMessage();
 				else
-					return ((PlayerQuitEvent) e).getQuitMessage();
+					return ((PlayerQuitEvent) event).getQuitMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (e instanceof PlayerKickEvent)
-					((PlayerKickEvent) e).setLeaveMessage(message);
+			void set(Event event, final String message) {
+				if (event instanceof PlayerKickEvent)
+					((PlayerKickEvent) event).setLeaveMessage(message);
 				else
-					((PlayerQuitEvent) e).setQuitMessage(message);
+					((PlayerQuitEvent) event).setQuitMessage(message);
 			}
 		},
 		UNKNOWN("unknown command", "unknown command( |-)message", UnknownCommandEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				return ((UnknownCommandEvent) e).getMessage();
+			String get(Event event) {
+				return ((UnknownCommandEvent) event).getMessage();
 			}
 
 			@Override
-			void set(final Event e, final String message) {
-				((UnknownCommandEvent) e).setMessage(message);
+			void set(Event event, final String message) {
+				((UnknownCommandEvent) event).setMessage(message);
 			}
 		},
 		DEATH("death", "death( |-)message", EntityDeathEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				if (e instanceof PlayerDeathEvent)
-					return ((PlayerDeathEvent) e).getDeathMessage();
+			String get(Event event) {
+				if (event instanceof PlayerDeathEvent)
+					return ((PlayerDeathEvent) event).getDeathMessage();
 				return null;
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (e instanceof PlayerDeathEvent)
-					((PlayerDeathEvent) e).setDeathMessage(message);
+			void set(Event event, String message) {
+				if (event instanceof PlayerDeathEvent)
+					((PlayerDeathEvent) event).setDeathMessage(message);
 			}
 		};
 		

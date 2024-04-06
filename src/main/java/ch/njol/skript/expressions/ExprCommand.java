@@ -77,7 +77,6 @@ public class ExprCommand extends SimpleExpression<String> {
 	protected String[] get(Event event) {
 		final String s;
 
-
 		if (event instanceof PlayerCommandPreprocessEvent) {
 			s = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
 		} else if (event instanceof ServerCommandEvent) {
@@ -85,8 +84,8 @@ public class ExprCommand extends SimpleExpression<String> {
 		} else if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
 			s = ((UnknownCommandEvent) event).getCommandLine().trim();
 		} else { // It's a script command event
-			ScriptCommandEvent sEvent = (ScriptCommandEvent) event;
-			s = sEvent.getCommandLabel() + " " + sEvent.getArgsString();
+			ScriptCommandEvent scriptCmdEvent = (ScriptCommandEvent) event;
+			s = scriptCmdEvent.getCommandLabel() + " " + scriptCmdEvent.getArgsString();
 		}
 
 		if (fullCommand) {

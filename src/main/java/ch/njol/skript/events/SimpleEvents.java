@@ -744,10 +744,10 @@ public class SimpleEvents {
 
 		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
 			Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "[player] unknown command")
-				.description("Called when an unknown command is used. (It's called for console and players too.)")
+				.description("Called when an unknown command is used. (It's called for console and players too)")
 				.examples(
 					"on unknown command:",
-					"\tset unknown command message to \"Hey, this command does not exist.\""
+						"\tset unknown command message to \"Hey, this command does not exist.\""
 				)
 				.since("INSERT VERSION");
 		}
