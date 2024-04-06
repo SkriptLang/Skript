@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
@@ -52,7 +51,10 @@ public class DefaultFunctions {
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
-	private static final DecimalFormat DEFAULT_NUMBER_FORMAT = new DecimalFormat("###,###");
+	private static final String DEFAULT_NUMBER_FORMAT_STRING = "###,###";
+	private static final DecimalFormat DEFAULT_NUMBER_FORMAT = new DecimalFormat(DEFAULT_NUMBER_FORMAT_STRING);
+	private static final ThreadLocal<DecimalFormat> NUMBER_FORMAT = ThreadLocal.withInitial(DecimalFormat::new);
+
 	
 	static {
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
@@ -574,17 +576,22 @@ public class DefaultFunctions {
 
 		Functions.registerFunction(new SimpleJavaFunction<String>("formatNumber", new Parameter[] {
 			new Parameter<>("number", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_NUMBER_FORMAT.toPattern(), true))
+			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_NUMBER_FORMAT_STRING, true))
 		}, DefaultClasses.STRING, true) {
 			@Override
 			public String[] executeSimple(Object[][] params) {
 				Number number = (Number) params[0][0];
 				String pattern = (String) params[1][0];
 
+				if (DEFAULT_NUMBER_FORMAT_STRING.equals(pattern)) // shortcut
+					return CollectionUtils.array(DEFAULT_NUMBER_FORMAT.format(number));
+
 				try {
-					return CollectionUtils.array(new DecimalFormat(pattern).format(number));
+					DecimalFormat numberFormat = NUMBER_FORMAT.get();
+					numberFormat.applyPattern(pattern);
+					return CollectionUtils.array(numberFormat.format(number));
 				} catch (IllegalArgumentException e) {
-					Skript.warning("Invalid number format: " + pattern);
+//					Skript.warning("Invalid number format: " + pattern); // TODO find a better solution for such warnings/errors that doesn't spam the console
 					return null;
 				}
 			}
@@ -594,7 +601,7 @@ public class DefaultFunctions {
 					"command /formatnumber <number>:",
 						"\taliases: fn",
 						"\ttrigger:",
-							"\t\tsend \"Formatted: %numberFormat(arg-1)%\" to sender"
+							"\t\tsend \"Formatted: %formatNumber(arg-1)%\" to sender"
 			).since("INSERT VERSION");
 	}
 	
