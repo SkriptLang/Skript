@@ -96,10 +96,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	@Override
-	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		StructureData structureData = getParser().getData(StructureData.class);
 
-		Literal<?>[] literals = Arrays.copyOf(exprs, exprs.length, Literal[].class);
+		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
@@ -130,15 +130,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
 	 * The second phase of Structure loading.
-	 * During this phase, Structures are loaded script by script.
-	 * The order they are loaded in for each script is based on the Structure's priority.
+	 * During this phase, all Structures across all loading scripts are loaded with respect to their priorities.
 	 * @return Whether loading was successful. An error should be printed prior to returning false to specify the cause.
 	 */
 	public abstract boolean load();
 
 	/**
 	 * The third and final phase of Structure loading.
-	 * The loading order and method is the same as {@link #load()}.
+	 * During this phase, all Structures across all loading scripts are loaded with respect to their priorities.
 	 * This method is primarily designed for Structures that wish to execute actions after
 	 *  most other Structures have finished loading.
 	 * @return Whether postLoading was successful. An error should be printed prior to returning false to specify the cause.
@@ -175,11 +174,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Nullable
 	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
+		return parse(expr, sectionNode, defaultError, Skript.getStructures().iterator());
+	}
+
+	@Nullable
+	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
 		ParserInstance.get().getData(StructureData.class).sectionNode = sectionNode;
 
-		Iterator<StructureInfo<? extends Structure>> iterator =
-			new ConsumingIterator<>(Skript.getStructures().iterator(),
-				elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
+		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
 		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
 			Structure structure = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);

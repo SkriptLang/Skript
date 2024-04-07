@@ -33,19 +33,18 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Rotate around XYZ")
-@Description("Rotates a vector around x, y, or z axis by some degrees")
-@Examples({"rotate {_v} around x-axis by 90",
-		"rotate {_v} around y-axis by 90",
-		"rotate {_v} around z-axis by 90 degrees"})
+@Description("Rotates one or more vectors around the x, y, or z axis by some amount of degrees")
+@Examples({
+	"rotate {_v} around x-axis by 90",
+	"rotate {_v} around y-axis by 90",
+	"rotate {_v} around z-axis by 90 degrees"
+})
 @Since("2.2-dev28")
 public class EffVectorRotateXYZ extends Effect {
 
 	static {
-		Skript.registerEffect(EffVectorRotateXYZ.class, "rotate %vectors% around (1¦x|2¦y|3¦z)(-| )axis by %number% [degrees]");
+		Skript.registerEffect(EffVectorRotateXYZ.class, "rotate %vectors% around (0¦x|1¦y|2¦z)(-| )axis by %number% [degrees]");
 	}
 
 	private final static Character[] axes = new Character[] {'x', 'y', 'z'};
@@ -68,28 +67,28 @@ public class EffVectorRotateXYZ extends Effect {
 
 	@Override
 	@SuppressWarnings("null")
-	protected void execute(Event e) {
-		Number d = degree.getSingle(e);
-		if (d == null)
+	protected void execute(Event event) {
+		Number angle = degree.getSingle(event);
+		if (angle == null)
 			return;
 		switch (axis) {
+			case 0:
+				for (Vector vector : vectors.getArray(event))
+					VectorMath.rotX(vector, angle.doubleValue());
+				break;
 			case 1:
-				for (Vector v : vectors.getArray(e))
-					VectorMath.rotX(v, d.doubleValue());
+				for (Vector vector : vectors.getArray(event))
+					VectorMath.rotY(vector, angle.doubleValue());
 				break;
 			case 2:
-				for (Vector v : vectors.getArray(e))
-					VectorMath.rotY(v, d.doubleValue());
-				break;
-			case 3:
-				for (Vector v : vectors.getArray(e))
-					VectorMath.rotZ(v, d.doubleValue());
+				for (Vector vector : vectors.getArray(event))
+					VectorMath.rotZ(vector, angle.doubleValue());
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "rotate " + vectors.toString(e, debug) + " around " + axes[axis] + "-axis" + " by " + degree + "degrees";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "rotate " + vectors.toString(event, debug) + " around " + axes[axis] + "-axis" + " by " + degree.toString(event, debug) + "degrees";
 	}
 
 }

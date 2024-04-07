@@ -24,6 +24,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
@@ -138,6 +139,10 @@ public class TypePatternElement extends PatternElement {
 
 		ExprInfo exprInfo = getExprInfo();
 
+		MatchResult matchBackup = null;
+		ParseLogHandler loopLogHandlerBackup = null;
+		ParseLogHandler expressionLogHandlerBackup = null;
+
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
 			while (newExprOffset != -1) {
@@ -168,11 +173,37 @@ public class TypePatternElement extends PatternElement {
 								}
 							}
 
-							expressionLogHandler.printLog();
-							loopLogHandler.printLog();
-
 							newMatchResult.expressions[expressionIndex] = expression;
-							return newMatchResult;
+
+							/*
+							 * the parser will return unparsed literals in cases where it cannot interpret an input and object is the desired return type.
+							 * in those cases, it is up to the expression to interpret the input.
+							 * however, this presents a problem for input that is not intended as being one of these object-accepting expressions.
+							 * these object-accepting expressions will be matched instead but their parsing will fail as they cannot interpret the unparsed literals.
+							 * even though it can't interpret them, this loop will have returned a match and thus parsing has ended (and the correct interpretation never attempted).
+							 * to avoid this issue, while also permitting unparsed literals in cases where they are justified,
+							 *  the code below forces the loop to continue in hopes of finding a match without unparsed literals.
+							 * if it is unsuccessful, a backup of the first successful match (with unparsed literals) is saved to be returned.
+							 */
+							boolean hasUnparsedLiteral = false;
+							for (int i = expressionIndex + 1; i < newMatchResult.expressions.length; i++) {
+								if (newMatchResult.expressions[i] instanceof UnparsedLiteral) {
+									hasUnparsedLiteral = Classes.parse(((UnparsedLiteral) newMatchResult.expressions[i]).getData(), Object.class, newMatchResult.parseContext) == null;
+									if (hasUnparsedLiteral) {
+										break;
+									}
+								}
+							}
+
+							if (!hasUnparsedLiteral) {
+								expressionLogHandler.printLog();
+								loopLogHandler.printLog();
+								return newMatchResult;
+							} else if (matchBackup == null) { // only backup the first occurrence of unparsed literals
+								matchBackup = newMatchResult;
+								loopLogHandlerBackup = loopLogHandler.backup();
+								expressionLogHandlerBackup = expressionLogHandler.backup();
+							}
 						}
 					} finally {
 						expressionLogHandler.printError();
@@ -193,11 +224,19 @@ public class TypePatternElement extends PatternElement {
 				}
 			}
 		} finally {
-			if (!loopLogHandler.isStopped())
+			if (loopLogHandlerBackup != null) { // print backup logs if applicable
+				loopLogHandler.restore(loopLogHandlerBackup);
+				assert expressionLogHandlerBackup != null;
+				expressionLogHandlerBackup.printLog();
+			}
+			if (!loopLogHandler.isStopped()) {
 				loopLogHandler.printError();
+			}
 		}
 
-		return null;
+		// if there were unparsed literals, we will return the backup now
+		// if there were not, this returns null
+		return matchBackup;
 	}
 
 	@Override
