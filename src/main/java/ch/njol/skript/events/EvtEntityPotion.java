@@ -56,12 +56,12 @@ public class EvtEntityPotion extends SkriptEvent {
 
 
 	@Override
-	public boolean check(Event e) {
-		if (e instanceof EntityPotionEffectEvent) {
-			EntityPotionEffectEvent event = (EntityPotionEffectEvent) e;
-			if (potionEffects != null && event.getNewEffect() != null) {
-				PotionEffectType effectType = event.getNewEffect().getType();
-				for (PotionEffectType potionEffectType : potionEffects.getArray(e)) {
+	public boolean check(Event event) {
+		if (event instanceof EntityPotionEffectEvent) {
+			EntityPotionEffectEvent potionEvent = (EntityPotionEffectEvent) event;
+			if (potionEffects != null && potionEvent.getNewEffect() != null) {
+				PotionEffectType effectType = potionEvent.getNewEffect().getType();
+				for (PotionEffectType potionEffectType : potionEffects.getArray(event)) {
 					if (potionEffectType.equals(effectType)) {
 						return true;
 					}
@@ -74,7 +74,7 @@ public class EvtEntityPotion extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "on entity potion effect modification";
 	}
 }
