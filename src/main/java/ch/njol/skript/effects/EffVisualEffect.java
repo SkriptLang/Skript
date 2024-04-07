@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -36,6 +30,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Play Effect")
 @Description({"Plays a <a href='classes.html#visualeffect'>visual effect</a> at a given location or on a given entity.",
@@ -80,6 +79,7 @@ public class EffVisualEffect extends Effect {
 		players = (Expression<Player>) exprs[base + 3];
 		radius = (Expression<Number>) exprs[base + 4];
 
+		// TODO move this
 		if (effects instanceof Literal) {
 			//noinspection ConstantConditions
 			VisualEffect[] effs = effects.getArray(null);
@@ -115,8 +115,7 @@ public class EffVisualEffect extends Effect {
 		Number rad = radius != null ? radius.getSingle(e) : 32; // 32=default particle radius
 		Number cnt = count != null ? count.getSingle(e) : 0;
 
-		// noinspection ConstantConditions
-		if (effects == null || directions == null || os == null || rad == null || cnt == null)
+		if (rad == null || cnt == null)
 			return;
 
 		for (Direction d : directions) {

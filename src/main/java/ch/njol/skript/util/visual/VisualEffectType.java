@@ -22,16 +22,65 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilSerializable;
+import ch.njol.yggdrasil.YggdrasilSerializer;
 import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-public class VisualEffectType {
+public class VisualEffectType implements YggdrasilSerializable {
+
+	static {
+		Variables.yggdrasil.registerClassResolver(new YggdrasilSerializer<VisualEffectType>() {
+			@Nullable
+			@Override
+			public Class<? extends VisualEffectType> getClass(String id) {
+				return id.equals("VisualEffectType") ? VisualEffectType.class : null;
+			}
+
+			@Override
+			public Fields serialize(VisualEffectType o) {
+				Fields f = new Fields();
+				f.putObject("id", o.getId());
+				return f;
+			}
+
+			@Nullable
+			@Override
+			public <E extends VisualEffectType> E newInstance(Class<E> c) {
+				return null;
+			}
+
+			@Override
+			public boolean canBeInstantiated(Class<? extends VisualEffectType> c) {
+				return false;
+			}
+
+			@Override
+			public void deserialize(VisualEffectType o, Fields fields) { }
+
+			@SuppressWarnings("ConstantConditions")
+			@Override
+			public <E extends VisualEffectType> E deserialize(Class<E> c, Fields fields) throws StreamCorruptedException, NotSerializableException {
+				return (E) VisualEffects.get(fields.getObject("id", String.class));
+			}
+
+			@Nullable
+			@Override
+			public String getID(Class<?> c) {
+				return c.equals(VisualEffectType.class) ? "VisualEffectType" : null;
+			}
+		});
+	}
 
 	private static final String LANGUAGE_NODE = "visual effects";
 
@@ -41,7 +90,7 @@ public class VisualEffectType {
 	private Noun name;
 
 	private boolean colorable = false;
-	private BiFunction<Object, Location, Object> dataSupplier = (o, location) -> null;
+	private BiFunction<Object[], Location, Object> dataSupplier = (o, location) -> null;
 
 	private VisualEffectType(Enum<?> effect) {
 		this.effect = effect;
@@ -55,12 +104,12 @@ public class VisualEffectType {
 		return colorable;
 	}
 
-	public void withData(BiFunction<Object, Location, Object> dataSupplier) {
+	public void withData(BiFunction<Object[], Location, Object> dataSupplier) {
 		this.dataSupplier = dataSupplier;
 	}
 
 	@Nullable
-	public Object getData(Object raw, Location location) {
+	public Object getData(Object[] raw, Location location) {
 		return dataSupplier.apply(raw, location);
 	}
 
