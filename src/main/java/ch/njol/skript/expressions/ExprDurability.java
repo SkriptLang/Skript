@@ -21,12 +21,14 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -44,33 +46,28 @@ import ch.njol.util.coll.CollectionUtils;
 	"set durability of player's held item to 0"
 })
 @Since("1.2, 2.7 (durability reversed)")
-public class ExprDurability extends SimplePropertyExpression<Object, Long> {
+public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 
 	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Long.class, "(damage[s] [value[s]]|durability:durabilit(y|ies))", "itemtypes/slots");
+		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/slots");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		durability = parseResult.hasTag("durability");
+		durability = parseResult.mark == 1;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	@Nullable
-	public Long convert(Object object) {
-		ItemStack itemStack = null;
-		if (object instanceof Slot) {
-			itemStack = ((Slot) object).getItem();
-		} else if (object instanceof ItemType) {
-			itemStack = ((ItemType) object).getRandom();
-		}
-		if (itemStack == null)
+	public Integer convert(Object object) {
+		ItemType itemType = asItemType(object);
+		if (itemType == null)
 			return null;
-		long damage = ItemUtils.getDamage(itemStack);
-		return durability ? itemStack.getType().getMaxDurability() - damage : damage;
+		ItemMeta meta = itemType.getItemMeta();
+		return meta instanceof Damageable ? convertToDamage(itemType.getMaterial(), ((Damageable) meta).getDamage()) : 0;
 	}
 
 	@Override
@@ -89,62 +86,67 @@ public class ExprDurability extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		int i = delta == null ? 0 : ((Number) delta[0]).intValue();
-		Object[] objects = getExpr().getArray(event);
-		for (Object object : objects) {
-			ItemStack itemStack = null;
+		int change = delta == null ? 0 : ((Number) delta[0]).intValue();
+		if (mode == ChangeMode.REMOVE)
+			change = -change;
+		for (Object object : getExpr().getArray(event)) {
+			ItemType itemType = asItemType(object);
+			if (itemType == null)
+				continue;
 
-			if (object instanceof ItemType) {
-				itemStack = ((ItemType) object).getRandom();
-			} else if (object instanceof Slot) {
-				itemStack = ((Slot) object).getItem();
-			}
-			if (itemStack == null)
-				return;
+			ItemMeta meta = itemType.getItemMeta();
+			if (!(meta instanceof Damageable))
+				continue;
+			Damageable damageable = (Damageable) meta;
 
-			int changeValue = ItemUtils.getDamage(itemStack);
-			if (durability)
-				changeValue = itemStack.getType().getMaxDurability() - changeValue;
-
+			Material material = itemType.getMaterial();
 			switch (mode) {
-				case REMOVE:
-					i = -i;
-					//$FALL-THROUGH$
 				case ADD:
-					changeValue += i;
+				case REMOVE:
+					int current = convertToDamage(material, damageable.getDamage());
+					damageable.setDamage(convertToDamage(material, current + change));
 					break;
 				case SET:
-					changeValue = i;
+					damageable.setDamage(convertToDamage(material, change));
 					break;
 				case DELETE:
 				case RESET:
-					changeValue = 0;
-					break;
-				case REMOVE_ALL:
-					assert false;
+					damageable.setDamage(0);
 			}
 
-			if (durability && mode != ChangeMode.RESET && mode != ChangeMode.DELETE)
-				changeValue = itemStack.getType().getMaxDurability() - changeValue;
-
-			if (object instanceof ItemType) {
-				ItemUtils.setDamage(itemStack, changeValue);
-				((ItemType) object).setTo(new ItemType(itemStack));
-			} else {
-				ItemUtils.setDamage(itemStack, changeValue);
-				((Slot) object).setItem(itemStack);
-			}
+			itemType.setItemMeta(meta);
+			if (object instanceof Slot)
+				((Slot) object).setItem(itemType.getRandom());
 		}
 	}
 
+	private int convertToDamage(Material material, int value) {
+		if (!durability)
+			return value;
+		int maxDurability = material.getMaxDurability();
+		if (maxDurability == 0)
+			return 0;
+		return maxDurability - value;
+	}
+
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
 	public String getPropertyName() {
 		return durability ? "durability" : "damage";
+	}
+
+	@Nullable
+	private static ItemType asItemType(Object object) {
+		if (object instanceof ItemType)
+			return (ItemType) object;
+		ItemStack itemStack = ((Slot) object).getItem();
+		if (itemStack == null)
+			return null;
+		return new ItemType(itemStack);
 	}
 
 }

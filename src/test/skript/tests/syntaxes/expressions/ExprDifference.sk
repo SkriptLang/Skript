@@ -1,0 +1,19 @@
+test "ExprDifference":
+
+	# basic tests
+
+	set {_val} to difference between 1 and 2
+	assert {_val} is 1 with "(1) expected '1', got '%{_val}%'"
+	delete {_val}
+
+	set {_val} to difference between 2 and 1
+	assert {_val} is 1 with "(2) expected '1', got '%{_val}%'"
+	delete {_val}
+
+	# ensure proper parsing order
+	set {_a} to "5"
+	set {_b} to "10"
+	set {_val} to difference between "%{_a}%" parsed as a number and "%{_b}%" parsed as a number
+	set {_exp} to difference between ("%{_a}%" parsed as a number) and ("%{_b}%" parsed as a number)
+	assert {_exp} is 5 with "(5) expected '5', but got '%{_exp}%'"
+	assert {_val} is 5 with "(6) expected '5', but got '%{_val}%'"

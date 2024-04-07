@@ -19,41 +19,35 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Command Sender")
-@Description({"The player or the console who sent a command. Mostly useful in <a href='commands'>commands</a> and <a href='events.html#command'>command events</a>.",
-			 "If the command sender is a command block, its location can be retrieved by using %block's location%"})
-@Examples({"make the command sender execute \"/say hi!\"",
-		"on command:",
-		"	log \"%executor% used command /%command% %arguments%\" to \"commands.log\""})
+@Description({
+	"The player or the console who sent a command. Mostly useful in <a href='commands'>commands</a> and <a href='events.html#command'>command events</a>.",
+	"If the command sender is a command block, its location can be retrieved by using %block's location%"
+})
+@Examples({
+	"make the command sender execute \"/say hi!\"",
+	"",
+	"on command:",
+		"\tlog \"%executor% used command /%command% %arguments%\" to \"commands.log\""
+})
 @Since("2.0")
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
+
 	static {
-		Skript.registerExpression(ExprCommandSender.class, CommandSender.class, ExpressionType.SIMPLE, "[the] [command['s]] (sender|executor)");
+		register(ExprCommandSender.class, CommandSender.class, "[command['s]] (sender|executor)");
 	}
-	
+
 	public ExprCommandSender() {
 		super(CommandSender.class);
 	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the command sender";
-	}
-	
+
 }
