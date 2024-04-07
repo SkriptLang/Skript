@@ -33,61 +33,48 @@ public class EvtEntityPotion extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Entity Potion Effect", EvtEntityPotion.class, EntityPotionEffectEvent.class,
-				"add[ing] [of] [entity] potion effect [[of] %potioneffecttypes%]",
-				"remov[e|ing] [of] [entity] potion effect [[of] %potioneffecttypes%]",
-				"clear[ing] [of] [entity] potion effect [[of] %potioneffecttypes%]",
-				"chang[e|ing] [of] [entity] potion effect [[of] %potioneffecttypes%]")
+				"entity potion effect [modif[y|ication]] [[of] %potioneffecttypes%]")
 			.description("Called when an entity's potion effect is modified.", "This modification can include adding, removing or changing their potion effect.")
-			.examples("on adding potion effect:", "on removing potion effect:", "on changing potion effect:", "on adding potion effect night vision:")
+			.examples(
+				"on entity potion effect modification:",
+					"\t\tbroadcast \"A potion effect was added to %event-entity%!\" ",
+				"",
+				"on entity potion effect modification of night vision:")
 			.since("INSERT VERSION");
 	}
 
 	@SuppressWarnings("unchecked")
 	private Expression<PotionEffectType> potionEffects;
-	private int matchedPattern;
-
-	private EntityPotionEffectEvent.Action action;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		potionEffects = (Expression<PotionEffectType>) args[0];
-		switch (matchedPattern) {
-			case 0:
-				action = EntityPotionEffectEvent.Action.ADDED;
-				break;
-			case 1:
-				action = EntityPotionEffectEvent.Action.REMOVED;
-				break;
-			case 2:
-				action = EntityPotionEffectEvent.Action.CHANGED;
-				break;
+		if (args.length > 0) {
+			potionEffects = (Expression<PotionEffectType>) args[0];
 		}
 		return true;
 	}
+
 
 	@Override
 	public boolean check(Event e) {
 		if (e instanceof EntityPotionEffectEvent) {
 			EntityPotionEffectEvent event = (EntityPotionEffectEvent) e;
-			if (event.getAction() == action) {
-				if (potionEffects != null && event.getNewEffect() != null) {
-					PotionEffectType effectType = event.getNewEffect().getType();
-					for (PotionEffectType potionEffectType : potionEffects.getArray(e)) {
-						if (potionEffectType.equals(effectType)) {
-							return true;
-						}
+			if (potionEffects != null && event.getNewEffect() != null) {
+				PotionEffectType effectType = event.getNewEffect().getType();
+				for (PotionEffectType potionEffectType : potionEffects.getArray(e)) {
+					if (potionEffectType.equals(effectType)) {
+						return true;
 					}
-				} else {
-					return true;
 				}
+			} else {
+				return true;
 			}
 		}
 		return false;
 	}
 
-
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "on entity potion effect";
+		return "on entity potion effect modification";
 	}
 }
