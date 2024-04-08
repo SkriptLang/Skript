@@ -84,6 +84,8 @@ import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BellRingEvent;
+import org.bukkit.event.block.BellResonateEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -1799,6 +1801,44 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// BellRingEvent - these are BlockEvents and not EntityEvents, so they have declared methods for getEntity()
+		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(BellRingEvent.class, Entity.class, new Getter<Entity, BellRingEvent>() {
+                @Override
+                @Nullable
+                public Entity get(BellRingEvent event) {
+                    return event.getEntity();
+                }
+            }, EventValues.TIME_NOW);
+
+			EventValues.registerEventValue(BellRingEvent.class, Direction.class, new Getter<Direction, BellRingEvent>() {
+                @Override
+                public Direction get(BellRingEvent event) {
+                    return new Direction(event.getDirection(), 1);
+                }
+            }, EventValues.TIME_NOW);
+		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(
+				io.papermc.paper.event.block.BellRingEvent.class, Entity.class,
+				new Getter<Entity, io.papermc.paper.event.block.BellRingEvent>() {
+					@Override
+					@Nullable
+					public Entity get(io.papermc.paper.event.block.BellRingEvent event) {
+						return event.getEntity();
+					}
+				}, EventValues.TIME_NOW);
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+			EventValues.registerEventValue(BellResonateEvent.class, Entity[].class, new Getter<Entity[], BellResonateEvent>() {
+				@Override
+				@Nullable
+				public Entity[] get(BellResonateEvent event) {
+					return event.getResonatedEntities().toArray(new LivingEntity[0]);
+				}
+			}, EventValues.TIME_NOW);
+		}
+    
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1830,7 +1870,5 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
-
 	}
-
 }
