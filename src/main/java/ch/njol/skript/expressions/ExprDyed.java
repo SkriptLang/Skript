@@ -60,7 +60,7 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	private Expression<Color> color;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		items = (Expression<ItemType>) vars[0];
 		color = (Expression<Color>) vars[1];
@@ -96,9 +96,8 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 			} else {
 				Material material = item.getMaterial();
 				Matcher matcher = ExprColorOf.MATERIAL_COLORS_PATTERN.matcher(material.name());
-				if (!matcher.matches()) {
+				if (!matcher.matches())
 					continue;
-				}
 				try {
 					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName()));
 					item.setTo(new ItemType(newItem));
