@@ -1,0 +1,43 @@
+name: Setup documentation environment
+
+inputs:
+  docs_deploy_key: 
+    description: "Deploy key for the skript-docs repo"
+    required: true
+    type: string
+  docs_output_dir:
+    description: "The directory to generate the documentation into"
+    required: true
+    type: string
+  cleanup_pattern:
+    description: "A pattern designating which files to delete when cleaning the documentation output directory"
+    required: false
+    default: "*"
+    type: string
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout skript-docs
+      uses: actions/checkout@v3
+      with:
+        repository: 'SkriptLang/skript-docs'
+        path: skript-docs
+        ssh-key: ${{ inputs.docs_deploy_key }}
+    - uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+        cache: gradle
+    - shell: bash
+      run: chmod +x ./skript/gradlew
+    - shell: bash
+      env:
+        DOCS_DEPLOY_KEY: ${{ inputs.docs_deploy_key }}
+        DOCS_OUTPUT_DIR: ${{ inputs.docs_output_dir }}
+        CLEANUP_PATTERN: ${{ inputs.cleanup_pattern }}
+      run: |
+        eval `ssh-agent`
+        echo "$DOCS_DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        mkdir ~/.ssh
+        ssh-keyscan www.github.com >> ~/.ssh/known_hosts

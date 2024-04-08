@@ -2,7 +2,10 @@ test "commands":
 	execute command "skriptcommand taco"
 	execute command "//somecommand burrito is tasty"
 
-command skriptcommand <text> [<text>] [<itemtype = %dirt block named "steve"%>]:
+options:
+	command: skriptcommand
+
+command {@command} <text> [<text>] [<itemtype = %dirt block named "steve"%>]:
 	trigger:
 		set {_arg1} to arg-1
 		assert {_arg1} is "taco" with "arg-1 test failed (got '%{_arg1}%')"
@@ -16,3 +19,8 @@ command //somecommand [<text>]:
 		set {_arg1} to arg-1
 		if {_arg1} is set:
 			assert {_arg1} is "burrito is tasty" with "arg-1 is 'burrito is tasty' test failed (got '%{_arg1}%')"
+
+# see https://github.com/SkriptLang/Skript/pull/6286
+command /commandtest <string="player">:
+	trigger:
+		stop

@@ -53,7 +53,6 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 				"[a] random (:integer|number) (from|between) %number% (to|and) %number%");
 	}
 
-	private final Random random = ThreadLocalRandom.current();
 	private Expression<Number> from, to;
 	private boolean isInteger;
 
@@ -72,19 +71,27 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 		Number from = this.from.getSingle(event);
 		Number to = this.to.getSingle(event);
 
-		if (to == null || from == null)
+		if (to == null || from == null || !Double.isFinite(from.doubleValue()) || !Double.isFinite(to.doubleValue()))
 			return new Number[0];
 
+		Random random = ThreadLocalRandom.current();
 		double min = Math.min(from.doubleValue(), to.doubleValue());
 		double max = Math.max(from.doubleValue(), to.doubleValue());
 
 		if (isInteger) {
-			if (max - min < 1)
+			long inf = Math2.ceil(min);
+			long sup = Math2.floor(max);
+			if (max - min < 1 && inf - sup <= 1) {
+				if (sup == inf || min == inf)
+					return new Long[] {inf};
+				if (max == sup)
+					return new Long[] {sup};
 				return new Long[0];
-			return new Long[] {random.nextLong(Math2.ceil(min), Math2.floor(max) + 1)};
-		} else {
-			return new Double[] {min + random.nextDouble() * (max - min)};
+			}
+			return new Long[] {inf + Math2.mod(random.nextLong(), sup - inf + 1)};
 		}
+
+		return new Double[] {min + random.nextDouble() * (max - min)};
 	}
 
 	@Override
