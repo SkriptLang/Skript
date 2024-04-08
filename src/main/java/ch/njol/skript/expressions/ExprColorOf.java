@@ -30,7 +30,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
@@ -96,7 +96,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 			for (FireworkEffect effect : (FireworkEffect[]) source) {
 				effect.getColors().stream()
-					.map(SkriptColor::fromBukkitOrRgbColor)
+					.map(ColorRGB::fromBukkitOrRgbColor)
 					.forEach(colors::add);
 			}
 
@@ -128,15 +128,15 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 				if (meta instanceof LeatherArmorMeta) {
 					LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
-					return SkriptColor.fromBukkitOrRgbColor(leatherArmorMeta.getColor());
+					return ColorRGB.fromBukkitOrRgbColor(leatherArmorMeta.getColor());
 				} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
 						MapMeta mapMeta = (MapMeta) meta;
 						if (mapMeta.getColor() != null)
-							return SkriptColor.fromBukkitOrRgbColor(mapMeta.getColor());
+							return ColorRGB.fromBukkitOrRgbColor(mapMeta.getColor());
 				} else if (meta instanceof PotionMeta && MAPS_AND_POTIONS_COLORS) {
 					PotionMeta potionMeta = (PotionMeta) meta;
 					if (potionMeta.getColor() != null)
-						return SkriptColor.fromBukkitOrRgbColor(potionMeta.getColor());
+						return ColorRGB.fromBukkitOrRgbColor(potionMeta.getColor());
 				} else {
 					return getMaterialColor(material);
 				}

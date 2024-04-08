@@ -30,10 +30,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.MapMeta;
@@ -55,16 +53,16 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
 	
 	static {
-		Skript.registerExpression(ExprDyed.class, ItemType.class, ExpressionType.COMBINED, "%itemtypes% (dyed|with color [of]) %color%");
+		Skript.registerExpression(ExprDyed.class, ItemType.class, ExpressionType.COMBINED, "%itemtypes% (dyed|painted|colo[u]red) %color%");
 	}
 	
-	private Expression<ItemType> targets;
+	private Expression<ItemType> items;
 	private Expression<Color> color;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		targets = (Expression<ItemType>) vars[0];
+		items = (Expression<ItemType>) vars[0];
 		color = (Expression<Color>) vars[1];
 		return true;
 	}
@@ -73,13 +71,13 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	@Nullable
 	protected ItemType[] get(Event event) {
 		Color color = this.color.getSingle(event);
-		ItemType[] targets = this.targets.getArray(event);
-		org.bukkit.Color bukkitColor;
-
 		if (color == null)
 			return new ItemType[0];
 
+		ItemType[] targets = this.items.getArray(event);
+		org.bukkit.Color bukkitColor;
 		bukkitColor = color.asBukkitColor();
+
 		for (ItemType item : targets) {
 			ItemMeta meta = item.getItemMeta();
 
@@ -104,15 +102,15 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				try {
 					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName()));
 					item.setTo(new ItemType(newItem));
-				} catch (Exception ignored) {}
+				} catch (IllegalArgumentException ignored) {}
 			}
 		}
-		return targets.clone();
+		return targets;
 	}
 
 	@Override
 	public boolean isSingle() {
-		return targets.isSingle();
+		return items.isSingle();
 	}
 
 	@Override
@@ -122,7 +120,7 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return targets.toString(event, debug) + " dyed " + color;
+		return items.toString(event, debug) + " dyed " + color.toString(event, debug);
 	}
 	
 }

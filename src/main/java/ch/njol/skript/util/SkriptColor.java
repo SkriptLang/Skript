@@ -174,11 +174,6 @@ public enum SkriptColor implements Color {
 		assert false;
 		return null;
 	}
-
-	public static Color fromBukkitOrRgbColor(org.bukkit.Color color) {
-		Color fromBukkit = fromBukkitColor(color);
-		return fromBukkit == null ? new ColorRGB(color.getRed(), color.getGreen(), color.getBlue()) : fromBukkit;
-	}
 	
 	/**
 	 * @deprecated Magic numbers

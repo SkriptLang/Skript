@@ -74,6 +74,11 @@ public class ColorRGB implements Color {
 		);
 	}
 
+	public static Color fromBukkitOrRgbColor(org.bukkit.Color color) {
+		Color fromBukkit = SkriptColor.fromBukkitColor(color);
+		return fromBukkit == null ? new ColorRGB(color.getRed(), color.getGreen(), color.getBlue()) : fromBukkit;
+	}
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);
