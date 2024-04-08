@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
-	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
+	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), ?(\\d+), ?(\\d+)");
 
 	private org.bukkit.Color bukkit;
 	@Nullable

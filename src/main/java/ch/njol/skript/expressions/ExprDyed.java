@@ -29,6 +29,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.util.ColorRGB;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -42,11 +43,12 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 @Name("Dyed")
-@Description("An expression to return items/entities with a color.")
+@Description("An expression to return colored items.")
 @Examples({
 		"give player leather chestplate dyed red",
 		"give player potion of invisibility dyed rgb 200, 70, 88",
-		"give player filled map with color rgb(20, 60, 70)"
+		"give player filled map colored rgb(20, 60, 70)",
+		"give player wool painted red"
 })
 @Since("INSERT VERSION")
 public class ExprDyed extends SimpleExpression<ItemType> {
@@ -56,8 +58,10 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	static {
 		Skript.registerExpression(ExprDyed.class, ItemType.class, ExpressionType.COMBINED, "%itemtypes% (dyed|painted|colo[u]red) %color%");
 	}
-	
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Color> color;
 
 	@Override
@@ -75,17 +79,17 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 		if (color == null)
 			return new ItemType[0];
 
-		ItemType[] targets = this.items.getArray(event);
+		ItemType[] items = this.items.getArray(event);
 		org.bukkit.Color bukkitColor;
 		bukkitColor = color.asBukkitColor();
 
-		for (ItemType item : targets) {
+		for (ItemType item : items) {
 			ItemMeta meta = item.getItemMeta();
 
 			if (meta instanceof LeatherArmorMeta) {
-				LeatherArmorMeta m = (LeatherArmorMeta) meta;
-				m.setColor(bukkitColor);
-				item.setItemMeta(m);
+				LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
+				leatherArmorMeta.setColor(bukkitColor);
+				item.setItemMeta(leatherArmorMeta);
 			} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
 				MapMeta mapMeta = (MapMeta) meta;
 				mapMeta.setColor(bukkitColor);
@@ -95,6 +99,9 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				potionMeta.setColor(bukkitColor);
 				item.setItemMeta(potionMeta);
 			} else {
+				if (color instanceof ColorRGB) // currently blocks don't support RGB
+					continue;
+
 				Material material = item.getMaterial();
 				Matcher matcher = ExprColorOf.MATERIAL_COLORS_PATTERN.matcher(material.name());
 				if (!matcher.matches())
@@ -105,7 +112,7 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				} catch (IllegalArgumentException ignored) {}
 			}
 		}
-		return targets;
+		return items;
 	}
 
 	@Override

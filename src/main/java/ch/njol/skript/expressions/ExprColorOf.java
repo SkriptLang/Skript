@@ -88,6 +88,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	
 	@Override
 	protected Color[] get(Event event, Object[] source) {
+		// TODO FIX
 		// this approach has couple issues, users can't use multiple types in source like
 		// 'broadcast colors of ((trailing burst firework colored blue and red) and targeted block)' and second
 		// this check doesn't work with variables as it's not converted yet
