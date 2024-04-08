@@ -16,12 +16,22 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
+package org.skriptlang.skript.lang.arithmetic;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
- * @author Peter Güttinger
+ * Represents a <a href="https://en.wikipedia.org/wiki/Pure_function">pure</a> binary operation
+ * that takes two operands of types {@code L} and {@code R}, performs a calculation,
+ * and returns a result of type {@code T}.
+ *
+ * @param <L> The class of the left operand.
+ * @param <R> The class of the right operand.
+ * @param <T> The return type of the operation.
  */
-@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
-package ch.njol.yggdrasil.xml;
+@FunctionalInterface
+public interface Operation<L, R, T> {
 
-import org.eclipse.jdt.annotation.DefaultLocation;
-import org.eclipse.jdt.annotation.NonNullByDefault;
+	T calculate(@NotNull L left, @NotNull R right);
 
+}
