@@ -1,0 +1,17 @@
+test "vector spherical":
+	set {_vector} to a new spherical vector 0, 0, 0
+	assert the normal length of {_vector} is 0 with "zero-length vector had non-zero length"
+	assert {_vector} is vector(0, 0, 0) with "zero spherical vector was not zero vector"
+	loop 10 times:
+		set {_yaw} to a random number between -180 and 180
+		set {_pitch} to a random number between -90 and 90
+		set {_vector} to a new spherical vector with radius 0, yaw {_yaw} and pitch {_pitch}
+		assert the normal length of {_vector} is 0 with "random zero-length vector had non-zero length"
+		assert {_vector} is vector(0, 0, 0) with "random zero spherical vector was not zero vector"
+	assert (a new spherical vector 2, 0, -90) is vector(0, 2, 0) with "upwards 2-length vector equality failed"
+	assert (a new spherical vector 1, 0, 0) is vector(0, 0, 1) with "zero-angle vector creation failed: %a new vector from yaw 0 and pitch 0%"
+	assert (a new spherical vector 1, 90, 0) is vector(-1, 0, 0) with "90-yaw vector creation failed: %a new vector from yaw 90 and pitch 0%"
+	assert (a new spherical vector 1, 180, 0) is vector(0, 0, -1) with "180-yaw vector creation failed: %a new vector from yaw 180 and pitch 0%"
+	assert (a new spherical vector 1, -90, 0) is vector(1, 0, 0) with "-90-yaw vector creation failed: %a new vector from yaw -90 and pitch 0%"
+	assert (a new spherical vector 1, 0, 90) is vector(0, -1, 0) with "90-pitch vector creation failed: %a new vector from yaw 0 and pitch 90%"
+	assert (a new spherical vector 1, 0, -90) is vector(0, 1, 0) with "-90-pitch vector creation failed: %a new vector from yaw 0 and pitch -90%"

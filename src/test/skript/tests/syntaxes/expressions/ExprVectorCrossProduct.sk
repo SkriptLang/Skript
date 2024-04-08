@@ -1,0 +1,15 @@
+test "cross product":
+	set {_v} to vector(1, 0, 0)
+	set {_w} to vector(0, 1, 0)
+	set {_u} to {_v} cross {_w}
+	assert {_u} is vector(0, 0, 1) with "cross product of basis vectors failed (expected %vector(0,0,1)%, got %{_u}%)"
+
+	set {_v} to vector(1, 1, 1)
+	set {_w} to vector(1, 1, -1)
+	set {_u} to {_v} cross {_w}
+	assert {_u} is vector(-2, 2, 0) with "cross product of non-basis vectors failed (expected %vector(-2, 2, 0)%, got %{_u}%)"
+
+	set {_v} to vector(1, 2, 3)
+	set {_w} to vector(1, 2, 3)
+	set {_u} to {_v} cross {_w}
+	assert {_u} is vector(0, 0, 0) with "cross product of parallel vectors failed (expected %vector(0, 0, 0)%, got %{_u}%)"
