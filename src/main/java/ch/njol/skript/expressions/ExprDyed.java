@@ -38,6 +38,7 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 @Name("Dyed")
@@ -99,7 +100,7 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				if (!matcher.matches())
 					continue;
 				try {
-					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName()));
+					Material newItem = Material.valueOf(material.name().replace(matcher.group(1), color.getName().toUpperCase(Locale.ENGLISH)));
 					item.setTo(new ItemType(newItem));
 				} catch (IllegalArgumentException ignored) {}
 			}
