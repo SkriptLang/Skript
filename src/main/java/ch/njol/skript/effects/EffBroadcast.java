@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -137,7 +138,7 @@ public class EffBroadcast extends Effect {
 	 */
 	@SuppressWarnings({"BooleanMethodIsAlwaysInverted, deprecation"})
 	private static boolean dispatchEvent(String message, List<CommandSender> receivers) {
-		BroadcastMessageEvent broadcastEvent = new BroadcastMessageEvent(false, message, new HashSet<>(receivers));
+		BroadcastMessageEvent broadcastEvent = new BroadcastMessageEvent(!Bukkit.isPrimaryThread(), message, Collections.unmodifiableSet(new HashSet<>(receivers)));
 		Bukkit.getPluginManager().callEvent(broadcastEvent);
 		return !broadcastEvent.isCancelled();
 	}
