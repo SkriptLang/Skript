@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
 	"broadcast \"Welcome %player% to the server!\"",
 	"broadcast \"Woah! It's a message!\""
 })
-@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting), INSERT VERSION (calls broadcast event)")
+@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
 public class EffBroadcast extends Effect {
 
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)&x((?:&\\p{XDigit}){6})");
@@ -84,7 +84,10 @@ public class EffBroadcast extends Effect {
 		worlds = (Expression<World>) exprs[1];
 		return LiteralUtils.canInitSafely(messageExpr);
 	}
-	
+
+	/**
+	 * This effect will call {@link BroadcastMessageEvent} as of INSERT_VERSION.
+	 */
 	@Override
 	@SuppressWarnings("deprecation")
 	public void execute(Event event) {
@@ -134,7 +137,8 @@ public class EffBroadcast extends Effect {
 	}
 
 	/**
-	 * @param message the message for {@link BroadcastMessageEvent}
+	 * Manually calls a {@link BroadcastMessageEvent}.
+	 * @param message the message
 	 * @return true if the dispatched event does not get cancelled
 	 */
 	@SuppressWarnings("deprecation")
