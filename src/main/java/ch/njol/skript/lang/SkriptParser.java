@@ -531,6 +531,9 @@ public class SkriptParser {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
 					Class<?> returnType = parsedExpression.getReturnType(); // Sometimes getReturnType does non-trivial costly operations
+					if (returnType == null)
+						throw new SkriptAPIException("Expression '" + expr + "' returned null for method Expression#getReturnType. Null is not a valid return.");
+
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
@@ -978,6 +981,26 @@ public class SkriptParser {
 	@Nullable
 	public static ParseResult parse(String text, String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern);
+	}
+
+	/**
+	 * Parses the text as the given pattern with the given parse context and parse flags.
+	 * <p>
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 */
+	@Nullable
+	public static ParseResult parse(String text, String pattern, int parseFlags, ParseContext parseContext) {
+		return new SkriptParser(text, parseFlags, parseContext).parse_i(pattern);
+	}
+
+	/**
+	 * Parses the text as the given pattern with the given parse context and parse flags.
+	 * <p>
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 */
+	@Nullable
+	public static ParseResult parse(String text, SkriptPattern pattern, int parseFlags, ParseContext parseContext) {
+		return parse(text, pattern.toString(), parseFlags, parseContext);
 	}
 
 	/**
