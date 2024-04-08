@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tsend action bar \"Memory left: %free memory%/%max memory%MB\" to player",
 		"\twait 5 ticks"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprMemory extends SimpleExpression<Double> {
 
 	private static final double BYTES_IN_MEGABYTES = 1E-6;

@@ -26,6 +26,7 @@ import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.classes.data.DefaultConverters;
 import ch.njol.skript.classes.data.DefaultFunctions;
+import ch.njol.skript.classes.data.DefaultOperations;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
@@ -535,6 +536,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
+		new DefaultOperations();
 		
 		ChatMessages.registerListeners();
 		
@@ -691,6 +693,9 @@ public final class Skript extends JavaPlugin implements Listener {
 								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
 								try {
 									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
+									// Don't attempt to run inner/anonymous classes as tests
+									classes.removeIf(Class::isAnonymousClass);
+									classes.removeIf(Class::isLocalClass);
 									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
 									size = classes.size();
@@ -1152,7 +1157,15 @@ public final class Skript extends JavaPlugin implements Listener {
 			try {
 				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
 				// 1.19 mapping is u and 1.18 is v
-				String isRunningMethod = Skript.isRunningMinecraft(1, 19) ? "u" : Skript.isRunningMinecraft(1, 18) ? "v" :"isRunning";
+				String isRunningMethod = "isRunning";
+
+				if (Skript.isRunningMinecraft(1, 20)) {
+					isRunningMethod = "v";
+				} else if (Skript.isRunningMinecraft(1, 19)) {
+					isRunningMethod = "u";
+				} else if (Skript.isRunningMinecraft(1, 18)) {
+					isRunningMethod = "v";
+				}
 				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);

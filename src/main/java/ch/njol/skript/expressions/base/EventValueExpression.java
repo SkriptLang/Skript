@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
@@ -45,12 +42,14 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A useful class for creating default expressions. It simply returns the event value of the given type.
  * <p>
  * This class can be used as default expression with <code>new EventValueExpression&lt;T&gt;(T.class)</code> or extended to make it manually placeable in expressions with:
- * 
+ *
  * <pre>
  * class MyExpression extends EventValueExpression&lt;SomeClass&gt; {
  * 	public MyExpression() {
@@ -59,17 +58,18 @@ import ch.njol.util.Kleenean;
  * 	// ...
  * }
  * </pre>
- * 
+ *
  * @see Classes#registerClass(ClassInfo)
  * @see ClassInfo#defaultExpression(DefaultExpression)
  * @see DefaultExpression
  */
 public class EventValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 
+
 	/**
 	 * Registers an expression as {@link ExpressionType#EVENT} with the provided pattern.
 	 * This also adds '[the]' to the start of the pattern.
-	 * 
+	 *
 	 * @param expression The class that represents this EventValueExpression.
 	 * @param type The return type of the expression.
 	 * @param pattern The pattern for this syntax.
@@ -81,43 +81,43 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
 
 	private final Class<?> componentType;
-	private final Class<? extends T> c;
+	private final Class<? extends T> type;
 
 	@Nullable
 	private Changer<? super T> changer;
 	private final boolean single;
 	private final boolean exact;
 
-	public EventValueExpression(Class<? extends T> c) {
-		this(c, null);
+	public EventValueExpression(Class<? extends T> type) {
+		this(type, null);
 	}
 
 	/**
 	 * Construct an event value expression.
-	 * 
-	 * @param c The class that this event value represents.
+	 *
+	 * @param type The class that this event value represents.
 	 * @param exact If false, the event value can be a subclass or a converted event value.
 	 */
-	public EventValueExpression(Class<? extends T> c, boolean exact) {
-		this(c, null, exact);
+	public EventValueExpression(Class<? extends T> type, boolean exact) {
+		this(type, null, exact);
 	}
 
-	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer) {
-		this(c, changer, false);
+	public EventValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer) {
+		this(type, changer, false);
 	}
 
-	public EventValueExpression(Class<? extends T> c, @Nullable Changer<? super T> changer, boolean exact) {
-		assert c != null;
-		this.c = c;
+	public EventValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer, boolean exact) {
+		assert type != null;
+		this.type = type;
 		this.exact = exact;
 		this.changer = changer;
-		single = !c.isArray();
-		componentType = single ? c : c.getComponentType();
+		single = !type.isArray();
+		componentType = single ? type : type.getComponentType();
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (exprs.length != 0)
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		if (expressions.length != 0)
 			throw new SkriptAPIException(this.getClass().getName() + " has expressions in its pattern but does not override init(...)");
 		return init();
 	}
@@ -137,7 +137,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = getters.get(event) != null;
 					continue;
 				}
-				if (EventValues.hasMultipleGetters(event, c, getTime()) == Kleenean.TRUE) {
+				if (EventValues.hasMultipleGetters(event, type, getTime()) == Kleenean.TRUE) {
 					Noun typeName = Classes.getExactClassInfo(componentType).getName();
 					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(getParser().getCurrentEventName()) + " event. " +
 							"You must define which " + typeName + " to use.");
@@ -145,9 +145,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 				Getter<? extends T, ?> getter;
 				if (exact) {
-					getter = EventValues.getExactEventValueGetter(event, c, getTime());
+					getter = EventValues.getExactEventValueGetter(event, type, getTime());
 				} else {
-					getter = EventValues.getEventValueGetter(event, c, getTime());
+					getter = EventValues.getEventValueGetter(event, type, getTime());
 				}
 				if (getter != null) {
 					getters.put(event, getter);
@@ -173,7 +173,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		if (value == null)
 			return (T[]) Array.newInstance(componentType, 0);
 		if (single) {
-			T[] one = (T[]) Array.newInstance(c, 1);
+			T[] one = (T[]) Array.newInstance(type, 1);
 			one[0] = value;
 			return one;
 		}
@@ -190,16 +190,16 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());
 			return g == null ? null : g.get(event);
 		}
-		
+
 		for (final Entry<Class<? extends Event>, Getter<? extends T, ?>> p : getters.entrySet()) {
 			if (p.getKey().isAssignableFrom(event.getClass())) {
 				getters.put(event.getClass(), p.getValue());
 				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(event);
 			}
 		}
-		
+
 		getters.put(event.getClass(), null);
-		
+
 		return null;
 	}
 
@@ -230,13 +230,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			assert event != null;
 			boolean has;
 			if (exact) {
-				has = EventValues.doesExactEventValueHaveTimeStates(event, c);
+				has = EventValues.doesExactEventValueHaveTimeStates(event, type);
 			} else {
-				has = EventValues.doesEventValueHaveTimeStates(event, c);
+				has = EventValues.doesEventValueHaveTimeStates(event, type);
 			}
 			if (has) {
 				super.setTime(time);
-				// Since the time was changed, we now need to re-initalize the getters we already got. START
+				// Since the time was changed, we now need to re-initialize the getters we already got. START
 				getters.clear();
 				init();
 				// END

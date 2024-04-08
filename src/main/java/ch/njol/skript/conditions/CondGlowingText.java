@@ -35,7 +35,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 @Name("Has Glowing Text")
 @Description("Checks whether a sign (either a block or an item) has glowing text")
 @Examples("if target block has glowing text")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class CondGlowingText extends PropertyCondition<Object> {
 
 	static {

@@ -39,7 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"on right click:",
 		"\tbroadcast max usage duration of player's tool"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper")
 public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Timespan> {
 
