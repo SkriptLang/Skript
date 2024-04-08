@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.Skript;
@@ -136,9 +137,15 @@ public class EffBroadcast extends Effect {
 	 * @param message the message for {@link BroadcastMessageEvent}
 	 * @return true if the dispatched event does not get cancelled
 	 */
-	@SuppressWarnings({"BooleanMethodIsAlwaysInverted, deprecation"})
+	@SuppressWarnings("deprecation")
 	private static boolean dispatchEvent(String message, List<CommandSender> receivers) {
-		BroadcastMessageEvent broadcastEvent = new BroadcastMessageEvent(!Bukkit.isPrimaryThread(), message, Collections.unmodifiableSet(new HashSet<>(receivers)));
+		Set<CommandSender> recipients = Collections.unmodifiableSet(new HashSet<>(receivers));
+		BroadcastMessageEvent broadcastEvent;
+		if (!Skript.isRunningMinecraft(1, 13)) {
+			broadcastEvent = new BroadcastMessageEvent(!Bukkit.isPrimaryThread(), message, recipients);
+		} else {
+			broadcastEvent = new BroadcastMessageEvent(message, recipients);
+		}
 		Bukkit.getPluginManager().callEvent(broadcastEvent);
 		return !broadcastEvent.isCancelled();
 	}
