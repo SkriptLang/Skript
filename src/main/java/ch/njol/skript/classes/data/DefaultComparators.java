@@ -654,6 +654,19 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		// Color - Color
+		Comparators.registerComparator(Color.class, Color.class, new Comparator<Color, Color>() {
+			@Override
+			public Relation compare(Color color1, Color color2) {
+				return Relation.get(color1.getName().equals(color2.getName()));
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
 	}
 	
 }
