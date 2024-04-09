@@ -172,17 +172,17 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		if (FireworkEffect.class.isAssignableFrom(returnType))
 			return CollectionUtils.array(Color[].class);
 
-		switch (mode) { // items/blocks/entities don't accept these change modes
-			case ADD:
-			case REMOVE:
-			case REMOVE_ALL:
-				return null;
-		}
-
 		if (mode != ChangeMode.SET && !getExpr().isSingle())
 			return null;
 
-		return CollectionUtils.array(Color.class);
+		switch (mode) { // items/blocks/entities don't accept these change modes
+			case RESET:
+			case DELETE:
+			case SET:
+				return CollectionUtils.array(Color.class);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -204,39 +204,37 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (stack == null)
 					continue;
 
-				if (!(obj instanceof Colorable)) {
-					org.bukkit.Color bukkitColor = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
-					ItemMeta meta = stack.getItemMeta();
-					if (meta instanceof LeatherArmorMeta) {
-						LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
-						leatherArmorMeta.setColor(bukkitColor);
-						stack.setItemMeta(leatherArmorMeta);
-					} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
-						MapMeta mapMeta = (MapMeta) meta;
-						mapMeta.setColor(bukkitColor);
-						stack.setItemMeta(mapMeta);
-					} else if (meta instanceof PotionMeta && MAPS_AND_POTIONS_COLORS) {
-						PotionMeta potionMeta = (PotionMeta) meta;
-						potionMeta.setColor(bukkitColor);
-						stack.setItemMeta(potionMeta);
-					} else {
-						if (color == null)
-							color = DEFAULT_MATERIAL_COLOR;
-						Material newItem = setMaterialColor(stack.getType(), color);
-						if (newItem == null)
-							continue;
-						ItemMeta oldItemMeta = stack.getItemMeta();
-						stack.setType(newItem);
-						stack.setItemMeta(oldItemMeta);
-						if (obj instanceof ItemType) {
-							ItemType newItemType = new ItemType(newItem);
-							newItemType.setItemMeta(oldItemMeta);
-							((ItemType) obj).setTo(newItemType);
-						} else if (obj instanceof Item) {
-							((Item) obj).setItemStack(stack);
-						} else if (obj instanceof Slot)
-							((Slot) obj).setItem(stack);
-					}
+				org.bukkit.Color bukkitColor = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
+				ItemMeta meta = stack.getItemMeta();
+				if (meta instanceof LeatherArmorMeta) {
+					LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
+					leatherArmorMeta.setColor(bukkitColor);
+					stack.setItemMeta(leatherArmorMeta);
+				} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
+					MapMeta mapMeta = (MapMeta) meta;
+					mapMeta.setColor(bukkitColor);
+					stack.setItemMeta(mapMeta);
+				} else if (meta instanceof PotionMeta && MAPS_AND_POTIONS_COLORS) {
+					PotionMeta potionMeta = (PotionMeta) meta;
+					potionMeta.setColor(bukkitColor);
+					stack.setItemMeta(potionMeta);
+				} else {
+					if (color == null)
+						color = DEFAULT_MATERIAL_COLOR;
+					Material newItem = setMaterialColor(stack.getType(), color);
+					if (newItem == null)
+						continue;
+					ItemMeta oldItemMeta = stack.getItemMeta();
+					stack.setType(newItem);
+					stack.setItemMeta(oldItemMeta);
+					if (obj instanceof ItemType) {
+						ItemType newItemType = new ItemType(newItem);
+						newItemType.setItemMeta(oldItemMeta);
+						((ItemType) obj).setTo(newItemType);
+					} else if (obj instanceof Item) {
+						((Item) obj).setItemStack(stack);
+					} else if (obj instanceof Slot)
+						((Slot) obj).setItem(stack);
 				}
 			} else if (obj instanceof Colorable) {
 				Colorable colorable = getColorable(obj);
@@ -245,6 +243,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 					try {
 						colorable.setColor(color);
 					} catch (Exception ex) {
+						// TODO remove this as it's too old now
 						if (ex instanceof UnsupportedOperationException) {
 							// https://github.com/SkriptLang/Skript/issues/2931
 							Skript.error(
