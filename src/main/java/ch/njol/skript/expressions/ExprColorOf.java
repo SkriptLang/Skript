@@ -175,7 +175,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		if (mode != ChangeMode.SET && !getExpr().isSingle())
 			return null;
 
-		switch (mode) { // items/blocks/entities don't accept these change modes
+		switch (mode) { // items/blocks/entities only accept these change modes
 			case RESET:
 			case DELETE:
 			case SET:
