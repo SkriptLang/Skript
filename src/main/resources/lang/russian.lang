@@ -138,7 +138,7 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: У Вас отсутствует необходимое разрешение для выполнения этой команды
+	no permission message: Нет прав для выполнения этой команды
 	cooldown message: Вы используете эту команду слишком часто
 	executable by players: Эту команду могут использовать только игроки
 	executable by console: Эту команду можно использовать только из консоли
