@@ -1,0 +1,6 @@
+test "do if":
+  set {_false} to false if 1 is 1
+  assert {_false} is false with "Do if didn't run when it should have"
+
+  set {_unset} to true if 1 is 2
+  assert {_unset} is not set with "Do if ran when it shouldn't have"

@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
 		"\tloop-iteration <= 10",
 		"\tsend \"##%loop-iteration% %loop-index% has $%loop-value%\"",
 })
-@Since("1.0, INSERT VERSION (loop-counter)")
+@Since("1.0, 2.8.0 (loop-counter)")
 public class ExprLoopValue extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, "[the] loop-<.+>");

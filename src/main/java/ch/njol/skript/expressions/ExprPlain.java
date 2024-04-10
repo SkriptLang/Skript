@@ -61,7 +61,7 @@ public class ExprPlain extends SimpleExpression<ItemType> {
 		ItemType itemType = item.getSingle(e);
 		if (itemType == null)
 			return new ItemType[0];
-		ItemData data = new ItemData(itemType.getMaterial());
+		ItemData data = new ItemData(itemType.getRandom().getType());
 		data.setPlain(true);
 		ItemType plain = new ItemType(data);
 		return new ItemType[]{plain};

@@ -66,6 +66,7 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 								quoted = true;
 								break;
 							case COMMAND:
+							case PARSE:
 							case CONFIG:
 								quoted = false;
 								break;

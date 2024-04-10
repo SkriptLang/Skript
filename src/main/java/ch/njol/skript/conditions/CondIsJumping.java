@@ -40,7 +40,7 @@ import org.bukkit.entity.LivingEntity;
 			"\t\twait 5 ticks",
 		"\tpush event-entity upwards"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper 1.15+")
 public class CondIsJumping extends PropertyCondition<LivingEntity> {
 	

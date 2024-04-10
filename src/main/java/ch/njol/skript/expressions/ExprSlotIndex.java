@@ -49,7 +49,7 @@ import ch.njol.skript.util.slot.SlotWithIndex;
 	"\tif raw index of event-slot > 27: # outside custom inventory",
 	"\t\tcancel event",
 })
-@Since("2.2-dev35, INSERT VERSION (raw index)")
+@Since("2.2-dev35, 2.8.0 (raw index)")
 public class ExprSlotIndex extends SimplePropertyExpression<Slot, Long> {
 	
 	static {
