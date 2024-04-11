@@ -22,13 +22,11 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -39,11 +37,12 @@ import java.util.stream.Collectors;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script {
+public final class Script implements Experimented {
 
 	private final Config config;
 
 	private final List<Structure> structures;
+	private final Set<Experiment> experiments;
 
 	/**
 	 * Creates a new Script to be used across the API.
@@ -55,6 +54,7 @@ public final class Script {
 	public Script(Config config, List<Structure> structures) {
 		this.config = config;
 		this.structures = structures;
+		this.experiments = new LinkedHashSet<>();
 	}
 
 	/**
@@ -217,6 +217,29 @@ public final class Script {
 				.filter(event -> type.isAssignableFrom(event.getClass()))
 				.collect(Collectors.toSet())
 		);
+	}
+
+	@Override
+	public boolean hasExperiment(Experiment experiment) {
+		return experiments.contains(experiment);
+	}
+
+	/**
+	 * Marks this as using an experimental feature.
+	 * @param experiment The feature to register.
+	 */
+	@ApiStatus.Internal
+	public void addExperiment(Experiment experiment) {
+		this.experiments.add(experiment);
+	}
+
+	/**
+	 * Marks this as no longer using an experimental feature (e.g. during de-registration or reload).
+	 * @param experiment The feature to unregister.
+	 */
+	@ApiStatus.Internal
+	public void removeExperiment(Experiment experiment) {
+		this.experiments.remove(experiment);
 	}
 
 }
