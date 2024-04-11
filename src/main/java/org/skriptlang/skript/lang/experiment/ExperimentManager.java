@@ -72,6 +72,21 @@ public class ExperimentManager implements Experimented {
 		this.experiments.add(experiment);
 	}
 
+	/**
+	 * Creates (and registers) a new experimental feature flag, which will be available to scripts
+	 * with the {@code using %name%} structure.
+	 * @param addon The source of this feature.
+	 * @param codeName The debug 'code name' of this feature.
+	 * @param phase The stability of this feature.
+	 * @param patterns What the user may write to match the feature. Defaults to the codename if not set.
+	 * @return An experiment flag.
+	 */
+	public Experiment register(SkriptAddon addon, String codeName, LifeCycle phase, String... patterns) {
+		Experiment experiment = Experiment.constant(codeName, phase, patterns);
+		this.register(addon, experiment);
+		return experiment;
+	}
+
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
 		return experiments.contains(experiment);
