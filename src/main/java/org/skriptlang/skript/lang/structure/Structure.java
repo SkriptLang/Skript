@@ -35,6 +35,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -89,10 +90,17 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
 	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
-	 * This method will return null if the Structure has not yet been initialized or if it is simple.
+	 * Please note that this Structure <b>MUST</b> have been initialized for this to work.
+	 * This method is not usable for simple structures.
+	 * @deprecated This method will be removed in a future version.
+	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
+	 * the Structure should keep a reference to it.
 	 */
-	@Nullable
+	@Deprecated
+	@ApiStatus.ScheduledForRemoval
 	public final EntryContainer getEntryContainer() {
+		if (entryContainer == null)
+			throw new IllegalStateException("This Structure hasn't been initialized!");
 		return entryContainer;
 	}
 
