@@ -75,7 +75,7 @@ public class StructFunction extends Structure {
 	private boolean local;
 
 	@Override
-	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		local = parseResult.hasTag("local");
 		return true;
 	}
@@ -83,6 +83,7 @@ public class StructFunction extends Structure {
 	@Override
 	public boolean preLoad() {
 		// match signature against pattern
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		String rawSignature = getEntryContainer().getSource().getKey();
 		assert rawSignature != null;
 		rawSignature = ScriptLoader.replaceOptions(rawSignature);
@@ -110,6 +111,7 @@ public class StructFunction extends Structure {
 		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
 		assert signature != null;
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
 
 		parser.deleteCurrentEvent();

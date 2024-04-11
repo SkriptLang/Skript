@@ -21,6 +21,7 @@ package org.skriptlang.skript.lang.structure;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -32,9 +33,10 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -87,11 +89,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
 	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
-	 * Please note that this Structure <b>MUST</b> have been initialized for this to work.
+	 * This method will return null if the Structure has not yet been initialized or if it is simple.
 	 */
+	@Nullable
 	public final EntryContainer getEntryContainer() {
-		if (entryContainer == null)
-			throw new IllegalStateException("This Structure hasn't been initialized!");
 		return entryContainer;
 	}
 
@@ -105,10 +106,15 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		assert structureInfo != null;
 		EntryValidator entryValidator = structureInfo.entryValidator;
 
-		if (entryValidator == null) { // No validation necessary, the structure itself will handle it
-			entryContainer = EntryContainer.withoutValidator(structureData.sectionNode);
-		} else { // Okay, now it's time for validation
-			EntryContainer entryContainer = entryValidator.validate(structureData.sectionNode);
+		if (structureData.node instanceof SimpleNode) {
+			return init(literals, matchedPattern, parseResult, null);
+		}
+
+		if (entryValidator == null) {
+			// No validation necessary, the structure itself will handle it
+			entryContainer = EntryContainer.withoutValidator((SectionNode) structureData.node);
+		} else { // Validation required
+			EntryContainer entryContainer = entryValidator.validate((SectionNode) structureData.node);
 			if (entryContainer == null)
 				return false;
 			this.entryContainer = entryContainer;
@@ -117,7 +123,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return init(literals, matchedPattern, parseResult, entryContainer);
 	}
 
-	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);
+	/**
+	 * The initialization phase of a Structure.
+	 * Typically, this should be used for preparing fields (e.g. handling arguments, parse tags)
+	 * Logic such as trigger loading should be saved for a loading phase (e.g. {@link #load()}).
+	 * @return Whether initialization was successful.
+	 */
+	public abstract boolean init(
+		Literal<?>[] args, int matchedPattern, ParseResult parseResult,
+		@Nullable EntryContainer entryContainer
+	);
 
 	/**
 	 * The first phase of Structure loading.
@@ -173,14 +188,19 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	@Nullable
-	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
-		return parse(expr, sectionNode, defaultError, Skript.getStructures().iterator());
+	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
+		return parse(expr, node, defaultError, Skript.getStructures().iterator());
 	}
 
 	@Nullable
-	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
-		ParserInstance.get().getData(StructureData.class).sectionNode = sectionNode;
+	public static Structure parse(String expr, Node node, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
+		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode)) {
+			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
+		}
+		ParserInstance.get().getData(StructureData.class).node = node;
 
+		if (node instanceof SimpleNode) // only allow simple structures for simple nodes
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.simple);
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
 		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
@@ -201,7 +221,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
-		private SectionNode sectionNode;
+		private Node node;
 		@Nullable
 		private StructureInfo<? extends Structure> structureInfo;
 
