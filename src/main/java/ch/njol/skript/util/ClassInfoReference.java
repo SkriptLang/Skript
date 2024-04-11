@@ -128,14 +128,13 @@ public final class ClassInfoReference {
 	private ClassInfo<?> classInfo;
 
 	public ClassInfoReference(ClassInfo<?> classInfo) {
-		this.plural = Kleenean.UNKNOWN;
-		this.classInfo = classInfo;
+		this(classInfo, Kleenean.UNKNOWN);
 	}
 
-    public ClassInfoReference(ClassInfo<?> classInfo, Kleenean plural) {
-        this.plural = plural;
-        this.classInfo = classInfo;
-    }
+	public ClassInfoReference(ClassInfo<?> classInfo, Kleenean plural) {
+		this.classInfo = classInfo;
+		this.plural = plural;
+	}
 
 	/**
 	 * @return A Kleenean representing whether this classinfo reference was plural. Kleeanan.UNKNOWN represents
