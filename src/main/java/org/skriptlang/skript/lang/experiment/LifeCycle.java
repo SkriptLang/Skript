@@ -40,6 +40,13 @@ public enum LifeCycle {
 	 */
 	DEPRECATED(true),
 	/**
+	 * Represents a feature that was previously opt-in (or experimental) but is now a part of the default set.
+	 * I.e. it no longer needs to be enabled using a feature flag.
+	 * This will provide a little note to the user on load informing them they no longer need to
+	 * use this feature flag.
+	 */
+	MAINSTREAM(true),
+	/**
 	 * Represents an unregistered, unknown feature.
 	 * This occurs when a user tags a script as {@code using X}, where {@code X} is not a registered
 	 * feature provided by any addon or extension.

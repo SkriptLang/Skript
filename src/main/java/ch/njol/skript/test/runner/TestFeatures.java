@@ -31,6 +31,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  */
 public enum TestFeatures implements Experiment {
 	EXAMPLE_FEATURE("example feature", LifeCycle.STABLE),
+	DEPRECATED_FEATURE("deprecated feature", LifeCycle.DEPRECATED),
 	TEST_FEATURE("test", LifeCycle.EXPERIMENTAL, "test[ing]", "fizz[ ]buzz")
 	;
 

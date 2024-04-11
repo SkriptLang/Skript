@@ -62,6 +62,9 @@ public class StructUsing extends Structure {
 	private void enableExperiment(String name) {
 		this.experiment = Skript.experiments().find(name.trim());
 		switch (experiment.phase()) {
+			case MAINSTREAM:
+				Skript.warning("The experimental feature '" + name + "' is now included by default and is no longer required.");
+				break;
 			case DEPRECATED:
 				Skript.warning("The experimental feature '" + name + "' is deprecated and may be removed in future versions.");
 				break;

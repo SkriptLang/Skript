@@ -1,5 +1,6 @@
 using example feature
 using fizz buzz
+using deprecated feature
 
 test "using":
 	assert the current script is using "example feature" with "using feature failed"

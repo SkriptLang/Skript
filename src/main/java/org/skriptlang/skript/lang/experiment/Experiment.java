@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Objects;
 
@@ -31,8 +32,20 @@ import java.util.Objects;
  */
 public interface Experiment {
 
+	@ApiStatus.Internal
 	static Experiment unknown(String text) {
 		return new UnmatchedExperiment(text);
+	}
+
+	/**
+	 * A constant experiment provider (designed for the use of addons).
+	 * @param codeName The debug 'code name' of this feature.
+	 * @param phase The stability of this feature.
+	 * @param patterns What the user may write to match the feature. Defaults to the codename if not set.
+	 * @return An experiment flag.
+	 */
+	static Experiment constant(String codeName, LifeCycle phase, String... patterns) {
+		return new ConstantExperiment(codeName, phase, patterns);
 	}
 
 	/**
@@ -71,21 +84,36 @@ public interface Experiment {
 }
 
 /**
- * The dummy class for an unmatched experiment.
- * This is something that was 'used' by a file but was never registered with Skript.
- * These are kept so that they *can* be tested for (e.g. by a third-party extension that uses a post-registration
- * experiment system).
+ * A class for constant experiments.
  */
-class UnmatchedExperiment implements Experiment {
+class ConstantExperiment implements Experiment {
 
 	private final String codeName;
 	private final String[] patterns;
 	private final SkriptPattern compiledPattern;
+	private final LifeCycle phase;
 
-	UnmatchedExperiment(String codeName) {
+	ConstantExperiment(String codeName, LifeCycle phase) {
+		this(codeName, phase, new String[0]);
+	}
+
+	ConstantExperiment(String codeName, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
-		this.patterns = new String[] {codeName};
-		this.compiledPattern = PatternCompiler.compile(codeName);
+		this.phase = phase;
+		switch (patterns.length) {
+			case 0:
+				this.patterns = new String[]{codeName};
+				this.compiledPattern = PatternCompiler.compile(codeName);
+				break;
+			case 1:
+				this.patterns = patterns;
+				this.compiledPattern = PatternCompiler.compile(patterns[0]);
+				break;
+			default:
+				this.patterns = patterns;
+				this.compiledPattern = PatternCompiler.compile('(' + String.join("|", patterns) + ')');
+				break;
+		}
 	}
 
 	@Override
@@ -100,17 +128,12 @@ class UnmatchedExperiment implements Experiment {
 
 	@Override
 	public LifeCycle phase() {
-		return LifeCycle.UNKNOWN;
+		return phase;
 	}
 
 	@Override
 	public SkriptPattern compiledPattern() {
 		return compiledPattern;
-	}
-
-	@Override
-	public boolean isKnown() {
-		return false;
 	}
 
 	@Override
@@ -129,6 +152,30 @@ class UnmatchedExperiment implements Experiment {
 	@Override
 	public int hashCode() {
 		return codeName.hashCode();
+	}
+
+}
+
+/**
+ * The dummy class for an unmatched experiment.
+ * This is something that was 'used' by a file but was never registered with Skript.
+ * These are kept so that they *can* be tested for (e.g. by a third-party extension that uses a post-registration
+ * experiment system).
+ */
+class UnmatchedExperiment extends ConstantExperiment {
+
+	UnmatchedExperiment(String codeName) {
+		super(codeName, LifeCycle.UNKNOWN);
+	}
+
+	@Override
+	public LifeCycle phase() {
+		return LifeCycle.UNKNOWN;
+	}
+
+	@Override
+	public boolean isKnown() {
+		return false;
 	}
 
 }

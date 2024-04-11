@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,7 +30,7 @@ import java.util.Set;
  *
  * @author moderocky
  */
-public class ExperimentManager {
+public class ExperimentManager implements Experimented {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
@@ -39,7 +40,12 @@ public class ExperimentManager {
 		this.experiments = new LinkedHashSet<>();
 	}
 
-	public Experiment find(String text) {
+	/**
+	 * Finds an experiment matching this name. If none exist, an 'unknown' one will be created.
+	 * @param text The text provided by the user.
+	 * @return An experiment.
+	 */
+	public @NotNull Experiment find(String text) {
 		if (experiments.isEmpty())
 			return Experiment.unknown(text);
 		for (Experiment experiment : experiments) {
@@ -48,6 +54,9 @@ public class ExperimentManager {
 		return Experiment.unknown(text);
 	}
 
+	/**
+	 * @return All currently-registered experiments.
+	 */
 	public Experiment[] registered() {
 		return experiments.toArray(new Experiment[0]);
 	}
@@ -61,6 +70,16 @@ public class ExperimentManager {
 	public void register(SkriptAddon addon, Experiment experiment) {
 		// the addon instance is requested for now in case we need it in future (for error triage)
 		this.experiments.add(experiment);
+	}
+
+	@Override
+	public boolean hasExperiment(Experiment experiment) {
+		return experiments.contains(experiment);
+	}
+
+	@Override
+	public boolean hasExperiment(String featureName) {
+		return this.find(featureName).isKnown();
 	}
 
 }

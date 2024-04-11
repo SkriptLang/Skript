@@ -23,7 +23,7 @@ import ch.njol.skript.Skript;
 /**
  * Something that can have experimental features enabled for.
  * The only intended implementation of this is the {@link org.skriptlang.skript.lang.script.Script},
- * however it is left open for configuration files, etc. that may use this functionality in future.
+ * however it is left open for configuration files, etc. that may use this functionality in the future.
  *
  * @author moderocky
  */
@@ -41,7 +41,7 @@ public interface Experimented {
 	 * @return Whether this has a feature with the given name.
 	 */
 	default boolean hasExperiment(String featureName) {
-		return this.hasExperiment(Skript.experiments().find(featureName));
+		return Skript.experiments().find(featureName).isKnown();
 	}
 
 }
