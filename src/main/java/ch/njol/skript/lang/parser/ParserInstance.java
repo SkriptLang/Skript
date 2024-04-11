@@ -26,18 +26,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
-import ch.njol.skript.structures.StructOptions;
+import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Validate;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,9 +113,11 @@ public final class ParserInstance {
 
 		// "Script" events
 		if (previous != null)
-			previous.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeInactive(currentScript));
+			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
 		if (currentScript != null)
-			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeActive(previous));
+			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onActive(previous));
 	}
 
 	/**
@@ -172,7 +174,8 @@ public final class ParserInstance {
 
 	@Nullable
 	private String currentEventName;
-	private Class<? extends Event>[] currentEvents = CollectionUtils.array(ContextlessEvent.class);
+
+	private Class<? extends Event> @Nullable [] currentEvents = null;
 
 	public void setCurrentEventName(@Nullable String currentEventName) {
 		this.currentEventName = currentEventName;
@@ -186,17 +189,14 @@ public final class ParserInstance {
 	/**
 	 * @param currentEvents The events that may be present during execution.
 	 *                      An instance of the events present in the provided array MUST be used to execute any loaded items.
-	 *                      If items are to be loaded without context, use {@link ContextlessEvent}.
 	 */
-	public void setCurrentEvents(Class<? extends Event>[] currentEvents) {
-		Validate.isTrue(currentEvents.length != 0, "'currentEvents' may not be empty!");
+	public void setCurrentEvents(Class<? extends Event> @Nullable [] currentEvents) {
 		this.currentEvents = currentEvents;
 		getDataInstances().forEach(data -> data.onCurrentEventsChange(currentEvents));
 	}
 
 	@SafeVarargs
-	public final void setCurrentEvent(String name, Class<? extends Event>... events) {
-		Validate.isTrue(events.length != 0, "'events' may not be empty!");
+	public final void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
 		currentEventName = name;
 		setCurrentEvents(events);
 		setHasDelayBefore(Kleenean.FALSE);
@@ -204,11 +204,11 @@ public final class ParserInstance {
 
 	public void deleteCurrentEvent() {
 		currentEventName = null;
-		setCurrentEvents(CollectionUtils.array(ContextlessEvent.class));
+		setCurrentEvents(null);
 		setHasDelayBefore(Kleenean.FALSE);
 	}
 
-	public Class<? extends Event>[] getCurrentEvents() {
+	public Class<? extends Event> @Nullable [] getCurrentEvents() {
 		return currentEvents;
 	}
 
@@ -252,7 +252,7 @@ public final class ParserInstance {
 			if (isCurrentEvent(event))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 	// Section API
@@ -421,12 +421,12 @@ public final class ParserInstance {
 		}
 
 		/**
-		 * @deprecated See {@link org.skriptlang.skript.lang.script.ScriptEventHandler}.
+		 * @deprecated See {@link ScriptEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
-		public void onCurrentEventsChange(Class<? extends Event>[] currentEvents) { }
+		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
 		
 	}
 	
@@ -481,16 +481,17 @@ public final class ParserInstance {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
 	@Deprecated
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
-		HashMap<String, String> options = StructOptions.getOptions(getCurrentScript());
-		if (options == null)
+		OptionsData data = getCurrentScript().getData(OptionsData.class);
+		if (data == null)
 			return new HashMap<>(0);
-		return options;
+		return new HashMap<>(data.getOptions()); // ensure returned map is modifiable
 	}
 
 	/**
@@ -528,8 +529,10 @@ public final class ParserInstance {
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;
-		//noinspection ConstantConditions - shouldn't be null
-		Script script = ScriptLoader.getScript(currentScript.getFile());
+		File file = currentScript.getFile();
+		if (file == null)
+			return;
+		Script script = ScriptLoader.getScript(file);
 		if (script != null)
 			setActive(script);
 	}

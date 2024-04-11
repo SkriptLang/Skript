@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -25,12 +30,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.eclipse.jdt.annotation.Nullable;
@@ -51,6 +60,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.EnumerationIterable;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -149,7 +159,85 @@ public abstract class Utils {
 //		}
 //		return new AmountResponse(s);
 //	}
-	
+
+	/**
+	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
+	 * 
+	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
+	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
+	 *            as well. Use an empty array to load all subpackages of the base package.
+	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * @return This SkriptAddon
+	 */
+	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
+		assert subPackages != null;
+		JarFile jar = new JarFile(getFile(plugin));
+		for (int i = 0; i < subPackages.length; i++)
+			subPackages[i] = subPackages[i].replace('.', '/') + "/";
+		basePackage = basePackage.replace('.', '/') + "/";
+		List<Class<?>> classes = new ArrayList<>();
+		try {
+			List<String> classNames = new ArrayList<>();
+
+			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
+				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class") && !e.getName().endsWith("package-info.class")) {
+					boolean load = subPackages.length == 0;
+					for (String sub : subPackages) {
+						if (e.getName().startsWith(sub, basePackage.length())) {
+							load = true;
+							break;
+						}
+					}
+
+					if (load)
+						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
+				}
+			}
+
+			classNames.sort(String::compareToIgnoreCase);
+
+			for (String c : classNames) {
+				try {
+					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
+				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
+					Skript.exception(ex, "Cannot load class " + c);
+				} catch (ExceptionInInitializerError err) {
+					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
+				}
+			}
+		} finally {
+			try {
+				jar.close();
+			} catch (IOException e) {}
+		}
+		return classes.toArray(new Class<?>[classes.size()]);
+	}
+
+	/**
+	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
+	 * 
+	 * @return The jar file of the plugin.
+	 */
+	@Nullable
+	public static File getFile(Plugin plugin) {
+		try {
+			Method getFile = JavaPlugin.class.getDeclaredMethod("getFile");
+			getFile.setAccessible(true);
+			return (File) getFile.invoke(plugin);
+		} catch (NoSuchMethodException e) {
+			Skript.outdatedError(e);
+		} catch (IllegalArgumentException e) {
+			Skript.outdatedError(e);
+		} catch (IllegalAccessException e) {
+			assert false;
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e.getCause());
+		}
+		return null;
+	}
+
 	private final static String[][] plurals = {
 			
 			{"fe", "ves"},// most -f words' plurals can end in -fs as well as -ves
@@ -447,6 +535,7 @@ public abstract class Utils {
 	final static Map<String, String> englishChat = new HashMap<>();
 	
 	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
+	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
 	
 	static {
 		Language.addListener(new LanguageChangeListener() {
@@ -685,6 +774,14 @@ public abstract class Utils {
 				lastIndex = i;
 		}
 		return lastIndex;
+	}
+
+	public static boolean isInteger(Number... numbers) {
+		for (Number number : numbers) {
+			if (Double.class.isAssignableFrom(number.getClass()) || Float.class.isAssignableFrom(number.getClass()))
+				return false;
+		}
+		return true;
 	}
 	
 }

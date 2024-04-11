@@ -36,8 +36,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryData;
+import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Template engine, primarily used for generating Skript documentation
@@ -83,19 +86,19 @@ public class HTMLGenerator {
 			throw new NullPointerException();
 		}
 
-		if (o1.c.getAnnotation(NoDoc.class) != null) {
-			if (o2.c.getAnnotation(NoDoc.class) != null)
+		if (o1.getElementClass().getAnnotation(NoDoc.class) != null) {
+			if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 				return 0;
 			return 1;
-		} else if (o2.c.getAnnotation(NoDoc.class) != null)
+		} else if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 			return -1;
 
-		Name name1 = o1.c.getAnnotation(Name.class);
-		Name name2 = o2.c.getAnnotation(Name.class);
+		Name name1 = o1.getElementClass().getAnnotation(Name.class);
+		Name name2 = o2.getElementClass().getAnnotation(Name.class);
 		if (name1 == null)
-			throw new SkriptAPIException("Name annotation expected: " + o1.c);
+			throw new SkriptAPIException("Name annotation expected: " + o1.getElementClass());
 		if (name2 == null)
-			throw new SkriptAPIException("Name annotation expected: " + o2.c);
+			throw new SkriptAPIException("Name annotation expected: " + o2.getElementClass());
 
 		return name1.value().compareTo(name2.value());
 	};
@@ -112,8 +115,8 @@ public class HTMLGenerator {
 		while (it.hasNext()) {
 			SyntaxElementInfo<? extends T> item = it.next();
 			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generation process
-			if (item.c.getAnnotation(Name.class) == null && item.c.getAnnotation(NoDoc.class) == null) {
-				Skript.warning("Skipped generating '" + item.c + "' class due to missing Name annotation");
+			if (item.getElementClass().getAnnotation(Name.class) == null && item.getElementClass().getAnnotation(NoDoc.class) == null) {
+				Skript.warning("Skipped generating '" + item.getElementClass() + "' class due to missing Name annotation");
 				continue;
 			}
 			list.add(item);
@@ -138,9 +141,9 @@ public class HTMLGenerator {
 				throw new NullPointerException();
 			}
 			
-			if (o1.c.getAnnotation(NoDoc.class) != null)
+			if (o1.getElementClass().getAnnotation(NoDoc.class) != null)
 				return 1;
-			else if (o2.c.getAnnotation(NoDoc.class) != null)
+			else if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 				return -1;
 			
 			return o1.name.compareTo(o2.name);
@@ -274,11 +277,26 @@ public class HTMLGenerator {
 				String genType = genParams[0];
 				boolean isDocsPage = genType.equals("docs");
 
+				if (genType.equals("structures") || isDocsPage) {
+
+					for (Iterator<StructureInfo<?>> it = sortedAnnotatedIterator(
+							(Iterator) Skript.getStructures().stream().filter(structure -> structure.getClass() == StructureInfo.class).iterator());
+							it.hasNext(); ) {
+
+						StructureInfo<?> info = it.next();
+						assert info != null;
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
+							continue;
+						String desc = generateAnnotated(descTemp, info, generated.toString(), "Structure");
+						generated.append(desc);
+					}
+				}
+
 				if (genType.equals("expressions") || isDocsPage) {
 					for (Iterator<ExpressionInfo<?,?>> it = sortedAnnotatedIterator((Iterator) Skript.getExpressions()); it.hasNext(); ) {
 						ExpressionInfo<?,?> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
@@ -288,7 +306,7 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Effect>> it = sortedAnnotatedIterator(Skript.getEffects().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Effect> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Effect"));
 					}
@@ -296,8 +314,8 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						if (EffectSection.class.isAssignableFrom(info.c)) {
-							if (info.c.getAnnotation(NoDoc.class) != null)
+						if (EffectSection.class.isAssignableFrom(info.getElementClass())) {
+							if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 								continue;
 							generated.append(generateAnnotated(descTemp, info, generated.toString(), "EffectSection"));
 						}
@@ -307,7 +325,7 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Condition>> it = sortedAnnotatedIterator(Skript.getConditions().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Condition> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
@@ -316,9 +334,9 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						boolean isEffectSection = EffectSection.class.isAssignableFrom(info.c);
+						boolean isEffectSection = EffectSection.class.isAssignableFrom(info.getElementClass());
 						// exclude sections that are EffectSection from isDocsPage, they are added by the effects block above
-						if ((isEffectSection && isDocsPage) || info.c.getAnnotation(NoDoc.class) != null)
+						if ((isEffectSection && isDocsPage) || info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), (isEffectSection ? "Effect" : "") +  "Section"));
 					}
@@ -328,7 +346,7 @@ public class HTMLGenerator {
 					events.sort(eventComparator);
 					for (SkriptEventInfo<?> info : events) {
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
@@ -426,7 +444,7 @@ public class HTMLGenerator {
 	 * @return Generated HTML entry.
 	 */
 	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info, @Nullable String page, String type) {
-		Class<?> c = info.c;
+		Class<?> c = info.getElementClass();
 		String desc;
 
 		// Name
@@ -448,13 +466,13 @@ public class HTMLGenerator {
 
 		// Examples
 		Examples examples = c.getAnnotation(Examples.class);
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? examples.value() : null), "Missing examples."))
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples.")));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Documentation ID
 		DocumentationId docId = c.getAnnotation(DocumentationId.class);
-		String ID = docId != null ? (docId != null ? docId.value() : null) : info.c.getSimpleName();
+		String ID = docId != null ? (docId != null ? docId.value() : null) : c.getSimpleName();
 		// Fix duplicated IDs
 		if (page != null) {
 			if (page.contains("href=\"#" + ID + "\"")) {
@@ -496,6 +514,25 @@ public class HTMLGenerator {
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
 
+		// Structure - EntryData
+		if (info instanceof StructureInfo) {
+			EntryValidator entryValidator = ((StructureInfo<?>) info).entryValidator;
+			List<EntryData<?>> entryDataList = new ArrayList<>();
+			if (entryValidator != null)
+				entryDataList.addAll(entryValidator.getEntryData());
+
+			// TODO add type of entrydata like boolean/string/section etc.
+			desc = handleIf(desc, "${if structure-optional-entrydata}", entryValidator != null);
+			desc = desc.replace("${element.structure-optional-entrydata}", entryValidator == null ? "" : Joiner.on(", ").join(entryDataList.stream().filter(EntryData::isOptional).map(EntryData::getKey).collect(Collectors.toList())));
+
+			desc = handleIf(desc, "${if structure-required-entrydata}", entryValidator != null);
+			desc = desc.replace("${element.structure-required-entrydata}", entryValidator == null ? "" : Joiner.on(", ").join(entryDataList.stream().filter(entryData -> !entryData.isOptional()).map(EntryData::getKey).collect(Collectors.toList())));
+		} else {
+			desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+			desc = handleIf(desc, "${if structure-required-entrydata}", false);
+
+		}
+
 		// Type
 		desc = desc.replace("${element.type}", type);
 
@@ -532,7 +569,7 @@ public class HTMLGenerator {
 	}
 	
 	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
-		Class<?> c = info.c;
+		Class<?> c = info.getElementClass();
 		String desc;
 
 		// Name
@@ -558,7 +595,7 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
@@ -604,6 +641,9 @@ public class HTMLGenerator {
 		// Return Type
 		desc = handleIf(desc, "${if return-type}", false);
 
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
+
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -622,7 +662,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(line);
+				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
@@ -662,9 +702,12 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(Documentation.escapeHTML(examples))
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		Keywords keywords = c.getAnnotation(Keywords.class);
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
 
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getCodeName();
@@ -703,6 +746,9 @@ public class HTMLGenerator {
 
 		// Return Type
 		desc = handleIf(desc, "${if return-type}", false);
+
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
@@ -764,10 +810,13 @@ public class HTMLGenerator {
 
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
-		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(examples));
+		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
 				.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+
+		String[] keywords = info.getKeywords();
+		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
@@ -787,6 +836,9 @@ public class HTMLGenerator {
 
 		// Type
 		desc = desc.replace("${element.type}", "Function");
+
+		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
+		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
@@ -867,7 +919,7 @@ public class HTMLGenerator {
 		if (returnType == null)
 			return handleIf(desc, "${if return-type}", false);
 
-		boolean noDoc = returnType.hasDocs();
+		boolean noDoc = !returnType.hasDocs();
 		String returnTypeName = noDoc ? returnType.getCodeName() : returnType.getDocName();
 		String returnTypeLink = noDoc ? "" : "$1" + getDefaultIfNullOrEmpty(returnType.getDocumentationID(), returnType.getCodeName());
 

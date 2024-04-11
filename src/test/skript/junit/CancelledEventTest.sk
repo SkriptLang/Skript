@@ -1,0 +1,32 @@
+options:
+	test: "org.skriptlang.skript.test.tests.lang.CancelledEventsTest"
+
+# TODO: add negative objectives to test if the cancelled listener is called when the event is not cancelled, for example.
+
+test "ExprDropsJUnit" when running JUnit:
+	set {_tests::1} to "listen for uncancelled event"
+	set {_tests::5} to "listen for cancelled event"
+	set {_tests::6} to "listen for any event"
+
+	ensure junit test {@test} completes {_tests::*}
+
+on load:
+	set {-cancelled-event-test::call-count} to 0
+
+on death of pig:
+	junit test is {@test}
+
+	complete objective "listen for uncancelled event" for {@test}
+
+on cancelled death of pig:
+	junit test is {@test}
+
+	complete objective "listen for cancelled event" for {@test}
+
+on any death of pig:
+	junit test is {@test}
+
+	add 1 to {-cancelled-event-test::call-count}
+
+	if {-cancelled-event-test::call-count} is 2:
+		complete objective "listen for any event" for {@test}

@@ -46,7 +46,7 @@ public class EffSwingHand extends Effect {
 			"make %livingentities% swing [their] off[ ]hand");
 	}
 	
-	private static final boolean SWINGING_IS_SUPPORTED = Skript.methodExists(LivingEntity.class, "swingMainHand");
+	public static final boolean SWINGING_IS_SUPPORTED = Skript.methodExists(LivingEntity.class, "swingMainHand");
 	
 	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;

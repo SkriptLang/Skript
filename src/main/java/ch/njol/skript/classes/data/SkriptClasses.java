@@ -18,13 +18,22 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.io.StreamCorruptedException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumSerializer;
@@ -55,14 +64,8 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.StreamCorruptedException;
-import java.util.Locale;
-import java.util.regex.Pattern;
+import java.util.Arrays;
 
 /**
  * @author Peter Güttinger
@@ -72,6 +75,7 @@ public class SkriptClasses {
 	public SkriptClasses() {}
 	
 	static {
+		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
 				.user("types?")
 				.name("Type")
@@ -85,6 +89,7 @@ public class SkriptClasses {
 						"kill the loop-entity")
 				.since("2.0")
 				.after("entitydata", "entitytype", "itemtype")
+				.supplier(() -> (Iterator) Classes.getClassInfos().iterator())
 				.parser(new Parser<ClassInfo>() {
 					@Override
 					@Nullable
@@ -197,6 +202,9 @@ public class SkriptClasses {
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")
 				.after("number", "integer", "long", "time")
+				.supplier(() -> Arrays.stream(Material.values())
+					.map(ItemType::new)
+					.iterator())
 				.parser(new Parser<ItemType>() {
 					@Override
 					@Nullable
@@ -268,23 +276,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Time o) {
 						return "time:" + o.getTicks();
 					}
-				}).serializer(new YggdrasilSerializer<Time>() {
-//						return "" + t.getTicks();
-					@Override
-					@Nullable
-					public Time deserialize(final String s) {
-						try {
-							return new Time(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Timespan.class, "timespan")
 				.user("time ?spans?")
@@ -322,54 +314,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timespan o) {
 						return "timespan:" + o.getMilliSeconds();
 					}
-				}).serializer(new YggdrasilSerializer<Timespan>() {
-//						return "" + t.getMilliSeconds();
-					@Override
-					@Nullable
-					public Timespan deserialize(final String s) {
-						try {
-							return new Timespan(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				})
-				.math(Timespan.class, new Arithmetic<Timespan, Timespan>() {
-					@Override
-					public Timespan difference(final Timespan t1, final Timespan t2) {
-						return new Timespan(Math.abs(t1.getMilliSeconds() - t2.getMilliSeconds()));
-					}
-
-					@Override
-					public Timespan add(final Timespan value, final Timespan difference) {
-						return new Timespan(value.getMilliSeconds() + difference.getMilliSeconds());
-					}
-
-					@Override
-					public Timespan subtract(final Timespan value, final Timespan difference) {
-						return new Timespan(Math.max(0, value.getMilliSeconds() - difference.getMilliSeconds()));
-					}
-
-					@Override
-					public Timespan multiply(Timespan value, Timespan multiplier) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Timespan divide(Timespan value, Timespan divider) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Timespan power(Timespan value, Timespan exponent) {
-						throw new UnsupportedOperationException();
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		// TODO remove
 		Classes.registerClass(new ClassInfo<>(Timeperiod.class, "timeperiod")
@@ -419,21 +364,7 @@ public class SkriptClasses {
 					public String toVariableNameString(final Timeperiod o) {
 						return "timeperiod:" + o.start + "-" + o.end;
 					}
-				}).serializer(new YggdrasilSerializer<Timeperiod>() {
-//						return t.start + "-" + t.end;
-					@Override
-					@Nullable
-					public Timeperiod deserialize(final String s) {
-						final String[] split = s.split("-");
-						if (split.length != 2)
-							return null;
-						try {
-							return new Timeperiod(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				}).serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
@@ -445,48 +376,7 @@ public class SkriptClasses {
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
-				.serializer(new YggdrasilSerializer<Date>() {
-//						return "" + d.getTimestamp();
-					@Override
-					@Nullable
-					public Date deserialize(final String s) {
-						try {
-							return new Date(Long.parseLong(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}).math(Timespan.class, new Arithmetic<Date, Timespan>() {
-					@Override
-					public Timespan difference(final Date first, final Date second) {
-						return first.difference(second);
-					}
-
-					@Override
-					public Date add(final Date value, final Timespan difference) {
-						return new Date(value.getTimestamp() + difference.getMilliSeconds());
-					}
-
-					@Override
-					public Date subtract(final Date value, final Timespan difference) {
-						return new Date(value.getTimestamp() - difference.getMilliSeconds());
-					}
-
-					@Override
-					public Date multiply(Date value, Timespan multiplier) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Date divide(Date value, Timespan divider) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public Date power(Date value, Timespan exponent) {
-						throw new UnsupportedOperationException();
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Direction.class, "direction")
 				.user("directions?")
@@ -522,19 +412,11 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<Direction>() {
-//						return o.serialize();
-					@Override
-					@Deprecated
-					@Nullable
-					public Direction deserialize(final String s) {
-						return Direction.deserialize(s);
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Slot.class, "slot")
 				.user("(inventory )?slots?")
-				.name("Inventory Slot")
+				.name("Slot")
 				.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
 						"Notable slots are the <a href='./expressions.html#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
 						"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
@@ -658,6 +540,7 @@ public class SkriptClasses {
 						"set the color of the block to green",
 						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
 				.since("")
+				.supplier(SkriptColor.values())
 				.parser(new Parser<Color>() {
 					@Override
 					@Nullable
@@ -731,24 +614,7 @@ public class SkriptClasses {
 						return o.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<EnchantmentType>() {
-//						return o.getType().getId() + ":" + o.getLevel();
-					@Override
-					@Nullable
-					public EnchantmentType deserialize(final String s) {
-						final String[] split = s.split(":");
-						if (split.length != 2)
-							return null;
-						try {
-							final Enchantment ench = EnchantmentUtils.getByKey(split[0]);
-							if (ench == null)
-								return null;
-							return new EnchantmentType(ench, Integer.parseInt(split[1]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Experience.class, "experience")
 				.user("experience ?(points?)?")
@@ -785,18 +651,7 @@ public class SkriptClasses {
 					}
 
 				})
-				.serializer(new YggdrasilSerializer<Experience>() {
-//						return "" + xp;
-					@Override
-					@Nullable
-					public Experience deserialize(final String s) {
-						try {
-							return new Experience(Integer.parseInt(s));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(VisualEffect.class, "visualeffect")
 				.name("Visual Effect")
