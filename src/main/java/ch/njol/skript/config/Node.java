@@ -132,7 +132,7 @@ public abstract class Node {
 		String trimmed = line.trim();
 		if (trimmed.equals("###")) { // we start or terminate a BLOCK comment
 			inBlockComment.set(!inBlockComment.get());
-			return new NonNullPair<>("", trimmed);
+			return new NonNullPair<>("", line);
 		} else if (trimmed.startsWith("#"))
 			return new NonNullPair<>("", line.substring(line.indexOf('#')));
 		if (inBlockComment.get()) // we're inside a comment, all text is a comment
