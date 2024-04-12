@@ -149,6 +149,15 @@ public abstract class Node {
 		return new NonNullPair<>("" + line.replace("##", "#"), "");
 	}
 
+	/**
+	 * Splits a line into value and comment.
+	 * <p>
+	 * Whitespace is preserved (whitespace in front of the comment is added to the value), and any ## in the value are replaced by a single #. The comment is returned with a
+	 * leading #, except if there is no comment in which case it will be the empty string.
+	 *
+	 * @param line
+	 * @return A pair (value, comment).
+	 */
 	public static NonNullPair<String, String> splitLine(String line) {
 		return splitLine(line, new AtomicBoolean(false));
 	}
