@@ -44,7 +44,7 @@ import org.skriptlang.skript.lang.script.Script;
 		"on load:",
 		"\tif the script is using \"example feature\":",
 		"\t\tbroadcast \"You're using an experimental feature!\""})
-@Since("1.2")
+@Since("INSERT VERSION")
 public class CondIsUsing extends Condition {
 	static {
 		Skript.registerCondition(CondIsUsing.class,
