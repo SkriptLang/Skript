@@ -54,7 +54,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 							"\tevent-entity is a falling dirt",
 							"\tcancel event"
 				)
-				.since("<i>unknown</i>, 2.5.2 (falling block), INSERT VERSION (any entity support)");
+				.since("<i>unknown</i>, 2.5.2 (falling block), 2.8.0 (any entity support)");
 	}
 
 	private enum ChangeEvent {

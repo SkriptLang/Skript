@@ -336,7 +336,7 @@ public class DefaultFunctions {
 					"clamp(5, 7, 10) = 7",
 					"clamp((5, 0, 10, 9, 13), 7, 10) = (7, 7, 10, 9, 10)",
 					"set {_clamped::*} to clamp({_values::*}, 0, 10)")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 
 		// misc
 		
@@ -376,10 +376,28 @@ public class DefaultFunctions {
 			}
 		}.description("Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
 						"If for whatever reason the world is not found, it will fallback to the server's main world.")
-			.examples("location(0, 128, 0)",
-						"location(player's x-coordinate, player's y-coordinate + 5, player's z-coordinate, player's world, 0, 90)",
-						"location(0, 64, 0, world \"world_nether\")",
-						"location(100, 110, -145, world(\"my_custom_world\"))")
+			.examples("# TELEPORTING",
+					"teleport player to location(1,1,1, world \"world\")",
+					"teleport player to location(1,1,1, world \"world\", 100, 0)",
+					"teleport player to location(1,1,1, world \"world\", yaw of player, pitch of player)",
+					"teleport player to location(1,1,1, world of player)",
+					"teleport player to location(1,1,1, world(\"world\"))",
+					"teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})",
+					"# SETTING BLOCKS",
+					"set block at location(1,1,1, world \"world\") to stone",
+					"set block at location(1,1,1, world \"world\", 100, 0) to stone",
+					"set block at location(1,1,1, world of player) to stone",
+					"set block at location(1,1,1, world(\"world\")) to stone",
+					"set block at location({_x}, {_y}, {_z}, {_w}) to stone",
+					"# USING VARIABLES",
+					"set {_l1} to location(1,1,1)",
+					"set {_l2} to location(10,10,10)",
+					"set blocks within {_l1} and {_l2} to stone",
+					"if player is within {_l1} and {_l2}:",
+					"# OTHER",
+					"kill all entities in radius 50 around location(1,65,1, world \"world\")",
+					"delete all entities in radius 25 around location(50,50,50, world \"world_nether\")",
+					"ignite all entities in radius 25 around location(1,1,1, world of player)")
 			.since("2.2"));
 		
 		Functions.registerFunction(new SimpleJavaFunction<Date>("date", new Parameter[] {
@@ -522,7 +540,7 @@ public class DefaultFunctions {
 			}
 		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
 			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
-			.since("INSERT VERSION");
+			.since("2.8.0");
 
 		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
@@ -540,7 +558,16 @@ public class DefaultFunctions {
 			}
 		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
 			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("INSERT VERSION");
+			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
+			@Override
+			public Boolean[] executeSimple(Object[][] params) {
+				return new Boolean[] {Double.isNaN(((Number) params[0][0]).doubleValue())};
+			}
+		}).description("Returns true if the input is NaN (not a number).")
+			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
+			.since("2.8.0");
 	}
 	
 }

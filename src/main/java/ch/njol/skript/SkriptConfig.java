@@ -97,14 +97,15 @@ public class SkriptConfig {
 			.setter(t -> {
 				ReleaseChannel channel;
 				switch (t) {
-					case "alpha":  // Everything goes in alpha channel
+					case "alpha":
+					case "beta":
+						Skript.warning("'alpha' and 'beta' are no longer valid release channels. Use 'prerelease' instead.");
+					case "prerelease": // All development builds are valid
 						channel = new ReleaseChannel((name) -> true, t);
 						break;
-					case "beta":
-						channel = new ReleaseChannel((name) -> !name.contains("alpha"), t);
-						break;
 					case "stable":
-						channel = new ReleaseChannel((name) -> !name.contains("alpha") && !name.contains("beta"), t);
+						// TODO a better option would be to check that it is not a pre-release through GH API
+						channel = new ReleaseChannel((name) -> !name.contains("pre"), t);
 						break;
 					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
@@ -116,9 +117,6 @@ public class SkriptConfig {
 				}
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null) {
-					if (updater.getCurrentRelease().flavor.contains("spigot") && !t.equals("stable")) {
-						Skript.error("Only stable Skript versions are uploaded to Spigot resources.");
-					}
 					updater.setReleaseChannel(channel);
 				}
 			});
