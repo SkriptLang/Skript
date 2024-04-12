@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.EffFunctionCall;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import org.eclipse.jdt.annotation.Nullable;
@@ -59,6 +60,8 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			Statement statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
 			if (statement != null) {
 				log.printLog();
+				if (statement.consumeAnnotations())
+					ParserInstance.get().forgetAnnotations();
 				return statement;
 			}
 
