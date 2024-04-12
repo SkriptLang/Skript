@@ -42,7 +42,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 	"using 1.21",
 	"using my-cool-addon-feature"
 })
-@Since("2.9")
+@Since("INSERT VERSION")
 public class StructUsing extends Structure {
 
 	public static final Priority PRIORITY = new Priority(15);

@@ -49,7 +49,8 @@ public class ExperimentManager implements Experimented {
 		if (experiments.isEmpty())
 			return Experiment.unknown(text);
 		for (Experiment experiment : experiments) {
-			if (experiment.matches(text)) return experiment;
+			if (experiment.matches(text))
+				return experiment;
 		}
 		return Experiment.unknown(text);
 	}

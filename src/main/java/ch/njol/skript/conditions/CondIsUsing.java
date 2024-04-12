@@ -78,7 +78,8 @@ public class CondIsUsing extends Condition {
 		if (knownResult != null) // we checked this in advance during init
 			return knownResult;
 		Object[] array = names.getArray(event);
-		if (array.length == 0) return true;
+		if (array.length == 0)
+			return true;
 		boolean isUsing = true;
 		for (@NotNull Object object : array) {
 			isUsing &= this.hasExperiment(object.toString());
