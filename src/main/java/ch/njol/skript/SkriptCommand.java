@@ -67,6 +67,7 @@ public class SkriptCommand implements CommandExecutor {
 			.add("config")
 			.add("aliases")
 			.add("scripts")
+			.add("changed")
 			.add("<script>")
 		).add(new CommandHelp("enable", SkriptColor.DARK_RED)
 			.add("all")
@@ -144,6 +145,17 @@ public class SkriptCommand implements CommandExecutor {
 								Skript.warning(Skript.m_no_scripts.toString());
 							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
 						});
+				}
+
+				else if (args[1].equalsIgnoreCase("changed")) {
+					reloading(sender, "scripts that have changed since last load");
+
+					ScriptLoader.reloadChangedScripts(ScriptLoader.getLoadedScripts(), OpenCloseable.combine(logHandler, timingLogHandler))
+								.thenAccept(info -> {
+									if (info.files == 0)
+										Skript.warning(Skript.m_no_scripts.toString());
+									reloaded(sender, logHandler, timingLogHandler, "scripts that have changed since last load");
+								});
 				}
 
 				else if (args[1].equalsIgnoreCase("scripts")) {

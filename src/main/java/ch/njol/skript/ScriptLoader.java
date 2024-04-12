@@ -46,7 +46,7 @@ import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -897,6 +897,22 @@ public class ScriptLoader {
 		}
 
 		return loadScripts(configs, openCloseable);
+	}
+
+	/**
+	 * Reloads all provided Scripts that could have potentially changed since their initial load.
+	 * This is tested by
+	 * @param scripts
+	 * @param openCloseable
+	 * @return
+	 */
+	public static CompletableFuture<ScriptInfo> reloadChangedScripts(Set<Script> scripts, OpenCloseable openCloseable) {
+		Set<Script> toReload = new HashSet<>(scripts.size());
+		for (Script script : scripts) {
+			if (script.getConfig().hasChanged())
+				toReload.add(script);
+		}
+		return reloadScripts(toReload, openCloseable);
 	}
 	
 	/*

@@ -21,21 +21,22 @@ package ch.njol.skript.config;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
@@ -65,22 +66,39 @@ public class Config implements Comparable<Config> {
 	int errors = 0;
 	
 	final boolean allowEmptySections;
+	private final @Nullable String checksum;
+	private final long length;
 	
 	String fileName;
 	@Nullable
 	Path file = null;
 	
-	public Config(final InputStream source, final String fileName, @Nullable final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
+	public Config(InputStream source, final String fileName, @Nullable final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
+		DigestInputStream digest = null;
 		try {
+			try {
+				source = digest = new DigestInputStream(source, MessageDigest.getInstance("SHA-256"));
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException(e);
+			}
 			this.fileName = fileName;
 			if (file != null) // Must check for null before converting to path
 				this.file = file.toPath();
 			this.simple = simple;
 			this.allowEmptySections = allowEmptySections;
 			this.defaultSeparator = defaultSeparator;
-			separator = defaultSeparator;
+			this.separator = defaultSeparator;
 			
 			if (source.available() == 0) {
+				/* todo		This is fundamentally incorrect;
+				 * 			'available' is just the number of bytes known to the internal buffer right now,
+				 *      	zero could just mean the filesystem hasn't actually started opening the file to us yet
+				 *      	rather than that the file is empty,
+				 * 			see the doc for available():
+				 *  Returns an estimate of the number of bytes that can be read (or skipped over)
+				 *  from this input stream without blocking,
+				 *  which may be 0, or 0 when end of stream is detected.
+				 */
 				main = new SectionNode(this);
 				Skript.warning("'" + getFileName() + "' is empty");
 				return;
@@ -94,6 +112,14 @@ public class Config implements Comparable<Config> {
 			}
 		} finally {
 			source.close();
+			if (digest != null) {
+				byte[] hash = digest.getMessageDigest().digest();
+				this.checksum = new BigInteger(1, hash).toString(16);
+				this.length = file != null ? file.length() : -1;
+			} else {
+				this.checksum = null;
+				this.length = -1;
+			}
 		}
 	}
 	
@@ -156,7 +182,7 @@ public class Config implements Comparable<Config> {
 	 */
 	public void save(final File f) throws IOException {
 		separator = defaultSeparator;
-		final PrintWriter w = new PrintWriter(f, "UTF-8");
+		final PrintWriter w = new PrintWriter(f, StandardCharsets.UTF_8);
 		try {
 			main.save(w);
 		} finally {
@@ -285,7 +311,7 @@ public class Config implements Comparable<Config> {
 				try {
 					if (OptionSection.class.isAssignableFrom(field.getType())) {
 						final OptionSection section = (OptionSection) field.get(object);
-						@NonNull final Class<?> pc = section.getClass();
+						@NotNull final Class<?> pc = section.getClass();
 						load(pc, section, path + section.key + ".");
 					} else if (Option.class.isAssignableFrom(field.getType())) {
 						((Option<?>) field.get(object)).set(this, path);
@@ -316,6 +342,51 @@ public class Config implements Comparable<Config> {
 		if (other == null)
 			return 0;
 		return fileName.compareTo(other.fileName);
+	}
+
+	/**
+	 * Checks whether this *could have* changed since it was first loaded, using the file size and the file hash.
+	 * Importantly, if the source file, checksum or size aren't known, this will return true.
+	 *
+	 * @return True if the file is potentially different from when it was first loaded
+	 */
+	public boolean hasChanged() {
+		if (file == null)
+			return true;
+		return this.isDifferentFrom(file.toFile());
+	}
+
+	/**
+	 * Whether this config's pre-parse content was different from the current file.
+	 * This does not necessarily mean the config originated from this file,
+	 * but that it has the same file size and checksum.
+	 * @param file The file to test
+	 * @return True if their content is (probably) not the same, false if it is the same.
+	 */
+	public boolean isDifferentFrom(@NotNull File file) {
+		if (checksum == null || length == -1) // we don't know about our source file
+			return true;
+		if (file.length() != length)
+			return true;
+		return !checksum.equals(checksum(file));
+	}
+
+	private static @Nullable String checksum(@Nullable File file) {
+		if (file == null)
+			return null;
+		try {
+			DigestInputStream digest = null;
+			try {
+				digest = new DigestInputStream(new FileInputStream(file), MessageDigest.getInstance("SHA-256"));
+				byte[] hash = digest.getMessageDigest().digest();
+				return new BigInteger(1, hash).toString(16);
+			} finally {
+				if (digest != null)
+					digest.close();
+			}
+		} catch (IOException | NoSuchAlgorithmException ex) {
+			return null;
+		}
 	}
 	
 }
