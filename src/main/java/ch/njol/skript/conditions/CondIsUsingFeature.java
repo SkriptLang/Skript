@@ -38,16 +38,16 @@ import org.skriptlang.skript.lang.script.Script;
 /**
  * @author moderocky
  */
-@Name("Is Using")
+@Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
 @Examples({"the script is using \"example feature\"",
 		"on load:",
 		"\tif the script is using \"example feature\":",
 		"\t\tbroadcast \"You're using an experimental feature!\""})
 @Since("INSERT VERSION")
-public class CondIsUsing extends Condition {
+public class CondIsUsingFeature extends Condition {
 	static {
-		Skript.registerCondition(CondIsUsing.class,
+		Skript.registerCondition(CondIsUsingFeature.class,
 								 "[the] [current] script is using %strings%",
 								 "[the] [current] script is(n't| not) using %strings%");
 	}
@@ -58,7 +58,7 @@ public class CondIsUsing extends Condition {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean init(final Expression<?>[] expressions, final int pattern, final Kleenean delayed, final ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		this.names = expressions[0];
 		this.setNegated(pattern == 1);
 		this.script = this.getParser().getCurrentScript();
@@ -74,7 +74,7 @@ public class CondIsUsing extends Condition {
 	}
 	
 	@Override
-	public boolean check(final Event event) {
+	public boolean check(Event event) {
 		if (knownResult != null) // we checked this in advance during init
 			return knownResult;
 		Object[] array = names.getArray(event);
@@ -94,7 +94,7 @@ public class CondIsUsing extends Condition {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the current script " + (isNegated() ? " isn't" : " is") + " using " + names.toString(event, debug);
 	}
 	

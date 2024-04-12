@@ -26,7 +26,12 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
