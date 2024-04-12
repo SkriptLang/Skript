@@ -19,6 +19,7 @@
 package ch.njol.skript.config;
 
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -125,11 +126,18 @@ public abstract class Node {
 	 * leading #, except if there is no comment in which case it will be the empty string.
 	 * 
 	 * @param line
+	 * @param inBlockComment Whether we are currently inside a block comment
 	 * @return A pair (value, comment).
 	 */
-	public static NonNullPair<String, String> splitLine(final String line) {
-		if (line.trim().startsWith("#"))
+	public static NonNullPair<String, String> splitLine(String line, AtomicBoolean inBlockComment) {
+		String trimmed = line.trim();
+		if (trimmed.equals("###")) { // we start or terminate a BLOCK comment
+			inBlockComment.set(!inBlockComment.get());
+			return new NonNullPair<>("", "");
+		} else if (trimmed.startsWith("#"))
 			return new NonNullPair<>("", line.substring(line.indexOf('#')));
+		if (inBlockComment.get()) // we're inside a comment, all text is a comment
+			return new NonNullPair<>("", line);
 		final Matcher m = linePattern.matcher(line);
 		boolean matches = false;
 		try {
@@ -140,6 +148,10 @@ public abstract class Node {
 		if (matches)
 			return new NonNullPair<>("" + m.group(1).replace("##", "#"), "" + m.group(2));
 		return new NonNullPair<>("" + line.replace("##", "#"), "");
+	}
+
+	public static NonNullPair<String, String> splitLine(String line) {
+		return splitLine(line, new AtomicBoolean(false));
 	}
 	
 	static void handleNodeStackOverflow(StackOverflowError e, String line) {

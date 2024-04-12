@@ -20,6 +20,7 @@ package ch.njol.skript.config;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import java.util.ArrayList;
@@ -270,13 +271,14 @@ public class SectionNode extends Node implements Iterable<Node> {
 	
 	private static final Pattern fullLinePattern = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
 	
-	private final SectionNode load_i(final ConfigReader r) throws IOException {
+	private SectionNode load_i(final ConfigReader r) throws IOException {
 		boolean indentationSet = false;
 		String fullLine;
+		AtomicBoolean inBlockComment = new AtomicBoolean(false);
 		while ((fullLine = r.readLine()) != null) {
 			SkriptLogger.setNode(this);
 			
-			final NonNullPair<String, String> line = Node.splitLine(fullLine);
+			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
 			String value = line.getFirst();
 			final String comment = line.getSecond();
 			
