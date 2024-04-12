@@ -275,9 +275,12 @@ public class SectionNode extends Node implements Iterable<Node> {
 		boolean indentationSet = false;
 		String fullLine;
 		AtomicBoolean inBlockComment = new AtomicBoolean(false);
+		int blockCommentStartLine = -1;
 		while ((fullLine = r.readLine()) != null) {
 			SkriptLogger.setNode(this);
-			
+
+			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
+				blockCommentStartLine = this.getLine();
 			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
 			String value = line.getFirst();
 			final String comment = line.getSecond();
@@ -365,7 +368,9 @@ public class SectionNode extends Node implements Iterable<Node> {
 			}
 			
 		}
-		
+		if (inBlockComment.get()) {
+			Skript.error("A block comment (###) was opened on line " + blockCommentStartLine + " but never closed.");
+		}
 		SkriptLogger.setNode(parent);
 		
 		return this;
