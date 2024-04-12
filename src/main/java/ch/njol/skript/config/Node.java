@@ -133,10 +133,11 @@ public abstract class Node {
 		if (trimmed.equals("###")) { // we start or terminate a BLOCK comment
 			inBlockComment.set(!inBlockComment.get());
 			return new NonNullPair<>("", line);
-		} else if (trimmed.startsWith("#"))
+		} else if (trimmed.startsWith("#")) {
 			return new NonNullPair<>("", line.substring(line.indexOf('#')));
-		if (inBlockComment.get()) // we're inside a comment, all text is a comment
+		} else if (inBlockComment.get()) { // we're inside a comment, all text is a comment
 			return new NonNullPair<>("", line);
+		}
 		final Matcher m = linePattern.matcher(line);
 		boolean matches = false;
 		try {
