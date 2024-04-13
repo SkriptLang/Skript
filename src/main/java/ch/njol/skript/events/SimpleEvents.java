@@ -725,7 +725,7 @@ public class SimpleEvents {
 
 		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
 			Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "unknown command")
-				.description("Called when an unknown command is used. (It's called for console and players too)")
+				.description("Called when an unknown command is used.")
 				.examples(
 					"on unknown command:",
 						"\tset unknown command message to \"Hey, this command does not exist.\""
