@@ -65,4 +65,39 @@ public interface SyntaxElement extends Experimented {
 		return script.hasExperiment(experiment);
 	}
 
+	/**
+	 * Whether this syntax element consumes annotations.
+	 * Consuming means the annotations are discarded for the following syntax.
+	 * <p>
+	 * <b>Most syntax should leave this as 'true'.</b>
+	 * <p>
+	 * If the return value is true (as expected), annotations placed before this element WILL NOT be available to
+	 * the lines (or statements) following it.
+	 *
+	 * <pre>{@code
+	 * 	on event:
+	 *      @annotation
+	 * 		my effect # can see @annotation
+	 * 		my effect # cannot see @annotation
+	 * }</pre>
+	 *
+	 * If the return value is false, annotations placed before this element WILL be available to
+	 * the lines (or statements) following it.
+	 *
+	 * <pre>{@code
+	 * 	on event:
+	 *      @annotation
+	 * 		my effect # can see @annotation
+	 * 		my effect # can see @annotation
+	 * }</pre>
+	 *
+	 * This behaviour is used by meta-syntax (including @annotations themselves).
+	 *
+	 * @return True if annotations will be discarded, false if they should be kept for the next statement.
+	 * @see org.skriptlang.skript.lang.script.Annotation
+	 */
+	default boolean consumeAnnotations() {
+		return true;
+	}
+
 }

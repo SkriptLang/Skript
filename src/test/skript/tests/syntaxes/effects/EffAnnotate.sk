@@ -1,0 +1,8 @@
+
+test "annotation":
+	@suppress warnings
+	@suppress errors
+	assert true is true with "syntax failure"
+	@foo bar fake annotation
+	set {_var} to 1
+	@trailing annotation

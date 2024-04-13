@@ -27,12 +27,17 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
+import ch.njol.skript.patterns.MatchResult;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Annotation;
+import org.skriptlang.skript.lang.script.Annotation.Match;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -42,6 +47,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.function.Function;
 
 public final class ParserInstance {
@@ -397,6 +404,114 @@ public final class ParserInstance {
 	
 	public String getIndentation() {
 		return indentation;
+	}
+
+	// Annotations API
+
+	private final @NotNull Set<Annotation> annotations = new LinkedHashSet<>(4);
+
+	/**
+	 * Registers an annotation visible to the upcoming syntax element.
+	 * Annotations are (typically) disposed of after the next non-meta line of code.
+	 * @param annotation The annotation to be registered.
+	 */
+	public void addAnnotation(Annotation annotation) {
+		this.annotations.add(annotation);
+	}
+
+	/**
+	 * Disposes of all registered annotations.
+	 * This is usually run after a line of code.
+	 */
+	public void forgetAnnotations() {
+		this.annotations.clear();
+	}
+
+	/**
+	 * Checks whether an annotation instance is visible to the parser at this stage.
+	 * @param annotation The annotation to test
+	 * @return Whether this annotation is present
+	 */
+	public boolean hasAnnotation(Annotation annotation) {
+		return annotations.contains(annotation);
+	}
+
+	/**
+	 * Checks whether an annotation by exact text is visible to the parser at this stage.
+	 * @param text The exact content of the annotation
+	 * @return Whether an annotation with this content is present
+	 */
+	public boolean hasAnnotation(String text) {
+		if (annotations.isEmpty())
+			return false;
+		for (Annotation annotation : annotations) {
+			if (annotation.valueEquals(text))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * A helper method for {@link #hasAnnotationMatching(SkriptPattern)} accepting a non-compiled pattern.
+	 */
+	public boolean hasAnnotationMatching(String pattern) {
+		return this.hasAnnotationMatching(PatternCompiler.compile(pattern));
+	}
+
+	/**
+	 * Whether there is an annotation present whose content matches the given pattern.
+	 * @param pattern A pattern matching the content of an annotation
+	 * @return Whether any annotation matching this pattern was present
+	 */
+	public boolean hasAnnotationMatching(SkriptPattern pattern) {
+		return this.getAnnotationMatching(pattern) != null;
+	}
+
+	/**
+	 * A helper method for {@link #getAnnotationsMatching(SkriptPattern)} accepting a non-compiled pattern.
+	 */
+	public @NotNull Match[] getAnnotationsMatching(String pattern) {
+		return this.getAnnotationsMatching(PatternCompiler.compile(pattern));
+	}
+
+	/**
+	 * Finds all visible annotations whose content matches the provided pattern.
+	 * @param pattern A pattern matching the content of an annotation
+	 * @return A set of matches, including the parse results
+	 */
+	public @NotNull Match[] getAnnotationsMatching(SkriptPattern pattern) {
+		if (annotations.isEmpty())
+			return new Match[0];
+		List<Match> matches = new ArrayList<>(annotations.size());
+		for (Annotation annotation : annotations) {
+			MatchResult result = pattern.match(annotation.value());
+			if (result != null)
+				matches.add(new Match(annotation, result));
+		}
+		return matches.toArray(new Match[0]);
+	}
+
+	/**
+	 * A helper method for {@link #getAnnotationMatching(SkriptPattern)} accepting a non-compiled pattern.
+	 */
+	public @Nullable Match getAnnotationMatching(String pattern) {
+		return this.getAnnotationMatching(PatternCompiler.compile(pattern));
+	}
+
+	/**
+	 * Finds the first annotation whose content matches the given pattern, or nothing if none match.
+	 * @param pattern A pattern matching the content of an annotation
+	 * @return A matched annotation and the parse result
+	 */
+	public @Nullable Match getAnnotationMatching(SkriptPattern pattern) {
+		if (annotations.isEmpty())
+			return null;
+		for (Annotation annotation : annotations) {
+			MatchResult result = pattern.match(annotation.value());
+			if (result != null)
+				return new Match(annotation, result);
+		}
+		return null;
 	}
 
 	// ParserInstance Data API
