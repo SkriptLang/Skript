@@ -77,7 +77,6 @@ public class SecFor extends SecLoop {
 	}
 
 	private @Nullable Expression<?> keyStore, valueStore;
-	private boolean isVariable;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -104,7 +103,6 @@ public class SecFor extends SecLoop {
 				this.valueStore = exprs[1];
 				this.expression = LiteralUtils.defendExpression(exprs[2]);
 		}
-		this.isVariable = expression instanceof Variable;
 		//</editor-fold>
 		//<editor-fold desc="Check our input expressions are safe/correct" defaultstate="collapsed">
 		if (!(keyStore instanceof Variable || keyStore == null)) {
@@ -136,46 +134,22 @@ public class SecFor extends SecLoop {
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		//<editor-fold desc="Get the iterator (duplicate of SecLoop)" defaultstate="collapsed">
-		Iterator<?> iter = super.iteratorMap.get(event);
-		if (iter == null) {
-			iter = this.isVariable
-				? ((Variable<?>) super.expression).variablesIterator(event)
-				: super.expression.iterator(event);
-			if (iter != null) {
-				if (iter.hasNext())
-					super.iteratorMap.put(event, iter);
-				else
-					iter = null;
-			}
+	protected void store(Event event, Object next) {
+		super.store(event, next);
+		//<editor-fold desc="Store the loop index/value in the variables" defaultstate="collapsed">
+		if (next instanceof Map.Entry) {
+			@SuppressWarnings("unchecked") Map.Entry<String, Object> entry = (Map.Entry<String, Object>) next;
+			if (keyStore != null)
+				this.keyStore.change(event, new Object[]{entry.getKey()}, Changer.ChangeMode.SET);
+			if (valueStore != null)
+				this.valueStore.change(event, new Object[]{entry.getValue()}, Changer.ChangeMode.SET);
+		} else {
+			if (keyStore != null)
+				this.keyStore.change(event, new Object[]{this.getLoopCounter(event)}, Changer.ChangeMode.SET);
+			if (valueStore != null)
+				this.valueStore.change(event, new Object[]{next}, Changer.ChangeMode.SET);
 		}
 		//</editor-fold>
-		if (iter == null || !iter.hasNext()) {
-			this.exit(event);
-			this.debug(event, false);
-			return actualNext;
-		} else {
-			Object next = iter.next();
-			super.current.put(event, next);
-			super.currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
-			//<editor-fold desc="Store the loop index/value in the variables" defaultstate="collapsed">
-			if (next instanceof Map.Entry) {
-				@SuppressWarnings("unchecked") Map.Entry<String, Object> entry = (Map.Entry<String, Object>) next;
-				if (keyStore != null)
-					this.keyStore.change(event, new Object[]{entry.getKey()}, Changer.ChangeMode.SET);
-				if (valueStore != null)
-					this.valueStore.change(event, new Object[]{entry.getValue()}, Changer.ChangeMode.SET);
-			} else {
-				if (keyStore != null)
-					this.keyStore.change(event, new Object[]{this.getLoopCounter(event)}, Changer.ChangeMode.SET);
-				if (valueStore != null)
-					this.valueStore.change(event, new Object[]{next}, Changer.ChangeMode.SET);
-			}
-			//</editor-fold>
-			return this.walk(event, true);
-		}
 	}
 
 	@Override
