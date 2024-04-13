@@ -39,6 +39,10 @@ public class EffectSectionEffect extends Effect {
 		return effectSection.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
+	public EffectSection getEffectSection() {
+		return effectSection;
+	}
+
 	@Override
 	protected void execute(Event event) { }
 

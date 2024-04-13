@@ -28,6 +28,7 @@ import ch.njol.skript.patterns.SkriptPattern;
  * @author moderocky
  */
 public enum Feature implements Experiment {
+	SWITCH_SECTIONS("switch sections", LifeCycle.EXPERIMENTAL, "switch (section|case)[s]")
 	;
 
 	private final String codeName;

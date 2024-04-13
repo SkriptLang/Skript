@@ -1,0 +1,38 @@
+using switch cases
+
+test "sec switch":
+	switch 10:
+		this exists:
+			add 1 to {_var}
+		this is alive:
+			assert true is false with "This is not alive"
+		this is 5:
+			assert true is false with "This is not 5"
+		this is equal to 10:
+			add 1 to {_var}
+		10 is equal to 10:
+			add 1 to {_var}
+		this is 5:
+			assert true is false with "This is not 5"
+	assert {_var} is 3 with "At least one condition failed"
+	delete {_var}
+
+	switch 10:
+		this exists
+		this is 10:
+			add 1 to {_var}
+		this exists
+		this is alive:
+			assert true is false with "This is not alive"
+		this is alive
+		this exists:
+			assert true is false with "This is not alive (2)"
+		this is 5
+		this is 5
+		this is 5:
+			assert true is false with "This is not 5"
+		this is equal to 10
+		this is equal to 10:
+			add 1 to {_var}
+	assert {_var} is 2 with "At least one condition failed"
+	delete {_var}
