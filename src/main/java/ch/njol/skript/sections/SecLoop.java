@@ -89,8 +89,8 @@ public class SecLoop extends LoopSection {
 
 	protected @UnknownNullability Expression<?> expression;
 
-	protected final transient Map<Event, Object> current = new WeakHashMap<>();
-	protected final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
+	private final transient Map<Event, Object> current = new WeakHashMap<>();
+	private final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
 
 	@Nullable
 	protected TriggerItem actualNext;
@@ -103,7 +103,7 @@ public class SecLoop extends LoopSection {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		expression = LiteralUtils.defendExpression(exprs[0]);
+		this.expression = LiteralUtils.defendExpression(exprs[0]);
 		if (!LiteralUtils.canInitSafely(expression)) {
 			Skript.error("Can't understand this loop: '" + parseResult.expr.substring(5) + "'");
 			return false;
@@ -113,7 +113,7 @@ public class SecLoop extends LoopSection {
 			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expression.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
-			expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
+			this.expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
 
 		if (expression.isSingle()) {
@@ -145,10 +145,15 @@ public class SecLoop extends LoopSection {
 			debug(event, false);
 			return actualNext;
 		} else {
-			current.put(event, iter.next());
-			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			Object next = iter.next();
+			this.store(event, next);
 			return walk(event, true);
 		}
+	}
+
+	protected void store(Event event, Object next) {
+		this.current.put(event, next);
+		this.currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 	}
 
 	@Override
