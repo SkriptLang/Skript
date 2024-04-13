@@ -112,12 +112,12 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
-		EntryValidator entryValidator = structureInfo.entryValidator;
 
-		if (structureData.node instanceof SimpleNode) {
+		if (structureInfo.simple) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
+		EntryValidator entryValidator = structureInfo.entryValidator;
 		if (entryValidator == null) {
 			// No validation necessary, the structure itself will handle it
 			entryContainer = EntryContainer.withoutValidator((SectionNode) structureData.node);
@@ -202,13 +202,15 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Nullable
 	public static Structure parse(String expr, Node node, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
-		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode)) {
+		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode))
 			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
-		}
 		ParserInstance.get().getData(StructureData.class).node = node;
 
-		if (node instanceof SimpleNode) // only allow simple structures for simple nodes
+		if (node instanceof SimpleNode) { // only allow simple structures for simple nodes
 			iterator = new CheckedIterator<>(iterator, item -> item != null && item.simple);
+		} else { // only allow non-simple structures for section nodes
+			iterator = new CheckedIterator<>(iterator, item -> item != null && !item.simple);
+		}
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
 		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
