@@ -24,8 +24,6 @@ import ch.njol.skript.patterns.SkriptPattern;
 
 /**
  * Experimental feature toggles as provided by Skript itself.
- *
- * @author moderocky
  */
 public enum Feature implements Experiment {
 	;
