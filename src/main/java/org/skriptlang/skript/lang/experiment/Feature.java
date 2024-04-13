@@ -28,6 +28,7 @@ import ch.njol.skript.patterns.SkriptPattern;
  * @author moderocky
  */
 public enum Feature implements Experiment {
+	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] [loop[s]]")
 	;
 
 	private final String codeName;
