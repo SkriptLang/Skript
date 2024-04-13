@@ -30,7 +30,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Is Online")
-@Description("Checks whether a player is online. The 'connected' pattern will return false once this player leaves the server, even if they rejoin.")
+@Description("Checks whether a player is online. The 'connected' pattern will return false once this player leaves the server, even if they rejoin. Be aware that using the 'connected' pattern with a variable will not have this special behavior. Use the direct event-player or other non-variable expression for best results.")
 @Examples({
 	"player is online",
 	"player-argument is offline",
