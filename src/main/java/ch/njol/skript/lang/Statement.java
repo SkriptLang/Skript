@@ -60,8 +60,6 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			Statement statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
 			if (statement != null) {
 				log.printLog();
-				if (statement.consumeAnnotations())
-					ParserInstance.get().forgetAnnotations();
 				return statement;
 			}
 

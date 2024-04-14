@@ -43,12 +43,7 @@ import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance {
@@ -512,6 +507,23 @@ public final class ParserInstance {
 				return new Match(annotation, result);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a modifiable hash-based copy of the current annotation set.
+	 * @return A copy of the current annotations set.
+	 */
+	public Set<Annotation> copyAnnotations() {
+		return new HashSet<>(annotations);
+	}
+
+	/**
+	 * Replaces the current set of visible annotations with the given collection.
+	 * @param annotations The new set of visible annotations.
+	 */
+	public void replaceAnnotations(Collection<Annotation> annotations) {
+		this.annotations.clear();
+		this.annotations.addAll(annotations);
 	}
 
 	// ParserInstance Data API
