@@ -79,16 +79,16 @@ public class SecSwitch extends LoopSection {
 			Skript.error("Can't understand this switch section: '" + result.expr.substring(7) + "'");
 			return false;
 		}
+		if (this.getParser().hasAnnotationMatching(STRICT))
+			this.mode = Mode.STRICT;
+		else if (this.getParser().hasAnnotationMatching(FALL_THROUGH))
+			this.mode = Mode.FALL_THROUGH;
 		try {
 			this.loadOptionalCode(node);
 		} catch (IllegalSyntaxError error) {
 			Skript.error("Illegal syntax in switch case: '" + error.getItem() + "'");
 			return false;
 		}
-		if (this.getParser().hasAnnotationMatching(STRICT))
-			this.mode = Mode.STRICT;
-		else if (this.getParser().hasAnnotationMatching(FALL_THROUGH))
-			this.mode = Mode.FALL_THROUGH;
 		super.setNext(this);
 		return true;
 	}

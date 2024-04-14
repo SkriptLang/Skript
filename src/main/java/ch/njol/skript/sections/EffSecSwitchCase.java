@@ -66,7 +66,10 @@ public class EffSecSwitchCase extends EffectSection {
 					skippedNext = this.getNormalNext();
 					break;
 				case STRICT:
-					skippedNext = this.parent;
+					if (section)
+					    skippedNext = this.parent;
+					else
+						skippedNext = this.getNormalNext();
 					break;
 				case FALL_THROUGH:
 					skippedNext = this.getNextCondition();
