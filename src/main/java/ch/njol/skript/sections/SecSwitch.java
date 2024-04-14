@@ -26,6 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.LiteralUtils;
@@ -60,6 +61,7 @@ public class SecSwitch extends LoopSection {
 	private @UnknownNullability Expression<?> expression;
 	private final List<EffSecSwitchCase> cases = new ArrayList<>();
 	private final ContextLocal<Event, Iterator<?>> iterator = new ContextLocal<>(this::makeIterator);
+	private final ContextLocal<Event, Boolean> hasPassed = new ContextLocal<>(Boolean.FALSE::booleanValue);
 
 	public static @Nullable Object current(Event event) {
 		return currentSwitchEntry.get(event);
@@ -79,10 +81,7 @@ public class SecSwitch extends LoopSection {
 			Skript.error("Can't understand this switch section: '" + result.expr.substring(7) + "'");
 			return false;
 		}
-		if (this.getParser().hasAnnotationMatching(STRICT))
-			this.mode = Mode.STRICT;
-		else if (this.getParser().hasAnnotationMatching(FALL_THROUGH))
-			this.mode = Mode.FALL_THROUGH;
+		this.mode = getSwitchMode(ParserInstance.get(), mode);
 		try {
 			this.loadOptionalCode(node);
 		} catch (IllegalSyntaxError error) {
@@ -91,6 +90,14 @@ public class SecSwitch extends LoopSection {
 		}
 		super.setNext(this);
 		return true;
+	}
+
+	protected static Mode getSwitchMode(ParserInstance parser, Mode defaultMode) {
+		if (parser.hasAnnotationMatching(STRICT))
+			return Mode.STRICT;
+		else if (parser.hasAnnotationMatching(FALL_THROUGH))
+			return Mode.FALL_THROUGH;
+		return defaultMode;
 	}
 
 	@Override
@@ -118,7 +125,10 @@ public class SecSwitch extends LoopSection {
 		return this;
 	}
 
+	// storing what the world was like when we entered this switch
+	// e.g. for switch inside switch
 	private @Nullable Object outerSwitch;
+	private boolean outerPassed;
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
@@ -129,6 +139,8 @@ public class SecSwitch extends LoopSection {
 			return actualNext;
 		} else {
 			Object next = iterator.next();
+			this.outerPassed = this.hasCasePassed(event);
+			this.setCasePassed(event, false);
 			this.outerSwitch = SecSwitch.currentSwitchEntry.get(event);
 			SecSwitch.currentSwitchEntry.set(event, next);
 			return this.walk(event, true);
@@ -146,6 +158,7 @@ public class SecSwitch extends LoopSection {
 		SecSwitch.currentSwitchEntry.remove(event);
 		if (outerSwitch != null)
 			SecSwitch.currentSwitchEntry.set(event, outerSwitch);
+		this.setCasePassed(event, outerPassed);
 		super.exit(event);
 	}
 
@@ -160,6 +173,20 @@ public class SecSwitch extends LoopSection {
 
 	protected Mode switchMode() {
 		return mode;
+	}
+
+	/**
+	 * Marks the currently-evaluating switch case as having passed for fall-through mode.
+	 */
+	protected void setCasePassed(Event event, boolean passed) {
+		this.hasPassed.set(event, passed);
+	}
+
+	/**
+	 * Whether the currently-evaluating switch case has passed.
+	 */
+	protected boolean hasCasePassed(Event event) {
+		return this.hasPassed.get(event);
 	}
 
 	private static class IllegalSyntaxError extends Error {
@@ -196,6 +223,12 @@ public class SecSwitch extends LoopSection {
 		return (SecSwitch) sections.get(sections.size() - 1);
 	}
 
+	/**
+	 * The mode this switch statement runs in.
+	 * NORMAL = any matching cases run (similar to if if if)
+	 * STRICT = the first matching case runs (similar to if else if else if)
+	 * FALL_THROUGH = the first matching case runs, ALL following cases run (like java)
+	 */
 	public enum Mode {
 		NORMAL,
 		FALL_THROUGH,

@@ -21,9 +21,11 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.experiment.Feature;
 
@@ -38,6 +40,7 @@ public class EffSecSwitchCase extends EffectSection {
 	private @UnknownNullability SecSwitch parent;
 	private @UnknownNullability Condition condition;
 	private boolean section;
+	private @NotNull SecSwitch.Mode mode = SecSwitch.Mode.NORMAL;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
@@ -54,6 +57,7 @@ public class EffSecSwitchCase extends EffectSection {
 			this.loadOptionalCode(sectionNode);
 		}
 		this.parent = SecSwitch.getSwitch(this);
+		this.mode = SecSwitch.getSwitchMode(ParserInstance.get(), parent.switchMode());
 		return condition != null;
 	}
 
@@ -61,7 +65,7 @@ public class EffSecSwitchCase extends EffectSection {
 	protected @Nullable TriggerItem walk(Event event) {
 		if (this.checkCondition(event)) {
 			TriggerItem skippedNext = null;
-			switch (parent.switchMode()) {
+			switch (mode) {
 				case NORMAL:
 					skippedNext = this.getNormalNext();
 					break;
@@ -74,6 +78,8 @@ public class EffSecSwitchCase extends EffectSection {
 				case FALL_THROUGH:
 					skippedNext = this.getNextCondition();
 			}
+			if (section)
+				this.parent.setCasePassed(event, true);
 			if (this.last != null)
 				this.last.setNext(skippedNext);
 			return this.first != null ? this.first : skippedNext;
@@ -117,6 +123,8 @@ public class EffSecSwitchCase extends EffectSection {
 	}
 
 	private boolean checkCondition(Event event) {
+		if (mode == SecSwitch.Mode.FALL_THROUGH)
+			return parent.hasCasePassed(event) || condition.run(event);
 		return condition.run(event);
 	}
 
