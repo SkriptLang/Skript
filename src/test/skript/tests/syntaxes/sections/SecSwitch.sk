@@ -173,3 +173,22 @@ test "sec switch (fall-through + stacked cases)":
 	assert {_var} is greater than 0 with "no cases passed"
 	assert {_var} is greater than 2 with "cases didn't fall through correctly: %{_var}%"
 	assert {_var} is 3 with "somehow, more cases ran than were permitted"
+
+
+test "sec switch (mixed)":
+	switch 10, 2:
+		this exists
+		this is alive:
+			assert true is false with "this is not alive"
+		this exists
+		@strict switch
+		this is 10:
+			add 1 to {_var1}
+		@fall-through switch
+		this exists:
+			add 1 to {_var2}
+		this is greater than 50
+		this is alive:
+			add 1 to {_var2}
+	assert {_var1} is 1 with "10 should pass 1 case: %{_var1}%"
+	assert {_var2} is 2 with "2 should pass 2 cases: %{_var2}%"
