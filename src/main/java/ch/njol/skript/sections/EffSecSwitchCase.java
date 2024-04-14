@@ -32,7 +32,7 @@ import java.util.List;
 public class EffSecSwitchCase extends EffectSection {
 
 	static {
-		Skript.registerSection(EffSecSwitchCase.class, "[check] <.+>");
+		Skript.registerSection(EffSecSwitchCase.class, "[check|if] <.+>");
 	}
 
 	private @UnknownNullability SecSwitch parent;
