@@ -35,6 +35,7 @@ public class EffSecSwitchCase extends EffectSection {
 		Skript.registerSection(EffSecSwitchCase.class, "[check] <.+>");
 	}
 
+	private @UnknownNullability SecSwitch parent;
 	private @UnknownNullability Condition condition;
 	private boolean section;
 
@@ -52,17 +53,24 @@ public class EffSecSwitchCase extends EffectSection {
 		if (section) {
 			this.loadOptionalCode(sectionNode);
 		}
+		this.parent = SecSwitch.getSwitch(this);
 		return condition != null;
-	}
-
-	protected Condition getCondition() {
-		return condition;
 	}
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
 		if (this.checkCondition(event)) {
-			TriggerItem skippedNext = this.getNormalNext();
+			TriggerItem skippedNext = null;
+			switch (parent.switchMode()) {
+				case NORMAL:
+					skippedNext = this.getNormalNext();
+					break;
+				case STRICT:
+					skippedNext = this.parent;
+					break;
+				case FALL_THROUGH:
+					skippedNext = this.getNextCondition();
+			}
 			if (this.last != null)
 				this.last.setNext(skippedNext);
 			return this.first != null ? this.first : skippedNext;
@@ -71,12 +79,12 @@ public class EffSecSwitchCase extends EffectSection {
 		}
 	}
 
-	private @UnknownNullability TriggerItem getNextCondition() {
+	private @UnknownNullability TriggerItem getFailureNext() {
 		return this.getSkippedNext();
 	}
 
-	private TriggerItem getSwitch() {
-		return SecSwitch.getSwitch(this);
+	private @UnknownNullability TriggerItem getNextCondition() {
+		return this.getSkippedNext();
 	}
 
 	@Nullable

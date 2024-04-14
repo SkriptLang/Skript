@@ -29,6 +29,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.experiment.Feature;
@@ -50,6 +51,7 @@ public class SecSwitch extends LoopSection {
 		Skript.registerSection(SecSwitch.class, "switch %objects%");
 	}
 
+	private @NotNull Mode mode = Mode.NORMAL;
 	private @UnknownNullability TriggerItem actualNext;
 	private @UnknownNullability Expression<?> expression;
 	private final List<EffSecSwitchCase> cases = new ArrayList<>();
@@ -148,6 +150,10 @@ public class SecSwitch extends LoopSection {
 		return "switch " + expression.toString(event, debug);
 	}
 
+	protected Mode switchMode() {
+		return mode;
+	}
+
 	private static class IllegalSyntaxError extends Error {
 		private final TriggerItem item;
 
@@ -180,6 +186,12 @@ public class SecSwitch extends LoopSection {
 		if (sections.isEmpty())
 			throw new IllegalStateException();
 		return (SecSwitch) sections.get(sections.size() - 1);
+	}
+
+	public enum Mode {
+		NORMAL,
+		FALL_THROUGH,
+		STRICT
 	}
 
 }
