@@ -67,6 +67,7 @@ public class EffSecSwitchCase extends EffectSection {
 			TriggerItem skippedNext = null;
 			switch (mode) {
 				case NORMAL:
+				case FALL_THROUGH:
 					skippedNext = this.getNormalNext();
 					break;
 				case STRICT:
@@ -74,9 +75,6 @@ public class EffSecSwitchCase extends EffectSection {
 					    skippedNext = this.parent;
 					else
 						skippedNext = this.getNormalNext();
-					break;
-				case FALL_THROUGH:
-					skippedNext = this.getNextCondition();
 			}
 			if (section)
 				this.parent.setCasePassed(event, true);
