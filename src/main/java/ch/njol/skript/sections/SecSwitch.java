@@ -26,6 +26,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -46,6 +48,8 @@ import java.util.List;
 public class SecSwitch extends LoopSection {
 
 	protected static final ContextLocal<Event, Object> currentSwitchEntry = new ContextLocal<>();
+	protected static final SkriptPattern STRICT = PatternCompiler.compile("strict switch [mode|cases]"),
+		FALL_THROUGH = PatternCompiler.compile("fall[ |-]through switch [mode|cases]");
 
 	static {
 		Skript.registerSection(SecSwitch.class, "switch %objects%");
@@ -81,6 +85,10 @@ public class SecSwitch extends LoopSection {
 			Skript.error("Illegal syntax in switch case: '" + error.getItem() + "'");
 			return false;
 		}
+		if (this.getParser().hasAnnotationMatching(STRICT))
+			this.mode = Mode.STRICT;
+		else if (this.getParser().hasAnnotationMatching(FALL_THROUGH))
+			this.mode = Mode.FALL_THROUGH;
 		super.setNext(this);
 		return true;
 	}
