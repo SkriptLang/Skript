@@ -45,13 +45,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
-<<<<<<< HEAD
 import org.bukkit.event.command.UnknownCommandEvent;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.block.SpongeAbsorbEvent;
-import org.bukkit.event.entity.*;
-=======
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -75,7 +69,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
->>>>>>> upstream/dev/feature
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;

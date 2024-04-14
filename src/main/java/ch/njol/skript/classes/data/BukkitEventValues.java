@@ -1871,7 +1871,7 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
-<<<<<<< HEAD
+
 		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
 			EventValues.registerEventValue(UnknownCommandEvent.class, CommandSender.class, new Getter<CommandSender, UnknownCommandEvent>() {
 				@Override
@@ -1880,8 +1880,5 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-
-=======
->>>>>>> upstream/dev/feature
 	}
 }
