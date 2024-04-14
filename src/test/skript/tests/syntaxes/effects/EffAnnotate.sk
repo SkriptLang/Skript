@@ -1,8 +1,12 @@
 
 test "annotation":
+	assert annotation "<.+>" not present with "annotation wrongly present"
 	@suppress warnings
 	@suppress errors
 	assert true is true with "syntax failure"
 	@foo bar fake annotation
 	set {_var} to 1
+	@some annotation
+	assert annotation "some annotation" present with "annotation not detected"
+	assert annotation "some annotation" not present with "trailing annotation wrongly present"
 	@trailing annotation
