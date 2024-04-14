@@ -263,6 +263,8 @@ public class SkriptParser {
 							T element = info.getElementClass().newInstance();
 							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
 								log.printLog();
+								if (element.consumeAnnotations())
+									ParserInstance.get().forgetAnnotations();
 								return element;
 							}
 						}

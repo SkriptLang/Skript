@@ -26,11 +26,13 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -173,13 +175,16 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
+		ParserInstance parser = ParserInstance.get();
+		SectionContext sectionContext = parser.getData(SectionContext.class);
+		Set<Annotation> annotations = parser.copyAnnotations();
+		parser.forgetAnnotations();
 		return sectionContext.modify(sectionNode, triggerItems,
 			() -> {
-				Section section = (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
-				if (section != null && section.consumeAnnotations())
-					ParserInstance.get().forgetAnnotations();
-				return section;
+				ParserInstance local = ParserInstance.get();
+				local.forgetAnnotations();
+				local.replaceAnnotations(annotations);
+				return (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
 		});
 	}
 
