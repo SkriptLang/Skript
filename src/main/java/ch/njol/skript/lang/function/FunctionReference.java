@@ -312,31 +312,30 @@ public class FunctionReference<T> implements Contract {
 		// Execute the function
 		return function.execute(params);
 	}
-	
-	@Override
+
 	public boolean isSingle() {
-		return single;
+		return contract.isSingle(parameters);
 	}
 
 	@Override
 	public boolean isSingle(Expression<?>... arguments) {
-		return this.isSingle();
+		return single;
 	}
 
-	@Override
 	@Nullable
 	public Class<? extends T> getReturnType() {
-		if (signature == null)
-			throw new SkriptAPIException("Signature of function is null when return type is asked!");
-		
-		@SuppressWarnings("ConstantConditions")
-		ClassInfo<? extends T> ret = signature.returnType;
-		return ret == null ? null : ret.getC();
+		//noinspection unchecked
+		return (Class<? extends T>) contract.getReturnType(parameters);
 	}
 
 	@Override
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
-		return this.getReturnType();
+		if (signature == null)
+			throw new SkriptAPIException("Signature of function is null when return type is asked!");
+
+		@SuppressWarnings("ConstantConditions")
+		ClassInfo<? extends T> ret = signature.returnType;
+		return ret == null ? null : ret.getC();
 	}
 
 	/**

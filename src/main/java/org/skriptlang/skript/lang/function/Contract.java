@@ -11,23 +11,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface Contract {
 
 	/**
-	 * @return Whether, all other things being unknown, this will return a single value
-	 * @see Expression#isSingle()
-	 */
-	boolean isSingle();
-
-	/**
 	 * @return Whether, given these parameters, this will return a single value
 	 * @see Expression#isSingle()
 	 */
 	boolean isSingle(Expression<?>... arguments);
-
-	/**
-	 * @return What this will return, all other things being unknown
-	 * @see Expression#getReturnType()
-	 */
-	@Nullable
-	Class<?> getReturnType();
 
 	/**
 	 * @return What this will return, given these parameters
