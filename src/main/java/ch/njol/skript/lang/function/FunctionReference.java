@@ -103,26 +103,18 @@ public class FunctionReference<T> implements Contract {
 	 * The contract for this function (typically the function reference itself).
 	 * Used to determine input-based return types and simple behaviour.
 	 */
-	private final Contract contract;
+	private Contract contract;
 
-	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script,
-							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
-		this(functionName, node, script, returnTypes, params, null);
-	}
 	public FunctionReference(
 			String functionName, @Nullable Node node, @Nullable String script,
-			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params,
-			@Nullable Contract contract
+			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
 	) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
 		this.returnTypes = returnTypes;
 		this.parameters = params;
-		if (contract == null)
-			this.contract = this;
-		else
-			this.contract = contract;
+		this.contract = this;
 	}
 	
 	/**
@@ -263,6 +255,10 @@ public class FunctionReference<T> implements Contract {
 		
 		signature = (Signature<? extends T>) sign;
 		sign.calls.add(this);
+
+		Contract contract = sign.getContract();
+		if (contract != null)
+			this.contract = contract;
 		
 		return true;
 	}
