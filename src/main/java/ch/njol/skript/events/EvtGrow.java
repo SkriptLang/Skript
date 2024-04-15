@@ -174,7 +174,7 @@ public class EvtGrow extends SkriptEvent {
 			BlockState oldState = ((BlockGrowEvent) event).getBlock().getState();
 			return types.check(event, type -> {
 				if (type instanceof ItemType) {
-					return ((ItemType) type).isOfType(oldState);
+					return ((ItemType) type).isOfType(oldState.getBlockData());
 				} else if (type instanceof BlockData) {
 					return ((BlockData) type).matches(oldState.getBlockData());
 				}
@@ -201,7 +201,7 @@ public class EvtGrow extends SkriptEvent {
 			BlockState newState = ((BlockGrowEvent) event).getNewState();
 			return types.check(event, type -> {
 				if (type instanceof ItemType) {
-					return ((ItemType) type).isOfType(newState);
+					return ((ItemType) type).isOfType(newState.getBlockData());
 				} else if (type instanceof BlockData) {
 					return ((BlockData) type).matches(newState.getBlockData());
 				}
