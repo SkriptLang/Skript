@@ -59,14 +59,21 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 	@Override
 	@Nullable
 	public String convert(Player player) {
-		return null;
+		return null; // Due to Bukkit limitations
 	}
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
-			return null;
-		return CollectionUtils.array(String[].class);
+        switch (mode) {
+            case ADD:
+            case SET:
+            case REMOVE:
+            case DELETE:
+            case RESET:
+				return CollectionUtils.array(String[].class);
+			default:
+				return null;
+        }
 	}
 
 	@Override
@@ -106,7 +113,7 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 
 	@Override
 	protected String getPropertyName() {
-		return "player chat completions";
+		return "custom chat completions";
 	}
 
 }
