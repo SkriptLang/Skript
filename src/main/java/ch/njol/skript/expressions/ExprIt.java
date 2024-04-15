@@ -19,6 +19,10 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -29,6 +33,20 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.experiment.Feature;
 
+@Name("Switch Subject (Experimental)")
+@Description({
+	"The subject of a switch section (the thing being checked).",
+	"This is usable within the cases/conditions of the switch section.",
+	"See 'Switch Section' for more details."
+})
+@Examples({
+	"switch {_words::*}:",
+	"\tit is \"hello\":",
+	"\t\tbroadcast \"hello!\"",
+	"\tit is \"goodbye\":",
+	"\t\tbroadcast \"see you later!\""
+})
+@Since("INSERT VERSION")
 public class ExprIt extends SimpleExpression<Object> {
 
 	static {
@@ -55,7 +73,18 @@ public class ExprIt extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return Object.class;
+		try {
+			return SecSwitch.getSwitch(this).getSubjectType();
+		} catch (IllegalStateException | ClassCastException | NullPointerException ex) {
+			/*
+			In case this is (somehow) used in a time or place where the parser doesn't know
+			about its outer switch yet, the switch hasn't been added to the trigger sections
+			or the switch hasn't been initialised.
+			Conceivably, this could happen if this is asked for by a condition and SecSwitch
+			hasn't run its `init` yet, so we don't know what the subject is.
+			 */
+			return Object.class;
+		}
 	}
 
 	@Override
