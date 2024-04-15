@@ -27,6 +27,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -44,10 +45,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
+import io.papermc.paper.event.player.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -1828,6 +1826,12 @@ public final class BukkitEventValues {
 			@Override
 			public ItemStack get(InventoryMoveItemEvent event) {
 				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EffectCommandEvent.class, String.class, new Getter<String, EffectCommandEvent>() {
+			@Override
+			public String get(EffectCommandEvent event) {
+				return event.getCommand();
 			}
 		}, EventValues.TIME_NOW);
 

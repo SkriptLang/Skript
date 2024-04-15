@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.events;
 
-import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.command.EffectCommandEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import io.papermc.paper.event.player.*;
@@ -748,12 +748,12 @@ public class SimpleEvents {
 			)
 			.since("INSERT VERSION");
 
-		Skript.registerEvent("Player Item Cooldown", SimpleEvent.class, PlayerItemCooldownEvent.class, "[player] item cool[ ]down")
-			.description("Called when a player's item cooldown changes.", " ","You must at least wait 1 tick if you need the cooldown or check it", "Because the cooldown won't have been set on the item itself when the event is called in case something wants to cancel or modify the cooldown.")
+		Skript.registerEvent("Effect Command", SimpleEvent.class, EffectCommandEvent.class, "effect command [send|use]")
+			.description("Called when a effect command is used.")
 			.examples(
-				"on item cooldown:",
-				"\twait 1 tick",
-				"\tbroadcast player's item cooldown for player's tool"
+				"on effect command:",
+					"\tif event-string contains \"ban\":",
+						"\tcancel event"
 			)
 			.since("INSERT VERSION");
 	}
