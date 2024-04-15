@@ -18,11 +18,10 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.registrations.EventValues;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerDeepSleepEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.*;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -35,6 +34,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
@@ -113,7 +113,6 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.lang.util.SimpleEvent;
@@ -741,6 +740,22 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "[player] (wrong|unknown) (cmd|command) [send|use]")
+			.description("Called when the player uses a command that does not exist.")
+			.examples(
+				"on unknown command:",
+				"\tset event-unknown command message to \"Hey, this command does not exist.\""
+			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Player Item Cooldown", SimpleEvent.class, PlayerItemCooldownEvent.class, "[player] item cool[ ]down")
+			.description("Called when a player's item cooldown changes.", " ","You must at least wait 1 tick if you need the cooldown or check it", "Because the cooldown won't have been set on the item itself when the event is called in case something wants to cancel or modify the cooldown.")
+			.examples(
+				"on item cooldown:",
+				"\twait 1 tick",
+				"\tbroadcast player's item cooldown for player's tool"
+			)
+			.since("INSERT VERSION");
 	}
 
 }
