@@ -20,6 +20,10 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
@@ -31,10 +35,24 @@ import org.skriptlang.skript.lang.experiment.Feature;
 
 import java.util.List;
 
+@Name("Switch Case (Experimental)")
+@Description({
+	"A condition inside a switch section. If the condition evaluates to true, its content will be run.",
+	"This behaves like a regular `if` condition (dependent on the switch mode).",
+	"See 'Switch Section' for more details."
+})
+@Examples({
+	"switch {_numbers::*}:",
+	"\tif it is 3:",
+	"\t\tbroadcast \"It's 3!\"",
+	"\tif it is 10:",
+	"\t\tbroadcast \"It's 10!\""
+})
+@Since("INSERT VERSION")
 public class EffSecSwitchCase extends EffectSection {
 
 	static {
-		Skript.registerSection(EffSecSwitchCase.class, "[check|if] <.+>");
+		Skript.registerSection(EffSecSwitchCase.class, "[case|if] <.+>");
 	}
 
 	private @UnknownNullability SecSwitch parent;
