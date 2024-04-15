@@ -29,36 +29,49 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Online")
-@Description("Checks whether a player is online.")
-@Examples({"player is online",
-		"player-argument is offline"})
+@Description("Checks whether a player is online. The 'connected' pattern will return false once this player leaves the server, even if they rejoin. Be aware that using the 'connected' pattern with a variable will not have this special behavior. Use the direct event-player or other non-variable expression for best results.")
+@Examples({
+	"player is online",
+	"player-argument is offline",
+	"while player is connected:",
+		"\twait 60 seconds",
+		"\tsend \"hello!\" to player",
+	"",
+	"# The following will act like `{_player} is online`.",
+	"# Using variables with `is connected` will not behave the same as with non-variables.",
+	"while {_player} is connected:",
+	    "\tbroadcast \"online!\"",
+	    "\twait 1 tick"
+})
 @Since("1.4")
 public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	static {
-		register(CondIsOnline.class, "(online|1¦offline)", "offlineplayers");
+		register(CondIsOnline.class, "(online|:offline|:connected)", "offlineplayers");
 	}
+	
+	private boolean connected; // https://github.com/SkriptLang/Skript/issues/6100
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		setExpr((Expression<OfflinePlayer>) exprs[0]);
-		setNegated(matchedPattern == 1 ^ parseResult.mark == 1);
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.setExpr((Expression<OfflinePlayer>) exprs[0]);
+		this.setNegated(matchedPattern == 1 ^ parseResult.hasTag("offline"));
+		this.connected = parseResult.hasTag("connected");
 		return true;
 	}
 	
 	@Override
 	public boolean check(OfflinePlayer op) {
+		if (connected)
+			return op.isConnected();
 		return op.isOnline();
 	}
 	
 	@Override
 	protected String getPropertyName() {
-		return "online";
+		return connected ? "connected" : "online";
 	}
 	
 }
