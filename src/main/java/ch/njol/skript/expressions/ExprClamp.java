@@ -31,17 +31,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Phill310
- */
 @Name("Clamp")
 @Description("Clamps one or more values between two numbers.")
 @Examples({
-	"clamp 5 between 0 and 10 = 5",
-	"clamp 5.5 between 0 and 5 = 5",
-	"clamp 0.25 between 0 and 0.5 = 0.25",
-	"clamp 5 between 7 and 10 = 7",
-	"clamp (5, 0, 10, 9, 13) between 7 and 10 = (7, 7, 10, 9, 10)",
+	"clamp 5 between 0 and 10 # result = 5",
+	"clamp 5.5 between 0 and 5 # result = 5",
+	"clamp 0.25 between 0 and 0.5 # result = 0.25",
+	"clamp 5 between 7 and 10 # result = 7",
+	"clamp (5, 0, 10, 9, 13) between 7 and 10 # result = (7, 7, 10, 9, 10)",
 	"",
 	"set {_clamped::*} to clamp {_values::*} between 0 and 10"
 })
