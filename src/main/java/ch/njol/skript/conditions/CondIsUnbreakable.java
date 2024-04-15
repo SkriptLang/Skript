@@ -44,22 +44,22 @@ public class CondIsUnbreakable extends PropertyCondition<ItemType> {
 		register(CondIsUnbreakable.class, "[:un]breakable", "itemtypes");
 	}
 
-	private boolean negated;
+	private boolean breakable;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		negated = !parseResult.hasTag("un");
+		breakable = !parseResult.hasTag("un");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	public boolean check(ItemType item) {
-		return item.getItemMeta().isUnbreakable() ^ negated;
+		return item.getItemMeta().isUnbreakable() ^ breakable;
 	}
 	
 	@Override
 	protected String getPropertyName() {
-		return negated ? "breakable" : "unbreakable";
+		return breakable ? "breakable" : "unbreakable";
 	}
 	
 }
