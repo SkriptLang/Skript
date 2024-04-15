@@ -18,52 +18,54 @@
  */
 package ch.njol.skript.test.runner;
 
-import ch.njol.skript.doc.NoDoc;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Version;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 
-@Name("Running Minecraft")
-@Description("Checks if current Minecraft version is given version or newer.")
-@Examples("running minecraft \"1.14\"")
-@Since("2.5")
+import javax.annotation.Nullable;
+
+@Name("Parse Logs")
+@Description("Returns the last known parse logs from a parse section, if any.")
 @NoDoc
-public class CondMinecraftVersion extends Condition {
-	
+public class ExprParseLogs extends SimpleExpression<String> {
+
 	static {
-		Skript.registerCondition(CondMinecraftVersion.class, "running [(1¦below)] minecraft %string%");
+		Skript.registerExpression(ExprParseLogs.class, String.class, ExpressionType.SIMPLE, "[the] [last] parse logs");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<String> version;
-	
-	@SuppressWarnings({"null", "unchecked"})
+	@Nullable
+	public static String[] lastLogs;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		version = (Expression<String>) exprs[0];
-		setNegated(parseResult.mark == 1);
 		return true;
 	}
-	
+
 	@Override
-	public boolean check(Event e) {
-		String ver = version.getSingle(e);
-		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
+	protected String[] get(Event event) {
+		return lastLogs;
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "is running minecraft " + version.toString(e, debug);
+	public boolean isSingle() {
+		return false;
 	}
-	
+
+	@Override
+	public Class<? extends String> getReturnType() {
+		return String.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "last parse logs";
+	}
+
 }

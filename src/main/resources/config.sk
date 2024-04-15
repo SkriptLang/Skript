@@ -31,7 +31,7 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently English, German, Korean, French, Polish, Japanese and Simplified Chinese
+# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese and Turkish
 # are included in the download, but custom languages can be created as well. Use the name in lowercase and no spaces as the value.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
@@ -53,7 +53,7 @@ update check interval: 12 hours
 release channel: @release-channel@
 # If 'check for new version' is enabled, this determines how stable the updates must be.
 # 'stable' means that only stable releases of Skript will be considered updates.
-# 'beta' and 'alpha' mean that also development releases will be checked for.
+# 'prerelease' means that development releases will also be checked for.
 # Initial value of this depends on the Skript version you first installed; it was '@release-channel@'.
 
 enable effect commands: false
@@ -88,7 +88,7 @@ player variable fix: true
 # This fix should work around that and whenever a invalid(old) player object is attempted to be get through a variable
 # It will check if the player is online and then get the valid(new) player object and update the variable object to that one.
 
-use player UUIDs in variable names: false
+use player UUIDs in variable names: true
 # Whether to use a player's UUID instead of their name in variables, e.g. {home::%player%} will look like
 # {home::e5240337-a4a2-39dd-8ed9-e5ce729a8522} instead of {home::njol}.
 # Please note that if this setting is changed old variables WILL NOT be renamed automatically.
