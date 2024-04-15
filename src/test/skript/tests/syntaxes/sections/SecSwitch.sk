@@ -5,8 +5,8 @@ test "sec switch (simple)":
 	switch 10:
 		this exists:
 			add 1 to {_var}
-		this is alive:
-			assert true is false with "This is not alive"
+		this is less than 0:
+			assert true is false with "This is not less than 0"
 		this is 5:
 			assert true is false with "This is not 5"
 		this is equal to 10:
@@ -24,11 +24,11 @@ test "sec switch (simple + stack cases)":
 		this is 10:
 			add 1 to {_var}
 		this exists
-		this is alive:
-			assert true is false with "This is not alive"
-		this is alive
+		this is less than 0:
+			assert true is false with "This is not less than 0"
+		this is less than 0
 		this exists:
-			assert true is false with "This is not alive (2)"
+			assert true is false with "This is not less than 0 (2)"
 		this is 5
 		this is 5
 		this is 5:
@@ -45,11 +45,11 @@ test "sec switch (simple + stack cases + multiple)":
 	set {_test::this is greater than 1} to 0
 	switch 1, 3 and 5:
 		this exists
-		this is alive:
-			assert true is false with "this is not alive"
-		this is alive
+		this is less than 0:
+			assert true is false with "this is not less than 0"
+		this is less than 0
 		this exists:
-			assert true is false with "this is not alive (2)"
+			assert true is false with "this is not less than 0 (2)"
 		this exists
 		this is 10:
 			assert true is false with "this is not 10"
@@ -74,8 +74,8 @@ test "sec switch (strict)":
 	switch 10:
 		this exists:
 			add 1 to {_var}
-		this is alive:
-			assert true is false with "This is not alive"
+		this is less than 0:
+			assert true is false with "This is not less than 0"
 		this is 5:
 			assert true is false with "This is not 5"
 		this is equal to 10:
@@ -98,11 +98,11 @@ test "sec switch (strict + stack cases)":
 		this is 10:
 			add 1 to {_var}
 		this exists
-		this is alive:
-			assert true is false with "This is not alive"
-		this is alive
+		this is less than 0:
+			assert true is false with "This is not less than 0"
+		this is less than 0
 		this exists:
-			assert true is false with "This is not alive (2)"
+			assert true is false with "This is not less than 0 (2)"
 		this is 5
 		this is 5
 		this is 5:
@@ -120,8 +120,9 @@ test "sec switch (strict + stack cases + multiple)":
 	set {_test::this is 5} to 0
 	set {_test::this is greater than 0} to 0
 	set {_test::this is greater than 1} to 0
+	set {_numbers::*} to 1, 3 and 5 # so we don't have an integer type hint
 	@strict switch
-	switch 1, 3 and 5:
+	switch {_numbers::*}:
 		this exists
 		this is alive:
 			assert true is false with "this is not alive"
@@ -143,8 +144,9 @@ test "sec switch (strict + stack cases + multiple)":
 
 
 test "sec switch (fall-through)":
+	set {_number} to 10 # so we don't have an integer type hint
 	@fall-through switch
-	switch 10:
+	switch {_number}:
 		this is alive:
 			assert true is false with "this is not alive"
 		this exists:
@@ -157,8 +159,9 @@ test "sec switch (fall-through)":
 
 
 test "sec switch (fall-through + stacked cases)":
+	set {_number} to 10 # so we don't have an integer type hint
 	@fall-through switch
-	switch 10:
+	switch {_number}:
 		this exists
 		this is alive:
 			assert true is false with "this is not alive"
@@ -176,7 +179,8 @@ test "sec switch (fall-through + stacked cases)":
 
 
 test "sec switch (mixed)":
-	switch 10, 2:
+	set {_numbers::*} to 10, 2 # so we don't have an integer type hint
+	switch {_numbers::*}:
 		this exists
 		this is alive:
 			assert true is false with "this is not alive"
