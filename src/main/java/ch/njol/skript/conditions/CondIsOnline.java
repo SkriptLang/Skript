@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import org.bukkit.OfflinePlayer;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -48,7 +49,10 @@ import ch.njol.util.Kleenean;
 public class CondIsOnline extends PropertyCondition<OfflinePlayer> {
 	
 	static {
-		register(CondIsOnline.class, "(online|:offline|:connected)", "offlineplayers");
+		if (Skript.methodExists(OfflinePlayer.class, "isConnected"))
+			register(CondIsOnline.class, "(online|:offline|:connected)", "offlineplayers");
+		else
+			register(CondIsOnline.class, "(online|:offline)", "offlineplayers");
 	}
 	
 	private boolean connected; // https://github.com/SkriptLang/Skript/issues/6100
