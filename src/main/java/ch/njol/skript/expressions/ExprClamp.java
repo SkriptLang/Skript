@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"set {_clamped::*} to clamp {_values::*} between 0 and 10"
 })
-@Since("version")
+@Since("INSERT VERSION")
 public class ExprClamp extends SimpleExpression<Number> {
 
 	static {
@@ -82,7 +82,7 @@ public class ExprClamp extends SimpleExpression<Number> {
 
 	@Override
 	public boolean isSingle() {
-		return false;
+		return values.isSingle();
 	}
 
 	@Override
