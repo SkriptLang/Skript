@@ -226,6 +226,10 @@ public class SecSwitch extends LoopSection {
 		return this.hasPassed.get(event);
 	}
 
+	public Class<?> getSubjectType() {
+		return expression.getReturnType();
+	}
+
 	private static class IllegalSyntaxError extends Error {
 		private final TriggerItem item;
 
@@ -253,7 +257,7 @@ public class SecSwitch extends LoopSection {
 		return sections.get(sections.size() - 1) instanceof EffSecSwitchCase;
 	}
 
-	static SecSwitch getSwitch(SyntaxElement item) {
+	public static SecSwitch getSwitch(SyntaxElement item) {
 		List<TriggerSection> sections = item.getParser().getCurrentSections();
 		if (sections.isEmpty())
 			throw new IllegalStateException();
