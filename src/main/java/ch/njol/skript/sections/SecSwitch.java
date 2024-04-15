@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -44,7 +45,43 @@ import java.util.Iterator;
 import java.util.List;
 
 @Name("Switch Conditions (Experimental)")
-@Description("Tests an input against several conditions, running only the sections that match.")
+@Description({
+	"Tests an input (or inputs) against several conditions, running ALL the conditions that match.",
+	"If multiple inputs like a list are used, the switch section will be repeated for each value.",
+	"Switch blocks are a kind of loop, and so can be continued and exited from.",
+	"By default, switches run every matching section.",
+	"To avoid this happening, you can use the loop `continue` and `exit` effects.",
+	"The subject of the switch can be referred to with `(it|this)` inside conditions.",
+	"",
+	"For advanced users, switches come with two alternate modes: 'strict' and 'fall-through'.",
+	"This behaviour can be confusing so they are not enabled by default.",
+	"In STRICT mode (enabled with `@strict switch mode`):",
+	"\t- The switch block will continue after ANY case matches.",
+	"In FALL-THROUGH mode (enabled with `@fall-through switch mode`):",
+	"\t- The first matching case will be run.",
+	"\t- EVERY subsequent case will also be run, regardless of the condition.",
+	"\t- This mimics Java's 'switch' behaviour, i.e. you need to continue/exit after a section."
+})
+@Examples({
+	"using switch sections",
+	"on swap hand items:",
+	"\tswitch player's tool:",
+	"\t\tit is any sword:",
+	"\t\t\tbroadcast \"it's a sword!\"",
+	"\t\tit is a diamond sword:",
+	"\t\t\tbroadcast \"it's an expensive sword!\"",
+	"\t\tit exists:",
+	"\t\t\tbroadcast \"it's a thing!\"",
+	"\t\tit is alive:",
+	"\t\t\tbroadcast \"tools aren't alive, silly\"",
+	"",
+	"check {_numbers::*}:",
+	"\tif it is 3:",
+	"\t\tbroadcast \"it's 3!\"",
+	"\t\tcontinue",
+	"\tif it is less than 10:",
+	"\t\tbroadcast \"it's not 11!\""
+})
 @Since("INSERT VERSION")
 public class SecSwitch extends LoopSection {
 
@@ -53,7 +90,7 @@ public class SecSwitch extends LoopSection {
 		FALL_THROUGH = PatternCompiler.compile("fall[ |-]through switch [mode|cases]");
 
 	static {
-		Skript.registerSection(SecSwitch.class, "switch %objects%");
+		Skript.registerSection(SecSwitch.class, "switch %objects%", "check %objects%");
 	}
 
 	private @NotNull Mode mode = Mode.NORMAL;
