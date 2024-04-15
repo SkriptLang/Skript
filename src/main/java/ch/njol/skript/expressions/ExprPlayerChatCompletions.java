@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Player Chat Completions")
 @Description({
-	"The custom chat completion suggestions. You can add, set, remove, and clear them. Removing online players name with this expression is ineffective.",
+	"The custom chat completion suggestions. You can add, set, remove, and clear them. Removing the names of online players with this expression is ineffective.",
 	"This expression will not return anything due to Bukkit limitations."
 })
 @Examples({
