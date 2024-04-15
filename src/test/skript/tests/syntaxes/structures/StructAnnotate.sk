@@ -1,0 +1,20 @@
+
+# The test-only structures below fail to parse if an annotation is/isn't present
+# Since annotations are parse-time, this just needs to parse correctly to pass
+
+test does not have an annotation
+
+@annotation here
+test has an annotation
+
+test does not have an annotation
+
+@annotation here
+@annotation here
+test has an annotation
+
+test does not have an annotation
+test does not have an annotation
+
+test "annotation on structure":
+	@the test is done at parsing time, we just need to pass!

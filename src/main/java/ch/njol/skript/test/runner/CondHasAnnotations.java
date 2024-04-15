@@ -38,7 +38,8 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondHasAnnotations extends Condition {
 
 	static {
-		Skript.registerCondition(CondHasAnnotations.class, "annotation %string% [not:not] present");
+		if (TestMode.ENABLED)
+			Skript.registerCondition(CondHasAnnotations.class, "annotation %string% [not:not] present");
 	}
 
 	private Expression<?> pattern;
