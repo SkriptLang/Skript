@@ -65,6 +65,7 @@ public class StructEvent extends Structure {
 			data.priority = EventPriority.valueOf(lastTag.toUpperCase(Locale.ENGLISH));
 		}
 
+		assert entryContainer != null;
 		event = SkriptEvent.parse(expr, entryContainer.getSource(), null);
 
 		// cleanup after ourselves
