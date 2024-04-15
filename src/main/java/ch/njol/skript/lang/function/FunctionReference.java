@@ -33,6 +33,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.function.Contract;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +42,7 @@ import java.util.List;
 /**
  * Reference to a Skript function.
  */
-public class FunctionReference<T> {
+public class FunctionReference<T> implements Contract {
 	
 	/**
 	 * Name of function that is called, for logging purposes.
@@ -97,16 +98,31 @@ public class FunctionReference<T> {
 	 */
 	@Nullable
 	public final String script;
-	
+
+	/**
+	 * The contract for this function (typically the function reference itself).
+	 * Used to determine input-based return types and simple behaviour.
+	 */
+	private final Contract contract;
+
+	public FunctionReference(String functionName, @Nullable Node node, @Nullable String script,
+							 @Nullable Class<? extends T>[] returnTypes, Expression<?>[] params) {
+		this(functionName, node, script, returnTypes, params, null);
+	}
 	public FunctionReference(
 			String functionName, @Nullable Node node, @Nullable String script,
-			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params,
+			@Nullable Contract contract
 	) {
 		this.functionName = functionName;
 		this.node = node;
 		this.script = script;
 		this.returnTypes = returnTypes;
-		parameters = params;
+		this.parameters = params;
+		if (contract == null)
+			this.contract = this;
+		else
+			this.contract = contract;
 	}
 	
 	/**
@@ -301,10 +317,17 @@ public class FunctionReference<T> {
 		return function.execute(params);
 	}
 	
+	@Override
 	public boolean isSingle() {
 		return single;
 	}
-	
+
+	@Override
+	public boolean isSingle(Expression<?>... arguments) {
+		return this.isSingle();
+	}
+
+	@Override
 	@Nullable
 	public Class<? extends T> getReturnType() {
 		if (signature == null)
@@ -314,7 +337,20 @@ public class FunctionReference<T> {
 		ClassInfo<? extends T> ret = signature.returnType;
 		return ret == null ? null : ret.getC();
 	}
-	
+
+	@Override
+	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
+		return this.getReturnType();
+	}
+
+	/**
+	 * The contract is used in preference to the function for determining return type, etc.
+	 * @return The contract determining this function's parse-time hints, potentially this reference
+	 */
+	public Contract getContract() {
+		return contract;
+	}
+
 	public String toString(@Nullable Event e, boolean debug) {
 		StringBuilder b = new StringBuilder(functionName + "(");
 		for (int i = 0; i < parameters.length; i++) {
