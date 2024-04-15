@@ -41,7 +41,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	@SuppressWarnings("unchecked")
 	public ExprFunctionCall(FunctionReference<?> function, Class<? extends T>[] expectedReturnTypes) {
 		this.function = function;
-		Class<?> functionReturnType = function.getReturnType();
+		Class<?> functionReturnType = function.getContract().getReturnType();
 		assert  functionReturnType != null;
 		if (CollectionUtils.containsSuperclass(expectedReturnTypes, functionReturnType)) {
 			// Function returns expected type already
@@ -68,8 +68,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
-		assert function.getReturnType() != null;
-		if (Converters.converterExists(function.getReturnType(), to)) {
+		assert function.getContract().getReturnType() != null;
+		if (Converters.converterExists(function.getContract().getReturnType(), to)) {
 			return new ExprFunctionCall<>(function, to);
 		}
 		return null;
@@ -77,7 +77,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
 	@Override
 	public boolean isSingle() {
-		return function.isSingle();
+		return function.getContract().isSingle();
 	}
 
 	@Override
