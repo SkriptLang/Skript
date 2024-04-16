@@ -27,6 +27,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -1828,6 +1829,14 @@ public final class BukkitEventValues {
 			@Override
 			public ItemStack get(InventoryMoveItemEvent event) {
 				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
+
+		// EffectCommandEvent
+		EventValues.registerEventValue(EffectCommandEvent.class, CommandSender.class, new Getter<CommandSender, EffectCommandEvent>() {
+			@Override
+			public CommandSender get(EffectCommandEvent event) {
+				return event.getSender();
 			}
 		}, EventValues.TIME_NOW);
 

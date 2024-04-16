@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.command.ScriptCommandEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -62,8 +63,8 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class)) {
-			Skript.error("The 'command' expression can only be used in a script command or command event");
+		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class, EffectCommandEvent.class)) {
+			Skript.error("The 'command' expression can only be used in a command, script command or effect command event");
 			return false;
 		}
 		fullCommand = matchedPattern == 0;
@@ -79,12 +80,13 @@ public class ExprCommand extends SimpleExpression<String> {
 			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
 		} else if (e instanceof ServerCommandEvent) {
 			s = ((ServerCommandEvent) e).getCommand().trim();
-		} else { // It's a script command event
+		} else if (e instanceof ScriptCommandEvent) {
 			ScriptCommandEvent event = (ScriptCommandEvent) e;
 			s = event.getCommandLabel() + " " + event.getArgsString();
+		} else { // It's a EffectCommandEvent
+			s = ((EffectCommandEvent) e).getCommand();
 		}
-
-		if (fullCommand) {
+		if (e instanceof EffectCommandEvent || fullCommand) {
 			return new String[]{s};
 		} else {
 			int c = s.indexOf(' ');
