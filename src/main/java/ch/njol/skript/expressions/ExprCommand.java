@@ -41,15 +41,19 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Command")
-@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
-@Examples({"# prevent any commands except for the /exit command during some game",
-		"on command:",
+@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments), or 'effect command' event.")
+@Examples({
+	"# prevent any commands except for the /exit command during some game",
+	"on command:",
 		"\tif {game::%player%::playing} is true:",
-		"\t\tif the command is not \"exit\":",
-		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
-		"\t\t\tcancel the event"})
-@Since("2.0, 2.7 (support for script commands)")
-@Events("command")
+			"\t\tif the command is not \"exit\":",
+				"\t\t\tmessage \"You're not allowed to use commands during the game\"",
+				"\t\t\tcancel the event",
+	"on effect command:",
+		"\tlog \"%sender%: %command%\" to file \"effectcommand.log\""
+})
+@Since("2.0, 2.7 (support for script commands), INSERT VERSION (support for effect command)")
+@Events({"command", "effect command"})
 public class ExprCommand extends SimpleExpression<String> {
 
 	static {

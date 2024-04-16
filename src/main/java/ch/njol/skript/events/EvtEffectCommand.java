@@ -34,16 +34,18 @@ public class EvtEffectCommand extends SkriptEvent {
 	static {
 		Skript.registerEvent("Effect Command Event", EvtEffectCommand.class, EffectCommandEvent.class,
 				"[sender:(:player|console)] effect command")
-			.description("Called when a player or console executes a skript effect command.")
-			.examples("TODO")
-			.since("INSERT VERSION");
+				.description("Called when a player or console executes a skript effect command.")
+				.examples(
+						"on effect command:",
+								"\tlog \"%sender%: %command%\" to file \"effectcommand.log\"")
+				.since("INSERT VERSION");
 	}
 
 	private enum Executor {
 
 		ANY(""),
-		CONSOLE("console"),
-		PLAYER("player");
+		CONSOLE("console "),
+		PLAYER("player ");
 
 		final String toString;
 
@@ -88,7 +90,7 @@ public class EvtEffectCommand extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return executor + " effect command";
+		return executor + "effect command";
 	}
 
 }
