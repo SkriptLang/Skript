@@ -25,7 +25,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -34,28 +34,28 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Clamp")
 @Description("Clamps one or more values between two numbers.")
 @Examples({
-	"clamp 5 between 0 and 10 # result = 5",
-	"clamp 5.5 between 0 and 5 # result = 5",
-	"clamp 0.25 between 0 and 0.5 # result = 0.25",
-	"clamp 5 between 7 and 10 # result = 7",
-	"clamp (5, 0, 10, 9, 13) between 7 and 10 # result = (7, 7, 10, 9, 10)",
+	"5 clamped between 0 and 10 # result = 5",
+	"5.5 clamped between 0 and 5 # result = 5",
+	"0.25 clamped between 0 and 0.5 # result = 0.25",
+	"5 clamped between 7 and 10 # result = 7",
+	"(5, 0, 10, 9, 13) clamped between 7 and 10 # result = (7, 7, 10, 9, 10)",
 	"",
-	"set {_clamped::*} to clamp {_values::*} between 0 and 10"
+	"set {_clamped::*} to {_values::*} clamped between 0 and 10"
 })
 @Since("INSERT VERSION")
 public class ExprClamp extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprClamp.class, Number.class, ExpressionType.COMBINED,
-			"clamp %numbers% between %number% and %number%");
+			"%numbers% clamped between %number% and %number%");
 	}
 
 	private Expression<Number> values, min, max;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		values = (Expression<Number>) expressions[0];
-		min = ((Expression<Number>) expressions[1]);
+		min = (Expression<Number>) expressions[1];
 		max = (Expression<Number>) expressions[2];
 		return true;
 	}
@@ -65,8 +65,8 @@ public class ExprClamp extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Number[] numbers = values.getArray(event);
 		Double[] clampedValues = new Double[numbers.length];
-		double min = this.min.getSingle(event).doubleValue();
-		double max = this.max.getSingle(event).doubleValue();
+		double min = this.min.getSingle(event) != null ? this.min.getSingle(event).doubleValue() : 0;
+		double max = this.max.getSingle(event) != null ? this.max.getSingle(event).doubleValue() : 0;
 		// Make sure the min and max are in the correct order
 		double trueMin = Math.min(min, max);
 		double trueMax = Math.max(min, max);
@@ -92,6 +92,5 @@ public class ExprClamp extends SimpleExpression<Number> {
 		return "clamp " + values.toString(event, debug) + " between " + min.toString(event, debug) + " and "
 				+ max.toString(event, debug);
 	}
-
 
 }
