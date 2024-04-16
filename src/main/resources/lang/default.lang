@@ -1934,12 +1934,21 @@ attribute types:
 	generic_attack_speed: generic attack speed, attack speed
 	generic_flying_speed: generic flying speed, flying speed
 	generic_follow_range: generic follow range, follow range
+	generic_gravity: generic gravity, gravity
+	generic_jump_strength: generic jump strength, jump strength
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
 	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
+	generic_safe_fall_distance: generic safe fall distance, safe fall distance
+	generic_fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
+	generic_scale: generic scale, scale
+	generic_step_height: generic step height, step height
 	horse_jump_strength: horse jump strength
+	player_block_break_speed: player block break speed, block break speed
+	player_block_interaction_range: player block interaction range, block interaction range
+	player_entity_interaction_range: player entity interaction range, entity interaction range
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
 # -- Environments --

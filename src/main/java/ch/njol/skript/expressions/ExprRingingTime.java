@@ -18,49 +18,50 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.Inventory;
+import ch.njol.skript.util.Timespan;
+import org.bukkit.block.Bell;
+import org.bukkit.block.Block;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Anvil Text Input")
-@Description("An expression to get the name to be applied to an item in an anvil inventory.")
-@Examples({
-		"on inventory click:",
-		"\ttype of event-inventory is anvil inventory",
-		"\tif the anvil text input of the event-inventory is \"FREE OP\":",
-		"\t\tban player"
+@Name("Ringing Time")
+@Description({
+	"Returns the ringing time of a bell.",
+	"A bell typically rings for 50 game ticks."
 })
-@Since("2.7")
-public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
+@Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
+@RequiredPlugins("Spigot 1.19.4+")
+@Since("INSERT VERSION")
+public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
-		register(ExprAnvilText.class, String.class, "anvil [inventory] (rename|text) input", "inventories");
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "getShakingTicks"))
+			register(ExprRingingTime.class, Timespan.class, "ring[ing] time", "block");
 	}
 
 	@Override
-	@Nullable
-	public String convert(Inventory inv) {
-		if (!(inv instanceof AnvilInventory))
-			return null;
-		return ((AnvilInventory) inv).getRenameText();
+	public @Nullable Timespan convert(Block from) {
+		if (from.getState() instanceof Bell) {
+			int shakingTicks = ((Bell) from.getState(false)).getShakingTicks();
+			return shakingTicks == 0 ? null : Timespan.fromTicks(shakingTicks);
+		}
+		return null;
 	}
 
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	protected String getPropertyName() {
+		return "ringing time";
 	}
 
 	@Override
-	public String getPropertyName() {
-		return "anvil text input";
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
 	}
-	
+
 }
