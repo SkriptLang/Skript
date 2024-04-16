@@ -570,9 +570,9 @@ public class DefaultFunctions {
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[]{
+		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
 			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
-		},DefaultClasses.STRING, true) {
+		}, DefaultClasses.STRING, true) {
 			@Override
 			public String[] executeSimple(Object[][] params) {
 				StringBuilder builder = new StringBuilder();
@@ -585,7 +585,7 @@ public class DefaultFunctions {
 			.examples(
 				"concat(\"hello \", \"there\") # hello there",
 				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
-			).since("2.8.0");
+			).since("INSERT VERSION");
 
 	}
 	
