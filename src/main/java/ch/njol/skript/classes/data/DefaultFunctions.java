@@ -25,6 +25,7 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
@@ -575,15 +576,8 @@ public class DefaultFunctions {
 			@Override
 			public String[] executeSimple(Object[][] params) {
 				StringBuilder builder = new StringBuilder();
-				for (Object[] param : params) {
-				if (param == null)
-					continue;
-				for (Object object : param) {
-					if (object == null)
-						builder.append("<none>");
-					else
-						builder.append(object);
-					}
+				for (Object object : params[0]) {
+					builder.append(Classes.toString(object));
 				}
 				return new String[] {builder.toString()};
 			}
