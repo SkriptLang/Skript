@@ -65,8 +65,8 @@ public class ExprClamp extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Number[] numbers = values.getArray(event);
 		Double[] clampedValues = new Double[numbers.length];
-		double min = this.min.getSingle(event) != null ? this.min.getSingle(event).doubleValue() : 0;
-		double max = this.max.getSingle(event) != null ? this.max.getSingle(event).doubleValue() : 0;
+		double min = this.min.getOptionalSingle(event).orElse(0).doubleValue();
+		double max = this.max.getOptionalSingle(event).orElse(0).doubleValue();
 		// Make sure the min and max are in the correct order
 		double trueMin = Math.min(min, max);
 		double trueMax = Math.max(min, max);
