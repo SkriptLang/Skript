@@ -37,11 +37,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Command")
-@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments), or 'effect command' event.")
+@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments), or an 'effect command' event.")
 @Examples({
 	"# prevent any commands except for the /exit command during some game",
 	"on command:",
@@ -77,24 +74,25 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		final String s;
+	protected String[] get(Event event) {
+		String command;
 
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) {
-			s = ((ServerCommandEvent) e).getCommand().trim();
-		} else if (e instanceof ScriptCommandEvent) {
-			ScriptCommandEvent event = (ScriptCommandEvent) e;
-			s = event.getCommandLabel() + " " + event.getArgsString();
-		} else { // It's a EffectCommandEvent
-			s = ((EffectCommandEvent) e).getCommand();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			command = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) {
+			command = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (event instanceof ScriptCommandEvent) {
+			ScriptCommandEvent e = (ScriptCommandEvent) event;
+			command = e.getCommandLabel() + " " + e.getArgsString();
+		} else { // It's an EffectCommandEvent
+			command = ((EffectCommandEvent) event).getCommand();
 		}
-		if (e instanceof EffectCommandEvent || fullCommand) {
-			return new String[]{s};
+
+		if (event instanceof EffectCommandEvent || fullCommand) {
+			return new String[]{command};
 		} else {
-			int c = s.indexOf(' ');
-			return new String[] {c == -1 ? s : s.substring(0, c)};
+			int c = command.indexOf(' ');
+			return new String[] {c == -1 ? command : command.substring(0, c)};
 		}
 	}
 	
@@ -109,7 +107,7 @@ public class ExprCommand extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return fullCommand ? "the full command" : "the command";
 	}
 	
