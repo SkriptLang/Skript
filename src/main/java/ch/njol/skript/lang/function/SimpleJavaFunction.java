@@ -21,7 +21,7 @@ package ch.njol.skript.lang.function;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.function.Contract;
+import org.skriptlang.skript.lang.util.Contract;
 
 /**
  * A {@link JavaFunction} which doesn't make use of

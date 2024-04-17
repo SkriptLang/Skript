@@ -130,7 +130,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return Whether this can be used by single changers
 	 * @see #getSingle(Event)
 	 */
-	default boolean permitSingle() {
+	default boolean canBeSingle() {
 		return this.isSingle();
 	}
 

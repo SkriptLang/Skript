@@ -40,8 +40,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-import org.skriptlang.skript.lang.function.Contract;
+import org.skriptlang.skript.lang.util.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
