@@ -194,7 +194,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	boolean releaseDocs = modifiers.contains(Modifiers.GEN_RELEASE_DOCS)
 	boolean docs = modifiers.contains(Modifiers.GEN_NIGHTLY_DOCS) || releaseDocs
 	def artifact = 'build' + File.separator + 'libs' + File.separator
-	if (junit) {
+	if (junit || modifiers.contains(Modifiers.DEV_MODE)) {
 		artifact += 'Skript-JUnit.jar'
 	} else if (releaseDocs) {
 		artifact += 'Skript-github.jar'
@@ -204,7 +204,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	tasks.register(name, JavaExec) {
 		description = desc
 		dependsOn licenseTest
-		if (junit) {
+		if (junit || modifiers.contains(Modifiers.DEV_MODE)) {
 			dependsOn testJar
 		} else if (releaseDocs) {
 			dependsOn githubRelease, testNaming

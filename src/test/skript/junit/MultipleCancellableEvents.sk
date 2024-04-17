@@ -1,0 +1,14 @@
+
+on cancel events test 1:
+	parse:
+		cancel event
+	assert that the first element out of the parse logs is "An on cancel events test 1 can be called by multiple events, and some cannot be cancelled." with "Failed to parse or grab cancel events 1 warning"
+
+on cancel events test 2:
+	cancel event
+	assert true is true with "Failed to continue cancel events test 2"
+
+on cancel events test 3:
+	parse:
+		cancel event
+	assert that the first element out of the parse logs is "An on cancel events test 3 event cannot be cancelled" with "Failed to parse or grab cancel events 3 error"
