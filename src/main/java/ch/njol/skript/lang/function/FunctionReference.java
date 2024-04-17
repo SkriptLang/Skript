@@ -329,7 +329,8 @@ public class FunctionReference<T> implements Contract {
 	}
 
 	@Override
-	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
+	@Nullable
+	public Class<?> getReturnType(Expression<?>... arguments) {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
 
