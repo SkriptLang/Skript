@@ -37,26 +37,64 @@ import org.eclipse.jdt.annotation.Nullable;
 	"5 clamped between 0 and 10 # result = 5",
 	"5.5 clamped between 0 and 5 # result = 5",
 	"0.25 clamped between 0 and 0.5 # result = 0.25",
-	"5 clamped between 7 and 10 # result = 7",
 	"(5, 0, 10, 9, 13) clamped between 7 and 10 # result = (7, 7, 10, 9, 10)",
+	"set {_clamped::*} to {_values::*} clamped between 0 and 10",
 	"",
-	"set {_clamped::*} to {_values::*} clamped between 0 and 10"
+	"3 clamped below 5 # result = 3",
+	"3.2 clamped below 2 # result = 2",
+	"(-1, 3, 0.5, 9) clamped below 3 # result = (-1, 3, 0.5, 3)",
+	"",
+	"6.5 clamped above 6 # result = 6.5",
+	"4 clamped above 5.5 # result = 5.5",
+	"(3.14, 1, -9.8, 2.7) clamped above 2.5 # result = (3.14, 2.5, 2.5, 2.7)",
+	"set {_not negative} to {_input} clamped above 0"
 })
 @Since("INSERT VERSION")
 public class ExprClamp extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprClamp.class, Number.class, ExpressionType.COMBINED,
-			"%numbers% clamped between %number% and %number%");
+			"%numbers% clamped between %number% and %number%",
+			"%numbers% clamped below %number%",
+			"%numbers% clamped above %number%");
 	}
 
-	private Expression<Number> values, min, max;
+	private enum Mode {
+		BOTH {
+			@Override
+			public String toString() {
+				return "between";
+			}
+		},
+		BELOW {
+			@Override
+			public String toString() {
+				return "below";
+			}
+		},
+		ABOVE {
+			@Override
+			public String toString() {
+				return "above";
+			}
+		}
+	}
+
+	private Expression<Number> values, minExpr, maxExpr;
+	private Mode mode;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		mode = Mode.values()[matchedPattern];
 		values = (Expression<Number>) expressions[0];
-		min = (Expression<Number>) expressions[1];
-		max = (Expression<Number>) expressions[2];
+		if (mode == Mode.BOTH) {
+			minExpr = (Expression<Number>) expressions[1];
+			maxExpr = (Expression<Number>) expressions[2];
+		} else if (mode == Mode.BELOW) {
+			maxExpr = (Expression<Number>) expressions[1];
+		} else if (mode == Mode.ABOVE) {
+			minExpr = (Expression<Number>) expressions[1];
+		}
 		return true;
 	}
 
@@ -65,8 +103,14 @@ public class ExprClamp extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Number[] numbers = values.getArray(event);
 		Double[] clampedValues = new Double[numbers.length];
-		double min = this.min.getOptionalSingle(event).orElse(0).doubleValue();
-		double max = this.max.getOptionalSingle(event).orElse(0).doubleValue();
+		double min = Double.NEGATIVE_INFINITY;
+		double max = Double.POSITIVE_INFINITY;
+		if (mode == Mode.ABOVE || mode == Mode.BOTH) {
+			min = minExpr.getOptionalSingle(event).orElse(Double.NEGATIVE_INFINITY).doubleValue();
+		}
+		if (mode == Mode.BELOW || mode == Mode.BOTH) {
+			max = maxExpr.getOptionalSingle(event).orElse(Double.POSITIVE_INFINITY).doubleValue();
+		}
 		// Make sure the min and max are in the correct order
 		double trueMin = Math.min(min, max);
 		double trueMax = Math.max(min, max);
@@ -89,8 +133,10 @@ public class ExprClamp extends SimpleExpression<Number> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "clamp " + values.toString(event, debug) + " between " + min.toString(event, debug) + " and "
-				+ max.toString(event, debug);
+		return values.toString(event, debug) + " clamped " + mode + " "
+				+ ((mode == Mode.ABOVE || mode == Mode.BOTH) ? minExpr.toString(event, debug) : "")
+				+ ((mode == Mode.BOTH) ? " and " : "")
+				+ ((mode == Mode.BELOW || mode == Mode.BOTH) ? maxExpr.toString(event, debug) : "");
 	}
 
 }
