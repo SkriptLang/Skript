@@ -1,0 +1,15 @@
+test "vector between locations":
+	set {_world} to world("world")
+	set {_loc1} to location(0,0,0,{_world})
+	set {_loc2} to location(10,10,10,{_world})
+	set {_vec} to vector between {_loc1} and {_loc2}
+	assert {_vec} is vector(10,10,10) with "vector between locations in same world failed (expected %vector(10,10,10)%, got %{_vec}%)"
+
+	set {_world2} to world("world_the_end")
+	assert {_world2} is set with "no end world found"
+	set {_loc3} to location(10,10,10,{_world2})
+	set {_vec2} to vector between {_loc1} and {_loc3}
+	assert {_vec2} is vector(10,10,10) with "vector between locations in different worlds failed (expected %vector(10,10,10)%, got %{_vec2}%)"
+
+	set {_vec3} to vector between {_loc1} and {_loc1}
+	assert {_vec3} is vector(0,0,0) with "vector between same locations failed (expected %vector(0,0,0)%, got %{_vec3}%)"
