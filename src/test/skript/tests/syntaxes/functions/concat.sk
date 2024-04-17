@@ -26,6 +26,6 @@ test "concat() function":
 	# unlike the maths expression we CAN concat objects here!
 	set {_var} to 1
 	set {_var} to concat("foo", {_var})
-	assert {_var} is "foo1" with "string + number concat() failed: %{_var}%"
+	assert {_var} is "foo1" with "string + number concat() failed"
 	assert concat("a", 1, "b", 2) is "a1b2" with "strings + numbers concat() failed"
 	assert concat("my nice new ", stone sword) is "my nice new stone sword" with "string + item concat() failed"

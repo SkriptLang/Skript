@@ -26,4 +26,4 @@ test "string concatenation":
 	# we test the edge case where somebody slips past us!
 	set {_var} to 1
 	set {_var} to "foo" + {_var}
-	assert {_var} doesn't exist with "string + number concat succeeded? %{_var}%"
+	assert {_var} doesn't exist with "string + number concat succeeded"
