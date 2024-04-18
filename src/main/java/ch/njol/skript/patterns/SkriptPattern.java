@@ -23,8 +23,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class SkriptPattern {
@@ -32,21 +30,22 @@ public class SkriptPattern {
 	private final PatternElement first;
 	private final int expressionAmount;
 
-	private final String[] keywords;
+	private final Keyword[] keywords;
 
 	public SkriptPattern(PatternElement first, int expressionAmount) {
 		this.first = first;
 		this.expressionAmount = expressionAmount;
-		keywords = getKeywords(first);
+		keywords = Keyword.buildKeywords(first);
 	}
 
 	@Nullable
 	public MatchResult match(String expr, int flags, ParseContext parseContext) {
 		// Matching shortcut
 		String lowerExpr = expr.toLowerCase(Locale.ENGLISH);
-		for (String keyword : keywords)
-			if (!lowerExpr.contains(keyword))
+		for (Keyword keyword : keywords) {
+			if (!keyword.isPresent(lowerExpr))
 				return null;
+		}
 
 		expr = expr.trim();
 
@@ -66,24 +65,6 @@ public class SkriptPattern {
 	@Override
 	public String toString() {
 		return first.toFullString();
-	}
-
-	public static String[] getKeywords(PatternElement first) {
-		List<String> keywords = new ArrayList<>();
-		PatternElement next = first;
-		while (next != null) {
-			if (next instanceof LiteralPatternElement) {
-				String literal = next.toString().trim();
-				while (literal.contains("  "))
-					literal = literal.replace("  ", " ");
-				keywords.add(literal);
-			} else if (next instanceof GroupPatternElement) {
-				next = ((GroupPatternElement) next).getPatternElement();
-				continue;
-			}
-			next = next.next;
-		}
-		return keywords.toArray(new String[0]);
 	}
 
 	/**
