@@ -18,8 +18,8 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.util.Time;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -29,8 +29,6 @@ import ch.njol.skript.classes.ClassInfo;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.ComparatorInfo;
 import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -45,7 +43,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 
@@ -66,7 +63,7 @@ import org.skriptlang.skript.lang.util.Cyclical;
 		"time in the player's world is greater than 8:00",
 		"the creature is not an enderman or an ender dragon"})
 @Since("1.0")
-public class CondCompare extends Condition {
+public class CondCompare extends Condition implements VerboseAssert {
 	
 	private final static Patterns<Relation> patterns = new Patterns<>(new Object[][]{
 			{"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
@@ -389,6 +386,22 @@ public class CondCompare extends Condition {
 				});
 			}
 		), isNegated());
+	}
+
+	public String getExpectedMessage(Event event) {
+		String message = "a value ";
+		if (third == null)
+			return message + (isNegated() ? "not " : "") + relation + " " + VerboseAssert.getExpressionValue(second, event);
+
+		// handle between
+		if (isNegated())
+			message += "not ";
+		message += "between " + VerboseAssert.getExpressionValue(second, event) + " and " + VerboseAssert.getExpressionValue(third, event);
+		return message;
+	}
+
+	public String getReceivedMessage(Event event) {
+		return VerboseAssert.getExpressionValue(first, event);
 	}
 
 	/**
