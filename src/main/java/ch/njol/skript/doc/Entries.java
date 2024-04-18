@@ -33,5 +33,5 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Entries {
 
-	String[] value();
+	public String[] value();
 }
