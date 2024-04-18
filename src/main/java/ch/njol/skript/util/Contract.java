@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.util;
+package ch.njol.skript.util;
 
 import ch.njol.skript.lang.Expression;
 import org.eclipse.jdt.annotation.Nullable;

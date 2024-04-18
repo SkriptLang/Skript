@@ -20,7 +20,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.util.Contract;
+import ch.njol.skript.util.Contract;
 
 import java.util.Collection;
 import java.util.Collections;

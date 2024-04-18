@@ -33,7 +33,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.util.Contract;
+import ch.njol.skript.util.Contract;
 
 import java.util.ArrayList;
 import java.util.Arrays;
