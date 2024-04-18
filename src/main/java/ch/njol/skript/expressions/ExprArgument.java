@@ -89,7 +89,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
 		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class)) {
-			Skript.error("The 'argument' expression can only be used in a script command or command event");
+			Skript.error("The 'argument' expression can only be used in a script command, command event or unknown command event");
 			return false;
 		}
 

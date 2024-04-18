@@ -48,7 +48,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @SuppressWarnings("deprecation")
 @Name("Message")
-@Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event, or the unknown command message on a unknown command event. This expression is mostly useful for being changed.")
+@Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message of a death event, or the unknown command message of a unknown command event. This expression is mostly useful for being changed.")
 @Examples({"on chat:",
 			"\tplayer has permission \"admin\"",
 			"\tset message to \"&c%message%\"",

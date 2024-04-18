@@ -750,7 +750,7 @@ public class SimpleEvents {
 						"\tset unknown command message to \"Hey, this command does not exist.\""
 				)
 				.since("INSERT VERSION")
-				.requiredPlugins("paper");
+				.requiredPlugins("Paper");
 		}
 
 		{
