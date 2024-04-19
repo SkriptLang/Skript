@@ -1553,7 +1553,6 @@ public class BukkitClasses {
 			.user("server tick manager")
 			.name("Server Tick Manager")
 			.description("Represents a server's tick manager.")
-			.examples("set {_stm} to server's tick manager")
 			.since("INSERT VERSION")
 			.parser(new Parser<ServerTickManager>() {
 
