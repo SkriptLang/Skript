@@ -267,7 +267,7 @@ public class TypePatternElement extends PatternElement {
 		return stringBuilder.append("%").toString();
 	}
 
-	private ExprInfo getExprInfo() {
+	public ExprInfo getExprInfo() {
 		ExprInfo exprInfo = new ExprInfo(classes.length);
 		for (int i = 0; i < classes.length; i++) {
 			exprInfo.classes[i] = classes[i];
