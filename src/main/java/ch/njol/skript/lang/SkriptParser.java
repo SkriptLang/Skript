@@ -240,7 +240,7 @@ public class SkriptParser {
 								int endIndex = nextUnescaped(pattern, '%', startIndex + 1);
 								if (parseResult.exprs[i] == null) {
 									String name = pattern.substring(startIndex + 1, endIndex);
-									if (!this.isInputOptional(name)) {
+									if (!this.isInputDefault(name)) {
 										ExprInfo exprInfo = getExprInfo(name);
 										DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
 										if (expr == null)
@@ -279,9 +279,9 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Whether an %input% declares itself as optional (with a preceding '-').
+	 * Whether an %input% declares itself as default (with a preceding '-').
 	 */
-	private boolean isInputOptional(String name) {
+	private boolean isInputDefault(String name) {
 		if (name.isEmpty())
 			return false;
 		for (int i = 0; i < Math.min(5, name.length()); i++) { // we only care about the start of the string
