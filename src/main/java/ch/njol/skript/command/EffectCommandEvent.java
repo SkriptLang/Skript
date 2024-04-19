@@ -25,7 +25,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * Called whenever an effect command attempt is done.
  */
 public class EffectCommandEvent extends CommandEvent implements Cancellable {
 
@@ -38,6 +38,9 @@ public class EffectCommandEvent extends CommandEvent implements Cancellable {
 		this.effect = effect;
 	}
 
+	/**
+	 * @return the parsed effect, if valid
+	 */
 	@Nullable
 	public Effect getEffect() {
 		return effect;
