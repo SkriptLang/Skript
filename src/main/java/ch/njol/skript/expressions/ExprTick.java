@@ -18,9 +18,9 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
@@ -28,17 +28,11 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public class ExprTick extends SimplePropertyExpression<Server, Number> {
 
-	private static boolean isServerVersionAtLeast(String requiredVersion) {
-		String currentVersion = Bukkit.getServer().getBukkitVersion();
-		return currentVersion.compareTo(requiredVersion) >= 0;
-	}
-
 	static {
-		if (isServerVersionAtLeast("1.20.3")) {
+		if (Skript.methodExists(Server.class, "getServerTickManager") && Skript.isRunningMinecraft(1, 20, 3)) {
 			register(ExprTick.class, Number.class, "[server] tick rate", "servertickmanager");
 		}
 	}
-
 
 	@Override
 	public Number convert(Server server) {
