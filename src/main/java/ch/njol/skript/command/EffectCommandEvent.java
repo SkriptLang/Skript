@@ -39,12 +39,23 @@ public class EffectCommandEvent extends CommandEvent implements Cancellable {
 	}
 
 	/**
+	 * @see EffectCommandEvent#EffectCommandEvent(CommandSender, String, Effect)
+	 */
+	@Deprecated
+	public EffectCommandEvent(CommandSender sender, String command) {
+		this(sender, command, null);
+    }
+
+	/**
 	 * @return the parsed effect, if valid
 	 */
 	@Nullable
 	public Effect getEffect() {
 		return effect;
 	}
+
+	@Deprecated
+	public void setCommand(String command) {}
 
 	@Override
 	public boolean isCancelled() {
