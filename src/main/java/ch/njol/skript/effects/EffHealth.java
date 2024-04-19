@@ -70,12 +70,6 @@ public class EffHealth extends Effect {
 				"and will be removed in the future");
 
 		this.damageables = exprs[0];
-		if (!LivingEntity.class.isAssignableFrom(damageables.getReturnType())) {
-			if (!ChangerUtils.acceptsChange(damageables, ChangeMode.SET, ItemType.class)) {
-				Skript.error(damageables + " cannot be changed, thus it cannot be damaged or repaired.");
-				return false;
-			}
-		}
 		this.isHealing = matchedPattern >= 1;
 		this.amount = (Expression<Number>) exprs[1];
 		return true;
