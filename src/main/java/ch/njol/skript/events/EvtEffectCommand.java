@@ -33,19 +33,19 @@ public class EvtEffectCommand extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Effect Command Event", EvtEffectCommand.class, EffectCommandEvent.class,
-				"[sender:(:player|console)] effect command")
+				"[executor:(1:console|2:player)] effect command")
 				.description("Called when a player or console executes a skript effect command.")
 				.examples(
 						"on effect command:",
-								"\tlog \"%sender%: %command%\" to file \"effectcommand.log\"")
+								"\tlog \"%sender%: %command%\" to file \"effectcommands.log\"")
 				.since("INSERT VERSION");
 	}
 
 	private enum Executor {
 
-		ANY(""),
-		CONSOLE("console "),
-		PLAYER("player ");
+		ANY("any"),
+		CONSOLE("console"),
+		PLAYER("player");
 
 		final String toString;
 
@@ -65,10 +65,7 @@ public class EvtEffectCommand extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		executor = Executor.ANY;
-		if (parseResult.hasTag("sender")) {
-			executor = parseResult.hasTag("player") ? Executor.PLAYER : Executor.CONSOLE;
-		}
+		executor = parseResult.hasTag("executor") ? Executor.values()[parseResult.mark] : Executor.ANY;
 		return true;
 	}
 
@@ -90,7 +87,9 @@ public class EvtEffectCommand extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return executor + "effect command";
+		if (executor != Executor.ANY)
+			return executor + " effect command";
+		return "effect command";
 	}
 
 }

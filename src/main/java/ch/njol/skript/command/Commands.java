@@ -181,19 +181,17 @@ public abstract class Commands {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
-				// Call the event on the Bukkit API for addon developers.
-				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command);
-				Bukkit.getPluginManager().callEvent(effectCommand);
-				command = effectCommand.getCommand();
 				ParserInstance parserInstance = ParserInstance.get();
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
 				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
-
-				if (effect != null) {
-					log.clear(); // ignore warnings and stuff
-					log.printLog();
-					if (!effectCommand.isCancelled()) {
+				// Call the event on the Bukkit API for addon developers.
+				EffectCommandEvent effectCommand = new EffectCommandEvent(sender, command, effect);
+				Bukkit.getPluginManager().callEvent(effectCommand);
+				if (!effectCommand.isCancelled()) {
+					if (effect != null) {
+						log.clear(); // ignore warnings and stuff
+						log.printLog();
 						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
 						// TODO: remove logPlayerCommands for 2.8.0
 						if ((SkriptConfig.logEffectCommands.value() || SkriptConfig.logPlayerCommands.value()) && !(sender instanceof ConsoleCommandSender))
@@ -201,14 +199,14 @@ public abstract class Commands {
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
 					} else {
-						sender.sendMessage(ChatColor.RED + "your effect command '" + SkriptColor.replaceColorChar(command) + "' was cancelled.");
+						if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
+							SkriptLogger.LOGGER.severe("Error in: " + SkriptColor.replaceColorChar(command));
+						else
+							sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + SkriptColor.replaceColorChar(command));
+						log.printErrors(sender, "(No specific information is available)");
 					}
 				} else {
-					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
-						SkriptLogger.LOGGER.severe("Error in: " + SkriptColor.replaceColorChar(command));
-					else
-						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + SkriptColor.replaceColorChar(command));
-					log.printErrors(sender, "(No specific information is available)");
+					sender.sendMessage(ChatColor.RED + "Your effect command '" + SkriptColor.replaceColorChar(command) + "' was cancelled.");
 				}
 			} finally {
 				log.stop();
