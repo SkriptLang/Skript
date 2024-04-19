@@ -16,34 +16,36 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.test.tests.lang;
 
-import org.bukkit.entity.Entity;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Pig;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.junit.Test;
 
-import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import java.util.ArrayList;
 
-@Name("Is Invulnerable")
-@Description("Checks whether an entity is invulnerable.")
-@Examples("target entity is invulnerable")
-@Since("2.5")
-public class CondIsInvulnerable extends PropertyCondition<Entity> {
-	
+public class CancelledEventsTest extends SkriptJUnitTest {
+
+
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities");
+		setShutdownDelay(1);
 	}
-	
-	@Override
-	public boolean check(Entity entity) {
-		return entity.isInvulnerable();
+
+	@Test
+	public void callCancelledEvent() {
+		Pig pig = spawnTestPig();
+		EntityDeathEvent event = new EntityDeathEvent(pig, new ArrayList<>());
+
+		// call cancelled event
+		event.setCancelled(true);
+		Bukkit.getPluginManager().callEvent(event);
+
+		// call non-cancelled event
+		event.setCancelled(false);
+		Bukkit.getPluginManager().callEvent(event);
 	}
-	
-	@Override
-	protected String getPropertyName() {
-		return "invulnerable";
-	}
-	
+
 }
+
