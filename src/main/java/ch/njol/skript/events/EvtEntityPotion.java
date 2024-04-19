@@ -39,7 +39,7 @@ public class EvtEntityPotion extends SkriptEvent {
 				"on entity potion effect modification:",
 					"\t\tbroadcast \"A potion effect was added to %event-entity%!\" ",
 				"",
-				"on entity potion effect modification of night vision:")
+				"on entity potion effect modific./gradlew clean JUnitJava17ation of night vision:")
 			.since("INSERT VERSION");
 	}
 
@@ -55,7 +55,6 @@ public class EvtEntityPotion extends SkriptEvent {
 		}
 		return true;
 	}
-
 
 	@Override
 	public boolean check(Event event) {
@@ -79,8 +78,6 @@ public class EvtEntityPotion extends SkriptEvent {
 
 		return false;
 	}
-
-
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
