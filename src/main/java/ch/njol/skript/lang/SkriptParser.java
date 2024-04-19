@@ -240,7 +240,7 @@ public class SkriptParser {
 								int endIndex = nextUnescaped(pattern, '%', startIndex + 1);
 								if (parseResult.exprs[i] == null) {
 									String name = pattern.substring(startIndex + 1, endIndex);
-									if (!name.startsWith("-")) {
+									if (!this.isInputOptional(name)) {
 										ExprInfo exprInfo = getExprInfo(name);
 										DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
 										if (expr == null)
@@ -276,6 +276,22 @@ public class SkriptParser {
 		} finally {
 			log.stop();
 		}
+	}
+
+	/**
+	 * Whether an %input% declares itself as optional (with a preceding '-').
+	 */
+	private boolean isInputOptional(String name) {
+		if (name.isEmpty())
+			return false;
+		for (int i = 0; i < Math.min(5, name.length()); i++) { // we only care about the start of the string
+			char c = name.charAt(i);
+			if (c == '-')
+				return true;
+			else if (c == 0 || Character.isAlphabetic(c) || Character.isDigit(c))
+				return false; // if the pattern's started we don't want `foo-bar` to be optional
+		}
+		return false;
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
