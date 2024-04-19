@@ -41,6 +41,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -119,6 +120,8 @@ public class SkriptParser {
 	public static final String WILDCARD = "[^\"]*?(?:\"[^\"]*?\"[^\"]*?)*?";
 
 	public static class ParseResult {
+		@Nullable
+		public SkriptPattern source;
 		public Expression<?>[] exprs;
 		public List<MatchResult> regexes = new ArrayList<>(1);
 		public String expr;
@@ -236,12 +239,11 @@ public class SkriptParser {
 
 						}
 						if (parseResult != null) {
-							int startIndex = -1;
-							for (int i = 0; (startIndex = nextUnescaped(pattern, '%', startIndex + 1)) != -1; i++) {
-								int endIndex = nextUnescaped(pattern, '%', startIndex + 1);
+							assert parseResult.source != null; // parse results from parse_i have a source
+							List<TypePatternElement> types = parseResult.source.getElements(TypePatternElement.class);
+							for (int i = 0; i < parseResult.exprs.length; i++) {
 								if (parseResult.exprs[i] == null) {
-									String name = pattern.substring(startIndex + 1, endIndex);
-									ExprInfo exprInfo = getExprInfo(name);
+									ExprInfo exprInfo = types.get(i).getExprInfo();
 									if (!exprInfo.isOptional) {
 										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
 										if (!expr.init())
@@ -249,7 +251,6 @@ public class SkriptParser {
 										parseResult.exprs[i] = expr;
 									}
 								}
-								startIndex = endIndex;
 							}
 							T element = info.getElementClass().newInstance();
 							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
@@ -1372,55 +1373,6 @@ public class SkriptParser {
 		public boolean isOptional;
 		public int flagMask = ~0;
 		public int time = 0;
-	}
-
-	private static final Map<String,ExprInfo> exprInfoCache = new HashMap<>();
-
-	private static ExprInfo getExprInfo(String string) throws IllegalArgumentException, SkriptAPIException {
-		ExprInfo exprInfo = exprInfoCache.get(string);
-		if (exprInfo == null) {
-			exprInfo = createExprInfo(string);
-			exprInfoCache.put(string, exprInfo);
-		}
-
-		return exprInfo;
-	}
-
-	private static ExprInfo createExprInfo(String string) throws IllegalArgumentException, SkriptAPIException {
-		ExprInfo exprInfo = new ExprInfo(StringUtils.count(string, '/') + 1);
-		int caret = 0;
-		flags:
-		do {
-			switch (string.charAt(caret)) {
-				case '-':
-					exprInfo.isOptional = true;
-					break;
-				case '*':
-					exprInfo.flagMask &= ~PARSE_EXPRESSIONS;
-					break;
-				case '~':
-					exprInfo.flagMask &= ~PARSE_LITERALS;
-					break;
-				default:
-					break flags;
-			}
-			++caret;
-		} while (true);
-		int atSign = string.indexOf('@', caret);
-		if (atSign != -1) {
-			exprInfo.time = Integer.parseInt(string.substring(atSign + 1));
-			string = string.substring(caret, atSign);
-		} else {
-			string = string.substring(caret);
-		}
-		String[] classes = string.split("/");
-		assert classes.length == exprInfo.classes.length;
-		for (int i = 0; i < classes.length; i++) {
-			NonNullPair<String, Boolean> plural = Utils.getEnglishPlural("" + classes[i]);
-			exprInfo.classes[i] = Classes.getClassInfo(plural.getFirst());
-			exprInfo.isPlural[i] = plural.getSecond();
-		}
-		return exprInfo;
 	}
 
 	/**

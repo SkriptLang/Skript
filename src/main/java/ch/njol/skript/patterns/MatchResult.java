@@ -21,6 +21,7 @@ package ch.njol.skript.patterns;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import com.google.common.base.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,8 @@ import java.util.List;
  * A result from pattern matching.
  */
 public class MatchResult {
+
+	SkriptPattern source;
 
 	int exprOffset;
 
@@ -45,6 +48,7 @@ public class MatchResult {
 
 	public MatchResult copy() {
 		MatchResult matchResult = new MatchResult();
+		matchResult.source = this.source;
 		matchResult.exprOffset = this.exprOffset;
 		matchResult.expressions = this.expressions.clone();
 		matchResult.expr = this.expr;
@@ -58,6 +62,7 @@ public class MatchResult {
 
 	public ParseResult toParseResult() {
 		ParseResult parseResult = new ParseResult(expr, expressions);
+		parseResult.source = source;
 		parseResult.regexes.addAll(regexResults);
 		parseResult.mark = mark;
 		parseResult.tags.addAll(tags);
@@ -86,16 +91,17 @@ public class MatchResult {
 
 	@Override
 	public String toString() {
-		return "MatchResult{" +
-			"exprOffset=" + exprOffset +
-			", expressions=" + Arrays.toString(expressions) +
-			", expr='" + expr + '\'' +
-			", mark=" + mark +
-			", tags=" + tags +
-			", regexResults=" + regexResults +
-			", parseContext=" + parseContext +
-			", flags=" + flags +
-			'}';
+		return MoreObjects.toStringHelper(this)
+			.add("source", source)
+			.add("exprOffset", exprOffset)
+			.add("expressions", Arrays.toString(expressions))
+			.add("expr", expr)
+			.add("mark", mark)
+			.add("tags", tags)
+			.add("regexResults", regexResults)
+			.add("parseContext", parseContext)
+			.add("flags", flags)
+			.toString();
 	}
 
 }
