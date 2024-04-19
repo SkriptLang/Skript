@@ -83,12 +83,12 @@ public class EffHealth extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		int amount = 0;
+		double amount = 0;
 		if (this.amount != null) {
 			Number amountPostCheck = this.amount.getSingle(event);
 			if (amountPostCheck == null)
 				return;
-			amount = amountPostCheck.intValue();
+			amount = amountPostCheck.doubleValue();
 		}
 
 		for (Object obj : this.damageables.getArray(event)) {
@@ -98,7 +98,7 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemType, 0);
 				} else {
-					ItemUtils.setDamage(itemType, Math2.fit(0, (ItemUtils.getDamage(itemType) + (isHealing ? -amount : amount)), itemType.getMaterial().getMaxDurability()));
+					ItemUtils.setDamage(itemType, (int) Math2.fit(0, (ItemUtils.getDamage(itemType) + (isHealing ? -amount : amount)), itemType.getMaterial().getMaxDurability()));
 				}
 
 			} else if (obj instanceof Slot) {
@@ -111,7 +111,7 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemStack, 0);
 				} else {
-					ItemUtils.setDamage(itemStack, Math2.fit(0, (ItemUtils.getDamage(itemStack) + (isHealing ? -amount : amount)), itemStack.getType().getMaxDurability()));
+					ItemUtils.setDamage(itemStack, (int) Math2.fit(0, (ItemUtils.getDamage(itemStack) + (isHealing ? -amount : amount)), itemStack.getType().getMaxDurability()));
 				}
 
 				slot.setItem(itemStack);
