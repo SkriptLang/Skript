@@ -50,6 +50,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
@@ -240,19 +241,9 @@ public class SkriptParser {
 								int endIndex = nextUnescaped(pattern, '%', startIndex + 1);
 								if (parseResult.exprs[i] == null) {
 									String name = pattern.substring(startIndex + 1, endIndex);
-									if (!name.startsWith("-")) {
-										ExprInfo exprInfo = getExprInfo(name);
-										DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
-										if (expr == null)
-											throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[patternIndex] + "]");
-										if (!(expr instanceof Literal) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0)
-											throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a literal. Either allow null (with %-*" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[patternIndex] + "]");
-										if (expr instanceof Literal && (exprInfo.flagMask & PARSE_LITERALS) == 0)
-											throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is a literal. Either allow null (with %-~" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + info.patterns[patternIndex] + "]");
-										if (!exprInfo.isPlural[0] && !expr.isSingle())
-											throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + info.patterns[patternIndex] + "]");
-										if (exprInfo.time != 0 && !expr.setTime(exprInfo.time))
-											throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' does not have distinct time states. [pattern: " + info.patterns[patternIndex] + "]");
+									ExprInfo exprInfo = getExprInfo(name);
+									if (!exprInfo.isOptional) {
+										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
 										if (!expr.init())
 											continue patternsLoop;
 										parseResult.exprs[i] = expr;
@@ -276,6 +267,21 @@ public class SkriptParser {
 		} finally {
 			log.stop();
 		}
+	}
+
+	private static <T extends SyntaxElement> @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
+		DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
+		if (expr == null)
+			throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
+		if (!(expr instanceof Literal) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0)
+			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a literal. Either allow null (with %-*" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
+		if (expr instanceof Literal && (exprInfo.flagMask & PARSE_LITERALS) == 0)
+			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is a literal. Either allow null (with %-~" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
+		if (!exprInfo.isPlural[0] && !expr.isSingle())
+			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + pattern + "]");
+		if (exprInfo.time != 0 && !expr.setTime(exprInfo.time))
+			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' does not have distinct time states. [pattern: " + pattern + "]");
+		return expr;
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
@@ -1382,25 +1388,30 @@ public class SkriptParser {
 
 	private static ExprInfo createExprInfo(String string) throws IllegalArgumentException, SkriptAPIException {
 		ExprInfo exprInfo = new ExprInfo(StringUtils.count(string, '/') + 1);
-		exprInfo.isOptional = string.startsWith("-");
-		if (exprInfo.isOptional)
-			string = string.substring(1);
-		if (string.startsWith("*")) {
-			string = string.substring(1);
-			exprInfo.flagMask &= ~PARSE_EXPRESSIONS;
-		} else if (string.startsWith("~")) {
-			string = string.substring(1);
-			exprInfo.flagMask &= ~PARSE_LITERALS;
-		}
-		if (!exprInfo.isOptional) {
-			exprInfo.isOptional = string.startsWith("-");
-			if (exprInfo.isOptional)
-				string = "" + string.substring(1);
-		}
-		int atSign = string.indexOf("@");
+		int caret = 0;
+		flags:
+		do {
+			switch (string.charAt(caret)) {
+				case '-':
+					exprInfo.isOptional = true;
+					break;
+				case '*':
+					exprInfo.flagMask &= ~PARSE_EXPRESSIONS;
+					break;
+				case '~':
+					exprInfo.flagMask &= ~PARSE_LITERALS;
+					break;
+				default:
+					break flags;
+			}
+			++caret;
+		} while (true);
+		int atSign = string.indexOf('@', caret);
 		if (atSign != -1) {
 			exprInfo.time = Integer.parseInt(string.substring(atSign + 1));
-			string = "" + string.substring(0, atSign);
+			string = string.substring(caret, atSign);
+		} else {
+			string = string.substring(caret);
 		}
 		String[] classes = string.split("/");
 		assert classes.length == exprInfo.classes.length;
