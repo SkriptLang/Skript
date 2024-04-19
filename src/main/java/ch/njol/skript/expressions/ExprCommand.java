@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.command.ScriptCommandEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -36,19 +37,20 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Command")
-@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
-@Examples({"# prevent any commands except for the /exit command during some game",
-		"on command:",
+@Description("The command that caused an 'on command' event (excluding the leading slash and all arguments), or an 'effect command' event.")
+@Examples({
+	"# prevent any commands except for the /exit command during some game",
+	"on command:",
 		"\tif {game::%player%::playing} is true:",
-		"\t\tif the command is not \"exit\":",
-		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
-		"\t\t\tcancel the event"})
-@Since("2.0, 2.7 (support for script commands)")
-@Events("command")
+			"\t\tif the command is not \"exit\":",
+				"\t\t\tmessage \"You're not allowed to use commands during the game\"",
+				"\t\t\tcancel the event",
+	"on effect command:",
+		"\tlog \"%sender%: %command%\" to file \"effectcommand.log\""
+})
+@Since("2.0, 2.7 (support for script commands), INSERT VERSION (support for effect command)")
+@Events({"command", "effect command"})
 public class ExprCommand extends SimpleExpression<String> {
 
 	static {
@@ -62,8 +64,8 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class)) {
-			Skript.error("The 'command' expression can only be used in a script command or command event");
+		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class, EffectCommandEvent.class)) {
+			Skript.error("The 'command' expression can only be used in a command, script command or effect command event");
 			return false;
 		}
 		fullCommand = matchedPattern == 0;
@@ -72,23 +74,25 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
-		final String s;
+	protected String[] get(Event event) {
+		String command;
 
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) {
-			s = ((ServerCommandEvent) e).getCommand().trim();
-		} else { // It's a script command event
-			ScriptCommandEvent event = (ScriptCommandEvent) e;
-			s = event.getCommandLabel() + " " + event.getArgsString();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			command = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) {
+			command = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (event instanceof ScriptCommandEvent) {
+			ScriptCommandEvent e = (ScriptCommandEvent) event;
+			command = e.getCommandLabel() + " " + e.getArgsString();
+		} else { // It's an EffectCommandEvent
+			command = ((EffectCommandEvent) event).getCommand();
 		}
 
-		if (fullCommand) {
-			return new String[]{s};
+		if (event instanceof EffectCommandEvent || fullCommand) {
+			return new String[]{command};
 		} else {
-			int c = s.indexOf(' ');
-			return new String[] {c == -1 ? s : s.substring(0, c)};
+			int c = command.indexOf(' ');
+			return new String[] {c == -1 ? command : command.substring(0, c)};
 		}
 	}
 	
@@ -103,7 +107,7 @@ public class ExprCommand extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return fullCommand ? "the full command" : "the command";
 	}
 	
