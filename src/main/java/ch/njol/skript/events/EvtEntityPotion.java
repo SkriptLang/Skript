@@ -39,7 +39,7 @@ public class EvtEntityPotion extends SkriptEvent {
 				"on entity potion effect modification:",
 					"\t\tbroadcast \"A potion effect was added to %event-entity%!\" ",
 				"",
-				"on entity potion effect modific./gradlew clean JUnitJava17ation of night vision:")
+				"on entity potion effect modification of night vision:")
 			.since("INSERT VERSION");
 	}
 
