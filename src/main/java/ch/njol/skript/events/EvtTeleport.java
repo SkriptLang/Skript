@@ -22,11 +22,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -36,8 +35,11 @@ import javax.annotation.Nullable;
 public class EvtTeleport extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Teleport", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "[%entitytypes%] teleport[ing]", "[player] teleport[ing]")
-			.description("This event can be used to teleport non-player or player entities respectively", "When teleporting entities, the event may also be called due to a result of natural causes, such as an enderman or shulker teleporting, or wolves teleporting to players.", "When teleporting players, the event can be called by teleporting through a nether/end portal, or by other means (e.g. plugins).")
+		Skript.registerEvent("Teleport", EvtTeleport.class, CollectionUtils.array(EntityTeleportEvent.class, PlayerTeleportEvent.class), "[%entitytypes%] teleport[ing]")
+			.description(
+				"This event can be used to listen to teleports from non-players or player entities respectively.",
+				"When teleporting entities, the event may also be called due to a result of natural causes, such as an enderman or shulker teleporting, or wolves teleporting to players.",
+				"When teleporting players, the event can be called by teleporting through a nether/end portal, or by other means (e.g. plugins).")
 			.examples(
 				"on teleport:",
 				"on player teleport:",
@@ -49,11 +51,9 @@ public class EvtTeleport extends SkriptEvent {
 	@SuppressWarnings("unchecked")
 	private Expression<EntityType> entities;
 
-	private int matchedPattern;
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		this.matchedPattern = matchedPattern;
-		if (matchedPattern == 0 && args[0] != null) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		if (args[0] != null) {
 			entities = (Expression<EntityType>) args[0];
 		}
 		return true;
@@ -62,18 +62,20 @@ public class EvtTeleport extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		Entity entity;
 		if (event instanceof EntityTeleportEvent) {
-			EntityTeleportEvent entityEvent = (EntityTeleportEvent) event;
-			entity = entityEvent.getEntity();
+			Entity entity = ((EntityTeleportEvent) event).getEntity();
+			return checkEntity(entity, event);
 		} else if (event instanceof PlayerTeleportEvent) {
-			PlayerTeleportEvent playerEvent = (PlayerTeleportEvent) event;
-			entity = playerEvent.getPlayer();
+			Entity entity = ((PlayerTeleportEvent) event).getPlayer();
+			return checkEntity(entity, event);
 		} else {
 			return false;
 		}
+	}
+
+	private boolean checkEntity(Entity entity, Event event) {
 		if (entities != null) {
-			for (EntityType entType : entities.getArray(event)) {
+			for (EntityType entType : entities.getAll(event)) {
 				if (entType.isInstance(entity)) {
 					return true;
 				}
@@ -84,13 +86,9 @@ public class EvtTeleport extends SkriptEvent {
 		return false;
 	}
 
-
-
 	public String toString(@Nullable Event e, boolean debug) {
 		if (entities != null) {
-			return "on " + entities.toString(e, debug) + " teleport" ;
-		} else if (e instanceof PlayerTeleportEvent) {
-			return "on player teleport";
+			return "on " + entities.toString(e, debug) + " teleport";
 		} else {
 			return "on teleport";
 		}
