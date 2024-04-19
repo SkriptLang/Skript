@@ -37,7 +37,7 @@ public class EvtEntityPotion extends SkriptEvent {
 			.description("Called when an entity's potion effect is modified.", "This modification can include adding, removing or changing their potion effect.")
 			.examples(
 				"on entity potion effect modification:",
-				"\t\tbroadcast \"A potion effect was added to %event-entity%!\" ",
+					"\t\tbroadcast \"A potion effect was added to %event-entity%!\" ",
 				"",
 				"on entity potion effect modification of night vision:")
 			.since("INSERT VERSION");
