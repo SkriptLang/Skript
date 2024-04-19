@@ -46,10 +46,11 @@ import ch.njol.util.Kleenean;
 			"\t\tif the command is not \"exit\":",
 				"\t\t\tmessage \"You're not allowed to use commands during the game\"",
 				"\t\t\tcancel the event",
+	"",
 	"on effect command:",
 		"\tlog \"%sender%: %command%\" to file \"effectcommand.log\""
 })
-@Since("2.0, 2.7 (support for script commands), INSERT VERSION (support for effect command)")
+@Since("2.0, 2.7 (script commands), INSERT VERSION (effect commands)")
 @Events({"command", "effect command"})
 public class ExprCommand extends SimpleExpression<String> {
 

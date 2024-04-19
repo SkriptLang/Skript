@@ -37,7 +37,7 @@ public class EvtEffectCommand extends SkriptEvent {
 				.description("Called when a player or console executes a skript effect command.")
 				.examples(
 						"on effect command:",
-								"\tlog \"%sender%: %command%\" to file \"effectcommands.log\"")
+							"\tlog \"%sender%: %command%\" to file \"effectcommands.log\"")
 				.since("INSERT VERSION");
 	}
 
