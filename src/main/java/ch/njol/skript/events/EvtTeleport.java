@@ -53,9 +53,8 @@ public class EvtTeleport extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null) {
+		if (args[0] != null)
 			entities = (Expression<EntityType>) args[0];
-		}
 		return true;
 	}
 
@@ -76,11 +75,9 @@ public class EvtTeleport extends SkriptEvent {
 	private boolean checkEntity(Entity entity, Event event) {
 		if (entities != null) {
 			for (EntityType entType : entities.getAll(event)) {
-				if (entType.isInstance(entity)) {
+				if (entType.isInstance(entity))
 					return true;
-				}
 			}
-		} else {
 			return true;
 		}
 		return false;
