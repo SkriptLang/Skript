@@ -785,7 +785,6 @@ public class SimpleEvents {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
 					.description(
 						"Called when an enderman gets mad because a player looked at them.",
-						"Canceling this event makes the enderman thing the player is wearing a pumpkin.",
 						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
 					)
 					.examples(
