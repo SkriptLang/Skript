@@ -78,9 +78,9 @@ public class EvtTeleport extends SkriptEvent {
 				if (entType.isInstance(entity))
 					return true;
 			}
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	public String toString(@Nullable Event e, boolean debug) {
