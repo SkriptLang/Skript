@@ -63,7 +63,10 @@ public class EvtEntityPotion extends SkriptEvent {
 		}
 
 		EntityPotionEffectEvent potionEvent = (EntityPotionEffectEvent) event;
-		boolean effectMatches = potionEffects == null || (potionEvent.getNewEffect() != null && potionEffects.check(event, effectType -> effectType.equals(potionEvent.getNewEffect().getType())));
+		boolean effectMatches = potionEffects == null ||
+			(potionEvent.getOldEffect() != null && potionEffects.check(event, effectType -> effectType.equals(potionEvent.getOldEffect().getType()))) ||
+			(potionEvent.getNewEffect() != null && potionEffects.check(event, effectType -> effectType.equals(potionEvent.getNewEffect().getType())));
+
 		boolean causeMatches = cause == null || cause.check(event, cause -> cause.equals(potionEvent.getCause()));
 
 		return effectMatches && causeMatches;
