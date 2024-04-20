@@ -1979,7 +1979,7 @@ entity potion causes:
 	spider_spawn: spider spawn, spawned spider
 	totem: removal by resurrection
 	turtle_helmet: turtle helmet effect
-	unknown: unknown effect
+	unknown: unknown
 	villager_trade: villager trade
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
