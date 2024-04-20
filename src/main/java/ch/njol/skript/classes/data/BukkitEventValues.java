@@ -41,6 +41,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -678,6 +679,21 @@ public final class BukkitEventValues {
 				return event.getLightning();
 			}
 		}, 0);
+		// EndermanAttackPlayerEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Entity.class, new Getter<Entity, EndermanAttackPlayerEvent>() {
+				@Override
+				public Entity get(EndermanAttackPlayerEvent event) {
+					return event.getEntity();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Player.class, new Getter<Player, EndermanAttackPlayerEvent>() {
+				@Override
+				public Player get(EndermanAttackPlayerEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 		// --- PlayerEvents ---
 		EventValues.registerEventValue(PlayerEvent.class, Player.class, new Getter<Player, PlayerEvent>() {
