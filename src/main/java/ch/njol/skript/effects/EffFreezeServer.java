@@ -50,6 +50,6 @@ public class EffFreezeServer extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return freeze ? "freeze server effect" : "unfreeze server effect";
+		return freeze ? "freeze server" : "unfreeze server";
 	}
 }

@@ -61,6 +61,6 @@ public class EffSprintServer extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return sprint ? "sprint server effect" : "stop sprinting server effect";
+		return sprint ? "sprint server" : "stop sprinting server";
 	}
 }
