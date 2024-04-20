@@ -1958,6 +1958,32 @@ environments:
 	the_end: end, the end
 	custom: custom
 
+
+entity potion causes:
+	area_effect_cloud: area effect cloud
+	arrow: arrow
+	attack: attack
+	beacon: beacon
+	command: command
+	conduit: conduit
+	conversion: conversion, converted
+	death: death, die
+	dolphin: dolphin
+	expiration: expiration, expired
+	food: food
+	illusion: illusion
+	milk: milk
+	plugin: plugin
+	potion_drink: potion drunk, drinking potion
+	potion_splash: potion splash, splash potion
+	spider_spawn: spider spawn, spawned spider
+	totem: totem, totem of undying
+	turtle_helmet: turtle helmet
+	unknown: none, unknown
+	villager_trade: villager trade
+	patrol_captain: pillager captain, patrol captain
+	wither_rose: wither rose
+
 # -- Moon Phases --
 moon phases:
 	first_quarter: first quarter

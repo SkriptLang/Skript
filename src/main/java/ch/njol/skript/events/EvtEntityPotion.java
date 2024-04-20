@@ -33,7 +33,7 @@ public class EvtEntityPotion extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Entity Potion Effect", EvtEntityPotion.class, EntityPotionEffectEvent.class,
-				"entity potion effect [modif[y|ication]] [[of] %potioneffecttypes%] [due to %entitypotioncause%]")
+				"entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [due to %-entitypotioncause%]")
 			.description("Called when an entity's potion effect is modified.", "This modification can include adding, removing or changing their potion effect.")
 			.examples(
 				"on entity potion effect modification:",
@@ -63,21 +63,12 @@ public class EvtEntityPotion extends SkriptEvent {
 		}
 
 		EntityPotionEffectEvent potionEvent = (EntityPotionEffectEvent) event;
-		if (potionEffects == null || potionEvent.getNewEffect() == null) {
-			return false;
-		}
+		boolean effectMatches = potionEffects == null || (potionEvent.getNewEffect() != null && potionEffects.check(event, effectType -> effectType.equals(potionEvent.getNewEffect().getType())));
+		boolean causeMatches = cause == null || cause.check(event, cause -> cause.equals(potionEvent.getCause()));
 
-		PotionEffectType effectType = potionEvent.getNewEffect().getType();
-		for (PotionEffectType potionEffectType : potionEffects.getArray(event)) {
-			if (potionEffectType.equals(effectType)) {
-				if (cause == null || cause.getSingle(event).equals(potionEvent.getCause())) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return effectMatches && causeMatches;
 	}
+
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
