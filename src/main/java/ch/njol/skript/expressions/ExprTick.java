@@ -20,23 +20,35 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-public class ExprTick extends SimplePropertyExpression<Server, Number> {
+public class ExprTick extends SimpleExpression<Number> {
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager") && Skript.isRunningMinecraft(1, 20, 3)) {
-			register(ExprTick.class, Number.class, "[server] tick rate", "servertickmanager");
-		}
+		Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server[[']s] tick rate");
 	}
 
 	@Override
-	public Number convert(Server server) {
-		return server.getServerTickManager().getTickRate();
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		return true;
+	}
+
+	@Nullable
+	@Override
+	protected Number[] get(Event event) {
+		return new Number[]{Bukkit.getServer().getServerTickManager().getTickRate()};
+	}
+
+	@Override
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
@@ -45,8 +57,8 @@ public class ExprTick extends SimplePropertyExpression<Server, Number> {
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "tick rate";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "server tick rate";
 	}
 
 	@Override
@@ -60,26 +72,22 @@ public class ExprTick extends SimplePropertyExpression<Server, Number> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		if (delta != null && delta.length != 0) {
-			Server server = getExpr().getSingle(event);
-			if (server == null) {
-				return;
-			}
-			ServerTickManager serverTickManager = server.getServerTickManager();
-			float tickRate = serverTickManager.getTickRate();
+			float tickRate = Bukkit.getServer().getServerTickManager().getTickRate();
 			float change = ((Number) delta[0]).floatValue();
 			switch (mode) {
 				case SET:
-					serverTickManager.setTickRate(change);
+					Bukkit.getServer().getServerTickManager().setTickRate(change);
 					break;
 				case ADD:
-					serverTickManager.setTickRate(tickRate + change);
+					Bukkit.getServer().getServerTickManager().setTickRate(tickRate + change);
 					break;
 				case REMOVE:
-					serverTickManager.setTickRate(tickRate - change);
+					Bukkit.getServer().getServerTickManager().setTickRate(tickRate - change);
 					break;
 			}
 		}
 	}
 }
+
 
 
