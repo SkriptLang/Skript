@@ -795,7 +795,7 @@ public class SimpleEvents {
 								"\t\tcancel event"
 					)
 					.since("INSERT VERSION")
-					.requiredPlugins("Paper 1.12+");
+					.requiredPlugins("Paper");
 		}
 	}
 
