@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
@@ -37,7 +38,7 @@ public class StructEvent extends Structure {
 
 	static {
 		Skript.registerStructure(StructEvent.class,
-				"[on] <.+> [with priority (:(lowest|low|normal|high|highest|monitor))]");
+				"[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]");
 	}
 
 	private SkriptEvent event;
@@ -51,8 +52,18 @@ public class StructEvent extends Structure {
 		// ensure there's no leftover data from previous parses
 		data.clear();
 
-		if (!parseResult.tags.isEmpty())
-			data.priority = EventPriority.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		if (parseResult.hasTag("uncancelled")) {
+			data.behavior = ListeningBehavior.UNCANCELLED;
+		} else if (parseResult.hasTag("cancelled")) {
+			data.behavior = ListeningBehavior.CANCELLED;
+		} else if (parseResult.hasTag("any")) {
+			data.behavior = ListeningBehavior.ANY;
+		}
+
+		if (parseResult.hasTag("priority")) {
+			String lastTag = parseResult.tags.get(parseResult.tags.size() - 1);
+			data.priority = EventPriority.valueOf(lastTag.toUpperCase(Locale.ENGLISH));
+		}
 
 		event = SkriptEvent.parse(expr, entryContainer.getSource(), null);
 
@@ -111,6 +122,8 @@ public class StructEvent extends Structure {
 
 		@Nullable
 		private EventPriority priority;
+		@Nullable
+		private ListeningBehavior behavior;
 
 		public EventData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -122,10 +135,19 @@ public class StructEvent extends Structure {
 		}
 
 		/**
+		 * @return the listening behavior that should be used for the event. Null indicates that the user did not specify a behavior.
+		 */
+		@Nullable
+		public ListeningBehavior getListenerBehavior() {
+			return behavior;
+		}
+      
+    	/**
 		 * Clears all event-specific data from this instance.
 		 */
 		public void clear() {
 			priority = null;
+      		behavior = null;
 		}
 
 	}
