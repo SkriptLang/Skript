@@ -61,6 +61,6 @@ public class EffStepServer extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return step ? "step server effect" : "stop stepping server effect";
+		return step ? "step server" : "stop stepping server";
 	}
 }
