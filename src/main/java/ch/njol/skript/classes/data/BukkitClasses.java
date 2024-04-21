@@ -1549,33 +1549,6 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
-		Classes.registerClass(new ClassInfo<>(ServerTickManager.class, "servertickmanager")
-			.user("server tick manager")
-			.name("Server Tick Manager")
-			.description("Represents a server's tick manager.")
-			.since("INSERT VERSION")
-			.parser(new Parser<ServerTickManager>() {
-
-				@Nullable
-				@Override
-				public ServerTickManager parse(String s, ParseContext parseContext) {
-					return null; // can't be parsed from a string
-				}
-
-				@Override
-				public String toString(ServerTickManager serverTickManager, int i) {
-					return "server tick manager";
-				}
-
-				@Override
-				public String toVariableNameString(ServerTickManager serverTickManager) {
-					return "server tick manager";
-				}
-
-				public String getVariableNamePattern() {
-					return "server tick manager";
-				}
-			}));
 
 	}
 
