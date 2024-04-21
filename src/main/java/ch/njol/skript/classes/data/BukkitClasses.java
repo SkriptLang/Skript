@@ -38,7 +38,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.ServerTickManager;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -1549,7 +1548,6 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
-
 	}
 
 }
