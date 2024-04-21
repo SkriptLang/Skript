@@ -19,16 +19,25 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
+@Name("Step Server")
+@Description({
+	"Makes the server step for a certain amount of time if the server state is frozen, or stops the server from stepping.",
+	"Requires Minecraft 1.20.4+"})
+@Examples({"make server step for 5 seconds if server is frozen", "make server stop stepping"})
+@Since("INSERT VERSION")
 public class EffStepServer extends Effect {
 
 	static {

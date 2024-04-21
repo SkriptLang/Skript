@@ -19,6 +19,10 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -28,13 +32,19 @@ import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+@Name("Server State")
+@Description({
+	"Represents the state of the server, for example, if the server is frozen, or running normally.",
+	"Requires Minecraft 1.20.4+"})
+@Examples({"if server's state is currently frozen:", "if server state is normal:"})
+@Since("INSERT VERSION")
 public class CondServerState extends Condition {
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
 			Skript.registerCondition(CondServerState.class,
-				"server state is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"server state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
+				"server[[']s] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
+				"server[[']s] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
 		}
 	}
 

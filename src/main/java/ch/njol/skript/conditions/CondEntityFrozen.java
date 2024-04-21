@@ -19,6 +19,10 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,7 +33,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 
 import javax.annotation.Nullable;
-
+@Name("Entity Frozen")
+@Description({
+	"Checks if the specified entities are frozen or not.",
+	"Requires Minecraft 1.20.4+"})
+@Examples({"if target entity is server frozen:"})
+@Since("INSERT VERSION")
 public class CondEntityFrozen extends Condition {
 
 	static {

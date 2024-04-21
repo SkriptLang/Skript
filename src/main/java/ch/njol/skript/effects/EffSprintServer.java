@@ -19,23 +19,32 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+@Name("Sprint Server")
+@Description({
+	"Requests the server to sprint for a certain amount of time, or stops the server from sprinting.",
+	"Requires Minecraft 1.20.4+"})
+@Examples({"request server to sprint for 10 seconds", "make server stop sprinting"})
+@Since("INSERT VERSION")
 public class EffSprintServer extends Effect {
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
 			Skript.registerEffect(EffSprintServer.class,
-				"request [for the] server [to] sprint for %timespan%",
+				"request [for [the]] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
 		}
 	}

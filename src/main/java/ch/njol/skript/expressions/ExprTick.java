@@ -20,6 +20,10 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -29,6 +33,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+@Name("Server Tick Rate")
+@Description({
+	"Gets or sets the current tick rate of the server. The tick rate is the number of game ticks that occur in a second. Higher values mean the game runs faster.",
+	"The server's default tick rate is 20.",
+	"Requires Minecraft 1.20.4+"})
+@Examples({
+	"send \"%server's tick rate%\" to player",
+	"set server's tick rate to 20 # This is the default tick rate.",
+	"add 5 to server's tick rate",
+	"remove 2 from server's tick rate"
+})
+@Since("INSERT VERSION")
 
 public class ExprTick extends SimpleExpression<Number> {
 
