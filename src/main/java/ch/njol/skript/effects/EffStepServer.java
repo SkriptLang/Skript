@@ -25,15 +25,18 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 public class EffStepServer extends Effect {
 
 	static {
-		Skript.registerEffect(EffStepServer.class,
-			"make [the] server step for %timespan%",
-			"make [the] server stop stepping");
+		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+			Skript.registerEffect(EffStepServer.class,
+				"make [the] server step for %timespan% [if [the] server [state] is frozen]",
+				"make [the] server stop stepping");
+		}
 	}
 
 	private boolean step;

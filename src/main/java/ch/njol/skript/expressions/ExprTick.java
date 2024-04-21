@@ -26,13 +26,16 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 public class ExprTick extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server[[']s] tick rate");
+		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server[[']s] tick rate");
+		}
 	}
 
 	@Override

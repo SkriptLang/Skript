@@ -25,15 +25,19 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 public class EffSprintServer extends Effect {
 
 	static {
-		Skript.registerEffect(EffSprintServer.class,
-			"make [the] server sprint for %timespan%",
-			"make [the] server stop sprinting");
+		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+			Skript.registerEffect(EffSprintServer.class,
+				"request [for the] server [to] sprint for %timespan%",
+				"make [the] server stop sprinting");
+		}
 	}
 
 	private boolean sprint;
