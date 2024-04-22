@@ -16,58 +16,46 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.effects;
+package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.ServerTickManager;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-@Name("Freeze/Unfreeze Server")
-@Description("Freezes or unfreezes the server.")
-@Examples({"freeze server", "unfreeze server"})
+import org.bukkit.entity.Entity;
+
+@Name("Is Entity Tick Frozen")
+@Description("Checks if the specified entities are frozen or not.")
+@Examples({"if target entity is tick frozen:"})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class EffFreezeServer extends Effect {
+public class CondIsTickFrozen extends PropertyCondition<Entity> {
 
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
 			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
-			Skript.registerEffect(EffFreezeServer.class,
-				"freeze [the] server",
-				"unfreeze [the] server");
+			register(CondIsTickFrozen.class, PropertyType.BE, "tick frozen", "entities");
 		} else {
 			SERVER_TICK_MANAGER = null;
 		}
 	}
 
-	private boolean freeze;
-
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		freeze = matchedPattern == 0;
-		return true;
+	public boolean check(Entity entity) {
+		return SERVER_TICK_MANAGER != null && SERVER_TICK_MANAGER.isFrozen(entity);
 	}
 
 	@Override
-	protected void execute(Event event) {
-		SERVER_TICK_MANAGER.setFrozen(freeze);
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return freeze ? "freeze server" : "unfreeze server";
+	protected String getPropertyName() {
+		return "tick frozen";
 	}
 }
+

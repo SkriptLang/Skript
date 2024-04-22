@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -30,49 +31,53 @@ import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 @Name("Step Server")
-@Description({
-	"Makes the server step for a certain amount of time if the server state is frozen, or stops the server from stepping.",
-	"Requires Minecraft 1.20.4+"})
+@Description("Makes the server step for a certain amount of time if the server state is frozen, or stops the server from stepping.")
 @Examples({"make server step for 5 seconds if server is frozen", "make server stop stepping"})
 @Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.20.4+")
 public class EffStepServer extends Effect {
+
+	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffStepServer.class,
-				"make [the] server step for %timespan% [if [the] server [state] is frozen]",
+				"make [the] server step for %timespan%",
 				"make [the] server stop stepping");
+		} else {
+			SERVER_TICK_MANAGER = null;
 		}
 	}
 
-	private boolean step;
 	private Expression<Timespan> timespan;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		step = matchedPattern == 0;
-		if (step) {
+		if (matchedPattern == 0)
 			timespan = (Expression<Timespan>) exprs[0];
-		}
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (step) {
-			long stepTicks = timespan != null ? timespan.getSingle(event).getTicks_i() : 1;
-			Bukkit.getServer().getServerTickManager().stepGameIfFrozen((int) stepTicks);
+		Timespan timespanInstance = timespan.getSingle(event);
+		if (timespanInstance != null) {
+			long stepTicks = timespanInstance.getTicks();
+			SERVER_TICK_MANAGER.stepGameIfFrozen((int) stepTicks);
 		} else {
-			Bukkit.getServer().getServerTickManager().stopStepping();
+			SERVER_TICK_MANAGER.stopStepping();
 		}
 	}
 
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return step ? "step server" : "stop stepping server";
+		return timespan == null ? "make the server stop stepping" : "make the step server for " + timespan.toString(e, debug);
 	}
 }

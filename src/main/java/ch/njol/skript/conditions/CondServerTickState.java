@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -29,37 +30,46 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Server State")
-@Description({
-	"Represents the state of the server, for example, if the server is frozen, or running normally.",
-	"Requires Minecraft 1.20.4+"})
-@Examples({"if server's state is currently frozen:", "if server state is normal:"})
+@Name("Server Tick State")
+@Description("Represents the ticking state of the server, for example, if the server is frozen, or running normally.")
+@Examples({"if server's tick state is currently frozen:", "if server tick state is normal:"})
 @Since("INSERT VERSION")
-public class CondServerState extends Condition {
+@RequiredPlugins("Minecraft 1.20.4+")
+public class CondServerTickState extends Condition {
+
+	public enum ServerState {
+		FROZEN, STEPPING, SPRINTING, NORMAL
+	}
+
+	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			Skript.registerCondition(CondServerState.class,
-				"server[[']s] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"server[[']s] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
+			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			Skript.registerCondition(CondServerTickState.class,
+				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
+				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
+		} else {
+			SERVER_TICK_MANAGER = null;
 		}
 	}
 
-	private String state;
+	private ServerState state;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (parseResult.hasTag("stepping")) {
-			state = "stepping";
+			state = ServerState.STEPPING;
 		} else if (parseResult.hasTag("sprinting")) {
-			state = "sprinting";
+			state = ServerState.SPRINTING;
 		} else if (parseResult.hasTag("frozen")) {
-			state = "frozen";
+			state = ServerState.FROZEN;
 		} else if (parseResult.hasTag("normal")) {
-			state = "normal";
+			state = ServerState.NORMAL;
 		}
 
 		return true;
@@ -68,21 +78,20 @@ public class CondServerState extends Condition {
 	@Override
 	public boolean check(Event e) {
 		switch (state) {
-			case "frozen":
-				return Bukkit.getServer().getServerTickManager().isFrozen();
-			case "stepping":
-				return Bukkit.getServer().getServerTickManager().isStepping();
-			case "sprinting":
-				return Bukkit.getServer().getServerTickManager().isSprinting();
-			case "normal":
-				return Bukkit.getServer().getServerTickManager().isRunningNormally();
+			case FROZEN:
+				return SERVER_TICK_MANAGER.isFrozen() != isNegated();
+			case STEPPING:
+				return SERVER_TICK_MANAGER.isStepping() != isNegated();
+			case SPRINTING:
+				return SERVER_TICK_MANAGER.isSprinting() != isNegated();
+			case NORMAL:
+				return SERVER_TICK_MANAGER.isRunningNormally() != isNegated();
 		}
-		return false;
+		return isNegated();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "server state is " + state;
+		return "the server's tick state is " + state;
 	}
-
 }

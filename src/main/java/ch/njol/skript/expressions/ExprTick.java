@@ -19,26 +19,27 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Server Tick Rate")
 @Description({
 	"Gets or sets the current tick rate of the server. The tick rate is the number of game ticks that occur in a second. Higher values mean the game runs faster.",
-	"The server's default tick rate is 20.",
-	"Requires Minecraft 1.20.4+"})
+	"The server's default tick rate is 20."})
 @Examples({
 	"send \"%server's tick rate%\" to player",
 	"set server's tick rate to 20 # This is the default tick rate.",
@@ -46,24 +47,24 @@ import org.jetbrains.annotations.Nullable;
 	"remove 2 from server's tick rate"
 })
 @Since("INSERT VERSION")
-
+@RequiredPlugins("Minecraft 1.20.4+")
 public class ExprTick extends SimpleExpression<Number> {
+
+	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server[[']s] tick rate");
+			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server['s] tick rate");
+		}
+		else {
+			SERVER_TICK_MANAGER = null;
 		}
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
-	}
-
-	@Nullable
-	@Override
-	protected Number[] get(Event event) {
-		return new Number[]{Bukkit.getServer().getServerTickManager().getTickRate()};
 	}
 
 	@Override
@@ -76,38 +77,42 @@ public class ExprTick extends SimpleExpression<Number> {
 		return Number.class;
 	}
 
+	@Nullable
+	@Override
+	protected Number[] get(Event event) {
+		return new Number[]{SERVER_TICK_MANAGER.getTickRate()};
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "server tick rate";
 	}
 
-	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
 			return new Class[]{Number.class};
-		}
 		return null;
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null && delta.length != 0) {
-			float tickRate = Bukkit.getServer().getServerTickManager().getTickRate();
+			float tickRate = SERVER_TICK_MANAGER.getTickRate();
 			float change = ((Number) delta[0]).floatValue();
 			switch (mode) {
 				case SET:
-					Bukkit.getServer().getServerTickManager().setTickRate(change);
+					SERVER_TICK_MANAGER.setTickRate(change);
 					break;
 				case ADD:
-					Bukkit.getServer().getServerTickManager().setTickRate(tickRate + change);
+					SERVER_TICK_MANAGER.setTickRate(tickRate + change);
 					break;
 				case REMOVE:
-					Bukkit.getServer().getServerTickManager().setTickRate(tickRate - change);
+					SERVER_TICK_MANAGER.setTickRate(tickRate - change);
+					break;
+				case RESET:
+					SERVER_TICK_MANAGER.setTickRate(20);
 					break;
 			}
 		}
 	}
 }
-
-
-

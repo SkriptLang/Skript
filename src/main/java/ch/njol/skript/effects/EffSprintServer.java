@@ -19,10 +19,11 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,22 +31,27 @@ import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Sprint Server")
-@Description({
-	"Requests the server to sprint for a certain amount of time, or stops the server from sprinting.",
-	"Requires Minecraft 1.20.4+"})
+@Description("Requests the server to sprint for a certain amount of time, or stops the server from sprinting.")
 @Examples({"request server to sprint for 10 seconds", "make server stop sprinting"})
 @Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.20.4+")
 public class EffSprintServer extends Effect {
+
+	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffSprintServer.class,
 				"request [for [the]] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
+		} else {
+			SERVER_TICK_MANAGER = null;
 		}
 	}
 
@@ -54,26 +60,27 @@ public class EffSprintServer extends Effect {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		sprint = matchedPattern == 0;
-		if (sprint) {
+		if (sprint)
 			timespan = (Expression<Timespan>) exprs[0];
-		}
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
 		if (sprint) {
-			long sprintTicks = timespan != null ? timespan.getSingle(event).getTicks_i() : 1;
-			Bukkit.getServer().getServerTickManager().requestGameToSprint((int) sprintTicks);
+			Timespan timespanInstance = timespan.getSingle(event);
+			long sprintTicks = timespanInstance != null ? timespanInstance.getTicks() : 1;
+			SERVER_TICK_MANAGER.requestGameToSprint((int) sprintTicks);
 		} else {
-			Bukkit.getServer().getServerTickManager().stopSprinting();
+			SERVER_TICK_MANAGER.stopSprinting();
 		}
 	}
 
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return sprint ? "sprint server" : "stop sprinting server";
+	public String toString(@Nullable Event event, boolean debug) {
+		return sprint ? "request to sprint server for" + timespan.toString(event, debug) : "stop sprinting server";
 	}
 }
