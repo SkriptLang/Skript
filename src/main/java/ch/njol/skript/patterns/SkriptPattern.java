@@ -21,6 +21,7 @@ package ch.njol.skript.patterns;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class SkriptPattern {
 	private final int expressionAmount;
 
 	private final String[] keywords;
+	@Nullable
+	private List<TypePatternElement> types;
 
 	public SkriptPattern(PatternElement first, int expressionAmount) {
 		this.first = first;
@@ -155,6 +158,13 @@ public class SkriptPattern {
 	 * @param <T> The type of pattern element.
 	 */
 	public <T extends PatternElement> List<T> getElements(Class<T> type) {
+		if (type == TypePatternElement.class) {
+			if (types == null) {
+				types = ImmutableList.copyOf(getElements(TypePatternElement.class, first, new ArrayList<>()));
+			}
+			//noinspection unchecked - checked with type == TypePatternElement
+			return (List<T>) types;
+		}
 		return getElements(type, first, new ArrayList<>());
 	}
 
