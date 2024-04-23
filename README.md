@@ -16,7 +16,7 @@ Skript requires **Spigot** to work. You heard it right, **CraftBukkit** does *no
 **Paper**, which is a fork of Spigot, is recommended; it is required for some
 parts of Skript to be available.
 
-Skript supports only the **latest** patch versions of Minecraft 1.9+.
+Skript supports only the **latest** patch versions of Minecraft 1.13+.
 For example, this means that 1.16.5 is supported, but 1.16.4 is *not*.
 Testing with all old patch versions is not feasible for us.
 
@@ -77,13 +77,13 @@ Skript has some tests written in Skript. Running them requires a Minecraft
 server, but our build script will create one for you. Running the tests is easy:
 
 ```
-./gradlew (quickTest|skriptTest|skriptTestJava8|skriptTestJava17)
+./gradlew (quickTest|skriptTest|skriptTestJava11|skriptTestJava17)
 ```
 
 <code>quickTest</code> runs the test suite on newest supported server version.
 <code>skriptTestJava17</code> (1.17+) runs the tests on the latest supported Java version.
-<code>skriptTestJava8</code> (1.13-1.16) runs the tests on the oldest supported Java version.
-<code>skriptTest</code> runs both skriptTestJava8 and skriptTestJava17
+<code>skriptTestJava11</code> (1.13-1.16) runs the tests on the oldest supported Java version.
+<code>skriptTest</code> runs both skriptTestJava11 and skriptTestJava17
 
 By running the tests, you agree to Mojang's End User License Agreement.
 
@@ -162,7 +162,7 @@ dependencies {
 }
 ```
 
-An example of the version tag would be ```dev37c```.
+An example of the version tag would be ```2.8.4```.
 
 > Note: If Gradle isn't able to resolve Skript's dependencies, just [disable the resolution of transitive dependencies](https://docs.gradle.org/current/userguide/resolution_rules.html#sec:disabling_resolution_transitive_dependencies) for Skript in your project.
 
