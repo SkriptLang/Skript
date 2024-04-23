@@ -472,16 +472,19 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world World to check if entity can spawn in
 	 * @return True if entity can spawn else false
 	 */
+	@SuppressWarnings("ConstantValue")
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
+			return false;
+		EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
+		if (bukkitEntityType == null)
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
 			// Check if the entity can actually be spawned
 			// Some entity types may be restricted by experimental datapacks
-			EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
-            return bukkitEntityType.isEnabledByFeature(world);
+            return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
 		}
-		return true;
+		return bukkitEntityType.isSpawnable();
 	}
 
 	/**

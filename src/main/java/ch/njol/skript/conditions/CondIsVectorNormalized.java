@@ -32,7 +32,6 @@ package ch.njol.skript.conditions;
 @Description("Checks whether a vector is normalized i.e. length of 1")
 @Examples("vector of player's location is normalized")
 @Since("2.5.1")
-@RequiredPlugins("Minecraft 1.13.2+")
 public class CondIsVectorNormalized extends PropertyCondition<Vector> {
 	
 	static {

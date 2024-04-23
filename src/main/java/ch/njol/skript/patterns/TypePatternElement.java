@@ -57,34 +57,37 @@ public class TypePatternElement extends PatternElement {
 		this.expressionIndex = expressionIndex;
 	}
 
-	public static TypePatternElement fromString(String s, int expressionIndex) {
-		boolean isNullable = s.startsWith("-");
-		if (isNullable)
-			s = s.substring(1);
-
-		int flagMask = ~0;
-		if (s.startsWith("*")) {
-			s = s.substring(1);
-			flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
-		} else if (s.startsWith("~")) {
-			s = s.substring(1);
-			flagMask &= ~SkriptParser.PARSE_LITERALS;
-		}
-
-		if (!isNullable) {
-			isNullable = s.startsWith("-");
-			if (isNullable)
-				s = s.substring(1);
-		}
+	public static TypePatternElement fromString(String string, int expressionIndex) {
+		int caret = 0, flagMask = ~0;
+		boolean isNullable = false;
+		flags:
+		do {
+			switch (string.charAt(caret)) {
+				case '-':
+					isNullable = true;
+					break;
+				case '*':
+					flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
+					break;
+				case '~':
+					flagMask &= ~SkriptParser.PARSE_LITERALS;
+					break;
+				default:
+					break flags;
+			}
+			++caret;
+		} while (true);
 
 		int time = 0;
-		int timeStart = s.indexOf("@");
+		int timeStart = string.indexOf('@', caret);
 		if (timeStart != -1) {
-			time = Integer.parseInt(s.substring(timeStart + 1));
-			s = s.substring(0, timeStart);
+			time = Integer.parseInt(string.substring(timeStart + 1));
+			string = string.substring(0, timeStart);
+		} else {
+			string = string.substring(caret);
 		}
 
-		String[] classes = s.split("/");
+		String[] classes = string.split("/");
 		ClassInfo<?>[] classInfos = new ClassInfo[classes.length];
 		boolean[] isPlural = new boolean[classes.length];
 
@@ -264,7 +267,7 @@ public class TypePatternElement extends PatternElement {
 		return stringBuilder.append("%").toString();
 	}
 
-	private ExprInfo getExprInfo() {
+	public ExprInfo getExprInfo() {
 		ExprInfo exprInfo = new ExprInfo(classes.length);
 		for (int i = 0; i < classes.length; i++) {
 			exprInfo.classes[i] = classes[i];
