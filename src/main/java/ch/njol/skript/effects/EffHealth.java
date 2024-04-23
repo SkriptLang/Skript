@@ -105,7 +105,8 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemStack, 0);
 				} else {
-					ItemUtils.setDamage(itemStack, (int) Math2.fit(0, (ItemUtils.getDamage(itemStack) + (isHealing ? -amount : amount)), itemStack.getType().getMaxDurability()));
+					int damageAmt = (int) Math2.fit(0, (isHealing ? -amount : amount), itemStack.getType().getMaxDurability());
+					ItemUtils.setDamage(itemStack, damageAmt);
 				}
 
 				slot.setItem(itemStack);
@@ -114,7 +115,7 @@ public class EffHealth extends Effect {
 				Damageable damageable = (Damageable) obj;
 
 				if (this.amount == null) {
-					HealthUtils.heal(damageable, HealthUtils.getMaxHealth(damageable) * 2);
+					HealthUtils.heal(damageable, HealthUtils.getMaxHealth(damageable));
 				} else if (isHealing) {
 					HealthUtils.heal(damageable, amount);
 				} else {
