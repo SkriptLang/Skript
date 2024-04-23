@@ -82,6 +82,8 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
+import ch.njol.util.OpenCloseable;
+import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
@@ -108,6 +110,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -466,6 +469,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
+		FeatureConfig.load(getFile());
+
 		// initialize the Skript addon instance
 		getAddonInstance();
 		
@@ -603,7 +608,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 				
 				stopAcceptingRegistrations();
-				
+
+				FeatureConfig.discard();
 				
 				Documentation.generate(); // TODO move to test classes?
 
@@ -1366,8 +1372,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param condition The condition's class
 	 * @param patterns Skript patterns to match this condition
 	 */
-	public static <E extends Condition> void registerCondition(final Class<E> condition, final String... patterns) throws IllegalArgumentException {
+	public static <E extends Condition> void registerCondition(Class<E> condition, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(condition.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, condition, originClassPath);
 		conditions.add(info);
@@ -1380,8 +1389,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param effect The effect's class
 	 * @param patterns Skript patterns to match this effect
 	 */
-	public static <E extends Effect> void registerEffect(final Class<E> effect, final String... patterns) throws IllegalArgumentException {
+	public static <E extends Effect> void registerEffect(Class<E> effect, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(effect.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, effect, originClassPath);
 		effects.add(info);
@@ -1397,6 +1409,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static <E extends Section> void registerSection(Class<E> section, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(section.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, section, originClassPath);
 		sections.add(info);
@@ -1423,33 +1438,35 @@ public final class Skript extends JavaPlugin implements Listener {
 	private final static List<ExpressionInfo<?, ?>> expressions = new ArrayList<>(100);
 	
 	private final static int[] expressionTypesStartIndices = new int[ExpressionType.values().length];
-	
+
 	/**
 	 * Registers an expression.
 	 * 
-	 * @param c The expression's class
+	 * @param expression The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
 	 * @param patterns Skript patterns that match this expression
 	 * @throws IllegalArgumentException if returnType is not a normal class
 	 */
-	public static <E extends Expression<T>, T> void registerExpression(final Class<E> c, final Class<T> returnType, final ExpressionType type, final String... patterns) throws IllegalArgumentException {
+	public static <E extends Expression<T>, T> void registerExpression(Class<E> expression, Class<T> returnType, ExpressionType type, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(expression.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		if (returnType.isAnnotation() || returnType.isArray() || returnType.isPrimitive())
 			throw new IllegalArgumentException("returnType must be a normal type");
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final ExpressionInfo<E, T> info = new ExpressionInfo<>(patterns, returnType, c, originClassPath, type);
+		final ExpressionInfo<E, T> info = new ExpressionInfo<>(patterns, returnType, expression, originClassPath, type);
 		expressions.add(expressionTypesStartIndices[type.ordinal()], info);
 		for (int i = type.ordinal(); i < ExpressionType.values().length; i++) {
 			expressionTypesStartIndices[i]++;
 		}
 	}
-	
-	@SuppressWarnings("null")
+
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions() {
 		return expressions.iterator();
 	}
-	
+
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions(final Class<?>... returnTypes) {
 		return new CheckedIterator<>(getExpressions(), new NullableChecker<ExpressionInfo<?, ?>>() {
 			@Override
@@ -1465,7 +1482,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		});
 	}
-	
+
 	// ================ EVENTS ================
 
 	private static final List<SkriptEventInfo<?>> events = new ArrayList<>(50);
@@ -1485,19 +1502,22 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event> event, String... patterns) {
 		return registerEvent(name, c, new Class[] {event}, patterns);
 	}
-	
+
 	/**
 	 * Registers an event.
 	 * 
 	 * @param name The name of the event, used for error messages
-	 * @param c The event's class
+	 * @param event The event's class
 	 * @param events The Bukkit events this event applies to
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event>[] events, String... patterns) {
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> event, Class<? extends Event>[] events, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(event.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return new SkriptEventInfo<E>(name, patterns, event, originClassPath, events);
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
@@ -1508,17 +1528,29 @@ public final class Skript extends JavaPlugin implements Listener {
 		return r;
 	}
 
-	public static <E extends Structure> void registerStructure(Class<E> c, String... patterns) {
+	/**
+	 * Registers a structure.
+	 * 
+	 * @param structure The class that extends a Structure.
+	 * @param patterns Skript patterns to match this structure.
+	 */
+	public static <E extends Structure> void registerStructure(Class<E> structure, String... patterns) {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(structure.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath);
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, structure, originClassPath);
 		structures.add(structureInfo);
 	}
 
-	public static <E extends Structure> void registerStructure(Class<E> c, EntryValidator entryValidator, String... patterns) {
+	public static <E extends Structure> void registerStructure(Class<E> structure, EntryValidator entryValidator, String... patterns) {
 		checkAcceptRegistrations();
+		Pair<Boolean, String[]> pair = FeatureConfig.contains(structure.getSimpleName(), patterns);
+		if (pair.getFirst())
+			return;
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, entryValidator);
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, structure, originClassPath, entryValidator);
 		structures.add(structureInfo);
 	}
 
@@ -1559,9 +1591,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			return false;
 		}
 	}
-	
+
 	// ================ LOGGING ================
-	
+
 	public static boolean logNormal() {
 		return SkriptLogger.log(Verbosity.NORMAL);
 	}

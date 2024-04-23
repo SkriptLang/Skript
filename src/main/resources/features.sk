@@ -1,16 +1,12 @@
-#This file is for disabling features. Disabling features can only be done on start up, so you will need to restart (reload also probably works) for disabling a feature.
-#If you wish to disable a feature, get one of it's FULL patterns or the Class Name of the feature.
+# This file is for disabling features. Disabling features can only be done on start up, so you will need to restart for disabling a feature.
+# If you wish to disable a feature, get one of it's FULL patterns or the class name of the feature.
 
-#This is if you want Skript to send a console message if a feature is disabled. Default is false.
-DEBUG: false
+# Add a node in the format of <ClassName>: <Pattern> to disable that feature.
+# If you don't know the class name you should make the <ClassName> to Feature<number>. Remember don't put the same Feature<number>.
+# If you know the class name you don't need the pattern, so you should set the <Pattern> to "null"
+# Take note that you can only disable Expressions, Effects, Conditions, Sections or Events. You can't disable Classinfos or similar.
 
-#Add a node in the format of <ClassName>: <Pattern> to disable that feature.
-#If you don't know the Class Name you should make the <ClassName> to Feature<number>. Remember don't put the same Feature<number>.
-#If you know the Class Name you don't need the pattern, so you should set the <Pattern> to "null"
-#Take note that you can only disable Expressions, Effects, Conditions or Events. You can't disable Classinfos and similar.
-
-
-#If you need more info. Ask me (Mirreducki not Njol) about anything on this, or make an issue report at https://github.com/SkriptLang/Skript/issues
+# If you need more info, make an issue report at https://github.com/SkriptLang/Skript/issues
 
 features:
 	#Examples
@@ -19,18 +15,18 @@ features:
 	#Feature2: [the] (attacked|damaged|victim) [<(.+)>]
 	#ExprChatRecipients: [chat][( |-)]recipients
 
-	ExampleWhatever: null
+	ExprExampleClassName: null
 
-#You can also alter a pattern if put inside "alterSyntax:"
-#It should be put in the following format: <Pattern to alter>: <Altered Pattern>
+# You can also alter a pattern if put it inside the following "alterSyntax:"
+# It should be put in the following format: <Pattern to alter>: <Altered Pattern>
 
 alterSyntax:
-	#This pattern: "inventory of %inventorytype%" conflicts with Skript's pattern "inventor(y|ies) of %inventoryholder%". 
-	#So we want to alter it instead of disabling the whole feature.
-	
-	#inventory of %inventorytype%: new inventory of %inventorytype% 
-	
-	ExampleASDSADSAD: ExampleLOL
+	# Example pattern: "inventory of %inventorytype%" conflicts with Skript's pattern "inventor(y|ies) of %inventoryholder%". 
+	# So you can alter it instead of disabling the whole feature.
 
-#Never alter this.
-Version: V8
+	# inventory of %inventorytype%: new inventory of %inventorytype% 
+
+	example of %player%: a new syntax of %string%
+
+# Don't alter this version. It allows Skript to apply future updates.
+version: 1
