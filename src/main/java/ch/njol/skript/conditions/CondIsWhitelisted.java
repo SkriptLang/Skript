@@ -33,6 +33,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
+// TODO awaiting #5422 scheduled merge, to prevent the massive infamous merge conflict
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted.")
 @Examples({"if server is whitelisted:", "if player is whitelisted"})
@@ -42,7 +43,8 @@ public class CondIsWhitelisted extends Condition {
 	static {
 		Skript.registerCondition(CondIsWhitelisted.class,
 			"[the] server (is|1¦is(n't| not)) white[ ]listed",
-			"%players% (is|are)(|1¦(n't| not)) white[ ]listed");
+			"%players% (is|are)(|1¦(n't| not)) white[ ]listed",
+			"[the] server will [:not] be white[ ]listed");
 	}
 	
 	@Nullable

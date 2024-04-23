@@ -28,6 +28,7 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
+import com.destroystokyo.paper.event.server.WhitelistToggleEvent;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
@@ -780,6 +781,17 @@ public class SimpleEvents {
 					.since("INSERT VERSION")
 					.requiredPlugins("Spigot 1.19.4+");
 		}
+
+		Skript.registerEvent("Whitelist Toggle", SimpleEvent.class, WhitelistToggleEvent.class, "server whitelist [toggle]")
+				.description("Called when the server's whitelist is toggled.")
+				.examples(
+					"on server whitelist:",
+						"\tif the server will be whitelisted:",
+							"\t\tbroadcast \"This server is now whitelisted!\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper");
+
 	}
 
 }
