@@ -30,7 +30,6 @@ import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -158,14 +157,14 @@ public class DefaultConverters {
 			if (holder instanceof DoubleChest)
 				return holder.getInventory().getLocation().getBlock();
 			return null;
-		});
+		}, Converter.NO_CHAINING);
 
 		// InventoryHolder - Entity
 		Converters.registerConverter(InventoryHolder.class, Entity.class, holder -> {
 			if (holder instanceof Entity)
 				return (Entity) holder;
 			return null;
-		});
+		}, Converter.NO_CHAINING);
 		
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
@@ -177,9 +176,6 @@ public class DefaultConverters {
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
-
-		// Location - Chunk
-		Converters.registerConverter(Location.class, Chunk.class, Location::getChunk);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

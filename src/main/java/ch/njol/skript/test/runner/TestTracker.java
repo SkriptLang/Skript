@@ -18,12 +18,14 @@
  */
 package ch.njol.skript.test.runner;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import ch.njol.skript.test.utils.TestResults;
 
@@ -50,8 +52,27 @@ public class TestTracker {
 		currentTest = name;
 	}
 
+	public static void JUnitTestFailed(String currentTest, String msg) {
+		failedTests.put(currentTest, msg);
+	}
+
 	public static void testFailed(String msg) {
 		failedTests.put(currentTest, msg);
+	}
+
+	public static void testFailed(String msg, Script script) {
+		String file = getFileName(script);
+		failedTests.put(currentTest, msg + " [" + file + "]");
+	}
+
+	public static void testFailed(String msg, Script script, int line) {
+		String file = getFileName(script);
+		failedTests.put(currentTest, msg + " [" + file + ", line " + line + "]");
+	}
+
+	private static String getFileName(Script script) {
+		String file = script.getConfig().getFileName();
+		return file.substring(file.lastIndexOf(File.separator) + 1);
 	}
 
 	public static void junitTestFailed(String junit, String msg) {

@@ -18,6 +18,14 @@
  */
 package ch.njol.skript.variables;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ParseContext;
@@ -29,14 +37,6 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Closeable;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.Contract;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * A variable storage is holds the means and methods of storing variables.
@@ -100,6 +100,7 @@ public abstract class VariablesStorage implements Closeable {
 	 * @param name the name.
 	 */
 	protected VariablesStorage(String name) {
+		assert name != null;
 		databaseName = name;
 
 		writeThread = Skript.newThread(() -> {
@@ -308,10 +309,10 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	public void startBackupTask(Timespan backupInterval) {
 		// File is null or backup interval is invalid
-		if (file == null || backupInterval.getTicks_i() == 0)
+		if (file == null || backupInterval.getTicks() == 0)
 			return;
 
-		backupTask = new Task(Skript.getInstance(), backupInterval.getTicks_i(), backupInterval.getTicks_i(), true) {
+		backupTask = new Task(Skript.getInstance(), backupInterval.getTicks(), backupInterval.getTicks(), true) {
 			@Override
 			public void run() {
 				synchronized (connectionLock) {

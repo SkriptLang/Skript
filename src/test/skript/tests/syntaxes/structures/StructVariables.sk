@@ -1,0 +1,10 @@
+variables:
+	{variables_test1} = true
+
+variables:
+	{variables_test1} = false # we hope it doesn't overwrite!
+	{variables_test2} = true
+
+test "default variables":
+	assert {variables_test1} is true with "{variables_test1} was not true"
+	assert {variables_test2} is true with "{variables_test2} was not true"

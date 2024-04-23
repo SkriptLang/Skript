@@ -1,0 +1,27 @@
+test "compare":
+	assert 1 is 1 with "Number isn't itself"
+	assert 1 is not 2 with "Number is equal to other number"
+	assert 1 is less than 2 with "Number is not less than a larger number"
+	assert 1 is greater than 0 with "Number is not greater than a smaller number"
+	assert 1 is greater than or equal to 0 and 1 with "Number is not greater than or equal to two smaller/equal numbers"
+	assert 1 is less than or equal to 1 and 2 with "Number is not smaller than or equal to two greater/equal numbers"
+
+	assert 1, 2 is 1, 2 with "direct list comparison of equal numbers failed"
+	assert 1, 2, 3 is not 1, 2 with "direct list comparison of non-equal numbers succeeded"
+	assert 1, 2 is 1, 2, or 3 with "comparison between AND list of numbers and OR list of superset of numbers failed"
+	assert 1, 2, 3 is 1 or 2 to fail with "comparison between AND list of numbers and OR list of subset of numbers succeeded"
+
+	assert 1, 2, 3 is greater than -1, -2, -3 with "Numbers are not larger than smaller numbers"
+	assert 1, 2, 3 is less than 5, 6, 7 with "Numbers are not smaller than larger numbers"
+	assert 1, 2, 3 is between -1, 1 and 3, 3.5 with "Numbers are not between smaller/equal numbers and larger/equal numbers"
+
+	assert 10 is between 5 and 15 with "Number isn't between smaller and larger"
+	assert 10 is between 9 and 11 with "Number isn't between smaller and larger"
+	assert 10 is between 11 and 9 with "Number isn't between larger and smaller"
+	assert 10 is between 9 and 10 with "Number isn't between smaller and equal"
+	assert 10 is between 10 and 11 with "Number isn't between equal and larger"
+	assert 10 is between 10 and 10 with "Number isn't between equal and equal"
+	assert 19:00 is between 18:00 and 20:00 with "Time 19:00 isn't between 18:00 and 20:00"
+	assert 23:00 is between 20:00 and 24:00 with "Time 23:00 isn't between 20:00 and 24:00"
+	assert 23:00 is between 20:00 and 01:00 with "Time 23:00 isn't between 20:00 and 01:00 (cyclical)"
+	assert 23:00 is not between 01:00 and 20:00 with "Time 23:00 is between 01:00 and 20:00 (non-cyclical)"
