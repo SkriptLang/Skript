@@ -159,9 +159,8 @@ public class SkriptPattern {
 	 */
 	public <T extends PatternElement> List<T> getElements(Class<T> type) {
 		if (type == TypePatternElement.class) {
-			if (types == null) {
+			if (types == null)
 				types = ImmutableList.copyOf(getElements(TypePatternElement.class, first, new ArrayList<>()));
-			}
 			//noinspection unchecked - checked with type == TypePatternElement
 			return (List<T>) types;
 		}
