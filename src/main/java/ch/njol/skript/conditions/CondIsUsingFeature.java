@@ -49,14 +49,15 @@ public class CondIsUsingFeature extends Condition {
 								 "[the] [current] script is(n't| not) using %strings%");
 	}
 
-	private @UnknownNullability Expression<?> names;
+	private @UnknownNullability Expression<String> names;
 	private @UnknownNullability Script script;
 	private @Nullable Boolean knownResult;
 	
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
-		this.names = expressions[0];
+		//noinspection unchecked
+		this.names = (Expression<String>) expressions[0];
 		this.setNegated(pattern == 1);
 		this.script = this.getParser().getCurrentScript();
 		// if this is a 'simple' variablestring with no inputs we can check it during parse time
@@ -74,12 +75,12 @@ public class CondIsUsingFeature extends Condition {
 	public boolean check(Event event) {
 		if (knownResult != null) // we checked this in advance during init
 			return knownResult;
-		Object[] array = names.getArray(event);
+		String[] array = names.getArray(event);
 		if (array.length == 0)
 			return true;
 		boolean isUsing = true;
-		for (@NotNull Object object : array) {
-			isUsing &= this.hasExperiment(object.toString());
+		for (@NotNull String object : array) {
+			isUsing &= this.hasExperiment(object);
 		}
 		return this.isNegated() ^ isUsing;
 	}
