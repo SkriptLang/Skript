@@ -1,0 +1,11 @@
+test "vector from xyz":
+	assert (a new vector to 0, 0 and 0) is vector(0, 0, 0) with "zero vector creation failed"
+	loop 60 times:
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_vector} to a new vector from {_x}, {_y}, {_z}
+		assert {_vector} is vector({_x}, {_y}, {_z}) with "randomly-created vector equality failed (expected %vector({_x}, {_y}, {_z})%, got %{_vector}%)"
+	set {_random} to a random vector
+	set {_vector} to a new vector from x component of {_random}, y component of {_random}, z component of {_random}
+	assert {_vector} is {_random} with "random vector to created component equality failed (expected %{_random}%, got %{_vector}%)"

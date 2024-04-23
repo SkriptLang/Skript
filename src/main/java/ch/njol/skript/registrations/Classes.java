@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -56,7 +57,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
-import ch.njol.skript.variables.DatabaseStorage;
+import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -94,8 +95,8 @@ public abstract class Classes {
 				throw new IllegalArgumentException("Can't register " + info.getC().getName() + " with the code name " + info.getCodeName() + " because that name is already used by " + classInfosByCodeName.get(info.getCodeName()));
 			if (exactClassInfos.containsKey(info.getC()))
 				throw new IllegalArgumentException("Can't register the class info " + info.getCodeName() + " because the class " + info.getC().getName() + " is already registered");
-			if (info.getCodeName().length() > DatabaseStorage.MAX_CLASS_CODENAME_LENGTH)
-				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + DatabaseStorage.MAX_CLASS_CODENAME_LENGTH);
+			if (info.getCodeName().length() > SQLStorage.MAX_CLASS_CODENAME_LENGTH)
+				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + SQLStorage.MAX_CLASS_CODENAME_LENGTH);
 			exactClassInfos.put(info.getC(), info);
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
@@ -320,6 +321,18 @@ public abstract class Classes {
 	}
 
 	/**
+	 * Gets the class info of the super type of given classes or its closest registered superclass.
+	 * This method is useful for Skript to avoid passing around "unknown" super types.
+	 *
+	 * @param classes The classes to determine a super type from.
+	 * @return The closest info for the super type of <code>classes</code>.
+	 */
+	// This method is used to avoid issues like https://github.com/SkriptLang/Skript/issues/5848
+	public static ClassInfo<?> getSuperClassInfo(Class<?>... classes) {
+		return getSuperClassInfo(Utils.getSuperType(classes));
+	}
+
+	/**
 	 * Gets all the class info of the given class in closest order to ending on object. This list will never be empty unless <tt>c</tt> is null.
 	 * 
 	 * @param c the class to check if assignable from
@@ -500,13 +513,13 @@ public abstract class Classes {
 				return t;
 			}
 			for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
-				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
+				if ((context == ParseContext.COMMAND || context == ParseContext.PARSE) && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();
-					final Object o = parseSimple(s, conv.getFrom(), context);
-					if (o != null) {
-						t = (T) ((Converter) conv.getConverter()).convert(o);
+					Object object = parseSimple(s, conv.getFrom(), context);
+					if (object != null) {
+						t = (T) ((Converter) conv.getConverter()).convert(object);
 						if (t != null) {
 							log.printLog();
 							return t;

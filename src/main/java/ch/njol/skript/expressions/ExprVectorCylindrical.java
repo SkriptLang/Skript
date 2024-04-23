@@ -35,20 +35,19 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Cylindrical Shape")
 @Description("Forms a 'cylindrical shaped' vector using yaw to manipulate the current point.")
-@Examples({"loop 360 times:",
-		"	set {_v} to cylindrical vector radius 1, yaw loop-value, height 2",
-		"set {_v} to cylindrical vector radius 1, yaw 90, height 2"})
+@Examples({
+	"loop 360 times:",
+		"\tset {_v} to cylindrical vector radius 1, yaw loop-value, height 2",
+	"set {_v} to cylindrical vector radius 1, yaw 90, height 2"
+})
 @Since("2.2-dev28")
 public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorCylindrical.class, Vector.class, ExpressionType.SIMPLE,
-				"[a] [new] cylindrical vector [(from|with)] [radius] %number%, [yaw] %number%(,| and) [height] %number%");
+				"[a] [new] cylindrical vector [from|with] [radius] %number%, [yaw] %number%(,[ and]| and) [height] %number%");
 	}
 
 	@SuppressWarnings("null")
@@ -65,13 +64,13 @@ public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number r = radius.getSingle(e);
-		Number y = yaw.getSingle(e);
-		Number h = height.getSingle(e);
-		if (r == null || y == null || h == null)
+	protected Vector[] get(Event event) {
+		Number radius = this.radius.getSingle(event);
+		Number yaw = this.yaw.getSingle(event);
+		Number height = this.height.getSingle(event);
+		if (radius == null || yaw == null || height == null)
 			return null;
-		return CollectionUtils.array(VectorMath.fromCylindricalCoordinates(r.doubleValue(), VectorMath.fromSkriptYaw(y.floatValue()), h.doubleValue()));
+		return CollectionUtils.array(VectorMath.fromCylindricalCoordinates(radius.doubleValue(), VectorMath.fromSkriptYaw(yaw.floatValue()), height.doubleValue()));
 	}
 
 	@Override
@@ -85,9 +84,9 @@ public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "cylindrical vector with radius " + radius.toString(e, debug) + ", yaw " +
-				yaw.toString(e, debug) + " and height " + height.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "cylindrical vector with radius " + radius.toString(event, debug) + ", yaw " +
+				yaw.toString(event, debug) + " and height " + height.toString(event, debug);
 	}
 
 }
