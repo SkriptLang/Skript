@@ -20,8 +20,6 @@ package org.skriptlang.skript.lang.experiment;
 
 /**
  * The life cycle phase of an {@link Experiment}.
- *
- * @author moderocky
  */
 public enum LifeCycle {
 	/**

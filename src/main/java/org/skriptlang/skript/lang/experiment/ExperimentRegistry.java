@@ -27,15 +27,20 @@ import java.util.Set;
 
 /**
  * A manager for registering (and identifying) experimental feature flags.
- *
- * @author moderocky
  */
-public class ExperimentManager implements Experimented {
+/*
+* TODO
+* 	This is designed to be (replaced by|refactored into) a proper registry when the registries rework PR
+* 	is completed. The overall skeleton is designed to remain, so that there should be no breaking changes
+* 	for anything using it. I.e. you will still be able to use Skript#experiments() and obtain 'this' class
+* 	although these will just become helper methods for the proper registry behaviour.
+* */
+public class ExperimentRegistry implements Experimented {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
 
-	public ExperimentManager(Skript skript) {
+	public ExperimentRegistry(Skript skript) {
 		this.skript = skript;
 		this.experiments = new LinkedHashSet<>();
 	}

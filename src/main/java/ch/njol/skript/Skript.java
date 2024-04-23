@@ -83,7 +83,6 @@ import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
@@ -117,7 +116,7 @@ import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.experiment.ExperimentManager;
+import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.Feature;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -233,7 +232,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	@Nullable
 	private static Version version = null;
-	private static @UnknownNullability ExperimentManager experimentManager;
+	@Deprecated(forRemoval = true) // TODO this field will be replaced by a proper registry later
+	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 	
 	public static Version getVersion() {
 		final Version v = version;
@@ -369,8 +369,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * @return The manager for experimental, optional features.
 	 */
-	public static ExperimentManager experiments() {
-		return experimentManager;
+	public static ExperimentRegistry experiments() {
+		return experimentRegistry;
 	}
 
 	/**
@@ -403,8 +403,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			Skript.exception(e, "Update checker could not be initialized.");
 		}
-		experimentManager = new ExperimentManager(this);
-		Feature.registerAll(getAddonInstance(), experimentManager);
+		experimentRegistry = new ExperimentRegistry(this);
+		Feature.registerAll(getAddonInstance(), experimentRegistry);
 		
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
@@ -1210,7 +1210,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (disabled)
 			return;
 		disabled = true;
-		this.experimentManager = null;
+		this.experimentRegistry = null;
 
 		if (!partDisabled) {
 			beforeDisable();

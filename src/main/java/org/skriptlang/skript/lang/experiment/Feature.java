@@ -54,7 +54,7 @@ public enum Feature implements Experiment {
 		this(codeName, phase, codeName);
 	}
 
-	public static void registerAll(SkriptAddon addon, ExperimentManager manager) {
+	public static void registerAll(SkriptAddon addon, ExperimentRegistry manager) {
 		for (Feature value : values()) {
 			manager.register(addon, value);
 		}

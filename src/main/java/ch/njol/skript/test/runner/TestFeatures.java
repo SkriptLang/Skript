@@ -23,7 +23,7 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.ExperimentManager;
+import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
 
 /**
@@ -61,7 +61,7 @@ public enum TestFeatures implements Experiment {
 		this(codeName, phase, codeName);
 	}
 
-	public static void registerAll(SkriptAddon addon, ExperimentManager manager) {
+	public static void registerAll(SkriptAddon addon, ExperimentRegistry manager) {
 		for (TestFeatures value : values()) {
 			manager.register(addon, value);
 		}

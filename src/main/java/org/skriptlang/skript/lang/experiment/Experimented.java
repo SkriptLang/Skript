@@ -24,8 +24,6 @@ import ch.njol.skript.Skript;
  * Something that can have experimental features enabled for.
  * The only intended implementation of this is the {@link org.skriptlang.skript.lang.script.Script},
  * however it is left open for configuration files, etc. that may use this functionality in the future.
- *
- * @author moderocky
  */
 @FunctionalInterface
 public interface Experimented {

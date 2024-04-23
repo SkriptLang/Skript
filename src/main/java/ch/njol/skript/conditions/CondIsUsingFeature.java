@@ -35,9 +35,6 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.script.Script;
 
-/**
- * @author moderocky
- */
 @Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
 @Examples({"the script is using \"example feature\"",
