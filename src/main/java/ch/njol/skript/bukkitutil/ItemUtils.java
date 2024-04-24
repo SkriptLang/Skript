@@ -43,7 +43,7 @@ public class ItemUtils {
 		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
-		return 0; // Not damageable item
+		return 0; // Non damageable item
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class ItemUtils {
 		ItemMeta meta = itemType.getItemMeta();
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
-		return 0; // Not damageable item
+		return 0; // Non damageable item
 	}
 
 	/**
