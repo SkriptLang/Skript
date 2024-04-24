@@ -1,0 +1,22 @@
+test "vector of location":
+	set {_loc} to location(1,0,0,world "world")
+	set {_v} to vector of {_loc}
+	assert x component of {_v} is x coordinate of {_loc} with "vector/location x equality failed (expected %x coordinate of {_loc}%, got %x component of {_v}%)"
+	assert y component of {_v} is y coordinate of {_loc} with "vector/location y equality failed (expected %y coordinate of {_loc}%, got %y component of {_v}%)"
+	assert z component of {_v} is z coordinate of {_loc} with "vector/location z equality failed (expected %z coordinate of {_loc}%, got %z component of {_v}%)"
+
+	set {_loc} to location(1,2,3,world "invalid world")
+	set {_v} to vector of {_loc}
+	assert x component of {_v} is x coordinate of {_loc} with "vector/location x equality failed when world is null (expected %x coordinate of {_loc}%, got %x component of {_v}%)"
+	assert y component of {_v} is y coordinate of {_loc} with "vector/location y equality failed when world is null (expected %y coordinate of {_loc}%, got %y component of {_v}%)"
+	assert z component of {_v} is z coordinate of {_loc} with "vector/location z equality failed when world is null (expected %z coordinate of {_loc}%, got %z component of {_v}%)"
+
+
+	set {_x} to random number between -10000 and 10000
+	set {_y} to random number between -10000 and 10000
+	set {_z} to random number between -10000 and 10000
+	set {_loc} to location({_x}, {_y}, {_z},world "world")
+	set {_v} to vector of {_loc}
+	assert x component of {_v} is x coordinate of {_loc} with "random vector/location x equality failed (expected %x coordinate of {_loc}%, got %x component of {_v}%)"
+	assert y component of {_v} is y coordinate of {_loc} with "random vector/location y equality failed (expected %y coordinate of {_loc}%, got %y component of {_v}%)"
+	assert z component of {_v} is z coordinate of {_loc} with "random vector/location z equality failed (expected %z coordinate of {_loc}%, got %z component of {_v}%)"
