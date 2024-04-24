@@ -22,8 +22,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -35,7 +33,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import org.bukkit.entity.Damageable;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +57,7 @@ public class EffHealth extends Effect {
 	private Expression<?> damageables;
 	@Nullable
 	private Expression<Number> amount;
-	private boolean isHealing;
+	private boolean isHealing, isRepairing;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -71,6 +68,7 @@ public class EffHealth extends Effect {
 
 		this.damageables = exprs[0];
 		this.isHealing = matchedPattern >= 1;
+		this.isRepairing = matchedPattern == 2;
 		this.amount = (Expression<Number>) exprs[1];
 		return true;
 	}
@@ -128,8 +126,15 @@ public class EffHealth extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isHealing ? "heal/repair" : "damage" + " " + damageables.toString(event, debug)
-			+ (amount != null ? " by " + amount.toString(event, debug) : ""));
+
+		String prefix = "damage ";
+		if (isRepairing) {
+			prefix = "repair ";
+		} else if (isHealing) {
+			prefix = "heal ";
+		}
+
+		return prefix + damageables.toString(event, debug) + (amount != null ? " by " + amount.toString(event, debug) : "");
 	}
 
 }
