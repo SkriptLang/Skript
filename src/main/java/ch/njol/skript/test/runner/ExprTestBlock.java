@@ -31,8 +31,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Test Block")
-@Description("Returns the test block used by Skript's JUnit tests.")
+@NoDoc
 public class ExprTestBlock extends SimpleExpression<Block> {
 
 	static {
