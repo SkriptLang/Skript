@@ -46,8 +46,8 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorSpherical extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorSpherical.class, Vector.class, ExpressionType.COMBINED,
-				"[new] spherical vector [(from|with)] [radius] %number%, [yaw] %number%(,| and) [pitch] %number%");
+		Skript.registerExpression(ExprVectorSpherical.class, Vector.class, ExpressionType.SIMPLE,
+				"[a] [new] spherical vector [(from|with)] [radius] %number%, [yaw] %number%(,[ and]| and) [pitch] %number%");
 	}
 
 	@SuppressWarnings("null")

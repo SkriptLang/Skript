@@ -520,10 +520,10 @@ entities:
 		pattern: creeper(|1¦s)
 	unpowered creeper:
 		name: unpowered creeper¦s @an
-		pattern: unpowered creeper(|1¦s)
+		pattern: un(powered|charged) creeper(|1¦s)
 	powered creeper:
 		name: powered creeper¦s
-		pattern: powered creeper(|1¦s)
+		pattern: (powered|charged) creeper(|1¦s)
 	egg:
 		name: egg¦s @an
 		pattern: egg(|1¦s)
@@ -644,13 +644,13 @@ entities:
 		pattern: command [mine]cart(|1¦s)|[mine]cart(|1¦s) with command block[s]
 	mooshroom:
 		name: mooshroom¦s
-		pattern: <age> mooshroom(|1¦s)
+		pattern: <age> (mooshroom[ cow]|mushroom cow)(|1¦s)
 	red mooshroom:
 		name: red mooshroom¦s
-		pattern: <age> red mooshroom(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> red (mooshroom[ cow]|mushroom cow)(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
 	brown mooshroom:
 		name: brown mooshroom¦s
-		pattern: <age> brown mooshroom(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> brown (mooshroom[ cow]|mushroom cow)(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
 	ocelot:
 		name: ocelot¦s @an
 		pattern: <age> ocelot(|1¦s)

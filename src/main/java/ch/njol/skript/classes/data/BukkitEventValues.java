@@ -1126,6 +1126,8 @@ public final class BukkitEventValues {
 			@Nullable
 			public Slot get(final InventoryClickEvent e) {
 				Inventory invi = e.getClickedInventory(); // getInventory is WRONG and dangerous
+				if (invi == null)
+					return null;
 				int slotIndex = e.getSlot();
 
 				// Not all indices point to inventory slots. Equipment, for example
