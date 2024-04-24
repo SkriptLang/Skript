@@ -147,7 +147,7 @@ public class StructCommand extends Structure {
 	private ScriptCommand scriptCommand;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		return true;
 	}
 
@@ -156,6 +156,7 @@ public class StructCommand extends Structure {
 		getParser().setCurrentEvent("command", ScriptCommandEvent.class);
 
 		EntryContainer entryContainer = getEntryContainer();
+		assert entryContainer != null;
 
 		String fullCommand = entryContainer.getSource().getKey();
 		assert fullCommand != null;

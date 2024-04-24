@@ -128,6 +128,7 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode source = getEntryContainer().getSource();
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
@@ -141,7 +142,7 @@ public abstract class SkriptEvent extends Structure {
 			Script script = getParser().getCurrentScript();
 
 			trigger = new Trigger(script, expr, this, items);
-			int lineNumber = getEntryContainer().getSource().getLine();
+			int lineNumber = source.getLine();
 			trigger.setLineNumber(lineNumber); // Set line number for debugging
 			trigger.setDebugLabel(script + ": line " + lineNumber);
 		} finally {
