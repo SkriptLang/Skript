@@ -1,0 +1,11 @@
+test "vector normalize":
+	assert the standard length of vector(0, 1, 0) normalized is 1 with "1-length vector normalisation check failed"
+	assert the vector length of vector(0, 0, 2) normalized is 1 with "2-length vector normalisation check failed"
+	assert vector(0, 0, 2) normalized is vector(0, 0, 1) with "normalised vector component comparison failed"
+	assert vector(6, 6, 6) normalized is vector(1, 1, 1) normalized with "normalised vector comparison failed"
+	loop 60 times:
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_vector} to vector({_x}, {_y}, {_z}) normalized
+		assert the normal length of {_vector} is 1 with "randomly-created vector normalisation failed (expected 1, got %normal length of {_vector}%)"
