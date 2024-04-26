@@ -36,7 +36,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Frozen Ticks To Run")
-@Description("Gets the amount of frozen ticks left to run on the server.")
+@Description("Gets the amount of ticks that are in queue to run while the server's tick state is frozen.")
 @Examples({"broadcast \"%frozen ticks to run%\""})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
@@ -45,17 +45,24 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Number> {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
-			Skript.registerExpression(ExprFrozenTicksToRun.class, Number.class, ExpressionType.SIMPLE, "[amount of] frozen ticks [left] to run");
-		} else {
-			SERVER_TICK_MANAGER = null;
+			STM_VALUE = Bukkit.getServerTickManager();
+			Skript.registerExpression(ExprFrozenTicksToRun.class, Number.class, ExpressionType.SIMPLE, "[the] [amount of] frozen ticks [left] to run");
 		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
+
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
+	}
+
+	@Override
+	@Nullable
+	protected Number[] get(Event event) {
+		return new Number[]{SERVER_TICK_MANAGER.getFrozenTicksToRun()};
 	}
 
 	@Override
@@ -66,12 +73,6 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
-	}
-
-	@Override
-	@Nullable
-	protected Number[] get(Event event) {
-		return new Number[]{SERVER_TICK_MANAGER.getFrozenTicksToRun()};
 	}
 
 	@Override

@@ -53,19 +53,57 @@ public class ExprTick extends SimpleExpression<Number> {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
-			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "server['s] tick rate");
+			STM_VALUE = Bukkit.getServerTickManager();
+			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
 		}
-		else {
-			SERVER_TICK_MANAGER = null;
-		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
+
+	@Nullable
+	@Override
+	protected Number[] get(Event event) {
+		return new Number[]{SERVER_TICK_MANAGER.getTickRate()};
+	}
+
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
+			return new Class[]{Number.class};
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		float tickRate = SERVER_TICK_MANAGER.getTickRate();
+		float change = delta != null && delta.length != 0 ? ((Number) delta[0]).floatValue() : 0;
+		switch (mode) {
+			case SET:
+				if (delta != null) {
+					SERVER_TICK_MANAGER.setTickRate(change);
+				}
+				break;
+			case ADD:
+				if (delta != null) {
+					SERVER_TICK_MANAGER.setTickRate(tickRate + change);
+				}
+				break;
+			case REMOVE:
+				if (delta != null) {
+					SERVER_TICK_MANAGER.setTickRate(tickRate - change);
+				}
+				break;
+			case RESET:
+				SERVER_TICK_MANAGER.setTickRate(20);
+				break;
+		}
+	}
+
 
 	@Override
 	public boolean isSingle() {
@@ -77,42 +115,9 @@ public class ExprTick extends SimpleExpression<Number> {
 		return Number.class;
 	}
 
-	@Nullable
-	@Override
-	protected Number[] get(Event event) {
-		return new Number[]{SERVER_TICK_MANAGER.getTickRate()};
-	}
-
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "server tick rate";
 	}
 
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
-			return new Class[]{Number.class};
-		return null;
-	}
-
-	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta != null && delta.length != 0) {
-			float tickRate = SERVER_TICK_MANAGER.getTickRate();
-			float change = ((Number) delta[0]).floatValue();
-			switch (mode) {
-				case SET:
-					SERVER_TICK_MANAGER.setTickRate(change);
-					break;
-				case ADD:
-					SERVER_TICK_MANAGER.setTickRate(tickRate + change);
-					break;
-				case REMOVE:
-					SERVER_TICK_MANAGER.setTickRate(tickRate - change);
-					break;
-				case RESET:
-					SERVER_TICK_MANAGER.setTickRate(20);
-					break;
-			}
-		}
-	}
 }

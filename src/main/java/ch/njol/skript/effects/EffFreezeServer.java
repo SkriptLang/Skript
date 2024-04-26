@@ -43,14 +43,14 @@ public class EffFreezeServer extends Effect {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffFreezeServer.class,
 				"freeze [the] server",
 				"unfreeze [the] server");
-		} else {
-			SERVER_TICK_MANAGER = null;
 		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private boolean freeze;

@@ -48,14 +48,14 @@ public class CondServerTickState extends Condition {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerCondition(CondServerTickState.class,
 				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
 				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
-		} else {
-			SERVER_TICK_MANAGER = null;
 		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private ServerState state;
@@ -76,7 +76,7 @@ public class CondServerTickState extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
+	public boolean check(Event event) {
 		switch (state) {
 			case FROZEN:
 				return SERVER_TICK_MANAGER.isFrozen() != isNegated();

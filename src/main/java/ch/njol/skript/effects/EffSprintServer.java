@@ -36,7 +36,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Sprint Server")
-@Description("Requests the server to sprint for a certain amount of time, or stops the server from sprinting.")
+@Description({
+	"Requests the server to sprint for a certain amount of time, or stops the server from sprinting.",
+	"Sprinting is where the server increases the tick rate depending on the time you input, and resets it to what it was after its done sprinting."
+})
 @Examples({"request server to sprint for 10 seconds", "make server stop sprinting"})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
@@ -45,14 +48,14 @@ public class EffSprintServer extends Effect {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffSprintServer.class,
 				"request [for [the]] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
-		} else {
-			SERVER_TICK_MANAGER = null;
 		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private boolean sprint;

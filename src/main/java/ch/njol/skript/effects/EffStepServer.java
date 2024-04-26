@@ -23,7 +23,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -35,8 +35,10 @@ import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 @Name("Step Server")
-@Description("Makes the server step for a certain amount of time if the server state is frozen, or stops the server from stepping.")
-@Examples({"make server step for 5 seconds if server is frozen", "make server stop stepping"})
+@Description({
+	"Makes the server \"step\" for a certain amount of time while the server's tick state is frozen.",
+	"When you step, the server goes forward that amount of time in ticks."})
+@Examples({"make server step for 5 seconds", "make server stop stepping"})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffStepServer extends Effect {
@@ -44,21 +46,21 @@ public class EffStepServer extends Effect {
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
+		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			SERVER_TICK_MANAGER = Bukkit.getServerTickManager();
+			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffStepServer.class,
 				"make [the] server step for %timespan%",
 				"make [the] server stop stepping");
-		} else {
-			SERVER_TICK_MANAGER = null;
 		}
+		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private Expression<Timespan> timespan;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0)
 			timespan = (Expression<Timespan>) exprs[0];
 		return true;
@@ -77,7 +79,7 @@ public class EffStepServer extends Effect {
 
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return timespan == null ? "make the server stop stepping" : "make the step server for " + timespan.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return timespan == null ? "make the server stop stepping" : "make the step server for " + timespan.toString(event, debug);
 	}
 }
