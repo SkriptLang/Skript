@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tbreak loop-block with effects naturally using diamond pickaxe and drop xps"
 })
 @Since("2.4, INSERT VERSION (effects, drop xps)")
-@RequiredPlugins("Paper 1.15+ (effects), Paper 1.17+ (effects without tool), Paper 1.19+ (drop xps)")
+@RequiredPlugins("Paper 1.15+ (break particles), Paper 1.17+ (break particles without tool), Paper 1.19+ (drop xps)")
 public class EffBreakNaturally extends Effect {
 
 	private static final boolean HAS_METHOD_1_15 = Skript.methodExists(Block.class, "breakNaturally", CollectionUtils.array(ItemStack.class, boolean.class), boolean.class);
@@ -62,17 +62,18 @@ public class EffBreakNaturally extends Effect {
 	static {
 		String pattern = "break %blocks% [naturally] [using %-itemtype%]";
 		if (HAS_METHOD_1_19) {
-			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]] [dropExp:and [drop] (xp|experience)[s]]";
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [particles:with [break[ing]] particles] [dropExp:(and|with) (xp|experience)[s] drops]";
 		} else if (HAS_METHOD_1_17) {
-			pattern = "break %blocks% [naturally] [using %-itemtype%] [effect:with effect[s]]";
+			pattern = "break %blocks% [naturally] [using %-itemtype%] [particles:with [break[ing]] particles]";
 		} else if (HAS_METHOD_1_15) {
-			pattern = "break %blocks% [naturally] [using %-itemtype% [effect:with effect[s]]]";
+			pattern = "break %blocks% [naturally] [using %-itemtype% [particles:with [break[ing]] particles]]";
 		}
 		Skript.registerEffect(EffBreakNaturally.class, pattern);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Block> blocks;
-	@Nullable
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> tool;
 	private boolean effect;
 	private boolean dropExp;
@@ -82,14 +83,14 @@ public class EffBreakNaturally extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		blocks = (Expression<Block>) exprs[0];
 		tool = (Expression<ItemType>) exprs[1];
-		effect = parseResult.hasTag("effect");
+		effect = parseResult.hasTag("particles");
 		dropExp = parseResult.hasTag("dropExp");
 		return true;
 	}
 	
 	@Override
 	protected void execute(Event event) {
-		ItemType tool = this.tool != null ? this.tool.getSingle(event) : null;
+		ItemType tool = this.tool.getOptionalSingle(event).orElse(null);
 		for (Block block : this.blocks.getArray(event)) {
 			if (tool != null) {
 				ItemStack item = tool.getRandom();
@@ -114,4 +115,5 @@ public class EffBreakNaturally extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "break " + blocks.toString(event, debug) + " naturally" + (tool != null ? " using " + tool.toString(event, debug) : "") + (effect ? " with effects" : "") + (dropExp ? " and drop experience" : "");
 	}
+
 }

@@ -1,0 +1,41 @@
+options:
+	test: break block naturally
+	junit: org.skriptlang.skript.test.tests.syntaxes.effects.EffBreakNaturallyTest
+
+on script load:
+	set block at getTestBlock() to diamond ore
+	ensure junit test "{@junit}" completes "{@test}"
+	assert block at getTestBlock() is a diamond ore with "Test block is not a diamond ore"
+	if running minecraft "1.19":
+		break block at getTestBlock() naturally using diamond pickaxe with breaking particles and xp drops
+		broadcast "-- 1.19 break block"
+
+	# There's no way to check for particle spawn with the 1.17 syntax
+	# Hence the 1.17 and 1.15 tests will use the same effect
+	else:
+		break block at getTestBlock() naturally using diamond pickaxe
+		broadcast "-- 1.17/1.15 break block"
+
+on item spawn:
+	junit test is "{@junit}"
+	item of event-entity is a diamond
+	broadcast "-- break is a diamond"
+	add 1 to {-test::junit::{@test}}
+	after()
+
+on xp spawn:
+	junit test is "{@junit}"
+	broadcast "xp spawn event" and event-location and center of block at getTestBlock()
+	center of event-location is center of block at getTestBlock()
+	broadcast "-- break is center"
+	add 1 to {-test::junit::{@test}}
+	after()
+
+local function after():
+	broadcast "-- break total passed: %{-test::junit::{@test}}%"
+	{-test::junit::{@test}} is 2
+	complete objective "{@test}" for junit test "{@junit}"
+	delete {-test::junit::{@test}}
+
+local function getTestBlock() :: block:
+	return block at ((spawn of world "world") ~~ vector(10, 1, 0))
