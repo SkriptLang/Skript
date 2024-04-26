@@ -30,9 +30,11 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @NoDoc
+@Name("Test Block")
+@Description("Returns the test block used by Skript's JUnit tests.")
 public class ExprTestBlock extends SimpleExpression<Block> {
 
 	static {
