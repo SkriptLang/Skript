@@ -87,13 +87,14 @@ public class ExprClamp extends SimpleExpression<Number> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		mode = Mode.values()[matchedPattern];
 		values = (Expression<Number>) expressions[0];
-		if (mode == Mode.BOTH) {
-			minExpr = (Expression<Number>) expressions[1];
-			maxExpr = (Expression<Number>) expressions[2];
-		} else if (mode == Mode.BELOW) {
-			maxExpr = (Expression<Number>) expressions[1];
-		} else if (mode == Mode.ABOVE) {
-			minExpr = (Expression<Number>) expressions[1];
+		switch (mode) {
+			case BOTH:
+				maxExpr = (Expression<Number>) expressions[2];
+			case ABOVE:
+				minExpr = (Expression<Number>) expressions[1];
+				break;
+			case BELOW:
+				maxExpr = (Expression<Number>) expressions[1];
 		}
 		return true;
 	}
