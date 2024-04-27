@@ -1,0 +1,4 @@
+test "normalized vector":
+	assert vector(0,1,0) is normalized with "vector(0,1,0) not recognized as normal"
+	assert vector(1,0,0) is normalized with "vector(1,0,0) not recognized as normal"
+	assert vector(1,2,3) is not normalized with "vector(1,2,3) recognized as normal"
