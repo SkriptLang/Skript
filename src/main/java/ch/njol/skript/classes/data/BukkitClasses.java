@@ -1503,7 +1503,6 @@ public class BukkitClasses {
 						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
 				}));
-				.user("enchant(ment)? ?offers?")
 
 		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
 				.user("attribute ?types?")
