@@ -80,6 +80,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
@@ -94,6 +96,7 @@ import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -1555,7 +1558,7 @@ public class BukkitClasses {
 					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
-			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
+			Classes.registerClass(new EnumClassInfo<>(PlayerQuitEvent.QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
