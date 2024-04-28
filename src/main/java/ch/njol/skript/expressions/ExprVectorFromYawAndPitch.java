@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
 				"[a] [new] vector (from|with) yaw %number% and pitch %number%");
 	}
 

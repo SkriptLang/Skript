@@ -43,6 +43,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -184,10 +185,16 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		add_(new ItemData(i));
 	}
 
-	public ItemType(BlockState b) {
-//		amount = 1;
-		add_(new ItemData(b));
-		// TODO metadata - spawners, skulls, etc.
+	/**
+	 * @deprecated Use {@link #ItemType(BlockData)} instead
+	 */
+	@Deprecated
+	public ItemType(BlockState blockState) {
+		this(blockState.getBlockData());
+	}
+
+	public ItemType(BlockData blockData) {
+		add_(new ItemData(blockData));
 	}
 
 	/**
@@ -211,7 +218,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	public ItemType(Block block) {
-		this(block.getState());
+		this(block.getBlockData());
 	}
 
 	/**
@@ -272,17 +279,25 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return isOfType(new ItemData(item));
 	}
 
-	public boolean isOfType(@Nullable BlockState block) {
-		if (block == null)
+	/**
+	 * @deprecated Use {@link #isOfType(BlockData)} instead
+	 */
+	@Deprecated
+	public boolean isOfType(@Nullable BlockState blockState) {
+		return blockState != null && isOfType(blockState.getBlockData());
+	}
+
+	public boolean isOfType(@Nullable BlockData blockData) {
+		if (blockData == null)
 			return isOfType(Material.AIR, null);
 
-		return isOfType(new ItemData(block));
+		return isOfType(new ItemData(blockData));
 	}
 
 	public boolean isOfType(@Nullable Block block) {
 		if (block == null)
 			return isOfType(Material.AIR, null);
-		return isOfType(block.getState());
+		return isOfType(block.getBlockData());
 	}
 
 	public boolean isOfType(ItemData type) {
@@ -343,6 +358,14 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Useful for checking if materials represent an item or a block. Materials that are not items don't have ItemData
+	 * @return Whether this ItemType has at least one ItemData that represents it whether it's a block or an item
+	 */
+	public boolean hasType() {
+		return !types.isEmpty();
 	}
 
 	/**
@@ -728,12 +751,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	@SafeVarargs
 	public final boolean removeAll(List<ItemStack>... lists) {
+		return removeAll(true, lists);
+	}
+
+
+	@SafeVarargs
+	public final boolean removeAll(boolean replaceWithNull, List<ItemStack>...lists) {
 		final boolean wasAll = all;
 		final int oldAmount = amount;
 		all = true;
 		amount = -1;
 		try {
-			return removeFrom(lists);
+			return removeFrom(replaceWithNull, lists);
 		} finally {
 			all = wasAll;
 			amount = oldAmount;
@@ -749,18 +778,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	@SafeVarargs
 	public final boolean removeFrom(final List<ItemStack>... lists) {
+		return removeFrom(true, lists);
+	}
+
+	/**
+	 * Removes this ItemType from given lists of ItemStacks.
+	 * If replaceWithNull is true, then if an ItemStack is completely removed, that index in the list is set to null, instead of being removed.
+	 *
+	 * @param replaceWithNull Whether to replace removed ItemStacks with null, or to remove them completely
+	 * @param lists The lists to remove this type from. Each list should implement {@link RandomAccess}. Lists may contain null values after this method if replaceWithNull is true.
+	 * @return Whether this whole item type could be removed (i.e. returns false if the lists didn't contain this item type completely)
+	 */
+	@SafeVarargs
+	public final boolean removeFrom(boolean replaceWithNull, List<ItemStack>... lists) {
 		int removed = 0;
 		boolean ok = true;
 
-		for (final ItemData d : types) {
+		for (ItemData d : types) {
 			if (all)
 				removed = 0;
-			for (final List<ItemStack> list : lists) {
+			for (List<ItemStack> list : lists) {
 				if (list == null)
 					continue;
 				assert list instanceof RandomAccess;
-				for (int i = 0; i < list.size(); i++) {
-					final ItemStack is = list.get(i);
+
+				Iterator<ItemStack> listIterator = list.iterator();
+				int index = -1; // only reliable if replaceWithNull is true. Will be -1 if replaceWithNull is false.
+				while (listIterator.hasNext()) {
+					ItemStack is = listIterator.next();
+					// index is only reliable if replaceWithNull is true
+					if (replaceWithNull)
+						index++;
 					/*
 					 * Do NOT use equals()! It doesn't exactly match items
 					 * for historical reasons. This will change in future.
@@ -778,15 +826,22 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 					boolean plain = d.isPlain() != other.isPlain();
 					if (d.matchPlain(other) || other.matchAlias(d).isAtLeast(plain ? MatchQuality.EXACT : (d.isAlias() && !other.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM))) {
 						if (all && amount == -1) {
-							list.set(i, null);
+							if (replaceWithNull) {
+								list.set(index, null);
+							} else {
+								listIterator.remove();
+							}
 							removed = 1;
 							continue;
 						}
-						assert is != null;
-						final int toRemove = Math.min(is.getAmount(), getAmount() - removed);
+						int toRemove = Math.min(is.getAmount(), getAmount() - removed);
 						removed += toRemove;
 						if (toRemove == is.getAmount()) {
-							list.set(i, null);
+							if (replaceWithNull) {
+								list.set(index, null);
+							} else {
+								listIterator.remove();
+							}
 						} else {
 							is.setAmount(is.getAmount() - toRemove);
 						}
