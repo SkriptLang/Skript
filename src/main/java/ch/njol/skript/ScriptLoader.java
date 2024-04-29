@@ -47,7 +47,13 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.event.PreScriptInitEvent;
+import org.skriptlang.skript.lang.script.event.ScriptInitEvent;
+import org.skriptlang.skript.lang.script.event.ScriptLoadEvent;
+import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
+import org.skriptlang.skript.util.EventRegister;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -488,6 +494,9 @@ public class ScriptLoader {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
+		getEventRegister().getEvents(PreScriptInitEvent.class)
+				.forEach(event -> event.onPreInit(configs));
+		//noinspection deprecation - we still need to call it
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
@@ -601,7 +610,24 @@ public class ScriptLoader {
 							loadingInfo.structures.remove(structure);
 							return true;
 						}
+
 						return false;
+					});
+					parser.setInactive();
+
+					// trigger events
+					pairs.forEach(pair -> {
+						Script script = pair.getFirst().getFirst();
+						Structure structure = pair.getSecond();
+
+						parser.setActive(script);
+						parser.setCurrentStructure(structure);
+						parser.setNode(structure.getEntryContainer().getSource());
+
+						ScriptLoader.getEventRegister().getEvents(ScriptLoadEvent.class)
+							.forEach(event -> event.onLoad(parser, script));
+						script.getEventRegister().getEvents(ScriptLoadEvent.class)
+							.forEach(event -> event.onLoad(parser, script));
 					});
 					parser.setInactive();
 
@@ -700,10 +726,13 @@ public class ScriptLoader {
 			assert file != null;
 			File disabledFile = new File(file.getParentFile(), DISABLED_SCRIPT_PREFIX + file.getName());
 			disabledScripts.remove(disabledFile);
-			
+
 			// Add to loaded files to use for future reloads
 			loadedScripts.add(script);
-			
+
+			ScriptLoader.getEventRegister().getEvents(ScriptInitEvent.class)
+					.forEach(event -> event.onInit(script));
+
 			return null;
 		};
 		if (isAsync()) { // Need to delegate to main thread
@@ -848,6 +877,13 @@ public class ScriptLoader {
 		// initial unload stage
 		for (Script script : scripts) {
 			parser.setActive(script);
+
+			// trigger unload event before beginning
+			getEventRegister().getEvents(ScriptUnloadEvent.class)
+					.forEach(event -> event.onUnload(parser, script));
+			script.getEventRegister().getEvents(ScriptUnloadEvent.class)
+					.forEach(event -> event.onUnload(parser, script));
+
 			for (Structure structure : script.getStructures())
 				structure.unload();
 		}
@@ -1041,6 +1077,21 @@ public class ScriptLoader {
 	 */
 	public static FileFilter getDisabledScriptsFilter() {
 		return disabledScriptFilter;
+	}
+
+	/*
+	 * Global Script Event API
+	 */
+
+	// ScriptLoader Events
+
+	private static final EventRegister<ScriptLoaderEvent> eventRegister = new EventRegister<>();
+
+	/**
+	 * @return An EventRegister for the ScriptLoader's events.
+	 */
+	public static EventRegister<ScriptLoaderEvent> getEventRegister() {
+		return eventRegister;
 	}
 
 	/*

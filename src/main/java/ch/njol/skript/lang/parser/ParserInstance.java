@@ -34,7 +34,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptEvent;
+import org.skriptlang.skript.lang.script.event.ScriptActivityChangeEvent;
+import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -64,11 +65,11 @@ public final class ParserInstance {
 	 */
 	public void setInactive() {
 		this.isActive = false;
-		setCurrentScript((Script) null);
 		setCurrentStructure(null);
 		deleteCurrentEvent();
 		getCurrentSections().clear();
 		setNode(null);
+		setCurrentScript((Script) null);
 	}
 
 	/**
@@ -77,8 +78,8 @@ public final class ParserInstance {
 	 */
 	public void setActive(Script script) {
 		this.isActive = true;
-		setCurrentScript(script);
 		setNode(null);
+		setCurrentScript(script);
 	}
 
 	/**
@@ -112,12 +113,18 @@ public final class ParserInstance {
 		);
 
 		// "Script" events
-		if (previous != null)
-			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
-		if (currentScript != null)
-			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onActive(previous));
+		if (previous != null) { // the 'previous' script is becoming inactive
+			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+			previous.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+		}
+		if (currentScript != null) { // the 'currentScript' is becoming active
+			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+			currentScript.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+		}
 	}
 
 	/**
@@ -421,7 +428,7 @@ public final class ParserInstance {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptEvent}.
+		 * @deprecated See {@link ScriptLoaderEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
