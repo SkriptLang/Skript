@@ -43,7 +43,7 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Set;
 import java.util.List;
 import java.util.Collection;
 
@@ -253,10 +253,12 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 			if (returnTypes == null) { // both are object; can't determine anything
 				returnType = (Class<? extends T>) Object.class;
+				knownReturnTypes = Arithmetics.getAllReturnTypes(operator);
 			} else if (returnTypes.length == 0) { // one of the classes is known but doesn't have any operations
 				return error(firstClass, secondClass);
 			} else {
 				returnType = (Class<? extends T>) Classes.getSuperClassInfo(returnTypes).getC();
+				knownReturnTypes = Set.of(returnTypes);
 			}
 		} else if (returnType == null) { // lookup
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
@@ -307,10 +309,6 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		}
 
 		arithmeticGettable = ArithmeticChain.parse(chain);
-		if (returnType == Object.class) // get everything it might be
-			knownReturnTypes = Arithmetics.getAllReturnTypes(operator);
-		else
-			knownReturnTypes = Collections.emptySet();
 		return arithmeticGettable != null || error(firstClass, secondClass);
 	}
 
