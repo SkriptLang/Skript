@@ -371,7 +371,7 @@ public class SkriptParser {
 				if (parsedExpression != null) { // Expression/VariableString parsing success
 					for (Class<? extends T> type : types) {
 						// Check return type against everything that expression accepts
-						if (type.isAssignableFrom(parsedExpression.getReturnType())) {
+						if (parsedExpression.mayReturn(type)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -541,17 +541,13 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
-					Class<?> returnType = parsedExpression.getReturnType(); // Sometimes getReturnType does non-trivial costly operations
-					if (returnType == null)
-						throw new SkriptAPIException("Expression '" + expr + "' returned null for method Expression#getReturnType. Null is not a valid return.");
-
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
 							continue;
 
 						// Check return type against everything that expression accepts
-						if (type.isAssignableFrom(returnType)) {
+						if (parsedExpression.mayReturn(type)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);

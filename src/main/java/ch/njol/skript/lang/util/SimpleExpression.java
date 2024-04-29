@@ -200,8 +200,10 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
-		if (CollectionUtils.containsSuperclass(to, getReturnType()))
-			return (Expression<? extends R>) this;
+		for (Class<? extends T> type : this.possibleReturnTypes()) {
+			if (CollectionUtils.containsSuperclass(to, type))
+				return (Expression<? extends R>) this;
+		}
 		return this.getConvertedExpr(to);
 	}
 

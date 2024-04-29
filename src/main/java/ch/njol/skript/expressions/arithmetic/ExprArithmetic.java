@@ -43,7 +43,9 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
@@ -108,6 +110,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	private Operator operator;
 
 	private Class<? extends T> returnType;
+	private Collection<Class<?>> knownReturnTypes;
 
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
@@ -304,6 +307,10 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		}
 
 		arithmeticGettable = ArithmeticChain.parse(chain);
+		if (returnType == Object.class) // get everything it might be
+			knownReturnTypes = Arithmetics.getAllReturnTypes(operator);
+		else
+			knownReturnTypes = Collections.emptySet();
 		return arithmeticGettable != null || error(firstClass, secondClass);
 	}
 
@@ -326,6 +333,28 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	@Override
 	public Class<? extends T> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		if (returnType == Object.class)
+			//noinspection unchecked
+			return knownReturnTypes.toArray(new Class[0]);
+		return super.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean mayReturn(Class<?> returnType) {
+		if (this.returnType == Object.class) {
+			if (knownReturnTypes.contains(returnType))
+				return true;
+			for (Class<?> type : knownReturnTypes) {
+				if (returnType.isAssignableFrom(type))
+					return true;
+			}
+			return false;
+		}
+		return super.mayReturn(returnType);
 	}
 
 	@Override

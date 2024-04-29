@@ -72,11 +72,13 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 			assert type != null;
 			// casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
 			// (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
-			@SuppressWarnings("unchecked")
-			ConverterInfo<? super F, ? extends T> conv = (ConverterInfo<? super F, ? extends T>) Converters.getConverterInfo(from.getReturnType(), type);
-			if (conv == null)
-				continue;
-			return new ConvertedExpression<>(from, type, conv);
+			for (Class<? extends F> checking : from.possibleReturnTypes()) {
+				@SuppressWarnings("unchecked")
+				ConverterInfo<? super F, ? extends T> conv = (ConverterInfo<? super F, ? extends T>) Converters.getConverterInfo(checking, type);
+				if (conv == null)
+					continue;
+				return new ConvertedExpression<>(from, type, conv);
+			}
 		}
 		return null;
 	}
