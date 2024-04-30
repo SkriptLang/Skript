@@ -130,7 +130,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		amount = (Expression<Number>) exprs[0];
 		isHorizontal = parseResult.hasTag("horizontal");
 		isFacing = parseResult.hasTag("facing");
