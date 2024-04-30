@@ -109,8 +109,8 @@ public class ExprDirection extends SimpleExpression<Direction> {
 		// "at": see LitAt
 		// TODO direction of %location% (from|relative to) %location%
 		Skript.registerExpression(ExprDirection.class, Direction.class, ExpressionType.COMBINED,
-				"[%-number% [(block|met(er|re))[s]]] [to the]] (:(north[[-| ](east|west)]|east|south[[ |-](east|west)]|west))[ward[s|ly]|er(n|ly)] [of] [%-direction%]",
-				"[%-number% [(block|met(er|re))[s]]] [to the]] (up:(above|over|up[ward[s|ly]])|down:(down[ward[s|ly]]|below|under[neath]|beneath)) [%-direction%]",
+				"[%-number% [(block|met(er|re))[s]]] [to the] (:(north[[-| ](east|west)]|east|south[[ |-](east|west)]|west))[ward[s|ly]|er(n|ly)] [of] [%-direction%]",
+				"[%-number% [(block|met(er|re))[s]]] [to the] (up:(above|over|up[ward[s|ly]])|down:(down[ward[s|ly]]|below|under[neath]|beneath)) [%-direction%]",
 				"[%-number% [(block|met(er|re))[s]]] in [the] [:horizontal] (direction|:facing) of %entity/block% [of|from]",
 				"[%-number% [(block|met(er|re))[s]]] in %entity/block%'[s] [:horizontal] (direction|:facing) [of|from]",
 				"[%-number% [(block|met(er|re))[s]]] [horizontal:horizontal[ly]] (in[ ]front [of]|forward[s]|2:(behind|backwards)|[to the] (1:right|-1:left) [of])");
