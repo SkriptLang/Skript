@@ -251,7 +251,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	}
 }
 
-def latestEnv = 'java21/paper-1.20.4.json'
+def latestEnv = 'java21/paper-1.20.6.json'
 def latestJava = 21
 def oldestJava = 8
 
