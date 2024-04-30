@@ -43,20 +43,22 @@ import java.util.Locale;
 
 @Name("Direction")
 @Description("A helper expression for the <a href='classes.html#direction'>direction type</a>.")
-@Examples({"thrust the player upwards",
-	"set the block behind the player to water",
-	"loop blocks above the player:",
-	"	set {_rand} to a random integer between 1 and 10",
-	"	set the block {_rand} meters south east of the loop-block to stone",
-	"block in horizontal facing of the clicked entity from the player is air",
-	"spawn a creeper 1.5 meters horizontally behind the player",
-	"spawn a TNT 5 meters above and 2 meters horizontally behind the player",
-	"thrust the last spawned TNT in the horizontal direction of the player with speed 0.2",
-	"push the player upwards and horizontally forward at speed 0.5",
-	"push the clicked entity in in the direction of the player at speed -0.5",
-	"open the inventory of the block 2 blocks below the player to the player",
-	"teleport the clicked entity behind the player",
-	"grow a regular tree 2 meters horizontally behind the player"})
+@Examples({
+		"thrust the player upwards",
+		"set the block behind the player to water",
+		"loop blocks above the player:",
+			"\tset {_rand} to a random integer between 1 and 10",
+			"\tset the block {_rand} meters south east of the loop-block to stone",
+		"block in horizontal facing of the clicked entity from the player is air",
+		"spawn a creeper 1.5 meters horizontally behind the player",
+		"spawn a TNT 5 meters above and 2 meters horizontally behind the player",
+		"thrust the last spawned TNT in the horizontal direction of the player with speed 0.2",
+		"push the player upwards and horizontally forward at speed 0.5",
+		"push the clicked entity in in the direction of the player at speed -0.5",
+		"open the inventory of the block 2 blocks below the player to the player",
+		"teleport the clicked entity behind the player",
+		"grow a regular tree 2 meters horizontally behind the player"})
+
 @Since("1.0 (basic), 2.0 (extended)")
 public class ExprDirection extends SimpleExpression<Direction> {
 
