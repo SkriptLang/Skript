@@ -74,7 +74,10 @@ public abstract class PotionEffectUtils {
 				for (final PotionEffectType t : PotionEffectType.values()) {
 					if (t == null)
 						continue;
-					final String[] ls = Language.getList("potions." + t.getName());
+					String name = t.getName();
+					if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
+						name = name.substring(10); // trim off namespace
+					final String[] ls = Language.getList("potions." + name);
 					names[t.getId()] = ls[0];
 					for (final String l : ls) {
 						types.put(l.toLowerCase(Locale.ENGLISH), t);
