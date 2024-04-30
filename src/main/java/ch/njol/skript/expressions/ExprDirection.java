@@ -58,7 +58,6 @@ import java.util.Locale;
 		"open the inventory of the block 2 blocks below the player to the player",
 		"teleport the clicked entity behind the player",
 		"grow a regular tree 2 meters horizontally behind the player"})
-
 @Since("1.0 (basic), 2.0 (extended)")
 public class ExprDirection extends SimpleExpression<Direction> {
 
@@ -104,7 +103,6 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	}
 
 	static {
-
 		// TODO think about parsing statically & dynamically (also in general)
 		// "at": see LitAt
 		// TODO direction of %location% (from|relative to) %location%
@@ -143,9 +141,8 @@ public class ExprDirection extends SimpleExpression<Direction> {
 				if (parseDirection == null) return false;
 				DirectionMapping directionEnum = DirectionMapping.DIRECTION_NAMES.get(parseDirection.toLowerCase(Locale.ROOT));
 				directionVector = directionEnum.getBlockFace().getDirection().clone();
-				if (exprs[1] != null && (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).directionVector == null)) {
+				if (exprs[1] != null && (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).directionVector == null))
 					return false;
-				}
 				nextDirection = (ExprDirection) exprs[1];
 				break;
 			case 2:
@@ -233,8 +230,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return String.format("%s%s%s%s",
 			this.amount != null ? amount.toString(event, debug) + " meter(s) " : "",
-			(isHorizontal ? "horizontally " : ""),
-			(isFacing ? "facing " : ""),
+			(isHorizontal ? "horizontally " : ""), (isFacing ? "facing " : ""),
 			this.directionVector != null ? Direction.toString(directionVector) :
 				this.relativeTo != null ? "of " + relativeTo.toString(event, debug) :
 					Direction.toString(0, yaw, 1)
