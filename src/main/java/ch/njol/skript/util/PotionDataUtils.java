@@ -57,7 +57,7 @@ public enum PotionDataUtils {
 	SLOWNESS(PotionType.SLOWNESS, false, false, 1800, 0),
 	SLOWNESS_LONG(PotionType.SLOWNESS, true, false, 4800, 0),
 	SLOWNESS_STRONG(PotionType.SLOWNESS, false, true, 400, 3),
-	SWIFTNESS(PotionType.SWIFTNESS, false, false, 3600, 0),
+	SWIFTNESS(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", false, false, 3600, 0),
 	SWIFTNESS_LONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", true, false, 9600, 0),
 	SWIFTNESS_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", false, true, 1800, 1),
 	STRENGTH(PotionType.STRENGTH, false, false, 3600, 0),
