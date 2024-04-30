@@ -242,9 +242,11 @@ public class SkriptParser {
 						}
 						if (parseResult != null) {
 							assert parseResult.source != null; // parse results from parse_i have a source
-							List<TypePatternElement> types = parseResult.source.getElements(TypePatternElement.class);
+							List<TypePatternElement> types = null;
 							for (int i = 0; i < parseResult.exprs.length; i++) {
 								if (parseResult.exprs[i] == null) {
+									if (types == null)
+										types = parseResult.source.getElements(TypePatternElement.class);;
 									ExprInfo exprInfo = types.get(i).getExprInfo();
 									if (!exprInfo.isOptional) {
 										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
