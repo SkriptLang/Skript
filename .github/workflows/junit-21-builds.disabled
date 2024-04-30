@@ -1,4 +1,6 @@
-name: JUnit (MC 1.18+)
+# Disabled as EasyMock 5.2.0 is required for Java 21 support
+# However, we are currently using 5.0.1 (see https://github.com/SkriptLang/Skript/pull/6204#discussion_r1405302009)
+name: JUnit (MC 1.20+)
 
 on:
     push:

@@ -1,4 +1,4 @@
-name: Java 21 CI (MC 1.18+)
+name: Java 21 CI (MC 1.20+)
 
 on:
     push:

@@ -1,4 +1,4 @@
-name: Java 17 CI (MC 1.17)
+name: Java 17 CI (MC 1.17-1.19)
 
 on:
     push:
