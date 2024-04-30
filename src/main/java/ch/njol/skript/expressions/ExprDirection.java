@@ -119,8 +119,6 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	public Expression<Number> amount;
 
 	@Nullable
-	private DirectionMapping expectedDirection;
-	@Nullable
 	private Vector directionVector;
 	@Nullable
 	private ExprDirection nextDirection;
@@ -142,8 +140,8 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			case 1:
 				String parseDirection = parseResult.tags.get(parseResult.tags.size() - 1);
 				if (parseDirection == null) return false;
-				expectedDirection = DirectionMapping.DIRECTION_NAMES.get(parseDirection.toLowerCase(Locale.ROOT));
-				directionVector = expectedDirection.getBlockFace().getDirection().clone();
+				DirectionMapping directionEnum = DirectionMapping.DIRECTION_NAMES.get(parseDirection.toLowerCase(Locale.ROOT));
+				directionVector = directionEnum.getBlockFace().getDirection().clone();
 				if (exprs[1] != null && (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).directionVector == null)) {
 					return false;
 				}
