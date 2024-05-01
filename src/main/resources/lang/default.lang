@@ -1260,6 +1260,13 @@ entities:
 	wind charge:
 		name: wind charge¦s
 		pattern: wind charge(|1¦s)
+	# 1.20.5 Entities
+	armadillo:
+		name: armadillo¦s @an
+		pattern: <age> armadillo(|1¦s)|(4¦)armadillo (kid(|1¦s)|child(|1¦ren))
+	bogged:
+		name: bogged
+		pattern: bogged
 
 # -- Heal Reasons --
 heal reasons:
