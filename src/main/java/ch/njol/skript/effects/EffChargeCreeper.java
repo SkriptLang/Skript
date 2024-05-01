@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -47,28 +47,28 @@ public class EffChargeCreeper extends Effect {
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Entity> entities;
+	private Expression<LivingEntity> entities;
 
 	private boolean charge;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		entities = (Expression<Entity>) exprs[0];
+		entities = (Expression<LivingEntity>) exprs[0];
 		charge = parseResult.mark != 1;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event e) {
-		for (Entity entity : entities.getArray(e)) {
-			if (entity instanceof Creeper)
-				((Creeper) entity).setPowered(charge);
+		for (LivingEntity le : entities.getArray(e)) {
+			if (le instanceof Creeper)
+				((Creeper) le).setPowered(charge);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + (charge ? " charged" : " not charged");
+		return "make " + entities.toString(e, debug) + (charge == true ? " charged" : " not charged");
 	}
 }
