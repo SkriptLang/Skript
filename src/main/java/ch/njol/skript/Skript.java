@@ -1159,7 +1159,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				// 1.19 mapping is u and 1.18 is v
 				String isRunningMethod = "isRunning";
 
-				if (Skript.isRunningMinecraft(1, 20)) {
+				if (Skript.isRunningMinecraft(1, 20, 5)) {
+					isRunningMethod = "x";
+				} else if (Skript.isRunningMinecraft(1, 20)) {
 					isRunningMethod = "v";
 				} else if (Skript.isRunningMinecraft(1, 19)) {
 					isRunningMethod = "u";

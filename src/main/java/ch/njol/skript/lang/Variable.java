@@ -546,7 +546,10 @@ public class Variable<T> implements Expression<T> {
 						}
 						i++;
 					}
-				} else {
+				} else if (delta.length > 0) {
+					// if length = 0, likely a failure in casting
+					// (eg, set vector length of {_notvector} to 1, which casts delta to Vector[], resulting in an empty Vector array)
+					// so just do nothing.
 					set(event, delta[0]);
 				}
 				break;
