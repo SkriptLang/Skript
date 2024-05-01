@@ -70,8 +70,6 @@ public enum PotionDataUtils {
 	WATER_BREATHING_LONG(PotionType.WATER_BREATHING, true, false, 9600, 0),
 	WEAKNESS(PotionType.WEAKNESS, false, false, 1800, 0),
 	WEAKNESS_LONG(PotionType.WEAKNESS, false, false, 4800, 0);
-
-
 	
 	@Nullable
 	private String name;

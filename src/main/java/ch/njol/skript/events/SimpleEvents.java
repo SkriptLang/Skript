@@ -426,14 +426,14 @@ public class SimpleEvents {
 				Skript.registerEvent("Entity Mount", SimpleEvent.class, mountEventClass, "mount[ing]")
 					.description("Called when entity starts riding another.")
 					.examples("on mount:",
-						"\tcancel event")
+							"\tcancel event")
 					.since("2.2-dev13b");
 			}
 			if (dismountEventClass != null) {
 				Skript.registerEvent("Entity Dismount", SimpleEvent.class, dismountEventClass, "dismount[ing]")
 					.description("Called when an entity dismounts.")
 					.examples("on dismount:",
-						"\tkill event-entity")
+							"\tkill event-entity")
 					.since("2.2-dev13b");
 			}
 		}
