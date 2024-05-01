@@ -18,10 +18,11 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -29,42 +30,45 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.util.slot.Slot;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Empty")
-@Description("Checks whether an inventory, an inventory slot, or a text is empty.")
+@Description({
+	"Checks whether an inventory, an inventory slot, or a text is empty.",
+	"An entity can be a type, which will check if there are no passengers."
+})
 @Examples("player's inventory is empty")
-@Since("<i>unknown</i> (before 2.1)")
+@Since("<i>unknown</i> (before 2.1), INSERT VERSION (Entity)")
 public class CondIsEmpty extends PropertyCondition<Object> {
-	
+
 	static {
-		register(CondIsEmpty.class, "empty", "inventories/slots/strings");
+		register(CondIsEmpty.class, "empty", "entities/inventories/slots/strings");
 	}
-	
+
 	@Override
-	public boolean check(final Object o) {
-		if (o instanceof String)
-			return ((String) o).isEmpty();
-		if (o instanceof Inventory) {
-			for (ItemStack s : ((Inventory) o).getContents()) {
-				if (s != null && s.getType() != Material.AIR)
+	public boolean check(Object object) {
+		if (object instanceof String)
+			return ((String) object).isEmpty();
+		if (object instanceof Inventory) {
+			for (ItemStack item : ((Inventory) object).getContents()) {
+				if (item != null && !ItemUtils.isAir(item.getType()))
 					return false; // There is an item here!
 			}
 			return true;
 		}
-		if (o instanceof Slot) {
-			final Slot s = (Slot) o;
-			final ItemStack i = s.getItem();
-			return i == null || i.getType() == Material.AIR;
+		if (object instanceof Slot) {
+			Slot slot = (Slot) object;
+			ItemStack item = slot.getItem();
+			return item == null || !ItemUtils.isAir(item.getType());
+		}
+		if (object instanceof Entity) {
+			return ((Entity) object).isEmpty();
 		}
 		assert false;
 		return false;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "empty";
 	}
-	
+
 }
