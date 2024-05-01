@@ -55,7 +55,9 @@ public class EffectCommandEvent extends CommandEvent implements Cancellable {
 	}
 
 	@Deprecated
-	public void setCommand(String command) {}
+	public void setCommand(String command) {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public boolean isCancelled() {

@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class CondEffectCommandIsValid extends Condition {
 
 	static {
-		Skript.registerCondition(CondEffectCommandIsValid.class, "[the] effect [command] is [not:(not |in)]valid");
+		Skript.registerCondition(CondEffectCommandIsValid.class, "[the] effect command is [not:(not |in)]valid");
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class CondEffectCommandIsValid extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "effect command is " + (isNegated() ? "not " : "") + "valid";
+		return "effect command is " + (isNegated() ? "in" : "") + "valid";
 	}
 
 }
