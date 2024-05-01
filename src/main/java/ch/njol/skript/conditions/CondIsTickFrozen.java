@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -37,20 +38,16 @@ import org.bukkit.entity.Entity;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondIsTickFrozen extends PropertyCondition<Entity> {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			register(CondIsTickFrozen.class, PropertyType.BE, "tick frozen", "entities");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	@Override
 	public boolean check(Entity entity) {
-		return SERVER_TICK_MANAGER.isFrozen(entity);
+		return ServerUtils.getServerTickManager().isFrozen(entity);
 	}
 
 	@Override

@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -42,15 +43,11 @@ import org.eclipse.jdt.annotation.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprFrozenTicksToRun extends SimpleExpression<Number> {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerExpression(ExprFrozenTicksToRun.class, Number.class, ExpressionType.SIMPLE, "[the] [amount of] frozen ticks [left] to run");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 
@@ -62,7 +59,7 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Number> {
 	@Override
 	@Nullable
 	protected Number[] get(Event event) {
-		return new Number[]{SERVER_TICK_MANAGER.getFrozenTicksToRun()};
+		return new Number[]{ServerUtils.getServerTickManager().getFrozenTicksToRun()};
 	}
 
 	@Override

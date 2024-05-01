@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -40,17 +41,13 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffFreezeServer extends Effect {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffFreezeServer.class,
 				"freeze [the] server",
 				"unfreeze [the] server");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private boolean freeze;
@@ -63,7 +60,7 @@ public class EffFreezeServer extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SERVER_TICK_MANAGER.setFrozen(freeze);
+		ServerUtils.getServerTickManager().setFrozen(freeze);
 	}
 
 	@Override

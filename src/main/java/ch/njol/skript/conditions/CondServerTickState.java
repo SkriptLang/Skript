@@ -19,6 +19,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -29,7 +30,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
 import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -45,20 +45,15 @@ public class CondServerTickState extends Condition {
 		FROZEN, STEPPING, SPRINTING, NORMAL
 	}
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
+	private ServerState state;
 
 	static {
-		ServerTickManager STM_VALUE = null;
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager")) {
 			Skript.registerCondition(CondServerTickState.class,
 				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
 				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
-
-	private ServerState state;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -77,15 +72,16 @@ public class CondServerTickState extends Condition {
 
 	@Override
 	public boolean check(Event event) {
+		ServerTickManager serverTickManager = ServerUtils.getServerTickManager();
 		switch (state) {
 			case FROZEN:
-				return SERVER_TICK_MANAGER.isFrozen() != isNegated();
+				return serverTickManager.isFrozen() != isNegated();
 			case STEPPING:
-				return SERVER_TICK_MANAGER.isStepping() != isNegated();
+				return serverTickManager.isStepping() != isNegated();
 			case SPRINTING:
-				return SERVER_TICK_MANAGER.isSprinting() != isNegated();
+				return serverTickManager.isSprinting() != isNegated();
 			case NORMAL:
-				return SERVER_TICK_MANAGER.isRunningNormally() != isNegated();
+				return serverTickManager.isRunningNormally() != isNegated();
 		}
 		return isNegated();
 	}
@@ -95,3 +91,4 @@ public class CondServerTickState extends Condition {
 		return "the server's tick state is " + state;
 	}
 }
+

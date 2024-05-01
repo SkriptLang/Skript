@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -45,17 +46,13 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffSprintServer extends Effect {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffSprintServer.class,
 				"request [for [the]] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private boolean sprint;
@@ -75,9 +72,9 @@ public class EffSprintServer extends Effect {
 		if (sprint) {
 			Timespan timespanInstance = timespan.getSingle(event);
 			long sprintTicks = timespanInstance != null ? timespanInstance.getTicks() : 1;
-			SERVER_TICK_MANAGER.requestGameToSprint((int) sprintTicks);
+			ServerUtils.getServerTickManager().requestGameToSprint((int) sprintTicks);
 		} else {
-			SERVER_TICK_MANAGER.stopSprinting();
+			ServerUtils.getServerTickManager().stopSprinting();
 		}
 	}
 

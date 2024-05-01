@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -50,15 +51,11 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprTick extends SimpleExpression<Number> {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	@Override
@@ -69,7 +66,7 @@ public class ExprTick extends SimpleExpression<Number> {
 	@Nullable
 	@Override
 	protected Number[] get(Event event) {
-		return new Number[]{SERVER_TICK_MANAGER.getTickRate()};
+		return new Number[]{ServerUtils.getServerTickManager().getTickRate()};
 	}
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -80,26 +77,26 @@ public class ExprTick extends SimpleExpression<Number> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		float tickRate = SERVER_TICK_MANAGER.getTickRate();
+		float tickRate = ServerUtils.getServerTickManager().getTickRate();
 		float change = delta != null && delta.length != 0 ? ((Number) delta[0]).floatValue() : 0;
 		switch (mode) {
 			case SET:
 				if (delta != null) {
-					SERVER_TICK_MANAGER.setTickRate(change);
+					ServerUtils.getServerTickManager().setTickRate(change);
 				}
 				break;
 			case ADD:
 				if (delta != null) {
-					SERVER_TICK_MANAGER.setTickRate(tickRate + change);
+					ServerUtils.getServerTickManager().setTickRate(tickRate + change);
 				}
 				break;
 			case REMOVE:
 				if (delta != null) {
-					SERVER_TICK_MANAGER.setTickRate(tickRate - change);
+					ServerUtils.getServerTickManager().setTickRate(tickRate - change);
 				}
 				break;
 			case RESET:
-				SERVER_TICK_MANAGER.setTickRate(20);
+				ServerUtils.getServerTickManager().setTickRate(20);
 				break;
 		}
 	}

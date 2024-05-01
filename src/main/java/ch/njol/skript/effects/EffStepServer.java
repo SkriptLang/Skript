@@ -19,6 +19,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.ServerUtils;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -43,17 +44,13 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffStepServer extends Effect {
 
-	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
 		if (Skript.methodExists(Server.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
 			Skript.registerEffect(EffStepServer.class,
 				"make [the] server step for %timespan%",
 				"make [the] server stop stepping");
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
 	}
 
 	private Expression<Timespan> timespan;
@@ -71,9 +68,9 @@ public class EffStepServer extends Effect {
 		Timespan timespanInstance = timespan.getSingle(event);
 		if (timespanInstance != null) {
 			long stepTicks = timespanInstance.getTicks();
-			SERVER_TICK_MANAGER.stepGameIfFrozen((int) stepTicks);
+			ServerUtils.getServerTickManager().stepGameIfFrozen((int) stepTicks);
 		} else {
-			SERVER_TICK_MANAGER.stopStepping();
+			ServerUtils.getServerTickManager().stopStepping();
 		}
 	}
 
