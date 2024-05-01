@@ -31,8 +31,6 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,11 +46,10 @@ public class EffSprintServer extends Effect {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
 			Skript.registerEffect(EffSprintServer.class,
 				"request [for [the]] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
-		}
 	}
 
 	private boolean sprint;

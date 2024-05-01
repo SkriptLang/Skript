@@ -31,8 +31,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -45,9 +43,8 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Number> {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
 			Skript.registerExpression(ExprFrozenTicksToRun.class, Number.class, ExpressionType.SIMPLE, "[the] [amount of] frozen ticks [left] to run");
-		}
 	}
 
 

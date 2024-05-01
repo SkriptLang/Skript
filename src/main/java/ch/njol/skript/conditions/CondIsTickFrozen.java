@@ -27,8 +27,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.entity.Entity;
 
 @Name("Is Entity Tick Frozen")
@@ -40,9 +38,8 @@ public class CondIsTickFrozen extends PropertyCondition<Entity> {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
 			register(CondIsTickFrozen.class, PropertyType.BE, "tick frozen", "entities");
-		}
 	}
 
 	@Override

@@ -32,8 +32,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +51,7 @@ public class ExprTick extends SimpleExpression<Number> {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager")) {
 			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
 		}
 	}
@@ -81,19 +79,13 @@ public class ExprTick extends SimpleExpression<Number> {
 		float change = delta != null && delta.length != 0 ? ((Number) delta[0]).floatValue() : 0;
 		switch (mode) {
 			case SET:
-				if (delta != null) {
-					ServerUtils.getServerTickManager().setTickRate(change);
-				}
+				ServerUtils.getServerTickManager().setTickRate(change);
 				break;
 			case ADD:
-				if (delta != null) {
-					ServerUtils.getServerTickManager().setTickRate(tickRate + change);
-				}
+				ServerUtils.getServerTickManager().setTickRate(tickRate + change);
 				break;
 			case REMOVE:
-				if (delta != null) {
-					ServerUtils.getServerTickManager().setTickRate(tickRate - change);
-				}
+				ServerUtils.getServerTickManager().setTickRate(tickRate - change);
 				break;
 			case RESET:
 				ServerUtils.getServerTickManager().setTickRate(20);

@@ -30,8 +30,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 @Name("Freeze/Unfreeze Server")
@@ -43,11 +41,10 @@ public class EffFreezeServer extends Effect {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
 			Skript.registerEffect(EffFreezeServer.class,
 				"freeze [the] server",
 				"unfreeze [the] server");
-		}
 	}
 
 	private boolean freeze;

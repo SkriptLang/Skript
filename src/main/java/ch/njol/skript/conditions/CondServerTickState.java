@@ -40,20 +40,19 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondServerTickState extends Condition {
+	private ServerState state;
+
+	static {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
+			Skript.registerCondition(CondServerTickState.class,
+				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
+				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
+	}
 
 	public enum ServerState {
 		FROZEN, STEPPING, SPRINTING, NORMAL
 	}
 
-	private ServerState state;
-
-	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager")) {
-			Skript.registerCondition(CondServerTickState.class,
-				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
-		}
-	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

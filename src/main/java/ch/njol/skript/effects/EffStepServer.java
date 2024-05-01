@@ -31,8 +31,6 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 @Name("Step Server")
@@ -46,11 +44,10 @@ public class EffStepServer extends Effect {
 
 
 	static {
-		if (Skript.methodExists(Server.class, "getServerTickManager")) {
+		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
 			Skript.registerEffect(EffStepServer.class,
 				"make [the] server step for %timespan%",
 				"make [the] server stop stepping");
-		}
 	}
 
 	private Expression<Timespan> timespan;
@@ -65,12 +62,14 @@ public class EffStepServer extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Timespan timespanInstance = timespan.getSingle(event);
-		if (timespanInstance != null) {
-			long stepTicks = timespanInstance.getTicks();
-			ServerUtils.getServerTickManager().stepGameIfFrozen((int) stepTicks);
-		} else {
-			ServerUtils.getServerTickManager().stopStepping();
+		if (timespan != null) {
+			Timespan timespanInstance = timespan.getSingle(event);
+			if (timespanInstance != null) {
+				long stepTicks = timespanInstance.getTicks();
+				ServerUtils.getServerTickManager().stepGameIfFrozen((int) stepTicks);
+			} else {
+				ServerUtils.getServerTickManager().stopStepping();
+			}
 		}
 	}
 
