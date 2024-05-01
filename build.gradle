@@ -62,12 +62,12 @@ task testJar(type: ShadowJar) {
 
 task jar(overwrite: true, type: ShadowJar) {
 	dependsOn checkAliases
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-' + project.version + '.jar' : jarName
 	from sourceSets.main.output
 }
 
 task build(overwrite: true, type: ShadowJar) {
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-' + project.version + '.jar' : jarName
 	from sourceSets.main.output
 }
 
@@ -325,7 +325,7 @@ task githubResources(type: ProcessResources) {
 task githubRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn githubResources
-	archiveFileName = 'Skript-github.jar'
+	archiveFileName = 'Skript-' + version +'.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
