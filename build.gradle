@@ -313,7 +313,7 @@ task githubResources(type: ProcessResources) {
 task githubRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn githubResources
-	archiveFileName = 'Skript-github.jar'
+	archiveFileName = 'Skript-' + version +'.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
