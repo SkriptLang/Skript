@@ -1,4 +1,6 @@
-name: Java 8 CI (MC 1.13-1.16)
+# Disabled as EasyMock 5.2.0 is required for Java 21 support
+# However, we are currently using 5.0.1 (see https://github.com/SkriptLang/Skript/pull/6204#discussion_r1405302009)
+name: JUnit (MC 1.20.6+)
 
 on:
     push:
@@ -25,11 +27,5 @@ jobs:
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-            - name: Build Skript and run test scripts
-              run: ./gradlew clean skriptTestJava8
-            - name: Upload Nightly Build
-              uses: actions/upload-artifact@v4
-              if: success()
-              with:
-                  name: skript-nightly
-                  path: build/libs/*
+            - name: Build Skript and run JUnit
+              run: ./gradlew clean JUnitJava21
