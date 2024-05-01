@@ -117,6 +117,10 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
+	effect command:
+		error: <red>Error in: %s
+		no specific error: (No specific information is available)
+		cancelled: <red>Your effect command '%s' was cancelled.
 
 # -- Updater --
 updater:
