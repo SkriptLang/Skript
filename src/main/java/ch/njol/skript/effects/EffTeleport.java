@@ -128,16 +128,17 @@ public class EffTeleport extends Effect {
 			return next;
 		}
 
-		find_a_world:
 		if (unknownWorld) { // we can't fetch the chunk without a world
-			for (Entity entity : entityArray) {
+			if (entityArray.length == 1) { // if there's 1 thing we can borrow its world
+				Entity entity = entityArray[0];
 				if (entity == null)
-					continue;
+					return next;
 				// assume it's a local teleport, use the first entity we find as a reference
-				loc = new Location(entity.getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-				break find_a_world;
+				loc = new Location(entity.getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
+								   loc.getPitch());
+			} else {
+				return next; // no entities = no chunk = nobody teleporting
 			}
-			return next; // no entities = no chunk = nobody teleporting
 		}
 		final Location fixed = loc;
 		Delay.addDelayedEvent(e);
