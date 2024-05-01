@@ -114,8 +114,10 @@ public class EffTeleport extends Effect {
 			}
 
 			if (e instanceof PlayerMoveEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerMoveEvent) e).getPlayer())) {
-				if (unknownWorld) // we can approximate the world
-					loc = new Location(((PlayerMoveEvent) e).getFrom().getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+				if (unknownWorld) { // we can approximate the world
+					loc = loc.clone();
+					loc.setWorld(((PlayerMoveEvent) e).getFrom().getWorld());
+				}
 				((PlayerMoveEvent) e).setTo(loc);
 				return next;
 			}
@@ -134,8 +136,8 @@ public class EffTeleport extends Effect {
 				if (entity == null)
 					return next;
 				// assume it's a local teleport, use the first entity we find as a reference
-				loc = new Location(entity.getWorld(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
-								   loc.getPitch());
+				loc = loc.clone();
+				loc.setWorld(entity.getWorld());
 			} else {
 				return next; // no entities = no chunk = nobody teleporting
 			}
