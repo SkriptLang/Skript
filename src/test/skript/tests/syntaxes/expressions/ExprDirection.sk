@@ -1,0 +1,278 @@
+#
+# Due to the amount that ExprDirection is used in syntax this is a full test or intended to be a full test this test
+# should cover every pattern and *most of* every possible usage to always be sure when an error occurs that it's 100% unintended
+#
+
+# Syntax testing, checking for a pattern error
+test "ExprDirection - syntax validation pt1":
+	parse:
+		# don't care if receiver is null just ensuring syntax is working as intended so parsing is being tested
+
+		# NORTH
+		send north to {_null}
+		send north of to {_null}
+		send north side of to {_null}
+		send to the north to {_null}
+		send northern to {_null}
+		send northerly to {_null}
+		send northward to {_null}
+		send northwards to {_null}
+		send 1 north to {_null}
+		send 1 block north to {_null}
+		send 1 metre north to {_null}
+		send 1 meter north to {_null}
+		send 2 meters north to {_null}
+
+		# EAST
+		send east to {_null}
+		send east of to {_null}
+		send east side of to {_null}
+		send to the east to {_null}
+		send eastern to {_null}
+		send easterly to {_null}
+		send eastward to {_null}
+		send eastwards to {_null}
+		send 1 east to {_null}
+		send 1 block east to {_null}
+		send 1 metre east to {_null}
+		send 1 meter east to {_null}
+		send 2 meters east to {_null}
+
+		# SOUTH
+		send south to {_null}
+		send south of to {_null}
+		send south side of to {_null}
+		send to the south to {_null}
+		send southern to {_null}
+		send southerly to {_null}
+		send southward to {_null}
+		send southwards to {_null}
+		send 1 south to {_null}
+		send 1 block south to {_null}
+		send 1 metre south to {_null}
+		send 1 meter south to {_null}
+		send 2 meters south to {_null}
+
+		# WEST
+		send west to {_null}
+		send west of to {_null}
+		send west side of to {_null}
+		send to the west to {_null}
+		send western to {_null}
+		send westerly to {_null}
+		send westward to {_null}
+		send westwards to {_null}
+		send 1 west to {_null}
+		send 1 block west to {_null}
+		send 1 metre west to {_null}
+		send 1 meter west to {_null}
+		send 2 meters west to {_null}
+
+		# NORTH WEST/EAST
+		send northwest to {_null}
+		send north-west to {_null}
+		send north west to {_null}
+		send northwest of to {_null}
+		send northwest side of to {_null}
+		send to the northwest to {_null}
+		send northwestern to {_null}
+		send northwesterly to {_null}
+		send northwestward to {_null}
+		send northwestwards to {_null}
+		send northwestwardly to {_null}
+		send 1 northwest to {_null}
+		send 1 block northwest to {_null}
+		send 1 metre northwest to {_null}
+		send 1 meter northwest to {_null}
+		send 2 meters northwest to {_null}
+
+		send northeast to {_null}
+		send north-east to {_null}
+		send north east to {_null}
+		send northeast of to {_null}
+		send northeast side of to {_null}
+		send to the northeast to {_null}
+		send northeastern to {_null}
+		send northeasterly to {_null}
+		send northeastward to {_null}
+		send northeastwards to {_null}
+		send northeastwardly to {_null}
+		send 1 northeast to {_null}
+		send 1 block northeast to {_null}
+		send 1 metre northeast to {_null}
+		send 1 meter northeast to {_null}
+		send 2 meters northeast to {_null}
+
+		# SOUTH WEST/EAST
+		send south west to {_null}
+		send south-west to {_null}
+		send southwest to {_null}
+		send south western to {_null}
+		send south westerly to {_null}
+		send south westward to {_null}
+		send south westwards to {_null}
+		send south westwardly to {_null}
+		send south west of to {_null}
+		send south west side of to {_null}
+		send to the south west to {_null}
+		send 1 south west to {_null}
+		send 1 block south west to {_null}
+		send 1 metre south west to {_null}
+		send 1 meter south west to {_null}
+		send 2 meters south west to {_null}
+
+		send south east to {_null}
+		send south-east to {_null}
+		send southeast to {_null}
+		send south eastern to {_null}
+		send south easterly to {_null}
+		send south eastward to {_null}
+		send south eastwards to {_null}
+		send south eastwardly to {_null}
+		send south east of to {_null}
+		send south east side of to {_null}
+		send to the south east to {_null}
+		send 1 south east to {_null}
+		send 1 block south east to {_null}
+		send 1 metre south east to {_null}
+		send 1 meter south east to {_null}
+		send 2 meters south east to {_null}
+
+		# UP
+		send above to {_null}
+		send over to {_null}
+		send up to {_null}
+		send upward to {_null}
+		send upwards to {_null}
+		send upwardly to {_null}
+		send 1 above to {_null}
+		send 1 block above to {_null}
+		send 1 meter above to {_null}
+		send 1 metre above to {_null}
+		send 2 meters above to {_null}
+
+		# DOWN
+		send below to {_null}
+		send under to {_null}
+		send down to {_null}
+		send downward to {_null}
+		send downwards to {_null}
+		send downwardly to {_null}
+		send 1 below to {_null}
+		send 1 block below to {_null}
+		send 1 metre below to {_null}
+		send 1 meter below to {_null}
+		send 2 meters below to {_null}
+
+
+		# FACING/DIRECTION
+		send direction of {_ent} to {_null}
+		send facing of {_ent} to {_null}
+		send horizontal direction of {_ent} to {_null}
+		send 1 direction of {_ent} to {_null}
+		send 1 block facing of {_ent} to {_null}
+		send 1 metre facing of {_ent} to {_null}
+		send 1 meter facing of {_ent} to {_null}
+		send 2 meters facing of {_ent} to {_null}
+		send in direction of {_ent} to {_null}
+		send in the direction of {_ent} to {_null}
+		send in the horizontal direction of {_ent} to {_null}
+		send facing of {_ent} of to {_null}
+		send facing of {_ent} from to {_null}
+
+		send {_ent}'s direction to {_null}
+		send {_ent}'s facing to {_null}
+		send {_ent}'s horizontal direction to {_null}
+		send 1 {_ent}'s direction to {_null}
+		send in {_ent}'s facing to {_null}
+		send 1 metre in {_ent}'s facing to {_null}
+		send 1 meter {_ent}'s facing to {_null}
+		send 2 meters {_ent}'s facing to {_null}
+		send in {_ent}'s direction to {_null}
+		send in {_ent}'s horizontal direction to {_null}
+		send {_ent}'s facing of to {_null}
+		send {_ent}'s facing from to {_null}
+
+		# LEFT/RIGHT
+		send right to {_null}
+		send left to {_null}
+		send right side of to {_null}
+		send left of to {_null}
+		send 1 right to {_null}
+		send 1 block left to {_null}
+		send 1 metre right to {_null}
+		send 1 meter left to {_null}
+		send 2 meters right to {_null}
+		send 1 block horizontally left to {_null}
+		send 1 block horizontally to the left to {_null}
+
+		# INFRONT
+		send in front to {_null}
+		send infront to {_null}
+		send in front of to {_null}
+		send forwards to {_null}
+		send horizontally in front of to {_null}
+		send 1 infront to {_null}
+		send 1 block infront of to {_null}
+		send 1 metre infront of to {_null}
+		send 1 meter infront of to {_null}
+		send 2 meters infront of to {_null}
+
+		# BEHIND
+		send behind to {_null}
+		send backwards to {_null}
+		send horizontally backwards to {_null}
+		send 1 behind to {_null}
+		send 1 block behind to {_null}
+		send 1 metre behind to {_null}
+		send 1 meter behind to {_null}
+		send 2 meters behind to {_null}
+	assert last parse logs is not set with "there was a parse error: %last parse logs%"
+
+test "ExprDirection - syntax validation pt2":
+	set {_block} to block 50 blocks above spawn of world "world"
+
+	assert block north of {_block} is block at {_block} ~ vector(0,0,-1) with "The block north of {_block} is not correct vector offset"
+	assert block east of {_block} is block at {_block} ~ vector(1,0,0) with "The block east of {_block} is not correct vector offset"
+	assert block south of {_block} is block at {_block} ~ vector(0,0,1) with "The block south of {_block} is not correct vector offset"
+	assert block west of {_block} is block at {_block} ~ vector(-1,0,0) with "The block west of {_block} is not correct vector offset"
+
+	assert block north west of {_block} is block at {_block} ~ vector(-1,0,-1) with "the block north west of {_block} is not correct vector offset"
+	assert block north east of {_block} is block at {_block} ~ vector(1,0,-1) with "the block north east of {_block} is not correct vector offset"
+	assert block south west of {_block} is block at {_block} ~ vector(-1,0,1) with "the block south west of {_block} is not correct vector offset"
+	assert block south east of {_block} is block at {_block} ~ vector(1,0,1) with "the block south east of {_block} is not correct vector offset"
+
+	assert block north north west of {_block} is block at {_block} ~ vector(-1,0,-2) with "the block north north west of {_block} is not correct vector offset"
+	assert block north north east of {_block} is block at {_block} ~ vector(1,0,-2) with "the block north north east of {_block} is not correct vector offset"
+	assert block south south west of {_block} is block at {_block} ~ vector(-1,0,2) with "the block south south west of {_block} is not correct vector offset"
+	assert block south south east of {_block} is block at {_block} ~ vector(1,0,2) with "the block south south east of {_block} is not correct vector offset"
+
+	# These test will pass, however these are dependent on existing behavior i.e. no facing and using infront of = south
+	assert block below {_block} is block at {_block} ~ vector(0,-1,0) with "the block below {_block} is not correct vector offset"
+	assert block above {_block} is block at {_block} ~ vector(0,1,0) with "the block above {_block} is not correct vector offset"
+	assert block behind {_block} is block at {_block} ~ vector(1,0,0) with "the block behind {_block} is not correct vector offset"
+	assert block in front of {_block} is block at {_block} ~ vector(-1,0,0) with "the block in front of {_block} is not correct vector offset"
+	assert block left of {_block} is block at {_block} ~ vector(0,0,1) with "the block left of {_block} is not correct vector offset"
+	assert block right of {_block} is block at {_block} ~ vector(0,0,-1) with "the block right of {_block} is not correct vector offset"
+
+	# the cheatsheet is entirely useless for this section of the test as all directions have been changed to a new orientation
+
+	set block at {_block} to top westward oak wood stair
+	assert {_block} is top westward oak wood stair with "Block was not a 'top westward oak wood stair' block"
+
+	assert block below {_block} is block at {_block} ~ vector(0,-1,0) with "Part2 - the block below {_block} is not correct vector offset"
+	assert block above {_block} is block at {_block} ~ vector(0,1,0) with "Part2 - the block above {_block} is not correct vector offset"
+	assert block behind {_block} is block at {_block} ~ vector(1,0,0) with "Part2 - the block behind {_block} is not correct vector offset"
+	assert block in front of {_block} is block at {_block} ~ vector(-1,0,0) with "Part2 - the block in front of {_block} is not correct vector offset"
+	assert block left of {_block} is block at {_block} ~ vector(0,0,1) with "Part2 - the block left of {_block} is not correct vector offset"
+	assert block right of {_block} is block at {_block} ~ vector(0,0,-1) with "Part2 - he block right of {_block} is not correct vector offset"
+
+	assert block 10 blocks infront of {_block} is block at {_block} ~ vector(-10,0,0) with "Part2 - the block 10 in front of {_block} is not correct vector offset"
+	assert block 11 blocks left of {_block} is block at {_block} ~ vector(0,0,11) with "Part2 - the block 11 left of {_block} is not correct vector offset"
+	assert block 5 blocks left of {_block} is block at {_block} ~ vector(0,0,5) with "Part2 - the 5 blocks left of {_block} is not correct vector offset"
+	assert block -5 block right of {_block} is block at {_block} ~ vector(0,0,5) with "Part2 - the -5 blocks right of {_block} is not correct vector offset"
+
+	# there is currently a skript bug where -anything right/left causes parser to fail
+	set {_block2} to block -10 meters north of {_block}
+	assert block -5 meters right of {_block2} is block at {_block} ~ vector(5,0,10) with "Part2 - the block -10 north and -5 right of {_block} is not correct vector offset"
+	set block at {_block} to air
