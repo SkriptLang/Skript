@@ -28,6 +28,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import org.bukkit.Location;
@@ -37,9 +38,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.HashMap;
-import java.util.Locale;
 
 @Name("Direction")
 @Description("A helper expression for the <a href='classes.html#direction'>direction type</a>.")
@@ -58,60 +56,34 @@ import java.util.Locale;
 		"open the inventory of the block 2 blocks below the player to the player",
 		"teleport the clicked entity behind the player",
 		"grow a regular tree 2 meters horizontally behind the player"})
-@Since("1.0 (basic), 2.0 (extended)")
+@Since("1.0 (basic), 2.0 (extended), INSERT VERSION (pattern changes)")
 public class ExprDirection extends SimpleExpression<Direction> {
 
-	private enum DirectionMapping {
-
-		UP(BlockFace.UP, "up"),
-		DOWN(BlockFace.DOWN, "down"),
-
-		NORTH(BlockFace.NORTH, "north"),
-		SOUTH(BlockFace.SOUTH, "south"),
-		EAST(BlockFace.EAST, "east"),
-		WEST(BlockFace.WEST, "west"),
-
-		// When using `(:blah[blah2])` the `tag` will be `blah` or `blahblah2` depending on if the optional is used
-		// as a workaround for this we'll be adding all possible patterns into a map.
-		NORTH_EAST(BlockFace.NORTH_EAST, "northeast", "north east", "north-east"),
-		NORTH_WEST(BlockFace.NORTH_WEST, "northwest", "north west", "north-west"),
-		SOUTH_EAST(BlockFace.SOUTH_EAST, "southeast", "south east", "south-east"),
-		SOUTH_WEST(BlockFace.SOUTH_WEST, "southwest", "south west", "south-west");
-
-		public static final HashMap<String, DirectionMapping> DIRECTION_NAMES = new HashMap<>();
-
-		static {
-			for (DirectionMapping direction : values()) {
-				for (String tag : direction.tags) {
-					DIRECTION_NAMES.putIfAbsent(tag.toLowerCase(Locale.ROOT), direction);
-				}
-			}
-		}
-
-		private final BlockFace blockFace;
-		private final String[] tags;
-
-		DirectionMapping(BlockFace blockFace, String ...tags) {
-			this.blockFace = blockFace;
-			this.tags = tags;
-		}
-
-		public BlockFace getBlockFace() {
-			return this.blockFace;
-		}
-
-	}
+	private static final Patterns<BlockFace> PATTERNS = new Patterns<>(new Object[][]{
+		// northeast, northwest, southeast and southwest need to be registered before normal usages otherwise `[-%direction%]` is given priority
+		// naturally doesn't matter however this should help a bit with parsing "north west north west north west..."
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] west[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.WEST},
+		{"[%-number% [(block|meter|metre)[s]]] (above|over|up[ward[s|ly]]) [%-direction%]", BlockFace.UP},
+		{"[%-number% [(block|meter|metre)[s]]] (below|under|down[ward[s|ly]]) [%-direction%]", BlockFace.DOWN},
+		{"[%-number% [(block|meter|metre)[s]]] [in [the]] [:horizontal] (direction|:facing) of %entity/block% [of|from]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [in] %entity/block%'[s] [:horizontal] (direction|:facing) [of|from]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (in[ ]front [of]|forward[s])", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (2:(behind|backwards))", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (1:right|-1:left) [[side] of]", BlockFace.SELF}
+	});
 
 	static {
 		// TODO think about parsing statically & dynamically (also in general)
 		// "at": see LitAt
 		// TODO direction of %location% (from|relative to) %location%
-		Skript.registerExpression(ExprDirection.class, Direction.class, ExpressionType.COMBINED,
-				"[%-number% [(block|met(er|re))[s]]] [to the] (:(north[[-| ](east|west)]|east|south[[ |-](east|west)]|west))[ward[s|ly]|er(n|ly)] [of] [%-direction%]",
-				"[%-number% [(block|met(er|re))[s]]] [to the] (up:(above|over|up[ward[s|ly]])|down:(down[ward[s|ly]]|below|under[neath]|beneath)) [%-direction%]",
-				"[%-number% [(block|met(er|re))[s]]] in [the] [:horizontal] (direction|:facing) of %entity/block% [of|from]",
-				"[%-number% [(block|met(er|re))[s]]] in %entity/block%'[s] [:horizontal] (direction|:facing) [of|from]",
-				"[%-number% [(block|met(er|re))[s]]] [horizontal:horizontal[ly]] (in[ ]front [of]|forward[s]|2:(behind|backwards)|[to the] (1:right|-1:left) [of])");
+		Skript.registerExpression(ExprDirection.class, Direction.class, ExpressionType.COMBINED, PATTERNS.getPatterns());
 	}
 
 	@Nullable
@@ -135,30 +107,28 @@ public class ExprDirection extends SimpleExpression<Direction> {
 		isFacing = parseResult.hasTag("facing");
 
 		switch (matchedPattern) {
-			case 0:
-			case 1:
-				String parseDirection = parseResult.tags.get(parseResult.tags.size() - 1);
-				if (parseDirection == null) return false;
-				DirectionMapping directionEnum = DirectionMapping.DIRECTION_NAMES.get(parseDirection.toLowerCase(Locale.ROOT));
-				directionVector = directionEnum.getBlockFace().getDirection().clone();
+			case 10:
+			case 11:
+				relativeTo = exprs[1];
+				break;
+			case 12:
+			case 13:
+			case 14:
+				yaw = Math.PI / 2 * parseResult.mark;
+				break;
+			default:
+				BlockFace blockFace = PATTERNS.getInfo(matchedPattern);
+				directionVector = blockFace.getDirection().clone();
 				if (exprs[1] != null && (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).directionVector == null))
 					return false;
 				nextDirection = (ExprDirection) exprs[1];
-				break;
-			case 2:
-			case 3:
-				relativeTo = exprs[1];
-				break;
-			case 4:
-				yaw = Math.PI / 2 * parseResult.mark;
 				break;
 		}
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected Direction[] get(Event event) {
+	protected @Nullable Direction[] get(Event event) {
 		Number numAmount = amount != null ? amount.getSingle(event) : 1;
 		if (numAmount == null)
 			return new Direction[0];
