@@ -52,7 +52,9 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -115,8 +117,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
 
 /**
  * @author Peter Güttinger
@@ -407,17 +407,34 @@ public class SimpleEvents {
 						"\tif event-entity is a spider:",
 						"\t\tkill event-entity")
 				.since("1.0");
-		if (Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
-			Skript.registerEvent("Entity Mount", SimpleEvent.class, EntityMountEvent.class, "mount[ing]")
+		if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent") || Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
+			Class<? extends Event> mountEventClass = null;
+			Class<? extends Event> dismountEventClass = null;
+			if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent")) {
+				mountEventClass = EntityMountEvent.class;
+				dismountEventClass = EntityDismountEvent.class;
+			} else {
+				try {
+					mountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityMountEvent");
+					dismountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityDismountEvent");
+				} catch (ClassNotFoundException e) {
+					Skript.exception(e, "Failed to load legacy mount/dismount event classes. These events may not work.");
+				}
+			}
+			if (mountEventClass != null) {
+				Skript.registerEvent("Entity Mount", SimpleEvent.class, mountEventClass, "mount[ing]")
 					.description("Called when entity starts riding another.")
 					.examples("on mount:",
 							"\tcancel event")
 					.since("2.2-dev13b");
-			Skript.registerEvent("Entity Dismount", SimpleEvent.class, EntityDismountEvent.class, "dismount[ing]")
+			}
+			if (dismountEventClass != null) {
+				Skript.registerEvent("Entity Dismount", SimpleEvent.class, dismountEventClass, "dismount[ing]")
 					.description("Called when an entity dismounts.")
 					.examples("on dismount:",
 							"\tkill event-entity")
 					.since("2.2-dev13b");
+			}
 		}
 		if (Skript.classExists("org.bukkit.event.entity.EntityToggleGlideEvent")) {
 			Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
