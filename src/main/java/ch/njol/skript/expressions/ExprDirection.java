@@ -18,14 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -36,177 +28,185 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Direction")
 @Description("A helper expression for the <a href='classes.html#direction'>direction type</a>.")
-@Examples({"thrust the player upwards",
-		"set the block behind the player to water",
-		"loop blocks above the player:",
-		"	set {_rand} to a random integer between 1 and 10",
-		"	set the block {_rand} meters south east of the loop-block to stone",
-		"block in horizontal facing of the clicked entity from the player is air",
-		"spawn a creeper 1.5 meters horizontally behind the player",
-		"spawn a TNT 5 meters above and 2 meters horizontally behind the player",
-		"thrust the last spawned TNT in the horizontal direction of the player with speed 0.2",
-		"push the player upwards and horizontally forward at speed 0.5",
-		"push the clicked entity in in the direction of the player at speed -0.5",
-		"open the inventory of the block 2 blocks below the player to the player",
-		"teleport the clicked entity behind the player",
-		"grow a regular tree 2 meters horizontally behind the player"})
-@Since("1.0 (basic), 2.0 (extended)")
+@Examples({
+	"thrust the player upwards",
+	"set the block behind the player to water",
+	"loop blocks above the player:",
+	"\tset {_rand} to a random integer between 1 and 10",
+	"\tset the block {_rand} meters south east of the loop-block to stone",
+	"block in horizontal facing of the clicked entity from the player is air",
+	"spawn a creeper 1.5 meters horizontally behind the player",
+	"spawn a TNT 5 meters above and 2 meters horizontally behind the player",
+	"thrust the last spawned TNT in the horizontal direction of the player with speed 0.2",
+	"push the player upwards and horizontally forward at speed 0.5",
+	"push the clicked entity in in the direction of the player at speed -0.5",
+	"open the inventory of the block 2 blocks below the player to the player",
+	"teleport the clicked entity behind the player",
+	"grow a regular tree 2 meters horizontally behind the player"})
+@Since("1.0 (basic), 2.0 (extended), INSERT VERSION (pattern changes)")
 public class ExprDirection extends SimpleExpression<Direction> {
-	
-	private final static BlockFace[] byMark = new BlockFace[] {
-			BlockFace.UP, BlockFace.DOWN,
-			BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST,
-			BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST};
-	private final static int UP = 0, DOWN = 1,
-			NORTH = 2, SOUTH = 3, EAST = 4, WEST = 5,
-			NORTH_EAST = 6, NORTH_WEST = 7, SOUTH_EAST = 8, SOUTH_WEST = 9;
-	
+
+	private static final Patterns<BlockFace> PATTERNS = new Patterns<>(new Object[][]{
+		// northeast, northwest, southeast and southwest need to be registered before normal usages otherwise `[-%direction%]` is given priority
+		// naturally doesn't matter however this should help a bit with parsing "north west north west north west..."
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.NORTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.NORTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.SOUTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.SOUTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] [%-direction%]", BlockFace.NORTH},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] east[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] [%-direction%]", BlockFace.EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] [%-direction%]", BlockFace.SOUTH},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] west[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] [%-direction%]", BlockFace.WEST},
+		{"[%-number% [(block|meter|metre)[s]]] (above|over|up[ward[s|ly]]) [%-direction%]", BlockFace.UP},
+		{"[%-number% [(block|meter|metre)[s]]] (below|under|down[ward[s|ly]]) [%-direction%]", BlockFace.DOWN},
+		{"[%-number% [(block|meter|metre)[s]]] [in [the]] [:horizontal] (direction|:facing) of %entity/block% [of|from]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [in] %entity/block%'[s] [:horizontal] (direction|:facing) [of|from]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (in[ ]front [of]|forward[s])", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (2:(behind|backwards))", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (1:right) [[side] of]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (-1:left) [[side] of]", BlockFace.SELF}
+	});
+
 	static {
 		// TODO think about parsing statically & dynamically (also in general)
 		// "at": see LitAt
 		// TODO direction of %location% (from|relative to) %location%
-		Skript.registerExpression(ExprDirection.class, Direction.class, ExpressionType.COMBINED,
-				"[%-number% [(block|met(er|re))[s]] [to the]] (" +
-						NORTH + "¦north[(-| |)(" + (NORTH_EAST ^ NORTH) + "¦east|" + (NORTH_WEST ^ NORTH) + "¦west)][(ward(s|ly|)|er(n|ly|))] [of]" +
-						"|" + SOUTH + "¦south[(-| |)(" + (SOUTH_EAST ^ SOUTH) + "¦east|" + (SOUTH_WEST ^ SOUTH) + "¦west)][(ward(s|ly|)|er(n|ly|))] [of]" +
-						"|(" + EAST + "¦east|" + WEST + "¦west)[(ward(s|ly|)|er(n|ly|))] [of]" +
-						"|" + UP + "¦above|" + UP + "¦over|(" + UP + "¦up|" + DOWN + "¦down)[ward(s|ly|)]|" + DOWN + "¦below|" + DOWN + "¦under[neath]|" + DOWN + "¦beneath" +
-						") [%-direction%]",
-				"[%-number% [(block|met(er|re))[s]]] in [the] (0¦direction|1¦horizontal direction|2¦facing|3¦horizontal facing) of %entity/block% (of|from|)",
-				"[%-number% [(block|met(er|re))[s]]] in %entity/block%'[s] (0¦direction|1¦horizontal direction|2¦facing|3¦horizontal facing) (of|from|)",
-				"[%-number% [(block|met(er|re))[s]]] (0¦in[ ]front [of]|0¦forward[s]|2¦behind|2¦backwards|[to the] (1¦right|-1¦left) [of])",
-				"[%-number% [(block|met(er|re))[s]]] horizontal[ly] (0¦in[ ]front [of]|0¦forward[s]|2¦behind|2¦backwards|to the (1¦right|-1¦left) [of])");
+		Skript.registerExpression(ExprDirection.class, Direction.class, ExpressionType.COMBINED, PATTERNS.getPatterns());
 	}
-	
+
 	@Nullable
-	Expression<Number> amount;
-	
+	public Expression<Number> amount;
+
 	@Nullable
-	private Vector direction;
+	private Vector directionVector;
 	@Nullable
-	private ExprDirection next;
-	
+	private ExprDirection nextDirection;
+
 	@Nullable
 	private Expression<?> relativeTo;
-	boolean horizontal;
-	boolean facing;
-	
+	private boolean isHorizontal, isFacing;
 	private double yaw;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		amount = (Expression<Number>) exprs[0];
+		isHorizontal = parseResult.hasTag("horizontal");
+		isFacing = parseResult.hasTag("facing");
+
 		switch (matchedPattern) {
-			case 0:
-				direction = new Vector(byMark[parseResult.mark].getModX(), byMark[parseResult.mark].getModY(), byMark[parseResult.mark].getModZ());
-				if (exprs[1] != null) {
-					if (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).direction == null)
-						return false;
-					next = (ExprDirection) exprs[1];
-				}
-				break;
-			case 1:
-			case 2:
+			case 10:
+			case 11:
 				relativeTo = exprs[1];
-				horizontal = parseResult.mark % 2 != 0;
-				facing = parseResult.mark >= 2;
 				break;
-			case 3:
-			case 4:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
 				yaw = Math.PI / 2 * parseResult.mark;
-				horizontal = matchedPattern == 4;
+				break;
+			default:
+				BlockFace blockFace = PATTERNS.getInfo(matchedPattern);
+				directionVector = blockFace.getDirection().clone();
+				if (exprs[1] != null && (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).directionVector == null))
+					return false;
+				nextDirection = (ExprDirection) exprs[1];
+				break;
 		}
 		return true;
 	}
-	
+
 	@Override
-	@Nullable
-	protected Direction[] get(final Event e) {
-		final Number n = amount != null ? amount.getSingle(e) : 1;
-		if (n == null)
+	protected @Nullable Direction[] get(Event event) {
+		Number numAmount = amount != null ? amount.getSingle(event) : 1;
+		if (numAmount == null)
 			return new Direction[0];
-		final double ln = n.doubleValue();
-		if (direction != null) {
-			final Vector v = direction.clone().multiply(ln);
-			ExprDirection d = next;
-			while (d != null) {
-				final Number n2 = d.amount != null ? d.amount.getSingle(e) : 1;
-				if (n2 == null)
+		double meterLength = numAmount.doubleValue();
+		if (this.directionVector != null) {
+			Vector directionVector = this.directionVector.multiply(meterLength);
+			ExprDirection nextDirection = this.nextDirection;
+			while (nextDirection != null) {
+				numAmount = nextDirection.amount != null ? nextDirection.amount.getSingle(event) : 1;
+				if (numAmount == null)
 					return new Direction[0];
-				assert d.direction != null; // checked in init()
-				v.add(d.direction.clone().multiply(n2.doubleValue()));
-				d = d.next;
+				assert nextDirection.directionVector != null; // this is checked in the init() method
+				directionVector.add(nextDirection.directionVector.multiply(numAmount.doubleValue()));
+				nextDirection = nextDirection.nextDirection;
 			}
-			assert v != null;
-			return new Direction[] {new Direction(v)};
-		} else if (relativeTo != null) {
-			final Object o = relativeTo.getSingle(e);
-			if (o == null)
+			return new Direction[]{new Direction(directionVector)};
+		} else if (this.relativeTo != null) {
+			Object relativeObject = relativeTo.getSingle(event);
+			if (relativeObject == null)
 				return new Direction[0];
-			if (o instanceof Block) {
-				final BlockFace f = Direction.getFacing((Block) o);
-				if (f == BlockFace.SELF || horizontal && (f == BlockFace.UP || f == BlockFace.DOWN))
-					return new Direction[] {Direction.ZERO};
-				return new Direction[] {new Direction(f, ln)};
-			} else {
-				final Location l = ((Entity) o).getLocation();
-				if (!horizontal) {
-					if (!facing) {
-						final Vector v = l.getDirection().normalize().multiply(ln);
-						assert v != null;
-						return new Direction[] {new Direction(v)};
-					}
-					final double pitch = Direction.pitchToRadians(l.getPitch());
+
+			if (relativeObject instanceof Block) {
+				BlockFace blockFace = Direction.getFacing((Block) relativeObject);
+				if (blockFace == BlockFace.SELF || isHorizontal && (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN))
+					return new Direction[]{Direction.ZERO};
+				return new Direction[]{new Direction(blockFace, meterLength)};
+			} else if (relativeObject instanceof Entity) {
+				Location relativeEntityLoc = ((Entity) relativeObject).getLocation();
+				if (isHorizontal && isFacing) {
+					double yaw = Direction.yawToRadians(relativeEntityLoc.getYaw());
+					yaw = Math2.mod(yaw, 2 * Math.PI);
+					if (yaw >= Math.PI / 4 && yaw < 3 * Math.PI / 4)
+						return new Direction[]{new Direction(0, 0, meterLength)};
+					if (yaw >= 3 * Math.PI / 4 && yaw < 5 * Math.PI / 4)
+						return new Direction[]{new Direction(-meterLength, 0, 0)};
+					if (yaw >= 5 * Math.PI / 4 && yaw < 7 * Math.PI / 4)
+						return new Direction[]{new Direction(0, 0, -meterLength)};
+					assert yaw >= 0 && yaw < Math.PI / 4 || yaw >= 7 * Math.PI / 4 && yaw < 2 * Math.PI;
+					return new Direction[]{new Direction(meterLength, 0, 0)};
+				} else if (isHorizontal) {
+					return new Direction[] {new Direction(new double[] {Math.cos(yaw) * meterLength, 0, Math.sin(yaw) * meterLength})};
+				} else if (isFacing) {
+					double pitch = Direction.pitchToRadians(relativeEntityLoc.getPitch());
 					assert pitch >= -Math.PI / 2 && pitch <= Math.PI / 2;
 					if (pitch > Math.PI / 4)
-						return new Direction[] {new Direction(new double[] {0, ln, 0})};
+						return new Direction[]{new Direction(new double[]{0, meterLength, 0})};
 					if (pitch < -Math.PI / 4)
-						return new Direction[] {new Direction(new double[] {0, -ln, 0})};
+						return new Direction[]{new Direction(new double[]{0, -meterLength, 0})};
 				}
-				double yaw = Direction.yawToRadians(l.getYaw());
-				if (horizontal && !facing) {
-					return new Direction[] {new Direction(new double[] {Math.cos(yaw) * ln, 0, Math.sin(yaw) * ln})};
-				}
-				yaw = Math2.mod(yaw, 2 * Math.PI);
-				if (yaw >= Math.PI / 4 && yaw < 3 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {0, 0, ln})};
-				if (yaw >= 3 * Math.PI / 4 && yaw < 5 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {-ln, 0, 0})};
-				if (yaw >= 5 * Math.PI / 4 && yaw < 7 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {0, 0, -ln})};
-				assert yaw >= 0 && yaw < Math.PI / 4 || yaw >= 7 * Math.PI / 4 && yaw < 2 * Math.PI;
-				return new Direction[] {new Direction(new double[] {ln, 0, 0})};
+				return new Direction[]{new Direction(relativeEntityLoc.getDirection().normalize().multiply(meterLength))};
 			}
 		} else {
-			return new Direction[] {new Direction(horizontal ? Direction.IGNORE_PITCH : 0, yaw, ln)};
+			return new Direction[]{new Direction(isHorizontal ? Direction.IGNORE_PITCH : 0, yaw, meterLength)};
 		}
+		return new Direction[0];
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends Direction> getReturnType() {
 		return Direction.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		final Expression<?> relativeTo = this.relativeTo;
-		return (amount != null ? amount.toString(e, debug) + " meter(s) " : "") + (direction != null ? Direction.toString(direction) :
-				relativeTo != null ? " in " + (horizontal ? "horizontal " : "") + (facing ? "facing" : "direction") + " of " + relativeTo.toString(e, debug) :
-						(horizontal ? "horizontally " : "") + Direction.toString(0, yaw, 1));
+	public String toString(@Nullable Event event, boolean debug) {
+		return String.format("%s%s%s%s",
+			this.amount != null ? amount.toString(event, debug) + " meter(s) " : "",
+			(isHorizontal ? "horizontally " : ""), (isFacing ? "facing " : ""),
+			this.directionVector != null ? Direction.toString(directionVector) :
+				this.relativeTo != null ? "of " + relativeTo.toString(event, debug) :
+					Direction.toString(0, yaw, 1)
+		);
 	}
-	
+
 }
