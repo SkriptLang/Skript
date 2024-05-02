@@ -62,10 +62,10 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	private static final Patterns<BlockFace> PATTERNS = new Patterns<>(new Object[][]{
 		// northeast, northwest, southeast and southwest need to be registered before normal usages otherwise `[-%direction%]` is given priority
 		// naturally doesn't matter however this should help a bit with parsing "north west north west north west..."
-		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH_EAST},
-		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH_WEST},
-		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH_EAST},
-		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.NORTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] north[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.NORTH_WEST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]east[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.SOUTH_EAST},
+		{"[%-number% [(block|meter|metre)[s]]] [to the] south[-| ]west[er(n|ly)|ward[s|ly]] [[side] of] [[and|,] %-direction%]", BlockFace.SOUTH_WEST},
 		{"[%-number% [(block|meter|metre)[s]]] [to the] north[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.NORTH},
 		{"[%-number% [(block|meter|metre)[s]]] [to the] east[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.EAST},
 		{"[%-number% [(block|meter|metre)[s]]] [to the] south[er(n|ly)|ward[s|ly]] [[side] of] [%-direction%]", BlockFace.SOUTH},
@@ -76,7 +76,8 @@ public class ExprDirection extends SimpleExpression<Direction> {
 		{"[%-number% [(block|meter|metre)[s]]] [in] %entity/block%'[s] [:horizontal] (direction|:facing) [of|from]", BlockFace.SELF},
 		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (in[ ]front [of]|forward[s])", BlockFace.SELF},
 		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] (2:(behind|backwards))", BlockFace.SELF},
-		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (1:right|-1:left) [[side] of]", BlockFace.SELF}
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (1:right) [[side] of]", BlockFace.SELF},
+		{"[%-number% [(block|meter|metre)[s]]] [horizontal:horizontally] [to the] (-1:left) [[side] of]", BlockFace.SELF}
 	});
 
 	static {
@@ -114,6 +115,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			case 12:
 			case 13:
 			case 14:
+			case 15:
 				yaw = Math.PI / 2 * parseResult.mark;
 				break;
 			default:
@@ -153,7 +155,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 			if (relativeObject instanceof Block) {
 				BlockFace blockFace = Direction.getFacing((Block) relativeObject);
 				if (blockFace == BlockFace.SELF || isHorizontal && (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN))
-					return new Direction[]{Direction.ZERO}; // new Direction(BlockFace.SELF.getDirection().clone())
+					return new Direction[]{Direction.ZERO};
 				return new Direction[]{new Direction(blockFace, meterLength)};
 			} else if (relativeObject instanceof Entity) {
 				Location relativeEntityLoc = ((Entity) relativeObject).getLocation();
