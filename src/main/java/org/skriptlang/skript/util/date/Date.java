@@ -16,41 +16,36 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.util;
+package org.skriptlang.skript.util.date;
 
 import java.util.TimeZone;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.util.Timespan;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
-/**
- * Class and package moved to org.skriptlang.skript.util.date
- */
-@Deprecated
-@ScheduledForRemoval
 public class Date implements Comparable<Date>, YggdrasilSerializable {
-	
+
 	/**
 	 * Timestamp. Should always be in computer time/UTC/GMT+0.
 	 */
 	private long timestamp;
-	
+
 	public Date() {
 		this(System.currentTimeMillis());
 	}
-	
-	public Date(final long timestamp) {
+
+	public Date(long timestamp) {
 		this.timestamp = timestamp;
 	}
-	
-	public Date(final long timestamp, final TimeZone zone) {
-		final long offset = zone.getOffset(timestamp);
+
+	public Date(long timestamp, TimeZone zone) {
+		long offset = zone.getOffset(timestamp);
 		this.timestamp = timestamp - offset;
 	}
-	
+
 	/**
 	 * Get a new Date with the current time
 	 *
@@ -59,22 +54,17 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	public static Date now() {
 		return new Date(System.currentTimeMillis());
 	}
-	
-	public Timespan difference(final Date other) {
+
+	public Timespan difference(Date other) {
 		return new Timespan(Math.abs(timestamp - other.timestamp));
 	}
-	
+
 	@Override
-	public int compareTo(final @Nullable Date other) {
-		final long d = other == null ? timestamp : timestamp - other.timestamp;
-		return d < 0 ? -1 : d > 0 ? 1 : 0;
+	public int compareTo(@Nullable Date other) {
+		long duration = other == null ? timestamp : timestamp - other.timestamp;
+		return duration < 0 ? -1 : duration > 0 ? 1 : 0;
 	}
-	
-	@Override
-	public String toString() {
-		return SkriptConfig.formatDate(timestamp);
-	}
-	
+
 	/**
 	 * Get the timestamp of this date
 	 *
@@ -83,25 +73,25 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	public long getTimestamp() {
 		return timestamp;
 	}
-	
+
 	/**
 	 * Add a {@link Timespan} to this date
 	 *
 	 * @param span Timespan to add
 	 */
-	public void add(final Timespan span) {
+	public void add(Timespan span) {
 		timestamp += span.getMilliSeconds();
 	}
-	
+
 	/**
 	 * Subtract a {@link Timespan} from this date
 	 *
 	 * @param span Timespan to subtract
 	 */
-	public void subtract(final Timespan span) {
+	public void subtract(Timespan span) {
 		timestamp -= span.getMilliSeconds();
 	}
-	
+
 	/**
 	 * Get a new instance of this Date with the added timespan
 	 *
@@ -111,7 +101,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	public Date plus(Timespan span) {
 		return new Date(timestamp + span.getMilliSeconds());
 	}
-	
+
 	/**
 	 * Get a new instance of this Date with the subtracted timespan
 	 *
@@ -121,25 +111,39 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	public Date minus(Timespan span) {
 		return new Date(timestamp - span.getMilliSeconds());
 	}
-	
+
+	@Override
+	public String toString() {
+		return SkriptConfig.formatDate(timestamp);
+	}
+
+	/**
+	 * Must be different than toString as toString can be user configurable.
+	 * 
+	 * @return The variable name string representation of this date.
+	 */
+	public String toVariableNameString() {
+		return SkriptConfig.shortDateFormat.format(timestamp);
+	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
 		return result;
 	}
-	
+
 	@Override
-	public boolean equals(final @Nullable Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof Date))
 			return false;
-		final Date other = (Date) obj;
+		Date other = (Date) obj;
 		return timestamp == other.timestamp;
 	}
-	
+
 }

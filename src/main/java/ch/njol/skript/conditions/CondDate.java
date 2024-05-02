@@ -20,6 +20,7 @@ package ch.njol.skript.conditions;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.util.date.Date;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -29,7 +30,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 

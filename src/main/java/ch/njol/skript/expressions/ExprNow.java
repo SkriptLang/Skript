@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.util.date.Date;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -30,7 +31,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 
 @Name("Now")

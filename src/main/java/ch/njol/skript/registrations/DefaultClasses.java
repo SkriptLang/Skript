@@ -24,10 +24,10 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.NonNull;
+import org.skriptlang.skript.util.date.Date;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 
 // When using these fields, be aware all ClassInfo's must be registered!

@@ -137,27 +137,28 @@ public class SkriptConfig {
 	
 	public static final Option<Boolean> usePlayerUUIDsInVariableNames = new Option<>("use player UUIDs in variable names", false); // TODO change to true later (as well as in the default config)
 	public static final Option<Boolean> enablePlayerVariableFix = new Option<>("player variable fix", true);
-	
-	@SuppressWarnings("null")
-	private static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-	private static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
+
+	// Required for short serialization in Date class.
+	public static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+	public static final DateFormat fullDateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+	public static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, format -> {
 		try {
-			if (s.equalsIgnoreCase("default"))
+			if (format.equalsIgnoreCase("default"))
 				return null;
-			return new SimpleDateFormat(s);
-		} catch (final IllegalArgumentException e) {
-			Skript.error("'" + s + "' is not a valid date format. Please refer to https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html for instructions on the format.");
+			return new SimpleDateFormat(format);
+		} catch (IllegalArgumentException e) {
+			Skript.error("'" + format + "' is not a valid date format. Please refer to https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html for instructions on the format.");
 		}
 		return null;
 	});
-	
-	public static String formatDate(final long timestamp) {
-		final DateFormat f = dateFormat.value();
-		synchronized (f) {
-			return "" + f.format(timestamp);
+
+	public static String formatDate(long timestamp) {
+		DateFormat format = dateFormat.value();
+		synchronized (format) {
+			return format.format(timestamp);
 		}
 	}
-	
+
 	static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
 	

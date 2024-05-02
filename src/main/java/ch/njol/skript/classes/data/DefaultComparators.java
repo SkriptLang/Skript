@@ -29,7 +29,6 @@ import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.GameruleValue;
@@ -63,6 +62,7 @@ import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.util.date.Date;
 
 import java.util.Objects;
 
