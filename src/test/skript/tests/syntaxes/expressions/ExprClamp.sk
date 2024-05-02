@@ -2,29 +2,29 @@ test "clamp expression":
 	# Upper and lower limits
 
 	# Normal Cases
-	assert 1 clamped between 0 and 2 is 1 with error "(single ints) min < value < max", expected 1, got 1 clamped between 0 and 2
-	assert 1 clamped between 1 and 2 is 1 with error "(single ints) min = value < max", expected 1, got 1 clamped between 1 and 2
-	assert 2 clamped between 1 and 2 is 2 with error "(single ints) min < value = max", expected 2, got 2 clamped between 1 and 2
-	assert 0 clamped between 1 and 2 is 1 with error "(single ints) value < min < max", expected 1, got 0 clamped between 1 and 2
-	assert 3 clamped between 1 and 2 is 2 with error "(single ints) min < max < value", expected 2, got 3 clamped between 1 and 2
-	assert 3 clamped between 2 and 1 is 2 with error "(single ints) max < min < value", expected 2, got 3 clamped between 2 and 1
+	assert 1 clamped between 0 and 2 is 1 with error "(single ints) min < value < max"
+	assert 1 clamped between 1 and 2 is 1 with error "(single ints) min = value < max"
+	assert 2 clamped between 1 and 2 is 2 with error "(single ints) min < value = max"
+	assert 0 clamped between 1 and 2 is 1 with error "(single ints) value < min < max"
+	assert 3 clamped between 1 and 2 is 2 with error "(single ints) min < max < value"
+	assert 3 clamped between 2 and 1 is 2 with error "(single ints) max < min < value"
 
-	assert 1.999 clamped between 0.0 and 2.0 is 1.999 with error "(single floats) min < value < max", expected 1.999, got 1.999 clamped between 0.0 and 2.0
-	assert 1.999 clamped between 1.999 and 2.0 is 1.999 with error "(single floats) min = value < max", expected 1.999, got 1.999 clamped between 1.999 and 2.0
-	assert 2.0 clamped between 1.999 and 2.0 is 2.0 with error "(single floats) min < value = max", expected 2.0, got 2.0 clamped between 1.999 and 2.0
-	assert 0.0 clamped between 1.999 and 2.0 is 1.999 with error "(single floats) value < min < max", expected 1.999, got 0.0 clamped between 1.999 and 2.0
-	assert 3.0 clamped between 1.999 and 2.0 is 2.0 with error "(single floats) min < max < value", expected 2.0, got 3.0 clamped between 1.999 and 2.0
-	assert 2.999 clamped between 2.0 and 1.999 is 2.0 with error "(single floats) max < min < value", expected 2.0, got 2.999 clamped between 2.0 and 1.999
+	assert 1.999 clamped between 0.0 and 2.0 is 1.999 with error "(single floats) min < value < max"
+	assert 1.999 clamped between 1.999 and 2.0 is 1.999 with error "(single floats) min = value < max"
+	assert 2.0 clamped between 1.999 and 2.0 is 2.0 with error "(single floats) min < value = max"
+	assert 0.0 clamped between 1.999 and 2.0 is 1.999 with error "(single floats) value < min < max"
+	assert 3.0 clamped between 1.999 and 2.0 is 2.0 with error "(single floats) min < max < value"
+	assert 2.999 clamped between 2.0 and 1.999 is 2.0 with error "(single floats) max < min < value"
 
 	# Lists
 	set {_expected::*} to (0, 0, 1, 2, 2, and 2)
 	# this is dumb but comparing the lists directly didn't work
 	set {_got::*} to (-1, 0, 1, 2, 3, and 4) clamped between 0 and 2
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple ints)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple ints)"
 	set {_got::*} to (-1.999, 0.0, 1.0, 2.0, 3.0, and 4.0) clamped between 0.0 and 2.0
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple floats)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple floats)"
 
 	# Edge Cases
 	assert 1 clamped between {_null} and 2 is 1 with error "(single ints) min = null"
@@ -33,87 +33,87 @@ test "clamp expression":
 	assert isNaN(1 clamped between 0 and NaN value) is true with error "(single ints) min < value < NaN"
 	assert isNaN(1 clamped between NaN value and 2) is true with error "(single ints) NaN < value < max"
 	assert isNaN(NaN value clamped between 1 and 2) is true with error "(single ints) min < NaN < max"
-	assert infinity value clamped between 1 and 2 is 2 with error "(single ints) min < infinity < max", expected 2, got infinity value clamped between 1 and 2
-	assert -infinity value clamped between 1 and 2 is 1 with error "(single ints) min < -infinity < max", expected 1, got -infinity value clamped between 1 and 2
-	assert 1 clamped between 0 and infinity value is 1 with error "(single ints) min < value < infinity", expected 1, got 1 clamped between 0 and infinity value
-	assert 1 clamped between -infinity value and 2 is 1 with error "(single ints) -infinity < value < max", expected 1, got 1 clamped between -infinity value and 2
+	assert infinity value clamped between 1 and 2 is 2 with error "(single ints) min < infinity < max"
+	assert -infinity value clamped between 1 and 2 is 1 with error "(single ints) min < -infinity < max"
+	assert 1 clamped between 0 and infinity value is 1 with error "(single ints) min < value < infinity"
+	assert 1 clamped between -infinity value and 2 is 1 with error "(single ints) -infinity < value < max"
 
 	set {_expected::*} to (NaN value, 0.0, and 2.0)
 	set {_got::*} to ({_null}, NaN value, -infinity value, infinity value) clamped between 0.0 and 2.0
 	assert isNaN({_got::1}) is true with error "(edge cases list) NaN"
-	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity", expected {_expected::2}, got {_got::2}
-	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity", expected {_expected::3}, got {_got::3}
+	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity"
+	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity"
 
 
 	# Upper limits only (below)
 
 	# Normal Cases
-	assert 1 clamped below 2 is 1 with error "(single ints) value < max", expected 1, got 1 clamped below 2
-	assert 2 clamped below 2 is 2 with error "(single ints) value = max", expected 2, got 2 clamped below 2
-	assert 3 clamped below 2 is 2 with error "(single ints) max < value", expected 2, got 3 clamped below 2
+	assert 1 clamped below 2 is 1 with error "(single ints) value < max"
+	assert 2 clamped below 2 is 2 with error "(single ints) value = max"
+	assert 3 clamped below 2 is 2 with error "(single ints) max < value"
 
-	assert 1.999 clamped below 2.0 is 1.999 with error "(single floats) value < max", expected 1.999, got 1.999 clamped below 2.0
-	assert 2.0 clamped below 2.0 is 2.0 with error "(single floats) value = max", expected 2.0, got 2.0 clamped below 2.0
-	assert 3.0 clamped below 2.0 is 2.0 with error "(single floats) min < max < value", expected 2.0, got 3.0 clamped below 2.0
+	assert 1.999 clamped below 2.0 is 1.999 with error "(single floats) value < max"
+	assert 2.0 clamped below 2.0 is 2.0 with error "(single floats) value = max"
+	assert 3.0 clamped below 2.0 is 2.0 with error "(single floats) min < max < value"
 
 	# Lists
 	set {_expected::*} to (-1, 0, 1, 2, 2, and 2)
 	# this is dumb but comparing the lists directly didn't work
 	set {_got::*} to (-1, 0, 1, 2, 3, and 4) clamped below 2
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple ints)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple ints)"
 	set {_expected::*} to (-1.999, 0, 1, 2, 2, and 2)
 	set {_got::*} to (-1.999, 0.0, 1.0, 2.0, 3.0, and 4.0) clamped below 2.0
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple floats)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple floats)"
 
 	# Edge Cases
 	assert 2 clamped below {_null} is 2 with error "(single ints) max = null"
 	assert {_null} clamped below 2 is not set with error "(single ints) value = null"
 	assert isNaN(1 clamped below NaN value) is true with error "(single ints) value < NaN"
 	assert isNaN(NaN value clamped below 2) is true with error "(single ints) NaN < max"
-	assert infinity value clamped below 2 is 2 with error "(single ints) infinity < max", expected 2, got infinity value clamped below 2
-	assert -infinity value clamped below 2 is -infinity value with error "(single ints) -infinity < max", expected -infinity value, got -infinity value clamped below 2
-	assert 1 clamped below infinity value is 1 with error "(single ints) value < infinity", expected 1, got 1 clamped below infinity value
+	assert infinity value clamped below 2 is 2 with error "(single ints) infinity < max"
+	assert -infinity value clamped below 2 is -infinity value with error "(single ints) -infinity < max"
+	assert 1 clamped below infinity value is 1 with error "(single ints) value < infinity"
 
 	set {_expected::*} to (NaN value, -infinity value, and 2.0)
 	set {_got::*} to ({_null}, NaN value, -infinity value, infinity value) clamped below 2.0
 	assert isNaN({_got::1}) is true with error "(edge cases list) NaN"
-	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity", expected {_expected::2}, got {_got::2}
-	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity", expected {_expected::3}, got {_got::3}
+	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity"
+	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity"
 
 	# Lower limits only (above)
 
 	# Normal Cases
-	assert 1 clamped above 0 is 1 with error "(single ints) min < value", expected 1, got 1 clamped above 0
-	assert 1 clamped above 1 is 1 with error "(single ints) min = value", expected 1, got 1 clamped above 1
-	assert 0 clamped above 1 is 1 with error "(single ints) value < min", expected 1, got 0 clamped above 1
+	assert 1 clamped above 0 is 1 with error "(single ints) min < value"
+	assert 1 clamped above 1 is 1 with error "(single ints) min = value"
+	assert 0 clamped above 1 is 1 with error "(single ints) value < min"
 
-	assert 1.999 clamped above 0.0 is 1.999 with error "(single floats) min < value", expected 1.999, got 1.999 clamped above 0.0
-	assert 1.999 clamped above 1.999 is 1.999 with error "(single floats) min = value", expected 1.999, got 1.999 clamped above 1.999
-	assert 0.0 clamped above 1.999 is 1.999 with error "(single floats) value < min", expected 1.999, got 0.0 clamped above 1.999
+	assert 1.999 clamped above 0.0 is 1.999 with error "(single floats) min < value"
+	assert 1.999 clamped above 1.999 is 1.999 with error "(single floats) min = value"
+	assert 0.0 clamped above 1.999 is 1.999 with error "(single floats) value < min"
 
 	# Lists
 	set {_expected::*} to (0, 0, 1, 2, 3, and 4)
 	# this is dumb but comparing the lists directly didn't work
 	set {_got::*} to (-1, 0, 1, 2, 3, and 4) clamped above 0
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple ints)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple ints)"
 	set {_got::*} to (-1.999, 0.0, 1.0, 2.0, 3.0, and 4.0) clamped above 0.0
 	loop {_expected::*}:
-		assert {_got::%loop-index%} is loop-value with error "(multiple floats)", expected loop-value, got {_got::%loop-index%}
+		assert {_got::%loop-index%} is loop-value with error "(multiple floats)"
 
 	# Edge Cases
 	assert 1 clamped above {_null} is 1 with error "(single ints) min = null"
 	assert {_null} clamped above 1 is not set with error "(single ints) value = null"
 	assert isNaN(1 clamped above NaN value) is true with error "(single ints) NaN < value"
 	assert isNaN(NaN value clamped above 1) is true with error "(single ints) min < NaN"
-	assert infinity value clamped above 1 is infinity value with error "(single ints) min < infinity", expected infinity value, got infinity value clamped above 1
-	assert -infinity value clamped above 1 is 1 with error "(single ints) min < -infinity", expected 1, got -infinity value clamped above 1
-	assert 1 clamped above -infinity value is 1 with error "(single ints) -infinity < value", expected 1, got 1 clamped above -infinity value
+	assert infinity value clamped above 1 is infinity value with error "(single ints) min < infinity"
+	assert -infinity value clamped above 1 is 1 with error "(single ints) min < -infinity"
+	assert 1 clamped above -infinity value is 1 with error "(single ints) -infinity < value"
 
 	set {_expected::*} to (NaN value, 0.0, and infinity value)
 	set {_got::*} to ({_null}, NaN value, -infinity value, infinity value) clamped above 0.0
 	assert isNaN({_got::1}) is true with error "(edge cases list) NaN"
-	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity", expected {_expected::2}, got {_got::2}
-	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity", expected {_expected::3}, got {_got::3}
+	assert {_got::2} is {_expected::2} with error "(edge cases list) -infinity"
+	assert {_got::3} is {_expected::3} with error "(edge cases list) infinity"
