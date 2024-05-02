@@ -1,0 +1,18 @@
+test "charge creeper nearest entity cast":
+	set {_location} to spawn of world "world"
+	spawn a creeper at {_location}
+	set {_creeper} to last spawned creeper
+	assert {_creeper} is not charged with "spawning a normal creeper shouldn't spawn a charged one"
+	make (nearest creeper to {_location}) charged # this used to throw an exception
+	assert {_creeper} is charged with "a creeper should be charged after it is set as charged"
+	uncharge the nearest creeper to {_location} # this would also throw an exception
+	assert {_creeper} is not charged with "uncharging a charged creeper should uncharge it"
+	delete the last spawned creeper
+
+test "poison nearest entity cast":
+	set {_location} to spawn of world "world"
+	spawn a creeper at {_location}
+	set {_creeper} to last spawned creeper
+	poison (nearest entity to {_location}) # this never threw an exception
+	poison (nearest creeper to {_location}) # this used to throw an exception
+	delete the last spawned creeper

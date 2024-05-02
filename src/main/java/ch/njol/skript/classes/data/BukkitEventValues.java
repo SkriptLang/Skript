@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +65,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -171,7 +175,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -657,10 +663,36 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
+			@Nullable
+			private final MethodHandle BASE_POTION_DATA_HANDLE;
+
+			{
+				MethodHandle basePotionDataHandle = null;
+				if (Skript.methodExists(AreaEffectCloud.class, "getBasePotionData")) {
+					try {
+						basePotionDataHandle = MethodHandles.lookup().findVirtual(AreaEffectCloud.class, "getBasePotionData", MethodType.methodType(PotionData.class));
+					} catch (NoSuchMethodException | IllegalAccessException e) {
+						Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
+					}
+				}
+				BASE_POTION_DATA_HANDLE = basePotionDataHandle;
+			}
+
 			@Override
 			@Nullable
 			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-				return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
+				if (BASE_POTION_DATA_HANDLE != null) {
+					try {
+						return ((PotionData) BASE_POTION_DATA_HANDLE.invoke(e.getEntity())).getType().getEffectType();
+					} catch (Throwable ex) {
+						throw Skript.exception(ex, "An error occurred while trying to invoke legacy area effect cloud potion effect support.");
+					}
+				} else {
+					PotionType base = e.getEntity().getBasePotionType();
+					if (base != null) // TODO this is deprecated... this should become a multi-value event value
+						return base.getEffectType();
+				}
+				return null;
 			}
 		}, 0);
 		// ItemSpawnEvent

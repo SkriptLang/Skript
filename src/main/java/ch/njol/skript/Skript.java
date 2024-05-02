@@ -1159,7 +1159,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				// 1.19 mapping is u and 1.18 is v
 				String isRunningMethod = "isRunning";
 
-				if (Skript.isRunningMinecraft(1, 20)) {
+				if (Skript.isRunningMinecraft(1, 20, 5)) {
+					isRunningMethod = "x";
+				} else if (Skript.isRunningMinecraft(1, 20)) {
 					isRunningMethod = "v";
 				} else if (Skript.isRunningMinecraft(1, 19)) {
 					isRunningMethod = "u";
@@ -1512,6 +1514,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
 		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath);
+		structures.add(structureInfo);
+	}
+
+	public static <E extends Structure> void registerSimpleStructure(Class<E> c, String... patterns) {
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, true);
 		structures.add(structureInfo);
 	}
 
