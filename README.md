@@ -77,13 +77,15 @@ Skript has some tests written in Skript. Running them requires a Minecraft
 server, but our build script will create one for you. Running the tests is easy:
 
 ```
-./gradlew (quickTest|skriptTest|skriptTestJava8|skriptTestJava17)
+./gradlew (quickTest|skriptTest|skriptTestJava8|skriptTestJava17|skriptTestJava21)
 ```
 
 <code>quickTest</code> runs the test suite on newest supported server version.
-<code>skriptTestJava17</code> (1.17+) runs the tests on the latest supported Java version.
-<code>skriptTestJava8</code> (1.13-1.16) runs the tests on the oldest supported Java version.
-<code>skriptTest</code> runs both skriptTestJava8 and skriptTestJava17
+<code>skriptTestJava21</code> (1.20.6+) runs the tests on Java 21 supported versions.
+<code>skriptTestJava17</code> (1.17-1.20.4) runs the tests on Java 17 supported versions.
+<code>skriptTestJava8</code> (1.13-1.16) runs the tests on Java 8 supported versions.
+<code>skriptTest</code> runs the tests on all versions.
+That is, it runs skriptTestJava8, skriptTestJava17, and skriptTestJava21.
 
 By running the tests, you agree to Mojang's End User License Agreement.
 

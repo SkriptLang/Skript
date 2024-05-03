@@ -45,7 +45,7 @@ public class StructEvent extends Structure {
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		String expr = parseResult.regexes.get(0).group();
 
 		EventData data = getParser().getData(EventData.class);
@@ -65,6 +65,7 @@ public class StructEvent extends Structure {
 			data.priority = EventPriority.valueOf(lastTag.toUpperCase(Locale.ENGLISH));
 		}
 
+		assert entryContainer != null;
 		event = SkriptEvent.parse(expr, entryContainer.getSource(), null);
 
 		// cleanup after ourselves
