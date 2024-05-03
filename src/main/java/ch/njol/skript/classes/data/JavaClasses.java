@@ -18,10 +18,19 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.util.regex.Pattern;
+
+import org.eclipse.jdt.annotation.Nullable;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Cloner;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -31,9 +40,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.regex.Pattern;
 
 public class JavaClasses {
 
@@ -627,5 +633,77 @@ public class JavaClasses {
 						return false;
 					}
 				}));
+
+		if (Skript.classExists("org.joml.Quaternionf"))
+			Classes.registerClass(new ClassInfo<>(Quaternionf.class, "quaternion")
+					.user("quaternionf?s?")
+					.name("Quaternion")
+					.description("Quaternions are used for representing x y z while having w representing the scale. All four numbers are real.")
+					.since("INSERT VERSION")
+					.parser(new Parser<Quaternionf>() {
+						public boolean canParse(ParseContext context) {
+							return false;
+						}
+
+						@Override
+						public String toString(Quaternionf quaternion, int flags) {
+							return "w:" + Skript.toString(quaternion.w()) + ", x:" + Skript.toString(quaternion.x()) + ", y:" + Skript.toString(quaternion.y()) + ", z:" + Skript.toString(quaternion.z());
+						}
+
+						@Override
+						public String toVariableNameString(Quaternionf quaternion) {
+							return  quaternion.w() + "," + quaternion.x() + "," + quaternion.y() + "," + quaternion.z();
+						}
+					})
+					.defaultExpression(new EventValueExpression<>(Quaternionf.class))
+					.cloner(new Cloner<Quaternionf>() {
+						@Override
+						public Quaternionf clone(Quaternionf quaternion) {
+							try {
+								// Implements cloneable, but doesn't return a Quaternionf.
+								// org.joml improper override. Returns Object.
+								return (Quaternionf) quaternion.clone();
+							} catch (CloneNotSupportedException e) {
+								return null;
+							}
+						}
+					}));
+
+		if (Skript.classExists("org.joml.AxisAngle4f"))
+			Classes.registerClass(new ClassInfo<>(AxisAngle4f.class, "axisangle")
+					.user("axis ?angle(4f)?s?")
+					.name("Axis Angle")
+					.description("Represents a 3D rotation of a given radians about an axis represented as an unit 3D vector.")
+					.since("INSERT VERSION")
+					.parser(new Parser<AxisAngle4f>() {
+						public boolean canParse(ParseContext context) {
+							return false;
+						}
+
+						@Override
+						public String toString(AxisAngle4f axisangle, int flags) {
+							return "angle:" + Skript.toString(axisangle.angle) + ", x:" + Skript.toString(axisangle.x) + ", y:" + Skript.toString(axisangle.y) + ", z:" + Skript.toString(axisangle.z);
+						}
+
+						@Override
+						public String toVariableNameString(AxisAngle4f axisangle) {
+							return  axisangle.angle + "," + axisangle.x + "," + axisangle.y + "," + axisangle.z;
+						}
+					})
+					.defaultExpression(new EventValueExpression<>(AxisAngle4f.class))
+					.cloner(new Cloner<AxisAngle4f>() {
+						@Override
+						public AxisAngle4f clone(AxisAngle4f axisangle) {
+							try {
+								// Implements cloneable, but doesn't return a AxisAngle4f.
+								// org.joml improper override. Returns Object.
+								return (AxisAngle4f) axisangle.clone();
+							} catch (CloneNotSupportedException e) {
+								return null;
+							}
+						}
+					}));
+
 	}
+
 }

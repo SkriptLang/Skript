@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
@@ -25,6 +26,7 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
@@ -32,6 +34,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -39,6 +42,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -516,7 +521,7 @@ public class DefaultFunctions {
 				Long green = (Long) params[1][0];
 				Long blue = (Long) params[2][0];
 				
-				return CollectionUtils.array(new ColorRGB(red.intValue(), green.intValue(), blue.intValue()));
+				return CollectionUtils.array(ColorRGB.fromRGB(red.intValue(), green.intValue(), blue.intValue()));
 			}
 		}).description("Returns a RGB color from the given red, green and blue parameters.")
 			.examples("dye player's leggings rgb(120, 30, 45)")
@@ -568,6 +573,47 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		if (Skript.classExists("org.joml.Quaternionf"))
+				Functions.registerFunction(new SimpleJavaFunction<Quaternionf>("quaternion", new Parameter[] {
+						new Parameter<>("w", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("x", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("y", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("z", DefaultClasses.NUMBER, true, null)
+					}, Classes.getExactClassInfo(Quaternionf.class), true) {
+						@Override
+						public Quaternionf[] executeSimple(Object[][] params) {
+							double w = ((Number) params[0][0]).doubleValue();
+							double x = ((Number) params[1][0]).doubleValue();
+							double y = ((Number) params[2][0]).doubleValue();
+							double z = ((Number) params[3][0]).doubleValue();
+							return CollectionUtils.array(new Quaternionf(x, y, z, w));
+						}
+					})
+					.description("Returns a quaternion from the given w, x, y and z parameters.")
+					.examples("quaternion(1, 5.6, 45.21, 10)")
+					.since("INSERT VERSION");
+
+		if (Skript.classExists("org.joml.AxisAngle4f"))
+			Functions.registerFunction(new SimpleJavaFunction<AxisAngle4f>("axisAngle", new Parameter[] {
+					new Parameter<>("angle", DefaultClasses.NUMBER, true, null),
+					new Parameter<>("x", DefaultClasses.NUMBER, true, null),
+					new Parameter<>("y", DefaultClasses.NUMBER, true, null),
+					new Parameter<>("z", DefaultClasses.NUMBER, true, null)
+				}, Classes.getExactClassInfo(AxisAngle4f.class), true) {
+					@Override
+					public AxisAngle4f[] executeSimple(Object[][] params) {
+						float angle = ((Number) params[0][0]).floatValue();
+						float x = ((Number) params[1][0]).floatValue();
+						float y = ((Number) params[2][0]).floatValue();
+						float z = ((Number) params[3][0]).floatValue();
+						return CollectionUtils.array(new AxisAngle4f(angle, x, y, z));
+					}
+				})
+				.description("Returns an axis angle from the given angle, x, y and z parameters.")
+				.examples("axisangle(90, 50.6, 20.0, 10.0)")
+				.since("INSERT VERSION");
+
 	}
-	
+
 }

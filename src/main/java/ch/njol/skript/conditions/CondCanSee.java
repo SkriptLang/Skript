@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,51 +36,57 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Can See")
-@Description("Checks whether the given players can see another players.")
-@Examples({"if the player can't see the player-argument:",
-		"\tmessage \"&lt;light red&gt;The player %player-argument% is not online!\""})
-@Since("2.3")
+@Description({
+	"Checks whether the given players can see other entities.",
+	"Note this means if the entities have been manually hidden from the player, " +
+	"and not if they have line of sight to eachother."
+})
+@Examples({
+	"if the player can't see the player-argument:",
+		"\tmessage \"&cThe player %player-argument% is not online!\""
+})
+@Since("2.3, INSERT VERSION (entities)")
 public class CondCanSee extends Condition {
 
 	static {
 		Skript.registerCondition(CondCanSee.class,
-				"%players% (is|are) [(1¦in)]visible for %players%",
-				"%players% can see %players%",
-				"%players% (is|are)(n't| not) [(1¦in)]visible for %players%",
-				"%players% can('t| not) see %players%");
+				"%entities% (is|are) [:in]visible for %players%",
+				"%players% can see %entities%",
+				"%entities% (is|are)(n't| not) [:in]visible for %players%",
+				"%players% can('t| not) see %entities%");
 	}
-	
-	@SuppressWarnings("null")
-	private Expression<Player> players;
-	@SuppressWarnings("null")
-	private Expression<Player> targetPlayers;
 
-	@SuppressWarnings({"unchecked", "null"})
+	private Expression<Entity> entities;
+	private Expression<Player> players;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 1 || matchedPattern == 3) {
 			players = (Expression<Player>) exprs[0];
-			targetPlayers = (Expression<Player>) exprs[1];
+			entities = (Expression<Entity>) exprs[1];
 		} else {
 			players = (Expression<Player>) exprs[1];
-			targetPlayers = (Expression<Player>) exprs[0];
+			entities = (Expression<Entity>) exprs[0];
 		}
-		setNegated(matchedPattern > 1 ^ parseResult.mark == 1);
+		setNegated(matchedPattern > 1 ^ parseResult.hasTag("in"));
 		return true;
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return players.check(e,
-				player -> targetPlayers.check(e,
-						player::canSee
-				), isNegated());
+	public boolean check(Event event) {
+		return entities.check(event, entity -> {
+			// Old Spigot API (< 1.19) has Player#canSee(Player) and still exists. So lets directly use it.
+			if (entity instanceof Player)
+				return players.check(event, player -> player.canSee((Player) entity));
+			return players.check(event, player -> player.canSee(entity));
+		}, isNegated());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.CAN, e, debug, players,
-				"see" + targetPlayers.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, players,
+				"see " + entities.toString(event, debug));
 	}
 
 }
