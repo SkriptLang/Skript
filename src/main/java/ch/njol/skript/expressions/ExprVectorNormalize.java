@@ -42,8 +42,8 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorNormalize.class, Vector.class, ExpressionType.COMBINED,
-				"normalize[d] %vector%",
-				"%vector% normalized");
+				"normali(z|s)e[d] %vector%",
+				"%vector% normali(z|s)ed");
 	}
 
 	@SuppressWarnings("null")
