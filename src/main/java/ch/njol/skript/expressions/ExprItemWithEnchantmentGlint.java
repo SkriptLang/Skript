@@ -46,7 +46,7 @@ public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, I
 
 	static {
 		if (Skript.isRunningMinecraft(1, 20, 5))
-			Skript.registerExpression(ExprItemWithCustomModelData.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
+			Skript.registerExpression(ExprItemWithEnchantmentGlint.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
 	}
 
 	private boolean glint;
