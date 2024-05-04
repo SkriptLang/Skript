@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -19,7 +20,8 @@ import ch.njol.skript.doc.Since;
 public class CondItemHasEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	static {
-		register(CondItemHasEnchantmentGlint.class, PropertyType.HAVE, "enchant[ment] glint overrid(e|den)", "itemtypes");
+		if (Skript.isRunningMinecraft(1, 20, 5))
+			register(CondItemHasEnchantmentGlint.class, PropertyType.HAVE, "enchant[ment] glint overrid(e|den)", "itemtypes");
 	}
 
 	@Override

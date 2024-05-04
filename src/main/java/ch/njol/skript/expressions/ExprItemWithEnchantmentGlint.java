@@ -45,7 +45,8 @@ import org.jetbrains.annotations.Nullable;
 public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, ItemType> {
 
 	static {
-		Skript.registerExpression(ExprItemWithCustomModelData.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
+		if (Skript.isRunningMinecraft(1, 20, 5))
+			Skript.registerExpression(ExprItemWithCustomModelData.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
 	}
 
 	private boolean glint;
