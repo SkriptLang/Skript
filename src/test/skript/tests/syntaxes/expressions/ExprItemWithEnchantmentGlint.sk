@@ -5,7 +5,7 @@ test "item with enchantment glint" when running minecraft "1.20.5":
 	assert {_glint1} has enchantment glint override with "{_glint1} expected to have enchantment glint override set"
 	assert enchantment glint of {_glint1} is true with "{_glint1} expected to have enchantment glint override set to true"
 	set {_glint1} to {_glint1} without enchantment glint
-	assert {_glint1} does not have enchantment glint override with "{_glint1} expected to not have enchantment glint override set"
+	assert {_glint1} has enchantment glint override with "{_glint1} expected to have enchantment glint override set"
 	assert enchantment glint of {_glint1} is false with "{_glint1} expected to have enchantment glint override set to false"
 
 	# Expression %itemtype%'s enchantment glint
