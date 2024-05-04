@@ -53,7 +53,7 @@ public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, I
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends ItemType>) expressions[0]);
+		setExpr((Expression<ItemType>) expressions[0]);
 		glint = !parseResult.hasTag("out");
 		return true;
 	}
