@@ -70,7 +70,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				//$FALL-THROUGH$
 			case ADD:
 				for (Vector vector : vectors) {
-					if (deltaLength < 0 && vector.lengthSquared() < deltaLength * deltaLength) {
+					if ((deltaLength < 0 && vector.lengthSquared() < deltaLength * deltaLength) || vector.isZero()) {
 						vector.zero();
 					} else {
 						double newLength = deltaLength + vector.length();
@@ -82,7 +82,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				break;
 			case SET:
 				for (Vector vector : vectors) {
-					if (deltaLength < 0) {
+					if (deltaLength < 0 || vector.isZero()) {
 						vector.zero();
 					} else {
 						if (!vector.isNormalized())

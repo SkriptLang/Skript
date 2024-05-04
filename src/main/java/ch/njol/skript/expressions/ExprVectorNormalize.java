@@ -63,7 +63,7 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 		if (vector == null)
 			return null;
 		vector = vector.clone();
-		if (!vector.isNormalized())
+		if (!vector.isZero() && !vector.isNormalized())
 			vector.normalize();
 		return CollectionUtils.array(vector);
 	}
