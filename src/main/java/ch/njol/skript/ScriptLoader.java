@@ -530,21 +530,22 @@ public class ScriptLoader {
 
 					// pre-loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().script);
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(pair.getFirst().nodeMap.get(structure));
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.preLoad()) {
-								pair.getFirst().structures.remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to preLoad a Structure.");
-							pair.getFirst().structures.remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;
@@ -558,21 +559,22 @@ public class ScriptLoader {
 
 					// loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().script);
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(pair.getFirst().nodeMap.get(structure));
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.load()) {
-								pair.getFirst().structures.remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to load a Structure.");
-							pair.getFirst().structures.remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;
@@ -581,21 +583,22 @@ public class ScriptLoader {
 
 					// post-loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().script);
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(pair.getFirst().nodeMap.get(structure));
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.postLoad()) {
-								pair.getFirst().structures.remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to postLoad a Structure.");
-							pair.getFirst().structures.remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;

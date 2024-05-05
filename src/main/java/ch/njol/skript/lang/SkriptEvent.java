@@ -54,6 +54,7 @@ public abstract class SkriptEvent extends Structure {
 	public static final Priority PRIORITY = new Priority(600);
 
 	private String expr;
+	private SectionNode source;
 	@Nullable
 	protected EventPriority eventPriority;
 	@Nullable
@@ -67,7 +68,7 @@ public abstract class SkriptEvent extends Structure {
 	protected Trigger trigger;
 
 	@Override
-	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		this.expr = parseResult.expr;
 
 		EventData eventData = getParser().getData(EventData.class);
@@ -101,6 +102,9 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 		}
 
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
+
 		return init(args, matchedPattern, parseResult);
 	}
 
@@ -129,7 +133,6 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 
 		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
-		SectionNode source = getEntryContainer().getSource();
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 
