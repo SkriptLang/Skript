@@ -99,6 +99,8 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	@Deprecated
 	@ApiStatus.ScheduledForRemoval
 	public final EntryContainer getEntryContainer() {
+		if (entryContainer == null)
+			throw new IllegalStateException("This Structure hasn't been initialized!");
 		return entryContainer;
 	}
 
