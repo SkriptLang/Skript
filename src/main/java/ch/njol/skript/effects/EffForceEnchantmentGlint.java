@@ -46,8 +46,8 @@ public class EffForceEnchantmentGlint extends Effect {
 	static {
 		if (Skript.isRunningMinecraft(1, 20, 5))
 			Skript.registerEffect(EffForceEnchantmentGlint.class,
-			"(force|make) %itemtypes% [to] [start] glint[ing]",
-			"(force|make) %itemtypes% [to] (not|stop) glint[ing]");
+					"(force|make) %itemtypes% [to] [start] glint[ing]",
+					"(force|make) %itemtypes% [to] (not|stop) glint[ing]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

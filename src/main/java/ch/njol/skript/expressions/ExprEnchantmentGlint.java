@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -48,7 +49,8 @@ import org.jetbrains.annotations.Nullable;
 public class ExprEnchantmentGlint extends SimplePropertyExpression<ItemType, Boolean> {
 
 	static {
-		register(ExprEnchantmentGlint.class, Boolean.class, "enchantment glint", "itemtypes");
+		if (Skript.isRunningMinecraft(1, 20, 5))
+			register(ExprEnchantmentGlint.class, Boolean.class, "enchantment glint", "itemtypes");
 	}
 
 	@Override
@@ -67,6 +69,7 @@ public class ExprEnchantmentGlint extends SimplePropertyExpression<ItemType, Boo
 		switch (mode) {
 			case SET:
 			case DELETE:
+			case RESET:
 				return CollectionUtils.array(Boolean.class);
 			default:
 				return null;
@@ -86,6 +89,7 @@ public class ExprEnchantmentGlint extends SimplePropertyExpression<ItemType, Boo
 				}
 				break;
 			case DELETE:
+			case RESET:
 				for (ItemType itemType : getExpr().getArray(event)) {
 					ItemMeta meta = itemType.getItemMeta();
 					meta.setEnchantmentGlintOverride(null);
