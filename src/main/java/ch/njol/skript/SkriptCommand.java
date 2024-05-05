@@ -44,9 +44,12 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -79,7 +82,10 @@ public class SkriptCommand implements CommandExecutor {
 			.add("changes")
 			.add("download")
 		).add("info"
-		).add("help");
+		).add("help"
+		).add(new CommandHelp("search", SkriptColor.DARK_RED)
+			.add("all")
+			.add("<script>"));
 
 	static {
 		// Add command to generate documentation
@@ -450,6 +456,41 @@ public class SkriptCommand implements CommandExecutor {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}
 
+			if (args[0].equalsIgnoreCase("search")) {
+				if (args.length < 3) {
+					Skript.info(sender, "search.usage");
+					return false;
+				}
+
+				String scriptName = args[1];
+				String phrase = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+
+				if (scriptName.equalsIgnoreCase("all")) {
+					info(sender, "search.all.searching", phrase);
+					List<String> results = new ArrayList<>();
+					for (File scriptFile : Skript.getInstance().getScriptsFolder().listFiles()) {
+						searchInScript(sender, scriptFile, phrase, results);
+					}
+					info(sender, "Found " + results.size() + " results");
+					for (String result : results) {
+						sender.sendMessage(result);
+					}
+				} else {
+					File scriptFile = new File(Skript.getInstance().getScriptsFolder(), scriptName);
+					if (!scriptFile.exists()) {
+						info(sender, "search.single.not found", scriptName);
+						return false;
+					}
+					info(sender, "search.single.searching", scriptName, phrase);
+					List<String> results = new ArrayList<>();
+					searchInScript(sender, scriptFile, phrase, results);
+					Skript.info(sender, "Found " + results.size() + " results");
+					for (String result : results) {
+						sender.sendMessage(result);
+					}
+				}
+			}
+
 		} catch (Exception e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Exception occurred in Skript's main command", "Used command: /" + label + " " + StringUtils.join(args, " "));
@@ -537,5 +578,25 @@ public class SkriptCommand implements CommandExecutor {
 
 		return changed;
 	}
-	
+
+	private void searchInScript(CommandSender sender, File file, String phrase, List<String> results) {
+		if (file.isDirectory()) {
+			for (File subFile : file.listFiles()) {
+				searchInScript(sender, subFile, phrase, results);
+			}
+		} else {
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+				String line;
+				int lineNumber = 0;
+				while ((line = reader.readLine()) != null) {
+					lineNumber++;
+					if (line.contains(phrase)) {
+						results.add("§6§lLine " + lineNumber + " §r§7(" + file.getName() + ")\n    §6Line: §7" + line.trim().replace(phrase, "§e" + phrase + "§7"));
+					}
+				}
+			} catch (IOException e) {
+				Skript.error(sender, "An error occurred while reading the script '" + file.getName() + "': " + e.getMessage());
+			}
+		}
+	}
 }

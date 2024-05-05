@@ -47,7 +47,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("check");
 			options.add("changes");
 			options.add("download");
-		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
+		} else if (args[0].matches("(?i)(reload|disable|enable|search)") && args.length >= 2) {
 			File scripts = Skript.getInstance().getScriptsFolder();
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
@@ -117,6 +117,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("disable");
 			options.add("update");
 			options.add("info");
+			options.add("search");
 			if (Documentation.getDocsTemplateDirectory().exists())
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
