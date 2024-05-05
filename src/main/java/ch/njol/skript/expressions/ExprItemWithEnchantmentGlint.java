@@ -35,7 +35,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Item with Enchantment Glint")
-@Description("Get an item with or without enchantment glint. Items with enchantment glint")
+@Description("Get an item with or without enchantment glint.")
 @Examples({
 	"set {_item with glint} to diamond with enchantment glint",
 	"set {_item without glint} to diamond without enchantment glint"
@@ -52,6 +52,7 @@ public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, I
 	private boolean glint;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<ItemType>) expressions[0]);
 		glint = !parseResult.hasTag("out");
