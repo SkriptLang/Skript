@@ -67,15 +67,15 @@ public class EffStepServer extends Effect {
 			if (timespanInstance != null) {
 				long stepTicks = timespanInstance.getTicks();
 				ServerUtils.getServerTickManager().stepGameIfFrozen((int) stepTicks);
-			} else {
-				ServerUtils.getServerTickManager().stopStepping();
 			}
+		} else {
+			ServerUtils.getServerTickManager().stopStepping();
 		}
 	}
 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return timespan == null ? "make the server stop stepping" : "make the step server for " + timespan.toString(event, debug);
+		return timespan == null ? "make the server stop stepping" : "make the server step for " + timespan.toString(event, debug);
 	}
 }

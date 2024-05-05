@@ -56,18 +56,17 @@ public class CondServerTickState extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (parseResult.hasTag("stepping")) {
-			state = ServerState.STEPPING;
-		} else if (parseResult.hasTag("sprinting")) {
-			state = ServerState.SPRINTING;
-		} else if (parseResult.hasTag("frozen")) {
-			state = ServerState.FROZEN;
-		} else if (parseResult.hasTag("normal")) {
-			state = ServerState.NORMAL;
+		String tag = parseResult.expr;
+		if (tag != null) {
+			try {
+				state = ServerState.valueOf(tag.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				Skript.error("Invalid argument.");
+			}
 		}
-
 		return true;
 	}
+
 
 	@Override
 	public boolean check(Event event) {
