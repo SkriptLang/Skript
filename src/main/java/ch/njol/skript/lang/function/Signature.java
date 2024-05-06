@@ -144,6 +144,7 @@ public class Signature<T> {
 		return originClassPath;
 	}
 
+	@Nullable
 	public Contract getContract() {
 		return contract;
 	}
