@@ -20,6 +20,8 @@ package ch.njol.skript.expressions;
 
 import java.util.List;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -38,12 +40,17 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Exploded Blocks")
-@Description("Get all the blocks that were destroyed in an explode event")
-@Examples({"on explode:",
-	"\tloop exploded blocks:",
-	"\t\tadd loop-block to {exploded::blocks::*}"})
+@Description("Get all the blocks that were destroyed in an explode event. Supports removing blocks.")
+@Examples({
+	"on explode:",
+		"\tloop exploded blocks:",
+			"\t\tadd loop-block to {exploded::blocks::*}",
+	"on explode:",
+		"\tloop exploded blocks:",
+			"\t\tif loop-block is grass:",
+				"\t\t\tremove loop-block from exploded blocks"})
 @Events("explode")
-@Since("2.5")
+@Since("2.5, INSERT VERSION (removing blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 	static {
@@ -67,6 +74,25 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 		List<Block> blockList = ((EntityExplodeEvent) e).blockList();
 		return blockList.toArray(new Block[blockList.size()]);
+	}
+
+	@Override
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.REMOVE)
+			return CollectionUtils.array(Block[].class);
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof EntityExplodeEvent))
+			return;
+
+		List<Block> blocks = ((EntityExplodeEvent) event).blockList();
+		for (Object object : delta) {
+			if (object instanceof Block)
+				blocks.remove((Block) object);
+		}
 	}
 	
 	@Override
