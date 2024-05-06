@@ -60,8 +60,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
@@ -490,7 +492,7 @@ public class ScriptLoader {
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
 
-		List<NonNullPair<Script, List<Structure>>> scripts = new ArrayList<>();
+		List<LoadingScriptInfo> scripts = new ArrayList<>();
 
 		List<CompletableFuture<Void>> scriptInfoFutures = new ArrayList<>();
 		for (Config config : configs) {
@@ -498,9 +500,9 @@ public class ScriptLoader {
 				throw new NullPointerException();
 			
 			CompletableFuture<Void> future = makeFuture(() -> {
-				NonNullPair<Script, List<Structure>> pair = loadScript(config);
-				scripts.add(pair);
-				scriptInfo.add(new ScriptInfo(1, pair.getSecond().size()));
+				LoadingScriptInfo info = loadScript(config);
+				scripts.add(info);
+				scriptInfo.add(new ScriptInfo(1, info.structures.size()));
 				return null;
 			}, openCloseable);
 			
@@ -518,31 +520,32 @@ public class ScriptLoader {
 
 					// build sorted list
 					// this nest of pairs is terrible, but we need to keep the reference to the modifiable structures list
-					List<NonNullPair<NonNullPair<Script, List<Structure>>, Structure>> pairs = scripts.stream()
-							.flatMap(pair -> { // Flatten each entry down to a stream of Script-Structure pairs
-								return pair.getSecond().stream()
-										.map(structure -> new NonNullPair<>(pair, structure));
+					List<NonNullPair<LoadingScriptInfo, Structure>> pairs = scripts.stream()
+							.flatMap(info -> { // Flatten each entry down to a stream of Script-Structure pairs
+								return info.structures.stream()
+										.map(structure -> new NonNullPair<>(info, structure));
 							})
 							.sorted(Comparator.comparing(pair -> pair.getSecond().getPriority()))
 							.collect(Collectors.toCollection(ArrayList::new));
 
 					// pre-loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().getFirst());
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(structure.getEntryContainer().getSource());
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.preLoad()) {
-								pair.getFirst().getSecond().remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to preLoad a Structure.");
-							pair.getFirst().getSecond().remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;
@@ -556,21 +559,22 @@ public class ScriptLoader {
 
 					// loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().getFirst());
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(structure.getEntryContainer().getSource());
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.load()) {
-								pair.getFirst().getSecond().remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to load a Structure.");
-							pair.getFirst().getSecond().remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;
@@ -579,21 +583,22 @@ public class ScriptLoader {
 
 					// post-loading
 					pairs.removeIf(pair -> {
+						LoadingScriptInfo loadingInfo = pair.getFirst();
 						Structure structure = pair.getSecond();
 
-						parser.setActive(pair.getFirst().getFirst());
+						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
-						parser.setNode(structure.getEntryContainer().getSource());
+						parser.setNode(loadingInfo.nodeMap.get(structure));
 
 						try {
 							if (!structure.postLoad()) {
-								pair.getFirst().getSecond().remove(structure);
+								loadingInfo.structures.remove(structure);
 								return true;
 							}
 						} catch (Exception e) {
 							//noinspection ThrowableNotThrown
 							Skript.exception(e, "An error occurred while trying to postLoad a Structure.");
-							pair.getFirst().getSecond().remove(structure);
+							loadingInfo.structures.remove(structure);
 							return true;
 						}
 						return false;
@@ -612,17 +617,34 @@ public class ScriptLoader {
 			});
 	}
 
+	private static class LoadingScriptInfo {
+
+		public final Script script;
+
+		public final List<Structure> structures;
+
+		public final Map<Structure, Node> nodeMap;
+
+		public LoadingScriptInfo(Script script, List<Structure> structures, Map<Structure, Node> nodeMap) {
+			this.script = script;
+			this.structures = structures;
+			this.nodeMap = nodeMap;
+		}
+
+	}
+
 	/**
 	 * Creates a script and loads the provided config into it.
 	 * @param config The config to load into a script.
 	 * @return A pair containing the script that was loaded and a modifiable version of the structures list.
 	 */
 	// Whenever you call this method, make sure to also call PreScriptLoadEvent
-	private static NonNullPair<Script, List<Structure>> loadScript(Config config) {
+	private static LoadingScriptInfo loadScript(Config config) {
 		if (config.getFile() == null)
 			throw new IllegalArgumentException("A config must have a file to be loaded.");
 
 		ParserInstance parser = getParser();
+		Map<Structure, Node> nodeMap = new HashMap<>();
 		List<Structure> structures = new ArrayList<>();
 		Script script = new Script(config, structures);
 		parser.setActive(script);
@@ -632,16 +654,17 @@ public class ScriptLoader {
 				SkriptConfig.configs.add(config);
 			
 			try (CountingLogHandler ignored = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
-				for (Node cnode : config.getMainNode()) {
-					if (!(cnode instanceof SectionNode)) {
-						Skript.error("invalid line - all code has to be put into triggers");
+				for (Node node : config.getMainNode()) {
+					if (!(node instanceof SimpleNode) && !(node instanceof SectionNode)) {
+						// unlikely to occur, but just in case
+						Skript.error("could not interpret line as a structure");
 						continue;
 					}
 
-					SectionNode node = ((SectionNode) cnode);
 					String line = node.getKey();
 					if (line == null)
 						continue;
+					line = replaceOptions(line); // replace options here before validation
 
 					if (!SkriptParser.validateLine(line))
 						continue;
@@ -649,14 +672,13 @@ public class ScriptLoader {
 					if (Skript.logVeryHigh() && !Skript.debug())
 						Skript.info("loading trigger '" + line + "'");
 
-					line = replaceOptions(line);
-
 					Structure structure = Structure.parse(line, node, "Can't understand this structure: " + line);
 
 					if (structure == null)
 						continue;
 
 					structures.add(structure);
+					nodeMap.put(structure, node);
 				}
 				
 				if (Skript.logHigh()) {
@@ -694,8 +716,8 @@ public class ScriptLoader {
 				Skript.exception(e);
 			}
 		}
-		
-		return new NonNullPair<>(script, structures);
+
+		return new LoadingScriptInfo(script, structures, nodeMap);
 	}
 
 	/*

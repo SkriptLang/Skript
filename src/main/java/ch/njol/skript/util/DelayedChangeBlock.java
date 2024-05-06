@@ -363,6 +363,11 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public void fluidTick() {
+		block.fluidTick();
+	}
+
+	@Override
 	public void randomTick() {
 		block.randomTick();
 	}
