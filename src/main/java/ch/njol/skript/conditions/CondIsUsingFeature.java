@@ -43,10 +43,11 @@ import org.skriptlang.skript.lang.script.Script;
 		"\t\tbroadcast \"You're using an experimental feature!\""})
 @Since("INSERT VERSION")
 public class CondIsUsingFeature extends Condition {
+
 	static {
 		Skript.registerCondition(CondIsUsingFeature.class,
-								 "[the] [current] script is using %strings%",
-								 "[the] [current] script is(n't| not) using %strings%");
+				"[the] [current] script is using %strings%",
+				"[the] [current] script is(n't| not) using %strings%");
 	}
 
 	private Expression<String> names;
