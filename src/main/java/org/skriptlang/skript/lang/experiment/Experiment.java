@@ -75,8 +75,14 @@ public interface Experiment {
 		return this.phase() != LifeCycle.UNKNOWN;
 	}
 
+	/**
+	 * @return The compiled matching pattern for this experiment
+	 */
 	SkriptPattern compiledPattern();
 
+	/**
+	 * @return Whether the usage pattern of this experiment matches the input text
+	 */
 	default boolean matches(String text) {
 		return this.compiledPattern().match(text) != null;
 	}
