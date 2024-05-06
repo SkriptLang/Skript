@@ -111,7 +111,7 @@ class ConstantExperiment implements Experiment {
 				break;
 			default:
 				this.patterns = patterns;
-				this.compiledPattern = PatternCompiler.compile('(' + String.join("|", patterns) + ')');
+				this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
 				break;
 		}
 	}
