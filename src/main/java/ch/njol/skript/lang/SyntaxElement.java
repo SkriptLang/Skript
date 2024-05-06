@@ -29,7 +29,7 @@ public interface SyntaxElement {
 
 	/**
 	 * Called just after the constructor.
-	 *
+	 * 
 	 * @param expressions all %expr%s included in the matching pattern in the order they appear in the pattern. If an optional value was left out, it will still be included in this list
 	 *            holding the default value of the desired type, which usually depends on the event.
 	 * @param matchedPattern The index of the pattern which matched
