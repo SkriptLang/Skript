@@ -103,7 +103,7 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemStack, 0);
 				} else {
-					int damageAmt = (int) Math2.fit(0, (isHealing ? -amount : amount), itemStack.getType().getMaxDurability());
+					int damageAmt = (int) Math2.fit(0, (ItemUtils.getDamage(itemStack) + (isHealing ? -amount : amount)), itemStack.getType().getMaxDurability());
 					ItemUtils.setDamage(itemStack, damageAmt);
 				}
 
