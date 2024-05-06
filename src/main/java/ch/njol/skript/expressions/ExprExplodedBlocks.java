@@ -40,7 +40,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 @Name("Exploded Blocks")
-@Description("Get all the blocks that were destroyed in an explode event. Supports removing blocks.")
+@Description("Get all the blocks that were destroyed in an explode event. Supports add/remove/set/clear/delete blocks.")
 @Examples({
 	"on explode:",
 		"\tloop exploded blocks:",
@@ -48,9 +48,15 @@ import ch.njol.util.Kleenean;
 	"on explode:",
 		"\tloop exploded blocks:",
 			"\t\tif loop-block is grass:",
-				"\t\t\tremove loop-block from exploded blocks"})
+				"\t\t\tremove loop-block from exploded blocks",
+	"on explode:",
+		"\tclear exploded blocks",
+	"on explode:",
+		"\tset exploded blocks to blocks in radius 10 around event-entity",
+	"on explode:",
+		"\tadd blocks above event-entity to exploded blocks"})
 @Events("explode")
-@Since("2.5, INSERT VERSION (removing blocks)")
+@Since("2.5, INSERT VERSION (modify list)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 	static {
@@ -78,9 +84,16 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE)
-			return CollectionUtils.array(Block[].class);
-		return null;
+		switch (mode) {
+			case ADD:
+			case REMOVE:
+			case SET:
+				return CollectionUtils.array(Block[].class);
+			case DELETE:
+				return CollectionUtils.array();
+			default:
+				return null;
+		}
 	}
 
 	@Override
@@ -89,9 +102,19 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 			return;
 
 		List<Block> blocks = ((EntityExplodeEvent) event).blockList();
+		if (mode == ChangeMode.DELETE) {
+			blocks.clear();
+			return;
+		}
+		if (mode == ChangeMode.SET)
+			blocks.clear();
 		for (Object object : delta) {
-			if (object instanceof Block)
-				blocks.remove((Block) object);
+			if (object instanceof Block) {
+				if (mode == ChangeMode.REMOVE)
+					blocks.remove((Block) object);
+				else if (mode == ChangeMode.ADD || mode == ChangeMode.SET)
+					blocks.add((Block) object);
+			}
 		}
 	}
 	
