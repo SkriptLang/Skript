@@ -24,6 +24,7 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -42,7 +43,11 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Events("Unleash")
 @Since("INSERT VERSION")
-public class ExprUnleashReason extends SimpleExpression<EntityUnleashEvent.UnleashReason> {
+public class ExprUnleashReason extends EventValueExpression<EntityUnleashEvent.UnleashReason> {
+
+	public ExprUnleashReason() {
+		super(EntityUnleashEvent.UnleashReason.class);
+	}
 
 	static {
 		Skript.registerExpression(ExprUnleashReason.class, EntityUnleashEvent.UnleashReason.class, ExpressionType.SIMPLE, "[the] unleash reason");
